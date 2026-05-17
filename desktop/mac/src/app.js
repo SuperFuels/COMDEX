@@ -2427,7 +2427,7 @@ function ensureLiveAgentSelection(options = {}) {
     return false;
   }
 
-  desktopStore.patch(updates);
+  safeAionDesktopPatch(updates);
   return true;
 }
 
@@ -4084,7 +4084,7 @@ async function handleBoardroomWorkflowCapsuleApprovalAction(approvalId, action) 
     }
   }
 
-  desktopStore.patch?.({
+  safeAionDesktopPatch({
     message: safeAction === "approve"
       ? "Workflow capsule approved and resumed in connector_ready mode."
       : "Workflow capsule rejected.",
@@ -5208,6 +5208,13 @@ function renderVaultCredentialsSurface() {
       </div>
     </div>
   `;
+}
+
+
+function createAionWorkflowId(prefix = "workflow") {
+  const ts = Date.now();
+  const rand = Math.random().toString(16).slice(2, 8);
+  return `${prefix}_${ts}_${rand}`;
 }
 
 function renderMainSurface() {
@@ -8292,7 +8299,7 @@ function compileAionWorkflowGraphToGlyph(graph) {
     namespace: AION_WORKFLOW_GLYPH_NAMESPACE,
     op: AION_WORKFLOW_OPS.SEQUENCE,
     workflow: {
-      workflow_id: String(safeGraph.workflow_id || "workflow_draft_1"),
+      workflow_id: String(safeGraph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft"),
       name: String(safeGraph.name || "Untitled workflow 1"),
       business_container: String(
         safeGraph.business_container || getAionWorkflowBusinessContainerId(),
@@ -8315,14 +8322,14 @@ function compileAndAttachAionWorkflowGlyph(graph) {
   const target = graph || getAionWorkflowDraftState();
   target.business_container = target.business_container || getAionWorkflowBusinessContainerId();
   target.compiled_glyph = compileAionWorkflowGraphToGlyph(target);
-  target.compiled_glyph_hash_hint = `${target.compiled_glyph.schema_version}:${target.workflow_id || "workflow_draft_1"}:${target.compiled_glyph.steps.length}:${target.compiled_glyph.flow_links.length}`;
+  target.compiled_glyph_hash_hint = `${target.compiled_glyph.schema_version}:${target.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft"}:${target.compiled_glyph.steps.length}:${target.compiled_glyph.flow_links.length}`;
   return target.compiled_glyph;
 }
 
 
 function getDefaultAionWorkflowDraftState() {
   return {
-    workflow_id: "workflow_draft_1",
+    workflow_id: createAionWorkflowId(),
     name: "Untitled workflow 1",
     status: "draft",
     nodes: [],
@@ -8374,7 +8381,7 @@ function buildAionWorkflowSavePayload(graph) {
       compiledGlyph?.workflow?.business_container ||
       safeGraph.business_container ||
       "costa-conexion",
-    workflow_id: safeGraph.workflow_id || "workflow_draft_1",
+    workflow_id: safeGraph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft",
     name: safeGraph.name || "Untitled workflow 1",
     status: safeGraph.status || "draft",
     canvas_layout: {
@@ -8481,7 +8488,7 @@ function persistAionWorkflowDraftState() {
   const graph = getAionWorkflowDraftState();
 
   const compactGraph = {
-    workflow_id: graph.workflow_id || "workflow_draft_1",
+    workflow_id: graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft",
     name: graph.name || "Untitled workflow 1",
     status: graph.status || "draft",
     saved_at: graph.saved_at || null,
@@ -8554,7 +8561,7 @@ function persistAionWorkflowDraftState() {
 
       try {
         const emergencyGraph = {
-          workflow_id: compactGraph.workflow_id || "workflow_draft_1",
+          workflow_id: compactGraph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft",
           name: compactGraph.name || "Untitled workflow 1",
           status: compactGraph.status || "draft",
           business_container: compactGraph.business_container || "costa-conexion",
@@ -8622,7 +8629,7 @@ function getAionWorkflowSaveStatus(graph) {
 
 async function loadAionWorkflowFromBusinessContainer({
   businessContainer = "costa-conexion",
-  workflowId = "workflow_draft_1",
+  workflowId = createAionWorkflowId(),
 } = {}) {
   const apiBase =
     state.apiBase ||
@@ -8631,7 +8638,7 @@ async function loadAionWorkflowFromBusinessContainer({
     "http://127.0.0.1:8080";
 
   const safeBusiness = String(businessContainer || "costa-conexion").trim() || "costa-conexion";
-  const safeWorkflowId = String(workflowId || "workflow_draft_1").trim() || "workflow_draft_1";
+  const safeWorkflowId = String(workflowId || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft").trim() || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
 
   const response = await fetch(
     `${apiBase}/api/aion/workflows/${encodeURIComponent(safeBusiness)}/${encodeURIComponent(safeWorkflowId)}`,
@@ -8681,7 +8688,7 @@ async function maybeLoadAionWorkflowFromBusinessContainerOnce() {
 
     const workflowId =
       window.__aionWorkflowGraph?.workflow_id ||
-      "workflow_draft_1";
+      "workflow_draft";
 
     const loadedGraph = await loadAionWorkflowFromBusinessContainer({
       businessContainer,
@@ -8700,7 +8707,7 @@ async function maybeLoadAionWorkflowFromBusinessContainerOnce() {
       requestRender();
     }, 20000);
 
-    desktopStore.patch?.({
+    safeAionDesktopPatch({
       message: window.__aionWorkflowLoadNotice,
       messageTone: "success",
     });
@@ -8724,7 +8731,7 @@ async function saveAionWorkflowToBusinessContainer(graph) {
   const payload = {
     schema_version: "aion.workflow_save.v1",
     business_container: businessContainer,
-    workflow_id: safeGraph.workflow_id || "workflow_draft_1",
+    workflow_id: safeGraph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft",
     name: safeGraph.name || "Untitled workflow 1",
     status: safeGraph.status || "draft",
     graph: {
@@ -8945,854 +8952,3317 @@ function renderAionWorkflowGlyphDebugExecutionPanel() {
 
 
 
-function renderWorkflowArchitectNodeEditorModal() {
-  const result = reviewState.result || {};
-  const review = result.review || {};
-  const canvas = review.canvas || result.canvas || {};
-  const spec = review.workflow_spec || result.workflow_spec || {};
-  const provider = reviewState.provider || "mock";
 
-  const providerCopy = getWorkflowArchitectProviderCopy(provider);
-  const errors = getWorkflowArchitectResultErrors(result);
-  const warnings = getWorkflowArchitectResultWarnings(result);
+function getWorkflowArchitectProviderCopy(provider) {
+  const key = String(provider || "mock");
 
-  const canLoadToCanvas =
-    result.ok === true ||
-    reviewState.ok === true ||
-    review.canvas_ready === true ||
-    result?.review?.canvas_ready === true ||
-    Boolean(canvas?.nodes?.length);
-
-  const generatedSteps = Array.isArray(spec.steps)
-    ? spec.steps
-    : Array.isArray(canvas.nodes)
-      ? canvas.nodes.map((node) => ({
-          step_id: node?.data?.step_id || node?.id,
-          node_type: node?.data?.kind || node?.type,
-          label: node?.data?.label || node?.id,
-          risk_tier: node?.data?.risk_tier || "low",
-          requires_approval: Boolean(node?.data?.requires_approval),
-          connector: node?.data?.connector || null,
-          config: node?.data || {},
-        }))
-      : [];
-
-  const connectorsRequired = Array.isArray(spec.connectors_required)
-    ? spec.connectors_required
-    : Array.isArray(review.connectors_required)
-      ? review.connectors_required
-      : Array.isArray(canvas.vault_requirements)
-        ? canvas.vault_requirements.map((item) => String(item).replace(/^vault\./, "").replace(/\.credentials$/, ""))
-        : [];
-
-  const missingConnectors = Array.isArray(spec.missing_connectors)
-    ? spec.missing_connectors
-    : Array.isArray(review.missing_connectors)
-      ? review.missing_connectors
-      : [];
-
-  const actions = typeof getWorkflowArchitectConnectorActionCatalogue === "function"
-    ? getWorkflowArchitectConnectorActionCatalogue()
-    : [];
-
-  const safeActions = actions.filter((action) => action && action.locked !== true).slice(0, 10);
-  const lockedActions = actions.filter((action) => action && action.locked === true).slice(0, 8);
-
-  const steps = generatedSteps.length
-    ? generatedSteps
-    : [
-        {
-          step_id: "trigger",
-          label: "Start with a trigger",
-          node_type: "trigger",
-          connector: "gmail",
-          risk_tier: "safe",
-          requires_approval: false,
-          config: { action_id: "gmail.watch_emails" },
-        },
-        {
-          step_id: "extract",
-          label: "Extract useful details",
-          node_type: "ai_extract",
-          connector: "aion",
-          risk_tier: "safe",
-          requires_approval: false,
-          config: { action_id: "aion.extract_fields" },
-        },
-        {
-          step_id: "draft",
-          label: "Draft the response",
-          node_type: "draft",
-          connector: "gmail",
-          risk_tier: "approval",
-          requires_approval: true,
-          config: { action_id: "gmail.create_draft" },
-        },
-      ];
-
-  return `
-    <div
-      class="aion-architect-canvas-shell"
-      data-workflow-architect-canvas-mode="true"
-      data-workflow-architect-node-canvas="true"
-    >
-      <div class="aion-architect-topbar">
-        <div>
-          <div class="eyebrow">AI Workflow Architect</div>
-          <h1>Build automatic workflow</h1>
-          <p>
-            Start with a trigger, then add each step. Aion keeps everything dry-run first,
-            blocks live send, and only loads a validated review onto the workflow canvas.
-          </p>
-        </div>
-
-        <div class="aion-architect-topbar-actions">
-          <button
-            type="button"
-            class="secondary-btn"
-            data-workflow-architect-node-editor-close="true"
-          >
-            Back to canvas
-          </button>
-          <span class="train-status-chip train-status-ok">Dry-run only</span>
-          <span class="train-status-chip ${canLoadToCanvas ? "train-status-ok" : ""}">
-            ${canLoadToCanvas ? "Valid review" : "Awaiting review"}
-          </span>
-        </div>
-      </div>
-
-      <div class="aion-architect-node-builder-layout">
-        <aside class="aion-architect-left-panel">
-          <section class="aion-architect-card">
-            <div class="eyebrow">Build mode</div>
-            <div class="aion-architect-mode-switch">
-              <button type="button" class="active" data-workflow-architect-build-mode="steps">
-                Use this app
-              </button>
-              <button type="button" data-workflow-architect-build-mode="describe">
-                Describe workflow
-              </button>
-            </div>
-            <p class="muted">
-              Use this app → do this → then do this. Locked actions stay visible but cannot run.
-            </p>
-          </section>
-
-          <section class="aion-architect-card">
-            <div class="eyebrow">Workflow goal</div>
-            <textarea
-              class="aion-workflow-architect-goal"
-              data-workflow-architect-goal-input="true"
-              rows="7"
-              placeholder="Example: When a new Gmail enquiry arrives, extract the customer details, create a CRM contact, draft a reply, then ask me for approval."
-            >${escapeHtml(reviewState.workflowGoal || "")}</textarea>
-
-            <label class="aion-architect-field">
-              <span>Provider</span>
-              <select data-workflow-architect-provider-select="true">
-                <option value="mock" ${provider === "mock" ? "selected" : ""}>Mock deterministic</option>
-                <option value="local_gemma" ${provider === "local_gemma" ? "selected" : ""}>Local Gemma / Ollama</option>
-                <option value="openai" ${provider === "openai" ? "selected" : ""}>OpenAI</option>
-                <option value="claude" ${provider === "claude" ? "selected" : ""}>Claude — fail-closed</option>
-                <option value="gemini" ${provider === "gemini" ? "selected" : ""}>Gemini — fail-closed</option>
-                <option value="grok" ${provider === "grok" ? "selected" : ""}>Grok — fail-closed</option>
-              </select>
-            </label>
-
-            <p class="muted">${escapeHtml(providerCopy)}</p>
-
-            <div class="aion-architect-actions">
-              <button
-                class="primary-btn"
-                type="button"
-                data-workflow-architect-build-review="true"
-                ${reviewState.loading ? "disabled" : ""}
-              >
-                ${reviewState.loading ? "Building review..." : "Build review"}
-              </button>
-
-              <button
-                class="secondary-btn"
-                type="button"
-                data-workflow-architect-load-valid-review="true"
-                ${canLoadToCanvas ? "" : "disabled"}
-              >
-                Load valid review onto canvas
-              </button>
-            </div>
-          </section>
-
-          <section class="aion-architect-card">
-            <div class="eyebrow">Action picker</div>
-            <div class="aion-architect-action-list">
-              ${safeActions.map((action) => `
-                <button
-                  type="button"
-                  class="workflow-architect-action-option"
-                  data-workflow-architect-select-action="${escapeHtml(action.action_id)}"
-                >
-                  <strong>${escapeHtml(action.label || action.action_id)}</strong>
-                  <span>${escapeHtml(action.connector || "connector")} · ${escapeHtml(action.category || "action")}</span>
-                </button>
-              `).join("")}
-            </div>
-
-            <details class="aion-architect-locked-actions">
-              <summary>Locked / future-only actions</summary>
-              ${lockedActions.map((action) => `
-                <div class="workflow-architect-action-option locked">
-                  <strong>${escapeHtml(action.label || action.action_id)}</strong>
-                  <span>${escapeHtml(action.status || "Locked / future-only")}</span>
-                </div>
-              `).join("")}
-            </details>
-          </section>
-        </aside>
-
-        <main class="aion-architect-canvas-board">
-          <div class="aion-architect-board-header">
-            <div>
-              <div class="eyebrow">Visual workflow</div>
-              <h2>Canvas build</h2>
-            </div>
-            <button
-              type="button"
-              class="secondary-btn"
-              data-workflow-architect-preset-lead-pipeline="true"
-            >
-              Use Gmail lead preset
-            </button>
-          </div>
-
-          <div class="aion-architect-flow-lane">
-            ${steps.map((step, index) => `
-              <div class="workflow-architect-step-visual-row" data-workflow-architect-step-id="${escapeHtml(step.step_id || String(index + 1))}">
-                <div class="aion-architect-step-number">${index + 1}</div>
-                <div class="aion-architect-step-card">
-                  <div class="aion-architect-step-kicker">
-                    <span>${escapeHtml(step.connector || step.node_type || "aion")}</span>
-                    <span>${escapeHtml(step.risk_tier || "safe")}</span>
-                    ${step.requires_approval ? "<span>Approval</span>" : "<span>Dry-run</span>"}
-                  </div>
-                  <h3>${escapeHtml(step.label || step.action || step.step_id || `Step ${index + 1}`)}</h3>
-                  <p>${escapeHtml(step.node_type || "workflow_step")}</p>
-                </div>
-                ${index < steps.length - 1 ? `<div class="aion-architect-step-connector">↓</div>` : ""}
-              </div>
-            `).join("")}
-          </div>
-        </main>
-
-        <aside class="aion-architect-step-settings">
-          <section class="aion-architect-card">
-            <div class="eyebrow">Safety / connectors</div>
-            <div class="aion-architect-safety-grid">
-              <div><strong>Execution:</strong> Dry-run only</div>
-              <div><strong>Live send:</strong> Disabled</div>
-              <div><strong>External writes:</strong> Approval gated</div>
-              <div><strong>Canvas load:</strong> Valid review required</div>
-            </div>
-          </section>
-
-          <section class="aion-architect-card">
-            <div class="eyebrow">Connectors required</div>
-            ${
-              connectorsRequired.length
-                ? `<ul>${connectorsRequired.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
-                : `<p class="muted">None declared yet.</p>`
-            }
-
-            <div class="eyebrow" style="margin-top:18px;">Missing connectors</div>
-            ${
-              missingConnectors.length
-                ? `<ul>${missingConnectors.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
-                : `<p class="muted">No missing connector warnings.</p>`
-            }
-          </section>
-
-          <section class="aion-architect-card">
-            <div class="eyebrow">Review output</div>
-            ${
-              errors.length || warnings.length
-                ? `
-                  ${errors.map((item) => `<div class="alert error">${escapeHtml(item)}</div>`).join("")}
-                  ${warnings.map((item) => `<div class="alert warning">${escapeHtml(item)}</div>`).join("")}
-                `
-                : `<p class="muted">Enter a workflow goal and click Build review. Nothing is loaded until validation passes.</p>`
-            }
-
-            <details style="margin-top:14px;">
-              <summary>Debug review payload</summary>
-              <pre>${escapeHtml(JSON.stringify(result || {}, null, 2))}</pre>
-            </details>
-          </section>
-        </aside>
-      </div>
-    </div>
-  `;
-}
-
-
-function renderWorkflowArchitectSidebarMount() {
-  const reviewState = getWorkflowArchitectReviewState();
-  const result = reviewState.result;
-  const spec = getWorkflowArchitectReviewSpec(result);
-  const steps = workflowArchitectSpecSteps(result);
-  const graph = getWorkflowArchitectReviewGraph(result);
-  const errors = Array.isArray(reviewState.errors) ? reviewState.errors : [];
-  const warnings = Array.isArray(reviewState.warnings) ? reviewState.warnings : [];
-  const loadable = isWorkflowArchitectReviewLoadable(result);
-
-  const stepRows = steps.length
-    ? steps
-        .map((step, index) => {
-          const requiresApproval = step?.requires_approval === true;
-          return `
-            <div class="aion-workflow-architect-step-row">
-              <span>${escapeHtml(String(index + 1))}</span>
-              <div>
-                <strong>${escapeHtml(step?.label || step?.step_id || "Generated step")}</strong>
-                <small>${escapeHtml(step?.node_type || "node")}${requiresApproval ? " · approval required" : ""}</small>
-              </div>
-            </div>
-          `;
-        })
-        .join("")
-    : `<p class="muted" style="margin:8px 0 0;">No generated steps yet.</p>`;
-
-  const connectorRows = Array.isArray(spec?.connectors_required) && spec.connectors_required.length
-    ? spec.connectors_required
-        .map((connector) => `<span class="badge">${escapeHtml(connector)}</span>`)
-        .join("")
-    : `<span class="muted">No connector requirements yet.</span>`;
-
-  const missingConnectorRows =
-    Array.isArray(spec?.missing_connectors) && spec.missing_connectors.length
-      ? spec.missing_connectors
-          .map((item) => {
-            const connector = typeof item === "string" ? item : item?.connector;
-            const reason = typeof item === "string" ? "" : item?.reason;
-            return `
-              <div class="aion-workflow-architect-warning-row">
-                <strong>${escapeHtml(connector || "missing connector")}</strong>
-                <small>${escapeHtml(reason || "Connector unavailable. Placeholder only.")}</small>
-              </div>
-            `;
-          })
-          .join("")
-      : `<p class="muted" style="margin:8px 0 0;">No missing connector warnings.</p>`;
-
-  const errorRows = errors.length
-    ? errors.map((error) => `<li>${escapeHtml(error)}</li>`).join("")
-    : "";
-
-  const warningRows = warnings.length
-    ? warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join("")
-    : "";
-
-  return `
-    <section class="aion-workflow-architect-panel" data-workflow-architect-sidebar-mount="true">
-      <div class="aion-inspector-head">
-        <div>
-          <div class="eyebrow">Aion Workflow Architect</div>
-          <h3>Build with AI</h3>
-          <p>Describe the workflow. Aion builds a safe review payload first.</p>
-        </div>
-      </div>
-
-      <textarea
-        class="aion-workflow-architect-goal"
-        data-workflow-architect-goal-input="true"
-        rows="4"
-        placeholder="Example: Create a Gmail customer reply workflow that extracts details, drafts a response, and asks for approval before sending."
-      >${escapeHtml(reviewState.workflowGoal || "")}</textarea>
-
-      <div class="aion-workflow-architect-provider-row">
-        <label>
-          <span>Provider</span>
-          <select data-workflow-architect-provider-select="true">
-            <option value="mock" ${reviewState.provider === "mock" ? "selected" : ""}>Mock deterministic</option>
-            <option value="openai" ${reviewState.provider === "openai" ? "selected" : ""}>OpenAI</option>
-            <option value="local_gemma" ${reviewState.provider === "local_gemma" ? "selected" : ""}>Local Gemma</option>
-            <option value="claude" ${reviewState.provider === "claude" ? "selected" : ""}>Claude placeholder</option>
-            <option value="gemini" ${reviewState.provider === "gemini" ? "selected" : ""}>Gemini placeholder</option>
-            <option value="grok" ${reviewState.provider === "grok" ? "selected" : ""}>Grok placeholder</option>
-          </select>
-        </label>
-      </div>
-
-      <button
-        class="primary-btn"
-        type="button"
-        data-workflow-architect-build-review="true"
-        ${reviewState.loading ? "disabled" : ""}
-      >
-        ${reviewState.loading ? "Building review..." : "Build review"}
-      </button>
-
-      ${
-        result
-          ? `
-            <div class="aion-workflow-architect-review">
-              <div class="aion-workflow-architect-review-head">
-                <strong>${escapeHtml(spec?.workflow_name || "Generated workflow")}</strong>
-                <span class="train-status-chip ${result.ok ? "train-status-ok" : ""}">
-                  ${result.ok ? "Valid review" : "Needs repair"}
-                </span>
-              </div>
-
-              <p class="muted">${escapeHtml(spec?.goal || "Review generated workflow before loading it onto the canvas.")}</p>
-
-              <div class="aion-picker-section">
-                <div class="aion-picker-section-title">Generated steps</div>
-                ${stepRows}
-              </div>
-
-              <div class="aion-picker-section">
-                <div class="aion-picker-section-title">Connectors required</div>
-                <div class="aion-workflow-architect-badges">${connectorRows}</div>
-              </div>
-
-              <div class="aion-picker-section">
-                <div class="aion-picker-section-title">Missing connectors</div>
-                ${missingConnectorRows}
-              </div>
-
-              ${
-                errorRows
-                  ? `
-                    <div class="aion-workflow-architect-errors">
-                      <strong>Errors</strong>
-                      <ul>${errorRows}</ul>
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${
-                warningRows
-                  ? `
-                    <div class="aion-workflow-architect-warnings">
-                      <strong>Warnings</strong>
-                      <ul>${warningRows}</ul>
-                    </div>
-                  `
-                  : ""
-              }
-
-              <button
-                class="secondary-btn"
-                type="button"
-                data-workflow-architect-load-valid-review="true"
-                ${loadable ? "" : "disabled"}
-                title="${loadable ? "valid review ready for canvas load" : "Review must be valid before loading onto canvas"}"
-              >
-                Load valid review onto canvas
-              </button>
-
-              <small class="muted">
-                ${loadable ? "valid review ready for canvas load" : "Canvas load locked until review payload is valid."}
-              </small>
-
-              <details class="aion-workflow-side-advanced">
-                <summary>Review payload</summary>
-                <pre>${escapeHtml(JSON.stringify({ ok: result.ok, graph_ready: Boolean(graph), errors, warnings }, null, 2))}</pre>
-              </details>
-            </div>
-          `
-          : ""
-      }
-    </section>
-  `;
-}
-
-function workflowArchitectNodeTone(step) {
-  const nodeType = String(step?.node_type || "");
-  if (nodeType.includes("approval")) return "red";
-  if (nodeType.includes("gmail") || nodeType.includes("hubspot")) return "teal";
-  if (nodeType.includes("compose")) return "purple";
-  if (nodeType.includes("router") || nodeType.includes("filter")) return "blue";
-  return "amber";
-}
-
-function workflowArchitectNodeIcon(step) {
-  const nodeType = String(step?.node_type || "");
-  if (nodeType.includes("gmail")) return "G";
-  if (nodeType.includes("hubspot")) return "H";
-  if (nodeType.includes("approval")) return "✓";
-  if (nodeType.includes("compose")) return "T";
-  if (nodeType.includes("extract")) return "AI";
-  if (nodeType.includes("router")) return "⑂";
-  return "◇";
-}
-
-function loadWorkflowArchitectReviewOntoCanvas() {
-  const reviewState = getWorkflowArchitectReviewState();
-  const result = reviewState.result;
-
-  if (!isWorkflowArchitectReviewLoadable(result)) {
-    desktopStore.patch?.({
-      message: "Workflow Architect review is not valid yet.",
-      messageTone: "warning",
-    });
-    requestRender();
-    return;
+  if (key === "local_gemma") {
+    return "Uses local Ollama/Gemma if available. Still dry-run only.";
   }
 
-  const spec = getWorkflowArchitectReviewSpec(result) || {};
-  const steps = workflowArchitectSpecSteps(result);
+  if (key === "openai") {
+    return "Uses OpenAI provider adapter. Still dry-run only.";
+  }
 
-  const missingConnectors = Array.isArray(spec.missing_connectors)
-    ? spec.missing_connectors
-    : [];
+  if (key === "claude" || key === "gemini" || key === "grok") {
+    return "Provider is visible for future routing but currently fail-closed.";
+  }
 
-  const missingConnectorIds = new Set(
-    missingConnectors
-      .map((item) => String(typeof item === "string" ? item : item?.connector || "").toLowerCase())
-      .filter(Boolean),
-  );
+  return "Uses deterministic local mock generation. Safe for testing.";
+}
 
-  const nodes = steps.map((step, index) => {
-    const nodeType = String(step.node_type || "Generated");
-    const connectorName = String(step.connector || nodeType.split(".")[0] || "").toLowerCase();
-    const isMissingConnector = missingConnectorIds.has(connectorName);
-    const requiresApproval = step.requires_approval === true;
+function getWorkflowArchitectResultErrors(result) {
+  const value =
+    result?.errors ||
+    result?.review?.errors ||
+    result?.validation_errors ||
+    result?.review?.validation_errors ||
+    [];
 
-    return {
-      id: String(step.step_id || `architect_step_${index + 1}`),
-      step_id: String(step.step_id || `architect_step_${index + 1}`),
-      node_type: nodeType,
-      title: String(step.label || step.step_id || `Step ${index + 1}`),
-      label: String(step.label || step.step_id || `Step ${index + 1}`),
-      type: nodeType,
-      icon: workflowArchitectNodeIcon(step),
-      status: isMissingConnector
-        ? "Placeholder blocked"
-        : requiresApproval
-          ? "Required"
-          : "Dry-run",
-      meta: isMissingConnector
-        ? "Generated by Architect · missing connector placeholder"
-        : requiresApproval
-          ? "Generated by Architect · approval gate"
-          : "Generated by Architect · dry-run only",
-      tone: isMissingConnector ? "amber" : workflowArchitectNodeTone(step),
-      x: 160 + index * 275,
-      y: 240,
-      config: step.config || {},
-      dry_run_only: true,
-      live_send_enabled: false,
-      missing_connector: isMissingConnector,
-      placeholder: isMissingConnector,
-      architect: {
-        generated: true,
-        step_id: String(step.step_id || `architect_step_${index + 1}`),
-        node_type: nodeType,
-        label: String(step.label || step.step_id || `Step ${index + 1}`),
-        config: step.config || {},
-        risk_tier: step.risk_tier || "low",
-        requires_approval: requiresApproval,
-        dry_run_only: true,
-        missing_connector: isMissingConnector,
-        placeholder: isMissingConnector,
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item)).filter(Boolean);
+  }
+
+  return value ? [String(value)] : [];
+}
+
+function getWorkflowArchitectResultWarnings(result) {
+  const value =
+    result?.warnings ||
+    result?.review?.warnings ||
+    result?.validation_warnings ||
+    result?.review?.validation_warnings ||
+    [];
+
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item)).filter(Boolean);
+  }
+
+  return value ? [String(value)] : [];
+}
+
+
+
+/* ============================================================
+   AI Architect Canvas Node Builder
+   Separate AI build canvas, not the main workflow canvas.
+   ============================================================ */
+
+function getAionArchitectCanvasState() {
+  const current = window.__aionArchitectCanvasState || {};
+
+  if (!Array.isArray(current.steps) || current.steps.length === 0) {
+    current.steps = [
+      {
+        id: "ai_arch_step_1",
+        kind: "blank",
+        app: "",
+        connector: "",
+        action_id: "",
+        action_label: "Choose action",
+        subtitle: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+        fields: "",
+        outputs: "",
+        approval_requirement: "auto",
       },
-    };
-  });
+    ];
+  }
 
-  const edges = Array.isArray(spec.edges)
-    ? spec.edges
-        .map((edge) => {
-          if (Array.isArray(edge)) {
-            return { from: String(edge[0]), to: String(edge[1]) };
-          }
-          return {
-            from: String(edge.from || edge.source || ""),
-            to: String(edge.to || edge.target || ""),
-          };
-        })
-        .filter((edge) => edge.from && edge.to)
-    : nodes.slice(0, -1).map((node, index) => ({
-        from: node.id,
-        to: nodes[index + 1].id,
-      }));
+  if (!current.selectedStepId) {
+    current.selectedStepId = current.steps[0]?.id || null;
+  }
 
-  window.__aionWorkflowGraph = {
-    workflow_id: String(spec.workflow_id || `architect_${Date.now()}`),
-    name: String(spec.workflow_name || "AI generated workflow"),
-    status: "draft",
-    nodes,
-    edges,
-    architect_review: {
-      loaded_from_valid_review: true,
-      provider: result?.provider?.provider || reviewState.provider || "mock",
-      dry_run_only: true,
-      live_send_enabled: false,
-      missing_connectors: Array.isArray(spec.missing_connectors) ? spec.missing_connectors : [],
-      connectors_required: Array.isArray(spec.connectors_required) ? spec.connectors_required : [],
-    },
-  };
+  if (typeof current.mode !== "string") {
+    current.mode = "";
+  }
 
-  window.__aionWorkflowSelectedNodeId = nodes[0]?.id || null;
-  window.__aionWorkflowInspectorOpen = false;
-  window.__aionWorkflowPickerMode = "";
-  window.__aionWorkflowLoadNotice = "AI generated workflow loaded from valid review";
-
-  desktopStore.patch?.({
-    message: "Generated workflow loaded onto canvas",
-    messageTone: "success",
-  });
-
-  requestRender();
+  window.__aionArchitectCanvasState = current;
+  return current;
 }
 
-function installWorkflowArchitectDesktopControls() {
-  if (window.__aionWorkflowArchitectDesktopControlsBound === true) return;
-  window.__aionWorkflowArchitectDesktopControlsBound = true;
-
-  document.addEventListener("input", (event) => {
-    const input = event.target.closest?.("[data-workflow-architect-goal-input='true']");
-    if (!input) return;
-
-    setWorkflowArchitectReviewState({
-      workflowGoal: input.value || "",
-    });
-  });
-
-  document.addEventListener("change", (event) => {
-    const select = event.target.closest?.("[data-workflow-architect-provider-select='true']");
-    if (!select) return;
-
-    setWorkflowArchitectReviewState({
-      provider: select.value || "mock",
-      result: null,
-      errors: [],
-      warnings: [],
-    });
-    requestRender();
-  });
-
-  document.addEventListener("click", (event) => {
-    
-    const providerSelect = event.target.closest?.("[data-workflow-architect-provider-select='true']");
-    if (providerSelect) {
-      setWorkflowArchitectSelectedProvider(providerSelect.value);
-      setWorkflowArchitectReviewState({
-        provider: (window.__syncedArchitectInput || {}).provider,
-        result: null,
-        ok: false,
-        errors: [],
-        warnings: [],
-      });
-      requestRender();
-      return;
-    }
-
-const buildButton = event.target.closest?.("[data-workflow-architect-build-review='true']");
-    if (buildButton) {
-      event.preventDefault();
-      event.stopPropagation();
-
-
-      const syncedArchitectInput = syncWorkflowArchitectModalInputsToState();
-      buildWorkflowArchitectReviewFromDesktop();
-      return;
-    }
-
-    const loadButton = event.target.closest?.("[data-workflow-architect-load-valid-review='true']");
-    if (loadButton) {
-      event.preventDefault();
-      event.stopPropagation();
-      loadWorkflowArchitectReviewOntoCanvas();
-    }
-  });
-}
-
-installWorkflowArchitectDesktopControls();
-
-
-
-function getWorkflowArchitectGuidedStepBuilderState() {
-  return window.__aionWorkflowArchitectGuidedSteps || {
-    open: false,
-    stepsApproved: false,
-    provider: "mock",
-    steps: [],
+function setAionArchitectCanvasState(patch) {
+  window.__aionArchitectCanvasState = {
+    ...getAionArchitectCanvasState(),
+    ...(patch || {}),
   };
 }
 
-function setWorkflowArchitectGuidedStepBuilderState(nextState) {
-  window.__aionWorkflowArchitectGuidedSteps = {
-    ...getWorkflowArchitectGuidedStepBuilderState(),
-    ...(nextState || {}),
-  };
+function getAionArchitectSelectedStep() {
+  const canvas = getAionArchitectCanvasState();
+  const steps = Array.isArray(canvas.steps) ? canvas.steps : [];
+  return steps.find((step) => String(step.id) === String(canvas.selectedStepId)) || steps[0] || null;
 }
 
-function createWorkflowArchitectGuidedStep() {
+function createAionArchitectStep(index) {
   return {
-    id: `guided_step_${Date.now()}_${Math.random().toString(16).slice(2)}`,
-    action: "",
-    source: "",
+    id: `ai_arch_step_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    app: "Choose app",
     connector: "",
+    action_id: "",
+    action_label: "Choose action",
+    subtitle: "Configure this step",
     fields: "",
     outputs: "",
     approval_requirement: "auto",
   };
 }
 
-function workflowArchitectGuidedStepsToUserSteps() {
-  const guided = getWorkflowArchitectGuidedStepBuilderState();
-  const steps = Array.isArray(guided.steps) ? guided.steps : [];
-
-  return steps
-    .map((step, index) => ({
-      step_id: step.id || `guided_step_${index + 1}`,
-      action: String(step.action || "").trim(),
-      source: String(step.source || "").trim(),
-      connector: String(step.connector || "").trim(),
-      fields: String(step.fields || "").trim(),
-      outputs: String(step.outputs || "").trim(),
-      approval_requirement: String(step.approval_requirement || "auto").trim(),
-    }))
-    .filter((step) =>
-      step.action ||
-      step.source ||
-      step.connector ||
-      step.fields ||
-      step.outputs ||
-      step.approval_requirement,
-    );
+function renderAionArchitectSafetyBadge() {
+  return `
+    <span
+      class="aion-architect-safety-badge"
+      tabindex="0"
+      title="Execution: dry-run only. Live send disabled. External writes approval gated. Canvas load requires valid review."
+    >
+      🔒 Safety locked
+      <span class="aion-architect-safety-popover">
+        <strong>Execution:</strong> Dry-run only<br>
+        <strong>Live send:</strong> Disabled<br>
+        <strong>External writes:</strong> Approval gated<br>
+        <strong>Canvas load:</strong> Valid review required
+      </span>
+    </span>
+  `;
 }
 
-function getWorkflowArchitectApprovedUserSteps() {
-  const guided = getWorkflowArchitectGuidedStepBuilderState();
+function renderAionArchitectActionPalette() {
+  const actions = typeof getWorkflowArchitectConnectorActionCatalogue === "function"
+    ? getWorkflowArchitectConnectorActionCatalogue()
+    : [
+        { action_id: "gmail.watch_emails", label: "Watch emails", connector: "gmail", category: "trigger", locked: false },
+        { action_id: "gmail.search_emails", label: "Search emails", connector: "gmail", category: "read", locked: false },
+        { action_id: "gmail.get_email", label: "Get an email", connector: "gmail", category: "read", locked: false },
+        { action_id: "gmail.create_draft", label: "Create draft email", connector: "gmail", category: "draft", locked: false },
+        { action_id: "gmail.send_email", label: "Send email", connector: "gmail", category: "blocked", locked: true },
+      ];
 
-  if (!guided.stepsApproved) {
-    return {
-      ok: false,
-      reason: "step_list_not_approved",
-      user_steps: [],
-    };
-  }
-
-  return {
-    ok: true,
-    reason: "",
-    user_steps: workflowArchitectGuidedStepsToUserSteps(),
-  };
-}
-
-function renderWorkflowArchitectGuidedStepBuilder() {
-  const guided = getWorkflowArchitectGuidedStepBuilderState();
-  const steps = Array.isArray(guided.steps) ? guided.steps : [];
-
-  const stepCards = steps
-    .map((step, index) => `
-      <details class="workflow-architect-step-card" open>
-        <summary>
-          <strong>Step ${escapeHtml(String(index + 1))}</strong>
-          <span>${escapeHtml(step.action || "Describe this step")}</span>
-        </summary>
-
-        <label>
-          <span>Action</span>
-          <input
-            data-workflow-architect-step-field="action"
-            data-workflow-architect-step-id="${escapeHtml(step.id)}"
-            value="${escapeHtml(step.action || "")}"
-            placeholder="e.g. Capture customer details"
-          />
-        </label>
-
-        <label>
-          <span>Source</span>
-          <input
-            data-workflow-architect-step-field="source"
-            data-workflow-architect-step-id="${escapeHtml(step.id)}"
-            value="${escapeHtml(step.source || "")}"
-            placeholder="e.g. Gmail inbox newcustomer@kevin.com"
-          />
-        </label>
-
-        <label>
-          <span>Connector</span>
-          <input
-            data-workflow-architect-step-field="connector"
-            data-workflow-architect-step-id="${escapeHtml(step.id)}"
-            value="${escapeHtml(step.connector || "")}"
-            placeholder="e.g. gmail, hubspot, calendly"
-          />
-        </label>
-
-        <label>
-          <span>Fields</span>
-          <textarea
-            data-workflow-architect-step-field="fields"
-            data-workflow-architect-step-id="${escapeHtml(step.id)}"
-            placeholder="e.g. name, email, phone, enquiry type"
-          >${escapeHtml(step.fields || "")}</textarea>
-        </label>
-
-        <label>
-          <span>Outputs</span>
-          <textarea
-            data-workflow-architect-step-field="outputs"
-            data-workflow-architect-step-id="${escapeHtml(step.id)}"
-            placeholder="e.g. HubSpot lead, Gmail draft, notification"
-          >${escapeHtml(step.outputs || "")}</textarea>
-        </label>
-
-        <label>
-          <span>Approval requirement</span>
-          <select
-            data-workflow-architect-step-field="approval_requirement"
-            data-workflow-architect-step-id="${escapeHtml(step.id)}"
-          >
-            ${["auto", "not_required", "required", "before_external_write"]
-              .map((value) => `
-                <option value="${escapeHtml(value)}" ${String(step.approval_requirement || "auto") === value ? "selected" : ""}>
-                  ${escapeHtml(value)}
-                </option>
-              `)
-              .join("")}
-          </select>
-        </label>
-
-        <div class="workflow-architect-step-actions">
-          <button type="button" data-workflow-architect-move-step="up" data-workflow-architect-step-id="${escapeHtml(step.id)}">Move up</button>
-          <button type="button" data-workflow-architect-move-step="down" data-workflow-architect-step-id="${escapeHtml(step.id)}">Move down</button>
-          <button type="button" data-workflow-architect-remove-step="${escapeHtml(step.id)}">Remove</button>
-        </div>
-      </details>
-    `)
-    .join("");
+  const flat = Array.isArray(actions)
+    ? actions.flatMap((entry) => Array.isArray(entry.actions) ? entry.actions : [entry])
+    : [];
 
   return `
-    <section class="workflow-architect-guided-step-builder" data-workflow-architect-guided-step-builder="true">
-      <div class="aion-picker-section-title">Guided step builder</div>
-      <p class="muted">
-        Optional: add the real business steps first. Aion will use these as structured user_steps.
-      </p>
-
-      ${stepCards || `<div class="empty-state">No guided steps yet. Add a step or use natural language only.</div>`}
-
-      <div class="workflow-architect-step-actions">
-        <button type="button" data-workflow-architect-add-step="true">Add step</button>
+    <div class="aion-architect-action-palette">
+      <div class="eyebrow">Choose what it should do</div>
+      ${flat.map((action) => `
         <button
           type="button"
-          data-workflow-architect-approve-steps="true"
-          ${steps.length ? "" : "disabled"}
-          title="Approve step list before graph generation"
+          class="${action.locked ? "locked" : ""}"
+          data-aion-architect-pick-action="${escapeHtml(action.action_id || "")}"
+          data-aion-architect-action-label="${escapeHtml(action.label || action.action_id || "")}"
+          data-aion-architect-action-connector="${escapeHtml(action.connector || "")}"
+          ${action.locked ? "title=\"Locked / future-only\"" : ""}
         >
-          Approve step list before graph generation
+          <strong>${escapeHtml(action.label || action.action_id || "Action")}</strong>
+          <span>${escapeHtml(action.connector || "app")} · ${escapeHtml(action.category || action.kind || "action")}</span>
+          ${action.locked ? `<em>Locked</em>` : ""}
         </button>
-        <span class="badge">${guided.stepsApproved ? "Step list approved" : "Step list not approved"}</span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderAionArchitectNodeCanvas() {
+  const canvas = getAionArchitectCanvasState();
+  const steps = Array.isArray(canvas.steps) ? canvas.steps : [];
+  const selectedId = canvas.selectedStepId;
+
+  return `
+    <section class="aion-architect-real-canvas" data-aion-architect-real-canvas="true">
+      <div class="aion-architect-real-canvas-head">
+        <div>
+          <div class="eyebrow">AI Workflow Architect</div>
+          <h2>Build the automation as nodes</h2>
+          <p>Click a node to configure it. Use + to add the next step. All execution remains dry-run first.</p>
+        </div>
+
+        <button type="button" class="secondary-btn" data-aion-architect-open-module-picker="true">
+          + Add step
+        </button>
+      </div>
+
+      <div class="aion-architect-node-lane">
+        ${steps.map((step, index) => {
+          const selected = String(step.id) === String(selectedId);
+          const appLabel = step.app || step.connector || "Choose";
+          return `
+            <div class="aion-architect-node-wrap">
+              <button
+                type="button"
+                class="aion-architect-node-card ${selected ? "selected" : ""}"
+                data-aion-architect-select-step="${escapeHtml(step.id)}"
+              >
+                <div class="aion-architect-node-icon">${escapeHtml(String(appLabel).slice(0, 1).toUpperCase())}</div>
+                <div class="aion-architect-node-badge">${escapeHtml(String(index + 1))}</div>
+                <strong>${escapeHtml(appLabel)}</strong>
+                <span>${escapeHtml(step.action_label || "Choose action")}</span>
+                <small>${escapeHtml(step.subtitle || step.action_id || "Configure this step")}</small>
+              </button>
+
+              <div class="aion-architect-node-mini-toolbar">
+                <button type="button" title="Step settings" data-aion-architect-open-settings="${escapeHtml(step.id)}">⚙</button>
+                <button type="button" title="Configure logic / variables" data-aion-architect-open-advanced-config="${escapeHtml(step.id)}">⑂</button>
+                <button type="button" title="Remove step" aria-label="Remove step" data-aion-architect-remove-step="${escapeHtml(step.id)}">×</button>
+              </div>
+            </div>
+
+            ${index < steps.length - 1 ? `<div class="aion-architect-node-link"></div>` : ""}
+          `;
+        }).join("")}
+
+        <button type="button" class="aion-architect-add-step-node" data-aion-architect-open-module-picker="true">
+          +
+        </button>
       </div>
     </section>
   `;
 }
 
 
+
+function getAionArchitectModuleCatalogue() {
+  return [
+    {
+      group: "Flow Control",
+      group_id: "flow_control",
+      description: "Branch, merge, route, repeat, iterate, or handle errors.",
+      modules: [
+        { id: "flow.if_else", label: "If / else", kind: "logic", app: "logic", action_id: "logic.if_else", description: "Split the workflow into true/false paths." },
+        { id: "flow.router", label: "Router", kind: "router", app: "logic", action_id: "logic.router", description: "Route work into multiple paths." },
+        { id: "flow.merge", label: "Merge", kind: "router", app: "logic", action_id: "logic.merge", description: "Merge routes back into one path." },
+        { id: "flow.iterator", label: "Iterator", kind: "logic", app: "logic", action_id: "logic.iterator", description: "Split an array into individual items." },
+        { id: "flow.array_aggregator", label: "Array aggregator", kind: "logic", app: "logic", action_id: "logic.array_aggregator", description: "Combine many items into one array." },
+        { id: "flow.repeater", label: "Repeater", kind: "logic", app: "logic", action_id: "logic.repeater", description: "Repeat the next modules a set number of times." },
+        { id: "flow.ignore_error", label: "Ignore error", kind: "logic", app: "logic", action_id: "logic.ignore_error", description: "Skip failed bundles and continue." },
+        { id: "flow.break_error", label: "Break / retry later", kind: "logic", app: "logic", action_id: "logic.break_error", description: "Save failed bundles for review or retry." },
+      ],
+    },
+    {
+      group: "Tools",
+      group_id: "tools",
+      description: "Variables, delays, aggregators, strings, and transforms.",
+      modules: [
+        { id: "tools.set_variable", label: "Set variable", kind: "tool", app: "tools", action_id: "tools.set_variable", description: "Store a workflow value." },
+        { id: "tools.get_variable", label: "Get variable", kind: "tool", app: "tools", action_id: "tools.get_variable", description: "Read a stored workflow value." },
+        { id: "tools.set_multiple_variables", label: "Set multiple variables", kind: "tool", app: "tools", action_id: "tools.set_multiple_variables", description: "Store several values." },
+        { id: "tools.get_multiple_variables", label: "Get multiple variables", kind: "tool", app: "tools", action_id: "tools.get_multiple_variables", description: "Read several stored values." },
+        { id: "tools.sleep", label: "Sleep", kind: "tool", app: "tools", action_id: "tools.sleep", description: "Delay execution." },
+        { id: "tools.compose_string", label: "Compose a string", kind: "tool", app: "tools", action_id: "tools.compose_string", description: "Build mapped text." },
+        { id: "tools.switch", label: "Switch", kind: "tool", app: "tools", action_id: "tools.switch", description: "Switch output based on input." },
+        { id: "tools.text_aggregator", label: "Text aggregator", kind: "tool", app: "tools", action_id: "tools.text_aggregator", description: "Aggregate text from multiple items." },
+        { id: "tools.numeric_aggregator", label: "Numeric aggregator", kind: "tool", app: "tools", action_id: "tools.numeric_aggregator", description: "Aggregate numbers." },
+      ],
+    },
+    {
+      group: "Text Parser",
+      group_id: "text_parser",
+      description: "Regex, HTML, matching, replacing, and text extraction.",
+      modules: [
+        { id: "text.match_pattern", label: "Match pattern", kind: "tool", app: "text_parser", action_id: "text.match_pattern", description: "Find text using regex." },
+        { id: "text.match_pattern_advanced", label: "Match pattern advanced", kind: "tool", app: "text_parser", action_id: "text.match_pattern_advanced", description: "Find text using mappable regex." },
+        { id: "text.replace", label: "Replace", kind: "tool", app: "text_parser", action_id: "text.replace", description: "Replace text or regex matches." },
+        { id: "text.html_to_text", label: "HTML to text", kind: "tool", app: "text_parser", action_id: "text.html_to_text", description: "Convert HTML to readable text." },
+        { id: "text.get_elements_from_html", label: "Get elements from HTML", kind: "tool", app: "text_parser", action_id: "text.get_elements_from_html", description: "Extract images, links, tables, or elements." },
+        { id: "text.get_html_table", label: "Get content from HTML table", kind: "tool", app: "text_parser", action_id: "text.get_html_table", description: "Extract rows and columns from an HTML table." },
+      ],
+    },
+    {
+      group: "AI",
+      group_id: "ai",
+      description: "Use Aion or model tools to classify, extract, draft, summarise, translate, or inspect content.",
+      modules: [
+        { id: "ai.run_agent", label: "Run an agent", kind: "ai_action", app: "aion", action_id: "aion.run_agent", description: "Run an Aion agent on the step input." },
+        { id: "ai.simple_prompt", label: "Simple text prompt", kind: "ai_action", app: "aion", action_id: "aion.simple_prompt", description: "Ask AI for a text response." },
+        { id: "ai.extract_fields", label: "Extract fields", kind: "ai_action", app: "aion", action_id: "aion.extract_fields", description: "Extract structured fields from incoming data." },
+        { id: "ai.extract_information", label: "Extract information from text", kind: "ai_action", app: "aion", action_id: "aion.extract_information", description: "Extract fields from text." },
+        { id: "ai.classify_lead", label: "Classify enquiry", kind: "ai_action", app: "aion", action_id: "aion.classify_lead", description: "Classify service type, urgency, town, department, or route." },
+        { id: "ai.summarise_text", label: "Summarise text", kind: "ai_action", app: "aion", action_id: "aion.summarise_text", description: "Condense text into a summary." },
+        { id: "ai.categorise_text", label: "Categorise text", kind: "ai_action", app: "aion", action_id: "aion.categorise_text", description: "Assign text to categories." },
+        { id: "ai.sentiment", label: "Analyze sentiment", kind: "ai_action", app: "aion", action_id: "aion.sentiment", description: "Positive, neutral, or negative." },
+        { id: "ai.translate", label: "Translate text", kind: "ai_action", app: "aion", action_id: "aion.translate", description: "Translate text into another language." },
+        { id: "ai.describe_image", label: "Describe image", kind: "ai_action", app: "aion", action_id: "aion.describe_image", description: "Describe an image." },
+        { id: "ai.transcribe_audio", label: "Transcribe audio", kind: "ai_action", app: "aion", action_id: "aion.transcribe_audio", description: "Transcribe an audio file." },
+      ],
+    },
+    {
+      group: "Apps",
+      group_id: "apps",
+      description: "Use connected apps and external systems.",
+      modules: [
+        { id: "gmail.watch_emails", label: "Gmail — Watch emails", kind: "trigger", app: "gmail", action_id: "gmail.watch_emails", description: "Trigger when a new email arrives." },
+        { id: "gmail.search_emails", label: "Gmail — Search emails", kind: "app_action", app: "gmail", action_id: "gmail.search_emails", description: "Search Gmail." },
+        { id: "gmail.get_email", label: "Gmail — Get an email", kind: "app_action", app: "gmail", action_id: "gmail.get_email", description: "Read one Gmail email by ID." },
+        { id: "gmail.read_email", label: "Gmail — Read email", kind: "app_action", app: "gmail", action_id: "gmail.read_email", description: "Read subject, body, sender, attachments, and thread context." },
+        { id: "gmail.create_draft", label: "Gmail — Create draft", kind: "app_action", app: "gmail", action_id: "gmail.create_draft", description: "Create a Gmail draft. No live send." },
+        { id: "gmail.send_email", label: "Gmail — Send email", kind: "app_action", app: "gmail", action_id: "gmail.send_email", description: "Send only after human approval." },
+        { id: "hubspot.create_contact", label: "HubSpot — Create/update contact", kind: "app_action", app: "hubspot", action_id: "hubspot.create_or_update_contact", description: "Create or update a contact." },
+        { id: "mailchimp.add_subscriber", label: "Mailchimp — Add subscriber", kind: "app_action", app: "mailchimp", action_id: "mailchimp.add_subscriber", description: "Add an email to an audience." },
+        { id: "calendar.create_event", label: "Google Calendar — Create event", kind: "app_action", app: "calendar", action_id: "calendar.create_event", description: "Create a calendar event." },
+        { id: "http.request", label: "HTTP — Make request", kind: "app_action", app: "http", action_id: "http.request", description: "Call an API endpoint." },
+        { id: "browser.scrape_detail", label: "Browser — Scrape detail", kind: "tool", app: "browser", action_id: "browser.scrape_detail", description: "Extract a value from a webpage." },
+      ],
+    },
+    {
+      group: "Custom Logic",
+      group_id: "custom_logic",
+      description: "Sandboxed custom functions, transforms, scraping helpers, and data mapping.",
+      modules: [
+        {
+          id: "custom.function",
+          label: "Custom function",
+          kind: "custom_logic",
+          app: "custom_logic",
+          action_id: "custom.function",
+          description: "Run a small sandboxed function on workflow input and return JSON output.",
+          safety: "sandboxed_dry_run",
+          requires_approval: false,
+          config_schema: {
+            language: "javascript",
+            input_contract: "json",
+            output_contract: "json",
+            network_access: false,
+            filesystem_access: false,
+            secrets_access: false,
+            timeout_ms: 3000,
+            memory_mb: 64,
+          },
+        },
+        {
+          id: "custom.code_transform",
+          label: "Code transform",
+          kind: "custom_logic",
+          app: "custom_logic",
+          action_id: "custom.code_transform",
+          description: "Transform text, HTML, JSON, CSV, or mapped fields using a safe code snippet.",
+          safety: "sandboxed_dry_run",
+          requires_approval: false,
+          config_schema: {
+            language: "javascript",
+            input_contract: "json",
+            output_contract: "json",
+            network_access: false,
+            filesystem_access: false,
+            secrets_access: false,
+            timeout_ms: 3000,
+            memory_mb: 64,
+          },
+        },
+        {
+          id: "custom.web_scrape_helper",
+          label: "Web scrape helper",
+          kind: "custom_logic",
+          app: "custom_logic",
+          action_id: "custom.web_scrape_helper",
+          description: "Extract specific page details using selector rules or a guarded browser fallback.",
+          safety: "browser_fallback_approval_gated",
+          requires_approval: true,
+          config_schema: {
+            mode: "selector_or_browser_skill",
+            selectors: [],
+            browser_skill_id: "",
+            external_network_access: "approval_gated",
+            output_contract: "json",
+          },
+        },
+        {
+          id: "custom.data_mapper",
+          label: "Data mapper",
+          kind: "custom_logic",
+          app: "custom_logic",
+          action_id: "custom.data_mapper",
+          description: "Map, rename, merge, filter, and reshape fields before the next step.",
+          safety: "dry_run",
+          requires_approval: false,
+          config_schema: {
+            mappings: [],
+            output_contract: "json",
+          },
+        },
+      ],
+    },
+    {
+      group: "Content Assets",
+      group_id: "content_assets",
+      description: "Create, upload, reuse, fill, attach, and execute business content safely.",
+      modules: [
+        {
+          id: "content.create_asset",
+          label: "Create content asset",
+          kind: "content_asset",
+          app: "content_assets",
+          action_id: "content.create_asset",
+          description: "Create a reusable email, document, message, prompt, PDF, or template asset.",
+          safety: "draft_only",
+          requires_approval: false,
+          config_schema: {
+            asset_type: "email_template",
+            asset_name: "",
+            body: "",
+            variables: [],
+            version: "v1",
+          },
+        },
+        {
+          id: "content.use_asset",
+          label: "Use content asset",
+          kind: "content_asset",
+          app: "content_assets",
+          action_id: "content.use_asset",
+          description: "Fill a saved content asset with workflow variables and return drafted output.",
+          safety: "dry_run",
+          requires_approval: false,
+          config_schema: {
+            asset_id: "",
+            variables: {},
+            output_name: "rendered_content",
+            output_format: "text",
+          },
+        },
+        {
+          id: "content.attach_file",
+          label: "Attach file",
+          kind: "content_asset",
+          app: "content_assets",
+          action_id: "content.attach_file",
+          description: "Attach a saved/uploaded file to a draft email, quote, or workflow output.",
+          safety: "approval_gated_on_send",
+          requires_approval: true,
+          config_schema: {
+            asset_id: "",
+            target_step: "",
+            allowed_file_types: ["pdf", "docx", "png", "jpg"],
+          },
+        },
+        {
+          id: "content.generate_document",
+          label: "Generate document",
+          kind: "content_asset",
+          app: "content_assets",
+          action_id: "content.generate_document",
+          description: "Generate a document from a template and mapped workflow fields.",
+          safety: "draft_only",
+          requires_approval: false,
+          config_schema: {
+            template_asset_id: "",
+            variables: {},
+            output_format: "pdf",
+            output_name: "generated_document",
+          },
+        },
+        {
+          id: "content.fill_template",
+          label: "Fill template",
+          kind: "content_asset",
+          app: "content_assets",
+          action_id: "content.fill_template",
+          description: "Fill an email, WhatsApp, quote, invoice note, or document template.",
+          safety: "dry_run",
+          requires_approval: false,
+          config_schema: {
+            template: "",
+            variables: {},
+            output_name: "filled_template",
+          },
+        },
+      ],
+    },
+
+    {
+      group: "Browser Fallback",
+      group_id: "browser_fallback",
+      description: "Use recorded browser skills when no API/MCP connector exists.",
+      modules: [
+        {
+          id: "browser.micro_skill",
+          label: "Run browser micro-skill",
+          kind: "browser_fallback",
+          app: "browser",
+          action_id: "browser.micro_skill",
+          legacy_action_type: "browser_micro_skill",
+          description: "Use a recorded browser action when no API connector exists.",
+          safety: "approval_gated_browser_fallback",
+          status: "soon",
+          requires_approval: true,
+        },
+        {
+          id: "browser.record_skill",
+          label: "Teach Aion a browser skill",
+          kind: "browser_fallback",
+          app: "browser",
+          action_id: "browser.record_skill",
+          legacy_tool: "browser_recorder",
+          description: "Record a reusable browser action for later automation.",
+          safety: "manual_capture_only",
+          status: "legacy",
+          requires_approval: true,
+        },
+        {
+          id: "browser.saved_skills",
+          label: "Saved browser micro-skills",
+          kind: "browser_fallback",
+          app: "browser",
+          action_id: "browser.saved_skills",
+          legacy_tool: "browser_skills",
+          description: "View recorded browser skills available to workflows.",
+          safety: "read_only",
+          status: "legacy",
+          requires_approval: false,
+        },
+        {
+          id: "browser.chain_skills",
+          label: "Chain browser micro-skills",
+          kind: "browser_fallback",
+          app: "browser",
+          action_id: "browser.chain_skills",
+          legacy_tool: "workflow_chain",
+          description: "Combine saved browser actions into a chained process.",
+          safety: "approval_gated_browser_fallback",
+          status: "legacy",
+          requires_approval: true,
+        },
+      ],
+    },
+    {
+      group: "Dev / Legacy",
+      group_id: "dev_legacy",
+      description: "Diagnostics and older workflow surfaces. Hidden from normal users later.",
+      modules: [
+        {
+          id: "dev.refresh_tasks",
+          label: "Refresh tasks",
+          kind: "dev_control",
+          app: "dev",
+          action_id: "dev.refresh_tasks",
+          legacy_action_type: "refresh_tasks",
+          description: "Reload local workflow/task state from the runtime.",
+          safety: "control",
+          status: "control",
+        },
+        {
+          id: "dev.run_dry_poll",
+          label: "Run dry-run poll",
+          kind: "dev_control",
+          app: "dev",
+          action_id: "dev.run_dry_poll",
+          legacy_action_type: "run_dry_poll",
+          description: "Trigger the older dry-run polling routine for diagnostics.",
+          safety: "diagnostic_only",
+          status: "control",
+        },
+        {
+          id: "legacy.start_from_workflow",
+          label: "Start from a workflow",
+          kind: "legacy_tool",
+          app: "legacy",
+          action_id: "legacy.start_from_workflow",
+          legacy_tool: "task_templates",
+          description: "Use older workflow templates as starting points.",
+          safety: "legacy_reference",
+          status: "legacy",
+        },
+        {
+          id: "legacy.build_custom_agent",
+          label: "Build custom agent",
+          kind: "legacy_tool",
+          app: "legacy",
+          action_id: "legacy.build_custom_agent",
+          legacy_tool: "step_builder",
+          description: "Open the older custom agent builder surface.",
+          safety: "legacy_reference",
+          status: "legacy",
+        },
+        {
+          id: "legacy.saved_generic_workflows",
+          label: "Saved generic workflows",
+          kind: "legacy_tool",
+          app: "legacy",
+          action_id: "legacy.saved_generic_workflows",
+          legacy_tool: "generic_workflows",
+          description: "Browse older saved generic workflow definitions.",
+          safety: "legacy_reference",
+          status: "legacy",
+        },
+        {
+          id: "legacy.trained_tasks",
+          label: "Trained Tasks",
+          kind: "legacy_tool",
+          app: "legacy",
+          action_id: "legacy.trained_tasks",
+          legacy_tool: "trained_tasks",
+          description: "Review trained task assets and outputs.",
+          safety: "legacy_reference",
+          status: "legacy",
+        },
+        {
+          id: "legacy.test_run_output",
+          label: "Test run output",
+          kind: "legacy_tool",
+          app: "legacy",
+          action_id: "legacy.test_run_output",
+          legacy_tool: "test_run_output",
+          description: "Open older workflow test output and diagnostics.",
+          safety: "legacy_reference",
+          status: "legacy",
+        },
+      ],
+    },
+    {
+      group: "Approval",
+      group_id: "approval",
+      description: "Pause for human review before risky actions.",
+      modules: [
+        { id: "approval.human", label: "Human approval", kind: "approval", app: "approval", action_id: "aion.human_approval", description: "Ask a human before continuing." },
+        { id: "approval.before_send", label: "Approval before send", kind: "approval", app: "approval", action_id: "aion.approval_before_send", description: "Require approval before email/message send." },
+        { id: "approval.before_external_write", label: "Approval before external write", kind: "approval", app: "approval", action_id: "aion.approval_before_external_write", description: "Require approval before writing to another system." },
+      ],
+    },
+  ];
+}
+
+
+
+function getAionUnifiedRealNodeFromModule(module) {
+  if (!module) return null;
+
+  const actionId = String(module.action_id || module.id || "");
+  const label = String(module.label || "New step");
+  const kind = String(module.kind || "");
+  const app = String(module.app || module.connector || "");
+
+  const base = {
+    title: label.replace(/^[^—]+—\s*/, ""),
+    type: module.group || module.kind || "Step",
+    icon: String(module.icon || app || label || "?").slice(0, 2).toUpperCase(),
+    status: module.status || "Dry-run",
+    meta: module.description || "Configure this step",
+    tone: module.tone || "teal",
+    config: {
+      action_id: actionId,
+      module_id: module.id || actionId,
+      app,
+      connector: module.connector || app,
+      kind,
+      safety: module.safety || "dry_run",
+      requires_approval: module.requires_approval === true,
+      config_schema: module.config_schema || null,
+    },
+  };
+
+  const map = {
+    // AI / Aion
+    "aion.extract_fields": {
+      title: "Extract fields",
+      type: "AI / Parser",
+      icon: "AI",
+      status: "Dry-run",
+      meta: "Extract structured fields from input",
+      tone: "blue",
+      config: { fields: "name, email, phone, enquiry", output: "extracted_fields" },
+    },
+    "aion.extract_information": {
+      title: "Extract information",
+      type: "AI / Parser",
+      icon: "AI",
+      status: "Dry-run",
+      meta: "Extract useful information from text",
+      tone: "blue",
+      config: { fields: "name, email, phone, enquiry", output: "extracted_information" },
+    },
+    "aion.classify_lead": {
+      title: "Classify enquiry",
+      type: "AI / Router",
+      icon: "◇",
+      status: "Draft",
+      meta: "Classify service, urgency, town, route",
+      tone: "blue",
+      config: { labels: ["lead", "support", "spam", "other"], output: "classification" },
+    },
+    "aion.simple_prompt": {
+      title: "AI prompt",
+      type: "AI",
+      icon: "AI",
+      status: "Dry-run",
+      meta: "Ask Aion to produce a text response",
+      tone: "blue",
+      config: { prompt: "", output: "ai_response" },
+    },
+    "aion.summarise_text": {
+      title: "Summarise text",
+      type: "AI",
+      icon: "AI",
+      status: "Dry-run",
+      meta: "Create a short summary",
+      tone: "blue",
+      config: { source: "{{previous_step.output}}", output: "summary" },
+    },
+    "aion.run_agent": {
+      title: "Run Aion agent",
+      type: "AI Agent",
+      icon: "AI",
+      status: "Dry-run",
+      meta: "Run an Aion agent with mapped input",
+      tone: "purple",
+      config: { agent_id: "", input: "{{previous_step.output}}", output: "agent_response" },
+    },
+
+    // Gmail / Apps
+    "gmail.watch_emails": {
+      title: "Gmail new email",
+      type: "Trigger",
+      icon: "G",
+      status: "Ready",
+      meta: "Trigger when a new email arrives",
+      tone: "teal",
+      config: { mailbox: "inbox", query: "", output: "new_email_event" },
+    },
+    "gmail.search_emails": {
+      title: "Search Gmail",
+      type: "Gmail",
+      icon: "G",
+      status: "Dry-run",
+      meta: "Search Gmail messages",
+      tone: "teal",
+      config: { query: "", output: "gmail_search_results" },
+    },
+    "gmail.get_email": {
+      title: "Read Gmail email",
+      type: "Gmail",
+      icon: "G",
+      status: "Dry-run",
+      meta: "Read subject, sender, body, attachments",
+      tone: "teal",
+      config: { message_id: "{{message_id}}", output: "gmail_email" },
+    },
+    "gmail.read_email": {
+      title: "Read Gmail email",
+      type: "Gmail",
+      icon: "G",
+      status: "Dry-run",
+      meta: "Read subject, sender, body, attachments",
+      tone: "teal",
+      config: { message_id: "{{message_id}}", output: "gmail_email" },
+    },
+    "gmail.create_draft": {
+      title: "Create draft email",
+      type: "Gmail",
+      icon: "✎",
+      status: "Prepared only",
+      meta: "Create draft only. No live send.",
+      tone: "purple",
+      config: { to: "{{email}}", subject: "", body: "{{draft_text}}", output: "gmail_draft" },
+    },
+    "gmail.send_email": {
+      title: "Send email",
+      type: "Gmail",
+      icon: "✉",
+      status: "Requires approval",
+      meta: "Send only after human approval",
+      tone: "purple",
+      config: { approval_required: true, draft_id: "{{gmail_draft.id}}" },
+    },
+    "hubspot.create_or_update_contact": {
+      title: "CRM create lead",
+      type: "API / MCP",
+      icon: "C",
+      status: "Approval gated",
+      meta: "Create or update CRM contact",
+      tone: "amber",
+      config: { approval_required: true, contact: "{{customer_details}}", output: "crm_contact" },
+    },
+    "mailchimp.add_subscriber": {
+      title: "Mailchimp add subscriber",
+      type: "API / MCP",
+      icon: "M",
+      status: "Approval gated",
+      meta: "Add subscriber to audience",
+      tone: "amber",
+      config: { approval_required: true, email: "{{email}}", output: "mailchimp_subscriber" },
+    },
+    "calendar.create_event": {
+      title: "Create calendar event",
+      type: "Calendar",
+      icon: "C",
+      status: "Approval gated",
+      meta: "Create event after approval",
+      tone: "amber",
+      config: { approval_required: true, title: "", when: "", output: "calendar_event" },
+    },
+    "http.request": {
+      title: "HTTP request",
+      type: "HTTP / API",
+      icon: "⌁",
+      status: "Soon",
+      meta: "API call placeholder",
+      tone: "amber",
+      locked: true,
+      config: { approval_required: true, method: "GET", url: "", output: "http_response" },
+    },
+    "xero.create_draft_invoice": {
+      title: "Xero draft invoice",
+      type: "Xero",
+      icon: "X",
+      status: "Soon",
+      meta: "Draft invoice placeholder",
+      tone: "amber",
+      locked: true,
+      config: { approval_required: true, output: "xero_draft_invoice" },
+    },
+
+    // Tools
+    "tools.set_variable": {
+      title: "Set variable",
+      type: "Tools",
+      icon: "=",
+      status: "Dry-run",
+      meta: "Store workflow value",
+      tone: "teal",
+      config: { key: "workflow_variable", value: "{{previous_step.output}}" },
+    },
+    "tools.get_variable": {
+      title: "Get variable",
+      type: "Tools",
+      icon: "$",
+      status: "Dry-run",
+      meta: "Read workflow value",
+      tone: "teal",
+      config: { key: "workflow_variable" },
+    },
+    "tools.set_multiple_variables": {
+      title: "Set variables",
+      type: "Tools",
+      icon: "=",
+      status: "Dry-run",
+      meta: "Store multiple workflow values",
+      tone: "teal",
+      config: { values: {} },
+    },
+    "tools.get_multiple_variables": {
+      title: "Get variables",
+      type: "Tools",
+      icon: "$",
+      status: "Dry-run",
+      meta: "Read multiple workflow values",
+      tone: "teal",
+      config: { keys: [] },
+    },
+    "tools.compose_string": {
+      title: "Compose string",
+      type: "Tools",
+      icon: "T",
+      status: "Dry-run",
+      meta: "Build mapped text",
+      tone: "teal",
+      config: { template: "Hello {{customer_name}}", output: "composed_text" },
+    },
+    "tools.sleep": {
+      title: "Sleep / delay",
+      type: "Tools",
+      icon: "⏱",
+      status: "Preview",
+      meta: "Delay preview only",
+      tone: "amber",
+      config: { seconds: 5 },
+    },
+    "tools.switch": {
+      title: "Switch",
+      type: "Tools",
+      icon: "⇄",
+      status: "Dry-run",
+      meta: "Switch output based on input",
+      tone: "teal",
+      config: { input: "{{value}}", cases: [], default: null },
+    },
+    "tools.text_aggregator": {
+      title: "Text aggregator",
+      type: "Tools",
+      icon: "T+",
+      status: "Dry-run",
+      meta: "Join multiple strings",
+      tone: "teal",
+      config: { items: [], separator: "\\n", output: "aggregated_text" },
+    },
+
+    // Flow control
+    "logic.if_else": {
+      title: "If / else",
+      type: "Flow Control",
+      icon: "?",
+      status: "Draft",
+      meta: "Route by true/false condition",
+      tone: "amber",
+      config: { condition: "", true_path: [], false_path: [] },
+    },
+    "logic.router": {
+      title: "Router",
+      type: "Flow Control",
+      icon: "⑂",
+      status: "Draft",
+      meta: "Split into multiple routes",
+      tone: "amber",
+      config: { routes: [] },
+    },
+    "logic.merge": {
+      title: "Merge",
+      type: "Flow Control",
+      icon: "⇥",
+      status: "Draft",
+      meta: "Merge routes back together",
+      tone: "amber",
+      config: { merge_strategy: "first_available" },
+    },
+    "logic.iterator": {
+      title: "Iterator",
+      type: "Flow Control",
+      icon: "[]",
+      status: "Draft",
+      meta: "Split an array into items",
+      tone: "amber",
+      config: { array: "{{items}}", output: "item" },
+    },
+    "logic.array_aggregator": {
+      title: "Array aggregator",
+      type: "Flow Control",
+      icon: "[+]",
+      status: "Draft",
+      meta: "Combine items into an array",
+      tone: "amber",
+      config: { source: "{{items}}", output: "array" },
+    },
+
+    // Text parser
+    "text.match_pattern": {
+      title: "Match pattern",
+      type: "Text Parser",
+      icon: ".*",
+      status: "Dry-run",
+      meta: "Regex match from text",
+      tone: "teal",
+      config: { pattern: "[\\\\w.+-]+@[\\\\w-]+(?:\\\\.[\\\\w-]+)+", source: "{{text}}", output: "matches" },
+    },
+    "text.match_pattern_advanced": {
+      title: "Match pattern advanced",
+      type: "Text Parser",
+      icon: ".*",
+      status: "Dry-run",
+      meta: "Mappable regex match",
+      tone: "teal",
+      config: { pattern: "", source: "{{text}}", output: "matches" },
+    },
+    "text.replace": {
+      title: "Replace text",
+      type: "Text Parser",
+      icon: "↔",
+      status: "Dry-run",
+      meta: "Replace matching text",
+      tone: "teal",
+      config: { pattern: "", replacement: "", source: "{{text}}", output: "replaced_text" },
+    },
+    "text.html_to_text": {
+      title: "HTML to text",
+      type: "Text Parser",
+      icon: "TXT",
+      status: "Dry-run",
+      meta: "Convert HTML to readable text",
+      tone: "teal",
+      config: { html: "{{html}}", output: "plain_text" },
+    },
+    "text.get_elements_from_html": {
+      title: "Extract from HTML",
+      type: "Text Parser",
+      icon: "</>",
+      status: "Dry-run",
+      meta: "Extract links, images, tables or elements",
+      tone: "teal",
+      config: { html: "{{html}}", selector: "", output: "html_elements" },
+    },
+    "text.get_html_table": {
+      title: "Get HTML table",
+      type: "Text Parser",
+      icon: "▤",
+      status: "Dry-run",
+      meta: "Extract table rows and columns",
+      tone: "teal",
+      config: { html: "{{html}}", table_selector: "table", output: "table_rows" },
+    },
+
+    // Approval
+    "aion.human_approval": {
+      title: "Human approval",
+      type: "Gate",
+      icon: "✓",
+      status: "Required",
+      meta: "Review before continuing",
+      tone: "red",
+      config: { approval_required: true, reason: "Review before external write" },
+    },
+    "aion.approval_before_send": {
+      title: "Approval before send",
+      type: "Gate",
+      icon: "✓",
+      status: "Required",
+      meta: "Review before sending",
+      tone: "red",
+      config: { approval_required: true, reason: "Review before send" },
+    },
+    "aion.approval_before_external_write": {
+      title: "Approval before external write",
+      type: "Gate",
+      icon: "✓",
+      status: "Required",
+      meta: "Review before writing to another system",
+      tone: "red",
+      config: { approval_required: true, reason: "Review before external write" },
+    },
+
+    // Browser fallback
+    "browser.scrape_detail": {
+      title: "Browser scrape detail",
+      type: "Browser fallback",
+      icon: "◫",
+      status: "Approval gated",
+      meta: "Extract detail using browser fallback",
+      tone: "amber",
+      config: { approval_required: true, selector: "", output: "scraped_detail" },
+    },
+    "browser.run_micro_skill": {
+      title: "Run browser micro-skill",
+      type: "Browser fallback",
+      icon: "◫",
+      status: "Soon",
+      meta: "Use recorded browser skill",
+      tone: "amber",
+      locked: true,
+      config: { browser_skill_id: "", approval_required: true },
+    },
+
+    // Custom logic
+    "custom.function": {
+      title: "Custom function",
+      type: "Custom Logic",
+      icon: "{}",
+      status: "Sandbox",
+      meta: "Sandboxed function, JSON in/out",
+      tone: "amber",
+      config: { language: "javascript", code: "return input;", network_access: false, output: "custom_result" },
+    },
+    "custom.code_transform": {
+      title: "Code transform",
+      type: "Custom Logic",
+      icon: "{}",
+      status: "Sandbox",
+      meta: "Transform mapped data safely",
+      tone: "amber",
+      config: { language: "javascript", code: "return input;", network_access: false, output: "transformed_data" },
+    },
+    "custom.web_scrape_helper": {
+      title: "Web scrape helper",
+      type: "Custom Logic",
+      icon: "◫",
+      status: "Approval gated",
+      meta: "Selector or browser-skill scrape helper",
+      tone: "amber",
+      config: { approval_required: true, selectors: [], output: "scraped_data" },
+    },
+    "custom.data_mapper": {
+      title: "Data mapper",
+      type: "Custom Logic",
+      icon: "{}",
+      status: "Dry-run",
+      meta: "Map and reshape fields",
+      tone: "teal",
+      config: { mappings: [], output: "mapped_data" },
+    },
+
+    // Content assets
+    "content.create_asset": {
+      title: "Create content asset",
+      type: "Content Asset",
+      icon: "▤",
+      status: "Draft",
+      meta: "Create reusable email/doc/template",
+      tone: "blue",
+      config: { asset_type: "email_template", asset_name: "", body: "", variables: [], output: "content_asset" },
+    },
+    "content.use_asset": {
+      title: "Use content asset",
+      type: "Content Asset",
+      icon: "▤",
+      status: "Dry-run",
+      meta: "Fill saved asset with variables",
+      tone: "blue",
+      config: { asset_id: "", variables: {}, output: "rendered_content" },
+    },
+    "content.attach_file": {
+      title: "Attach file",
+      type: "Content Asset",
+      icon: "📎",
+      status: "Approval gated",
+      meta: "Attach file to draft or output",
+      tone: "amber",
+      config: { approval_required: true, asset_id: "", target_step: "" },
+    },
+    "content.generate_document": {
+      title: "Generate document",
+      type: "Content Asset",
+      icon: "PDF",
+      status: "Draft",
+      meta: "Generate document from template",
+      tone: "blue",
+      config: { template_asset_id: "", variables: {}, output_format: "pdf", output: "generated_document" },
+    },
+    "content.fill_template": {
+      title: "Fill template",
+      type: "Content Asset",
+      icon: "T",
+      status: "Dry-run",
+      meta: "Fill text/email/doc template",
+      tone: "blue",
+      config: { template: "", variables: {}, output: "filled_template" },
+    },
+  };
+
+  const mapped = map[actionId] || map[module.id] || base;
+
+  return {
+    ...base,
+    ...mapped,
+    config: {
+      ...(base.config || {}),
+      ...(mapped.config || {}),
+      action_id: actionId,
+      module_id: module.id || actionId,
+      app,
+      connector: module.connector || app,
+      kind,
+      safety: module.safety || mapped.config?.safety || base.config?.safety || "dry_run",
+      requires_approval:
+        module.requires_approval === true ||
+        mapped.config?.approval_required === true ||
+        false,
+    },
+  };
+}
+
+function addAionUnifiedRealNodeFromModule(module) {
+  const mappedNode = getAionUnifiedRealNodeFromModule(module);
+  if (!mappedNode) return false;
+
+  if (mappedNode.locked === true) {
+    safeAionDesktopPatch({
+      message: `${mappedNode.title || "This module"} is visible but not wired yet.`,
+      messageTone: "info",
+    });
+    return false;
+  }
+
+  if (!window.__aionWorkflowGraph) {
+    window.__aionWorkflowGraph = {
+      workflow_id: createAionWorkflowId(),
+      name: "Untitled workflow",
+      status: "draft",
+      nodes: [],
+      edges: [],
+    };
+  }
+
+  const graph = window.__aionWorkflowGraph;
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+  const selectedNodeId = window.__aionWorkflowSelectedNodeId || null;
+  const selectedNode = selectedNodeId
+    ? nodes.find((node) => node.id === selectedNodeId)
+    : null;
+
+  const anchorNode =
+    selectedNode ||
+    nodes[nodes.length - 1] ||
+    { id: null, x: 160, y: 240 };
+
+  const safeId = String(mappedNode.config?.action_id || mappedNode.title || "step")
+    .replace(/[^a-z0-9_]+/gi, "_")
+    .replace(/^_+|_+$/g, "")
+    .toLowerCase();
+
+  const newNode = {
+    id: `node_${safeId}_${Date.now()}`,
+    ...mappedNode,
+    x: Number(anchorNode.x || 160) + 275,
+    y: Number(anchorNode.y || 240),
+  };
+
+  const anchorIndex = anchorNode?.id
+    ? nodes.findIndex((node) => node.id === anchorNode.id)
+    : -1;
+
+  const nextNodes =
+    anchorIndex >= 0
+      ? [
+          ...nodes.slice(0, anchorIndex + 1),
+          newNode,
+          ...nodes.slice(anchorIndex + 1),
+        ]
+      : [...nodes, newNode];
+
+  const outgoingEdges = anchorNode?.id
+    ? edges.filter((edge) => edge.from === anchorNode.id)
+    : [];
+
+  const remainingEdges = anchorNode?.id
+    ? edges.filter((edge) => edge.from !== anchorNode.id)
+    : edges;
+
+  const insertedEdges = anchorNode?.id
+    ? [
+        {
+          from: anchorNode.id,
+          to: newNode.id,
+          condition: "success",
+        },
+        ...outgoingEdges.map((edge) => ({
+          ...edge,
+          from: newNode.id,
+          condition: edge.condition || "success",
+        })),
+      ]
+    : [];
+
+  const reflowedNodes = nextNodes.map((node, index) => ({
+    ...node,
+    x: 160 + index * 275,
+    y: Number(node.y || anchorNode.y || 240),
+  }));
+
+  graph.nodes = reflowedNodes;
+  graph.edges = [...remainingEdges, ...insertedEdges];
+
+  window.__aionWorkflowSelectedNodeId = newNode.id;
+  window.__aionWorkflowPickerMode = "";
+  window.__aionWorkflowInspectorOpen = false;
+
+  if (typeof persistAionWorkflowDraftState === "function") {
+    persistAionWorkflowDraftState();
+  }
+
+  return true;
+}
+
+
+function getAionArchitectModuleById(moduleId) {
+  return getAionArchitectModuleCatalogue()
+    .flatMap((group) => group.modules.map((module) => ({ ...module, group: group.group, group_id: group.group_id })))
+    .find((module) => module.id === moduleId || module.action_id === moduleId);
+}
+
+function renderAionArchitectModulePicker() {
+  if (window.__aionArchitectModulePickerOpen !== true) {
+    return "";
+  }
+
+  const activeGroup = window.__aionArchitectModulePickerGroup || "apps";
+  const catalogue = getAionArchitectModuleCatalogue();
+  const selectedGroup = catalogue.find((group) => group.group_id === activeGroup) || catalogue[0];
+
+  return `
+    <div class="aion-architect-module-picker-backdrop" data-aion-architect-module-picker-backdrop="true">
+      <aside class="aion-architect-module-picker" data-aion-architect-module-picker="true">
+        <div class="aion-architect-module-picker-head">
+          <div>
+            <h2>Add a step</h2>
+            <p>Choose what kind of module this step should be. After selection, Aion opens the specific settings for that module.</p>
+          </div>
+          <button type="button" title="Close" data-aion-architect-close-module-picker="true">×</button>
+        </div>
+
+        <div class="aion-architect-module-picker-body">
+          <nav class="aion-architect-module-groups">
+            ${catalogue.map((group) => `
+              <button
+                type="button"
+                class="${group.group_id === activeGroup ? "active" : ""}"
+                data-aion-architect-module-group="${escapeHtml(group.group_id)}"
+              >
+                <strong>${escapeHtml(group.group)}</strong>
+                <small>${escapeHtml(group.description)}</small>
+              </button>
+            `).join("")}
+          </nav>
+
+          <section class="aion-architect-module-list">
+            <div class="aion-architect-module-search">Search modules</div>
+            <div class="eyebrow">${escapeHtml(selectedGroup.group)}</div>
+
+            ${selectedGroup.modules.map((module) => `
+              <button
+                type="button"
+                class="aion-architect-module-row"
+                data-aion-architect-pick-module="${escapeHtml(module.id)}"
+              >
+                <span class="aion-architect-module-icon">${escapeHtml(String(module.app || module.kind || "A").slice(0, 1).toUpperCase())}</span>
+                <span>
+                  <strong>${escapeHtml(module.label)}</strong>
+                  <small>${escapeHtml(module.description)}</small>
+                </span>
+                <em>${escapeHtml(module.kind)}</em>
+              </button>
+            `).join("")}
+          </section>
+        </div>
+      </aside>
+    </div>
+  `;
+}
+
+function createAionArchitectStepFromModule(module) {
+  const base = createAionArchitectBlankStep(
+    Array.isArray(window.__aionArchitectSteps) ? window.__aionArchitectSteps.length : 0,
+  );
+
+  return {
+    ...base,
+    step_kind: module.kind || "app_action",
+    app: module.app || "",
+    connector: module.app || "",
+    action_id: module.action_id || module.id || "",
+    action_label: module.label || "Choose action",
+    subtitle: module.description || "",
+    source:
+      module.kind === "trigger"
+        ? module.description || ""
+        : "",
+    fields:
+      module.action_id === "gmail.watch_emails"
+        ? "sender, subject, body, received_at"
+        : "",
+    outputs:
+      module.action_id === "gmail.watch_emails"
+        ? "new_email_event"
+        : module.kind === "logic"
+          ? "condition_result"
+          : module.kind === "router"
+            ? "route_result"
+            : module.kind === "approval"
+              ? "approval_decision"
+              : "step_result",
+    approval_requirement:
+      module.kind === "approval" ||
+      String(module.action_id || "").includes("create") ||
+      String(module.action_id || "").includes("update") ||
+      String(module.action_id || "").includes("subscriber") ||
+      String(module.action_id || "").includes("send")
+        ? "before_external_write"
+        : "auto",
+  };
+}
+
+
+function createAionArchitectBlankStep(index = 0) {
+  const n = Number(index || 0) + 1;
+
+  return {
+    id: `architect_step_${Date.now()}_${n}_${Math.random().toString(16).slice(2)}`,
+    step_kind: "",
+    app: "",
+    connector: "",
+    action_id: "",
+    action_label: "Choose action",
+    subtitle: "Configure this step",
+    source: "",
+    fields: "",
+    outputs: "",
+    approval_requirement: "auto",
+  };
+}
+
+function ensureAionArchitectHasOneBlankStep() {
+  const existing = Array.isArray(window.__aionArchitectSteps)
+    ? window.__aionArchitectSteps
+    : [];
+
+  if (existing.length > 0) {
+    return existing;
+  }
+
+  const first = createAionArchitectBlankStep(0);
+  window.__aionArchitectSteps = [first];
+  window.__aionArchitectSelectedStepId = first.id;
+  return window.__aionArchitectSteps;
+}
+
+function getAionArchitectStepKindOptions() {
+  return [
+    {
+      value: "trigger",
+      label: "Trigger",
+      description: "Start when something happens, for example a Gmail email arrives or a schedule fires.",
+    },
+    {
+      value: "app_action",
+      label: "App action",
+      description: "Use an app such as Gmail, HubSpot, Mailchimp, Xero, or Calendar.",
+    },
+    {
+      value: "ai_action",
+      label: "AI action",
+      description: "Ask Aion to classify, extract, summarise, draft, or decide.",
+    },
+    {
+      value: "logic",
+      label: "Logic / condition",
+      description: "If this is true, continue. If false, stop or route elsewhere.",
+    },
+    {
+      value: "router",
+      label: "Router",
+      description: "Send the workflow down different paths based on a value.",
+    },
+    {
+      value: "tool",
+      label: "Tool / transform",
+      description: "Set variables, get variables, compose strings, parse text, or transform data.",
+    },
+    {
+      value: "approval",
+      label: "Approval",
+      description: "Pause and ask a human before sending, writing, deleting, or publishing.",
+    },
+  ];
+}
+
+function getAionArchitectAppOptions() {
+  return [
+    { value: "", label: "Choose app / system" },
+    { value: "gmail", label: "Gmail" },
+    { value: "aion", label: "Aion" },
+    { value: "hubspot", label: "HubSpot" },
+    { value: "mailchimp", label: "Mailchimp" },
+    { value: "xero", label: "Xero" },
+    { value: "calendar", label: "Google Calendar" },
+    { value: "browser", label: "Browser / scraper" },
+    { value: "http", label: "HTTP / API" },
+    { value: "tools", label: "Tools" },
+    { value: "logic", label: "Logic" },
+    { value: "approval", label: "Approval" },
+  ];
+}
+
+function getAionArchitectActionOptionsForStep(step = {}) {
+  const kind = String(step.step_kind || "");
+  const app = String(step.app || step.connector || "");
+
+  const all = [
+    { action_id: "gmail.watch_emails", app: "gmail", kind: "trigger", label: "Watch emails", subtitle: "When a new Gmail email arrives" },
+    { action_id: "gmail.search_emails", app: "gmail", kind: "app_action", label: "Search emails", subtitle: "Search Gmail for matching emails" },
+    { action_id: "gmail.get_email", app: "gmail", kind: "app_action", label: "Get an email", subtitle: "Read one Gmail message" },
+    { action_id: "gmail.create_draft", app: "gmail", kind: "app_action", label: "Create draft email", subtitle: "Prepare an email draft" },
+
+    { action_id: "aion.classify_lead", app: "aion", kind: "ai_action", label: "Classify lead", subtitle: "Decide if this is a customer lead" },
+    { action_id: "aion.extract_fields", app: "aion", kind: "ai_action", label: "Extract details", subtitle: "Extract useful fields" },
+    { action_id: "aion.summarise", app: "aion", kind: "ai_action", label: "Summarise", subtitle: "Summarise the input" },
+    { action_id: "aion.draft_reply", app: "aion", kind: "ai_action", label: "Draft reply", subtitle: "Write a reply for approval" },
+
+    { action_id: "hubspot.create_or_update_contact", app: "hubspot", kind: "app_action", label: "Create/update contact", subtitle: "Create or update a HubSpot contact" },
+    { action_id: "mailchimp.add_subscriber", app: "mailchimp", kind: "app_action", label: "Add subscriber", subtitle: "Add a contact to Mailchimp" },
+    { action_id: "xero.create_invoice", app: "xero", kind: "app_action", label: "Create invoice", subtitle: "Prepare a Xero invoice" },
+    { action_id: "calendar.create_event", app: "calendar", kind: "app_action", label: "Create calendar event", subtitle: "Prepare a calendar event" },
+
+    { action_id: "browser.scrape_detail", app: "browser", kind: "tool", label: "Scrape detail", subtitle: "Extract a detail from a webpage" },
+    { action_id: "http.request", app: "http", kind: "app_action", label: "HTTP request", subtitle: "Call an API endpoint" },
+
+    { action_id: "logic.if_else", app: "logic", kind: "logic", label: "If / else", subtitle: "If true do one thing, if false do another" },
+    { action_id: "logic.router", app: "logic", kind: "router", label: "Router", subtitle: "Route based on a value" },
+    { action_id: "logic.filter", app: "logic", kind: "logic", label: "Filter", subtitle: "Only continue when condition is true" },
+
+    { action_id: "tools.set_variable", app: "tools", kind: "tool", label: "Set variable", subtitle: "Store a workflow value" },
+    { action_id: "tools.get_variable", app: "tools", kind: "tool", label: "Get variable", subtitle: "Read a workflow value" },
+    { action_id: "tools.compose_string", app: "tools", kind: "tool", label: "Compose string", subtitle: "Build mapped text" },
+
+    { action_id: "aion.human_approval", app: "approval", kind: "approval", label: "Human approval", subtitle: "Pause until a human approves" },
+  ];
+
+  return all.filter((item) => {
+    if (app && item.app !== app) return false;
+    if (kind && item.kind !== kind && !(kind === "action" && item.kind === "app_action")) return false;
+    return true;
+  });
+}
+
+function normaliseAionArchitectStepAfterActionPick(step, action) {
+  if (!action) return step;
+
+  return {
+    ...step,
+    app: action.app || step.app || "",
+    connector: action.app || step.connector || "",
+    step_kind: action.kind || step.step_kind || "app_action",
+    action_id: action.action_id || "",
+    action_label: action.label || "",
+    subtitle: step.subtitle || action.subtitle || "",
+    source: step.source || action.subtitle || "",
+    outputs:
+      step.outputs ||
+      (action.action_id === "gmail.watch_emails"
+        ? "new_email_event"
+        : action.action_id === "aion.extract_fields"
+          ? "extracted_details"
+          : action.action_id === "gmail.create_draft"
+            ? "draft_email"
+            : action.action_id === "logic.if_else"
+              ? "condition_result"
+              : "step_result"),
+    approval_requirement:
+      action.action_id?.includes("create") ||
+      action.action_id?.includes("update") ||
+      action.action_id?.includes("subscriber") ||
+      action.action_id?.includes("invoice") ||
+      action.action_id === "aion.human_approval"
+        ? "before_external_write"
+        : step.approval_requirement || "auto",
+  };
+}
+
+
+function renderAionArchitectStepSettingsModal() {
+  const step = getAionArchitectSelectedStep();
+
+  if (!step || window.__aionArchitectSettingsOpen !== true) {
+    return "";
+  }
+
+  const kindOptions = getAionArchitectStepKindOptions();
+  const appOptions = getAionArchitectAppOptions();
+  const actionOptions = getAionArchitectActionOptionsForStep(step);
+
+  return `
+    <div class="aion-architect-settings-backdrop" data-aion-architect-settings-backdrop="true">
+      <aside
+        class="aion-architect-settings-modal ${window.__aionArchitectSettingsExpanded === true ? "expanded" : ""}"
+        data-aion-architect-settings-modal="true"
+      >
+        <div class="aion-architect-settings-top">
+          <div>
+            <h2>${escapeHtml(step.action_label || "Choose app / action")}</h2>
+            <p>${escapeHtml(step.subtitle || "Define what this workflow step should do.")}</p>
+          </div>
+
+          <div class="aion-architect-settings-icons">
+            <button type="button" title="More" data-aion-architect-settings-more="true">⋮</button>
+            <button type="button" title="Expand" data-aion-architect-settings-expand="true">⛶</button>
+            <button type="button" title="Help" data-aion-architect-settings-help="true">?</button>
+            <button type="button" title="Close" data-aion-architect-close-settings="true">×</button>
+          </div>
+        </div>
+
+        <div class="aion-architect-settings-redline"></div>
+
+        ${
+          window.__aionArchitectSettingsHelp === true
+            ? `
+              <div class="aion-architect-human-helper">
+                <strong>How to think about this step</strong>
+                <span>
+                  Choose what kind of step this is, choose an app/system if needed, then choose the action.
+                  A step can be a trigger, app action, AI action, IF/ELSE condition, router, transform, scraper, or approval gate.
+                </span>
+              </div>
+            `
+            : ""
+        }
+
+        ${
+          window.__aionArchitectSettingsMore === true
+            ? `
+              <div class="aion-architect-human-helper">
+                <strong>Step metadata</strong>
+                <span>Step ID: ${escapeHtml(step.id || "")}</span>
+                <span>Action ID: ${escapeHtml(step.action_id || "not selected")}</span>
+                <span>Dry-run remains enforced. External writes require approval.</span>
+              </div>
+            `
+            : ""
+        }
+
+        <section class="aion-architect-choice-section">
+          <div class="eyebrow">What kind of step is this?</div>
+          <div class="aion-architect-kind-grid">
+            ${kindOptions.map((item) => `
+              <button
+                type="button"
+                class="${String(step.step_kind || "") === item.value ? "active" : ""}"
+                data-aion-architect-step-kind="${escapeHtml(item.value)}"
+                data-aion-architect-step-id="${escapeHtml(step.id)}"
+                title="${escapeHtml(item.description)}"
+              >
+                <strong>${escapeHtml(item.label)}</strong>
+                <small>${escapeHtml(item.description)}</small>
+              </button>
+            `).join("")}
+          </div>
+        </section>
+
+        <section class="aion-architect-choice-section">
+          <div class="eyebrow">Selected module</div>
+          <div class="aion-architect-selected-module-card">
+            <strong>${escapeHtml(step.action_label || "No module selected")}</strong>
+            <span>${escapeHtml(step.app || step.connector || "Choose from module picker")} · ${escapeHtml(step.step_kind || "step")}</span>
+            <small>${escapeHtml(step.action_id || "No action ID yet")}</small>
+            <button type="button" class="secondary-btn" data-aion-architect-open-module-picker="true">
+              Change module
+            </button>
+          </div>
+        </section>
+
+        <label>
+          <span>${String(step.step_kind || "") === "trigger" ? "When this happens" : "What should happen?"}</span>
+          <input
+            data-aion-architect-step-field="subtitle"
+            data-aion-architect-step-id="${escapeHtml(step.id)}"
+            value="${escapeHtml(step.subtitle || "")}"
+            placeholder="Example: new Gmail email arrives, if lead score is high, scrape price from page"
+          />
+        </label>
+
+        <label>
+          <span>Aion should collect / use</span>
+          <textarea
+            data-aion-architect-step-field="fields"
+            data-aion-architect-step-id="${escapeHtml(step.id)}"
+            placeholder="name, email, phone, company, enquiry, page price, condition value"
+          >${escapeHtml(step.fields || "")}</textarea>
+        </label>
+
+        <label>
+          <span>Pass this result to next step</span>
+          <p class="aion-architect-field-help">
+            Give the output a simple name. Examples:
+            <code>new_email_event</code>, <code>customer_details</code>, <code>condition_result</code>, <code>scraped_price</code>.
+          </p>
+          <textarea
+            data-aion-architect-step-field="outputs"
+            data-aion-architect-step-id="${escapeHtml(step.id)}"
+            placeholder="customer_details"
+          >${escapeHtml(step.outputs || "")}</textarea>
+        </label>
+
+        <label>
+          <span>Approval / safety</span>
+          <select
+            data-aion-architect-step-field="approval_requirement"
+            data-aion-architect-step-id="${escapeHtml(step.id)}"
+          >
+            <option value="auto" ${String(step.approval_requirement || "auto") === "auto" ? "selected" : ""}>Auto</option>
+            <option value="not_required" ${String(step.approval_requirement || "") === "not_required" ? "selected" : ""}>No approval needed</option>
+            <option value="required" ${String(step.approval_requirement || "") === "required" ? "selected" : ""}>Require human approval</option>
+            <option value="before_external_write" ${String(step.approval_requirement || "") === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+          </select>
+        </label>
+
+        <div class="aion-architect-advanced-row">
+          <button
+            type="button"
+            class="secondary-btn"
+            data-aion-architect-open-advanced-config="${escapeHtml(step.id)}"
+          >
+            Advanced logic & variables
+          </button>
+          <small>Add IF/ELSE, filters, variables, text tools, dates, lists, JSON, and routing rules.</small>
+        </div>
+
+        <div class="aion-architect-settings-actions">
+          <button type="button" class="secondary-btn" data-aion-architect-close-settings="true">Cancel</button>
+          <button type="button" class="primary-btn" data-aion-architect-close-settings="true">Save</button>
+        </div>
+      </aside>
+    </div>
+  `;
+}
+
+
+function renderAionArchitectCanvasMode() {
+  const mode = window.__aionArchitectBuildMode || window.__aionWorkflowArchitectBuildMode || "";
+  const hasChosenMode = mode === "steps" || mode === "describe";
+
+  if (!hasChosenMode) {
+    return `
+      <section class="aion-architect-canvas-shell" data-workflow-architect-canvas-mode="true">
+        <div class="aion-architect-page-header aion-architect-page-header-compact">
+          <div class="aion-architect-header-title">
+            <div class="aion-workflow-logo">AI</div>
+            <div>
+              <h1>AI Workflow Architect</h1>
+              <div class="aion-workflow-subtle-meta">Aion workflow builder · local draft</div>
+            </div>
+          </div>
+
+          <div class="aion-architect-topbar-actions">
+            <button type="button" class="secondary-btn" data-workflow-architect-close-canvas-mode="true">
+              Back to canvas
+            </button>
+            <span class="train-status-chip train-status-ok">Dry-run only</span>
+            <span class="aion-architect-safety-badge" title="Execution: dry-run only. Live send disabled. External writes approval gated. Save requires valid dry-run + confirmation.">
+              🔒 Safety locked
+            </span>
+            <span class="train-status-chip">Awaiting review</span>
+          </div>
+        </div>
+
+        <main class="aion-architect-start-screen">
+          <section class="aion-architect-start-card">
+            <div class="eyebrow">Build mode</div>
+            <h2>How do you want to build?</h2>
+            <p class="muted">
+              Start by choosing whether you want to build the workflow as app/action nodes or describe it in plain English.
+            </p>
+
+            <div class="aion-architect-mode-switch aion-architect-start-mode-switch">
+              <button type="button" data-aion-architect-build-mode="steps">
+                <strong>Use this app</strong>
+                <span>App → action → next step.</span>
+              </button>
+
+              <button type="button" data-aion-architect-build-mode="describe">
+                <strong>Describe workflow</strong>
+                <span>Plain English builder.</span>
+              </button>
+            </div>
+          </section>
+        </main>
+      </section>
+    `;
+  }
+
+  if (mode === "describe") {
+    return `
+      <section class="aion-architect-canvas-shell" data-workflow-architect-canvas-mode="true">
+        <div class="aion-architect-page-header aion-architect-page-header-compact">
+          <div class="aion-architect-header-title">
+            <div class="aion-workflow-logo">AI</div>
+            <div>
+              <h1>AI Workflow Architect</h1>
+              <div class="aion-workflow-subtle-meta">Describe workflow · local draft</div>
+            </div>
+          </div>
+
+          <div class="aion-architect-topbar-actions">
+            <button type="button" class="secondary-btn" data-workflow-architect-close-canvas-mode="true">Back to canvas</button>
+            <button type="button" class="secondary-btn" data-aion-architect-build-mode="steps">Use this app</button>
+            <button type="button" class="primary-btn" data-workflow-architect-build-review="true">Build review</button>
+            <button type="button" class="secondary-btn" data-workflow-architect-load-valid-review="true" disabled>Load to canvas</button>
+          </div>
+        </div>
+
+        <main class="aion-architect-describe-screen">
+          <section class="aion-architect-describe-card">
+            <div class="eyebrow">Describe workflow</div>
+            <h2>Tell Aion what should happen</h2>
+            <textarea
+              class="aion-workflow-architect-goal"
+              data-workflow-architect-goal-input="true"
+              rows="8"
+              placeholder="Example: When a new Gmail enquiry arrives, extract the customer details, create a CRM contact, add the email to Mailchimp, draft a welcome reply, then ask me for approval."
+            ></textarea>
+          </section>
+        </main>
+      </section>
+    `;
+  }
+
+  const nodeCanvas =
+    typeof renderAionArchitectNodeCanvas === "function"
+      ? renderAionArchitectNodeCanvas()
+      : typeof renderAionArchitectRealCanvas === "function"
+        ? renderAionArchitectRealCanvas()
+        : `
+          <section class="aion-architect-real-canvas">
+            <div class="aion-architect-real-canvas-head">
+              <div>
+                <div class="eyebrow">AI Workflow Architect</div>
+                <h2>Build the automation as nodes</h2>
+                <p>Click a node to configure it. Use + to add the next step. All execution remains dry-run first.</p>
+              </div>
+              <button type="button" class="secondary-btn" data-aion-architect-open-module-picker="true">+ Add step</button>
+            </div>
+
+            <div class="empty-state">
+              Node canvas renderer not found yet, but AI Architect mode is mounted.
+            </div>
+          </section>
+        `;
+
+  const settingsModal =
+    typeof renderAionArchitectStepSettingsModal === "function"
+      ? renderAionArchitectStepSettingsModal()
+      : "";
+
+  return `
+    <section class="aion-architect-canvas-shell" data-workflow-architect-canvas-mode="true">
+      <div class="aion-architect-page-header aion-architect-page-header-compact">
+        <div class="aion-architect-header-title">
+          <div class="aion-workflow-logo">AI</div>
+          <div>
+            <h1>AI Workflow Architect</h1>
+            <div class="aion-workflow-subtle-meta">Aion workflow builder · local draft</div>
+          </div>
+        </div>
+
+        <div class="aion-architect-topbar-actions">
+          <button type="button" class="secondary-btn" data-workflow-architect-close-canvas-mode="true">Back to canvas</button>
+          <button type="button" class="secondary-btn" data-aion-architect-build-mode="describe">Describe workflow</button>
+          <button type="button" class="primary-btn" data-workflow-architect-build-review="true">Build review</button>
+          <button type="button" class="secondary-btn" data-workflow-architect-load-valid-review="true" disabled>Load to canvas</button>
+          <span class="aion-architect-safety-badge" title="Execution: dry-run only. Live send disabled. External writes approval gated. Save requires valid dry-run + confirmation.">
+            🔒 Safety locked
+          </span>
+        </div>
+      </div>
+
+      <main class="aion-architect-full-canvas">
+        ${nodeCanvas}
+      </main>
+
+      ${settingsModal}
+      ${renderAionArchitectModulePicker()}
+      ${renderAionArchitectAdvancedConfigModal()}
+    </section>
+  `;
+}
+
+
+function renderWorkflowArchitectNodeEditorModal() {
+  if (window.__aionWorkflowArchitectCanvasMode === true) {
+    return renderAionArchitectCanvasMode();
+  }
+
+  return "";
+}
+
+
+
+
+function getAionArchitectUserStepsPayload() {
+  const steps =
+    Array.isArray(ensureAionArchitectHasOneBlankStep())
+      ? ensureAionArchitectHasOneBlankStep()
+      : Array.isArray(window.__aionWorkflowArchitectGuidedSteps?.steps)
+        ? window.__aionWorkflowArchitectGuidedSteps.steps
+        : [];
+
+  return {
+    user_steps: steps.map((step, index) => ({
+      step_id: step.id || `step_${index + 1}`,
+      order: index + 1,
+      app: step.app || step.connector || "aion",
+      connector: step.connector || step.app || "aion",
+      action_id: step.action_id || "",
+      action_label: step.action_label || step.action || "",
+      action: step.action || step.action_label || "",
+      source: step.source || "",
+      fields: step.fields || "",
+      outputs: step.outputs || "",
+      approval_requirement: step.approval_requirement || "auto",
+      requires_approval:
+        step.approval_requirement === "required" ||
+        step.approval_requirement === "before_external_write",
+      dry_run: true,
+    })),
+  };
+}
+
+
+
+function getAionArchitectCapabilityManifest() {
+  return {
+    version: "aion_workflow_architect_capability_manifest_v1",
+    purpose:
+      "Tool/function catalogue available to the AI Workflow Architect when generating workflows from plain English or visual step-builder nodes.",
+    safety_contract: {
+      execution: "dry_run_only",
+      live_send: "disabled",
+      external_writes: "approval_gated",
+      canvas_load: "valid_review_required",
+      save: "requires_valid_dry_run_plus_confirmation",
+    },
+    workflow_rule:
+      "The AI should translate human workflow intent into safe user_steps using connector, action_id, source, fields, outputs, approval policy, and dry-run policy.",
+    mental_model:
+      "Use this app → to do this. Then use this app → to do this. Then approve or pass the result to the next step.",
+    filters: [
+      {
+        id: "filter.subject_contains",
+        label: "Subject contains",
+        applies_to: ["gmail", "email", "message"],
+        output: "boolean_condition",
+        example: "subject contains quote",
+      },
+      {
+        id: "filter.sender_is",
+        label: "Sender is",
+        applies_to: ["gmail", "email"],
+        output: "boolean_condition",
+        example: "sender is customer@example.com",
+      },
+      {
+        id: "filter.body_contains",
+        label: "Body contains",
+        applies_to: ["gmail", "email", "text"],
+        output: "boolean_condition",
+        example: "body contains urgent",
+      },
+      {
+        id: "filter.date_after",
+        label: "Date is after",
+        applies_to: ["date", "email.received_at"],
+        output: "boolean_condition",
+        example: "received_at after now minus 7 days",
+      },
+      {
+        id: "filter.has_attachment",
+        label: "Has attachment",
+        applies_to: ["gmail", "email"],
+        output: "boolean_condition",
+        example: "email has attachment",
+      },
+    ],
+    variables: [
+      {
+        id: "var.email_sender",
+        label: "Email sender",
+        paths: ["email.from", "gmail.sender", "previous_step.email_sender"],
+        example: "{{email_sender}}",
+      },
+      {
+        id: "var.email_subject",
+        label: "Email subject",
+        paths: ["email.subject", "gmail.subject", "previous_step.email_subject"],
+        example: "{{email_subject}}",
+      },
+      {
+        id: "var.email_body",
+        label: "Email body",
+        paths: ["email.body", "gmail.body", "previous_step.email_body"],
+        example: "{{email_body}}",
+      },
+      {
+        id: "var.customer_name",
+        label: "Customer name",
+        paths: ["customer.name", "extracted.customer_name"],
+        example: "{{customer_name}}",
+      },
+      {
+        id: "var.ai_response",
+        label: "AI response",
+        paths: ["aion.response", "previous_step.ai_response"],
+        example: "{{ai_response}}",
+      },
+      {
+        id: "var.draft_text",
+        label: "Draft text",
+        paths: ["draft.text", "gmail.draft_text"],
+        example: "{{draft_text}}",
+      },
+    ],
+    text_tools: [
+      { id: "text.contains", label: "contains", example: "contains(body, 'quote')" },
+      { id: "text.replace", label: "replace", example: "replace(text, old, new)" },
+      { id: "text.split", label: "split", example: "split(text, ',')" },
+      { id: "text.trim", label: "trim", example: "trim(text)" },
+      { id: "text.lowercase", label: "lowercase", example: "lowercase(subject)" },
+      { id: "text.uppercase", label: "uppercase", example: "uppercase(code)" },
+      { id: "text.extract_email", label: "extract email", example: "extract_email(body)" },
+    ],
+    dates: [
+      { id: "date.now", label: "now", example: "now()" },
+      { id: "date.received_date", label: "received date", example: "email.received_at" },
+      { id: "date.add_days", label: "add days", example: "add_days(now(), 7)" },
+      { id: "date.add_hours", label: "add hours", example: "add_hours(now(), 2)" },
+      { id: "date.before", label: "before", example: "received_at before now()" },
+      { id: "date.after", label: "after", example: "received_at after last_run_at" },
+    ],
+    lists: [
+      { id: "list.first_item", label: "first item", example: "first(attachments)" },
+      { id: "list.join", label: "join", example: "join(tags, ', ')" },
+      { id: "list.contains", label: "contains", example: "contains(tags, 'lead')" },
+      { id: "list.remove_duplicates", label: "remove duplicates", example: "dedupe(emails)" },
+      { id: "list.count", label: "count", example: "count(attachments)" },
+    ],
+    json: [
+      { id: "json.get_field", label: "get field", example: "get_field(response, 'customer.email')" },
+      { id: "json.map_object", label: "map object", example: "map_object(customer, hubspot_contact_schema)" },
+      { id: "json.parse_json", label: "parse JSON", example: "parse_json(ai_response)" },
+      { id: "json.pick_value", label: "pick value", example: "pick(customer, ['name', 'email'])" },
+      { id: "json.fallback_value", label: "fallback value", example: "fallback(phone, 'unknown')" },
+    ],
+    conditions: [
+      {
+        id: "condition.if",
+        label: "if",
+        example: "if subject contains quote then continue",
+      },
+      {
+        id: "condition.and",
+        label: "and",
+        example: "subject contains quote AND sender is not internal",
+      },
+      {
+        id: "condition.or",
+        label: "or",
+        example: "body contains quote OR body contains estimate",
+      },
+      {
+        id: "condition.switch",
+        label: "switch",
+        example: "route by enquiry_type",
+      },
+      {
+        id: "condition.stop",
+        label: "stop workflow",
+        example: "stop if not a customer lead",
+      },
+    ],
+    connector_actions: [
+      {
+        action_id: "gmail.watch_emails",
+        connector: "gmail",
+        label: "Watch emails",
+        kind: "trigger",
+        safety: "dry_run",
+        example_step: "When a new Gmail email arrives",
+      },
+      {
+        action_id: "gmail.search_emails",
+        connector: "gmail",
+        label: "Search emails",
+        kind: "read",
+        safety: "dry_run",
+        example_step: "Search Gmail for unread quote requests",
+      },
+      {
+        action_id: "gmail.get_email",
+        connector: "gmail",
+        label: "Get an email",
+        kind: "read",
+        safety: "dry_run",
+        example_step: "Read the selected email",
+      },
+      {
+        action_id: "gmail.create_draft",
+        connector: "gmail",
+        label: "Create draft email",
+        kind: "draft",
+        safety: "approval_gated",
+        example_step: "Prepare a welcome email draft",
+      },
+      {
+        action_id: "hubspot.create_or_update_contact",
+        connector: "hubspot",
+        label: "Create/update contact",
+        kind: "external_write",
+        safety: "approval_gated",
+        example_step: "Create or update the lead in HubSpot",
+      },
+      {
+        action_id: "mailchimp.add_subscriber",
+        connector: "mailchimp",
+        label: "Add subscriber",
+        kind: "external_write",
+        safety: "approval_gated",
+        example_step: "Add the customer email to Mailchimp",
+      },
+      {
+        action_id: "aion.extract_fields",
+        connector: "aion",
+        label: "Extract fields",
+        kind: "ai_extract",
+        safety: "dry_run",
+        example_step: "Extract name, email, phone, company, and enquiry",
+      },
+      {
+        action_id: "aion.classify_lead",
+        connector: "aion",
+        label: "Classify lead",
+        kind: "ai_classify",
+        safety: "dry_run",
+        example_step: "Check if this email is a customer lead",
+      },
+      {
+        action_id: "aion.human_approval",
+        connector: "aion",
+        label: "Human approval",
+        kind: "approval",
+        safety: "required",
+        example_step: "Ask a human to approve before sending or writing",
+      },
+    ],
+  };
+}
+
+function getAionArchitectPromptContext() {
+  return {
+    instruction:
+      "When generating a workflow, use the advanced_capabilities manifest. Prefer clear user_steps. Preserve action_id/action_label. Always keep execution dry-run first. Mark external writes and sending as approval-gated.",
+    output_shape: {
+      workflow_goal: "string",
+      user_steps: [
+        {
+          step_id: "string",
+          order: "number",
+          app: "string",
+          connector: "string",
+          action_id: "string",
+          action_label: "string",
+          source: "string",
+          fields: "string or array",
+          outputs: "string",
+          approval_requirement: "auto | not_required | required | before_external_write",
+          requires_approval: "boolean",
+          dry_run: true,
+          conditions: "optional array",
+          variables_used: "optional array",
+          transforms: "optional array",
+        },
+      ],
+    },
+    example:
+      "Gmail lead → classify quote request → extract customer details → create/update HubSpot contact → add Mailchimp subscriber → create Gmail draft → human approval.",
+  };
+}
+
+function getAionArchitectBuildReviewPayloadExtras() {
+  return {
+    ...getAionArchitectUserStepsPayload(),
+    advanced_capabilities: getAionArchitectCapabilityManifest(),
+    architect_prompt_context: getAionArchitectPromptContext(),
+  };
+}
+
+function syncAionArchitectCapabilityManifestToInput() {
+  const current = window.__syncedArchitectInput || {};
+  window.__syncedArchitectInput = {
+    ...current,
+    ...getAionArchitectBuildReviewPayloadExtras(),
+  };
+
+  window.__aionWorkflowArchitectReview = {
+    ...(window.__aionWorkflowArchitectReview || {}),
+    ...getAionArchitectBuildReviewPayloadExtras(),
+  };
+}
+
+
+function renderAionArchitectAdvancedConfigModal() {
+  if (window.__aionArchitectAdvancedConfigOpen !== true) {
+    return "";
+  }
+
+  const tabs = [
+    {
+      key: "filters",
+      label: "Filters",
+      title: "Only continue if...",
+      items: ["Subject contains", "Sender is", "Body contains", "Date is after", "Has attachment"],
+    },
+    {
+      key: "variables",
+      label: "Variables",
+      title: "Use values from earlier steps",
+      items: ["Email sender", "Email subject", "Email body", "Customer name", "AI response", "Draft text"],
+    },
+    {
+      key: "text",
+      label: "Text tools",
+      title: "Clean or transform text",
+      items: ["contains", "replace", "split", "trim", "lowercase", "uppercase", "extract email"],
+    },
+    {
+      key: "dates",
+      label: "Dates",
+      title: "Schedule or compare time",
+      items: ["now", "received date", "add days", "add hours", "before", "after"],
+    },
+    {
+      key: "arrays",
+      label: "Lists",
+      title: "Work with lists",
+      items: ["first item", "join", "contains", "remove duplicates", "count"],
+    },
+    {
+      key: "json",
+      label: "JSON",
+      title: "Read structured data",
+      items: ["get field", "map object", "parse JSON", "pick value", "fallback value"],
+    },
+  ];
+
+  const active = window.__aionArchitectAdvancedConfigTab || "filters";
+  const tab = tabs.find((item) => item.key === active) || tabs[0];
+
+  return `
+    <div class="aion-architect-advanced-backdrop" data-aion-architect-advanced-backdrop="true">
+      <aside class="aion-architect-advanced-modal" data-aion-architect-advanced-modal="true">
+        <div class="aion-architect-advanced-head">
+          <div>
+            <h2>Configure step logic</h2>
+            <p>Add filters, variables, text tools, dates, lists, JSON, and conditions for this step.</p>
+          </div>
+
+          <button type="button" title="Close" data-aion-architect-close-advanced-config="true">×</button>
+        </div>
+
+        <div class="aion-architect-advanced-tabs">
+          ${tabs.map((item) => `
+            <button
+              type="button"
+              class="${item.key === active ? "active" : ""}"
+              data-aion-architect-advanced-tab="${escapeHtml(item.key)}"
+            >
+              ${escapeHtml(item.label)}
+            </button>
+          `).join("")}
+        </div>
+
+        <section class="aion-architect-advanced-body">
+          <h3>${escapeHtml(tab.title)}</h3>
+          <p class="muted">
+            Click an item later to insert it into the selected step condition or field.
+          </p>
+
+          <div class="aion-architect-advanced-chip-grid">
+            ${tab.items.map((item) => `
+              <button type="button" data-aion-architect-advanced-token="${escapeHtml(item)}">
+                ${escapeHtml(item)}
+              </button>
+            `).join("")}
+          </div>
+
+          <div class="aion-architect-advanced-example">
+            <strong>Example:</strong>
+            If <code>subject contains "quote"</code>, then extract <code>name, email, phone, enquiry</code> and pass it to the next step as <code>customer_details</code>.
+          </div>
+        </section>
+      </aside>
+    </div>
+  `;
+}
+
+
+function renderAionWorkflowDryRunTraceFloatingDock() {
+  const trace =
+    state?.aionWorkflowDryRunTrace ||
+    state?.workflowDryRunTrace ||
+    state?.operationsAgentsDryRunTrace ||
+    [];
+
+  const items = Array.isArray(trace) ? trace.slice(-5) : [];
+
+  return `
+    <aside class="aion-workflow-dry-run-floating-dock" data-aion-workflow-dry-run-floating-dock="true" style="display:none;">
+      <details class="aion-exec-debug">
+        <summary>Advanced debug payload</summary>
+        <pre>${escapeHtml(JSON.stringify(items, null, 2))}</pre>
+      </details>
+    </aside>
+  `;
+}
+
+
+
+/* ============================================================
+   AION Unified Workflow Canvas Builder Modes - Phase 1
+   Keeps existing toolbar/actions intact.
+   Adds manual / assisted / describe controls into the main canvas.
+   ============================================================ */
+
+function getAionUnifiedBuilderMode() {
+  return window.__aionUnifiedBuilderMode || "manual";
+}
+
+function setAionUnifiedBuilderMode(mode) {
+  const next = String(mode || "manual");
+  window.__aionUnifiedBuilderMode =
+    next === "assisted" || next === "describe" ? next : "manual";
+}
+
+function renderAionUnifiedCanvasBuilderControls() {
+  const mode = getAionUnifiedBuilderMode();
+
+  if (mode === "assisted") {
+    return `
+      <div class="aion-unified-builder-controls aion-unified-builder-controls-compact" data-aion-unified-builder-controls="true">
+        ${renderAionUnifiedAssistedBuilderBar()}
+      </div>
+    `;
+  }
+
+  if (mode === "describe") {
+    return `
+      <div class="aion-unified-builder-controls aion-unified-builder-controls-compact" data-aion-unified-builder-controls="true">
+        ${renderAionUnifiedDescribeWorkflowPanel()}
+      </div>
+    `;
+  }
+
+  return `
+    <div
+      class="aion-unified-builder-controls aion-unified-builder-controls-compact aion-unified-builder-manual-active"
+      data-aion-unified-builder-controls="true"
+      aria-label="Manual mode active"
+    ></div>
+  `;
+}
+
+function renderAionUnifiedAssistedBuilderBar() {
+  const value = window.__aionUnifiedAssistedPrompt || "";
+
+  return `
+    <div class="aion-unified-ai-bar" data-aion-unified-assisted-builder="true">
+      <div>
+        <strong>Ask Aion for the next step</strong>
+        <small>
+          Example: “Watch Gmail for new enquiries, extract name/email/phone, then prepare a draft reply.”
+        </small>
+      </div>
+
+      <div class="aion-unified-ai-input-row">
+        <input
+          type="text"
+          value="${escapeHtml(value)}"
+          data-aion-unified-assisted-input="true"
+          placeholder="Describe the next step or few steps..."
+        />
+        <button type="button" class="primary-btn" data-aion-unified-assisted-generate="true">
+          Generate step
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderAionUnifiedDescribeWorkflowPanel() {
+  const value = window.__aionUnifiedDescribePrompt || "";
+
+  return `
+    <div class="aion-unified-describe-panel" data-aion-unified-describe-builder="true">
+      <div>
+        <strong>Describe the full workflow</strong>
+        <small>
+          Aion will turn this into dry-run workflow nodes. You can then edit each node manually.
+        </small>
+      </div>
+
+      <textarea
+        data-aion-unified-describe-input="true"
+        rows="5"
+        placeholder="Example: When a new Gmail enquiry arrives, extract customer details, create a CRM lead, add them to Mailchimp, draft a welcome email, then ask me for approval before sending."
+      >${escapeHtml(value)}</textarea>
+
+      <div class="aion-unified-describe-actions">
+        <button type="button" class="secondary-btn" data-aion-unified-describe-clear="true">
+          Clear
+        </button>
+        <button type="button" class="primary-btn" data-aion-unified-describe-generate="true">
+          Generate workflow draft
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function createAionUnifiedSuggestedStepsFromPrompt(prompt, { fullWorkflow = false } = {}) {
+  const value = String(prompt || "").toLowerCase();
+  const steps = [];
+
+  const wantsGmail =
+    value.includes("gmail") ||
+    value.includes("email") ||
+    value.includes("enquiry") ||
+    value.includes("inquiry");
+
+  const wantsExtract =
+    value.includes("extract") ||
+    value.includes("details") ||
+    value.includes("name") ||
+    value.includes("phone") ||
+    value.includes("lead");
+
+  const wantsDraft =
+    value.includes("draft") ||
+    value.includes("reply") ||
+    value.includes("response") ||
+    value.includes("welcome");
+
+  const wantsCrm =
+    value.includes("crm") ||
+    value.includes("hubspot") ||
+    value.includes("lead");
+
+  const wantsApproval =
+    value.includes("approval") ||
+    value.includes("approve") ||
+    value.includes("before sending") ||
+    value.includes("human");
+
+  const wantsCustomLogic =
+    value.includes("custom function") ||
+    value.includes("snippet") ||
+    value.includes("code") ||
+    value.includes("scrape") ||
+    value.includes("scraping") ||
+    value.includes("parse website") ||
+    value.includes("map fields") ||
+    value.includes("transform");
+
+  const wantsContentAsset =
+    value.includes("welcome email") ||
+    value.includes("template") ||
+    value.includes("attachment") ||
+    value.includes("attach") ||
+    value.includes("document") ||
+    value.includes("pdf") ||
+    value.includes("content asset") ||
+    value.includes("use this every time");
+
+  const makeId = (prefix) =>
+    `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+  if (wantsGmail || fullWorkflow) {
+    steps.push({
+      id: makeId("gmail_watch"),
+      title: "Watch emails",
+      type: "Gmail",
+      icon: "G",
+      status: "Dry-run",
+      meta: "Watch new Gmail messages",
+      tone: "teal",
+      config: {
+        action_id: "gmail.watch_emails",
+        connector: "gmail",
+        source: "Gmail inbox",
+        fields: "sender, subject, body, received_at",
+        outputs: "new_email_event",
+      },
+    });
+  }
+
+  if (wantsExtract || fullWorkflow) {
+    steps.push({
+      id: makeId("aion_extract"),
+      title: "Extract details",
+      type: "AI / Aion",
+      icon: "AI",
+      status: "Dry-run",
+      meta: "Extract useful customer fields",
+      tone: "blue",
+      config: {
+        action_id: "aion.extract_fields",
+        connector: "aion",
+        source: "{{new_email_event.body}}",
+        fields: "name, email, phone, company, enquiry, location",
+        outputs: "customer_details",
+      },
+    });
+  }
+
+  if (wantsCustomLogic) {
+    steps.push({
+      id: makeId("custom_logic"),
+      title: value.includes("scrape") ? "Web scrape helper" : "Custom function",
+      type: "Custom Logic",
+      icon: "{}",
+      status: "Sandboxed",
+      meta: value.includes("scrape") ? "Extract website details safely" : "Run guarded transform code",
+      tone: "amber",
+      config: {
+        action_id: value.includes("scrape") ? "custom.web_scrape_helper" : "custom.function",
+        connector: "custom_logic",
+        source: "{{previous_step.output}}",
+        fields: "input",
+        outputs: value.includes("scrape") ? "scraped_data" : "custom_result",
+        dry_run: true,
+        sandbox: {
+          network_access: value.includes("scrape") ? "approval_gated" : false,
+          filesystem_access: false,
+          secrets_access: false,
+          timeout_ms: 3000,
+          output_contract: "json",
+        },
+      },
+    });
+  }
+
+  if (wantsContentAsset) {
+    steps.push({
+      id: makeId("content_asset"),
+      title: value.includes("attach") || value.includes("attachment") ? "Attach file" : "Use content asset",
+      type: "Content Assets",
+      icon: "▤",
+      status: "Draft only",
+      meta: "Fill or attach reusable business content",
+      tone: "purple",
+      config: {
+        action_id: value.includes("attach") || value.includes("attachment") ? "content.attach_file" : "content.use_asset",
+        connector: "content_assets",
+        source: "{{customer_details}}",
+        fields: "asset_id, variables",
+        outputs: "rendered_content",
+        dry_run: true,
+        approval_requirement: value.includes("send") ? "before_external_write" : "auto",
+      },
+    });
+  }
+
+  if (wantsCrm && fullWorkflow) {
+    steps.push({
+      id: makeId("crm_lead"),
+      title: "Create CRM lead",
+      type: "Apps / API / MCP",
+      icon: "C",
+      status: "Approval gated",
+      meta: "Create lead after validation",
+      tone: "amber",
+      config: {
+        action_id: "crm.create_lead",
+        connector: "crm",
+        source: "{{customer_details}}",
+        fields: "name, email, phone, enquiry",
+        outputs: "crm_lead",
+      },
+    });
+  }
+
+  if (wantsDraft || fullWorkflow) {
+    steps.push({
+      id: makeId("gmail_draft"),
+      title: "Create draft",
+      type: "Gmail",
+      icon: "✎",
+      status: "Prepared only",
+      meta: "Draft reply without sending",
+      tone: "purple",
+      config: {
+        action_id: "gmail.create_draft",
+        connector: "gmail",
+        source: "{{customer_details}}",
+        fields: "recipient, subject, message",
+        outputs: "gmail_draft",
+      },
+    });
+  }
+
+  if (wantsApproval || fullWorkflow) {
+    steps.push({
+      id: makeId("approval"),
+      title: "Human approval",
+      type: "Flow control",
+      icon: "✓",
+      status: "Required",
+      meta: "Review before external write/send",
+      tone: "purple",
+      config: {
+        action_id: "aion.human_approval",
+        connector: "approval",
+        source: "{{gmail_draft}}",
+        fields: "draft, reason, risk",
+        outputs: "approval_decision",
+        approval_requirement: "required",
+      },
+    });
+  }
+
+  if (!steps.length) {
+    steps.push({
+      id: makeId("aion_prompt"),
+      title: "Aion step",
+      type: "AI / Aion",
+      icon: "AI",
+      status: "Draft",
+      meta: "Generated from prompt",
+      tone: "blue",
+      config: {
+        action_id: "aion.simple_prompt",
+        connector: "aion",
+        source: prompt,
+        fields: "input",
+        outputs: "aion_result",
+      },
+    });
+  }
+
+  return steps;
+}
+
+function appendAionUnifiedSuggestedStepsToMainWorkflow(steps) {
+  if (!window.__aionWorkflowGraph) {
+    window.__aionWorkflowGraph = getAionWorkflowDraftState();
+  }
+
+  const graph = window.__aionWorkflowGraph || {};
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+  let previousNode = nodes[nodes.length - 1] || null;
+
+  steps.forEach((step, index) => {
+    const nodeId = step.id || `ai_step_${Date.now()}_${index}`;
+    const x = previousNode?.x != null ? Number(previousNode.x) + 320 : 360 + index * 320;
+    const y = previousNode?.y != null ? Number(previousNode.y) : 260;
+
+    const node = {
+      id: nodeId,
+      title: step.title || "Aion step",
+      type: step.type || "AI / Aion",
+      icon: step.icon || "AI",
+      status: step.status || "Draft",
+      meta: step.meta || "Generated by Aion",
+      tone: step.tone || "blue",
+      x,
+      y,
+      config: {
+        ...(step.config || {}),
+        generated_by: "aion_unified_canvas_builder",
+        dry_run: true,
+      },
+    };
+
+    nodes.push(node);
+
+    if (previousNode?.id) {
+      edges.push({
+        id: `edge_${previousNode.id}_${nodeId}`,
+        source: previousNode.id,
+        target: nodeId,
+      });
+    }
+
+    previousNode = node;
+  });
+
+  graph.nodes = nodes;
+  graph.edges = edges;
+  graph.dirty = true;
+  graph.status = "draft";
+
+  window.__aionWorkflowGraph = graph;
+
+  if (typeof persistAionWorkflowDraftState === "function") {
+    persistAionWorkflowDraftState();
+  }
+
+  if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+    compileAndAttachAionWorkflowGlyph(graph);
+  }
+
+  return graph;
+}
+
+
+
+
+function getAionWorkflowFileCabinetState() {
+  window.__aionWorkflowFileCabinetOpen =
+    window.__aionWorkflowFileCabinetOpen === true;
+
+  return {
+    open: window.__aionWorkflowFileCabinetOpen,
+  };
+}
+
+function getAionWorkflowFileCabinetItems() {
+  const graph =
+    (typeof getAionWorkflowDraftState === "function"
+      ? getAionWorkflowDraftState()
+      : window.__aionWorkflowGraph) || {};
+
+  const currentWorkflowName = graph.name || "Untitled workflow";
+  const currentWorkflowId = graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
+
+  return {
+    departments: [
+      {
+        id: "marketing",
+        label: "Marketing",
+        workflows: ["Social post workflow", "Campaign approval flow"],
+        assets: ["Caption templates", "Brand voice notes"],
+      },
+      {
+        id: "sales",
+        label: "Sales",
+        workflows: ["Lead follow-up workflow", "Quote reply workflow"],
+        assets: ["Sales scripts", "Objection responses"],
+      },
+      {
+        id: "operations",
+        label: "Operations",
+        workflows: [currentWorkflowName],
+        assets: ["SOP drafts", "Process notes"],
+      },
+      {
+        id: "finance",
+        label: "Finance",
+        workflows: ["Invoice chase workflow"],
+        assets: ["Payment terms", "Invoice templates"],
+      },
+      {
+        id: "support",
+        label: "Support",
+        workflows: ["Customer email triage"],
+        assets: ["FAQ replies", "Support macros"],
+      },
+    ],
+    currentWorkflow: {
+      id: currentWorkflowId,
+      name: currentWorkflowName,
+      status: graph.dirty ? "Unsaved" : "Saved",
+    },
+  };
+}
+
+
+const AION_FILE_CABINET_STORAGE_KEY = "aion.workflow_file_cabinet.v1";
+
+function makeAionFileCabinetId(prefix) {
+  return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+}
+
+function getDefaultAionFileCabinetTree() {
+  const graph =
+    (typeof getAionWorkflowDraftState === "function"
+      ? getAionWorkflowDraftState()
+      : window.__aionWorkflowGraph) || {};
+
+  const currentWorkflowName = graph.name || "Untitled workflow";
+  const currentWorkflowId = graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
+
+  return {
+    schema_version: "aion.workflow_file_cabinet.v1",
+    business_container: state.workspaceId || "costa-conexion",
+    folders: [
+      {
+        id: "folder_marketing",
+        name: "Marketing",
+        type: "department",
+        children: [
+          {
+            id: "folder_marketing_workflows",
+            name: "Workflows",
+            type: "folder",
+            children: [
+              {
+                id: "workflow_social_post",
+                name: "Social post workflow",
+                type: "workflow",
+                workflow_id: "workflow_social_post",
+              },
+              {
+                id: "workflow_campaign_approval",
+                name: "Campaign approval flow",
+                type: "workflow",
+                workflow_id: "workflow_campaign_approval",
+              },
+            ],
+          },
+          {
+            id: "folder_marketing_assets",
+            name: "Assets",
+            type: "folder",
+            children: [],
+          },
+        ],
+      },
+      {
+        id: "folder_sales",
+        name: "Sales",
+        type: "department",
+        children: [
+          { id: "folder_sales_workflows", name: "Workflows", type: "folder", children: [] },
+          { id: "folder_sales_assets", name: "Assets", type: "folder", children: [] },
+        ],
+      },
+      {
+        id: "folder_operations",
+        name: "Operations",
+        type: "department",
+        children: [
+          {
+            id: "folder_operations_workflows",
+            name: "Workflows",
+            type: "folder",
+            children: [
+              {
+                id: currentWorkflowId,
+                name: currentWorkflowName,
+                type: "workflow",
+                workflow_id: currentWorkflowId,
+              },
+            ],
+          },
+          {
+            id: "folder_operations_assets",
+            name: "Assets",
+            type: "folder",
+            children: [],
+          },
+        ],
+      },
+      {
+        id: "folder_finance",
+        name: "Finance",
+        type: "department",
+        children: [
+          { id: "folder_finance_workflows", name: "Workflows", type: "folder", children: [] },
+          { id: "folder_finance_assets", name: "Assets", type: "folder", children: [] },
+        ],
+      },
+      {
+        id: "folder_support",
+        name: "Support",
+        type: "department",
+        children: [
+          { id: "folder_support_workflows", name: "Workflows", type: "folder", children: [] },
+          { id: "folder_support_assets", name: "Assets", type: "folder", children: [] },
+        ],
+      },
+    ],
+  };
+}
+
+function saveAionFileCabinetTree(tree) {
+  try {
+    window.localStorage?.setItem(AION_FILE_CABINET_STORAGE_KEY, JSON.stringify(tree));
+  } catch (error) {
+    console.warn("[aion-file-cabinet] save failed", error);
+  }
+}
+
+function getAionFileCabinetTree() {
+  try {
+    const raw = window.localStorage?.getItem(AION_FILE_CABINET_STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.folders)) return parsed;
+    }
+  } catch (error) {
+    console.warn("[aion-file-cabinet] load failed", error);
+  }
+
+  const tree = getDefaultAionFileCabinetTree();
+  saveAionFileCabinetTree(tree);
+  return tree;
+}
+
+function findAionCabinetNode(nodes, id) {
+  for (const node of nodes || []) {
+    if (String(node.id) === String(id)) return node;
+    const found = findAionCabinetNode(node.children || [], id);
+    if (found) return found;
+  }
+  return null;
+}
+
+function removeAionCabinetNode(nodes, id) {
+  return (nodes || [])
+    .filter((node) => String(node.id) !== String(id))
+    .map((node) => ({
+      ...node,
+      children: removeAionCabinetNode(node.children || [], id),
+    }));
+}
+
+function addAionCabinetTopLevelFolder() {
+  const name = window.prompt("Top-level folder name?");
+  if (!name || !name.trim()) return;
+
+  const tree = getAionFileCabinetTree();
+
+  tree.folders.push({
+    id: makeAionFileCabinetId("folder"),
+    name: name.trim(),
+    type: "department",
+    children: [
+      { id: makeAionFileCabinetId("folder_workflows"), name: "Workflows", type: "folder", children: [] },
+      { id: makeAionFileCabinetId("folder_assets"), name: "Assets", type: "folder", children: [] },
+    ],
+  });
+
+  saveAionFileCabinetTree(tree);
+  if (typeof requestRender === "function") requestRender();
+}
+
+function addAionCabinetFolder(parentId) {
+  const name = window.prompt("Folder name?");
+  if (!name || !name.trim()) return;
+
+  const tree = getAionFileCabinetTree();
+  const parent = findAionCabinetNode(tree.folders, parentId);
+
+  if (!parent) return;
+
+  parent.children = Array.isArray(parent.children) ? parent.children : [];
+  parent.children.push({
+    id: makeAionFileCabinetId("folder"),
+    name: name.trim(),
+    type: "folder",
+    children: [],
+  });
+
+  saveAionFileCabinetTree(tree);
+  if (typeof requestRender === "function") requestRender();
+}
+
+function addAionCabinetWorkflow(parentId) {
+  const name = window.prompt("Workflow name?");
+  if (!name || !name.trim()) return;
+
+  const tree = getAionFileCabinetTree();
+  const parent = findAionCabinetNode(tree.folders, parentId);
+
+  if (!parent) return;
+
+  const workflowId = makeAionFileCabinetId("workflow");
+
+  parent.children = Array.isArray(parent.children) ? parent.children : [];
+  parent.children.push({
+    id: workflowId,
+    name: name.trim(),
+    type: "workflow",
+    workflow_id: workflowId,
+  });
+
+  saveAionFileCabinetTree(tree);
+
+  window.__aionWorkflowGraph = {
+    workflow_id: workflowId,
+    name: name.trim(),
+    status: "draft",
+    saved_at: null,
+    dirty: true,
+    nodes: [
+      {
+        id: "node_choose_start",
+        title: "Choose",
+        type: "Step",
+        icon: "C",
+        status: "Dry-run",
+        meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+        tone: "teal",
+        x: 160,
+        y: 260,
+        config: {},
+      },
+    ],
+    edges: [],
+    updated_at: new Date().toISOString(),
+  };
+
+  window.__aionWorkflowSelectedNodeId = "node_choose_start";
+
+  try {
+    if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+      compileAndAttachAionWorkflowGlyph(window.__aionWorkflowGraph);
+    }
+  } catch (_) {}
+
+  try {
+    if (typeof persistAionWorkflowDraftState === "function") {
+      persistAionWorkflowDraftState();
+    }
+  } catch (_) {}
+
+  if (typeof requestRender === "function") requestRender();
+}
+
+function deleteAionCabinetItem(itemId, itemName) {
+  const ok = window.confirm(`Are you sure you want to delete “${itemName || "this item"}”?`);
+  if (!ok) return;
+
+  const tree = getAionFileCabinetTree();
+  tree.folders = removeAionCabinetNode(tree.folders, itemId);
+
+  saveAionFileCabinetTree(tree);
+  if (typeof requestRender === "function") requestRender();
+}
+
+function getAionCabinetChildren(node) {
+  return Array.isArray(node?.children) ? node.children : [];
+}
+
+function getAionCabinetFolders(tree) {
+  if (Array.isArray(tree?.folders)) return tree.folders;
+  if (Array.isArray(tree?.root?.children)) return tree.root.children;
+  if (Array.isArray(tree?.children)) return tree.children;
+  return [];
+}
+
+function countAionCabinetItems(nodes) {
+  const counts = {
+    folders: 0,
+    workflows: 0,
+    assets: 0,
+    total: 0,
+  };
+
+  function walk(items) {
+    for (const item of items || []) {
+      counts.total += 1;
+
+      if (item?.type === "workflow") {
+        counts.workflows += 1;
+      } else if (item?.type === "asset") {
+        counts.assets += 1;
+      } else {
+        counts.folders += 1;
+      }
+
+      walk(item?.children || []);
+    }
+  }
+
+  walk(nodes);
+  return counts;
+}
+
+function getAionCabinetNodeBadge(node) {
+  const children = getAionCabinetChildren(node);
+  const counts = countAionCabinetItems(children);
+
+  if (node?.type === "workflow") {
+    return "Workflow";
+  }
+
+  if (counts.workflows > 0 && counts.folders > 0) {
+    return `${counts.workflows} workflows · ${counts.folders} folders`;
+  }
+
+  if (counts.workflows > 0) {
+    return `${counts.workflows} workflows`;
+  }
+
+  if (counts.folders > 0) {
+    return `${counts.folders} folders`;
+  }
+
+  return "Empty";
+}
+
+function renderAionFileCabinetNode(node, depth = 0) {
+  const isFolder = node.type === "folder" || node.type === "department";
+  const isWorkflow = node.type === "workflow";
+  const canDelete = node.type !== "department";
+  const children = getAionCabinetChildren(node);
+  const badge = getAionCabinetNodeBadge(node);
+
+  if (isFolder) {
+    return `
+      <details
+        class="aion-file-cabinet-folder aion-file-cabinet-depth-${escapeHtml(String(depth))}"
+        data-aion-cabinet-node-id="${escapeHtml(node.id)}"
+        ${node.type === "department" || depth < 2 ? "open" : ""}
+      >
+        <summary>
+          <span class="aion-file-cabinet-caret">▸</span>
+
+          <span class="aion-file-cabinet-node-main">
+            <strong>${escapeHtml(node.name)}</strong>
+            <small>${escapeHtml(badge)}</small>
+          </span>
+
+          <em class="aion-file-cabinet-row-actions">
+            <button type="button" title="New workflow" data-aion-cabinet-new-workflow="${escapeHtml(node.id)}">+</button>
+            <button type="button" title="New folder" data-aion-cabinet-new-folder="${escapeHtml(node.id)}">▣</button>
+            ${
+              canDelete
+                ? `<button type="button" title="Delete folder" data-aion-cabinet-delete="${escapeHtml(node.id)}" data-aion-cabinet-delete-name="${escapeHtml(node.name)}">×</button>`
+                : ""
+            }
+          </em>
+        </summary>
+
+        <div class="aion-file-cabinet-subtree">
+          ${
+            children.length
+              ? children.map((child) => renderAionFileCabinetNode(child, depth + 1)).join("")
+              : `<div class="aion-file-cabinet-empty">No items yet.</div>`
+          }
+        </div>
+      </details>
+    `;
+  }
+
+  if (isWorkflow) {
+    const workflowId = node.workflow_id || node.id;
+    const hasGraph = !!node.graph;
+    const status = node.graph?.status || node.status || "draft";
+
+    return `
+      <div class="aion-file-cabinet-file-row" data-aion-cabinet-node-id="${escapeHtml(node.id)}">
+        <button
+          type="button"
+          class="aion-file-cabinet-file"
+          data-aion-file-cabinet-open-workflow="${escapeHtml(workflowId)}"
+        >
+          <span>◇</span>
+
+          <span class="aion-file-cabinet-node-main">
+            <strong>${escapeHtml(node.name || "Untitled workflow")}</strong>
+            <small>${escapeHtml(status)}${hasGraph ? " · saved graph" : ""}</small>
+          </span>
+        </button>
+
+        <em class="aion-file-cabinet-row-actions">
+          <button type="button" title="Delete workflow" data-aion-cabinet-delete="${escapeHtml(node.id)}" data-aion-cabinet-delete-name="${escapeHtml(node.name || workflowId)}">×</button>
+        </em>
+      </div>
+    `;
+  }
+
+  return "";
+}
+
+function renderAionWorkflowFileCabinetDrawer() {
+  const { open } = getAionWorkflowFileCabinetState();
+  const tree = getAionFileCabinetTree();
+  const folders = getAionCabinetFolders(tree);
+  const counts = countAionCabinetItems(folders);
+
+  const graph =
+    (typeof getAionWorkflowDraftState === "function"
+      ? getAionWorkflowDraftState()
+      : window.__aionWorkflowGraph) || {};
+
+  const currentName = graph.name || "Untitled workflow";
+  const currentStatus = graph.dirty ? "Unsaved" : "Saved";
+  const workspaceId =
+    tree.workspace_id ||
+    tree.business_container ||
+    window.__AION_DESKTOP_STATE__?.workspaceId ||
+    "costa-conexion";
+
+  const backendTree = window.__aionWorkflowFileCabinetBackendTree;
+  const backendStatus = backendTree ? "Backend synced" : "Local only";
+
+  return `
+    <aside
+      class="aion-workflow-file-cabinet ${open ? "open" : ""}"
+      data-aion-workflow-file-cabinet="true"
+      aria-hidden="${open ? "false" : "true"}"
+    >
+      <div class="aion-file-cabinet-head">
+        <div>
+          <div class="eyebrow">Aion File Cabinet</div>
+          <h2>Workflow Library</h2>
+          <p>${escapeHtml(workspaceId)} · ${escapeHtml(backendStatus)}</p>
+        </div>
+
+        <button
+          type="button"
+          title="Close file cabinet"
+          aria-label="Close file cabinet"
+          data-aion-file-cabinet-close="true"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="aion-file-cabinet-stats">
+        <div>
+          <strong>${escapeHtml(String(folders.length))}</strong>
+          <span>Departments</span>
+        </div>
+        <div>
+          <strong>${escapeHtml(String(counts.workflows))}</strong>
+          <span>Workflows</span>
+        </div>
+        <div>
+          <strong>${escapeHtml(String(counts.folders))}</strong>
+          <span>Folders</span>
+        </div>
+      </div>
+
+      <div class="aion-file-cabinet-actions">
+        <button type="button" data-aion-cabinet-top-folder="true">
+          + Top folder
+        </button>
+        <button type="button" data-aion-workflow-save="true">
+          Save current
+        </button>
+      </div>
+
+      <section class="aion-file-cabinet-current">
+        <div class="aion-file-cabinet-section-title">Current workflow</div>
+        <button type="button" class="aion-file-cabinet-file active">
+          <span>◇</span>
+          <span class="aion-file-cabinet-node-main">
+            <strong>${escapeHtml(currentName)}</strong>
+            <small>${escapeHtml(currentStatus)}</small>
+          </span>
+        </button>
+      </section>
+
+      <section class="aion-file-cabinet-tree">
+        <div class="aion-file-cabinet-section-title">Departments</div>
+        ${
+          folders.length
+            ? folders.map((node) => renderAionFileCabinetNode(node, 0)).join("")
+            : `<div class="aion-file-cabinet-empty">No folders yet. Create a top folder to begin.</div>`
+        }
+      </section>
+    </aside>
+  `;
+}
+
+
+
+function renderAionWorkflowFloatingToolbar() {
+  const mode = getAionUnifiedBuilderMode();
+
+  const modeButton = (key, label, title) => `
+    <button
+      type="button"
+      class="aion-workflow-mode-btn ${mode === key ? "active" : ""}"
+      data-aion-unified-builder-mode="${key}"
+      title="${escapeHtml(title)}"
+      aria-label="${escapeHtml(title)}"
+    >
+      <span class="aion-workflow-mode-light" aria-hidden="true"></span>
+      <strong>${escapeHtml(label)}</strong>
+    </button>
+  `;
+
+  return `
+    <div class="aion-workflow-floating-toolbar aion-workflow-floating-toolbar-consolidated" aria-label="Workflow actions">
+      <button
+        class="aion-workflow-execute-btn"
+        type="button"
+        data-aion-workflow-dry-run="true"
+        title="Execute workflow safely"
+        aria-label="Execute workflow safely"
+      >
+        <span aria-hidden="true">⚗</span>
+        <strong>Execute workflow</strong>
+      </button>
+
+      <div class="aion-workflow-floating-divider"></div>
+
+      ${modeButton("manual", "Manual", "Manual builder mode")}
+      ${modeButton("assisted", "Ask Aion", "Ask Aion for the next step")}
+      ${modeButton("describe", "Describe workflow", "Describe the full workflow")}
+
+      <div class="aion-workflow-floating-divider"></div>
+
+      <button
+        type="button"
+        data-aion-workflow-save="true"
+        title="Save workflow"
+        aria-label="Save workflow"
+      >
+        <span aria-hidden="true">💾</span>
+      </button>
+
+      <button
+        type="button"
+        data-aion-workflow-glyph-debug="true"
+        title="Open compiled glyph debug"
+        aria-label="Open compiled glyph debug"
+      >
+        <span aria-hidden="true">G</span>
+      </button>
+
+      ${(() => {
+        const graph = getAionWorkflowDraftState();
+        const isPublished = ["published", "active", "live"].includes(String(graph.status || "").toLowerCase());
+        return `
+          <button
+            type="button"
+            class="aion-workflow-publish-toolbar-btn ${isPublished ? "published" : "draft"}"
+            data-aion-workflow-${isPublished ? "unpublish" : "publish"}="true"
+            title="${isPublished ? "Unpublish workflow" : "Publish workflow"}"
+            aria-label="${isPublished ? "Unpublish workflow" : "Publish workflow"}"
+          >
+            <span aria-hidden="true">${isPublished ? "⌃" : "↑"}</span>
+            <strong>${isPublished ? "Published" : "Publish"}</strong>
+          </button>
+        `;
+      })()}
+
+      <div class="aion-workflow-floating-divider"></div>
+
+      <button
+        class="aion-workflow-floating-add"
+        type="button"
+        data-aion-architect-open-module-picker="true"
+        data-aion-main-canvas-open-module-picker="true"
+        title="Add next step"
+        aria-label="Add next step"
+      >
+        <span aria-hidden="true">+</span>
+      </button>
+    </div>
+  `;
+}
+
 function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {}) {
+  if (window.__aionWorkflowArchitectCanvasMode === true) {
+    return renderAionArchitectCanvasMode();
+  }
+
   maybeLoadAionWorkflowFromBusinessContainerOnce();
   const graph = getAionWorkflowDraftState();
   window.__aionWorkflowGraph = graph;
@@ -10330,13 +12800,11 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
           data-aion-workflow-node-id="${escapeHtml(node.id)}"
           type="button"
         >
-          <span
-            class="aion-canvas-node-delete"
-            data-aion-workflow-delete-node="${escapeHtml(node.id)}"
-            title="Delete this step"
-          >
-            ×
-          </span>
+          <div class="aion-main-node-mini-toolbar" data-aion-main-node-mini-toolbar="true">
+            <span role="button" tabindex="0" title="Step settings" data-aion-main-node-toolbar="settings" data-aion-main-node-toolbar-node="${escapeHtml(node.id)}">⚙</span>
+            <span role="button" tabindex="0" title="Configure logic / variables" data-aion-main-node-toolbar="logic" data-aion-main-node-toolbar-node="${escapeHtml(node.id)}">ϟ</span>
+            <span role="button" tabindex="0" title="Remove step" aria-label="Remove step" data-aion-main-node-toolbar="delete" data-aion-main-node-toolbar-node="${escapeHtml(node.id)}">×</span>
+          </div>
           <div class="aion-canvas-node-top">
             <div class="aion-canvas-node-icon">${escapeHtml(node.icon)}</div>
             <span class="aion-canvas-node-type">${escapeHtml(node.type)}</span>
@@ -10352,63 +12820,108 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
     )
     .join("");
 
+  const getEdgeNodeId = (edge, keyA, keyB) =>
+    String(edge?.[keyA] || edge?.[keyB] || "");
+
+  /*
+   * Main canvas connector geometry.
+   *
+   * Important:
+   * node.x / node.y are canvas layout coordinates for the NODE WRAPPER,
+   * not always the exact visual square centre after the Make/n8n-style
+   * CSS pass. Keep this block conservative and connect to the visual
+   * square using the same 118px node body box used by the cleaned node UI.
+   */
+  const AION_CANVAS_NODE_BOX = 118;
+  const AION_CANVAS_NODE_RADIUS = AION_CANVAS_NODE_BOX / 2;
+
+  const getNodePort = (node, side = "right") => {
+    const x = Number(node?.x || 0);
+    const y = Number(node?.y || 0);
+
+    const centerX = x + AION_CANVAS_NODE_RADIUS;
+    const centerY = y + AION_CANVAS_NODE_RADIUS;
+
+    if (side === "left") {
+      return {
+        x: centerX - AION_CANVAS_NODE_RADIUS,
+        y: centerY,
+      };
+    }
+
+    if (side === "top") {
+      return {
+        x: centerX,
+        y: centerY - AION_CANVAS_NODE_RADIUS,
+      };
+    }
+
+    if (side === "bottom") {
+      return {
+        x: centerX,
+        y: centerY + AION_CANVAS_NODE_RADIUS,
+      };
+    }
+
+    return {
+      x: centerX + AION_CANVAS_NODE_RADIUS,
+      y: centerY,
+    };
+  };
+
+  const renderConnectorPath = (fromNode, toNode) => {
+    if (!fromNode || !toNode) return "";
+
+    const fromCenterX = Number(fromNode.x || 0) + AION_CANVAS_NODE_RADIUS;
+    const toCenterX = Number(toNode.x || 0) + AION_CANVAS_NODE_RADIUS;
+    const fromCenterY = Number(fromNode.y || 0) + AION_CANVAS_NODE_RADIUS;
+    const toCenterY = Number(toNode.y || 0) + AION_CANVAS_NODE_RADIUS;
+
+    const mostlyHorizontal = Math.abs(toCenterX - fromCenterX) >= Math.abs(toCenterY - fromCenterY);
+
+    const from = mostlyHorizontal
+      ? getNodePort(fromNode, toCenterX >= fromCenterX ? "right" : "left")
+      : getNodePort(fromNode, toCenterY >= fromCenterY ? "bottom" : "top");
+
+    const to = mostlyHorizontal
+      ? getNodePort(toNode, toCenterX >= fromCenterX ? "left" : "right")
+      : getNodePort(toNode, toCenterY >= fromCenterY ? "top" : "bottom");
+
+    const dx = Math.max(70, Math.abs(to.x - from.x) * 0.42);
+    const dy = Math.max(70, Math.abs(to.y - from.y) * 0.42);
+
+    const d = mostlyHorizontal
+      ? `M ${from.x} ${from.y} C ${from.x + (to.x >= from.x ? dx : -dx)} ${from.y}, ${to.x - (to.x >= from.x ? dx : -dx)} ${to.y}, ${to.x} ${to.y}`
+      : `M ${from.x} ${from.y} C ${from.x} ${from.y + (to.y >= from.y ? dy : -dy)}, ${to.x} ${to.y - (to.y >= from.y ? dy : -dy)}, ${to.x} ${to.y}`;
+
+    return `
+      <path
+        d="${escapeHtml(d)}"
+        fill="none"
+        stroke="rgba(10, 132, 160, 0.42)"
+        stroke-width="4"
+        stroke-dasharray="2 12"
+        stroke-linecap="round"
+        class="aion-workflow-connector-path"
+      />
+    `;
+  };
+
   const connectorHtml = edges.length
     ? edges
         .map((edge) => {
-          const fromNode = nodes.find((node) => node.id === edge.from);
-          const toNode = nodes.find((node) => node.id === edge.to);
+          const fromId = getEdgeNodeId(edge, "from", "source");
+          const toId = getEdgeNodeId(edge, "to", "target");
 
-          if (!fromNode || !toNode) return "";
+          const fromNode = nodes.find((node) => String(node.id) === fromId);
+          const toNode = nodes.find((node) => String(node.id) === toId);
 
-          const fromSize = 92;
-          const toSize = 92;
-
-          const x1 = Number(fromNode.x || 0) + fromSize / 2;
-          const y1 = Number(fromNode.y || 0) + fromSize / 2;
-          const x2 = Number(toNode.x || 0) + toSize / 2;
-          const y2 = Number(toNode.y || 0) + toSize / 2;
-
-          const dx = Math.max(80, Math.abs(x2 - x1) * 0.45);
-          const c1x = x1 + dx;
-          const c2x = x2 - dx;
-
-          return `
-            <path
-              d="M ${escapeHtml(String(x1))} ${escapeHtml(String(y1))} C ${escapeHtml(String(c1x))} ${escapeHtml(String(y1))}, ${escapeHtml(String(c2x))} ${escapeHtml(String(y2))}, ${escapeHtml(String(x2))} ${escapeHtml(String(y2))}"
-              fill="none"
-              stroke="rgba(59, 130, 246, 0.42)"
-              stroke-width="4"
-              stroke-dasharray="2 10"
-              stroke-linecap="round"
-            />
-          `;
+          return renderConnectorPath(fromNode, toNode);
         })
         .join("")
     : nodes
         .slice(0, -1)
-        .map((node, index) => {
-          const next = nodes[index + 1];
-
-          const x1 = Number(node.x || 0) + 46;
-          const y1 = Number(node.y || 0) + 46;
-          const x2 = Number(next.x || 0) + 46;
-          const y2 = Number(next.y || 0) + 46;
-
-          const dx = Math.max(80, Math.abs(x2 - x1) * 0.45);
-          const c1x = x1 + dx;
-          const c2x = x2 - dx;
-
-          return `
-            <path
-              d="M ${escapeHtml(String(x1))} ${escapeHtml(String(y1))} C ${escapeHtml(String(c1x))} ${escapeHtml(String(y1))}, ${escapeHtml(String(c2x))} ${escapeHtml(String(y2))}, ${escapeHtml(String(x2))} ${escapeHtml(String(y2))}"
-              fill="none"
-              stroke="rgba(59, 130, 246, 0.42)"
-              stroke-width="4"
-              stroke-dasharray="2 10"
-              stroke-linecap="round"
-            />
-          `;
-        })
+        .map((node, index) => renderConnectorPath(node, nodes[index + 1]))
         .join("");
 
   return `
@@ -10427,14 +12940,27 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
                 aria-label="Workflow name"
               />
             </div>
-            <div class="aion-workflow-subtle-meta">
-              Aion Workflow Builder · local draft
+            <div class="aion-workflow-subtle-meta aion-workflow-subtle-meta-active">
+              <span>Aion Workflow Builder · local draft</span>
+              ${(() => {
+                const activeGraph = getAionWorkflowDraftState();
+                const activeWorkflowId =
+                  window.__aionSelectedWorkflowId ||
+                  window.__aionActiveWorkflowId ||
+                  activeGraph.workflow_id ||
+                  "none";
+                const activeNodes = Array.isArray(activeGraph.nodes) ? activeGraph.nodes.length : 0;
+                const activeEdges = Array.isArray(activeGraph.edges) ? activeGraph.edges.length : 0;
+                const activeStatus = getAionWorkflowSaveStatus(activeGraph);
+
+                return `
+                  <em>${escapeHtml(activeWorkflowId)}</em>
+                  <b>${escapeHtml(String(activeNodes))} nodes</b>
+                  <b>${escapeHtml(String(activeEdges))} edges</b>
+                  <strong class="${escapeHtml(activeStatus.className)}">${escapeHtml(activeStatus.label)}</strong>
+                `;
+              })()}
             </div>
-            ${
-              window.__aionWorkflowLoadNotice
-                ? `<div class="aion-workflow-load-notice">✓ ${escapeHtml(window.__aionWorkflowLoadNotice)}</div>`
-                : ""
-            }
           </div>
           ${
             (() => {
@@ -10509,6 +13035,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
             ${[
               ["boardroom", "Boardroom"],
               ["dashboard", "Dashboard"],
+              ["file_cabinet", "Files"],
               ["marketing_stream", "Marketing"],
               ["brand_foundation", "Brand"],
               ["live_agents", "Live Agents"],
@@ -10583,6 +13110,8 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
           </details>
 
         </aside>
+
+        ${renderAionWorkflowFileCabinetDrawer()}
 
         <main class="aion-workflow-canvas">
           <div
@@ -10783,7 +13312,10 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
       ${window.AionWorkflowNodeEditor?.renderModal?.({ nodes }) || ""}
       ${renderAionWorkflowDryRunTraceFloatingDock()}
       ${renderAionWorkflowGlyphDebugExecutionPanel()}
+      ${renderAionUnifiedCanvasBuilderControls()}
       ${renderAionWorkflowFloatingToolbar()}
+      ${typeof renderAionWorkflowDryRunResultPanelFallback === "function" ? renderAionWorkflowDryRunResultPanelFallback() : ""}
+      ${typeof renderAionArchitectModulePicker === "function" ? renderAionArchitectModulePicker() : ""}
           ${renderWorkflowArchitectNodeEditorModal()}
     </section>
   `;
@@ -11746,7 +14278,7 @@ function getBrowserSkillReviewDraft() {
 }
 
 function patchBrowserSkillReviewDraft(patch) {
-  desktopStore.patch({
+  safeAionDesktopPatch({
     browserDesktopBridge: {
       ...(state.browserDesktopBridge || {}),
       skill_review: {
@@ -11772,7 +14304,7 @@ function setBrowserCapturedEventsForEditing(events) {
   const bridge = state.browserDesktopBridge || {};
   const cleaned = Array.isArray(events) ? events : [];
 
-  desktopStore.patch({
+  safeAionDesktopPatch({
     browserDesktopBridge: {
       ...bridge,
       captured_events: cleaned,
@@ -12171,7 +14703,7 @@ function installBrowserRecorderEventBridge() {
 
     const currentEvents = getBrowserCaptureEvents();
 
-    desktopStore.patch({
+    safeAionDesktopPatch({
       browserDesktopBridge: {
         ...(state.browserDesktopBridge || {}),
         bridge_active: true,
@@ -12204,7 +14736,7 @@ async function refreshBrowserSkillWorkspaceAssets() {
   const skills = Array.isArray(skillsResult?.items) ? skillsResult.items : [];
   const chains = Array.isArray(chainsResult?.items) ? chainsResult.items : [];
 
-  desktopStore.patch({
+  safeAionDesktopPatch({
     browserSkillLibrary: skills,
     browserMicroSkillLibrary: skills,
     browserSkills: skills,
@@ -16435,7 +18967,7 @@ function attachEvents() {
               ? operationsAgentsWizardInput.checked
               : operationsAgentsWizardInput.value;
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsWizardDraft: setNestedValue(
               state.operationsAgentsWizardDraft || {},
               path,
@@ -16463,7 +18995,7 @@ function attachEvents() {
         const bridge = state.browserDesktopBridge || {};
         const captureDraft = normaliseBrowserCaptureDraft(bridge.capture_draft);
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           browserDesktopBridge: {
             ...bridge,
             capture_draft: {
@@ -16487,7 +19019,7 @@ function attachEvents() {
           updated_at: new Date().toISOString(),
         };
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           browserSkillChainDraft: draft,
         });
 
@@ -16501,7 +19033,7 @@ function attachEvents() {
         const field = browserChainStepField.dataset.browserChainStepField || "";
         const chainStepId = browserChainStepField.dataset.chainStepId || "";
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           browserSkillChainDraft: patchBrowserChainStep(chainStepId, {
             [field]: browserChainStepField.value,
           }),
@@ -16536,7 +19068,7 @@ function attachEvents() {
         const field = stepBuilderSampleField.dataset.stepBuilderSampleField || "";
         const value = stepBuilderSampleField.value || "";
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           operationsAgentsStepBuilderSampleInput: {
             ...(state.operationsAgentsStepBuilderSampleInput || {}),
             [field]: value,
@@ -16559,7 +19091,7 @@ function attachEvents() {
           draft = updateStepBuilderDraftField(draft, field, value);
         }
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           operationsAgentsStepBuilderDraft: draft,
         });
         desktopStore.persistCacheSoon(300);
@@ -16597,7 +19129,7 @@ function attachEvents() {
           });
         }
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           operationsAgentsStepBuilderDraft: draft,
           operationsAgentsStepBuilderSelectedStepId: stepId,
         });
@@ -16624,7 +19156,7 @@ function attachEvents() {
         const nextMode =
           aionChatModeButton.dataset.aionChatMode || "business_workspace";
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           aionChatMode: nextMode,
           desktopAssistantContextMode:
             nextMode === "business_workspace"
@@ -16654,7 +19186,7 @@ function attachEvents() {
 
         const nextPrompt = prompts[action] || "";
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           aionChatMode: "business_workspace",
           desktopAssistantContextMode: "business_workspace",
           aionChatPrompt: nextPrompt,
@@ -16702,14 +19234,14 @@ function attachEvents() {
         const nextPrompt = prompts[action] || "";
 
         if (state.activeTab === "aion_chat") {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             aionChatMode: "business_workspace",
             desktopAssistantContextMode: "business_workspace",
             aionChatPrompt: nextPrompt,
             desktopAssistantPrompt: nextPrompt,
           });
         } else {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             desktopAssistantPrompt: nextPrompt,
             desktopAssistantContextMode: state.activeTab,
             desktopAssistantTargetPath:
@@ -16797,7 +19329,7 @@ function attachEvents() {
             order: index + 1,
           }));
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...bridge,
               captured_events: nextEvents,
@@ -16816,7 +19348,7 @@ function attachEvents() {
         }
 
         if (action === "clear-browser-capture-events") {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               browserDesktopBridge: {
                 ...bridge,
                 captured_events: [],
@@ -16941,14 +19473,14 @@ function attachEvents() {
 
           if (action === "capture-browser-click-checkpoint") {
             try {
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 message: "Click the target inside the isolated browser...",
                 messageTone: "neutral",
               });
               requestRender();
 
               if (!window.aionDesktop?.startCaptureNextClick) {
-                desktopStore.patch({
+                safeAionDesktopPatch({
                   message: "Electron browser capture bridge is not available.",
                   messageTone: "error",
                 });
@@ -16960,7 +19492,7 @@ function attachEvents() {
               const payload = result?.payload || result?.result?.payload || null;
 
               if (!payload) {
-                desktopStore.patch({
+                safeAionDesktopPatch({
                   message:
                     result?.message ||
                     result?.result?.error ||
@@ -17004,7 +19536,7 @@ function attachEvents() {
                 order: index + 1,
               }));
 
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 browserDesktopBridge: {
                   ...bridge,
                   status: "recording",
@@ -17026,7 +19558,7 @@ function attachEvents() {
               requestRender();
               return;
             } catch (error) {
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 message:
                   error instanceof Error
                     ? error.message
@@ -17131,7 +19663,7 @@ if (action === "capture-browser-secret-step") {
             order: index + 1,
           }));
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...bridge,
               status: bridge.status || "recording",
@@ -17159,7 +19691,7 @@ if (action === "capture-browser-secret-step") {
           const templateId =
             operationsAgentsButton.dataset.templateId || "gmail_hubspot_welcome";
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsWizardOpen: true,
             operationsAgentsWizardStep: 1,
             operationsAgentsWizardDraft: buildTeachAionTemplateDraft(templateId),
@@ -17175,7 +19707,7 @@ if (action === "capture-browser-secret-step") {
         }
 
         if (action === "close-wizard") {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsWizardOpen: false,
             operationsAgentsWizardError: "",
           });
@@ -17188,7 +19720,7 @@ if (action === "capture-browser-secret-step") {
         if (action === "wizard-next") {
           const currentStep = Number(state.operationsAgentsWizardStep || 1);
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsWizardStep: Math.min(currentStep + 1, 4),
             operationsAgentsWizardError: "",
           });
@@ -17201,7 +19733,7 @@ if (action === "capture-browser-secret-step") {
         if (action === "wizard-prev") {
           const currentStep = Number(state.operationsAgentsWizardStep || 1);
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsWizardStep: Math.max(currentStep - 1, 1),
             operationsAgentsWizardError: "",
           });
@@ -17222,7 +19754,7 @@ if (action === "capture-browser-secret-step") {
           });
 
           if (!workflow) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "Could not find trained task to edit",
               messageTone: "error",
             });
@@ -17230,7 +19762,7 @@ if (action === "capture-browser-secret-step") {
             return;
           }
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsWizardOpen: true,
             operationsAgentsWizardStep: 1,
             operationsAgentsWizardDraft: JSON.parse(JSON.stringify(workflow)),
@@ -17246,7 +19778,7 @@ if (action === "capture-browser-secret-step") {
         }
 
         if (action === "archive-workflow" || action === "delete-workflow") {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message: "Archive/Delete will be enabled after workflow lifecycle storage is finalized.",
             messageTone: "neutral",
           });
@@ -17258,7 +19790,7 @@ if (action === "capture-browser-secret-step") {
           const toolId = operationsAgentsButton.dataset.toolId || "";
 
           if (!toolId) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No external tool id found",
               messageTone: "error",
             });
@@ -17267,7 +19799,7 @@ if (action === "capture-browser-secret-step") {
           }
 
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Running external tool dry-run...",
               messageTone: "neutral",
@@ -17295,7 +19827,7 @@ if (action === "capture-browser-secret-step") {
               payload,
             });
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsExternalToolDryRunResult: result,
               message: result?.ok
@@ -17307,7 +19839,7 @@ if (action === "capture-browser-secret-step") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -17325,7 +19857,7 @@ if (action === "capture-browser-secret-step") {
           const approvalId = operationsAgentsButton.dataset.approvalId || "";
 
           if (!approvalId) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No approval id found",
               messageTone: "error",
             });
@@ -17334,7 +19866,7 @@ if (action === "capture-browser-secret-step") {
           }
 
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Creating Gmail draft...",
               messageTone: "neutral",
@@ -17350,7 +19882,7 @@ if (action === "capture-browser-secret-step") {
 
             const approvalsResult = await apiGet("/api/local-node/train-tasks/approvals?limit=20");
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsApprovals: Array.isArray(approvalsResult?.items)
                 ? approvalsResult.items
@@ -17367,7 +19899,7 @@ if (action === "capture-browser-secret-step") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -17386,12 +19918,12 @@ if (action === "capture-browser-secret-step") {
 
           try {
             await navigator.clipboard.writeText(workflowId);
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: workflowId ? "Workflow id copied" : "No workflow id found",
               messageTone: workflowId ? "success" : "error",
             });
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: workflowId || "No workflow id found",
               messageTone: workflowId ? "neutral" : "error",
             });
@@ -17405,7 +19937,7 @@ if (action === "capture-browser-secret-step") {
           const workflowId = operationsAgentsButton.dataset.workflowId || "";
 
           if (!workflowId) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "Workflow id missing",
               messageTone: "error",
             });
@@ -17414,7 +19946,7 @@ if (action === "capture-browser-secret-step") {
           }
 
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: `Running generic workflow ${workflowId}...`,
               messageTone: "neutral",
@@ -17434,7 +19966,7 @@ if (action === "capture-browser-secret-step") {
               },
             });
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsLastGenericRun: result,
               message: result?.ok
@@ -17446,7 +19978,7 @@ if (action === "capture-browser-secret-step") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -17461,7 +19993,7 @@ if (action === "capture-browser-secret-step") {
         }
 
         if (action === "open-step-builder") {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderOpen: true,
             operationsAgentsStepBuilderDraft: normaliseStepBuilderDraft(
               state.operationsAgentsStepBuilderDraft || createStepBuilderDraft(),
@@ -17477,7 +20009,7 @@ if (action === "capture-browser-secret-step") {
         }
 
         if (action === "close-step-builder") {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderOpen: false,
             message: "Step-by-step builder closed",
             messageTone: "neutral",
@@ -17489,7 +20021,7 @@ if (action === "capture-browser-secret-step") {
 
         if (action === "reset-step-builder") {
           const draft = createStepBuilderDraft();
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderDraft: draft,
             operationsAgentsStepBuilderSelectedStepId: "",
             message: "Step-by-step builder reset",
@@ -17506,7 +20038,7 @@ if (action === "capture-browser-secret-step") {
           const draft = addStepBuilderStep(state.operationsAgentsStepBuilderDraft, type);
           const selected = draft.steps[draft.steps.length - 1]?.step_id || "";
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderDraft: draft,
             operationsAgentsStepBuilderSelectedStepId: selected,
             message: "Step added",
@@ -17519,7 +20051,7 @@ if (action === "capture-browser-secret-step") {
 
         if (action === "select-step-builder-step") {
           const stepId = operationsAgentsButton.dataset.stepId || "";
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderSelectedStepId: stepId,
           });
           requestRender();
@@ -17531,7 +20063,7 @@ if (action === "capture-browser-secret-step") {
           const direction = action === "move-step-builder-up" ? "up" : "down";
           const draft = moveStepBuilderStep(state.operationsAgentsStepBuilderDraft, stepId, direction);
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderDraft: draft,
             operationsAgentsStepBuilderSelectedStepId: stepId,
           });
@@ -17544,7 +20076,7 @@ if (action === "capture-browser-secret-step") {
           const stepId = operationsAgentsButton.dataset.stepId || "";
           const draft = duplicateStepBuilderStep(state.operationsAgentsStepBuilderDraft, stepId);
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderDraft: draft,
             message: "Step duplicated",
             messageTone: "success",
@@ -17558,7 +20090,7 @@ if (action === "capture-browser-secret-step") {
           const stepId = operationsAgentsButton.dataset.stepId || "";
           const draft = deleteStepBuilderStep(state.operationsAgentsStepBuilderDraft, stepId);
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderDraft: draft,
             operationsAgentsStepBuilderSelectedStepId: draft.steps[0]?.step_id || "",
             message: "Step deleted",
@@ -17577,7 +20109,7 @@ if (action === "capture-browser-secret-step") {
             enabled: current?.enabled === false,
           });
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderDraft: draft,
             operationsAgentsStepBuilderSelectedStepId: stepId,
             message: current?.enabled === false ? "Step enabled" : "Step disabled",
@@ -17662,7 +20194,7 @@ if (action === "capture-browser-secret-step") {
             ],
           };
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             operationsAgentsStepBuilderDraft: seeded,
             operationsAgentsStepBuilderSelectedStepId: seeded.steps[0]?.step_id || "",
             message: "Example workflow added",
@@ -17675,7 +20207,7 @@ if (action === "capture-browser-secret-step") {
 
         if (action === "compile-step-builder-workflow") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Compiling builder draft...",
               messageTone: "neutral",
@@ -17701,7 +20233,7 @@ if (action === "capture-browser-secret-step") {
               validation,
             };
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsStepBuilderCompileResult: result,
               message: result.ok
@@ -17713,7 +20245,7 @@ if (action === "capture-browser-secret-step") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsStepBuilderCompileResult: {
                 ok: false,
@@ -17736,7 +20268,7 @@ if (action === "capture-browser-secret-step") {
 
         if (action === "simulate-step-builder-workflow") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Simulating builder workflow...",
               messageTone: "neutral",
@@ -17754,7 +20286,7 @@ if (action === "capture-browser-secret-step") {
             );
 
             if (validation?.ok !== true) {
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 operationsAgentsLoading: false,
                 operationsAgentsStepBuilderCompileResult: {
                   ok: false,
@@ -17794,7 +20326,7 @@ if (action === "capture-browser-secret-step") {
               },
             );
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsStepBuilderCompileResult: {
                 ok: true,
@@ -17812,7 +20344,7 @@ if (action === "capture-browser-secret-step") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsStepBuilderSimulationResult: {
                 ok: false,
@@ -17841,7 +20373,7 @@ if (action === "capture-browser-secret-step") {
           const publish = action === "publish-step-builder-workflow";
 
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: publish
                 ? "Publishing builder workflow..."
@@ -17871,7 +20403,7 @@ if (action === "capture-browser-secret-step") {
                 validation,
               };
 
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 operationsAgentsLoading: false,
                 operationsAgentsStepBuilderCompileResult: {
                   ok: false,
@@ -17913,7 +20445,7 @@ if (action === "capture-browser-secret-step") {
               save: saveResult,
             };
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsStepBuilderCompileResult: {
                 ok: true,
@@ -17932,7 +20464,7 @@ if (action === "capture-browser-secret-step") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsStepBuilderSaveResult: {
                 ok: false,
@@ -17957,7 +20489,7 @@ if (action === "capture-browser-secret-step") {
         if (action === "activate-browser-bridge") {
           const now = new Date().toISOString();
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               status: "active",
@@ -17992,7 +20524,7 @@ if (action === "capture-browser-secret-step") {
                 ? await window.aionDesktop.openIsolatedBrowser({ startUrl })
                 : { ok: false, error: "Electron bridge not available" };
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               browserDesktopBridge: {
                 ...(state.browserDesktopBridge || {}),
                 status: result.ok ? "active" : "error",
@@ -18014,7 +20546,7 @@ if (action === "capture-browser-secret-step") {
               messageTone: result.ok ? "success" : "error",
             });
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               browserDesktopBridge: {
                 ...(state.browserDesktopBridge || {}),
                 status: "error",
@@ -18049,7 +20581,7 @@ if (action === "capture-browser-secret-step") {
             }
           }
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               status: "recording",
@@ -18109,7 +20641,7 @@ if (action === "capture-browser-secret-step") {
             notes: event.notes || "",
           }));
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...bridge,
               status: recordingSteps.length ? "recorded" : "recording_empty",
@@ -18151,7 +20683,7 @@ if (action === "capture-browser-secret-step") {
             : [];
 
           if (!steps.length) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               browserDesktopBridge: {
                 ...(state.browserDesktopBridge || {}),
                 dry_run_result: {
@@ -18177,7 +20709,7 @@ if (action === "capture-browser-secret-step") {
             replayed_at: now,
           }));
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               status: "dry_run_complete",
@@ -18223,7 +20755,7 @@ if (action === "capture-browser-secret-step") {
             "open_page",
           );
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               captured_events: [...getBrowserCaptureEvents(), event],
@@ -18252,7 +20784,7 @@ if (action === "capture-browser-secret-step") {
             "observe_page",
           );
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               captured_events: [...getBrowserCaptureEvents(), event],
@@ -18281,7 +20813,7 @@ if (action === "capture-browser-secret-step") {
             "capture_field",
           );
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               captured_events: [...getBrowserCaptureEvents(), event],
@@ -18300,14 +20832,14 @@ if (action === "capture-browser-secret-step") {
 
         if (action === "capture-browser-click-checkpoint") {
             try {
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 message: "Click the target inside the isolated browser...",
                 messageTone: "neutral",
               });
               requestRender();
 
               if (!window.aionDesktop?.startCaptureNextClick) {
-                desktopStore.patch({
+                safeAionDesktopPatch({
                   message: "Electron browser capture bridge is not available.",
                   messageTone: "error",
                 });
@@ -18319,7 +20851,7 @@ if (action === "capture-browser-secret-step") {
               const payload = result?.payload || result?.result?.payload || null;
 
               if (!payload) {
-                desktopStore.patch({
+                safeAionDesktopPatch({
                   message:
                     result?.message ||
                     result?.result?.error ||
@@ -18363,7 +20895,7 @@ if (action === "capture-browser-secret-step") {
                 order: index + 1,
               }));
 
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 browserDesktopBridge: {
                   ...bridge,
                   status: "recording",
@@ -18385,7 +20917,7 @@ if (action === "capture-browser-secret-step") {
               requestRender();
               return;
             } catch (error) {
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 message:
                   error instanceof Error
                     ? error.message
@@ -18408,7 +20940,7 @@ if (action === "capture-browser-approval-checkpoint") {
             "approval_checkpoint",
           );
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               captured_events: [...getBrowserCaptureEvents(), event],
@@ -18426,7 +20958,7 @@ if (action === "capture-browser-approval-checkpoint") {
         }
 
         if (action === "clear-browser-capture-events") {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserDesktopBridge: {
               ...(state.browserDesktopBridge || {}),
               captured_events: [],
@@ -18448,7 +20980,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "delete-browser-skill-step") {
           const stepId = operationsAgentsButton.dataset.stepId || "";
           deleteBrowserCapturedEvent(stepId);
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message: "Browser skill step deleted",
             messageTone: "success",
           });
@@ -18459,7 +20991,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "move-browser-skill-step-up") {
           const stepId = operationsAgentsButton.dataset.stepId || "";
           moveBrowserCapturedEvent(stepId, "up");
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message: "Browser skill step moved up",
             messageTone: "success",
           });
@@ -18470,7 +21002,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "move-browser-skill-step-down") {
           const stepId = operationsAgentsButton.dataset.stepId || "";
           moveBrowserCapturedEvent(stepId, "down");
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message: "Browser skill step moved down",
             messageTone: "success",
           });
@@ -18492,7 +21024,7 @@ if (action === "capture-browser-approval-checkpoint") {
             safety: nextApproval ? "approval_required" : "read_only",
           });
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message: nextApproval
               ? "Approval required for browser skill step"
               : "Approval removed from browser skill step",
@@ -18509,7 +21041,7 @@ if (action === "capture-browser-approval-checkpoint") {
             });
 
             if (!Array.isArray(skillContract.recorded_steps) || !skillContract.recorded_steps.length) {
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 message: "No browser skill steps to save",
                 messageTone: "error",
               });
@@ -18517,7 +21049,7 @@ if (action === "capture-browser-approval-checkpoint") {
               return;
             }
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Saving browser micro-skill to workspace...",
               messageTone: "neutral",
@@ -18527,7 +21059,7 @@ if (action === "capture-browser-approval-checkpoint") {
             const result = await saveBrowserSkillToWorkspace(skillContract);
             const savedSkill = result?.item || skillContract;
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               browserDesktopBridge: {
                 ...(state.browserDesktopBridge || {}),
@@ -18555,7 +21087,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCacheSoon(300);
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -18575,7 +21107,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const skillId = select?.value || "";
 
           if (!skillId) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No browser skill selected",
               messageTone: "error",
             });
@@ -18583,7 +21115,7 @@ if (action === "capture-browser-approval-checkpoint") {
             return;
           }
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDraft: addSkillToBrowserChain(skillId),
             browserSkillChainDryRunResult: null,
             message: "Browser micro-skill added to chain",
@@ -18598,7 +21130,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "move-browser-chain-step-up") {
           const chainStepId = operationsAgentsButton.dataset.chainStepId || "";
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDraft: reorderBrowserChainStep(chainStepId, "up"),
             browserSkillChainDryRunResult: null,
             message: "Chain step moved up",
@@ -18613,7 +21145,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "move-browser-chain-step-down") {
           const chainStepId = operationsAgentsButton.dataset.chainStepId || "";
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDraft: reorderBrowserChainStep(chainStepId, "down"),
             browserSkillChainDryRunResult: null,
             message: "Chain step moved down",
@@ -18628,7 +21160,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "remove-browser-chain-step") {
           const chainStepId = operationsAgentsButton.dataset.chainStepId || "";
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDraft: removeBrowserChainStep(chainStepId),
             browserSkillChainDryRunResult: null,
             message: "Chain step removed",
@@ -18646,7 +21178,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const step = draft.steps.find((item) => String(item.chain_step_id || "") === String(chainStepId));
           const nextApproval = !(step?.approval_required_after === true);
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDraft: patchBrowserChainStep(chainStepId, {
               approval_required_after: nextApproval,
             }),
@@ -18663,7 +21195,7 @@ if (action === "capture-browser-approval-checkpoint") {
         }
 
         if (action === "reset-browser-skill-chain") {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDraft: createBrowserSkillChainDraft(),
             browserSkillChainDryRunResult: null,
             message: "Browser skill chain reset",
@@ -18678,7 +21210,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "dry-run-browser-skill-chain") {
           const result = buildBrowserSkillChainDryRun(getBrowserSkillChainDraft());
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDryRunResult: result,
             message: result.ok
               ? "Browser skill chain dry-run complete"
@@ -18693,7 +21225,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         if (action === "compile-browser-skill-chain") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               browserSkillChainCompileResult: null,
               message: "Compiling browser skill chain...",
@@ -18703,7 +21235,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
             const result = await compileAndValidateBrowserSkillChain();
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               browserSkillChainCompileResult: result,
               message: result.ok
@@ -18715,7 +21247,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCacheSoon(300);
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               browserSkillChainCompileResult: {
                 ok: false,
@@ -18743,7 +21275,7 @@ if (action === "capture-browser-approval-checkpoint") {
             const chain = saveBrowserSkillChainDraft();
 
             if (!Array.isArray(chain.steps) || !chain.steps.length) {
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 message: "Add at least one browser micro-skill before saving the chain",
                 messageTone: "error",
               });
@@ -18751,7 +21283,7 @@ if (action === "capture-browser-approval-checkpoint") {
               return;
             }
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Saving browser skill chain to workspace...",
               messageTone: "neutral",
@@ -18763,7 +21295,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
             await refreshBrowserSkillWorkspaceAssets();
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               browserSkillChainDraft: normaliseBrowserSkillChainDraft(savedChain),
               message: `Browser skill chain saved: ${savedChain.chain_id}`,
@@ -18773,7 +21305,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCacheSoon(300);
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -18790,7 +21322,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "load-browser-skill-chain") {
           const chainId = operationsAgentsButton.dataset.chainId || "";
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChainDraft: loadBrowserSkillChainForEditing(chainId),
             browserSkillChainDryRunResult: null,
             message: "Browser skill chain loaded for editing",
@@ -18805,7 +21337,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (action === "duplicate-browser-skill-chain") {
           const chainId = operationsAgentsButton.dataset.chainId || "";
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserSkillChains: duplicateBrowserSkillChain(chainId),
             message: "Browser skill chain duplicated",
             messageTone: "success",
@@ -18820,7 +21352,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const chainId = operationsAgentsButton.dataset.chainId || "";
 
           if (!chainId) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No browser skill chain id found",
               messageTone: "error",
             });
@@ -18831,7 +21363,7 @@ if (action === "capture-browser-approval-checkpoint") {
           try {
             const workspaceId = getActiveWorkspaceId();
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Deleting browser skill chain draft...",
               messageTone: "neutral",
@@ -18844,7 +21376,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
             await refreshBrowserSkillWorkspaceAssets();
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message: `Browser skill chain deleted: ${chainId}`,
               messageTone: "success",
@@ -18853,7 +21385,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCacheSoon(300);
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -18874,7 +21406,7 @@ if (action === "capture-browser-approval-checkpoint") {
             await navigator.clipboard.writeText(skillId);
           }
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message: skillId ? "Browser skill id copied" : "No browser skill id found",
             messageTone: skillId ? "success" : "error",
           });
@@ -18891,7 +21423,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const original = skills.find((item) => item.skill_id === skillId);
 
           if (!original) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "Browser skill not found",
               messageTone: "error",
             });
@@ -18909,7 +21441,7 @@ if (action === "capture-browser-approval-checkpoint") {
             updated_at: now,
           };
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserWorkflowSkills: [duplicate, ...skills],
             message: "Browser micro-skill duplicated",
             messageTone: "success",
@@ -18937,7 +21469,7 @@ if (action === "capture-browser-approval-checkpoint") {
               : skill,
           );
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             browserWorkflowSkills: nextSkills,
             message: "Browser micro-skill marked reusable",
             messageTone: "success",
@@ -18953,12 +21485,12 @@ if (action === "capture-browser-approval-checkpoint") {
 
           try {
             await navigator.clipboard.writeText(approvalId);
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "Approval id copied",
               messageTone: "success",
             });
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: approvalId || "No approval id found",
               messageTone: approvalId ? "neutral" : "error",
             });
@@ -18976,7 +21508,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const approve = action === "approve-train-task-approval";
 
           if (!approvalId) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No approval id found",
               messageTone: "error",
             });
@@ -18985,7 +21517,7 @@ if (action === "capture-browser-approval-checkpoint") {
           }
 
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: `${approve ? "Approving" : "Rejecting"} approval...`,
               messageTone: "neutral",
@@ -19005,7 +21537,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
             const approvalsResult = await apiGet("/api/local-node/train-tasks/approvals?limit=20");
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsApprovals: Array.isArray(approvalsResult?.items)
                 ? approvalsResult.items
@@ -19022,7 +21554,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -19041,7 +21573,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const nextEnabled = operationsAgentsButton.dataset.enabled === "true";
 
           if (!workflowId) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No workflow id found for toggle",
               messageTone: "error",
             });
@@ -19050,7 +21582,7 @@ if (action === "capture-browser-approval-checkpoint") {
           }
 
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: `${nextEnabled ? "Enabling" : "Disabling"} workflow: ${workflowId}`,
               messageTone: "neutral",
@@ -19066,7 +21598,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
             const workflowsResult = await apiGet("/api/local-node/train-tasks/workflows");
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsWorkflows: Array.isArray(workflowsResult?.items)
                 ? workflowsResult.items
                 : [],
@@ -19080,7 +21612,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -19102,7 +21634,7 @@ if (action === "capture-browser-approval-checkpoint") {
             if (!validation.ok) {
               const validationMessage = validation.errors.join(" ");
 
-              desktopStore.patch({
+              safeAionDesktopPatch({
                 operationsAgentsWizardSaving: false,
                 operationsAgentsWizardStep: getTeachAionValidationStep(validation.errors),
                 operationsAgentsWizardError: validationMessage,
@@ -19115,7 +21647,7 @@ if (action === "capture-browser-approval-checkpoint") {
               return;
             }
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsWizardSaving: true,
               operationsAgentsWizardError: "",
               operationsAgentsWizardResult: null,
@@ -19133,7 +21665,7 @@ if (action === "capture-browser-approval-checkpoint") {
             );
             const toolsResult = await apiGet("/api/local-node/tools");
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsWorkflows: Array.isArray(workflowsResult?.items)
                 ? workflowsResult.items
                 : [],
@@ -19152,7 +21684,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsWizardSaving: false,
               operationsAgentsWizardError:
                 error instanceof Error
@@ -19173,7 +21705,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         if (action === "gmail-connect-placeholder") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Checking Gmail connection setup...",
               messageTone: "neutral",
@@ -19183,7 +21715,7 @@ if (action === "capture-browser-approval-checkpoint") {
             const result = await apiGet("/api/local-node/connectors/gmail/connect-url");
             const gmailConnector = await apiGet("/api/local-node/connectors/gmail/health");
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsGmailConnector: gmailConnector || result?.connector || null,
               message:
@@ -19195,7 +21727,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCacheSoon(300);
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -19211,7 +21743,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         if (action === "gmail-poll-now") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Checking Gmail connector...",
               messageTone: "neutral",
@@ -19228,7 +21760,7 @@ if (action === "capture-browser-approval-checkpoint") {
               ? result.runs[0]
               : null;
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsGmailPollResult: result,
               operationsAgentsGmailConnector: gmailConnector || result?.connector || null,
@@ -19242,7 +21774,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -19258,7 +21790,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         if (action === "gmail-poll-dry-run") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               operationsAgentsGmailPollResult: null,
               message: "Running Gmail dry-run poll...",
@@ -19285,7 +21817,7 @@ if (action === "capture-browser-approval-checkpoint") {
               ? result.runs[0]
               : null;
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsGmailPollResult: result,
               operationsAgentsTestResult: firstRun || state.operationsAgentsTestResult || null,
@@ -19296,7 +21828,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsGmailPollResult: {
                 ok: false,
@@ -19319,7 +21851,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         if (action === "refresh") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Refreshing trained tasks and generic workflows...",
               messageTone: "neutral",
@@ -19328,7 +21860,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
             const refreshed = await refreshOperationsAgentsData();
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               ...refreshed,
               operationsAgentsLoading: false,
               message: "Trained tasks and generic workflows refreshed",
@@ -19338,7 +21870,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -19354,7 +21886,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         if (action === "seed-customer-onboarding") {
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               message: "Seeding example workflow...",
               messageTone: "neutral",
@@ -19369,7 +21901,7 @@ if (action === "capture-browser-approval-checkpoint") {
             const result = await apiGet("/api/local-node/train-tasks/workflows");
             const genericWorkflowsResult = await apiGet("/api/local-node/train-tasks/workflows/generic-saved");
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsWorkflows: Array.isArray(result?.items)
                 ? result.items
                 : [],
@@ -19384,7 +21916,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               message:
                 error instanceof Error
@@ -19402,7 +21934,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const workflowId = operationsAgentsButton.dataset.workflowId || "";
 
           if (!workflowId || workflowId === "unknown") {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No workflow id found for test run",
               messageTone: "error",
             });
@@ -19411,7 +21943,7 @@ if (action === "capture-browser-approval-checkpoint") {
           }
 
           try {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: true,
               operationsAgentsTestResult: null,
               message: `Running workflow test: ${workflowId}`,
@@ -19428,7 +21960,7 @@ if (action === "capture-browser-approval-checkpoint") {
               },
             );
 
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsTestResult: result,
               operationsAgentsLoading: false,
               message: "Workflow test completed",
@@ -19438,7 +21970,7 @@ if (action === "capture-browser-approval-checkpoint") {
             desktopStore.persistCache();
             requestRender();
           } catch (error) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               operationsAgentsLoading: false,
               operationsAgentsTestResult: {
                 ok: false,
@@ -19464,7 +21996,7 @@ if (action === "capture-browser-approval-checkpoint") {
           const workflowId = operationsAgentsButton.dataset.workflowId || "";
 
           if (!workflowId || workflowId === "unknown") {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "No workflow id found for curl",
               messageTone: "error",
             });
@@ -19485,12 +22017,12 @@ if (action === "capture-browser-approval-checkpoint") {
 
           try {
             await navigator.clipboard.writeText(curl);
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "Workflow test curl copied",
               messageTone: "success",
             });
           } catch (_) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               message: "Could not copy workflow test curl",
               messageTone: "error",
             });
@@ -19508,7 +22040,7 @@ if (action === "capture-browser-approval-checkpoint") {
         const nextMode =
           marketingCalendarModeButton.dataset.marketingCalendarMode ||
           MARKETING_CALENDAR_MODES.DONE;
-        desktopStore.patch({ marketingCalendarMode: nextMode });
+        safeAionDesktopPatch({ marketingCalendarMode: nextMode });
         desktopStore.persistCache();
         requestRender();
         return;
@@ -19519,7 +22051,7 @@ if (action === "capture-browser-approval-checkpoint") {
       );
       if (facebookCardButton) {
         const index = Number(facebookCardButton.dataset.facebookCardIndex || 0);
-        desktopStore.patch({ selectedFacebookCardIndex: index });
+        safeAionDesktopPatch({ selectedFacebookCardIndex: index });
         desktopStore.persistCache();
         requestRender();
         return;
@@ -19540,7 +22072,7 @@ if (action === "capture-browser-approval-checkpoint") {
       if (marketingRunsExpandButton) {
         const mode =
           marketingRunsExpandButton.dataset.marketingRunsExpand || "more";
-        desktopStore.patch({
+        safeAionDesktopPatch({
           marketingRunsExpanded: mode === "more",
         });
         requestRender();
@@ -19554,7 +22086,7 @@ if (action === "capture-browser-approval-checkpoint") {
         const mode =
           marketingApprovalsExpandButton.dataset.marketingApprovalsExpand ||
           "more";
-        desktopStore.patch({
+        safeAionDesktopPatch({
           marketingResolvedApprovalsExpanded: mode === "more",
         });
         requestRender();
@@ -19576,7 +22108,7 @@ if (action === "capture-browser-approval-checkpoint") {
       if (liveAgentSelectButton) {
         const agentId = liveAgentSelectButton.dataset.agentId || null;
         desktopStore.setSelectedLiveAgentId(agentId);
-        desktopStore.patch({ liveAgentsView: LIVE_AGENT_VIEWS.STREAM });
+        safeAionDesktopPatch({ liveAgentsView: LIVE_AGENT_VIEWS.STREAM });
         ensureLiveAgentSelection({
           preferredAgentId: agentId,
           preferredDepartmentKey: state.activeZone || "marketing",
@@ -19648,7 +22180,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (!approvalId) return;
 
         try {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             loading: true,
             message: approve ? "Approving content..." : "Rejecting content...",
             messageTone: "neutral",
@@ -19674,7 +22206,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
           await refreshAll();
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             activeTab: "live_agents",
             activeZone: "marketing",
             selectedLiveRunId: resolvedRunId,
@@ -19705,7 +22237,7 @@ if (action === "capture-browser-approval-checkpoint") {
             revealReplayForSelectedRun();
           });
         } catch (error) {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message:
               error instanceof Error
                 ? error.message
@@ -19725,7 +22257,7 @@ if (action === "capture-browser-approval-checkpoint") {
         const nextView =
           liveAgentsViewButton.dataset.liveAgentsView ||
           LIVE_AGENT_VIEWS.STREAM;
-        desktopStore.patch({ liveAgentsView: nextView });
+        safeAionDesktopPatch({ liveAgentsView: nextView });
         ensureLiveAgentSelection({
           preferredView: nextView,
           preferredDepartmentKey: state.activeZone || "marketing",
@@ -19741,7 +22273,7 @@ if (action === "capture-browser-approval-checkpoint") {
       if (liveAgentsStreamTabButton) {
         const nextTab =
           liveAgentsStreamTabButton.dataset.liveAgentsStreamTab || "approval";
-        desktopStore.patch({ liveAgentsStreamTab: nextTab });
+        safeAionDesktopPatch({ liveAgentsStreamTab: nextTab });
         desktopStore.persistCache();
         requestRender();
         return;
@@ -19753,7 +22285,7 @@ if (action === "capture-browser-approval-checkpoint") {
         if (!runId) return;
 
         try {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             loading: true,
             message: "Sending artifact to publish calendar...",
             messageTone: "neutral",
@@ -19770,7 +22302,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
           await refreshAll();
 
-          desktopStore.patch({
+          safeAionDesktopPatch({
             activeTab: "live_agents",
             activeZone: "marketing",
             liveAgentsView: LIVE_AGENT_VIEWS.CALENDAR,
@@ -19790,7 +22322,7 @@ if (action === "capture-browser-approval-checkpoint") {
           desktopStore.persistCache();
           requestRender();
         } catch (error) {
-          desktopStore.patch({
+          safeAionDesktopPatch({
             message:
               error instanceof Error
                 ? error.message
@@ -19991,7 +22523,7 @@ if (action === "capture-browser-approval-checkpoint") {
     aionChatEngineInput.addEventListener("change", (e) => {
       const nextEngine = getInputValue(e) || "gemma4";
 
-      desktopStore.patch({
+      safeAionDesktopPatch({
         aionChatEngine: nextEngine,
         desktopAssistantProvider: nextEngine,
       });
@@ -20006,7 +22538,7 @@ if (action === "capture-browser-approval-checkpoint") {
     aionChatPromptInput.addEventListener("input", (e) => {
       const nextPrompt = getInputValue(e);
 
-      desktopStore.patch({
+      safeAionDesktopPatch({
         aionChatPrompt: nextPrompt,
         desktopAssistantPrompt: nextPrompt,
       });
@@ -20024,7 +22556,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
       if (!prompt.trim()) return;
 
-      desktopStore.patch({
+      safeAionDesktopPatch({
         loading: true,
         aionChatOutput: "Thinking...",
         desktopAssistantOutput: "Thinking...",
@@ -20097,7 +22629,7 @@ if (action === "capture-browser-approval-checkpoint") {
           result?.item?.output ||
           "No AI response returned.";
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           aionChatOutput: text,
           desktopAssistantOutput: text,
           desktopAssistantProvider: engine,
@@ -20112,7 +22644,7 @@ if (action === "capture-browser-approval-checkpoint") {
         const message =
           error instanceof Error ? error.message : "Aion request failed.";
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           aionChatOutput: message,
           desktopAssistantOutput: message,
           loading: false,
@@ -20128,7 +22660,7 @@ if (action === "capture-browser-approval-checkpoint") {
   if (aionChatClearBtn && !aionChatClearBtn.dataset.bound) {
     aionChatClearBtn.dataset.bound = "1";
     aionChatClearBtn.addEventListener("click", () => {
-      desktopStore.patch({
+      safeAionDesktopPatch({
         aionChatPrompt: "",
         aionChatOutput: "",
         desktopAssistantPrompt: "",
@@ -20155,7 +22687,7 @@ if (action === "capture-browser-approval-checkpoint") {
     desktopAssistantProviderInput.dataset.bound = "1";
     desktopAssistantProviderInput.addEventListener("change", (e) => {
       const provider = getInputValue(e) || "gemma4";
-      desktopStore.patch({
+      safeAionDesktopPatch({
         desktopAssistantProvider: provider,
         aionChatEngine: provider,
       });
@@ -20168,7 +22700,7 @@ if (action === "capture-browser-approval-checkpoint") {
     desktopAssistantTargetPathInput.addEventListener("change", (e) => {
       const nextPath = getInputValue(e);
 
-      desktopStore.patch({
+      safeAionDesktopPatch({
         desktopAssistantTargetPath: nextPath,
         brandAssistantSection: nextPath,
         desktopAssistantContextMode: "brand_foundation",
@@ -20182,7 +22714,7 @@ if (action === "capture-browser-approval-checkpoint") {
   if (desktopAssistantPromptInput && !desktopAssistantPromptInput.dataset.bound) {
     desktopAssistantPromptInput.dataset.bound = "1";
     desktopAssistantPromptInput.addEventListener("input", (e) => {
-      desktopStore.patch({
+      safeAionDesktopPatch({
         desktopAssistantPrompt: getInputValue(e),
       });
       desktopStore.persistCacheSoon(300);
@@ -20192,7 +22724,7 @@ if (action === "capture-browser-approval-checkpoint") {
   if (desktopAssistantOutputInput && !desktopAssistantOutputInput.dataset.bound) {
     desktopAssistantOutputInput.dataset.bound = "1";
     desktopAssistantOutputInput.addEventListener("input", (e) => {
-      desktopStore.patch({
+      safeAionDesktopPatch({
         desktopAssistantOutput: getInputValue(e),
       });
       desktopStore.persistCacheSoon(300);
@@ -20207,7 +22739,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
       if (!prompt.trim()) return;
 
-      desktopStore.patch({
+      safeAionDesktopPatch({
         loading: true,
         desktopAssistantOutput: "Thinking...",
         message: "Asking desktop assistant...",
@@ -20240,7 +22772,7 @@ if (action === "capture-browser-approval-checkpoint") {
           status: state.status || {},
         });
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           desktopAssistantOutput:
             result?.text ||
             result?.output ||
@@ -20257,7 +22789,7 @@ if (action === "capture-browser-approval-checkpoint") {
         desktopStore.persistCache();
         requestRender();
       } catch (error) {
-        desktopStore.patch({
+        safeAionDesktopPatch({
           desktopAssistantOutput:
             error instanceof Error ? error.message : "Assistant request failed.",
           loading: false,
@@ -20272,7 +22804,7 @@ if (action === "capture-browser-approval-checkpoint") {
   if (desktopAssistantClearBtn && !desktopAssistantClearBtn.dataset.bound) {
     desktopAssistantClearBtn.dataset.bound = "1";
     desktopAssistantClearBtn.addEventListener("click", () => {
-      desktopStore.patch({
+      safeAionDesktopPatch({
         desktopAssistantPrompt: "",
         desktopAssistantOutput: "",
       });
@@ -20294,7 +22826,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
       if (state.activeTab === "brand_foundation" && targetPath) {
         desktopStore.setBrandFoundationNestedValue(targetPath, output);
-        desktopStore.patch({
+        safeAionDesktopPatch({
           brandAssistantSection: targetPath,
           desktopAssistantTargetPath: targetPath,
           desktopAssistantContextMode: "brand_foundation",
@@ -20308,28 +22840,28 @@ if (action === "capture-browser-approval-checkpoint") {
   if (apiBaseInput && !apiBaseInput.dataset.bound) {
     apiBaseInput.dataset.bound = "1";
     apiBaseInput.addEventListener("input", (e) => {
-      desktopStore.patch({ apiBase: getInputValue(e) });
+      safeAionDesktopPatch({ apiBase: getInputValue(e) });
     });
   }
 
   if (webBaseInput && !webBaseInput.dataset.bound) {
     webBaseInput.dataset.bound = "1";
     webBaseInput.addEventListener("input", (e) => {
-      desktopStore.patch({ webBase: getInputValue(e) });
+      safeAionDesktopPatch({ webBase: getInputValue(e) });
     });
   }
 
   if (workspaceIdInput && !workspaceIdInput.dataset.bound) {
     workspaceIdInput.dataset.bound = "1";
     workspaceIdInput.addEventListener("input", (e) => {
-      desktopStore.patch({ workspaceId: getInputValue(e) });
+      safeAionDesktopPatch({ workspaceId: getInputValue(e) });
     });
   }
 
   if (nodeIdInput && !nodeIdInput.dataset.bound) {
     nodeIdInput.dataset.bound = "1";
     nodeIdInput.addEventListener("input", (e) => {
-      desktopStore.patch({ nodeId: getInputValue(e) });
+      safeAionDesktopPatch({ nodeId: getInputValue(e) });
     });
   }
 
@@ -20408,12 +22940,12 @@ if (action === "capture-browser-approval-checkpoint") {
     saveBrandFoundationBtn.dataset.bound = "1";
     saveBrandFoundationBtn.addEventListener("click", async () => {
       try {
-        desktopStore.patch({ loading: true });
+        safeAionDesktopPatch({ loading: true });
         requestRender();
 
         const result = await saveBrandFoundationToBackend();
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           brandFoundationState:
             result?.item || result || state.brandFoundationState,
           message: "Brand foundation saved to backend containers",
@@ -20424,7 +22956,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         await refreshAll();
       } catch (error) {
-        desktopStore.patch({
+        safeAionDesktopPatch({
           message:
             error instanceof Error
               ? error.message
@@ -20441,7 +22973,7 @@ if (action === "capture-browser-approval-checkpoint") {
     resetBrandFoundationBtn.dataset.bound = "1";
     resetBrandFoundationBtn.addEventListener("click", async () => {
       try {
-        desktopStore.patch({ loading: true });
+        safeAionDesktopPatch({ loading: true });
         requestRender();
 
         desktopStore.syncBrandFoundationFromMarketingForm();
@@ -20449,7 +22981,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         const result = await saveBrandFoundationToBackend();
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           brandFoundationState:
             result?.item || result || state.brandFoundationState,
           message: "Brand foundation reset from marketing form and saved",
@@ -20460,7 +22992,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         await refreshAll();
       } catch (error) {
-        desktopStore.patch({
+        safeAionDesktopPatch({
           message:
             error instanceof Error
               ? error.message
@@ -20759,7 +23291,7 @@ if (action === "capture-browser-approval-checkpoint") {
     launchMarketingBtn.dataset.bound = "1";
     launchMarketingBtn.addEventListener("click", async () => {
       try {
-        desktopStore.patch({
+        safeAionDesktopPatch({
           loading: true,
           message: "Creating marketing content suggestion...",
           messageTone: "neutral",
@@ -20796,7 +23328,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         await refreshAll();
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           activeTab: "marketing_stream",
           activeZone: "marketing",
           liveAgentsView: LIVE_AGENT_VIEWS.STREAM,
@@ -20832,7 +23364,7 @@ if (action === "capture-browser-approval-checkpoint") {
           revealReplayForSelectedRun();
         });
       } catch (error) {
-        desktopStore.patch({
+        safeAionDesktopPatch({
           message:
             error instanceof Error ? error.message : "Marketing launch failed",
           messageTone: "error",
@@ -20862,7 +23394,7 @@ if (action === "capture-browser-approval-checkpoint") {
       if (!approvalId) return;
 
       try {
-        desktopStore.patch({
+        safeAionDesktopPatch({
           loading: true,
           message: approve ? "Approving content..." : "Rejecting content...",
           messageTone: "neutral",
@@ -20888,7 +23420,7 @@ if (action === "capture-browser-approval-checkpoint") {
 
         await refreshAll();
 
-        desktopStore.patch({
+        safeAionDesktopPatch({
           activeTab: "live_agents",
           activeZone: "marketing",
           liveAgentsView: LIVE_AGENT_VIEWS.STREAM,
@@ -20918,7 +23450,7 @@ if (action === "capture-browser-approval-checkpoint") {
           revealReplayForSelectedRun();
         });
       } catch (error) {
-        desktopStore.patch({
+        safeAionDesktopPatch({
           message:
             error instanceof Error ? error.message : "Approval action failed",
           messageTone: "error",
@@ -20948,6 +23480,8 @@ function requestRender() {
 
 
 
+
+window.requestRender = requestRender;
 
 function installAionWorkflowActionCardImmediateAddOverride() {
   if (window.__aionWorkflowActionImmediateOverrideBound === true) return;
@@ -21095,7 +23629,7 @@ function installAionWorkflowActionCardImmediateAddOverride() {
       };
 
       if (!actionMap[actionType]) {
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "This action is listed for the roadmap but is not active yet.",
           messageTone: "info",
         });
@@ -21105,7 +23639,7 @@ function installAionWorkflowActionCardImmediateAddOverride() {
 
       if (!window.__aionWorkflowGraph) {
         window.__aionWorkflowGraph = {
-          workflow_id: "workflow_draft",
+          workflow_id: createAionWorkflowId(),
           name: "Untitled workflow",
           status: "draft",
           nodes: [],
@@ -21413,7 +23947,7 @@ function buildAionWorkflowLocalDryRunResult(graph) {
     dry_run: true,
     local_preview: true,
     architect_generated: isAionWorkflowGeneratedCanvasGraph(safeGraph),
-    workflow_id: String(safeGraph.workflow_id || "workflow_draft_1"),
+    workflow_id: String(safeGraph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft"),
     workflow_name: String(safeGraph.name || "Untitled workflow"),
     steps: trace.length,
     trace,
@@ -21453,7 +23987,7 @@ function runAionWorkflowLocalCanvasDryRun(graph) {
     window.__aionWorkflowLastApproval = result.approval_request;
   }
 
-  desktopStore.patch?.({
+  safeAionDesktopPatch({
     message: result.message,
     messageTone: result.approval_required ? "neutral" : "success",
   });
@@ -21578,9 +24112,9 @@ function installAionWorkflowDraftPersistenceControls() {
         graph.compiled_glyph?.workflow?.business_container ||
         getAionWorkflowBusinessContainerId();
 
-      const workflowId = graph.workflow_id || "workflow_draft_1";
+      const workflowId = graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "Running workflow dry-run. No external writes will be performed.",
         messageTone: "info",
       });
@@ -21694,7 +24228,7 @@ function installAionWorkflowDraftPersistenceControls() {
         };
         window.__aionWorkflowDryRunTraceOpen = true;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: `Workflow dry-run complete: ${result.steps || result.trace?.length || 0} steps · ${result.blocked_external_writes?.length || 0} blocked writes`,
           messageTone: result.approval_required || result.approval_request ? "neutral" : "success",
         });
@@ -21710,7 +24244,7 @@ function installAionWorkflowDraftPersistenceControls() {
 
         window.__aionWorkflowDryRunTraceOpen = true;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: error instanceof Error ? error.message : "Dry-run failed",
           messageTone: "error",
         });
@@ -21725,7 +24259,7 @@ function installAionWorkflowDraftPersistenceControls() {
       event.preventDefault();
       event.stopPropagation();
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "Publish requires approval policy wiring. Draft remains safe.",
         messageTone: "info",
       });
@@ -21740,7 +24274,7 @@ function installAionWorkflowDraftPersistenceControls() {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "Tasks refreshed from local runtime.",
         messageTone: "success",
       });
@@ -21755,7 +24289,7 @@ function installAionWorkflowDraftPersistenceControls() {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "Dry-run poll queued. No external writes will be performed.",
         messageTone: "neutral",
       });
@@ -21773,7 +24307,7 @@ function installAionWorkflowDraftPersistenceControls() {
       window.__aionWorkflowPickerMode = "action";
       window.__aionWorkflowInspectorOpen = true;
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "Step-by-step builder opened.",
         messageTone: "neutral",
       });
@@ -21869,7 +24403,7 @@ function installAionWorkflowDraftPersistenceControls() {
 
         window.__aionWorkflowDryRunTraceOpen = true;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "Approved and resumed to connector-ready. No live external write was performed.",
           messageTone: "success",
         });
@@ -21883,7 +24417,7 @@ function installAionWorkflowDraftPersistenceControls() {
         graph.business_container ||
         graph.compiled_glyph?.workflow?.business_container ||
         getAionWorkflowBusinessContainerId();
-      const workflowId = graph.workflow_id || "workflow_draft_1";
+      const workflowId = graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
 
       try {
         const apiBase =
@@ -21916,12 +24450,12 @@ function installAionWorkflowDraftPersistenceControls() {
           };
         }
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: `Approved workflow step: ${approvalId}. Now click Resume.`,
           messageTone: "success",
         });
       } catch (error) {
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: error instanceof Error ? error.message : "Approval failed",
           messageTone: "error",
         });
@@ -21958,7 +24492,7 @@ function installAionWorkflowDraftPersistenceControls() {
 
         window.__aionWorkflowDryRunTraceOpen = true;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: `Rejected local workflow gate: ${approvalId}.`,
           messageTone: "neutral",
         });
@@ -21972,7 +24506,7 @@ function installAionWorkflowDraftPersistenceControls() {
         graph.business_container ||
         graph.compiled_glyph?.workflow?.business_container ||
         getAionWorkflowBusinessContainerId();
-      const workflowId = graph.workflow_id || "workflow_draft_1";
+      const workflowId = graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
 
       try {
         const apiBase =
@@ -21997,12 +24531,12 @@ function installAionWorkflowDraftPersistenceControls() {
 
         window.__aionWorkflowLastApproval = result.approval;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: `Rejected workflow step: ${approvalId}`,
           messageTone: "neutral",
         });
       } catch (error) {
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: error instanceof Error ? error.message : "Reject failed",
           messageTone: "error",
         });
@@ -22031,7 +24565,7 @@ function installAionWorkflowDraftPersistenceControls() {
           (currentApproval?.status === "approved" || currentApproval?.decision === "approved");
 
         if (!approved) {
-          desktopStore.patch?.({
+          safeAionDesktopPatch({
             message: "Approve this workflow gate before resuming.",
             messageTone: "error",
           });
@@ -22086,7 +24620,7 @@ function installAionWorkflowDraftPersistenceControls() {
 
         window.__aionWorkflowDryRunTraceOpen = true;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "Workflow resumed to connector-ready. No live external write was performed.",
           messageTone: "success",
         });
@@ -22100,7 +24634,7 @@ function installAionWorkflowDraftPersistenceControls() {
         graph.business_container ||
         graph.compiled_glyph?.workflow?.business_container ||
         getAionWorkflowBusinessContainerId();
-      const workflowId = graph.workflow_id || "workflow_draft_1";
+      const workflowId = graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
 
       try {
         const apiBase =
@@ -22121,12 +24655,12 @@ function installAionWorkflowDraftPersistenceControls() {
 
         window.__aionWorkflowDryRunResult = result;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: `Resume complete: ${result.steps || 0} steps · no external sends`,
           messageTone: "success",
         });
       } catch (error) {
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: error instanceof Error ? error.message : "Resume failed",
           messageTone: "error",
         });
@@ -22145,7 +24679,7 @@ function installAionWorkflowDraftPersistenceControls() {
         syncAionWorkflowInspectorInputsToGraph?.();
         const graph = getAionWorkflowDraftState();
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "Compiling workflow canvas into Workflow Capsule...",
           messageTone: "info",
         });
@@ -22153,14 +24687,14 @@ function installAionWorkflowDraftPersistenceControls() {
 
         const result = await saveAionWorkflowCanvasAsCapsule(graph);
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: `Saved Workflow Capsule: ${result.canonical_key || "capsule"} → ${result.path || "repository"}`,
           messageTone: "success",
         });
 
         requestRender();
       } catch (error) {
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: `Workflow Capsule save failed: ${error?.message || error}`,
           messageTone: "error",
         });
@@ -22207,7 +24741,7 @@ function installAionWorkflowDraftPersistenceControls() {
         }
       }
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: copied
           ? `Exported compiled glyph: ${compiledGlyph?.steps?.length || 0} steps`
           : "Could not copy glyph. Open Compiled Glyph and copy manually.",
@@ -22227,7 +24761,7 @@ function installAionWorkflowDraftPersistenceControls() {
       const nodeId = applyNodeConfigButton.getAttribute("data-aion-workflow-apply-node-config");
       const config = applyAionWorkflowPendingNodeConfig(nodeId);
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: `Applied parser config: ${JSON.stringify(config || {})}`,
         messageTone: "success",
       });
@@ -22259,7 +24793,7 @@ function installAionWorkflowDraftPersistenceControls() {
     try {
       const backendResult = await saveAionWorkflowToBusinessContainer(graph);
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: `Saved workflow to ${backendResult.business_container}: ${graph.name || "Untitled workflow 1"}`,
         messageTone: "success",
       });
@@ -22271,7 +24805,7 @@ function installAionWorkflowDraftPersistenceControls() {
     } catch (error) {
       console.warn("[workflow] backend save failed; local draft kept", error);
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: saved
           ? `Saved local draft only: ${graph.name || "Untitled workflow 1"}`
           : "Workflow save failed",
@@ -22300,6 +24834,9 @@ function installWorkflowArchitectModalInputPersistenceControls() {
       ...(window.__syncedArchitectInput || {}),
       workflowGoal,
       provider: current.provider || window.__workflowArchitectProvider || "mock",
+      ...(typeof getAionArchitectBuildReviewPayloadExtras === "function"
+        ? getAionArchitectBuildReviewPayloadExtras()
+        : {}),
     };
 
     window.__aionWorkflowArchitectReview = {
@@ -22358,6 +24895,10 @@ function installWorkflowArchitectGuidedStepBuilderControls() {
   document.addEventListener("click", (event) => {
     const buildButton = event.target.closest?.("[data-workflow-architect-build-review='true']");
     if (buildButton) {
+      if (typeof syncAionArchitectCapabilityManifestToInput === "function") {
+        syncAionArchitectCapabilityManifestToInput();
+      }
+
       const guidedSteps = workflowArchitectGuidedStepsToUserSteps();
       const approvedSteps = getWorkflowArchitectApprovedUserSteps();
 
@@ -22373,7 +24914,7 @@ function installWorkflowArchitectGuidedStepBuilderControls() {
           warnings: ["Approve step list before graph generation."],
         });
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "Approve the guided step list before graph generation.",
           messageTone: "warning",
         });
@@ -22408,7 +24949,7 @@ function installWorkflowArchitectGuidedStepBuilderControls() {
         stepsApproved: true,
       });
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "Guided workflow step list approved for graph generation.",
         messageTone: "success",
       });
@@ -22496,7 +25037,7 @@ function installWorkflowArchitectToolbarOpenControl() {
         warnings: [],
       });
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "AI Workflow Architect opened.",
         messageTone: "neutral",
       });
@@ -22536,7 +25077,7 @@ function installAionWorkflowBottomToolbarControls() {
 
         window.__aionWorkflowArchitectModalOpen = true;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "AI Workflow Architect opened.",
           messageTone: "neutral",
         });
@@ -22559,7 +25100,7 @@ function installAionWorkflowBottomToolbarControls() {
             throw new Error("No workflow graph available to save.");
           }
 
-          desktopStore.patch?.({
+          safeAionDesktopPatch({
             message: "Compiling workflow canvas into Workflow Capsule...",
             messageTone: "info",
           });
@@ -22567,12 +25108,12 @@ function installAionWorkflowBottomToolbarControls() {
 
           const result = await saveAionWorkflowCanvasAsCapsule(graph);
 
-          desktopStore.patch?.({
+          safeAionDesktopPatch({
             message: `Saved Workflow Capsule: ${result?.canonical_key || "capsule"} → ${result?.path || "repository"}`,
             messageTone: "success",
           });
         } catch (error) {
-          desktopStore.patch?.({
+          safeAionDesktopPatch({
             message: error instanceof Error ? error.message : "Workflow Capsule save failed.",
             messageTone: "error",
           });
@@ -22602,7 +25143,7 @@ function installWorkflowArchitectNodeEditorModalControls() {
 
         window.__aionWorkflowArchitectModalOpen = true;
 
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "AI Workflow Architect opened.",
           messageTone: "neutral",
         });
@@ -22846,7 +25387,7 @@ function installWorkflowArchitectLoadValidReviewControls() {
     const hasValidCanvas = Boolean(result?.ok === true && Array.isArray(canvas?.nodes) && canvas.nodes.length);
 
     if (!hasValidCanvas) {
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: "No valid Architect canvas review is ready to load.",
         messageTone: "error",
       });
@@ -22961,7 +25502,7 @@ function installWorkflowArchitectLoadValidReviewControls() {
       loading: false,
     });
 
-    desktopStore.patch?.({
+    safeAionDesktopPatch({
       message: `Loaded Architect workflow onto canvas: ${nodes.length} nodes · ${edges.length} links`,
       messageTone: "success",
     });
@@ -23010,6 +25551,291 @@ function fitAionWorkflowCanvasToGeneratedGraph_DISABLED_DUPLICATE(graph) {
 }
 
 
+
+function getAionWorkflowWorkingActionMap() {
+  return {
+    ai_extract_fields: {
+      title: "Extract fields",
+      type: "AI / Parser",
+      icon: "AI",
+      status: "Dry-run",
+      meta: "Name, email, service, town",
+      tone: "blue",
+    },
+    ai_classify: {
+      title: "Classify enquiry",
+      type: "AI / Router",
+      icon: "◇",
+      status: "Draft",
+      meta: "Service, urgency, route",
+      tone: "blue",
+    },
+    ai_draft_reply: {
+      title: "Draft reply",
+      type: "Action",
+      icon: "✎",
+      status: "Prepared only",
+      meta: "No send without approval",
+      tone: "purple",
+    },
+    tool_set_variable: {
+      title: "Set variable",
+      type: "Tools",
+      icon: "=",
+      status: "Dry-run",
+      meta: "Store workflow value",
+      tone: "teal",
+      config: { key: "workflow_variable", value: "{{first_match}}" },
+    },
+    tool_get_variable: {
+      title: "Get variable",
+      type: "Tools",
+      icon: "$",
+      status: "Dry-run",
+      meta: "Read workflow value",
+      tone: "teal",
+      config: { key: "workflow_variable" },
+    },
+    tool_compose_string: {
+      title: "Compose string",
+      type: "Tools",
+      icon: "T",
+      status: "Dry-run",
+      meta: "Build mapped text",
+      tone: "teal",
+      config: { template: "Route {{route}} / urgency {{urgency}} / match {{first_match}}" },
+    },
+    tool_sleep: {
+      title: "Sleep / delay",
+      type: "Tools",
+      icon: "⏱",
+      status: "Preview",
+      meta: "Delay preview only",
+      tone: "amber",
+      config: { seconds: 5 },
+    },
+    parser_match_pattern: {
+      title: "Match pattern",
+      type: "Text Parser",
+      icon: ".*",
+      status: "Dry-run",
+      meta: "Regex match from text",
+      tone: "teal",
+      config: { pattern: "[\\w.+-]+@[\\w-]+(?:\\.[\\w-]+)+" },
+    },
+    parser_replace: {
+      title: "Replace text",
+      type: "Text Parser",
+      icon: "↔",
+      status: "Dry-run",
+      meta: "Replace matching text",
+      tone: "teal",
+      config: { pattern: "Example Customer", replacement: "Customer" },
+    },
+    parser_html_to_text: {
+      title: "HTML to text",
+      type: "Text Parser",
+      icon: "TXT",
+      status: "Dry-run",
+      meta: "Convert HTML to text",
+      tone: "teal",
+    },
+    parser_extract_html: {
+      title: "Extract from HTML",
+      type: "Text Parser",
+      icon: "</>",
+      status: "Dry-run",
+      meta: "Links, images, table rows",
+      tone: "teal",
+    },
+    gmail_send_email: {
+      title: "Send email",
+      type: "Action",
+      icon: "✉",
+      status: "Requires approval",
+      meta: "Only runs after approval",
+      tone: "purple",
+    },
+    gmail_read_email: {
+      title: "Read Gmail email",
+      type: "Gmail",
+      icon: "G",
+      status: "Needs connection",
+      meta: "Subject, body, sender, thread",
+      tone: "teal",
+    },
+    crm_create_lead: {
+      title: "Create CRM lead",
+      type: "API / MCP",
+      icon: "C",
+      status: "Blocked write",
+      meta: "HubSpot or CostaConnect CRM",
+      tone: "amber",
+    },
+    approval_gate: {
+      title: "Human approval",
+      type: "Gate",
+      icon: "✓",
+      status: "Required",
+      meta: "Review before external write",
+      tone: "red",
+    },
+  };
+}
+
+function getAionModuleWorkingActionType(module) {
+  const id = String(module?.id || "");
+  const actionId = String(module?.action_id || "");
+
+  const map = {
+    "ai.extract_information": "ai_extract_fields",
+    "aion.extract_information": "ai_extract_fields",
+    "aion.extract_fields": "ai_extract_fields",
+    "ai.categorise_text": "ai_classify",
+    "ai.categorize_text": "ai_classify",
+    "aion.classify_lead": "ai_classify",
+    "ai.simple_prompt": "ai_draft_reply",
+    "aion.simple_prompt": "ai_draft_reply",
+
+    "gmail.search_emails": "gmail_read_email",
+    "gmail.get_email": "gmail_read_email",
+    "gmail.create_draft": "ai_draft_reply",
+    "gmail.send_email": "gmail_send_email",
+
+    "hubspot.create_contact": "crm_create_lead",
+    "hubspot.create_or_update_contact": "crm_create_lead",
+    "crm.create_lead": "crm_create_lead",
+
+    "tools.set_variable": "tool_set_variable",
+    "tools.get_variable": "tool_get_variable",
+    "tools.compose_string": "tool_compose_string",
+    "tools.sleep": "tool_sleep",
+
+    "approval.human": "approval_gate",
+    "aion.human_approval": "approval_gate",
+    "approval.before_send": "approval_gate",
+    "aion.approval_before_send": "approval_gate",
+    "approval.before_external_write": "approval_gate",
+    "aion.approval_before_external_write": "approval_gate",
+
+    "text.match_pattern": "parser_match_pattern",
+    "text.replace": "parser_replace",
+    "text.html_to_text": "parser_html_to_text",
+    "text.get_elements_from_html": "parser_extract_html",
+    "text.get_html_table": "parser_extract_html",
+  };
+
+  return map[id] || map[actionId] || "";
+}
+
+function addAionWorkflowNodeFromWorkingAction(actionType, module = {}) {
+  const actionMap = getAionWorkflowWorkingActionMap();
+  const base = actionMap[actionType];
+
+  if (!base) {
+    safeAionDesktopPatch({
+      message: "This module is visible but not wired to a working node yet.",
+      messageTone: "info",
+    });
+    requestRender();
+    return false;
+  }
+
+  if (!window.__aionWorkflowGraph) {
+    window.__aionWorkflowGraph = {
+      workflow_id: createAionWorkflowId(),
+      name: "Untitled workflow",
+      status: "draft",
+      nodes: [],
+      edges: [],
+    };
+  }
+
+  const nodes = Array.isArray(window.__aionWorkflowGraph.nodes)
+    ? window.__aionWorkflowGraph.nodes
+    : [];
+
+  const edges = Array.isArray(window.__aionWorkflowGraph.edges)
+    ? window.__aionWorkflowGraph.edges
+    : [];
+
+  const selectedNodeId = window.__aionWorkflowSelectedNodeId || null;
+  const selectedNode = selectedNodeId
+    ? nodes.find((node) => node.id === selectedNodeId)
+    : null;
+
+  const anchorNode =
+    selectedNode ||
+    nodes[nodes.length - 1] ||
+    { id: null, x: 160, y: 240 };
+
+  const newNode = {
+    id: `node_${actionType}_${Date.now()}`,
+    ...base,
+    action_id: module.action_id || actionType,
+    module_id: module.id || "",
+    module_group: module.group || "",
+    module_kind: module.kind || "",
+    x: Number(anchorNode.x || 160) + 275,
+    y: Number(anchorNode.y || 240),
+  };
+
+  const anchorIndex = anchorNode?.id
+    ? nodes.findIndex((node) => node.id === anchorNode.id)
+    : -1;
+
+  const nextNodes =
+    anchorIndex >= 0
+      ? [
+          ...nodes.slice(0, anchorIndex + 1),
+          newNode,
+          ...nodes.slice(anchorIndex + 1),
+        ]
+      : [...nodes, newNode];
+
+  const outgoingEdges = anchorNode?.id
+    ? edges.filter((edge) => edge.from === anchorNode.id)
+    : [];
+
+  const remainingEdges = anchorNode?.id
+    ? edges.filter((edge) => edge.from !== anchorNode.id)
+    : edges;
+
+  const insertedEdges = anchorNode?.id
+    ? [
+        {
+          from: anchorNode.id,
+          to: newNode.id,
+          condition: "success",
+        },
+        ...outgoingEdges.map((edge) => ({
+          ...edge,
+          from: newNode.id,
+          condition: edge.condition || "success",
+        })),
+      ]
+    : [];
+
+  const reflowedNodes = nextNodes.map((node, index) => ({
+    ...node,
+    x: 160 + index * 275,
+    y: Number(node.y || anchorNode.y || 240),
+  }));
+
+  window.__aionWorkflowGraph.nodes = reflowedNodes;
+  window.__aionWorkflowGraph.edges = [...remainingEdges, ...insertedEdges];
+
+  window.__aionWorkflowSelectedNodeId = newNode.id;
+  window.__aionWorkflowPickerMode = null;
+  window.__aionWorkflowInspectorOpen = false;
+  window.__aionArchitectModulePickerOpen = false;
+  window.__aionArchitectSettingsOpen = false;
+
+  requestRender();
+  return true;
+}
+
+
 function installAionWorkflowActionControls() {
   if (window.__aionWorkflowActionControlsBound === true) return;
   window.__aionWorkflowActionControlsBound = true;
@@ -23018,13 +25844,24 @@ function installAionWorkflowActionControls() {
     "click",
     (event) => {
       const openActionPicker = event.target.closest?.("[data-aion-workflow-open-action-picker='true']");
+      const openUnifiedModulePicker =
+        event.target.closest?.("[data-aion-main-canvas-open-module-picker='true']") ||
+        event.target.closest?.(".aion-workflow-floating-add") ||
+        openActionPicker;
 
-      if (openActionPicker) {
+      if (openUnifiedModulePicker) {
         event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
 
-        window.__aionWorkflowPickerMode = "action";
+        // Do not open the old right-side drawer from + anymore.
+        window.__aionWorkflowPickerMode = "";
         window.__aionWorkflowInspectorOpen = false;
+
+        // Open the new unified Add Step modal.
+        window.__aionArchitectModulePickerOpen = true;
+        window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
+
         requestRender();
         return;
       }
@@ -23168,7 +26005,7 @@ function installAionWorkflowActionControls() {
       };
 
       if (!actionMap[actionType]) {
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "This action is listed for the roadmap but is not active yet.",
           messageTone: "info",
         });
@@ -23178,7 +26015,7 @@ function installAionWorkflowActionControls() {
 
       if (!window.__aionWorkflowGraph) {
         window.__aionWorkflowGraph = {
-          workflow_id: "workflow_draft",
+          workflow_id: createAionWorkflowId(),
           name: "Untitled workflow",
           status: "draft",
           nodes: [],
@@ -23257,10 +26094,24 @@ function installAionWorkflowActionControls() {
       window.__aionWorkflowGraph.edges = [...remainingEdges, ...insertedEdges];
 
       window.__aionWorkflowSelectedNodeId = newNode.id;
-      window.__aionWorkflowPickerMode = null;
+      window.__aionWorkflowPickerMode = "";
       window.__aionWorkflowInspectorOpen = false;
 
+      // Close unified Add Step modal immediately after adding the real canvas node.
+      window.__aionArchitectModulePickerOpen = false;
+      window.__aionArchitectSettingsOpen = false;
+
+      safeAionDesktopPatch({
+        message: `Added ${newNode.title || "step"} to the workflow canvas.`,
+        messageTone: "success",
+      });
+
       requestRender();
+
+      window.requestAnimationFrame?.(() => {
+        window.__aionArchitectModulePickerOpen = false;
+        if (typeof requestRender === "function") requestRender();
+      });
     },
     true,
   );
@@ -23338,7 +26189,7 @@ function installAionWorkflowFirstStepControls() {
       const template = triggerMap[triggerType];
 
       if (!template) {
-        desktopStore.patch?.({
+        safeAionDesktopPatch({
           message: "This starter is listed for the roadmap but is not active yet.",
           messageTone: "info",
         });
@@ -23374,7 +26225,7 @@ function installAionWorkflowFirstStepControls() {
 
       persistAionWorkflowDraftState();
 
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: `Added first step: ${node.title}`,
         messageTone: "success",
       });
@@ -24204,7 +27055,7 @@ function setupBackendStatusListener() {
     !window.aionDesktop ||
     typeof window.aionDesktop.onBackendStatus !== "function"
   ) {
-    desktopStore.patch({
+    safeAionDesktopPatch({
       backendReady: true,
       backendStatus: "unknown",
       message: "No Electron backend bridge found, binding directly",
@@ -24222,7 +27073,7 @@ function setupBackendStatusListener() {
 
   window.__TESSARIS_BACKEND_LISTENER_ATTACHED__ = true;
 
-  desktopStore.patch({
+  safeAionDesktopPatch({
     backendReady: false,
     backendStatus: "starting",
     message: "Waiting for local backend to start...",
@@ -24236,7 +27087,7 @@ function setupBackendStatusListener() {
     if (payload?.ok) {
       const firstReady = !state.backendReady;
 
-      desktopStore.patch({
+      safeAionDesktopPatch({
         backendReady: true,
         backendStatus: "ready",
         message: payload?.detail || "Local backend ready",
@@ -24259,7 +27110,7 @@ function setupBackendStatusListener() {
       return;
     }
 
-    desktopStore.patch({
+    safeAionDesktopPatch({
       backendReady: false,
       backendStatus: nextStatus,
       message: payload?.detail || "Local backend failed to start",
@@ -24538,7 +27389,7 @@ async function hydrateRecoveredDesktopState() {
           const backend = await window.aionDesktop.getBackendStatus();
 
           if (backend?.healthy) {
-            desktopStore.patch({
+            safeAionDesktopPatch({
               backendReady: true,
               backendStatus: "ready",
               message: "Connected to local backend",
@@ -24567,7 +27418,7 @@ async function hydrateRecoveredDesktopState() {
         }
       }
 
-      desktopStore.patch({
+      safeAionDesktopPatch({
         backendReady: false,
         backendStatus: "starting",
         message: "Waiting for local backend to start...",
@@ -24759,7 +27610,7 @@ async function hydrateRecoveredDesktopState() {
     const action = button.getAttribute("data-workflow-capsule-approval-action");
 
     void handleBoardroomWorkflowCapsuleApprovalAction(approvalId, action).catch((error) => {
-      desktopStore.patch?.({
+      safeAionDesktopPatch({
         message: error?.message || "Workflow capsule approval action failed",
         messageTone: "error",
       });
@@ -26832,3 +29683,16589 @@ function aionWorkflowCapsuleSaveContractMarker(safeGraph) {
 const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
   <summary>Advanced debug payload</summary>
 </details>`;
+
+
+
+(function installWorkflowArchitectCanvasBackButtonGuard() {
+  if (window.__aionWorkflowArchitectCanvasBackButtonGuardInstalled) return;
+  window.__aionWorkflowArchitectCanvasBackButtonGuardInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const backButton =
+      event.target.closest?.("[data-workflow-architect-close-canvas-mode='true']") ||
+      event.target.closest?.("[data-aion-workflow-back-to-canvas='true']");
+
+    if (!backButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    window.__aionWorkflowArchitectCanvasMode = false;
+    window.__aionWorkflowArchitectModalOpen = false;
+
+    if (typeof desktopStore !== "undefined" && desktopStore?.patch) {
+      safeAionDesktopPatch({
+        message: "Returned to workflow canvas.",
+        messageTone: "neutral",
+      });
+    }
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    } else if (typeof render === "function") {
+      render();
+    }
+  }, true);
+})();
+
+
+
+
+(function installWorkflowArchitectBackToCanvasHardGuard() {
+  if (window.__aionWorkflowArchitectBackToCanvasHardGuardInstalled) return;
+  window.__aionWorkflowArchitectBackToCanvasHardGuardInstalled = true;
+
+  function exitArchitectCanvas(event) {
+    const target = event.target?.closest?.(
+      "[data-workflow-architect-close-canvas-mode='true'], [data-aion-workflow-back-to-canvas='true']"
+    );
+
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    window.__aionWorkflowArchitectCanvasMode = false;
+    window.__aionWorkflowArchitectModalOpen = false;
+
+    if (typeof requestRender === "function") {
+      requestRender();
+      return;
+    }
+
+    if (typeof render === "function") {
+      render();
+      return;
+    }
+
+    location.reload();
+  }
+
+  document.addEventListener("pointerdown", exitArchitectCanvas, true);
+  document.addEventListener("mousedown", exitArchitectCanvas, true);
+  document.addEventListener("click", exitArchitectCanvas, true);
+})();
+
+
+
+
+(function installWorkflowArchitectToolbarAiButtonCanvasModeGuard() {
+  if (window.__aionWorkflowArchitectToolbarAiButtonCanvasModeGuardInstalled) return;
+  window.__aionWorkflowArchitectToolbarAiButtonCanvasModeGuardInstalled = true;
+
+  function openArchitectCanvas(event) {
+    const target = event.target?.closest?.(
+      [
+        "[data-aion-workflow-open-architect='true']",
+        "[data-aion-workflow-open-architect-modal='true']",
+        "[data-workflow-architect-open='true']",
+        "[data-aion-workflow-ai-architect='true']",
+        "[data-aion-workflow-open-ai-architect='true']",
+        "[data-aion-open-workflow-architect='true']"
+      ].join(", ")
+    );
+
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    window.__aionWorkflowArchitectCanvasMode = true;
+      window.__aionWorkflowArchitectModalOpen = false;
+      window.__aionArchitectSettingsOpen = false;
+      window.__aionArchitectCanvasState = {
+        ...getAionArchitectCanvasState(),
+        mode: "",
+      };
+
+    if (typeof desktopStore !== "undefined" && desktopStore?.patch) {
+      safeAionDesktopPatch({
+        message: "AI Workflow Architect opened.",
+        messageTone: "neutral",
+      });
+    }
+
+    if (typeof requestRender === "function") {
+      requestRender();
+      return;
+    }
+
+    if (typeof render === "function") {
+      render();
+      return;
+    }
+
+    location.reload();
+  }
+
+  document.addEventListener("pointerdown", openArchitectCanvas, true);
+  document.addEventListener("mousedown", openArchitectCanvas, true);
+  document.addEventListener("click", openArchitectCanvas, true);
+})();
+
+
+
+
+(function installAionArchitectBackToCanvasFinalGuard() {
+  if (window.__aionArchitectBackToCanvasFinalGuardInstalled) return;
+  window.__aionArchitectBackToCanvasFinalGuardInstalled = true;
+
+  function backToCanvas(event) {
+    const btn = event.target?.closest?.(
+      "[data-workflow-architect-close-canvas-mode='true'], [data-aion-workflow-back-to-canvas='true']"
+    );
+
+    if (!btn) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    window.__aionWorkflowArchitectCanvasMode = false;
+    window.__aionWorkflowArchitectModalOpen = false;
+
+    if (window.requestRender) {
+      window.requestRender();
+      return;
+    }
+
+    if (window.render) {
+      window.render();
+      return;
+    }
+
+    location.reload();
+  }
+
+  document.addEventListener("pointerdown", backToCanvas, true);
+  document.addEventListener("mousedown", backToCanvas, true);
+  document.addEventListener("click", backToCanvas, true);
+})();
+
+
+
+
+/* AI Architect compact safety badge */
+
+
+
+
+
+(function installAionArchitectCompactSafetyBadgeStyles() {
+  if (document.getElementById("aion-architect-compact-safety-badge-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-compact-safety-badge-styles";
+  style.textContent = `
+    .aion-architect-safety-badge {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 7px !important;
+      padding: 9px 13px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(132, 204, 22, 0.42) !important;
+      background: rgba(236, 252, 203, 0.92) !important;
+      color: #365314 !important;
+      font-size: 11px !important;
+      font-weight: 1000 !important;
+      letter-spacing: 0.10em !important;
+      text-transform: uppercase !important;
+      white-space: nowrap !important;
+      cursor: help !important;
+    }
+
+    .aion-architect-safety-popover {
+      display: none !important;
+      position: absolute !important;
+      top: calc(100% + 10px) !important;
+      right: 0 !important;
+      width: 310px !important;
+      padding: 14px 16px !important;
+      border-radius: 16px !important;
+      background: #0f172a !important;
+      color: #ffffff !important;
+      font-size: 12px !important;
+      font-weight: 700 !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+      line-height: 1.7 !important;
+      box-shadow: 0 20px 60px rgba(15,23,42,0.28) !important;
+      z-index: 9999 !important;
+    }
+
+    .aion-architect-safety-badge:hover .aion-architect-safety-popover,
+    .aion-architect-safety-badge:focus .aion-architect-safety-popover {
+      display: block !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+
+(function installAionArchitectCanvasNodeControls() {
+  if (window.__aionArchitectCanvasNodeControlsInstalled) return;
+  window.__aionArchitectCanvasNodeControlsInstalled = true;
+
+  function rerender() {
+    if (typeof requestRender === "function") {
+      requestRender();
+      return;
+    }
+    if (window.requestRender) {
+      window.requestRender();
+      return;
+    }
+    if (typeof render === "function") {
+      render();
+      return;
+    }
+    location.reload();
+  }
+
+  document.addEventListener("click", (event) => {
+
+    const setMode = event.target.closest?.("[data-aion-architect-set-mode]");
+    if (setMode) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nextMode = setMode.getAttribute("data-aion-architect-set-mode") || "steps";
+      const canvas = getAionArchitectCanvasState();
+
+      setAionArchitectCanvasState({
+        ...canvas,
+        mode: nextMode,
+      });
+
+      rerender();
+      return;
+    }
+
+
+    const openArchitect = event.target.closest?.(
+      "[data-aion-workflow-open-architect='true'], [data-aion-workflow-open-architect-modal='true']"
+    );
+
+    if (openArchitect) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionWorkflowArchitectCanvasMode = true;
+      window.__aionWorkflowArchitectModalOpen = false;
+      rerender();
+      return;
+    }
+
+    const back = event.target.closest?.("[data-workflow-architect-close-canvas-mode='true']");
+    if (back) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionWorkflowArchitectCanvasMode = false;
+      window.__aionWorkflowArchitectModalOpen = false;
+      rerender();
+      return;
+    }
+
+    const add = event.target.closest?.("[data-aion-architect-add-step='true']");
+    if (add) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const canvas = getAionArchitectCanvasState();
+      const steps = Array.isArray(canvas.steps) ? canvas.steps : [];
+      const nextStep = createAionArchitectStep(steps.length);
+
+      setAionArchitectCanvasState({
+        steps: [...steps, nextStep],
+        selectedStepId: nextStep.id,
+      });
+
+      window.__aionArchitectSettingsOpen = true;
+      rerender();
+      return;
+    }
+
+    const select = event.target.closest?.("[data-aion-architect-select-step]");
+    if (select) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      setAionArchitectCanvasState({
+        selectedStepId: select.getAttribute("data-aion-architect-select-step"),
+      });
+
+      window.__aionArchitectSettingsOpen = true;
+      rerender();
+      return;
+    }
+
+    const settings = event.target.closest?.("[data-aion-architect-open-settings]");
+    if (settings) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      setAionArchitectCanvasState({
+        selectedStepId: settings.getAttribute("data-aion-architect-open-settings"),
+      });
+
+      window.__aionArchitectSettingsOpen = true;
+      rerender();
+      return;
+    }
+
+    const closeSettings = event.target.closest?.("[data-aion-architect-close-settings='true'], [data-aion-architect-settings-backdrop='true']");
+    if (closeSettings && !event.target.closest?.("[data-aion-architect-settings-modal='true']")) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      window.__aionArchitectSettingsOpen = false;
+      rerender();
+      return;
+    }
+
+    const remove = event.target.closest?.("[data-aion-architect-remove-step]");
+    if (remove) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const id = remove.getAttribute("data-aion-architect-remove-step");
+      const canvas = getAionArchitectCanvasState();
+      const steps = (Array.isArray(canvas.steps) ? canvas.steps : []).filter((step) => String(step.id) !== String(id));
+
+      setAionArchitectCanvasState({
+        steps,
+        selectedStepId: steps[0]?.id || null,
+      });
+
+      window.__aionArchitectSettingsOpen = false;
+      rerender();
+      return;
+    }
+
+    const pick = event.target.closest?.("[data-aion-architect-pick-action]");
+    if (pick) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const canvas = getAionArchitectCanvasState();
+      const selectedId = canvas.selectedStepId;
+      const actionId = pick.getAttribute("data-aion-architect-pick-action") || "";
+      const actionLabel = pick.getAttribute("data-aion-architect-action-label") || actionId;
+      const connector = pick.getAttribute("data-aion-architect-action-connector") || String(actionId).split(".")[0] || "";
+
+      const steps = (Array.isArray(canvas.steps) ? canvas.steps : []).map((step) =>
+        String(step.id) === String(selectedId)
+          ? {
+              ...step,
+              connector,
+              app: connector ? connector.charAt(0).toUpperCase() + connector.slice(1) : step.app,
+              action_id: actionId,
+              action_label: actionLabel,
+              subtitle: actionLabel,
+            }
+          : step
+      );
+
+      setAionArchitectCanvasState({ steps });
+      window.__aionArchitectSettingsOpen = true;
+      rerender();
+      return;
+    }
+  }, true);
+
+  document.addEventListener("input", (event) => {
+    const input = event.target.closest?.("[data-aion-architect-step-field]");
+    if (!input) return;
+
+    const stepId = input.getAttribute("data-aion-architect-step-id");
+    const field = input.getAttribute("data-aion-architect-step-field");
+
+    const canvas = getAionArchitectCanvasState();
+    const steps = (Array.isArray(canvas.steps) ? canvas.steps : []).map((step) =>
+      String(step.id) === String(stepId)
+        ? { ...step, [field]: input.value }
+        : step
+    );
+
+    setAionArchitectCanvasState({ steps });
+  }, true);
+
+  document.addEventListener("change", (event) => {
+    const input = event.target.closest?.("[data-aion-architect-step-field]");
+    if (!input) return;
+
+    const stepId = input.getAttribute("data-aion-architect-step-id");
+    const field = input.getAttribute("data-aion-architect-step-field");
+
+    const canvas = getAionArchitectCanvasState();
+    const steps = (Array.isArray(canvas.steps) ? canvas.steps : []).map((step) =>
+      String(step.id) === String(stepId)
+        ? { ...step, [field]: input.value }
+        : step
+    );
+
+    setAionArchitectCanvasState({ steps });
+    rerender();
+  }, true);
+})();
+
+
+
+
+(function installAionArchitectNodeCanvasStyles() {
+  if (document.getElementById("aion-architect-node-canvas-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-node-canvas-styles";
+  style.textContent = `
+    .aion-architect-page {
+      min-height: 100vh;
+      background: #fff4e8;
+      color: #0f172a;
+    }
+
+    .aion-architect-page-header {
+      height: 148px;
+      padding: 28px 34px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.94), rgba(255,248,239,0.92));
+      border-bottom: 1px solid rgba(15,23,42,0.10);
+    }
+
+    .aion-architect-page-header h1 {
+      margin: 6px 0 8px;
+      font-size: 34px;
+      line-height: 1.02;
+      color: #0f172a;
+    }
+
+    .aion-architect-page-header p {
+      margin: 0;
+      max-width: 820px;
+      color: #475569;
+      font-size: 16px;
+      line-height: 1.45;
+    }
+
+    .aion-architect-header-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .aion-architect-canvas-layout {
+      display: grid;
+      grid-template-columns: 380px minmax(0, 1fr);
+      gap: 24px;
+      padding: 20px 28px 28px;
+      height: calc(100vh - 148px);
+      overflow: hidden;
+    }
+
+    .aion-architect-left-rail {
+      min-height: 0;
+      overflow: auto;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      padding-right: 8px;
+      border-right: 8px solid rgba(15,23,42,0.12);
+    }
+
+    .aion-architect-mode-card,
+    .aion-architect-action-palette {
+      background: rgba(255,255,255,0.9);
+      border: 1px solid rgba(15,23,42,0.08);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 18px 44px rgba(15,23,42,0.06);
+    }
+
+    .aion-architect-mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .aion-architect-mode-switch button {
+      border: 1px solid rgba(15,23,42,0.12);
+      background: white;
+      border-radius: 999px;
+      padding: 14px;
+      cursor: pointer;
+      display: grid;
+      gap: 4px;
+      text-align: center;
+    }
+
+    .aion-architect-mode-switch button.active {
+      background: #0f172a;
+      color: white;
+    }
+
+    .aion-architect-mode-switch span {
+      font-size: 11px;
+      opacity: 0.75;
+    }
+
+    .aion-architect-action-palette {
+      display: grid;
+      gap: 8px;
+    }
+
+    .aion-architect-action-palette button {
+      width: 100%;
+      text-align: left;
+      display: grid;
+      gap: 4px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(15,23,42,0.08);
+      background: rgba(255,255,255,0.92);
+      cursor: pointer;
+    }
+
+    .aion-architect-action-palette button.locked {
+      opacity: 0.6;
+      background: rgba(254,226,226,0.8);
+    }
+
+    .aion-architect-action-palette span {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .aion-architect-main-canvas {
+      min-width: 0;
+      min-height: 0;
+      overflow: auto;
+    }
+
+    .aion-architect-real-canvas {
+      min-height: 100%;
+      border-radius: 28px;
+      background:
+        linear-gradient(rgba(15,23,42,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15,23,42,0.035) 1px, transparent 1px),
+        rgba(255,248,239,0.84);
+      background-size: 28px 28px;
+      border: 1px solid rgba(15,23,42,0.08);
+      padding: 26px;
+      overflow: auto;
+    }
+
+    .aion-architect-real-canvas-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 54px;
+    }
+
+    .aion-architect-real-canvas-head h2 {
+      margin: 6px 0 6px;
+      color: #0f172a;
+    }
+
+    .aion-architect-real-canvas-head p {
+      margin: 0;
+      color: #64748b;
+    }
+
+    .aion-architect-node-lane {
+      min-width: max-content;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      padding: 60px 40px;
+    }
+
+    .aion-architect-node-wrap {
+      position: relative;
+    }
+
+    .aion-architect-node-card {
+      width: 210px;
+      min-height: 210px;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      display: grid;
+      justify-items: center;
+      gap: 8px;
+      text-align: center;
+      color: #0f172a;
+      position: relative;
+    }
+
+    .aion-architect-node-card.selected::before {
+      content: "";
+      position: absolute;
+      top: -16px;
+      width: 112px;
+      height: 112px;
+      border-radius: 999px;
+      background: rgba(26,138,255,0.10);
+      z-index: 0;
+    }
+
+    .aion-architect-node-icon {
+      width: 88px;
+      height: 88px;
+      border-radius: 26px;
+      background: #e8f8ff;
+      border: 4px solid #0e99b7;
+      box-shadow:
+        inset 0 0 0 7px rgba(255,255,255,0.7),
+        0 12px 26px rgba(15,23,42,0.10);
+      display: grid;
+      place-items: center;
+      font-weight: 1000;
+      font-size: 28px;
+      z-index: 1;
+    }
+
+    .aion-architect-node-badge {
+      position: absolute;
+      top: -8px;
+      right: 42px;
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: #252b35;
+      color: white;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      z-index: 2;
+    }
+
+    .aion-architect-node-card strong {
+      margin-top: 8px;
+      font-size: 18px;
+      z-index: 1;
+    }
+
+    .aion-architect-node-card span,
+    .aion-architect-node-card small {
+      color: #475569;
+      z-index: 1;
+    }
+
+    .aion-architect-node-mini-toolbar {
+      position: absolute;
+      top: -12px;
+      right: 34px;
+      display: flex;
+      gap: 6px;
+      z-index: 5;
+    }
+
+    .aion-architect-node-mini-toolbar button {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(15,23,42,0.12);
+      background: white;
+      cursor: pointer;
+      box-shadow: 0 8px 22px rgba(15,23,42,0.12);
+    }
+
+    .aion-architect-node-link {
+      width: 120px;
+      border-top: 5px dotted rgba(14,153,183,0.35);
+      margin-top: -80px;
+    }
+
+    .aion-architect-add-step-node {
+      width: 58px;
+      height: 58px;
+      border: 2px dashed rgba(15,23,42,0.28);
+      background: rgba(255,255,255,0.66);
+      font-size: 30px;
+      font-weight: 900;
+      cursor: pointer;
+      margin-top: -80px;
+    }
+
+    .aion-architect-settings-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      display: grid;
+      place-items: center;
+      background: rgba(15,23,42,0.10);
+      backdrop-filter: blur(2px);
+    }
+
+    .aion-architect-settings-modal {
+      width: min(900px, calc(100vw - 120px));
+      max-height: min(760px, calc(100vh - 120px));
+      overflow: auto;
+      border-radius: 28px;
+      background: white;
+      box-shadow: 0 32px 90px rgba(15,23,42,0.22);
+      padding: 34px 40px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .aion-architect-settings-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+    }
+
+    .aion-architect-settings-top h2 {
+      margin: 0 0 6px;
+      font-size: 30px;
+      color: #0f172a;
+    }
+
+    .aion-architect-settings-top p {
+      margin: 0;
+      color: #64748b;
+    }
+
+    .aion-architect-settings-icons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .aion-architect-settings-icons button {
+      border: 0;
+      background: transparent;
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .aion-architect-settings-redline {
+      height: 4px;
+      background: #252b35;
+      border-radius: 999px;
+    }
+
+    .aion-architect-settings-modal label {
+      display: grid;
+      gap: 8px;
+    }
+
+    .aion-architect-settings-modal label span {
+      font-weight: 900;
+      color: #334155;
+    }
+
+    .aion-architect-settings-modal input,
+    .aion-architect-settings-modal textarea,
+    .aion-architect-settings-modal select {
+      width: 100%;
+      border: 1px solid rgba(15,23,42,0.14);
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-size: 15px;
+    }
+
+    .aion-architect-settings-modal textarea {
+      min-height: 88px;
+      resize: vertical;
+    }
+
+    .aion-architect-connection-btn {
+      height: 70px;
+      border: 0;
+      border-radius: 8px;
+      background: #252b35;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 22px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .aion-architect-connection-btn strong {
+      font-size: 22px;
+    }
+
+    .aion-architect-connection-btn span {
+      color: white !important;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .aion-architect-settings-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      border-top: 1px solid rgba(15,23,42,0.12);
+      padding-top: 20px;
+    }
+
+    .aion-architect-safety-badge {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      border: 1px solid rgba(132, 204, 22, 0.42);
+      background: rgba(236, 252, 203, 0.92);
+      color: #365314;
+      font-size: 11px;
+      font-weight: 1000;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: help;
+    }
+
+    .aion-architect-safety-popover {
+      display: none;
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      width: 310px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #0f172a;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0;
+      text-transform: none;
+      line-height: 1.7;
+      box-shadow: 0 20px 60px rgba(15,23,42,0.28);
+      z-index: 9999;
+    }
+
+    .aion-architect-safety-badge:hover .aion-architect-safety-popover,
+    .aion-architect-safety-badge:focus .aion-architect-safety-popover {
+      display: block;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+
+/* AI Architect compact header aligned to main workflow canvas */
+
+
+
+
+
+(function installAionArchitectCompactHeaderStyles() {
+  if (document.getElementById("aion-architect-compact-header-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-compact-header-styles";
+  style.textContent = `
+    .aion-architect-page-header-compact {
+      height: 92px !important;
+      padding: 18px 24px !important;
+      align-items: center !important;
+    }
+
+    .aion-architect-header-title {
+      display: flex !important;
+      align-items: center !important;
+      gap: 16px !important;
+    }
+
+    .aion-architect-page-header-compact h1 {
+      margin: 0 !important;
+      font-size: 24px !important;
+      line-height: 1.1 !important;
+      color: #0f172a !important;
+    }
+
+    .aion-architect-page-header-compact .aion-workflow-logo {
+      width: 52px !important;
+      height: 52px !important;
+      display: grid !important;
+      place-items: center !important;
+      background: #0f172a !important;
+      color: white !important;
+      font-weight: 1000 !important;
+      font-size: 19px !important;
+    }
+
+    .aion-architect-page-header-compact .aion-workflow-subtle-meta {
+      margin-top: 6px !important;
+      color: #94a3b8 !important;
+      font-size: 12px !important;
+      font-weight: 1000 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-architect-page-header-compact + .aion-architect-canvas-layout {
+      height: calc(100vh - 92px) !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+
+(function installAionArchitectFullCanvasFlowStyles() {
+  if (document.getElementById("aion-architect-full-canvas-flow-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-full-canvas-flow-styles";
+  style.textContent = `
+    .aion-architect-page-header-compact {
+      height: 92px !important;
+      padding: 18px 24px !important;
+      align-items: center !important;
+    }
+
+    .aion-architect-header-title {
+      display: flex !important;
+      align-items: center !important;
+      gap: 16px !important;
+    }
+
+    .aion-architect-page-header-compact h1 {
+      margin: 0 !important;
+      font-size: 24px !important;
+      line-height: 1.1 !important;
+      color: #0f172a !important;
+    }
+
+    .aion-architect-page-header-compact .aion-workflow-logo {
+      width: 52px !important;
+      height: 52px !important;
+      display: grid !important;
+      place-items: center !important;
+      background: #0f172a !important;
+      color: white !important;
+      font-weight: 1000 !important;
+      font-size: 19px !important;
+    }
+
+    .aion-architect-page-header-compact .aion-workflow-subtle-meta {
+      margin-top: 6px !important;
+      color: #94a3b8 !important;
+      font-size: 12px !important;
+      font-weight: 1000 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-architect-start-mode-screen {
+      height: calc(100vh - 92px) !important;
+      display: grid !important;
+      place-items: center !important;
+      background: #fff4e8 !important;
+      padding: 32px !important;
+    }
+
+    .aion-architect-start-mode-card {
+      width: min(760px, 100%) !important;
+      background: rgba(255,255,255,0.92) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      border-radius: 28px !important;
+      padding: 34px !important;
+      box-shadow: 0 28px 80px rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-architect-start-mode-card h2 {
+      margin: 8px 0 8px !important;
+      font-size: 34px !important;
+      color: #0f172a !important;
+    }
+
+    .aion-architect-start-mode-card p {
+      margin: 0 0 22px !important;
+      color: #64748b !important;
+      font-size: 16px !important;
+    }
+
+    .aion-architect-start-mode-grid {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 16px !important;
+    }
+
+    .aion-architect-start-mode-grid button {
+      min-height: 150px !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: white !important;
+      display: grid !important;
+      gap: 8px !important;
+      align-content: center !important;
+      justify-items: center !important;
+      cursor: pointer !important;
+      text-align: center !important;
+      padding: 22px !important;
+      box-shadow: 0 18px 50px rgba(15,23,42,0.06) !important;
+    }
+
+    .aion-architect-start-mode-grid button:hover {
+      border-color: rgba(26,138,255,0.55) !important;
+      box-shadow: 0 0 0 6px rgba(26,138,255,0.08), 0 18px 50px rgba(15,23,42,0.08) !important;
+    }
+
+    .aion-architect-start-mode-grid strong {
+      font-size: 22px !important;
+      color: #0f172a !important;
+    }
+
+    .aion-architect-start-mode-grid span {
+      color: #64748b !important;
+      font-weight: 700 !important;
+    }
+
+    .aion-architect-full-canvas-wrap {
+      height: calc(100vh - 92px) !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+      background: #fff4e8 !important;
+    }
+
+    .aion-architect-full-canvas-wrap .aion-architect-real-canvas {
+      height: 100% !important;
+      width: 100% !important;
+      border-radius: 0 !important;
+      border: 0 !important;
+      padding: 34px !important;
+    }
+
+    .aion-architect-describe-screen {
+      height: calc(100vh - 92px) !important;
+      display: grid !important;
+      place-items: start center !important;
+      padding: 54px 32px !important;
+      background: #fff4e8 !important;
+    }
+
+    .aion-architect-describe-command {
+      width: min(940px, 100%) !important;
+      background: rgba(255,255,255,0.92) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      border-radius: 28px !important;
+      padding: 34px !important;
+      box-shadow: 0 28px 80px rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-architect-describe-command h2 {
+      margin: 8px 0 8px !important;
+      font-size: 34px !important;
+      color: #0f172a !important;
+    }
+
+    .aion-architect-describe-command p {
+      margin: 0 0 20px !important;
+      color: #64748b !important;
+      font-size: 16px !important;
+    }
+
+    .aion-architect-command-textarea {
+      width: 100% !important;
+      min-height: 240px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      border-radius: 22px !important;
+      padding: 18px !important;
+      font-size: 17px !important;
+      line-height: 1.5 !important;
+      resize: vertical !important;
+      background: white !important;
+    }
+
+    .aion-architect-describe-actions {
+      display: flex !important;
+      justify-content: flex-end !important;
+      gap: 12px !important;
+      margin-top: 18px !important;
+    }
+
+    .aion-architect-canvas-layout,
+    .aion-architect-left-rail {
+      display: none !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-action-palette {
+      box-shadow: none !important;
+      border-radius: 18px !important;
+      max-height: 260px !important;
+      overflow: auto !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+
+(function installAionArchitectBrandPolishStyles() {
+  if (document.getElementById("aion-architect-brand-polish-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-brand-polish-styles";
+  style.textContent = `
+    /* Aion Architect brand polish: replace red warning styling with Aion charcoal + lime */
+    .aion-architect-settings-modal,
+    .aion-architect-settings-modal * {
+      --aion-brand-dark: #252b35;
+      --aion-brand-lime: #a8d65f;
+      --aion-brand-soft-lime: rgba(168, 214, 95, 0.16);
+    }
+
+    .aion-architect-settings-modal hr,
+    .aion-architect-settings-modal .aion-modal-divider,
+    .aion-architect-settings-modal [class*="divider"],
+    .aion-architect-settings-modal [style*="background: #ef4444"],
+    .aion-architect-settings-modal [style*="background:#ef4444"] {
+      background: var(--aion-brand-dark) !important;
+      border-color: var(--aion-brand-dark) !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-connection-btn,
+    .aion-architect-settings-modal [class*="connection-btn"],
+    .aion-architect-settings-modal [class*="connection"] button {
+      background: var(--aion-brand-dark) !important;
+      color: white !important;
+      border: 1px solid rgba(168, 214, 95, 0.42) !important;
+      box-shadow: 0 16px 36px rgba(37, 43, 53, 0.16) !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-connection-btn strong,
+    .aion-architect-settings-modal [class*="connection-btn"] strong,
+    .aion-architect-settings-modal [class*="connection"] button strong {
+      color: white !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-connection-btn span,
+    .aion-architect-settings-modal [class*="connection-btn"] span,
+    .aion-architect-settings-modal [class*="connection"] button span {
+      color: rgba(255,255,255,0.88) !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-connection-btn::before,
+    .aion-architect-settings-modal [class*="connection-btn"]::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--aion-brand-lime);
+      box-shadow: 0 0 0 5px var(--aion-brand-soft-lime);
+      margin-right: 10px;
+      display: inline-block;
+    }
+
+    .aion-architect-settings-modal input:focus,
+    .aion-architect-settings-modal textarea:focus,
+    .aion-architect-settings-modal select:focus {
+      outline: none !important;
+      border-color: var(--aion-brand-lime) !important;
+      box-shadow: 0 0 0 4px var(--aion-brand-soft-lime) !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-action-palette button:hover,
+    .aion-architect-settings-modal [data-aion-architect-action-pick]:hover,
+    .aion-architect-settings-modal [data-workflow-architect-select-action]:hover {
+      border-color: var(--aion-brand-lime) !important;
+      box-shadow: 0 0 0 4px var(--aion-brand-soft-lime) !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-action-palette button.selected,
+    .aion-architect-settings-modal [data-aion-architect-action-pick].selected,
+    .aion-architect-settings-modal [data-workflow-architect-select-action].selected {
+      border-color: var(--aion-brand-lime) !important;
+      background: var(--aion-brand-soft-lime) !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-modal-close,
+    .aion-architect-settings-modal [aria-label="Close"],
+    .aion-architect-settings-modal button[title="Close"] {
+      border-color: var(--aion-brand-lime) !important;
+      box-shadow: 0 0 0 3px var(--aion-brand-soft-lime) !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+
+(function installAionArchitectSimplerModalUxStyles() {
+  if (document.getElementById("aion-architect-simpler-modal-ux-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-simpler-modal-ux-styles";
+  style.textContent = `
+    .aion-architect-settings-modal {
+      --aion-brand-dark: #252b35;
+      --aion-brand-lime: #a8d65f;
+      --aion-brand-soft-lime: rgba(168, 214, 95, 0.16);
+    }
+
+    .aion-architect-settings-modal .aion-architect-human-helper {
+      display: grid !important;
+      gap: 5px !important;
+      padding: 14px 16px !important;
+      margin: 0 0 18px !important;
+      border-radius: 18px !important;
+      background: rgba(168, 214, 95, 0.12) !important;
+      border: 1px solid rgba(168, 214, 95, 0.28) !important;
+      color: #252b35 !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-human-helper strong {
+      font-size: 15px !important;
+      color: #252b35 !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-human-helper span {
+      color: #526071 !important;
+      font-size: 13px !important;
+      line-height: 1.4 !important;
+    }
+
+    .aion-architect-settings-modal [class*="connection"],
+    .aion-architect-settings-modal label:has([class*="connection"]) {
+      display: none !important;
+    }
+
+    .aion-architect-settings-modal label:has([data-aion-architect-step-field="action"]),
+    .aion-architect-settings-modal label:has([data-workflow-architect-step-field="action"]) {
+      display: none !important;
+    }
+
+    .aion-architect-settings-modal hr,
+    .aion-architect-settings-modal .aion-modal-divider,
+    .aion-architect-settings-modal [class*="divider"] {
+      background: #252b35 !important;
+      border-color: #252b35 !important;
+    }
+
+    .aion-architect-settings-modal input:focus,
+    .aion-architect-settings-modal textarea:focus,
+    .aion-architect-settings-modal select:focus {
+      outline: none !important;
+      border-color: #a8d65f !important;
+      box-shadow: 0 0 0 4px rgba(168,214,95,0.16) !important;
+    }
+
+    .aion-architect-settings-modal [data-aion-architect-close-settings],
+    .aion-architect-settings-modal .aion-architect-modal-close,
+    .aion-architect-settings-modal .aion-architect-settings-close,
+    .aion-architect-settings-modal button[title="Close"] {
+      border-color: rgba(168,214,95,0.45) !important;
+      box-shadow: 0 0 0 3px rgba(168,214,95,0.12) !important;
+      cursor: pointer !important;
+    }
+
+    .aion-architect-settings-modal .aion-architect-action-palette,
+    .aion-architect-settings-modal [class*="action-palette"] {
+      margin-top: 8px !important;
+    }
+
+    .aion-architect-settings-modal [data-aion-architect-action-pick]:hover,
+    .aion-architect-settings-modal [data-workflow-architect-select-action]:hover {
+      border-color: #a8d65f !important;
+      box-shadow: 0 0 0 4px rgba(168,214,95,0.14) !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+
+/* AI Architect toolbar open override.
+   Must run in capture phase because older workflow handlers can swallow the toolbar AI click. */
+(function installAionArchitectToolbarOpenOverride() {
+  if (window.__aionArchitectToolbarOpenOverrideInstalled === true) return;
+  window.__aionArchitectToolbarOpenOverrideInstalled = true;
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const openButton = event.target.closest?.(
+        "[data-aion-workflow-open-architect='true'], [data-aion-workflow-open-architect-modal='true']"
+      );
+
+      if (!openButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionWorkflowArchitectCanvasMode = true;
+      window.__aionWorkflowArchitectModalOpen = false;
+      window.__aionWorkflowPickerMode = "";
+      window.__aionWorkflowInspectorOpen = false;
+
+      if (typeof desktopStore !== "undefined" && desktopStore?.patch) {
+        safeAionDesktopPatch({
+          message: "AI Workflow Architect opened.",
+          messageTone: "neutral",
+        });
+      }
+
+      if (typeof requestRender === "function") {
+        requestRender();
+      } else if (typeof render === "function") {
+        render();
+      }
+    },
+    true,
+  );
+})();
+
+
+
+
+(function installAionArchitectAdvancedConfigControls() {
+  if (window.__aionArchitectAdvancedConfigControlsInstalled === true) return;
+  window.__aionArchitectAdvancedConfigControlsInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const open = event.target.closest?.("[data-aion-architect-open-advanced-config]");
+    if (open) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const stepId = open.getAttribute("data-aion-architect-open-advanced-config");
+      if (stepId && stepId !== "true") {
+        window.__aionArchitectSelectedStepId = stepId;
+      }
+
+      window.__aionArchitectAdvancedConfigOpen = true;
+      window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const close = event.target.closest?.("[data-aion-architect-close-advanced-config='true']");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectAdvancedConfigOpen = false;
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const backdrop = event.target.closest?.("[data-aion-architect-advanced-backdrop='true']");
+    const modal = event.target.closest?.("[data-aion-architect-advanced-modal='true']");
+    if (backdrop && !modal) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectAdvancedConfigOpen = false;
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const tab = event.target.closest?.("[data-aion-architect-advanced-tab]");
+    if (tab) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectAdvancedConfigTab =
+        tab.getAttribute("data-aion-architect-advanced-tab") || "filters";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+  }, true);
+})();
+
+
+
+
+(function installAionArchitectAdvancedConfigStyles() {
+  if (document.getElementById("aion-architect-advanced-config-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-advanced-config-styles";
+  style.textContent = `
+    .aion-architect-field-help {
+      margin: -8px 0 10px !important;
+      color: #64748b !important;
+      font-size: 13px !important;
+      line-height: 1.45 !important;
+    }
+
+    .aion-architect-field-help code {
+      background: rgba(15,23,42,0.06) !important;
+      border-radius: 8px !important;
+      padding: 2px 6px !important;
+      font-weight: 800 !important;
+    }
+
+    .aion-architect-advanced-row {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 16px !important;
+      padding: 14px 0 !important;
+      border-top: 1px solid rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-architect-advanced-row small {
+      color: #64748b !important;
+      font-weight: 700 !important;
+      line-height: 1.35 !important;
+    }
+
+    .aion-architect-advanced-backdrop {
+      position: fixed !important;
+      inset: 0 !important;
+      background: rgba(15,23,42,0.22) !important;
+      backdrop-filter: blur(5px) !important;
+      z-index: 99998 !important;
+      display: grid !important;
+      place-items: center !important;
+      padding: 32px !important;
+    }
+
+    .aion-architect-advanced-modal {
+      width: min(860px, 94vw) !important;
+      max-height: 86vh !important;
+      overflow: hidden !important;
+      background: #ffffff !important;
+      border-radius: 28px !important;
+      box-shadow: 0 30px 90px rgba(15,23,42,0.22) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-architect-advanced-head {
+      display: flex !important;
+      justify-content: space-between !important;
+      gap: 20px !important;
+      padding: 24px 28px 18px !important;
+      border-bottom: 4px solid #252b35 !important;
+    }
+
+    .aion-architect-advanced-head h2 {
+      margin: 0 !important;
+      color: #0f172a !important;
+      font-size: 28px !important;
+    }
+
+    .aion-architect-advanced-head p {
+      margin: 8px 0 0 !important;
+      color: #64748b !important;
+    }
+
+    .aion-architect-advanced-head button {
+      width: 42px !important;
+      height: 42px !important;
+      border: 1px solid rgba(168,214,95,0.5) !important;
+      background: #ffffff !important;
+      font-size: 26px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-architect-advanced-tabs {
+      display: flex !important;
+      gap: 0 !important;
+      background: #252b35 !important;
+      padding: 0 18px !important;
+      overflow-x: auto !important;
+    }
+
+    .aion-architect-advanced-tabs button {
+      border: 0 !important;
+      background: transparent !important;
+      color: #ffffff !important;
+      padding: 14px 18px !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-architect-advanced-tabs button.active {
+      background: #ffffff !important;
+      color: #252b35 !important;
+    }
+
+    .aion-architect-advanced-body {
+      padding: 26px 28px 30px !important;
+      overflow: auto !important;
+      max-height: calc(86vh - 150px) !important;
+    }
+
+    .aion-architect-advanced-body h3 {
+      margin: 0 0 8px !important;
+      color: #0f172a !important;
+      font-size: 24px !important;
+    }
+
+    .aion-architect-advanced-chip-grid {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 10px !important;
+      margin-top: 18px !important;
+    }
+
+    .aion-architect-advanced-chip-grid button {
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.95) !important;
+      border-radius: 12px !important;
+      padding: 10px 14px !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-architect-advanced-chip-grid button:hover {
+      border-color: #a8d65f !important;
+      box-shadow: 0 0 0 4px rgba(168,214,95,0.14) !important;
+    }
+
+    .aion-architect-advanced-example {
+      margin-top: 24px !important;
+      padding: 16px !important;
+      border-radius: 16px !important;
+      background: rgba(236,252,203,0.5) !important;
+      border: 1px solid rgba(132,204,22,0.25) !important;
+      color: #365314 !important;
+      line-height: 1.5 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+/* AI Architect capability manifest contract:
+   - getAionArchitectCapabilityManifest
+   - getAionArchitectPromptContext
+   - getAionArchitectBuildReviewPayloadExtras
+   - syncAionArchitectCapabilityManifestToInput
+   - advanced_capabilities
+   - architect_prompt_context
+   - filters variables text_tools dates lists json conditions connector_actions
+*/
+
+
+
+(function installAionArchitectStepSetupControls() {
+  if (window.__aionArchitectStepSetupControlsInstalled === true) return;
+  window.__aionArchitectStepSetupControlsInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const addStep = event.target.closest?.("[data-aion-architect-add-step='true']");
+    if (addStep) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerOpen = true;
+      window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const kindButton = event.target.closest?.("[data-aion-architect-step-kind]");
+    if (kindButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const stepId = kindButton.getAttribute("data-aion-architect-step-id");
+      const kind = kindButton.getAttribute("data-aion-architect-step-kind");
+
+      const steps = ensureAionArchitectHasOneBlankStep();
+      window.__aionArchitectSteps = steps.map((step) =>
+        String(step.id) === String(stepId)
+          ? {
+              ...step,
+              step_kind: kind,
+              app:
+                kind === "logic" || kind === "router"
+                  ? "logic"
+                  : kind === "tool"
+                    ? "tools"
+                    : kind === "approval"
+                      ? "approval"
+                      : step.app || "",
+              connector:
+                kind === "logic" || kind === "router"
+                  ? "logic"
+                  : kind === "tool"
+                    ? "tools"
+                    : kind === "approval"
+                      ? "approval"
+                      : step.connector || "",
+              action_id: "",
+              action_label:
+                kind === "trigger"
+                  ? "Choose trigger"
+                  : kind === "logic"
+                    ? "Choose condition"
+                    : kind === "router"
+                      ? "Choose router"
+                      : kind === "approval"
+                        ? "Human approval"
+                        : "Choose action",
+            }
+          : step,
+      );
+
+      window.__aionArchitectSelectedStepId = stepId;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const actionButton = event.target.closest?.("[data-aion-architect-pick-action]");
+    if (actionButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const stepId = actionButton.getAttribute("data-aion-architect-step-id");
+      const actionId = actionButton.getAttribute("data-aion-architect-pick-action");
+      const actions = getAionArchitectActionOptionsForStep({}) || [];
+      const fullActions = [
+        ...getAionArchitectActionOptionsForStep({ step_kind: "trigger" }),
+        ...getAionArchitectActionOptionsForStep({ step_kind: "app_action" }),
+        ...getAionArchitectActionOptionsForStep({ step_kind: "ai_action" }),
+        ...getAionArchitectActionOptionsForStep({ step_kind: "logic" }),
+        ...getAionArchitectActionOptionsForStep({ step_kind: "router" }),
+        ...getAionArchitectActionOptionsForStep({ step_kind: "tool" }),
+        ...getAionArchitectActionOptionsForStep({ step_kind: "approval" }),
+        ...actions,
+      ];
+      const action = fullActions.find((item) => item.action_id === actionId);
+
+      const steps = ensureAionArchitectHasOneBlankStep();
+      window.__aionArchitectSteps = steps.map((step) =>
+        String(step.id) === String(stepId)
+          ? normaliseAionArchitectStepAfterActionPick(step, action)
+          : step,
+      );
+
+      window.__aionArchitectSelectedStepId = stepId;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const more = event.target.closest?.("[data-aion-architect-settings-more='true']");
+    if (more) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectSettingsMore = window.__aionArchitectSettingsMore !== true;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const expand = event.target.closest?.("[data-aion-architect-settings-expand='true']");
+    if (expand) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectSettingsExpanded = window.__aionArchitectSettingsExpanded !== true;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const help = event.target.closest?.("[data-aion-architect-settings-help='true']");
+    if (help) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectSettingsHelp = window.__aionArchitectSettingsHelp !== true;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+  }, true);
+
+  document.addEventListener("change", (event) => {
+    const field = event.target.closest?.("[data-aion-architect-step-field]");
+    if (!field) return;
+
+    const stepId = field.getAttribute("data-aion-architect-step-id");
+    const key = field.getAttribute("data-aion-architect-step-field");
+    const value = field.value;
+
+    const steps = ensureAionArchitectHasOneBlankStep();
+
+    window.__aionArchitectSteps = steps.map((step) => {
+      if (String(step.id) !== String(stepId)) return step;
+
+      const next = { ...step, [key]: value };
+
+      if (key === "app") {
+        next.connector = value;
+        next.action_id = "";
+        next.action_label = "Choose action";
+      }
+
+      return next;
+    });
+
+    window.__aionArchitectSelectedStepId = stepId;
+    if (typeof requestRender === "function") requestRender();
+  }, true);
+
+  document.addEventListener("input", (event) => {
+    const field = event.target.closest?.("[data-aion-architect-step-field]");
+    if (!field) return;
+
+    const stepId = field.getAttribute("data-aion-architect-step-id");
+    const key = field.getAttribute("data-aion-architect-step-field");
+    const value = field.value;
+
+    const steps = ensureAionArchitectHasOneBlankStep();
+    window.__aionArchitectSteps = steps.map((step) =>
+      String(step.id) === String(stepId)
+        ? { ...step, [key]: value }
+        : step,
+    );
+  }, true);
+})();
+
+
+
+
+(function installAionArchitectStepSetupStyles() {
+  if (document.getElementById("aion-architect-step-setup-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-step-setup-styles";
+  style.textContent = `
+    .aion-architect-settings-modal.expanded {
+      width: min(1280px, calc(100vw - 80px)) !important;
+      max-width: min(1280px, calc(100vw - 80px)) !important;
+    }
+
+    .aion-architect-choice-section {
+      display: grid !important;
+      gap: 12px !important;
+    }
+
+    .aion-architect-kind-grid {
+      display: grid !important;
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      gap: 10px !important;
+    }
+
+    .aion-architect-kind-grid button,
+    .aion-architect-action-list button {
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: rgba(255,255,255,0.94) !important;
+      border-radius: 16px !important;
+      padding: 13px 14px !important;
+      text-align: left !important;
+      display: grid !important;
+      gap: 4px !important;
+      cursor: pointer !important;
+    }
+
+    .aion-architect-kind-grid button.active,
+    .aion-architect-action-list button.active {
+      border-color: #a8d65f !important;
+      background: rgba(236,252,203,0.72) !important;
+      box-shadow: 0 0 0 4px rgba(168,214,95,0.14) !important;
+    }
+
+    .aion-architect-kind-grid strong,
+    .aion-architect-action-list strong {
+      color: #0f172a !important;
+      font-size: 14px !important;
+      font-weight: 1000 !important;
+    }
+
+    .aion-architect-kind-grid small,
+    .aion-architect-action-list small {
+      color: #64748b !important;
+      font-size: 12px !important;
+      line-height: 1.35 !important;
+    }
+
+    .aion-architect-action-list {
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 10px !important;
+      max-height: 260px !important;
+      overflow: auto !important;
+      padding-right: 4px !important;
+    }
+
+    .aion-architect-settings-modal select {
+      width: 100% !important;
+      min-height: 58px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      border-radius: 18px !important;
+      background: white !important;
+      padding: 0 16px !important;
+      font-size: 18px !important;
+      font-weight: 900 !important;
+      color: #0f172a !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+/* AI Architect blank first step contract:
+   - createAionArchitectBlankStep
+   - ensureAionArchitectHasOneBlankStep
+   - getAionArchitectStepKindOptions
+   - getAionArchitectAppOptions
+   - getAionArchitectActionOptionsForStep
+   - normaliseAionArchitectStepAfterActionPick
+   - step starts as one blank step
+   - plus opens a new blank step settings modal
+   - step kinds include trigger app_action ai_action logic router tool approval
+*/
+
+
+
+(function installAionArchitectModulePickerControls() {
+  if (window.__aionArchitectModulePickerControlsInstalled === true) return;
+  window.__aionArchitectModulePickerControlsInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const openAdd =
+      event.target.closest?.("[data-aion-architect-open-module-picker='true']") ||
+      event.target.closest?.("[data-aion-architect-add-step='true']");
+
+    if (openAdd) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerOpen = true;
+      window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const close = event.target.closest?.("[data-aion-architect-close-module-picker='true']");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerOpen = false;
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const backdrop = event.target.closest?.("[data-aion-architect-module-picker-backdrop='true']");
+    const modal = event.target.closest?.("[data-aion-architect-module-picker='true']");
+    if (backdrop && !modal) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerOpen = false;
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const group = event.target.closest?.("[data-aion-architect-module-group]");
+    if (group) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerGroup =
+        group.getAttribute("data-aion-architect-module-group") || "apps";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const pick = event.target.closest?.("[data-aion-architect-pick-module]");
+    if (pick) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const moduleId = pick.getAttribute("data-aion-architect-pick-module");
+      const module = getAionArchitectModuleById(moduleId);
+
+      if (!module) {
+        safeAionDesktopMessage("Could not find selected module.", "error");
+        return;
+      }
+
+      const added = addAionUnifiedRealNodeFromModule(module);
+
+      window.__aionArchitectModulePickerOpen = false;
+      window.__aionArchitectSettingsOpen = false;
+      window.__aionWorkflowPickerMode = "";
+      window.__aionWorkflowInspectorOpen = false;
+
+      if (added) {
+        safeAionDesktopPatch({
+          message: `Added ${module.label || module.action_id || "workflow step"} to the canvas.`,
+          messageTone: "success",
+        });
+      }
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+  }, true);
+})();
+
+
+
+
+(function installAionArchitectModulePickerStyles() {
+  if (document.getElementById("aion-architect-module-picker-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-architect-module-picker-styles";
+  style.textContent = `
+    .aion-architect-module-picker-backdrop {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 260 !important;
+      display: grid !important;
+      place-items: center !important;
+      background: rgba(15,23,42,0.22) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    .aion-architect-module-picker {
+      width: min(1120px, calc(100vw - 90px)) !important;
+      max-height: min(780px, calc(100vh - 90px)) !important;
+      overflow: hidden !important;
+      border-radius: 28px !important;
+      background: rgba(255,255,255,0.98) !important;
+      box-shadow: 0 34px 100px rgba(15,23,42,0.30) !important;
+      display: grid !important;
+      grid-template-rows: auto minmax(0, 1fr) !important;
+    }
+
+    .aion-architect-module-picker-head {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 18px !important;
+      padding: 28px 32px 22px !important;
+      border-bottom: 1px solid rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-architect-module-picker-head h2 {
+      margin: 0 0 8px !important;
+      color: #0f172a !important;
+      font-size: 34px !important;
+      line-height: 1.05 !important;
+    }
+
+    .aion-architect-module-picker-head p {
+      margin: 0 !important;
+      color: #64748b !important;
+      font-size: 15px !important;
+    }
+
+    .aion-architect-module-picker-head button {
+      width: 46px !important;
+      height: 46px !important;
+      border: 1px solid rgba(168,214,95,0.45) !important;
+      background: white !important;
+      font-size: 28px !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-architect-module-picker-body {
+      min-height: 0 !important;
+      display: grid !important;
+      grid-template-columns: 320px minmax(0, 1fr) !important;
+    }
+
+    .aion-architect-module-groups {
+      background: #252b35 !important;
+      padding: 18px !important;
+      display: grid !important;
+      align-content: start !important;
+      gap: 8px !important;
+      overflow: auto !important;
+    }
+
+    .aion-architect-module-groups button {
+      color: white !important;
+      background: transparent !important;
+      border: 1px solid rgba(255,255,255,0.10) !important;
+      border-radius: 16px !important;
+      padding: 14px !important;
+      display: grid !important;
+      gap: 4px !important;
+      text-align: left !important;
+      cursor: pointer !important;
+    }
+
+    .aion-architect-module-groups button.active {
+      background: rgba(168,214,95,0.16) !important;
+      border-color: rgba(168,214,95,0.48) !important;
+    }
+
+    .aion-architect-module-groups strong {
+      font-size: 16px !important;
+      color: white !important;
+    }
+
+    .aion-architect-module-groups small {
+      color: rgba(255,255,255,0.66) !important;
+      line-height: 1.35 !important;
+    }
+
+    .aion-architect-module-list {
+      min-height: 0 !important;
+      overflow: auto !important;
+      padding: 24px !important;
+      display: grid !important;
+      align-content: start !important;
+      gap: 12px !important;
+    }
+
+    .aion-architect-module-search {
+      height: 52px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      border-radius: 16px !important;
+      display: flex !important;
+      align-items: center !important;
+      padding: 0 16px !important;
+      color: #94a3b8 !important;
+      font-weight: 800 !important;
+      margin-bottom: 10px !important;
+    }
+
+    .aion-architect-module-row {
+      display: grid !important;
+      grid-template-columns: 54px minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 14px !important;
+      padding: 15px !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: white !important;
+      text-align: left !important;
+      cursor: pointer !important;
+    }
+
+    .aion-architect-module-row:hover {
+      border-color: #a8d65f !important;
+      box-shadow: 0 0 0 4px rgba(168,214,95,0.14) !important;
+    }
+
+    .aion-architect-module-icon {
+      width: 46px !important;
+      height: 46px !important;
+      border-radius: 16px !important;
+      background: #e8f8ff !important;
+      border: 2px solid #0e99b7 !important;
+      display: grid !important;
+      place-items: center !important;
+      font-weight: 1000 !important;
+      color: #0f172a !important;
+    }
+
+    .aion-architect-module-row strong {
+      display: block !important;
+      color: #0f172a !important;
+      font-size: 16px !important;
+    }
+
+    .aion-architect-module-row small {
+      display: block !important;
+      margin-top: 3px !important;
+      color: #64748b !important;
+      line-height: 1.35 !important;
+    }
+
+    .aion-architect-module-row em {
+      color: #64748b !important;
+      font-size: 11px !important;
+      font-style: normal !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.12em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-architect-selected-module-card {
+      display: grid !important;
+      gap: 8px !important;
+      padding: 16px !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: rgba(248,250,252,0.9) !important;
+    }
+
+    .aion-architect-selected-module-card strong {
+      color: #0f172a !important;
+      font-size: 20px !important;
+    }
+
+    .aion-architect-selected-module-card span,
+    .aion-architect-selected-module-card small {
+      color: #64748b !important;
+    }
+
+    .aion-architect-selected-module-card button {
+      width: max-content !important;
+      margin-top: 6px !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+/* AI Architect module picker contract:
+   - + opens module picker first, not the full settings modal
+   - module groups: Flow Control, Tools, Text Parser, AI, Apps, Approval
+   - selecting a module creates/selects the node and opens the specific settings modal
+   - old app/system dropdown is replaced by selected module summary + Change module
+*/
+
+
+
+
+function safeAionDesktopMessage(message, messageTone = "info") {
+  try {
+    if (typeof desktopStore !== "undefined" && desktopStore?.patch) {
+      safeAionDesktopPatch({ message, messageTone });
+      return;
+    }
+
+    if (window?.desktopStore?.patch) {
+      window.desktopStore.patch({ message, messageTone });
+      return;
+    }
+
+    if (window?.appStore?.patch) {
+      window.appStore.patch({ message, messageTone });
+      return;
+    }
+
+    console.log(`[Aion] ${messageTone}: ${message}`);
+  } catch (error) {
+    console.warn("[Aion] safe message failed", error);
+  }
+}
+
+
+
+function safeAionDesktopPatch(payload) {
+  try {
+    if (typeof desktopStore !== "undefined" && desktopStore?.patch) {
+      safeAionDesktopPatch(payload);
+      return;
+    }
+
+    if (typeof window !== "undefined" && window?.desktopStore?.patch) {
+      window.desktopStore.patch(payload);
+      return;
+    }
+
+    if (typeof window !== "undefined" && window?.appStore?.patch) {
+      window.appStore.patch(payload);
+      return;
+    }
+
+    if (payload?.message) {
+      console.log(`[Aion] ${payload.messageTone || "info"}: ${payload.message}`);
+    }
+  } catch (error) {
+    console.warn("[Aion] safe desktop patch failed", error);
+  }
+}
+
+
+(function installAionArchitectModulePickerControlsHardOverride() {
+  if (window.__aionArchitectModulePickerControlsHardOverride === true) return;
+  window.__aionArchitectModulePickerControlsHardOverride = true;
+
+  document.addEventListener("click", (event) => {
+    const openPicker =
+      event.target.closest?.("[data-aion-architect-open-module-picker='true']") ||
+      event.target.closest?.("[data-aion-architect-add-step='true']");
+
+    if (openPicker) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectSettingsOpen = false;
+      window.__aionArchitectModulePickerOpen = true;
+      window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const closePicker = event.target.closest?.("[data-aion-architect-close-module-picker='true']");
+    if (closePicker) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerOpen = false;
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const backdrop = event.target.closest?.("[data-aion-architect-module-picker-backdrop='true']");
+    const modal = event.target.closest?.("[data-aion-architect-module-picker='true']");
+    if (backdrop && !modal) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerOpen = false;
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const group = event.target.closest?.("[data-aion-architect-module-group]");
+    if (group) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectModulePickerGroup =
+        group.getAttribute("data-aion-architect-module-group") || "apps";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const pick = event.target.closest?.("[data-aion-architect-pick-module]");
+    if (pick) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const moduleId = pick.getAttribute("data-aion-architect-pick-module");
+      const module = getAionArchitectModuleById(moduleId);
+
+      if (!module) {
+        safeAionDesktopMessage("Could not find selected module.", "error");
+        return;
+      }
+
+      const workingActionType =
+        typeof getAionModuleWorkingActionType === "function"
+          ? getAionModuleWorkingActionType(module)
+          : "";
+
+      if (workingActionType && typeof addAionWorkflowNodeFromWorkingAction === "function") {
+        window.__aionArchitectModulePickerOpen = false;
+        window.__aionArchitectSettingsOpen = false;
+        window.__aionWorkflowPickerMode = "";
+        window.__aionWorkflowInspectorOpen = false;
+
+        addAionWorkflowNodeFromWorkingAction(workingActionType, module);
+
+        window.__aionArchitectModulePickerOpen = false;
+        window.__aionArchitectSettingsOpen = false;
+        safeAionDesktopMessage(`Added ${module.label || "step"} to the workflow canvas.`, "success");
+
+        if (typeof requestRender === "function") requestRender();
+
+        window.requestAnimationFrame?.(() => {
+          window.__aionArchitectModulePickerOpen = false;
+          window.__aionArchitectSettingsOpen = false;
+          if (typeof requestRender === "function") requestRender();
+        });
+
+        return;
+      }
+
+      const steps = ensureAionArchitectHasOneBlankStep();
+      const first = steps[0] || {};
+      const isOnlyBlank =
+        steps.length === 1 &&
+        !first.app &&
+        !first.connector &&
+        !first.action_id &&
+        (!first.action_label || first.action_label === "Choose action");
+
+      const nextStep = createAionArchitectStepFromModule(module);
+
+      if (isOnlyBlank) {
+        nextStep.id = first.id || nextStep.id;
+        window.__aionArchitectSteps = [nextStep];
+      } else {
+        window.__aionArchitectSteps = [...steps, nextStep];
+      }
+
+      window.__aionArchitectSelectedStepId = nextStep.id;
+      window.__aionArchitectModulePickerOpen = false;
+      window.__aionArchitectSettingsOpen = true;
+
+      safeAionDesktopMessage(`Added ${nextStep.action_label || nextStep.app || "step"} to the workflow.`, "success");
+
+      if (typeof requestRender === "function") requestRender();
+
+      window.requestAnimationFrame?.(() => {
+        window.__aionArchitectModulePickerOpen = false;
+        if (typeof requestRender === "function") requestRender();
+      });
+
+      return;
+    }
+  }, true);
+})();
+
+
+/* AI Architect blank start plus module picker fix:
+   - architect canvas starts with one blank node only
+   - + opens module picker, not settings modal
+   - module picker categories include Flow Control, Tools, Text Parser, AI, Apps, Approval
+*/
+
+
+
+
+/* AION Unified Workflow Canvas Builder Controls - Phase 1 */
+(function installAionUnifiedCanvasBuilderControls() {
+  if (window.__aionUnifiedCanvasBuilderControlsInstalled === true) return;
+  window.__aionUnifiedCanvasBuilderControlsInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const modeButton = event.target.closest?.("[data-aion-unified-builder-mode]");
+    if (modeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      setAionUnifiedBuilderMode(modeButton.getAttribute("data-aion-unified-builder-mode"));
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const assistedGenerate = event.target.closest?.("[data-aion-unified-assisted-generate='true']");
+    if (assistedGenerate) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const prompt = String(window.__aionUnifiedAssistedPrompt || "").trim();
+      if (!prompt) {
+        safeAionDesktopPatch({
+          message: "Tell Aion what step to add first.",
+          messageTone: "warning",
+        });
+        if (typeof requestRender === "function") requestRender();
+        return;
+      }
+
+      const steps = createAionUnifiedSuggestedStepsFromPrompt(prompt, { fullWorkflow: false });
+      appendAionUnifiedSuggestedStepsToMainWorkflow(steps);
+
+      window.__aionUnifiedAssistedPrompt = "";
+
+      safeAionDesktopPatch({
+        message: `Aion added ${steps.length} suggested step${steps.length === 1 ? "" : "s"} to the canvas.`,
+        messageTone: "success",
+      });
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const describeGenerate = event.target.closest?.("[data-aion-unified-describe-generate='true']");
+    if (describeGenerate) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const prompt = String(window.__aionUnifiedDescribePrompt || "").trim();
+      if (!prompt) {
+        safeAionDesktopPatch({
+          message: "Describe the workflow before generating.",
+          messageTone: "warning",
+        });
+        if (typeof requestRender === "function") requestRender();
+        return;
+      }
+
+      const steps = createAionUnifiedSuggestedStepsFromPrompt(prompt, { fullWorkflow: true });
+      appendAionUnifiedSuggestedStepsToMainWorkflow(steps);
+
+      safeAionDesktopPatch({
+        message: `Aion generated a ${steps.length}-step draft workflow on the main canvas.`,
+        messageTone: "success",
+      });
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const describeClear = event.target.closest?.("[data-aion-unified-describe-clear='true']");
+    if (describeClear) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionUnifiedDescribePrompt = "";
+
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+  }, true);
+
+  document.addEventListener("input", (event) => {
+    const assistedInput = event.target.closest?.("[data-aion-unified-assisted-input='true']");
+    if (assistedInput) {
+      window.__aionUnifiedAssistedPrompt = String(assistedInput.value || "");
+      return;
+    }
+
+    const describeInput = event.target.closest?.("[data-aion-unified-describe-input='true']");
+    if (describeInput) {
+      window.__aionUnifiedDescribePrompt = String(describeInput.value || "");
+      return;
+    }
+  }, true);
+})();
+
+(function installAionUnifiedCanvasBuilderStyles() {
+  if (document.getElementById("aion-unified-canvas-builder-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-unified-canvas-builder-styles";
+  style.textContent = `
+    .aion-unified-builder-controls {
+      position: fixed !important;
+      left: 50% !important;
+      bottom: 96px !important;
+      transform: translateX(-50%) !important;
+      width: min(820px, calc(100vw - 180px)) !important;
+      z-index: 120 !important;
+      display: grid !important;
+      gap: 10px !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-unified-builder-tabs {
+      justify-self: center !important;
+      display: inline-flex !important;
+      gap: 6px !important;
+      padding: 8px !important;
+      border-radius: 20px !important;
+      background: rgba(255,255,255,0.88) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      box-shadow: 0 18px 55px rgba(15,23,42,0.14) !important;
+      backdrop-filter: blur(20px) saturate(160%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(160%) !important;
+    }
+
+    .aion-unified-builder-tabs button {
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(255,255,255,0.92) !important;
+      color: #0f172a !important;
+      border-radius: 14px !important;
+      padding: 12px 16px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-unified-builder-tabs button.active {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: white !important;
+    }
+
+    .aion-unified-builder-note,
+    .aion-unified-ai-bar,
+    .aion-unified-describe-panel {
+      border-radius: 22px !important;
+      background: rgba(255,255,255,0.94) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      box-shadow: 0 22px 70px rgba(15,23,42,0.16) !important;
+      padding: 16px !important;
+      color: #0f172a !important;
+    }
+
+    .aion-unified-builder-note {
+      text-align: center !important;
+      color: #64748b !important;
+      font-weight: 800 !important;
+    }
+
+    .aion-unified-ai-bar,
+    .aion-unified-describe-panel {
+      display: grid !important;
+      gap: 12px !important;
+    }
+
+    .aion-unified-ai-bar strong,
+    .aion-unified-describe-panel strong {
+      display: block !important;
+      font-size: 18px !important;
+      color: #0f172a !important;
+      margin-bottom: 4px !important;
+    }
+
+    .aion-unified-ai-bar small,
+    .aion-unified-describe-panel small {
+      color: #64748b !important;
+      font-weight: 750 !important;
+    }
+
+    .aion-unified-ai-input-row {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      gap: 10px !important;
+      align-items: center !important;
+    }
+
+    .aion-unified-ai-input-row input,
+    .aion-unified-describe-panel textarea {
+      width: 100% !important;
+      border-radius: 16px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      padding: 14px 16px !important;
+      font: inherit !important;
+      color: #0f172a !important;
+      background: #fff !important;
+      outline: none !important;
+    }
+
+    .aion-unified-ai-input-row input:focus,
+    .aion-unified-describe-panel textarea:focus {
+      border-color: #a8d65f !important;
+      box-shadow: 0 0 0 4px rgba(168,214,95,0.16) !important;
+    }
+
+    .aion-unified-describe-actions {
+      display: flex !important;
+      justify-content: flex-end !important;
+      gap: 10px !important;
+    }
+
+    @media (max-width: 900px) {
+      .aion-unified-builder-controls {
+        left: 72px !important;
+        right: 16px !important;
+        width: auto !important;
+        transform: none !important;
+      }
+
+      .aion-unified-ai-input-row {
+        grid-template-columns: 1fr !important;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+
+
+
+
+/* AION PATCH: main canvas + opens unified module picker, not old right drawer */
+(function installAionMainCanvasPlusToUnifiedModulePicker() {
+  if (window.__aionMainCanvasPlusToUnifiedModulePickerInstalled === true) return;
+  window.__aionMainCanvasPlusToUnifiedModulePickerInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const plus =
+      event.target.closest?.("[data-aion-main-canvas-open-module-picker='true']") ||
+      event.target.closest?.(".aion-workflow-floating-add[data-aion-workflow-open-action-picker='true']");
+
+    if (!plus) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    // Close old drawer route.
+    window.__aionWorkflowPickerMode = "";
+    window.__aionWorkflowInspectorOpen = false;
+
+    // Open new unified picker.
+    window.__aionArchitectModulePickerOpen = true;
+    window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
+
+    if (typeof requestRender === "function") requestRender();
+  }, true);
+})();
+
+
+
+
+
+/* AION Workflow Module Contract Addendum:
+   Custom Logic modules are sandboxed by default:
+   - no filesystem access
+   - no secrets access
+   - no network access unless browser/scrape step is approval gated
+   - JSON input/output contract
+   - dry-run preview before save/run
+
+   Content Asset modules are reusable workflow assets:
+   - email/document/message/template/attachment assets
+   - fill with workflow variables
+   - draft output by default
+   - sending/external write requires approval
+*/
+
+
+
+
+/* AION PATCH: legacy add-step drawer gate.
+   The old right-side picker remains in source as a fallback/reference,
+   but normal users now use the unified Add Step modal.
+   To re-enable old drawer for debugging:
+   localStorage.setItem("aion_dev_legacy_drawers", "1"); location.reload();
+*/
+(function installAionLegacyDrawerGate() {
+  const STYLE_ID = "aion-legacy-drawer-gate";
+  if (document.getElementById(STYLE_ID)) return;
+
+  const enabled =
+    window.localStorage?.getItem("aion_dev_legacy_drawers") === "1" ||
+    window.__aionShowLegacyDrawers === true;
+
+  if (enabled) {
+    document.body?.classList?.add("aion-show-legacy-drawers");
+  } else {
+    document.body?.classList?.remove("aion-show-legacy-drawers");
+  }
+
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = `
+    body:not(.aion-show-legacy-drawers) .aion-workflow-picker-drawer {
+      display: none !important;
+      pointer-events: none !important;
+      visibility: hidden !important;
+    }
+
+    body.aion-show-legacy-drawers .aion-workflow-picker-drawer {
+      display: block;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  window.enableAionLegacyDrawers = function enableAionLegacyDrawers() {
+    window.localStorage?.setItem("aion_dev_legacy_drawers", "1");
+    document.body?.classList?.add("aion-show-legacy-drawers");
+    if (typeof requestRender === "function") requestRender();
+  };
+
+  window.disableAionLegacyDrawers = function disableAionLegacyDrawers() {
+    window.localStorage?.removeItem("aion_dev_legacy_drawers");
+    document.body?.classList?.remove("aion-show-legacy-drawers");
+    window.__aionWorkflowPickerMode = "";
+    if (typeof requestRender === "function") requestRender();
+  };
+})();
+
+
+
+
+/* AION LOCK MARKER:
+   Unified Add Step catalogue now carries:
+   - Flow Control
+   - Tools
+   - Text Parser
+   - AI
+   - Apps
+   - Custom Logic
+   - Content Assets
+   - Browser Fallback
+   - Approval
+   - Dev / Legacy
+
+   Old right-side drawer is retained but gated behind:
+   localStorage.aion_dev_legacy_drawers = "1"
+*/
+
+
+
+/* AION PATCH: unified module picker closes immediately after module selection. */
+
+
+
+/* AION PATCH: force visible dry-run result panel after Execute workflow */
+(function installAionExecuteWorkflowPreviewPanelPatch() {
+  if (window.__aionExecuteWorkflowPreviewPanelPatchInstalled === true) return;
+  window.__aionExecuteWorkflowPreviewPanelPatchInstalled = true;
+
+  function getLatestAionDryRunResult() {
+    return (
+      window.__aionWorkflowDryRunResult ||
+      window.__aionWorkflowDryRunPreview ||
+      window.__aionWorkflowLocalDryRunResult ||
+      null
+    );
+  }
+
+  window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflowDryRunResultPanelFallback() {
+    const result = getLatestAionDryRunResult();
+
+    if (window.__aionWorkflowDryRunTraceOpen !== true || !result) {
+      return "";
+    }
+
+    const ok = result.ok !== false;
+    const trace = Array.isArray(result.trace)
+      ? result.trace
+      : Array.isArray(result.steps)
+        ? result.steps
+        : [];
+
+    const blocked = Array.isArray(result.blocked_external_writes)
+      ? result.blocked_external_writes
+      : [];
+
+    const message =
+      result.message ||
+      result.error ||
+      (ok ? "Dry-run preview completed. No external writes were performed." : "Dry-run failed.");
+
+    return `
+      <aside class="aion-workflow-execution-panel aion-dry-run-floating-dock" data-aion-dry-run-result-panel="true">
+        <button type="button" class="aion-exec-close" data-aion-dry-run-close="true">×</button>
+
+        <div class="aion-exec-header">
+          <div>
+            <div class="eyebrow">Workflow dry-run</div>
+            <h2>${ok ? "Dry-run complete" : "Dry-run failed"}</h2>
+            <p>${escapeHtml(message)}</p>
+          </div>
+          <span class="train-status-chip ${ok ? "train-status-ok" : ""}">
+            ${ok ? "Safe preview" : "Needs review"}
+          </span>
+        </div>
+
+        <section class="aion-exec-card">
+          <div class="metric-grid">
+            <div class="mini-card">
+              <div class="metric-label">Steps checked</div>
+              <div class="metric-value">${escapeHtml(trace.length || result.step_count || 0)}</div>
+            </div>
+            <div class="mini-card">
+              <div class="metric-label">External writes blocked</div>
+              <div class="metric-value">${escapeHtml(blocked.length)}</div>
+            </div>
+            <div class="mini-card">
+              <div class="metric-label">Route</div>
+              <div class="metric-note">${escapeHtml(result.execution_route || "local_canvas_dry_run")}</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="aion-exec-card">
+          <div class="eyebrow">Execution preview</div>
+          ${
+            trace.length
+              ? trace.map((item, index) => `
+                  <div class="aion-io-row">
+                    <strong>${escapeHtml(index + 1)}. ${escapeHtml(item.title || item.label || item.action || item.action_id || item.step_id || "Workflow step")}</strong>
+                    <span>${escapeHtml(item.status || item.message || item.type || "dry-run")}</span>
+                  </div>
+                `).join("")
+              : `<div class="empty-state">No detailed trace was returned, but the workflow dry-run completed locally.</div>`
+          }
+        </section>
+
+        ${
+          blocked.length
+            ? `
+              <section class="aion-exec-card">
+                <div class="eyebrow">Blocked external writes</div>
+                ${blocked.map((item) => `
+                  <div class="aion-io-row">
+                    <strong>${escapeHtml(item.action || item.action_id || item.label || "External write")}</strong>
+                    <span>${escapeHtml(item.reason || "Blocked by safety policy")}</span>
+                  </div>
+                `).join("")}
+              </section>
+            `
+            : ""
+        }
+
+        <details class="aion-exec-debug">
+          <summary>Advanced debug payload</summary>
+          <pre>${escapeHtml(JSON.stringify(result, null, 2))}</pre>
+        </details>
+      </aside>
+    `;
+  };
+
+  document.addEventListener("click", (event) => {
+    const execute = event.target.closest?.("[data-aion-workflow-dry-run='true']");
+    if (!execute) return;
+
+    window.setTimeout(() => {
+      const result = getLatestAionDryRunResult();
+
+      if (result) {
+        window.__aionWorkflowDryRunTraceOpen = true;
+        window.__aionWorkflowExecutionPreviewOpen = true;
+        window.__aionWorkflowInspectorOpen = false;
+
+        if (typeof requestRender === "function") {
+          requestRender();
+        }
+      }
+    }, 80);
+  }, true);
+})();
+
+
+
+
+/* AION PATCH: direct DOM dry-run preview panel after Execute workflow */
+(function installAionExecuteWorkflowDirectDomPreviewPatch() {
+  if (window.__aionExecuteWorkflowDirectDomPreviewPatchInstalled === true) return;
+  window.__aionExecuteWorkflowDirectDomPreviewPatchInstalled = true;
+
+  function safeEscape(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getDryRunResult() {
+    return (
+      window.__aionWorkflowDryRunResult ||
+      window.__aionWorkflowDryRunPreview ||
+      window.__aionWorkflowLocalDryRunResult ||
+      null
+    );
+  }
+
+  function removePanel() {
+    document.querySelectorAll("[data-aion-direct-dry-run-panel='true']").forEach((node) => node.remove());
+  }
+
+  function openPanel(result) {
+    removePanel();
+
+    const ok = result?.ok !== false;
+    const trace = Array.isArray(result?.trace)
+      ? result.trace
+      : Array.isArray(result?.steps)
+        ? result.steps
+        : [];
+
+    const blocked = Array.isArray(result?.blocked_external_writes)
+      ? result.blocked_external_writes
+      : [];
+
+    const panel = document.createElement("aside");
+    panel.setAttribute("data-aion-direct-dry-run-panel", "true");
+    panel.className = "aion-direct-dry-run-panel";
+    panel.innerHTML = `
+      <button type="button" class="aion-direct-dry-run-close" data-aion-direct-dry-run-close="true">×</button>
+
+      <div class="eyebrow">Workflow dry-run</div>
+      <h2>${ok ? "Dry-run complete" : "Dry-run failed"}</h2>
+      <p>${safeEscape(result?.message || result?.error || "Dry-run preview completed. No external writes were performed.")}</p>
+
+      <div class="aion-direct-dry-run-grid">
+        <div>
+          <strong>${safeEscape(trace.length || result?.step_count || 0)}</strong>
+          <span>Steps checked</span>
+        </div>
+        <div>
+          <strong>${safeEscape(blocked.length)}</strong>
+          <span>Blocked writes</span>
+        </div>
+        <div>
+          <strong>${ok ? "Safe" : "Review"}</strong>
+          <span>Status</span>
+        </div>
+      </div>
+
+      <section>
+        <div class="eyebrow">Execution preview</div>
+        ${
+          trace.length
+            ? trace.map((item, index) => `
+                <div class="aion-direct-dry-run-row">
+                  <strong>${safeEscape(index + 1)}. ${safeEscape(item.title || item.label || item.action || item.action_id || item.step_id || "Workflow step")}</strong>
+                  <span>${safeEscape(item.status || item.message || item.type || "dry-run")}</span>
+                </div>
+              `).join("")
+            : `<div class="aion-direct-dry-run-empty">No detailed trace was returned, but the dry-run completed locally.</div>`
+        }
+      </section>
+
+      ${
+        blocked.length
+          ? `
+            <section>
+              <div class="eyebrow">Blocked external writes</div>
+              ${blocked.map((item) => `
+                <div class="aion-direct-dry-run-row">
+                  <strong>${safeEscape(item.action || item.action_id || item.label || "External write")}</strong>
+                  <span>${safeEscape(item.reason || "Blocked by safety policy")}</span>
+                </div>
+              `).join("")}
+            </section>
+          `
+          : ""
+      }
+
+      <details>
+        <summary>Advanced debug payload</summary>
+        <pre>${safeEscape(JSON.stringify(result || {}, null, 2))}</pre>
+      </details>
+    `;
+
+    document.body.appendChild(panel);
+  }
+
+  function waitForResultAndOpen(attempt = 0) {
+    const result = getDryRunResult();
+
+    if (result) {
+      window.__aionWorkflowDryRunTraceOpen = true;
+      window.__aionWorkflowExecutionPreviewOpen = true;
+      openPanel(result);
+      return;
+    }
+
+    if (attempt < 40) {
+      window.setTimeout(() => waitForResultAndOpen(attempt + 1), 100);
+      return;
+    }
+
+    openPanel({
+      ok: false,
+      message: "Dry-run was triggered, but no result object appeared in window.__aionWorkflowDryRunResult.",
+      trace: [],
+      blocked_external_writes: [],
+    });
+  }
+
+  document.addEventListener("click", (event) => {
+    const close = event.target.closest?.("[data-aion-direct-dry-run-close='true']");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      removePanel();
+      return;
+    }
+
+    const execute = event.target.closest?.("[data-aion-workflow-dry-run='true']");
+    if (!execute) return;
+
+    window.setTimeout(() => waitForResultAndOpen(0), 120);
+  }, true);
+
+  if (!document.getElementById("aion-direct-dry-run-panel-styles")) {
+    const style = document.createElement("style");
+    style.id = "aion-direct-dry-run-panel-styles";
+    style.textContent = `
+      .aion-direct-dry-run-panel {
+        position: fixed !important;
+        right: 28px !important;
+        top: 88px !important;
+        bottom: 28px !important;
+        width: min(560px, calc(100vw - 56px)) !important;
+        z-index: 999999 !important;
+        overflow: auto !important;
+        padding: 28px !important;
+        border-radius: 28px !important;
+        background: rgba(255,252,245,0.98) !important;
+        border: 1px solid rgba(15,23,42,0.14) !important;
+        box-shadow: 0 34px 100px rgba(15,23,42,0.28) !important;
+        color: #0f172a !important;
+      }
+
+      .aion-direct-dry-run-close {
+        position: sticky !important;
+        top: 0 !important;
+        float: right !important;
+        width: 42px !important;
+        height: 42px !important;
+        border-radius: 999px !important;
+        border: 1px solid rgba(168,214,95,0.45) !important;
+        background: white !important;
+        font-size: 26px !important;
+        font-weight: 900 !important;
+        cursor: pointer !important;
+        z-index: 2 !important;
+      }
+
+      .aion-direct-dry-run-panel h2 {
+        margin: 8px 0 10px !important;
+        font-size: 30px !important;
+        line-height: 1.05 !important;
+      }
+
+      .aion-direct-dry-run-panel p {
+        color: #64748b !important;
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+      }
+
+      .aion-direct-dry-run-grid {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 12px !important;
+        margin: 22px 0 !important;
+      }
+
+      .aion-direct-dry-run-grid > div,
+      .aion-direct-dry-run-row,
+      .aion-direct-dry-run-empty {
+        border-radius: 18px !important;
+        border: 1px solid rgba(15,23,42,0.10) !important;
+        background: rgba(255,255,255,0.78) !important;
+        padding: 14px !important;
+      }
+
+      .aion-direct-dry-run-grid strong {
+        display: block !important;
+        font-size: 24px !important;
+      }
+
+      .aion-direct-dry-run-grid span,
+      .aion-direct-dry-run-row span {
+        display: block !important;
+        margin-top: 4px !important;
+        color: #64748b !important;
+      }
+
+      .aion-direct-dry-run-row {
+        margin: 10px 0 !important;
+      }
+
+      .aion-direct-dry-run-panel .eyebrow {
+        font-size: 11px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.22em !important;
+        text-transform: uppercase !important;
+        color: #64748b !important;
+      }
+
+      .aion-direct-dry-run-panel pre {
+        max-height: 260px !important;
+        overflow: auto !important;
+        border-radius: 16px !important;
+        background: #0f172a !important;
+        color: #e5e7eb !important;
+        padding: 14px !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+})();
+
+
+
+/* AION PATCH: main canvas blank start + node mini toolbar + logic bridge v1
+   Purpose:
+   - Main workflow canvas starts with one blank Choose node instead of the old demo chain.
+   - Main canvas nodes get the same mini toolbar pattern as AI Architect nodes.
+   - Gear keeps normal node editing behaviour.
+   - Logic icon opens the advanced Configure Step Logic modal.
+   - Delete removes a node and restores one blank node when canvas becomes empty.
+*/
+(function installAionMainCanvasBlankStartAndNodeToolbarV1() {
+  const PATCH_ID = "aion-main-canvas-blank-start-node-toolbar-v1";
+  if (window.__aionMainCanvasBlankStartNodeToolbarV1 === true) return;
+  window.__aionMainCanvasBlankStartNodeToolbarV1 = true;
+
+  function makeBlankWorkflowGraph() {
+    const businessContainer =
+      (typeof getAionWorkflowBusinessContainerId === "function"
+        ? getAionWorkflowBusinessContainerId()
+        : "costa-conexion") || "costa-conexion";
+
+    return {
+      workflow_id: createAionWorkflowId(),
+      name: "business email process",
+      status: "draft",
+      business_container: businessContainer,
+      nodes: [
+        {
+          id: "node_choose_start",
+          title: "Choose",
+          type: "Step",
+          icon: "C",
+          status: "Dry-run",
+          meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+          tone: "teal",
+          x: 760,
+          y: 260,
+          config: {},
+        },
+      ],
+      edges: [],
+      dirty: true,
+    };
+  }
+
+  function isOldStarterGraph(graph) {
+    const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+    if (nodes.length !== 4) return false;
+
+    const titles = nodes.map((node) => String(node?.title || "").toLowerCase());
+    return (
+      titles.includes("match pattern") &&
+      titles.includes("set variable") &&
+      titles.includes("get variable") &&
+      titles.includes("compose string")
+    );
+  }
+
+  function isEmptyGraph(graph) {
+    return !graph || !Array.isArray(graph.nodes) || graph.nodes.length === 0;
+  }
+
+  function forceBlankStarterIfNeeded() {
+    const graph =
+      (typeof getAionWorkflowDraftState === "function"
+        ? getAionWorkflowDraftState()
+        : window.__aionWorkflowGraph) || null;
+
+    if (!isEmptyGraph(graph) && !isOldStarterGraph(graph)) return false;
+
+    window.__aionWorkflowGraph = makeBlankWorkflowGraph();
+    window.__aionWorkflowSelectedNodeId = "node_choose_start";
+    window.__aionWorkflowPickerMode = "";
+    window.__aionWorkflowInspectorOpen = false;
+
+    if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+      try {
+        compileAndAttachAionWorkflowGlyph(window.__aionWorkflowGraph);
+      } catch (error) {
+        console.warn(`[${PATCH_ID}] compile skipped`, error);
+      }
+    }
+
+    if (typeof persistAionWorkflowDraftState === "function") {
+      try {
+        persistAionWorkflowDraftState();
+      } catch (error) {
+        console.warn(`[${PATCH_ID}] persist skipped`, error);
+      }
+    }
+
+    return true;
+  }
+
+  function safePatchMessage(message, tone = "info") {
+    if (typeof safeAionDesktopPatch === "function") {
+      safeAionDesktopPatch({ message, messageTone: tone });
+      return;
+    }
+
+    if (window.desktopStore?.patch) {
+      window.desktopStore.patch({ message, messageTone: tone });
+      return;
+    }
+
+    console.log(`[Aion] ${tone}: ${message}`);
+  }
+
+  function getNodeIdFromToolbarButton(button) {
+    return button?.getAttribute?.("data-aion-main-node-toolbar-node") || "";
+  }
+
+  function selectNode(nodeId) {
+    if (!nodeId) return;
+    window.__aionWorkflowSelectedNodeId = nodeId;
+  }
+
+  function removeNode(nodeId) {
+    const graph =
+      (typeof getAionWorkflowDraftState === "function"
+        ? getAionWorkflowDraftState()
+        : window.__aionWorkflowGraph) || makeBlankWorkflowGraph();
+
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+    const nextNodes = nodes.filter((node) => String(node.id) !== String(nodeId));
+    const nextEdges = edges.filter(
+      (edge) => String(edge.from) !== String(nodeId) && String(edge.to) !== String(nodeId),
+    );
+
+    if (!nextNodes.length) {
+      window.__aionWorkflowGraph = makeBlankWorkflowGraph();
+      window.__aionWorkflowSelectedNodeId = "node_choose_start";
+    } else {
+      graph.nodes = nextNodes;
+      graph.edges = nextEdges;
+      graph.dirty = true;
+      window.__aionWorkflowGraph = graph;
+      window.__aionWorkflowSelectedNodeId = nextNodes[nextNodes.length - 1]?.id || null;
+    }
+
+    if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+      try {
+        compileAndAttachAionWorkflowGlyph(window.__aionWorkflowGraph);
+      } catch (error) {
+        console.warn(`[${PATCH_ID}] compile after delete skipped`, error);
+      }
+    }
+
+    if (typeof persistAionWorkflowDraftState === "function") {
+      try {
+        persistAionWorkflowDraftState();
+      } catch (error) {
+        console.warn(`[${PATCH_ID}] persist after delete skipped`, error);
+      }
+    }
+
+    safePatchMessage("Workflow node removed.", "success");
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function openAdvancedLogic(nodeId) {
+    selectNode(nodeId);
+
+    // Bridge main workflow node into the Architect advanced modal state.
+    window.__aionArchitectSelectedStepId = nodeId;
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+
+    // Keep Architect step mirror minimal so the modal has context if needed later.
+    const graph =
+      (typeof getAionWorkflowDraftState === "function"
+        ? getAionWorkflowDraftState()
+        : window.__aionWorkflowGraph) || {};
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const node = nodes.find((item) => String(item.id) === String(nodeId));
+
+    if (node) {
+      window.__aionArchitectSteps = [
+        {
+          id: node.id,
+          app: node.connector || node.type || node.title || "workflow",
+          connector: node.connector || node.type || "",
+          action_id: node.action_id || node.action || "",
+          action_label: node.title || node.action_label || "Configure step",
+          subtitle: node.meta || node.subtitle || "",
+          fields: node.fields || node.config?.fields || "",
+          outputs: node.outputs || node.config?.outputs || "",
+          approval_requirement:
+            node.approval_requirement ||
+            (String(node.status || "").toLowerCase().includes("approval") ? "required" : "auto"),
+        },
+      ];
+    }
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function openNodeEditor(nodeId) {
+    selectNode(nodeId);
+
+    const nodeEl = document.querySelector(
+      `[data-aion-workflow-node-id="${window.CSS?.escape ? CSS.escape(nodeId) : nodeId}"]`,
+    );
+
+    // Let the existing node click/editor behaviour run.
+    if (nodeEl) {
+      nodeEl.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true }));
+      return;
+    }
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function injectMiniToolbars() {
+    document.querySelectorAll("[data-aion-workflow-node-id]").forEach((nodeEl) => {
+      if (nodeEl.querySelector(".aion-main-node-mini-toolbar")) return;
+
+      const nodeId = nodeEl.getAttribute("data-aion-workflow-node-id");
+      if (!nodeId) return;
+
+      nodeEl.style.position = nodeEl.style.position || "relative";
+
+      const toolbar = document.createElement("div");
+      toolbar.className = "aion-main-node-mini-toolbar";
+      toolbar.innerHTML = `
+        <span role="button" tabindex="0" title="Step settings" data-aion-main-node-toolbar="settings" data-aion-main-node-toolbar-node="${nodeId}">⚙</span>
+        <span role="button" tabindex="0" title="Configure logic / variables" data-aion-main-node-toolbar="logic" data-aion-main-node-toolbar-node="${nodeId}">⑂</span>
+        <span role="button" tabindex="0" title="Remove step" data-aion-main-node-toolbar="delete" data-aion-main-node-toolbar-node="${nodeId}">×</span>
+
+      `;
+
+      nodeEl.appendChild(toolbar);
+    });
+
+    injectLogicTabIntoNodeEditor();
+  }
+
+  function injectLogicTabIntoNodeEditor() {
+    const editor =
+      document.querySelector(".aion-workflow-node-editor") ||
+      document.querySelector(".aion-workflow-execution-panel") ||
+      document.querySelector("[data-aion-workflow-node-editor='true']");
+
+    if (!editor || editor.querySelector(".aion-main-node-editor-logic-tab")) return;
+
+    const selectedNodeId = window.__aionWorkflowSelectedNodeId || "";
+    if (!selectedNodeId) return;
+
+    const closeButton =
+      editor.querySelector("[data-aion-workflow-node-editor-close='true']") ||
+      editor.querySelector("[data-aion-dry-run-close='true']") ||
+      editor.querySelector("button");
+
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "aion-main-node-editor-logic-tab";
+    tab.setAttribute("data-aion-main-node-toolbar", "logic");
+    tab.setAttribute("data-aion-main-node-toolbar-node", selectedNodeId);
+    tab.textContent = "Logic / Variables";
+
+    if (closeButton?.parentElement) {
+      closeButton.parentElement.insertBefore(tab, closeButton);
+    } else {
+      editor.insertBefore(tab, editor.firstChild);
+    }
+  }
+
+  function ensureAdvancedModalMounted() {
+    if (window.__aionArchitectAdvancedConfigOpen !== true) return;
+    if (document.querySelector("[data-aion-architect-advanced-backdrop='true']")) return;
+    if (typeof renderAionArchitectAdvancedConfigModal !== "function") return;
+
+    const html = renderAionArchitectAdvancedConfigModal();
+    if (!html) return;
+
+    const host = document.createElement("div");
+    host.setAttribute("data-aion-main-advanced-modal-host", "true");
+    host.innerHTML = html;
+    document.body.appendChild(host);
+  }
+
+  function postRenderPatch() {
+    forceBlankStarterIfNeeded();
+    injectMiniToolbars();
+    ensureAdvancedModalMounted();
+  }
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const toolbarButton = event.target.closest?.("[data-aion-main-node-toolbar]");
+      if (!toolbarButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const action = toolbarButton.getAttribute("data-aion-main-node-toolbar");
+      const nodeId = getNodeIdFromToolbarButton(toolbarButton);
+
+      if (action === "settings") {
+        openNodeEditor(nodeId);
+        return;
+      }
+
+      if (action === "logic") {
+        openAdvancedLogic(nodeId);
+        return;
+      }
+
+      if (action === "delete") {
+        const resolvedNodeId =
+          toolbarButton.getAttribute("data-aion-main-node-toolbar-node") ||
+          toolbarButton.closest?.("[data-aion-workflow-node-id]")?.getAttribute("data-aion-workflow-node-id") ||
+          nodeId;
+
+        if (!resolvedNodeId) return;
+
+        const graph =
+          (typeof getAionWorkflowDraftState === "function"
+            ? getAionWorkflowDraftState()
+            : window.__aionWorkflowGraph) || {};
+
+        const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+        const edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+        const nextNodes = nodes.filter(
+          (node) => String(node.id) !== String(resolvedNodeId),
+        );
+
+        const nextEdges = edges.filter((edge) => {
+          const from = edge.from || edge.source;
+          const to = edge.to || edge.target;
+          return String(from) !== String(resolvedNodeId) && String(to) !== String(resolvedNodeId);
+        });
+
+        if (!nextNodes.length && typeof makeBlankWorkflowGraph === "function") {
+          window.__aionWorkflowGraph = makeBlankWorkflowGraph();
+          window.__aionWorkflowSelectedNodeId = "node_choose_start";
+        } else {
+          graph.nodes = nextNodes;
+          graph.edges = nextEdges;
+          graph.dirty = true;
+          window.__aionWorkflowGraph = graph;
+
+          if (window.__aionWorkflowSelectedNodeId === resolvedNodeId) {
+            window.__aionWorkflowSelectedNodeId =
+              nextNodes[nextNodes.length - 1]?.id || nextNodes[0]?.id || null;
+          }
+        }
+
+        try {
+          if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+            compileAndAttachAionWorkflowGlyph(window.__aionWorkflowGraph);
+          }
+        } catch (error) {
+          console.warn("[workflow-delete] compile skipped", error);
+        }
+
+        try {
+          if (typeof persistAionWorkflowDraftState === "function") {
+            persistAionWorkflowDraftState();
+          }
+        } catch (error) {
+          console.warn("[workflow-delete] persist skipped", error);
+        }
+
+        try {
+          if (typeof safePatchMessage === "function") {
+            safePatchMessage("Workflow node removed.", "success");
+          }
+        } catch (_) {}
+
+        if (typeof requestRender === "function") requestRender();
+        return;
+      }
+    },
+    true,
+  );
+
+  // Make sure blank start happens after app boot even if old draft was already loaded.
+  window.setTimeout(() => {
+    const changed = forceBlankStarterIfNeeded();
+    if (changed && typeof requestRender === "function") requestRender();
+    postRenderPatch();
+  }, 0);
+
+  window.setTimeout(postRenderPatch, 80);
+  window.setTimeout(postRenderPatch, 250);
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(postRenderPatch) || window.setTimeout(postRenderPatch, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-main-node-mini-toolbar {
+      position: absolute !important;
+      top: -34px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      z-index: 80 !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-main-node-mini-toolbar button,
+    .aion-main-node-mini-toolbar span[role='button'] {
+      width: 34px !important;
+      height: 34px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: rgba(255,255,255,0.96) !important;
+      color: #0f172a !important;
+      display: grid !important;
+      place-items: center !important;
+      cursor: pointer !important;
+      font-weight: 950 !important;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.14) !important;
+    }
+
+    .aion-main-node-mini-toolbar button:hover,
+    .aion-main-node-mini-toolbar span[role='button']:hover {
+      background: #f7fee7 !important;
+      border-color: rgba(183,239,106,0.75) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .aion-main-node-mini-toolbar span[data-aion-main-node-toolbar="delete"],
+    .aion-main-node-mini-toolbar button[data-aion-main-node-toolbar="delete"] {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+      font-size: 18px !important;
+    }
+
+
+    .aion-main-node-editor-logic-tab {
+      height: 42px !important;
+      padding: 0 16px !important;
+      margin-right: 10px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    [data-aion-main-advanced-modal-host="true"] {
+      position: relative !important;
+      z-index: 9999 !important;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+})();
+
+
+/* AION PATCH: main node editor AI settings + toolbar modal isolation v1
+   Fixes:
+   - Prevents mini-toolbar injection inside node editor modal.
+   - Adds AI Architect-style settings panel into the existing main node editor.
+   - Adds Configure Logic / Variables action from node editor into advanced modal.
+*/
+(function installAionMainNodeEditorAiSettingsBridgeV1() {
+  const PATCH_ID = "aion-main-node-editor-ai-settings-bridge-v1";
+  if (window.__aionMainNodeEditorAiSettingsBridgeV1 === true) return;
+  window.__aionMainNodeEditorAiSettingsBridgeV1 = true;
+
+  function getGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      return getAionWorkflowDraftState();
+    }
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function getSelectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+    return nodes.find((node) => String(node.id) === String(selectedId)) || nodes[0] || null;
+  }
+
+  function safeRequestRender() {
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function persistGraph(graph) {
+    window.__aionWorkflowGraph = graph;
+
+    if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+      try {
+        compileAndAttachAionWorkflowGlyph(graph);
+      } catch (error) {
+        console.warn(`[${PATCH_ID}] compile skipped`, error);
+      }
+    }
+
+    if (typeof persistAionWorkflowDraftState === "function") {
+      try {
+        persistAionWorkflowDraftState();
+      } catch (error) {
+        console.warn(`[${PATCH_ID}] persist skipped`, error);
+      }
+    }
+  }
+
+  function updateNodeField(nodeId, field, value) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      const config = { ...(node.config || {}) };
+
+      if (field.startsWith("config.")) {
+        config[field.replace("config.", "")] = value;
+        return { ...node, config };
+      }
+
+      return {
+        ...node,
+        [field]: value,
+        config,
+      };
+    });
+
+    graph.dirty = true;
+    persistGraph(graph);
+  }
+
+  function openAdvancedLogicFromMainNode(nodeId) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const node = nodes.find((item) => String(item.id) === String(nodeId));
+
+    if (!node) return;
+
+    window.__aionWorkflowSelectedNodeId = nodeId;
+    window.__aionArchitectSelectedStepId = nodeId;
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+
+    window.__aionArchitectSteps = [
+      {
+        id: node.id,
+        app: node.connector || node.type || node.title || "workflow",
+        connector: node.connector || node.type || "",
+        action_id: node.action_id || node.action || "",
+        action_label: node.title || node.action_label || "Configure step",
+        subtitle: node.meta || node.subtitle || "",
+        fields: node.fields || node.config?.fields || "",
+        outputs: node.outputs || node.config?.outputs || "",
+        approval_requirement:
+          node.approval_requirement ||
+          (String(node.status || "").toLowerCase().includes("approval") ? "required" : "auto"),
+      },
+    ];
+
+    safeRequestRender();
+  }
+
+  function injectAiSettingsIntoNodeEditor() {
+    const editor =
+      document.querySelector(".aion-workflow-node-editor") ||
+      document.querySelector("[data-aion-workflow-node-editor='true']");
+
+    if (!editor) return;
+    if (editor.querySelector("[data-aion-main-node-ai-settings='true']")) return;
+
+    const node = getSelectedNode();
+    if (!node) return;
+
+    // Remove any mini toolbars that accidentally got injected inside the modal.
+    editor.querySelectorAll(".aion-main-node-mini-toolbar").forEach((toolbar) => toolbar.remove());
+
+    const paramsColumn =
+      Array.from(editor.querySelectorAll("*")).find((el) =>
+        String(el.textContent || "").trim().startsWith("PARAMETERS"),
+      ) || editor;
+
+    const panel = document.createElement("section");
+    panel.className = "aion-main-node-ai-settings";
+    panel.setAttribute("data-aion-main-node-ai-settings", "true");
+
+    panel.innerHTML = `
+      <div class="aion-main-node-ai-settings-tabs">
+        <button type="button" class="active">Node</button>
+        <button type="button" data-aion-main-node-open-logic="${node.id}">Logic / Variables</button>
+      </div>
+
+      <div class="aion-main-node-ai-settings-card">
+        <div class="eyebrow">AI canvas settings</div>
+
+        <label>
+          <span>What kind of step is this?</span>
+          <select data-aion-main-node-field="type" data-aion-main-node-id="${node.id}">
+            <option value="Step" ${String(node.type || "") === "Step" ? "selected" : ""}>Step</option>
+            <option value="Trigger" ${String(node.type || "") === "Trigger" ? "selected" : ""}>Trigger</option>
+            <option value="AI / Parser" ${String(node.type || "") === "AI / Parser" ? "selected" : ""}>AI action</option>
+            <option value="Tools" ${String(node.type || "") === "Tools" ? "selected" : ""}>Tool / transform</option>
+            <option value="Text Parser" ${String(node.type || "") === "Text Parser" ? "selected" : ""}>Text parser</option>
+            <option value="Gate" ${String(node.type || "") === "Gate" ? "selected" : ""}>Approval / gate</option>
+            <option value="Flow Control" ${String(node.type || "") === "Flow Control" ? "selected" : ""}>Flow control</option>
+            <option value="Custom Logic" ${String(node.type || "") === "Custom Logic" ? "selected" : ""}>Custom logic</option>
+            <option value="Content Asset" ${String(node.type || "") === "Content Asset" ? "selected" : ""}>Content asset</option>
+          </select>
+        </label>
+
+        <label>
+          <span>Use this app / system</span>
+          <input
+            data-aion-main-node-field="connector"
+            data-aion-main-node-id="${node.id}"
+            value="${escapeHtml(node.connector || node.type || "")}"
+            placeholder="Gmail, Aion, Tools, Text parser, Approval"
+          />
+        </label>
+
+        <label>
+          <span>Action ID</span>
+          <input
+            data-aion-main-node-field="action_id"
+            data-aion-main-node-id="${node.id}"
+            value="${escapeHtml(node.action_id || node.action || "")}"
+            placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+          />
+        </label>
+
+        <label>
+          <span>What should happen?</span>
+          <input
+            data-aion-main-node-field="title"
+            data-aion-main-node-id="${node.id}"
+            value="${escapeHtml(node.title || "")}"
+            placeholder="Watch emails, Extract details, Create draft"
+          />
+        </label>
+
+        <label>
+          <span>Aion should collect / use</span>
+          <textarea
+            data-aion-main-node-field="fields"
+            data-aion-main-node-id="${node.id}"
+            placeholder="sender, subject, body, received_at"
+          >${escapeHtml(node.fields || node.config?.fields || "")}</textarea>
+        </label>
+
+        <label>
+          <span>Pass this to the next step</span>
+          <textarea
+            data-aion-main-node-field="outputs"
+            data-aion-main-node-id="${node.id}"
+            placeholder="new_email_event, customer_details, draft_reply"
+          >${escapeHtml(node.outputs || node.config?.outputs || "")}</textarea>
+        </label>
+
+        <label>
+          <span>Approval / safety</span>
+          <select data-aion-main-node-field="approval_requirement" data-aion-main-node-id="${node.id}">
+            <option value="auto" ${String(node.approval_requirement || "auto") === "auto" ? "selected" : ""}>Auto</option>
+            <option value="not_required" ${String(node.approval_requirement || "") === "not_required" ? "selected" : ""}>No approval needed</option>
+            <option value="required" ${String(node.approval_requirement || "") === "required" ? "selected" : ""}>Require human approval</option>
+            <option value="before_external_write" ${String(node.approval_requirement || "") === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+          </select>
+        </label>
+
+        <button type="button" class="secondary-btn" data-aion-main-node-open-logic="${node.id}">
+          Configure logic / variables
+        </button>
+      </div>
+    `;
+
+    paramsColumn.appendChild(panel);
+  }
+
+  function cleanToolbarFromModals() {
+    document
+      .querySelectorAll(
+        ".aion-workflow-node-editor .aion-main-node-mini-toolbar, [data-aion-workflow-node-editor='true'] .aion-main-node-mini-toolbar, .aion-workflow-execution-panel .aion-main-node-mini-toolbar",
+      )
+      .forEach((toolbar) => toolbar.remove());
+  }
+
+  function postRender() {
+    cleanToolbarFromModals();
+    injectAiSettingsIntoNodeEditor();
+  }
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-field]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-id");
+      const field = input.getAttribute("data-aion-main-node-field");
+
+      if (!nodeId || !field) return;
+
+      updateNodeField(nodeId, field, input.value);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-field]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-id");
+      const field = input.getAttribute("data-aion-main-node-field");
+
+      if (!nodeId || !field) return;
+
+      updateNodeField(nodeId, field, input.value);
+      safeRequestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const logicButton = event.target.closest?.("[data-aion-main-node-open-logic]");
+      if (!logicButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = logicButton.getAttribute("data-aion-main-node-open-logic");
+      openAdvancedLogicFromMainNode(nodeId);
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(postRender) || window.setTimeout(postRender, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  window.setTimeout(postRender, 0);
+  window.setTimeout(postRender, 120);
+  window.setTimeout(postRender, 300);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-node-editor .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-main-node-mini-toolbar,
+    .aion-workflow-execution-panel .aion-main-node-mini-toolbar {
+      display: none !important;
+    }
+
+    .aion-main-node-ai-settings {
+      margin-top: 22px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(15,23,42,0.12) !important;
+    }
+
+    .aion-main-node-ai-settings-tabs {
+      display: flex !important;
+      gap: 8px !important;
+      margin-bottom: 14px !important;
+    }
+
+    .aion-main-node-ai-settings-tabs button {
+      height: 40px !important;
+      padding: 0 14px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: rgba(255,255,255,0.9) !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-ai-settings-tabs button.active {
+      background: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    .aion-main-node-ai-settings-card {
+      display: grid !important;
+      gap: 14px !important;
+    }
+
+    .aion-main-node-ai-settings-card label {
+      display: grid !important;
+      gap: 7px !important;
+    }
+
+    .aion-main-node-ai-settings-card label span,
+    .aion-main-node-ai-settings-card .eyebrow {
+      color: #334155 !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-node-ai-settings-card input,
+    .aion-main-node-ai-settings-card select,
+    .aion-main-node-ai-settings-card textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.94) !important;
+      color: #0f172a !important;
+      font-weight: 750 !important;
+      padding: 12px 14px !important;
+      outline: none !important;
+    }
+
+    .aion-main-node-ai-settings-card textarea {
+      min-height: 88px !important;
+      resize: vertical !important;
+      line-height: 1.45 !important;
+    }
+
+    .aion-main-node-ai-settings-card .secondary-btn {
+      justify-self: start !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 16px !important;
+      cursor: pointer !important;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+})();
+
+
+/* AION PATCH: force main canvas node editor AI-settings + advanced modal mount v2
+   Fixes:
+   - Main canvas node tool icon opens Configure Step Logic modal.
+   - Configure Step Logic modal is mounted even outside AI Architect canvas.
+   - Existing Node Editor receives AI canvas settings section.
+   - Removes mini-toolbar overlap inside node editor modal.
+*/
+(function installAionMainCanvasNodeEditorBridgeV2() {
+  const PATCH_ID = "aion-main-canvas-node-editor-bridge-v2";
+  if (window.__aionMainCanvasNodeEditorBridgeV2 === true) return;
+  window.__aionMainCanvasNodeEditorBridgeV2 = true;
+
+  function safeEscape(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        return getAionWorkflowDraftState();
+      } catch (_) {}
+    }
+
+    if (!window.__aionWorkflowGraph) {
+      window.__aionWorkflowGraph = { nodes: [], edges: [] };
+    }
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function persistGraph(graph) {
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] compile skipped`, error);
+    }
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] persist skipped`, error);
+    }
+  }
+
+  function request() {
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function selectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function updateNode(nodeId, field, value) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      if (field === "fields" || field === "outputs") {
+        return {
+          ...node,
+          [field]: value,
+          config: {
+            ...(node.config || {}),
+            [field]: value,
+          },
+        };
+      }
+
+      return {
+        ...node,
+        [field]: value,
+      };
+    });
+
+    graph.dirty = true;
+    persistGraph(graph);
+  }
+
+  function getNodeIdFromClickTarget(target) {
+    const explicit =
+      target.closest?.("[data-aion-workflow-node-id]") ||
+      target.closest?.("[data-aion-main-node-id]");
+
+    if (explicit) {
+      return (
+        explicit.getAttribute("data-aion-workflow-node-id") ||
+        explicit.getAttribute("data-aion-main-node-id") ||
+        ""
+      );
+    }
+
+    return window.__aionWorkflowSelectedNodeId || selectedNode()?.id || "";
+  }
+
+  function openLogicForNode(nodeId) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const node = nodes.find((item) => String(item.id) === String(nodeId)) || selectedNode();
+
+    if (!node) return;
+
+    window.__aionWorkflowSelectedNodeId = node.id;
+    window.__aionArchitectSelectedStepId = node.id;
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab =
+      window.__aionArchitectAdvancedConfigTab || "filters";
+
+    window.__aionArchitectSteps = [
+      {
+        id: node.id,
+        app: node.connector || node.type || "workflow",
+        connector: node.connector || node.type || "",
+        action_id: node.action_id || node.action || "",
+        action_label: node.title || node.action_label || "Configure step",
+        subtitle: node.meta || node.subtitle || "",
+        fields: node.fields || node.config?.fields || "",
+        outputs: node.outputs || node.config?.outputs || "",
+        approval_requirement:
+          node.approval_requirement ||
+          (String(node.status || "").toLowerCase().includes("approval")
+            ? "required"
+            : "auto"),
+      },
+    ];
+
+    request();
+    setTimeout(forceMountAdvancedModal, 0);
+    setTimeout(forceMountAdvancedModal, 80);
+  }
+
+  function findNodeEditorModal() {
+    const candidates = Array.from(
+      document.querySelectorAll("section, aside, div, main"),
+    );
+
+    return (
+      candidates.find((el) => {
+        const text = String(el.textContent || "");
+        return (
+          text.includes("NODE EDITOR") &&
+          text.includes("PARAMETERS") &&
+          text.includes("OUTPUT") &&
+          text.includes("TEST NODE") &&
+          text.includes("SAVE NODE")
+        );
+      }) || null
+    );
+  }
+
+  function renderAiSettingsHtml(node) {
+    const type = String(node.type || "Step");
+
+    return `
+      <section class="aion-main-node-ai-settings" data-aion-main-node-ai-settings="true">
+        <div class="aion-main-node-ai-settings-tabs">
+          <button type="button" class="active">Node</button>
+          <button type="button" data-aion-main-node-open-logic="${safeEscape(node.id)}">Logic / Variables</button>
+        </div>
+
+        <div class="aion-main-node-ai-settings-card">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-main-node-field="type" data-aion-main-node-id="${safeEscape(node.id)}">
+              ${[
+                "Step",
+                "Trigger",
+                "AI / Parser",
+                "Tools",
+                "Text Parser",
+                "Gate",
+                "Flow Control",
+                "Custom Logic",
+                "Content Asset",
+              ]
+                .map(
+                  (item) =>
+                    `<option value="${safeEscape(item)}" ${
+                      type === item ? "selected" : ""
+                    }>${safeEscape(item)}</option>`,
+                )
+                .join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-main-node-field="connector"
+              data-aion-main-node-id="${safeEscape(node.id)}"
+              value="${safeEscape(node.connector || node.type || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-main-node-field="action_id"
+              data-aion-main-node-id="${safeEscape(node.id)}"
+              value="${safeEscape(node.action_id || node.action || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-main-node-field="title"
+              data-aion-main-node-id="${safeEscape(node.id)}"
+              value="${safeEscape(node.title || "")}"
+              placeholder="Watch emails, Extract details, Create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-main-node-field="fields"
+              data-aion-main-node-id="${safeEscape(node.id)}"
+              placeholder="sender, subject, body, received_at"
+            >${safeEscape(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to the next step</span>
+            <textarea
+              data-aion-main-node-field="outputs"
+              data-aion-main-node-id="${safeEscape(node.id)}"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${safeEscape(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select
+              data-aion-main-node-field="approval_requirement"
+              data-aion-main-node-id="${safeEscape(node.id)}"
+            >
+              <option value="auto" ${String(node.approval_requirement || "auto") === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${String(node.approval_requirement || "") === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${String(node.approval_requirement || "") === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${String(node.approval_requirement || "") === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" class="secondary-btn" data-aion-main-node-open-logic="${safeEscape(node.id)}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectAiSettingsIntoNodeEditor() {
+    const modal = findNodeEditorModal();
+    if (!modal) return;
+
+    modal
+      .querySelectorAll(".aion-main-node-mini-toolbar, .aion-workflow-node-mini-toolbar")
+      .forEach((item) => item.remove());
+
+    if (modal.querySelector("[data-aion-main-node-ai-settings='true']")) return;
+
+    const node = selectedNode();
+    if (!node) return;
+
+    const parameterHeaders = Array.from(modal.querySelectorAll("*")).filter((el) =>
+      String(el.textContent || "").trim().startsWith("PARAMETERS"),
+    );
+
+    const anchor =
+      parameterHeaders[0]?.parentElement ||
+      Array.from(modal.querySelectorAll("*")).find((el) =>
+        String(el.textContent || "").includes("No custom parameters"),
+      )?.parentElement ||
+      modal;
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderAiSettingsHtml(node);
+
+    anchor.appendChild(wrap.firstElementChild);
+  }
+
+  function forceMountAdvancedModal() {
+    if (window.__aionArchitectAdvancedConfigOpen !== true) return;
+
+    if (document.querySelector("[data-aion-architect-advanced-backdrop='true']")) {
+      return;
+    }
+
+    if (typeof renderAionArchitectAdvancedConfigModal !== "function") {
+      console.warn(`[${PATCH_ID}] renderAionArchitectAdvancedConfigModal not found`);
+      return;
+    }
+
+    const html = renderAionArchitectAdvancedConfigModal();
+    if (!html) return;
+
+    const mount = document.createElement("div");
+    mount.setAttribute("data-aion-main-forced-advanced-mount", "true");
+    mount.innerHTML = html;
+    document.body.appendChild(mount);
+  }
+
+  function cleanupForcedAdvancedMount() {
+    if (window.__aionArchitectAdvancedConfigOpen === true) return;
+
+    document
+      .querySelectorAll("[data-aion-main-forced-advanced-mount='true']")
+      .forEach((item) => item.remove());
+  }
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const toolButton =
+        event.target.closest?.("[data-aion-architect-open-advanced-config]") ||
+        event.target.closest?.("[title='Configure logic / variables']") ||
+        event.target.closest?.("[data-aion-main-node-open-logic]");
+
+      if (toolButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const explicit =
+          toolButton.getAttribute("data-aion-architect-open-advanced-config") ||
+          toolButton.getAttribute("data-aion-main-node-open-logic");
+
+        const nodeId =
+          explicit && explicit !== "true"
+            ? explicit
+            : getNodeIdFromClickTarget(toolButton);
+
+        openLogicForNode(nodeId);
+        return;
+      }
+
+      const closeAdvanced = event.target.closest?.(
+        "[data-aion-architect-close-advanced-config='true']",
+      );
+
+      if (closeAdvanced) {
+        window.__aionArchitectAdvancedConfigOpen = false;
+        cleanupForcedAdvancedMount();
+        request();
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-field]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-id");
+      const field = input.getAttribute("data-aion-main-node-field");
+
+      if (!nodeId || !field) return;
+      updateNode(nodeId, field, input.value);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-field]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-id");
+      const field = input.getAttribute("data-aion-main-node-field");
+
+      if (!nodeId || !field) return;
+      updateNode(nodeId, field, input.value);
+      request();
+    },
+    true,
+  );
+
+  function postRender() {
+    cleanupForcedAdvancedMount();
+    injectAiSettingsIntoNodeEditor();
+    forceMountAdvancedModal();
+  }
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(postRender) || setTimeout(postRender, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-main-forced-advanced-mount='true'] {
+      position: relative !important;
+      z-index: 999999 !important;
+    }
+
+    .aion-workflow-node-editor .aion-main-node-mini-toolbar,
+    .aion-workflow-execution-panel .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-main-node-mini-toolbar {
+      display: none !important;
+    }
+
+    .aion-main-node-ai-settings {
+      margin-top: 22px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(15,23,42,0.12) !important;
+      display: grid !important;
+      gap: 14px !important;
+    }
+
+    .aion-main-node-ai-settings-tabs {
+      display: flex !important;
+      gap: 8px !important;
+      align-items: center !important;
+    }
+
+    .aion-main-node-ai-settings-tabs button {
+      height: 38px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.92) !important;
+      color: #0f172a !important;
+      padding: 0 14px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-ai-settings-tabs button.active {
+      background: #0f172a !important;
+      color: #fff !important;
+    }
+
+    .aion-main-node-ai-settings-card {
+      display: grid !important;
+      gap: 13px !important;
+    }
+
+    .aion-main-node-ai-settings-card label {
+      display: grid !important;
+      gap: 7px !important;
+    }
+
+    .aion-main-node-ai-settings-card label span,
+    .aion-main-node-ai-settings-card .eyebrow {
+      color: #334155 !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.20em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-node-ai-settings-card input,
+    .aion-main-node-ai-settings-card select,
+    .aion-main-node-ai-settings-card textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.95) !important;
+      color: #0f172a !important;
+      padding: 12px 14px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+    }
+
+    .aion-main-node-ai-settings-card textarea {
+      min-height: 84px !important;
+      resize: vertical !important;
+    }
+
+    .aion-main-node-ai-settings-card .secondary-btn {
+      justify-self: start !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 16px !important;
+      cursor: pointer !important;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+
+  setTimeout(postRender, 0);
+  setTimeout(postRender, 150);
+  setTimeout(postRender, 500);
+})();
+
+
+/* AION HARD PATCH: main canvas node toolbar + node editor bridge v3
+   Purpose:
+   - Main canvas node tool icon opens Configure Step Logic immediately.
+   - Main canvas node editor receives AI Step Settings section.
+   - Does not depend on AI Architect canvas render path.
+   - Uses window capture listener so earlier document handlers cannot swallow the click.
+*/
+(function installAionMainCanvasNodeEditorBridgeV3() {
+  const PATCH_ID = "aion-main-canvas-node-editor-bridge-v3";
+  if (window.__aionMainCanvasNodeEditorBridgeV3 === true) return;
+  window.__aionMainCanvasNodeEditorBridgeV3 = true;
+
+  function esc(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function graph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        return getAionWorkflowDraftState();
+      } catch (_) {}
+    }
+
+    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+      nodes: [],
+      edges: [],
+    };
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function nodes() {
+    const g = graph();
+    return Array.isArray(g.nodes) ? g.nodes : [];
+  }
+
+  function selectedNode() {
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+    return (
+      nodes().find((node) => String(node.id) === String(selectedId)) ||
+      nodes()[0] ||
+      null
+    );
+  }
+
+  function setSelectedNodeId(nodeId) {
+    if (nodeId) {
+      window.__aionWorkflowSelectedNodeId = nodeId;
+    }
+  }
+
+  function nodeIdFromTarget(target) {
+    const holder =
+      target.closest?.("[data-aion-workflow-node-id]") ||
+      target.closest?.("[data-aion-main-node-id]");
+
+    return (
+      holder?.getAttribute("data-aion-workflow-node-id") ||
+      holder?.getAttribute("data-aion-main-node-id") ||
+      window.__aionWorkflowSelectedNodeId ||
+      selectedNode()?.id ||
+      ""
+    );
+  }
+
+  function patchNode(nodeId, patch) {
+    const g = graph();
+    g.nodes = nodes().map((node) =>
+      String(node.id) === String(nodeId)
+        ? {
+            ...node,
+            ...patch,
+            config: {
+              ...(node.config || {}),
+              ...(patch.config || {}),
+            },
+          }
+        : node,
+    );
+
+    window.__aionWorkflowGraph = g;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(g);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+  }
+
+  function removeAdvancedModal() {
+    document
+      .querySelectorAll("[data-aion-main-step-logic-modal='true']")
+      .forEach((el) => el.remove());
+
+    window.__aionArchitectAdvancedConfigOpen = false;
+  }
+
+  function showAdvancedModal(nodeId) {
+    const node =
+      nodes().find((item) => String(item.id) === String(nodeId)) ||
+      selectedNode();
+
+    if (!node) return;
+
+    setSelectedNodeId(node.id);
+
+    removeAdvancedModal();
+
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab =
+      window.__aionArchitectAdvancedConfigTab || "filters";
+
+    const tabs = [
+      {
+        key: "filters",
+        label: "Filters",
+        title: "Only continue if...",
+        items: ["Subject contains", "Sender is", "Body contains", "Date is after", "Has attachment"],
+      },
+      {
+        key: "variables",
+        label: "Variables",
+        title: "Use values from earlier steps",
+        items: ["Email sender", "Email subject", "Email body", "Customer name", "AI response", "Draft text"],
+      },
+      {
+        key: "text",
+        label: "Text tools",
+        title: "Clean or transform text",
+        items: ["contains", "replace", "split", "trim", "lowercase", "uppercase", "extract email"],
+      },
+      {
+        key: "dates",
+        label: "Dates",
+        title: "Schedule or compare time",
+        items: ["now", "received date", "add days", "add hours", "before", "after"],
+      },
+      {
+        key: "lists",
+        label: "Lists",
+        title: "Work with lists",
+        items: ["first item", "join", "contains", "remove duplicates", "count"],
+      },
+      {
+        key: "json",
+        label: "JSON",
+        title: "Read structured data",
+        items: ["get field", "map object", "parse JSON", "pick value", "fallback value"],
+      },
+    ];
+
+    const activeKey = window.__aionArchitectAdvancedConfigTab || "filters";
+    const active = tabs.find((tab) => tab.key === activeKey) || tabs[0];
+
+    const modal = document.createElement("div");
+    modal.setAttribute("data-aion-main-step-logic-modal", "true");
+    modal.innerHTML = `
+      <div class="aion-main-step-logic-backdrop">
+        <aside class="aion-main-step-logic-modal">
+          <div class="aion-main-step-logic-head">
+            <div>
+              <h2>Configure step logic</h2>
+              <p>Add filters, variables, text tools, dates, lists, JSON, and conditions for this step.</p>
+            </div>
+            <button type="button" data-aion-main-close-step-logic="true">×</button>
+          </div>
+
+          <div class="aion-main-step-logic-tabs">
+            ${tabs
+              .map(
+                (tab) => `
+                  <button
+                    type="button"
+                    class="${tab.key === active.key ? "active" : ""}"
+                    data-aion-main-step-logic-tab="${esc(tab.key)}"
+                  >
+                    ${esc(tab.label)}
+                  </button>
+                `,
+              )
+              .join("")}
+          </div>
+
+          <section class="aion-main-step-logic-body">
+            <h3>${esc(active.title)}</h3>
+            <p>Click an item later to insert it into the selected step condition or field.</p>
+
+            <div class="aion-main-step-logic-chips">
+              ${active.items
+                .map(
+                  (item) => `
+                    <button type="button" data-aion-main-step-logic-token="${esc(item)}">
+                      ${esc(item)}
+                    </button>
+                  `,
+                )
+                .join("")}
+            </div>
+
+            <div class="aion-main-step-logic-example">
+              <strong>Example:</strong>
+              If <code>subject contains "quote"</code>, then extract
+              <code>name, email, phone, enquiry</code> and pass it to the next step as
+              <code>customer_details</code>.
+            </div>
+          </section>
+        </aside>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  function findNodeEditorModal() {
+    const all = Array.from(document.querySelectorAll("section, aside, main, div"));
+
+    return (
+      all.find((el) => {
+        const text = String(el.textContent || "");
+        return (
+          text.includes("NODE EDITOR") &&
+          text.includes("PARAMETERS") &&
+          text.includes("OUTPUT") &&
+          text.includes("TEST NODE") &&
+          text.includes("SAVE NODE")
+        );
+      }) || null
+    );
+  }
+
+  function renderSettings(node) {
+    return `
+      <section class="aion-main-node-settings-panel" data-aion-main-node-settings-panel="true">
+        <div class="aion-main-node-settings-tabs">
+          <button type="button" class="active">Step settings</button>
+          <button type="button" data-aion-main-open-step-logic="${esc(node.id)}">Logic / variables</button>
+        </div>
+
+        <div class="aion-main-node-settings-grid">
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-main-node-edit="${esc(node.id)}" data-aion-main-node-field="type">
+              ${["Step", "Trigger", "App action", "AI action", "Flow Control", "Tools", "Text Parser", "Approval", "Custom Logic", "Content Asset"]
+                .map(
+                  (value) => `
+                    <option value="${esc(value)}" ${
+                      String(node.type || "Step") === value ? "selected" : ""
+                    }>${esc(value)}</option>
+                  `,
+                )
+                .join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use app / system</span>
+            <input
+              data-aion-main-node-edit="${esc(node.id)}"
+              data-aion-main-node-field="connector"
+              value="${esc(node.connector || node.app || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-main-node-edit="${esc(node.id)}"
+              data-aion-main-node-field="action_id"
+              value="${esc(node.action_id || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-main-node-edit="${esc(node.id)}"
+              data-aion-main-node-field="title"
+              value="${esc(node.title || "")}"
+              placeholder="Watch emails, extract details, create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-main-node-edit="${esc(node.id)}"
+              data-aion-main-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-main-node-edit="${esc(node.id)}"
+              data-aion-main-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-main-node-edit="${esc(node.id)}" data-aion-main-node-field="approval_requirement">
+              <option value="auto" ${String(node.approval_requirement || "auto") === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${String(node.approval_requirement || "") === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${String(node.approval_requirement || "") === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${String(node.approval_requirement || "") === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" data-aion-main-open-step-logic="${esc(node.id)}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectSettingsPanel() {
+    const modal = findNodeEditorModal();
+    if (!modal) return;
+
+    modal
+      .querySelectorAll(".aion-architect-node-mini-toolbar, .aion-main-node-mini-toolbar")
+      .forEach((el) => el.remove());
+
+    if (modal.querySelector("[data-aion-main-node-settings-panel='true']")) return;
+
+    const node = selectedNode();
+    if (!node) return;
+
+    const paramsHeader = Array.from(modal.querySelectorAll("*")).find((el) => {
+      return String(el.textContent || "").trim() === "PARAMETERS";
+    });
+
+    const paramsColumn =
+      paramsHeader?.closest("section, aside, div") ||
+      paramsHeader?.parentElement ||
+      modal;
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderSettings(node);
+
+    paramsColumn.appendChild(wrap.firstElementChild);
+  }
+
+  window.addEventListener(
+    "click",
+    (event) => {
+      const path = event.composedPath ? event.composedPath() : [];
+      const target = event.target;
+
+      const logicButton =
+        target.closest?.("[data-aion-main-open-step-logic]") ||
+        target.closest?.("[data-aion-architect-open-advanced-config]") ||
+        path.find?.((el) => {
+          if (!el || el.nodeType !== 1) return false;
+          const title = String(el.getAttribute?.("title") || "").toLowerCase();
+          const text = String(el.textContent || "").trim();
+          return (
+            title.includes("logic") ||
+            title.includes("variables") ||
+            title.includes("configure") ||
+            text === "⑂"
+          );
+        });
+
+      if (logicButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const explicit =
+          logicButton.getAttribute?.("data-aion-main-open-step-logic") ||
+          logicButton.getAttribute?.("data-aion-architect-open-advanced-config") ||
+          "";
+
+        const nodeId =
+          explicit && explicit !== "true"
+            ? explicit
+            : nodeIdFromTarget(logicButton);
+
+        showAdvancedModal(nodeId);
+        return;
+      }
+
+      const close = target.closest?.("[data-aion-main-close-step-logic='true']");
+      if (close) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        removeAdvancedModal();
+        return;
+      }
+
+      const tab = target.closest?.("[data-aion-main-step-logic-tab]");
+      if (tab) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        window.__aionArchitectAdvancedConfigTab =
+          tab.getAttribute("data-aion-main-step-logic-tab") || "filters";
+
+        const nodeId = window.__aionWorkflowSelectedNodeId || selectedNode()?.id;
+        showAdvancedModal(nodeId);
+        return;
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      const value = input.value;
+
+      if (field === "fields" || field === "outputs") {
+        patchNode(nodeId, {
+          [field]: value,
+          config: { [field]: value },
+        });
+      } else {
+        patchNode(nodeId, { [field]: value });
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+
+      if (typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    setTimeout(injectSettingsPanel, 0);
+    setTimeout(injectSettingsPanel, 80);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-main-step-logic-modal='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999999 !important;
+    }
+
+    .aion-main-step-logic-backdrop {
+      position: fixed !important;
+      inset: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      background: rgba(15,23,42,0.34) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    .aion-main-step-logic-modal {
+      width: min(1180px, calc(100vw - 80px)) !important;
+      max-height: min(720px, calc(100vh - 80px)) !important;
+      overflow: auto !important;
+      border-radius: 34px !important;
+      background: white !important;
+      box-shadow: 0 40px 120px rgba(15,23,42,0.34) !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-head {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 24px !important;
+      padding: 34px 42px 26px !important;
+    }
+
+    .aion-main-step-logic-head h2 {
+      margin: 0 0 8px !important;
+      font-size: 38px !important;
+      line-height: 1 !important;
+      letter-spacing: -0.05em !important;
+    }
+
+    .aion-main-step-logic-head p {
+      margin: 0 !important;
+      color: #64748b !important;
+      font-size: 18px !important;
+      line-height: 1.35 !important;
+      font-weight: 700 !important;
+    }
+
+    .aion-main-step-logic-head button {
+      width: 54px !important;
+      height: 54px !important;
+      border: 2px solid #d9f99d !important;
+      background: white !important;
+      color: #000 !important;
+      font-size: 34px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs {
+      display: flex !important;
+      gap: 0 !important;
+      background: #202733 !important;
+      padding-left: 24px !important;
+    }
+
+    .aion-main-step-logic-tabs button {
+      border: 0 !important;
+      background: transparent !important;
+      color: white !important;
+      padding: 22px 28px !important;
+      font-size: 20px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs button.active {
+      background: white !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-body {
+      padding: 38px 42px 42px !important;
+    }
+
+    .aion-main-step-logic-body h3 {
+      margin: 0 0 20px !important;
+      font-size: 34px !important;
+      line-height: 1 !important;
+      letter-spacing: -0.04em !important;
+    }
+
+    .aion-main-step-logic-body p {
+      color: #737373 !important;
+      font-size: 20px !important;
+      margin: 0 0 26px !important;
+      font-weight: 650 !important;
+    }
+
+    .aion-main-step-logic-chips {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 14px !important;
+      margin-bottom: 32px !important;
+    }
+
+    .aion-main-step-logic-chips button {
+      border-radius: 16px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: #f8fafc !important;
+      padding: 13px 20px !important;
+      font-size: 19px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-example {
+      border-radius: 22px !important;
+      border: 1px solid #bef264 !important;
+      background: #f7fee7 !important;
+      color: #365314 !important;
+      padding: 24px !important;
+      font-size: 20px !important;
+      line-height: 1.55 !important;
+      font-weight: 750 !important;
+    }
+
+    .aion-main-step-logic-example code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
+
+    .aion-main-node-settings-panel {
+      margin-top: 24px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(15,23,42,0.12) !important;
+      display: grid !important;
+      gap: 14px !important;
+    }
+
+    .aion-main-node-settings-tabs {
+      display: flex !important;
+      gap: 8px !important;
+      align-items: center !important;
+    }
+
+    .aion-main-node-settings-tabs button {
+      height: 38px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 0 14px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-settings-tabs button.active {
+      background: #0f172a !important;
+      color: white !important;
+    }
+
+    .aion-main-node-settings-grid {
+      display: grid !important;
+      gap: 13px !important;
+    }
+
+    .aion-main-node-settings-grid label {
+      display: grid !important;
+      gap: 7px !important;
+    }
+
+    .aion-main-node-settings-grid label span {
+      color: #334155 !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.20em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-node-settings-grid input,
+    .aion-main-node-settings-grid select,
+    .aion-main-node-settings-grid textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.95) !important;
+      color: #0f172a !important;
+      padding: 12px 14px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+    }
+
+    .aion-main-node-settings-grid textarea {
+      min-height: 78px !important;
+      resize: vertical !important;
+    }
+
+    .aion-main-node-settings-grid > button {
+      justify-self: start !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      padding: 0 16px !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-mini-toolbar,
+    .aion-architect-node-mini-toolbar {
+      z-index: 30 !important;
+    }
+
+    body:has(.aion-workflow-node-editor),
+    body:has(.aion-main-node-settings-panel) {
+      --aion-node-toolbar-modal-safe: 1;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+
+  setTimeout(injectSettingsPanel, 0);
+  setTimeout(injectSettingsPanel, 150);
+  setTimeout(injectSettingsPanel, 500);
+})();
+
+/* AION PATCH: main canvas node editor + logic modal hard bridge v3
+   Purpose:
+   - Works on the actual rendered DOM, regardless of which older renderer produced it.
+   - Injects AI canvas settings into the existing main canvas Node Editor.
+   - Makes the mini toolbar logic/tool icon open Configure Step Logic.
+   - Removes overlapping mini-toolbar buttons from inside the Node Editor modal.
+*/
+(function installAionMainCanvasNodeEditorHardBridgeV3() {
+  const PATCH_ID = "aion-main-canvas-node-editor-hard-bridge-v3";
+  if (window.__aionMainCanvasNodeEditorHardBridgeV3 === true) return;
+  window.__aionMainCanvasNodeEditorHardBridgeV3 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+      workflow_id: createAionWorkflowId(),
+      name: "Untitled workflow 1",
+      status: "draft",
+      nodes: [],
+      edges: [],
+    };
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function saveGraph(graph) {
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+  }
+
+  function request() {
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function selectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function patchNode(nodeId, patch) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) =>
+      String(node.id) === String(nodeId)
+        ? {
+            ...node,
+            ...patch,
+            config: {
+              ...(node.config || {}),
+              ...(patch.config || {}),
+            },
+          }
+        : node,
+    );
+
+    graph.dirty = true;
+    saveGraph(graph);
+  }
+
+  function nodeIdFromTarget(target) {
+    const holder =
+      target?.closest?.("[data-aion-workflow-node-id]") ||
+      target?.closest?.("[data-aion-main-node-id]");
+
+    return (
+      holder?.getAttribute?.("data-aion-workflow-node-id") ||
+      holder?.getAttribute?.("data-aion-main-node-id") ||
+      window.__aionWorkflowSelectedNodeId ||
+      selectedNode()?.id ||
+      ""
+    );
+  }
+
+  function findNodeEditorModal() {
+    const candidates = Array.from(document.querySelectorAll("section, aside, div, main"))
+      .filter((el) => {
+        const text = String(el.textContent || "");
+        return (
+          text.includes("NODE EDITOR") &&
+          text.includes("PARAMETERS") &&
+          text.includes("OUTPUT")
+        );
+      })
+      .map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          el,
+          area: Math.max(1, rect.width) * Math.max(1, rect.height),
+          width: rect.width,
+          height: rect.height,
+        };
+      })
+      .filter((item) => item.width > 400 && item.height > 250)
+      .sort((a, b) => a.area - b.area);
+
+    return candidates[0]?.el || null;
+  }
+
+  function renderSettingsPanel(node) {
+    const type = String(node.type || "Step");
+    const approval = String(node.approval_requirement || "auto");
+
+    return `
+      <section class="aion-main-node-settings-panel-v3" data-aion-main-node-settings-panel-v3="true">
+        <div class="aion-main-node-settings-tabs-v3">
+          <button type="button" class="active">Node settings</button>
+          <button type="button" data-aion-main-open-step-logic-v3="${esc(node.id)}">Logic / variables</button>
+        </div>
+
+        <div class="aion-main-node-settings-card-v3">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-main-node-edit-v3="${esc(node.id)}" data-aion-main-node-field="type">
+              ${[
+                "Step",
+                "Trigger",
+                "App action",
+                "AI action",
+                "Tools",
+                "Text Parser",
+                "Flow Control",
+                "Router",
+                "Gate",
+                "Custom Logic",
+                "Content Asset",
+              ].map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="connector"
+              value="${esc(node.connector || node.app || node.type || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="action_id"
+              value="${esc(node.action_id || node.action || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="title"
+              value="${esc(node.title || node.action_label || "")}"
+              placeholder="Watch emails, Extract details, Create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-main-node-edit-v3="${esc(node.id)}" data-aion-main-node-field="approval_requirement">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" class="secondary-btn" data-aion-main-open-step-logic-v3="${esc(node.id)}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectSettingsPanel() {
+    const modal = findNodeEditorModal();
+    if (!modal) return;
+
+    modal
+      .querySelectorAll(
+        ".aion-main-node-mini-toolbar, .aion-workflow-node-mini-toolbar, .aion-architect-node-mini-toolbar",
+      )
+      .forEach((el) => el.remove());
+
+    if (modal.querySelector("[data-aion-main-node-settings-panel-v3='true']")) {
+      return;
+    }
+
+    const node = selectedNode();
+    if (!node) return;
+
+    const paramsHeader = Array.from(modal.querySelectorAll("*")).find(
+      (el) => String(el.textContent || "").trim() === "PARAMETERS",
+    );
+
+    let paramsColumn =
+      paramsHeader?.closest("section, aside, div") ||
+      paramsHeader?.parentElement ||
+      null;
+
+    if (!paramsColumn || paramsColumn === modal) {
+      const children = Array.from(modal.children);
+      paramsColumn = children.find((child) =>
+        String(child.textContent || "").includes("PARAMETERS"),
+      ) || modal;
+    }
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderSettingsPanel(node);
+    paramsColumn.appendChild(wrap.firstElementChild);
+  }
+
+  function removeLogicModal() {
+    window.__aionArchitectAdvancedConfigOpen = false;
+    document
+      .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
+      .forEach((el) => el.remove());
+  }
+
+  function showLogicModal(nodeId) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const node =
+      nodes.find((item) => String(item.id) === String(nodeId)) ||
+      selectedNode();
+
+    if (!node) return;
+
+    window.__aionWorkflowSelectedNodeId = node.id;
+    window.__aionArchitectSelectedStepId = node.id;
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab =
+      window.__aionArchitectAdvancedConfigTab || "filters";
+
+    document
+      .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
+      .forEach((el) => el.remove());
+
+    const tabs = [
+      {
+        key: "filters",
+        label: "Filters",
+        title: "Only continue if...",
+        items: ["Subject contains", "Sender is", "Body contains", "Date is after", "Has attachment"],
+      },
+      {
+        key: "variables",
+        label: "Variables",
+        title: "Use values from earlier steps",
+        items: ["Email sender", "Email subject", "Email body", "Customer name", "AI response", "Draft text"],
+      },
+      {
+        key: "text",
+        label: "Text tools",
+        title: "Clean or transform text",
+        items: ["contains", "replace", "split", "trim", "lowercase", "uppercase", "extract email"],
+      },
+      {
+        key: "dates",
+        label: "Dates",
+        title: "Schedule or compare time",
+        items: ["now", "received date", "add days", "add hours", "before", "after"],
+      },
+      {
+        key: "lists",
+        label: "Lists",
+        title: "Work with lists",
+        items: ["first item", "join", "contains", "remove duplicates", "count"],
+      },
+      {
+        key: "json",
+        label: "JSON",
+        title: "Read structured data",
+        items: ["get field", "map object", "parse JSON", "pick value", "fallback value"],
+      },
+    ];
+
+    const active = window.__aionArchitectAdvancedConfigTab || "filters";
+    const tab = tabs.find((item) => item.key === active) || tabs[0];
+
+    const mount = document.createElement("div");
+    mount.setAttribute("data-aion-main-step-logic-modal-v3", "true");
+    mount.innerHTML = `
+      <div class="aion-main-step-logic-backdrop-v3">
+        <aside class="aion-main-step-logic-modal-v3">
+          <header class="aion-main-step-logic-head-v3">
+            <div>
+              <h2>Configure step logic</h2>
+              <p>Add filters, variables, text tools, dates, lists, JSON, and conditions for this step.</p>
+            </div>
+            <button type="button" data-aion-main-close-step-logic-v3="true">×</button>
+          </header>
+
+          <nav class="aion-main-step-logic-tabs-v3">
+            ${tabs.map((item) => `
+              <button
+                type="button"
+                class="${item.key === active ? "active" : ""}"
+                data-aion-main-step-logic-tab-v3="${esc(item.key)}"
+              >
+                ${esc(item.label)}
+              </button>
+            `).join("")}
+          </nav>
+
+          <section class="aion-main-step-logic-body-v3">
+            <h3>${esc(tab.title)}</h3>
+            <p>Click an item later to insert it into the selected step condition or field.</p>
+
+            <div class="aion-main-step-logic-chip-grid-v3">
+              ${tab.items.map((item) => `
+                <button type="button">${esc(item)}</button>
+              `).join("")}
+            </div>
+
+            <div class="aion-main-step-logic-example-v3">
+              <strong>Example:</strong>
+              If <code>subject contains "quote"</code>, then extract <code>name, email, phone, enquiry</code> and pass it to the next step as <code>customer_details</code>.
+            </div>
+          </section>
+        </aside>
+      </div>
+    `;
+
+    document.body.appendChild(mount);
+  }
+
+  function clickHandler(event) {
+    const target = event.target;
+
+    const logicButton =
+      target.closest?.("[data-aion-main-open-step-logic-v3]") ||
+      target.closest?.("[data-aion-main-open-step-logic]") ||
+      target.closest?.("[data-aion-architect-open-advanced-config]") ||
+      target.closest?.("[title='Configure logic / variables']");
+
+    if (logicButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const explicit =
+        logicButton.getAttribute?.("data-aion-main-open-step-logic-v3") ||
+        logicButton.getAttribute?.("data-aion-main-open-step-logic") ||
+        logicButton.getAttribute?.("data-aion-architect-open-advanced-config") ||
+        "";
+
+      const nodeId =
+        explicit && explicit !== "true"
+          ? explicit
+          : nodeIdFromTarget(logicButton);
+
+      showLogicModal(nodeId);
+      return;
+    }
+
+    const closeLogic = target.closest?.("[data-aion-main-close-step-logic-v3='true']");
+    if (closeLogic) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      removeLogicModal();
+      return;
+    }
+
+    const logicTab = target.closest?.("[data-aion-main-step-logic-tab-v3]");
+    if (logicTab) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectAdvancedConfigTab =
+        logicTab.getAttribute("data-aion-main-step-logic-tab-v3") || "filters";
+
+      showLogicModal(window.__aionWorkflowSelectedNodeId || selectedNode()?.id);
+      return;
+    }
+  }
+
+  window.addEventListener("pointerdown", clickHandler, true);
+  window.addEventListener("mousedown", clickHandler, true);
+  window.addEventListener("click", clickHandler, true);
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v3]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v3");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      const value = input.value;
+
+      if (field === "fields" || field === "outputs") {
+        patchNode(nodeId, {
+          [field]: value,
+          config: { [field]: value },
+        });
+      } else {
+        patchNode(nodeId, { [field]: value });
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v3]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v3");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+      request();
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    setTimeout(injectSettingsPanel, 0);
+    setTimeout(injectSettingsPanel, 80);
+    setTimeout(injectSettingsPanel, 180);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-workflow-node-editor='true'] .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-workflow-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-architect-node-mini-toolbar {
+      display: none !important;
+    }
+
+    .aion-main-node-settings-panel-v3 {
+      margin-top: 22px !important;
+      display: grid !important;
+      gap: 14px !important;
+    }
+
+    .aion-main-node-settings-tabs-v3 {
+      display: flex !important;
+      gap: 8px !important;
+      border-bottom: 1px solid rgba(15,23,42,0.12) !important;
+      padding-bottom: 10px !important;
+    }
+
+    .aion-main-node-settings-tabs-v3 button {
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.84) !important;
+      color: #0f172a !important;
+      border-radius: 12px !important;
+      padding: 9px 12px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-settings-tabs-v3 button.active {
+      background: #0f172a !important;
+      color: white !important;
+    }
+
+    .aion-main-node-settings-card-v3 {
+      display: grid !important;
+      gap: 14px !important;
+      padding: 18px !important;
+      border-radius: 20px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: rgba(255,255,255,0.74) !important;
+    }
+
+    .aion-main-node-settings-card-v3 label {
+      display: grid !important;
+      gap: 7px !important;
+    }
+
+    .aion-main-node-settings-card-v3 label span,
+    .aion-main-node-settings-card-v3 .eyebrow {
+      color: #334155 !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-node-settings-card-v3 input,
+    .aion-main-node-settings-card-v3 select,
+    .aion-main-node-settings-card-v3 textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.95) !important;
+      color: #0f172a !important;
+      font-weight: 750 !important;
+      padding: 12px 14px !important;
+      outline: none !important;
+    }
+
+    .aion-main-node-settings-card-v3 textarea {
+      min-height: 86px !important;
+      resize: vertical !important;
+    }
+
+    .aion-main-node-settings-card-v3 .secondary-btn {
+      justify-self: start !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 16px !important;
+      cursor: pointer !important;
+    }
+
+    [data-aion-main-step-logic-modal-v3='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999999 !important;
+    }
+
+    .aion-main-step-logic-backdrop-v3 {
+      position: fixed !important;
+      inset: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      background: rgba(15,23,42,0.34) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    .aion-main-step-logic-modal-v3 {
+      width: min(1180px, calc(100vw - 80px)) !important;
+      max-height: min(720px, calc(100vh - 80px)) !important;
+      overflow: auto !important;
+      border-radius: 34px !important;
+      background: #ffffff !important;
+      box-shadow: 0 40px 120px rgba(15,23,42,0.34) !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-head-v3 {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 24px !important;
+      padding: 34px 42px 26px !important;
+    }
+
+    .aion-main-step-logic-head-v3 h2 {
+      margin: 0 0 8px !important;
+      font-size: 38px !important;
+      line-height: 1 !important;
+      letter-spacing: -0.05em !important;
+    }
+
+    .aion-main-step-logic-head-v3 p {
+      margin: 0 !important;
+      color: #64748b !important;
+      font-size: 18px !important;
+      line-height: 1.35 !important;
+      font-weight: 700 !important;
+    }
+
+    .aion-main-step-logic-head-v3 button {
+      width: 56px !important;
+      height: 56px !important;
+      border: 1px solid #d9f99d !important;
+      background: white !important;
+      color: #000 !important;
+      font-size: 34px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs-v3 {
+      display: flex !important;
+      gap: 0 !important;
+      background: #202733 !important;
+      padding-left: 26px !important;
+    }
+
+    .aion-main-step-logic-tabs-v3 button {
+      border: 0 !important;
+      background: transparent !important;
+      color: white !important;
+      padding: 22px 26px !important;
+      font-size: 19px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs-v3 button.active {
+      background: white !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-body-v3 {
+      padding: 38px 42px 42px !important;
+    }
+
+    .aion-main-step-logic-body-v3 h3 {
+      margin: 0 0 22px !important;
+      font-size: 34px !important;
+      line-height: 1.05 !important;
+      letter-spacing: -0.04em !important;
+    }
+
+    .aion-main-step-logic-body-v3 p {
+      margin: 0 0 24px !important;
+      color: #737373 !important;
+      font-size: 20px !important;
+      font-weight: 650 !important;
+    }
+
+    .aion-main-step-logic-chip-grid-v3 {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 14px !important;
+      margin-bottom: 34px !important;
+    }
+
+    .aion-main-step-logic-chip-grid-v3 button {
+      border-radius: 16px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: #f8fafc !important;
+      color: #020617 !important;
+      padding: 13px 20px !important;
+      font-size: 18px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-example-v3 {
+      border: 1px solid #bef264 !important;
+      background: #f7fee7 !important;
+      color: #365314 !important;
+      border-radius: 22px !important;
+      padding: 24px !important;
+      font-size: 20px !important;
+      line-height: 1.55 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  setTimeout(injectSettingsPanel, 0);
+  setTimeout(injectSettingsPanel, 300);
+})();
+
+/* AION PATCH: main canvas node editor + logic modal hard bridge v3
+   Purpose:
+   - Works on the actual rendered DOM, regardless of which older renderer produced it.
+   - Injects AI canvas settings into the existing main canvas Node Editor.
+   - Makes the mini toolbar logic/tool icon open Configure Step Logic.
+   - Removes overlapping mini-toolbar buttons from inside the Node Editor modal.
+*/
+(function installAionMainCanvasNodeEditorHardBridgeV3() {
+  const PATCH_ID = "aion-main-canvas-node-editor-hard-bridge-v3";
+  if (window.__aionMainCanvasNodeEditorHardBridgeV3 === true) return;
+  window.__aionMainCanvasNodeEditorHardBridgeV3 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+      workflow_id: createAionWorkflowId(),
+      name: "Untitled workflow 1",
+      status: "draft",
+      nodes: [],
+      edges: [],
+    };
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function saveGraph(graph) {
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+  }
+
+  function request() {
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function selectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function patchNode(nodeId, patch) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) =>
+      String(node.id) === String(nodeId)
+        ? {
+            ...node,
+            ...patch,
+            config: {
+              ...(node.config || {}),
+              ...(patch.config || {}),
+            },
+          }
+        : node,
+    );
+
+    graph.dirty = true;
+    saveGraph(graph);
+  }
+
+  function nodeIdFromTarget(target) {
+    const holder =
+      target?.closest?.("[data-aion-workflow-node-id]") ||
+      target?.closest?.("[data-aion-main-node-id]");
+
+    return (
+      holder?.getAttribute?.("data-aion-workflow-node-id") ||
+      holder?.getAttribute?.("data-aion-main-node-id") ||
+      window.__aionWorkflowSelectedNodeId ||
+      selectedNode()?.id ||
+      ""
+    );
+  }
+
+  function findNodeEditorModal() {
+    const candidates = Array.from(document.querySelectorAll("section, aside, div, main"))
+      .filter((el) => {
+        const text = String(el.textContent || "");
+        return (
+          text.includes("NODE EDITOR") &&
+          text.includes("PARAMETERS") &&
+          text.includes("OUTPUT")
+        );
+      })
+      .map((el) => {
+        const rect = el.getBoundingClientRect();
+        return {
+          el,
+          area: Math.max(1, rect.width) * Math.max(1, rect.height),
+          width: rect.width,
+          height: rect.height,
+        };
+      })
+      .filter((item) => item.width > 400 && item.height > 250)
+      .sort((a, b) => a.area - b.area);
+
+    return candidates[0]?.el || null;
+  }
+
+  function renderSettingsPanel(node) {
+    const type = String(node.type || "Step");
+    const approval = String(node.approval_requirement || "auto");
+
+    return `
+      <section class="aion-main-node-settings-panel-v3" data-aion-main-node-settings-panel-v3="true">
+        <div class="aion-main-node-settings-tabs-v3">
+          <button type="button" class="active">Node settings</button>
+          <button type="button" data-aion-main-open-step-logic-v3="${esc(node.id)}">Logic / variables</button>
+        </div>
+
+        <div class="aion-main-node-settings-card-v3">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-main-node-edit-v3="${esc(node.id)}" data-aion-main-node-field="type">
+              ${[
+                "Step",
+                "Trigger",
+                "App action",
+                "AI action",
+                "Tools",
+                "Text Parser",
+                "Flow Control",
+                "Router",
+                "Gate",
+                "Custom Logic",
+                "Content Asset",
+              ].map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="connector"
+              value="${esc(node.connector || node.app || node.type || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="action_id"
+              value="${esc(node.action_id || node.action || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="title"
+              value="${esc(node.title || node.action_label || "")}"
+              placeholder="Watch emails, Extract details, Create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-main-node-edit-v3="${esc(node.id)}"
+              data-aion-main-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-main-node-edit-v3="${esc(node.id)}" data-aion-main-node-field="approval_requirement">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" class="secondary-btn" data-aion-main-open-step-logic-v3="${esc(node.id)}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectSettingsPanel() {
+    const modal = findNodeEditorModal();
+    if (!modal) return;
+
+    modal
+      .querySelectorAll(
+        ".aion-main-node-mini-toolbar, .aion-workflow-node-mini-toolbar, .aion-architect-node-mini-toolbar",
+      )
+      .forEach((el) => el.remove());
+
+    if (modal.querySelector("[data-aion-main-node-settings-panel-v3='true']")) {
+      return;
+    }
+
+    const node = selectedNode();
+    if (!node) return;
+
+    const paramsHeader = Array.from(modal.querySelectorAll("*")).find(
+      (el) => String(el.textContent || "").trim() === "PARAMETERS",
+    );
+
+    let paramsColumn =
+      paramsHeader?.closest("section, aside, div") ||
+      paramsHeader?.parentElement ||
+      null;
+
+    if (!paramsColumn || paramsColumn === modal) {
+      const children = Array.from(modal.children);
+      paramsColumn = children.find((child) =>
+        String(child.textContent || "").includes("PARAMETERS"),
+      ) || modal;
+    }
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderSettingsPanel(node);
+    paramsColumn.appendChild(wrap.firstElementChild);
+  }
+
+  function removeLogicModal() {
+    window.__aionArchitectAdvancedConfigOpen = false;
+    document
+      .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
+      .forEach((el) => el.remove());
+  }
+
+  function showLogicModal(nodeId) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const node =
+      nodes.find((item) => String(item.id) === String(nodeId)) ||
+      selectedNode();
+
+    if (!node) return;
+
+    window.__aionWorkflowSelectedNodeId = node.id;
+    window.__aionArchitectSelectedStepId = node.id;
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab =
+      window.__aionArchitectAdvancedConfigTab || "filters";
+
+    document
+      .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
+      .forEach((el) => el.remove());
+
+    const tabs = [
+      {
+        key: "filters",
+        label: "Filters",
+        title: "Only continue if...",
+        items: ["Subject contains", "Sender is", "Body contains", "Date is after", "Has attachment"],
+      },
+      {
+        key: "variables",
+        label: "Variables",
+        title: "Use values from earlier steps",
+        items: ["Email sender", "Email subject", "Email body", "Customer name", "AI response", "Draft text"],
+      },
+      {
+        key: "text",
+        label: "Text tools",
+        title: "Clean or transform text",
+        items: ["contains", "replace", "split", "trim", "lowercase", "uppercase", "extract email"],
+      },
+      {
+        key: "dates",
+        label: "Dates",
+        title: "Schedule or compare time",
+        items: ["now", "received date", "add days", "add hours", "before", "after"],
+      },
+      {
+        key: "lists",
+        label: "Lists",
+        title: "Work with lists",
+        items: ["first item", "join", "contains", "remove duplicates", "count"],
+      },
+      {
+        key: "json",
+        label: "JSON",
+        title: "Read structured data",
+        items: ["get field", "map object", "parse JSON", "pick value", "fallback value"],
+      },
+    ];
+
+    const active = window.__aionArchitectAdvancedConfigTab || "filters";
+    const tab = tabs.find((item) => item.key === active) || tabs[0];
+
+    const mount = document.createElement("div");
+    mount.setAttribute("data-aion-main-step-logic-modal-v3", "true");
+    mount.innerHTML = `
+      <div class="aion-main-step-logic-backdrop-v3">
+        <aside class="aion-main-step-logic-modal-v3">
+          <header class="aion-main-step-logic-head-v3">
+            <div>
+              <h2>Configure step logic</h2>
+              <p>Add filters, variables, text tools, dates, lists, JSON, and conditions for this step.</p>
+            </div>
+            <button type="button" data-aion-main-close-step-logic-v3="true">×</button>
+          </header>
+
+          <nav class="aion-main-step-logic-tabs-v3">
+            ${tabs.map((item) => `
+              <button
+                type="button"
+                class="${item.key === active ? "active" : ""}"
+                data-aion-main-step-logic-tab-v3="${esc(item.key)}"
+              >
+                ${esc(item.label)}
+              </button>
+            `).join("")}
+          </nav>
+
+          <section class="aion-main-step-logic-body-v3">
+            <h3>${esc(tab.title)}</h3>
+            <p>Click an item later to insert it into the selected step condition or field.</p>
+
+            <div class="aion-main-step-logic-chip-grid-v3">
+              ${tab.items.map((item) => `
+                <button type="button">${esc(item)}</button>
+              `).join("")}
+            </div>
+
+            <div class="aion-main-step-logic-example-v3">
+              <strong>Example:</strong>
+              If <code>subject contains "quote"</code>, then extract <code>name, email, phone, enquiry</code> and pass it to the next step as <code>customer_details</code>.
+            </div>
+          </section>
+        </aside>
+      </div>
+    `;
+
+    document.body.appendChild(mount);
+  }
+
+  function clickHandler(event) {
+    const target = event.target;
+
+    const logicButton =
+      target.closest?.("[data-aion-main-open-step-logic-v3]") ||
+      target.closest?.("[data-aion-main-open-step-logic]") ||
+      target.closest?.("[data-aion-architect-open-advanced-config]") ||
+      target.closest?.("[title='Configure logic / variables']");
+
+    if (logicButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const explicit =
+        logicButton.getAttribute?.("data-aion-main-open-step-logic-v3") ||
+        logicButton.getAttribute?.("data-aion-main-open-step-logic") ||
+        logicButton.getAttribute?.("data-aion-architect-open-advanced-config") ||
+        "";
+
+      const nodeId =
+        explicit && explicit !== "true"
+          ? explicit
+          : nodeIdFromTarget(logicButton);
+
+      showLogicModal(nodeId);
+      return;
+    }
+
+    const closeLogic = target.closest?.("[data-aion-main-close-step-logic-v3='true']");
+    if (closeLogic) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      removeLogicModal();
+      return;
+    }
+
+    const logicTab = target.closest?.("[data-aion-main-step-logic-tab-v3]");
+    if (logicTab) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionArchitectAdvancedConfigTab =
+        logicTab.getAttribute("data-aion-main-step-logic-tab-v3") || "filters";
+
+      showLogicModal(window.__aionWorkflowSelectedNodeId || selectedNode()?.id);
+      return;
+    }
+  }
+
+  window.addEventListener("pointerdown", clickHandler, true);
+  window.addEventListener("mousedown", clickHandler, true);
+  window.addEventListener("click", clickHandler, true);
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v3]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v3");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      const value = input.value;
+
+      if (field === "fields" || field === "outputs") {
+        patchNode(nodeId, {
+          [field]: value,
+          config: { [field]: value },
+        });
+      } else {
+        patchNode(nodeId, { [field]: value });
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v3]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v3");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+      request();
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    setTimeout(injectSettingsPanel, 0);
+    setTimeout(injectSettingsPanel, 80);
+    setTimeout(injectSettingsPanel, 180);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-workflow-node-editor='true'] .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-workflow-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-architect-node-mini-toolbar {
+      display: none !important;
+    }
+
+    .aion-main-node-settings-panel-v3 {
+      margin-top: 22px !important;
+      display: grid !important;
+      gap: 14px !important;
+    }
+
+    .aion-main-node-settings-tabs-v3 {
+      display: flex !important;
+      gap: 8px !important;
+      border-bottom: 1px solid rgba(15,23,42,0.12) !important;
+      padding-bottom: 10px !important;
+    }
+
+    .aion-main-node-settings-tabs-v3 button {
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.84) !important;
+      color: #0f172a !important;
+      border-radius: 12px !important;
+      padding: 9px 12px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-settings-tabs-v3 button.active {
+      background: #0f172a !important;
+      color: white !important;
+    }
+
+    .aion-main-node-settings-card-v3 {
+      display: grid !important;
+      gap: 14px !important;
+      padding: 18px !important;
+      border-radius: 20px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: rgba(255,255,255,0.74) !important;
+    }
+
+    .aion-main-node-settings-card-v3 label {
+      display: grid !important;
+      gap: 7px !important;
+    }
+
+    .aion-main-node-settings-card-v3 label span,
+    .aion-main-node-settings-card-v3 .eyebrow {
+      color: #334155 !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-node-settings-card-v3 input,
+    .aion-main-node-settings-card-v3 select,
+    .aion-main-node-settings-card-v3 textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.95) !important;
+      color: #0f172a !important;
+      font-weight: 750 !important;
+      padding: 12px 14px !important;
+      outline: none !important;
+    }
+
+    .aion-main-node-settings-card-v3 textarea {
+      min-height: 86px !important;
+      resize: vertical !important;
+    }
+
+    .aion-main-node-settings-card-v3 .secondary-btn {
+      justify-self: start !important;
+      height: 44px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 16px !important;
+      cursor: pointer !important;
+    }
+
+    [data-aion-main-step-logic-modal-v3='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999999 !important;
+    }
+
+    .aion-main-step-logic-backdrop-v3 {
+      position: fixed !important;
+      inset: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      background: rgba(15,23,42,0.34) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    .aion-main-step-logic-modal-v3 {
+      width: min(1180px, calc(100vw - 80px)) !important;
+      max-height: min(720px, calc(100vh - 80px)) !important;
+      overflow: auto !important;
+      border-radius: 34px !important;
+      background: #ffffff !important;
+      box-shadow: 0 40px 120px rgba(15,23,42,0.34) !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-head-v3 {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 24px !important;
+      padding: 34px 42px 26px !important;
+    }
+
+    .aion-main-step-logic-head-v3 h2 {
+      margin: 0 0 8px !important;
+      font-size: 38px !important;
+      line-height: 1 !important;
+      letter-spacing: -0.05em !important;
+    }
+
+    .aion-main-step-logic-head-v3 p {
+      margin: 0 !important;
+      color: #64748b !important;
+      font-size: 18px !important;
+      line-height: 1.35 !important;
+      font-weight: 700 !important;
+    }
+
+    .aion-main-step-logic-head-v3 button {
+      width: 56px !important;
+      height: 56px !important;
+      border: 1px solid #d9f99d !important;
+      background: white !important;
+      color: #000 !important;
+      font-size: 34px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs-v3 {
+      display: flex !important;
+      gap: 0 !important;
+      background: #202733 !important;
+      padding-left: 26px !important;
+    }
+
+    .aion-main-step-logic-tabs-v3 button {
+      border: 0 !important;
+      background: transparent !important;
+      color: white !important;
+      padding: 22px 26px !important;
+      font-size: 19px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs-v3 button.active {
+      background: white !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-body-v3 {
+      padding: 38px 42px 42px !important;
+    }
+
+    .aion-main-step-logic-body-v3 h3 {
+      margin: 0 0 22px !important;
+      font-size: 34px !important;
+      line-height: 1.05 !important;
+      letter-spacing: -0.04em !important;
+    }
+
+    .aion-main-step-logic-body-v3 p {
+      margin: 0 0 24px !important;
+      color: #737373 !important;
+      font-size: 20px !important;
+      font-weight: 650 !important;
+    }
+
+    .aion-main-step-logic-chip-grid-v3 {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 14px !important;
+      margin-bottom: 34px !important;
+    }
+
+    .aion-main-step-logic-chip-grid-v3 button {
+      border-radius: 16px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: #f8fafc !important;
+      color: #020617 !important;
+      padding: 13px 20px !important;
+      font-size: 18px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-example-v3 {
+      border: 1px solid #bef264 !important;
+      background: #f7fee7 !important;
+      color: #365314 !important;
+      border-radius: 22px !important;
+      padding: 24px !important;
+      font-size: 20px !important;
+      line-height: 1.55 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  setTimeout(injectSettingsPanel, 0);
+  setTimeout(injectSettingsPanel, 300);
+})();
+
+/* AION PATCH: single compact step-logic modal hard lock v4
+   Fixes:
+   - Prevents duplicate large + small Configure Step Logic modals.
+   - Keeps the compact main-canvas logic modal only.
+   - Makes close button reliably close all logic modal variants.
+*/
+(function installAionSingleCompactStepLogicModalV4() {
+  const PATCH_ID = "aion-single-compact-step-logic-modal-v4";
+  if (window.__aionSingleCompactStepLogicModalV4 === true) return;
+  window.__aionSingleCompactStepLogicModalV4 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function selectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function nodeIdFromTarget(target) {
+    const holder =
+      target?.closest?.("[data-aion-workflow-node-id]") ||
+      target?.closest?.("[data-aion-main-node-id]");
+
+    return (
+      holder?.getAttribute?.("data-aion-workflow-node-id") ||
+      holder?.getAttribute?.("data-aion-main-node-id") ||
+      window.__aionWorkflowSelectedNodeId ||
+      selectedNode()?.id ||
+      ""
+    );
+  }
+
+  function removeAllStepLogicModals() {
+    window.__aionArchitectAdvancedConfigOpen = false;
+
+    document
+      .querySelectorAll(
+        [
+          "[data-aion-main-step-logic-modal-v4='true']",
+          "[data-aion-main-step-logic-modal-v3='true']",
+          "[data-aion-main-forced-advanced-mount='true']",
+          "[data-aion-architect-advanced-backdrop='true']",
+          ".aion-architect-advanced-backdrop",
+        ].join(","),
+      )
+      .forEach((el) => el.remove());
+  }
+
+  function renderCompactLogicModal(nodeId) {
+    const active = window.__aionMainCompactLogicTab || "filters";
+
+    const tabs = [
+      {
+        key: "filters",
+        label: "Filters",
+        title: "Only continue if...",
+        items: ["Subject contains", "Sender is", "Body contains", "Date is after", "Has attachment"],
+      },
+      {
+        key: "variables",
+        label: "Variables",
+        title: "Use values from earlier steps",
+        items: ["Email sender", "Email subject", "Email body", "Customer name", "AI response", "Draft text"],
+      },
+      {
+        key: "text",
+        label: "Text tools",
+        title: "Clean or transform text",
+        items: ["contains", "replace", "split", "trim", "lowercase", "uppercase", "extract email"],
+      },
+      {
+        key: "dates",
+        label: "Dates",
+        title: "Schedule or compare time",
+        items: ["now", "received date", "add days", "add hours", "before", "after"],
+      },
+      {
+        key: "lists",
+        label: "Lists",
+        title: "Work with lists",
+        items: ["first item", "join", "contains", "remove duplicates", "count"],
+      },
+      {
+        key: "json",
+        label: "JSON",
+        title: "Read structured data",
+        items: ["get field", "map object", "parse JSON", "pick value", "fallback value"],
+      },
+    ];
+
+    const tab = tabs.find((item) => item.key === active) || tabs[0];
+
+    return `
+      <div data-aion-main-step-logic-modal-v4="true">
+        <div class="aion-main-step-logic-backdrop-v4" data-aion-main-step-logic-backdrop-v4="true">
+          <aside class="aion-main-step-logic-modal-v4" data-aion-main-step-logic-card-v4="true">
+            <header class="aion-main-step-logic-head-v4">
+              <div>
+                <h2>Configure step logic</h2>
+                <p>Add filters, variables, text tools, dates, lists, JSON, and conditions for this step.</p>
+              </div>
+
+              <button type="button" data-aion-main-close-step-logic-v4="true">×</button>
+            </header>
+
+            <nav class="aion-main-step-logic-tabs-v4">
+              ${tabs.map((item) => `
+                <button
+                  type="button"
+                  class="${item.key === active ? "active" : ""}"
+                  data-aion-main-step-logic-tab-v4="${esc(item.key)}"
+                >
+                  ${esc(item.label)}
+                </button>
+              `).join("")}
+            </nav>
+
+            <section class="aion-main-step-logic-body-v4">
+              <h3>${esc(tab.title)}</h3>
+              <p>Click an item later to insert it into the selected step condition or field.</p>
+
+              <div class="aion-main-step-logic-chip-grid-v4">
+                ${tab.items.map((item) => `
+                  <button type="button" data-aion-main-step-logic-token-v4="${esc(item)}">
+                    ${esc(item)}
+                  </button>
+                `).join("")}
+              </div>
+
+              <div class="aion-main-step-logic-example-v4">
+                <strong>Example:</strong>
+                If <code>subject contains "quote"</code>, then extract <code>name, email, phone, enquiry</code> and pass it to the next step as <code>customer_details</code>.
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    `;
+  }
+
+  function openCompactLogicModal(nodeId) {
+    removeAllStepLogicModals();
+
+    const node = selectedNode();
+    const safeNodeId = nodeId || node?.id || "";
+
+    window.__aionWorkflowSelectedNodeId = safeNodeId || window.__aionWorkflowSelectedNodeId;
+    window.__aionArchitectSelectedStepId = safeNodeId || window.__aionArchitectSelectedStepId;
+
+    // Important: keep old Architect modal disabled.
+    window.__aionArchitectAdvancedConfigOpen = false;
+
+    const mount = document.createElement("div");
+    mount.innerHTML = renderCompactLogicModal(safeNodeId);
+    document.body.appendChild(mount.firstElementChild);
+  }
+
+  function isLogicButton(target) {
+    const path = target?.composedPath?.() || [];
+
+    return (
+      target?.closest?.("[data-aion-main-open-step-logic-v4]") ||
+      target?.closest?.("[data-aion-main-open-step-logic-v3]") ||
+      target?.closest?.("[data-aion-main-open-step-logic]") ||
+      target?.closest?.("[data-aion-architect-open-advanced-config]") ||
+      target?.closest?.("[title='Configure logic / variables']") ||
+      path.find?.((el) => {
+        if (!el || el.nodeType !== 1) return false;
+        const title = String(el.getAttribute?.("title") || "").toLowerCase();
+        const text = String(el.textContent || "").trim();
+        return (
+          title.includes("logic") ||
+          title.includes("variables") ||
+          text === "⑂"
+        );
+      })
+    );
+  }
+
+  function handleEvent(event) {
+    const target = event.target;
+
+    const closeButton =
+      target.closest?.("[data-aion-main-close-step-logic-v4='true']") ||
+      target.closest?.("[data-aion-main-close-step-logic-v3='true']") ||
+      target.closest?.("[data-aion-architect-close-advanced-config='true']");
+
+    if (closeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      removeAllStepLogicModals();
+      return;
+    }
+
+    const backdrop = target.closest?.("[data-aion-main-step-logic-backdrop-v4='true']");
+    const card = target.closest?.("[data-aion-main-step-logic-card-v4='true']");
+    if (backdrop && !card) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      removeAllStepLogicModals();
+      return;
+    }
+
+    const tab = target.closest?.("[data-aion-main-step-logic-tab-v4]");
+    if (tab) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionMainCompactLogicTab =
+        tab.getAttribute("data-aion-main-step-logic-tab-v4") || "filters";
+
+      openCompactLogicModal(window.__aionWorkflowSelectedNodeId || selectedNode()?.id);
+      return;
+    }
+
+    const logicButton = isLogicButton(target);
+    if (logicButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const explicit =
+        logicButton.getAttribute?.("data-aion-main-open-step-logic-v4") ||
+        logicButton.getAttribute?.("data-aion-main-open-step-logic-v3") ||
+        logicButton.getAttribute?.("data-aion-main-open-step-logic") ||
+        logicButton.getAttribute?.("data-aion-architect-open-advanced-config") ||
+        "";
+
+      const nodeId =
+        explicit && explicit !== "true"
+          ? explicit
+          : nodeIdFromTarget(logicButton);
+
+      openCompactLogicModal(nodeId);
+      return;
+    }
+  }
+
+  // Pointerdown catches the click before older document click handlers open the big modal.
+  window.addEventListener("pointerdown", handleEvent, true);
+  window.addEventListener("mousedown", handleEvent, true);
+  window.addEventListener("click", handleEvent, true);
+
+  // Safety net: if old patches still render the large modal, delete it immediately.
+  const observer = new MutationObserver(() => {
+    const compactOpen = Boolean(
+      document.querySelector("[data-aion-main-step-logic-modal-v4='true']"),
+    );
+
+    document
+      .querySelectorAll(
+        [
+          "[data-aion-main-step-logic-modal-v3='true']",
+          "[data-aion-main-forced-advanced-mount='true']",
+          "[data-aion-architect-advanced-backdrop='true']",
+          ".aion-architect-advanced-backdrop",
+        ].join(","),
+      )
+      .forEach((el) => {
+        if (compactOpen || window.__aionArchitectAdvancedConfigOpen === true) {
+          el.remove();
+          window.__aionArchitectAdvancedConfigOpen = false;
+        }
+      });
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-main-step-logic-modal-v4='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 9999999 !important;
+    }
+
+    .aion-main-step-logic-backdrop-v4 {
+      position: fixed !important;
+      inset: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      background: rgba(15, 23, 42, 0.34) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    .aion-main-step-logic-modal-v4 {
+      width: min(860px, calc(100vw - 80px)) !important;
+      max-height: min(560px, calc(100vh - 80px)) !important;
+      overflow: auto !important;
+      border-radius: 28px !important;
+      background: #ffffff !important;
+      box-shadow: 0 34px 100px rgba(15, 23, 42, 0.34) !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-head-v4 {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 20px !important;
+      padding: 26px 30px 20px !important;
+    }
+
+    .aion-main-step-logic-head-v4 h2 {
+      margin: 0 0 8px !important;
+      font-size: 30px !important;
+      line-height: 1 !important;
+      letter-spacing: -0.05em !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-head-v4 p {
+      margin: 0 !important;
+      color: #64748b !important;
+      font-size: 15px !important;
+      line-height: 1.35 !important;
+      font-weight: 750 !important;
+    }
+
+    .aion-main-step-logic-head-v4 button {
+      width: 48px !important;
+      height: 48px !important;
+      border: 1px solid #d9f99d !important;
+      background: white !important;
+      color: #000 !important;
+      font-size: 30px !important;
+      line-height: 1 !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs-v4 {
+      display: flex !important;
+      gap: 0 !important;
+      background: #202733 !important;
+      padding-left: 22px !important;
+      overflow-x: auto !important;
+    }
+
+    .aion-main-step-logic-tabs-v4 button {
+      border: 0 !important;
+      background: transparent !important;
+      color: white !important;
+      padding: 17px 20px !important;
+      font-size: 16px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-main-step-logic-tabs-v4 button.active {
+      background: white !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-body-v4 {
+      padding: 30px !important;
+    }
+
+    .aion-main-step-logic-body-v4 h3 {
+      margin: 0 0 18px !important;
+      font-size: 28px !important;
+      line-height: 1.05 !important;
+      letter-spacing: -0.04em !important;
+      color: #0f172a !important;
+    }
+
+    .aion-main-step-logic-body-v4 p {
+      margin: 0 0 22px !important;
+      color: #737373 !important;
+      font-size: 16px !important;
+      font-weight: 650 !important;
+    }
+
+    .aion-main-step-logic-chip-grid-v4 {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 12px !important;
+      margin-bottom: 28px !important;
+    }
+
+    .aion-main-step-logic-chip-grid-v4 button {
+      border-radius: 14px !important;
+      border: 1px solid rgba(15, 23, 42, 0.12) !important;
+      background: #f8fafc !important;
+      color: #020617 !important;
+      padding: 11px 17px !important;
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-example-v4 {
+      border: 1px solid #bef264 !important;
+      background: #f7fee7 !important;
+      color: #365314 !important;
+      border-radius: 18px !important;
+      padding: 18px 20px !important;
+      font-size: 15px !important;
+      line-height: 1.55 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: inject AI canvas node settings into main canvas node editor v5
+   Purpose:
+   - Keep the existing main canvas Node Editor shell.
+   - Add AI-canvas configuration controls inside the PARAMETERS column.
+   - Remove mini-toolbar overlap inside the editor.
+   - Settings button remains the node editor; logic button opens compact logic modal.
+*/
+(function installAionMainNodeEditorAiSettingsV5() {
+  const PATCH_ID = "aion-main-node-editor-ai-settings-v5";
+  if (window.__aionMainNodeEditorAiSettingsV5 === true) return;
+  window.__aionMainNodeEditorAiSettingsV5 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function graph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (!window.__aionWorkflowGraph) {
+      window.__aionWorkflowGraph = {
+        workflow_id: createAionWorkflowId(),
+        name: "Untitled workflow 1",
+        status: "draft",
+        nodes: [],
+        edges: [],
+      };
+    }
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function selectedNode() {
+    const g = graph();
+    const nodes = Array.isArray(g.nodes) ? g.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function persist(g) {
+    window.__aionWorkflowGraph = g;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(g);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+  }
+
+  function patchNode(nodeId, patch) {
+    const g = graph();
+    const nodes = Array.isArray(g.nodes) ? g.nodes : [];
+
+    g.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      const next = {
+        ...node,
+        ...patch,
+      };
+
+      if (patch.fields !== undefined || patch.outputs !== undefined) {
+        next.config = {
+          ...(node.config || {}),
+          ...(patch.config || {}),
+          ...(patch.fields !== undefined ? { fields: patch.fields } : {}),
+          ...(patch.outputs !== undefined ? { outputs: patch.outputs } : {}),
+        };
+      }
+
+      return next;
+    });
+
+    g.dirty = true;
+    g.updated_at = new Date().toISOString();
+    persist(g);
+  }
+
+  function findNodeEditorModal() {
+    const all = Array.from(document.querySelectorAll("section, aside, main, div"))
+      .filter((el) => {
+        const rect = el.getBoundingClientRect?.();
+        if (!rect || rect.width < 500 || rect.height < 300) return false;
+
+        const text = String(el.textContent || "");
+        return (
+          text.includes("NODE EDITOR") &&
+          text.includes("PARAMETERS") &&
+          text.includes("OUTPUT") &&
+          text.includes("TEST NODE") &&
+          text.includes("SAVE NODE")
+        );
+      });
+
+    if (!all.length) return null;
+
+    // Pick the smallest matching container, not the whole app body.
+    return all.sort((a, b) => {
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      return ar.width * ar.height - br.width * br.height;
+    })[0];
+  }
+
+  function findParametersColumn(modal) {
+    if (!modal) return null;
+
+    const headers = Array.from(modal.querySelectorAll("*")).filter((el) => {
+      return String(el.textContent || "").trim() === "PARAMETERS";
+    });
+
+    const header = headers[0];
+    if (!header) return null;
+
+    let current = header;
+
+    for (let i = 0; i < 8 && current; i += 1) {
+      const rect = current.getBoundingClientRect?.();
+      const text = String(current.textContent || "");
+
+      if (
+        rect &&
+        rect.width >= 260 &&
+        rect.height >= 160 &&
+        text.includes("PARAMETERS")
+      ) {
+        return current;
+      }
+
+      current = current.parentElement;
+    }
+
+    return header.parentElement || modal;
+  }
+
+  function renderSettings(node) {
+    const type = String(node.type || "Step");
+    const approval = String(node.approval_requirement || "auto");
+
+    return `
+      <section class="aion-main-node-settings-v5" data-aion-main-node-settings-v5="true">
+        <div class="aion-main-node-settings-tabs-v5">
+          <button type="button" class="active">Node</button>
+          <button type="button" data-aion-main-open-step-logic-v5="${esc(node.id)}">Logic / Variables</button>
+        </div>
+
+        <div class="aion-main-node-settings-card-v5">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-main-node-edit-v5="${esc(node.id)}" data-aion-main-node-field="type">
+              ${[
+                "Step",
+                "Trigger",
+                "App action",
+                "AI action",
+                "Logic / condition",
+                "Router",
+                "Tool / transform",
+                "Text Parser",
+                "Approval",
+                "Custom Logic",
+                "Content Asset",
+              ].map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-main-node-edit-v5="${esc(node.id)}"
+              data-aion-main-node-field="connector"
+              value="${esc(node.connector || node.app || node.type || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-main-node-edit-v5="${esc(node.id)}"
+              data-aion-main-node-field="action_id"
+              value="${esc(node.action_id || node.action || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-main-node-edit-v5="${esc(node.id)}"
+              data-aion-main-node-field="title"
+              value="${esc(node.title || node.action_label || "")}"
+              placeholder="Watch emails, extract details, create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-main-node-edit-v5="${esc(node.id)}"
+              data-aion-main-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-main-node-edit-v5="${esc(node.id)}"
+              data-aion-main-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-main-node-edit-v5="${esc(node.id)}" data-aion-main-node-field="approval_requirement">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" class="secondary-btn" data-aion-main-open-step-logic-v5="${esc(node.id)}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectSettings() {
+    const modal = findNodeEditorModal();
+    if (!modal) return;
+
+    // Remove accidental node toolbar inside the modal.
+    modal
+      .querySelectorAll(
+        [
+          ".aion-main-node-mini-toolbar",
+          ".aion-workflow-node-mini-toolbar",
+          ".aion-architect-node-mini-toolbar",
+        ].join(","),
+      )
+      .forEach((el) => el.remove());
+
+    if (modal.querySelector("[data-aion-main-node-settings-v5='true']")) return;
+
+    const node = selectedNode();
+    if (!node) return;
+
+    const parametersColumn = findParametersColumn(modal);
+    if (!parametersColumn) return;
+
+    const oldEmptyText = Array.from(parametersColumn.querySelectorAll("*")).find((el) =>
+      String(el.textContent || "").trim() === "No custom parameters for this node yet.",
+    );
+
+    if (oldEmptyText) {
+      oldEmptyText.remove();
+    }
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderSettings(node);
+
+    parametersColumn.appendChild(wrap.firstElementChild);
+  }
+
+  function openLogic(nodeId) {
+    const node = selectedNode();
+    const safeNodeId = nodeId || node?.id || "";
+
+    window.__aionWorkflowSelectedNodeId = safeNodeId || window.__aionWorkflowSelectedNodeId;
+    window.__aionArchitectSelectedStepId = safeNodeId || window.__aionArchitectSelectedStepId;
+
+    // Prefer the compact logic modal from the previous patch.
+    const logicButton = document.querySelector(
+      `[data-aion-main-open-step-logic-v4="${CSS.escape?.(safeNodeId) || safeNodeId}"]`,
+    );
+
+    if (logicButton) {
+      logicButton.click();
+      return;
+    }
+
+    // Fallback: directly set the legacy flag.
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v5]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v5");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v5]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v5");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+
+      if (typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const logicButton = event.target.closest?.("[data-aion-main-open-step-logic-v5]");
+      if (!logicButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      openLogic(logicButton.getAttribute("data-aion-main-open-step-logic-v5"));
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(injectSettings) || setTimeout(injectSettings, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  setInterval(injectSettings, 500);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-workflow-node-editor='true'] .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-workflow-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-architect-node-mini-toolbar {
+      display: none !important;
+    }
+
+    .aion-main-node-settings-v5 {
+      margin-top: 18px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(15,23,42,0.10) !important;
+      display: grid !important;
+      gap: 14px !important;
+      width: 100% !important;
+    }
+
+    .aion-main-node-settings-tabs-v5 {
+      display: flex !important;
+      gap: 8px !important;
+      margin-bottom: 2px !important;
+    }
+
+    .aion-main-node-settings-tabs-v5 button {
+      height: 38px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.86) !important;
+      color: #0f172a !important;
+      padding: 0 14px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-settings-tabs-v5 button.active {
+      background: #0f172a !important;
+      color: white !important;
+      border-color: #0f172a !important;
+    }
+
+    .aion-main-node-settings-card-v5 {
+      display: grid !important;
+      gap: 13px !important;
+      padding: 16px !important;
+      border-radius: 18px !important;
+      background: rgba(248,250,252,0.88) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .aion-main-node-settings-card-v5 .eyebrow,
+    .aion-main-node-settings-card-v5 label span {
+      color: #475569 !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.20em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-node-settings-card-v5 label {
+      display: grid !important;
+      gap: 7px !important;
+      margin: 0 !important;
+    }
+
+    .aion-main-node-settings-card-v5 input,
+    .aion-main-node-settings-card-v5 select,
+    .aion-main-node-settings-card-v5 textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 11px 13px !important;
+      font-size: 14px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .aion-main-node-settings-card-v5 textarea {
+      min-height: 76px !important;
+      resize: vertical !important;
+      line-height: 1.45 !important;
+    }
+
+    .aion-main-node-settings-card-v5 .secondary-btn {
+      justify-self: start !important;
+      height: 42px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 16px !important;
+      cursor: pointer !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: force inject AI node settings into visible main Node Editor v6
+   Fixes:
+   - Previous injection missed the real PARAMETERS column.
+   - Forces AI canvas node settings under PARAMETERS in the main canvas node editor.
+*/
+(function installAionMainNodeEditorAiSettingsV6() {
+  const PATCH_ID = "aion-main-node-editor-ai-settings-v6";
+  if (window.__aionMainNodeEditorAiSettingsV6 === true) return;
+  window.__aionMainNodeEditorAiSettingsV6 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function getSelectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[0] ||
+      {
+        id: "node_blank_step_1",
+        title: "Choose",
+        type: "Step",
+        status: "Dry-run",
+        icon: "C",
+        meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+        connector: "",
+        action_id: "",
+        fields: "",
+        outputs: "",
+        approval_requirement: "auto",
+        config: {},
+      }
+    );
+  }
+
+  function persistGraph(graph) {
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+  }
+
+  function patchNode(nodeId, field, value) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      return {
+        ...node,
+        [field]: value,
+        config: {
+          ...(node.config || {}),
+          ...(field === "fields" || field === "outputs" ? { [field]: value } : {}),
+        },
+      };
+    });
+
+    graph.dirty = true;
+    graph.updated_at = new Date().toISOString();
+    persistGraph(graph);
+  }
+
+  function findVisibleNodeEditor() {
+    const candidates = Array.from(document.querySelectorAll("div, section, aside, main"))
+      .filter((el) => {
+        const rect = el.getBoundingClientRect?.();
+        if (!rect) return false;
+        if (rect.width < 600 || rect.height < 400) return false;
+
+        const style = window.getComputedStyle(el);
+        if (style.display === "none" || style.visibility === "hidden") return false;
+
+        const text = String(el.textContent || "");
+        return (
+          text.includes("NODE EDITOR") &&
+          text.includes("INPUT") &&
+          text.includes("PARAMETERS") &&
+          text.includes("OUTPUT") &&
+          text.includes("TEST NODE") &&
+          text.includes("SAVE NODE")
+        );
+      });
+
+    return candidates.sort((a, b) => {
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      return ar.width * ar.height - br.width * br.height;
+    })[0] || null;
+  }
+
+  function findParametersColumn(editor) {
+    if (!editor) return null;
+
+    const rect = editor.getBoundingClientRect();
+
+    const possible = Array.from(editor.querySelectorAll("div, section, aside"))
+      .filter((el) => {
+        const r = el.getBoundingClientRect?.();
+        if (!r) return false;
+
+        const text = String(el.textContent || "");
+        return (
+          text.includes("PARAMETERS") &&
+          text.includes("Settings") &&
+          text.includes("TEST NODE") &&
+          text.includes("SAVE NODE") &&
+          r.left > rect.left + rect.width * 0.25 &&
+          r.left < rect.left + rect.width * 0.72 &&
+          r.width > 250 &&
+          r.height > 250
+        );
+      });
+
+    if (possible.length) {
+      return possible.sort((a, b) => {
+        const ar = a.getBoundingClientRect();
+        const br = b.getBoundingClientRect();
+        return ar.width * ar.height - br.width * br.height;
+      })[0];
+    }
+
+    const parameterText = Array.from(editor.querySelectorAll("*")).find(
+      (el) => String(el.textContent || "").trim() === "PARAMETERS",
+    );
+
+    return parameterText?.parentElement?.parentElement || parameterText?.parentElement || null;
+  }
+
+  function renderSettings(node) {
+    const type = String(node.type || "Step");
+    const approval = String(node.approval_requirement || "auto");
+
+    return `
+      <section class="aion-main-node-ai-settings-v6" data-aion-main-node-ai-settings-v6="true">
+        <div class="aion-main-node-ai-settings-tabs-v6">
+          <button type="button" class="active">Node</button>
+          <button type="button" data-aion-main-node-logic-v6="${esc(node.id)}">Logic / Variables</button>
+        </div>
+
+        <div class="aion-main-node-ai-settings-card-v6">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-main-node-edit-v6="${esc(node.id)}" data-aion-main-node-field="type">
+              ${[
+                "Step",
+                "Trigger",
+                "App action",
+                "AI action",
+                "Logic / condition",
+                "Router",
+                "Tool / transform",
+                "Text Parser",
+                "Approval",
+                "Custom Logic",
+                "Content Asset",
+              ].map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-main-node-edit-v6="${esc(node.id)}"
+              data-aion-main-node-field="connector"
+              value="${esc(node.connector || node.app || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-main-node-edit-v6="${esc(node.id)}"
+              data-aion-main-node-field="action_id"
+              value="${esc(node.action_id || node.action || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-main-node-edit-v6="${esc(node.id)}"
+              data-aion-main-node-field="title"
+              value="${esc(node.title || "")}"
+              placeholder="Watch emails, extract details, create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-main-node-edit-v6="${esc(node.id)}"
+              data-aion-main-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-main-node-edit-v6="${esc(node.id)}"
+              data-aion-main-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-main-node-edit-v6="${esc(node.id)}" data-aion-main-node-field="approval_requirement">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" data-aion-main-node-logic-v6="${esc(node.id)}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function inject() {
+    const editor = findVisibleNodeEditor();
+    if (!editor) return;
+
+    editor
+      .querySelectorAll(
+        ".aion-main-node-mini-toolbar, .aion-workflow-node-mini-toolbar, .aion-architect-node-mini-toolbar",
+      )
+      .forEach((el) => el.remove());
+
+    if (editor.querySelector("[data-aion-main-node-ai-settings-v6='true']")) return;
+
+    const column = findParametersColumn(editor);
+    if (!column) return;
+
+    const node = getSelectedNode();
+
+    const emptyText = Array.from(column.querySelectorAll("*")).find((el) =>
+      String(el.textContent || "").trim() === "No custom parameters for this node yet.",
+    );
+
+    if (emptyText) {
+      emptyText.remove();
+    }
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderSettings(node);
+
+    column.appendChild(wrap.firstElementChild);
+  }
+
+  function openLogic(nodeId) {
+    const node = getSelectedNode();
+
+    window.__aionWorkflowSelectedNodeId = nodeId || node.id;
+    window.__aionArchitectSelectedStepId = nodeId || node.id;
+    window.__aionArchitectAdvancedConfigOpen = true;
+    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v6]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v6");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, field, input.value);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-main-node-edit-v6]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-main-node-edit-v6");
+      const field = input.getAttribute("data-aion-main-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, field, input.value);
+      if (typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const logic = event.target.closest?.("[data-aion-main-node-logic-v6]");
+      if (!logic) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      openLogic(logic.getAttribute("data-aion-main-node-logic-v6"));
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(inject) || setTimeout(inject, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  setInterval(inject, 300);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-main-node-ai-settings-v6 {
+      margin-top: 18px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(15,23,42,0.12) !important;
+      display: grid !important;
+      gap: 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .aion-main-node-ai-settings-tabs-v6 {
+      display: flex !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+    }
+
+    .aion-main-node-ai-settings-tabs-v6 button,
+    .aion-main-node-ai-settings-card-v6 button {
+      height: 40px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 0 14px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-node-ai-settings-tabs-v6 button.active {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: white !important;
+    }
+
+    .aion-main-node-ai-settings-card-v6 {
+      display: grid !important;
+      gap: 12px !important;
+      padding: 16px !important;
+      border-radius: 18px !important;
+      background: rgba(248,250,252,0.92) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-main-node-ai-settings-card-v6 .eyebrow,
+    .aion-main-node-ai-settings-card-v6 label span {
+      color: #475569 !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.20em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-node-ai-settings-card-v6 label {
+      display: grid !important;
+      gap: 6px !important;
+      margin: 0 !important;
+    }
+
+    .aion-main-node-ai-settings-card-v6 input,
+    .aion-main-node-ai-settings-card-v6 select,
+    .aion-main-node-ai-settings-card-v6 textarea {
+      width: 100% !important;
+      border-radius: 13px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+      box-sizing: border-box !important;
+    }
+
+    .aion-main-node-ai-settings-card-v6 textarea {
+      min-height: 70px !important;
+      resize: vertical !important;
+      line-height: 1.45 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: main canvas node editor forced AI settings mount v7
+   Purpose:
+   - Put AI canvas node settings visibly inside the main Node Editor PARAMETERS area.
+   - Stop relying on old brittle DOM guesses.
+   - Remove duplicate/large legacy Configure Step Logic modal when compact modal exists.
+*/
+(function installAionMainNodeEditorAiSettingsV7() {
+  const PATCH_ID = "aion-main-node-editor-ai-settings-v7";
+  if (window.__aionMainNodeEditorAiSettingsV7 === true) return;
+  window.__aionMainNodeEditorAiSettingsV7 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function graph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") return getAionWorkflowDraftState();
+    } catch (_) {}
+
+    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+      workflow_id: createAionWorkflowId(),
+      name: "Untitled workflow 1",
+      status: "draft",
+      nodes: [],
+      edges: [],
+    };
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function selectedNode() {
+    const g = graph();
+    const nodes = Array.isArray(g.nodes) ? g.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId;
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[nodes.length - 1] ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function patchNode(nodeId, patch) {
+    const g = graph();
+    const nodes = Array.isArray(g.nodes) ? g.nodes : [];
+
+    g.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      const next = {
+        ...node,
+        ...patch,
+      };
+
+      next.config = {
+        ...(node.config || {}),
+        ...(patch.config || {}),
+      };
+
+      if (patch.fields !== undefined) next.config.fields = patch.fields;
+      if (patch.outputs !== undefined) next.config.outputs = patch.outputs;
+      if (patch.action_id !== undefined) next.config.action_id = patch.action_id;
+      if (patch.connector !== undefined) next.config.connector = patch.connector;
+      if (patch.approval_requirement !== undefined) {
+        next.config.approval_requirement = patch.approval_requirement;
+      }
+
+      return next;
+    });
+
+    g.dirty = true;
+    g.status = g.status || "draft";
+
+    window.__aionWorkflowGraph = g;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(g);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+  }
+
+  function getVisibleRect(el) {
+    if (!el || typeof el.getBoundingClientRect !== "function") return null;
+    const rect = el.getBoundingClientRect();
+    if (rect.width < 500 || rect.height < 280) return null;
+    if (rect.bottom < 0 || rect.right < 0) return null;
+    if (rect.top > window.innerHeight || rect.left > window.innerWidth) return null;
+    return rect;
+  }
+
+  function findNodeEditorModal() {
+    const candidates = Array.from(document.querySelectorAll("section, aside, main, div"))
+      .map((el) => {
+        const text = String(el.textContent || "");
+        const rect = getVisibleRect(el);
+        if (!rect) return null;
+
+        const isNodeEditor =
+          text.includes("NODE EDITOR") &&
+          text.includes("PARAMETERS") &&
+          text.includes("OUTPUT") &&
+          text.includes("TEST NODE") &&
+          text.includes("SAVE NODE");
+
+        if (!isNodeEditor) return null;
+
+        return {
+          el,
+          rect,
+          area: rect.width * rect.height,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => a.area - b.area);
+
+    return candidates[0] || null;
+  }
+
+  function renderSettings(node) {
+    const type = String(node.type || "Step");
+    const connector = String(node.connector || node.app || node.config?.connector || "");
+    const actionId = String(node.action_id || node.action || node.config?.action_id || "");
+    const title = String(node.title || node.action_label || "Choose");
+    const fields = String(node.fields || node.config?.fields || "");
+    const outputs = String(node.outputs || node.config?.outputs || "");
+    const approval = String(node.approval_requirement || node.config?.approval_requirement || "auto");
+
+    const typeOptions = [
+      "Step",
+      "Trigger",
+      "App action",
+      "AI action",
+      "Logic / condition",
+      "Router",
+      "Tool / transform",
+      "Text Parser",
+      "Approval",
+      "Custom Logic",
+      "Content Asset",
+    ];
+
+    return `
+      <section
+        class="aion-node-editor-ai-settings-v7"
+        data-aion-node-editor-ai-settings-v7="true"
+        data-aion-node-id="${esc(node.id)}"
+      >
+        <div class="aion-node-editor-ai-tabs-v7">
+          <button type="button" class="active">Node</button>
+          <button type="button" data-aion-node-editor-open-logic-v7="${esc(node.id)}">Logic / Variables</button>
+        </div>
+
+        <div class="aion-node-editor-ai-card-v7">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-node-editor-field-v7="type" data-aion-node-id="${esc(node.id)}">
+              ${typeOptions.map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-node-editor-field-v7="connector"
+              data-aion-node-id="${esc(node.id)}"
+              value="${esc(connector)}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-node-editor-field-v7="action_id"
+              data-aion-node-id="${esc(node.id)}"
+              value="${esc(actionId)}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-node-editor-field-v7="title"
+              data-aion-node-id="${esc(node.id)}"
+              value="${esc(title)}"
+              placeholder="Watch emails, extract details, create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-node-editor-field-v7="fields"
+              data-aion-node-id="${esc(node.id)}"
+              placeholder="sender, subject, body, received_at"
+            >${esc(fields)}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-node-editor-field-v7="outputs"
+              data-aion-node-id="${esc(node.id)}"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(outputs)}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-node-editor-field-v7="approval_requirement" data-aion-node-id="${esc(node.id)}">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+        </div>
+      </section>
+    `;
+  }
+
+  function removeSettings() {
+    document
+      .querySelectorAll("[data-aion-node-editor-ai-settings-v7='true']")
+      .forEach((el) => el.remove());
+  }
+
+  function mountSettings() {
+    const found = findNodeEditorModal();
+    const node = selectedNode();
+
+    if (!found || !node) {
+      removeSettings();
+      return;
+    }
+
+    const existing = document.querySelector("[data-aion-node-editor-ai-settings-v7='true']");
+    const existingNodeId = existing?.getAttribute("data-aion-node-id");
+
+    if (existing && String(existingNodeId) === String(node.id)) {
+      positionSettings(existing, found.rect);
+      return;
+    }
+
+    removeSettings();
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderSettings(node);
+    const panel = wrap.firstElementChild;
+
+    document.body.appendChild(panel);
+    positionSettings(panel, found.rect);
+  }
+
+  function positionSettings(panel, rect) {
+    if (!panel || !rect) return;
+
+    const left = Math.round(rect.left + rect.width * 0.315);
+    const top = Math.round(rect.top + 185);
+    const width = Math.max(420, Math.round(rect.width * 0.365));
+    const maxHeight = Math.max(260, Math.round(rect.height - 245));
+
+    panel.style.left = `${left}px`;
+    panel.style.top = `${top}px`;
+    panel.style.width = `${width}px`;
+    panel.style.maxHeight = `${maxHeight}px`;
+  }
+
+  function openCompactLogic(nodeId) {
+    const node = selectedNode();
+    const safeNodeId = nodeId || node?.id || window.__aionWorkflowSelectedNodeId || "";
+
+    window.__aionWorkflowSelectedNodeId = safeNodeId;
+    window.__aionArchitectSelectedStepId = safeNodeId;
+    window.__aionArchitectAdvancedConfigOpen = false;
+
+    document
+      .querySelectorAll(
+        [
+          "[data-aion-architect-advanced-backdrop='true']",
+          "[data-aion-main-forced-advanced-mount='true']",
+          "[data-aion-main-step-logic-modal='true']",
+        ].join(","),
+      )
+      .forEach((el) => el.remove());
+
+    const tabs = [
+      ["filters", "Filters"],
+      ["variables", "Variables"],
+      ["text", "Text tools"],
+      ["dates", "Dates"],
+      ["lists", "Lists"],
+      ["json", "JSON"],
+    ];
+
+    const active = window.__aionNodeLogicTabV7 || "filters";
+
+    const itemsByTab = {
+      filters: ["Subject contains", "Sender is", "Body contains", "Date is after", "Has attachment"],
+      variables: ["Email sender", "Email subject", "Email body", "Customer name", "AI response", "Draft text"],
+      text: ["contains", "replace", "split", "trim", "lowercase", "uppercase", "extract email"],
+      dates: ["now", "received date", "add days", "add hours", "before", "after"],
+      lists: ["first item", "join", "contains", "remove duplicates", "count"],
+      json: ["get field", "map object", "parse JSON", "pick value", "fallback value"],
+    };
+
+    const titleByTab = {
+      filters: "Only continue if...",
+      variables: "Use values from earlier steps",
+      text: "Clean or transform text",
+      dates: "Schedule or compare time",
+      lists: "Work with lists",
+      json: "Read structured data",
+    };
+
+    const modal = document.createElement("div");
+    modal.setAttribute("data-aion-node-logic-modal-v7", "true");
+    modal.innerHTML = `
+      <div class="aion-node-logic-backdrop-v7">
+        <aside class="aion-node-logic-card-v7">
+          <header class="aion-node-logic-head-v7">
+            <div>
+              <h2>Configure step logic</h2>
+              <p>Add filters, variables, text tools, dates, lists, JSON, and conditions for this step.</p>
+            </div>
+            <button type="button" data-aion-node-logic-close-v7="true">×</button>
+          </header>
+
+          <nav class="aion-node-logic-tabs-v7">
+            ${tabs.map(([key, label]) => `
+              <button
+                type="button"
+                class="${active === key ? "active" : ""}"
+                data-aion-node-logic-tab-v7="${esc(key)}"
+              >${esc(label)}</button>
+            `).join("")}
+          </nav>
+
+          <main class="aion-node-logic-body-v7">
+            <h3>${esc(titleByTab[active] || "Configure")}</h3>
+            <p>Click an item later to insert it into the selected step condition or field.</p>
+
+            <div class="aion-node-logic-chips-v7">
+              ${(itemsByTab[active] || []).map((item) => `<button type="button">${esc(item)}</button>`).join("")}
+            </div>
+
+            <div class="aion-node-logic-example-v7">
+              <strong>Example:</strong> If subject contains "quote", then extract name, email, phone, enquiry and pass it to the next step as customer_details.
+            </div>
+          </main>
+        </aside>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  }
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-node-editor-field-v7]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-node-id");
+      const field = input.getAttribute("data-aion-node-editor-field-v7");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-node-editor-field-v7]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-node-id");
+      const field = input.getAttribute("data-aion-node-editor-field-v7");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+
+      if (typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const logicButton =
+        event.target.closest?.("[data-aion-node-editor-open-logic-v7]") ||
+        event.target.closest?.("[data-aion-main-open-step-logic-v5]") ||
+        event.target.closest?.("[data-aion-main-open-step-logic]") ||
+        event.target.closest?.("[data-aion-architect-open-advanced-config]");
+
+      if (logicButton) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const nodeId =
+          logicButton.getAttribute("data-aion-node-editor-open-logic-v7") ||
+          logicButton.getAttribute("data-aion-main-open-step-logic-v5") ||
+          logicButton.getAttribute("data-aion-main-open-step-logic") ||
+          logicButton.getAttribute("data-aion-architect-open-advanced-config") ||
+          window.__aionWorkflowSelectedNodeId ||
+          "";
+
+        openCompactLogic(nodeId);
+        return;
+      }
+
+      const closeLogic = event.target.closest?.("[data-aion-node-logic-close-v7='true']");
+      if (closeLogic) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        document
+          .querySelectorAll("[data-aion-node-logic-modal-v7='true']")
+          .forEach((el) => el.remove());
+
+        window.__aionArchitectAdvancedConfigOpen = false;
+        return;
+      }
+
+      const logicTab = event.target.closest?.("[data-aion-node-logic-tab-v7]");
+      if (logicTab) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        window.__aionNodeLogicTabV7 = logicTab.getAttribute("data-aion-node-logic-tab-v7") || "filters";
+
+        document
+          .querySelectorAll("[data-aion-node-logic-modal-v7='true']")
+          .forEach((el) => el.remove());
+
+        openCompactLogic(window.__aionWorkflowSelectedNodeId || "");
+        return;
+      }
+
+      const closeEditor = event.target.closest?.("[data-aion-workflow-node-editor-close='true']");
+      if (closeEditor) {
+        setTimeout(removeSettings, 0);
+      }
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(mountSettings) || setTimeout(mountSettings, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  window.addEventListener("resize", mountSettings);
+  setInterval(mountSettings, 350);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-node-editor-ai-settings-v7='true'] {
+      position: fixed !important;
+      z-index: 999998 !important;
+      overflow: auto !important;
+      display: grid !important;
+      gap: 12px !important;
+      padding: 0 !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-node-editor-ai-tabs-v7 {
+      display: flex !important;
+      gap: 8px !important;
+      margin-bottom: 8px !important;
+    }
+
+    .aion-node-editor-ai-tabs-v7 button {
+      height: 38px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.94) !important;
+      color: #0f172a !important;
+      padding: 0 14px !important;
+      font-size: 12px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-node-editor-ai-tabs-v7 button.active {
+      background: #0f172a !important;
+      color: white !important;
+      border-color: #0f172a !important;
+    }
+
+    .aion-node-editor-ai-card-v7 {
+      display: grid !important;
+      gap: 12px !important;
+      padding: 15px !important;
+      border-radius: 18px !important;
+      background: rgba(248,250,252,0.92) !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.92) !important;
+    }
+
+    .aion-node-editor-ai-card-v7 .eyebrow,
+    .aion-node-editor-ai-card-v7 label span {
+      color: #475569 !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.20em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-node-editor-ai-card-v7 label {
+      display: grid !important;
+      gap: 6px !important;
+      margin: 0 !important;
+    }
+
+    .aion-node-editor-ai-card-v7 input,
+    .aion-node-editor-ai-card-v7 select,
+    .aion-node-editor-ai-card-v7 textarea {
+      width: 100% !important;
+      border-radius: 13px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+    }
+
+    .aion-node-editor-ai-card-v7 textarea {
+      min-height: 66px !important;
+      resize: vertical !important;
+      line-height: 1.35 !important;
+    }
+
+    [data-aion-node-logic-modal-v7='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 1000000 !important;
+    }
+
+    .aion-node-logic-backdrop-v7 {
+      position: fixed !important;
+      inset: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      background: rgba(15,23,42,0.34) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+    }
+
+    .aion-node-logic-card-v7 {
+      width: min(980px, calc(100vw - 70px)) !important;
+      max-height: min(620px, calc(100vh - 70px)) !important;
+      overflow: auto !important;
+      border-radius: 30px !important;
+      background: white !important;
+      box-shadow: 0 38px 120px rgba(15,23,42,0.34) !important;
+      color: #0f172a !important;
+    }
+
+    .aion-node-logic-head-v7 {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 24px !important;
+      padding: 30px 36px 24px !important;
+    }
+
+    .aion-node-logic-head-v7 h2 {
+      margin: 0 0 8px !important;
+      font-size: 34px !important;
+      line-height: 1 !important;
+      letter-spacing: -0.05em !important;
+    }
+
+    .aion-node-logic-head-v7 p {
+      margin: 0 !important;
+      color: #64748b !important;
+      font-size: 17px !important;
+      font-weight: 750 !important;
+    }
+
+    .aion-node-logic-head-v7 button {
+      width: 52px !important;
+      height: 52px !important;
+      border: 1px solid #d9f99d !important;
+      background: white !important;
+      color: #000 !important;
+      font-size: 34px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-node-logic-tabs-v7 {
+      display: flex !important;
+      background: #1f2937 !important;
+      padding-left: 22px !important;
+      overflow-x: auto !important;
+    }
+
+    .aion-node-logic-tabs-v7 button {
+      border: 0 !important;
+      background: transparent !important;
+      color: white !important;
+      padding: 18px 24px !important;
+      font-size: 18px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-node-logic-tabs-v7 button.active {
+      background: white !important;
+      color: #0f172a !important;
+    }
+
+    .aion-node-logic-body-v7 {
+      padding: 32px 38px 36px !important;
+    }
+
+    .aion-node-logic-body-v7 h3 {
+      margin: 0 0 18px !important;
+      font-size: 30px !important;
+      letter-spacing: -0.04em !important;
+    }
+
+    .aion-node-logic-body-v7 p {
+      margin: 0 0 22px !important;
+      color: #737373 !important;
+      font-size: 18px !important;
+      font-weight: 700 !important;
+    }
+
+    .aion-node-logic-chips-v7 {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 12px !important;
+      margin-bottom: 28px !important;
+    }
+
+    .aion-node-logic-chips-v7 button {
+      border-radius: 13px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: #f8fafc !important;
+      padding: 12px 16px !important;
+      color: #0f172a !important;
+      font-size: 17px !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-node-logic-example-v7 {
+      border: 1px solid #bef264 !important;
+      background: #f7fee7 !important;
+      color: #365314 !important;
+      border-radius: 18px !important;
+      padding: 20px 22px !important;
+      font-size: 17px !important;
+      line-height: 1.55 !important;
+      font-weight: 700 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+  setTimeout(mountSettings, 0);
+  setTimeout(mountSettings, 300);
+})();
+
+
+/* AION PATCH: inject AI node settings into the real double-click Node Editor v7
+   Target:
+   - Main canvas node double-click modal
+   - PARAMETERS column containing "No custom parameters for this node yet."
+   - Does not depend on old AI Architect modal render functions
+*/
+(function installAionRealNodeEditorParametersInjectionV7() {
+  const PATCH_ID = "aion-real-node-editor-parameters-injection-v7";
+  if (window.__aionRealNodeEditorParametersInjectionV7 === true) return;
+  window.__aionRealNodeEditorParametersInjectionV7 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (!window.__aionWorkflowGraph) {
+      window.__aionWorkflowGraph = {
+        workflow_id: createAionWorkflowId(),
+        name: "Untitled workflow 1",
+        status: "draft",
+        nodes: [],
+        edges: [],
+      };
+    }
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function getSelectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId || "";
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[nodes.length - 1] ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function patchNode(nodeId, patch) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      const configPatch = {};
+      if (Object.prototype.hasOwnProperty.call(patch, "fields")) {
+        configPatch.fields = patch.fields;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "outputs")) {
+        configPatch.outputs = patch.outputs;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "action_id")) {
+        configPatch.action_id = patch.action_id;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "connector")) {
+        configPatch.connector = patch.connector;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "approval_requirement")) {
+        configPatch.approval_requirement = patch.approval_requirement;
+      }
+
+      return {
+        ...node,
+        ...patch,
+        config: {
+          ...(node.config || {}),
+          ...configPatch,
+        },
+      };
+    });
+
+    graph.dirty = true;
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] compile skipped`, error);
+    }
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] persist skipped`, error);
+    }
+  }
+
+  function isVisible(el) {
+    if (!el || !el.getBoundingClientRect) return false;
+    const rect = el.getBoundingClientRect();
+    const style = window.getComputedStyle(el);
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      style.opacity !== "0"
+    );
+  }
+
+  function findVisibleNodeEditorRoot() {
+    const candidates = Array.from(document.querySelectorAll("section, aside, main, div"))
+      .filter((el) => {
+        if (!isVisible(el)) return false;
+
+        const text = String(el.textContent || "");
+        if (!text.includes("NODE EDITOR")) return false;
+        if (!text.includes("PARAMETERS")) return false;
+        if (!text.includes("OUTPUT")) return false;
+        if (!text.includes("No custom parameters for this node yet.")) return false;
+
+        const rect = el.getBoundingClientRect();
+        return rect.width > 700 && rect.height > 400;
+      });
+
+    // Pick the smallest matching visible container, not body/root.
+    candidates.sort((a, b) => {
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      return ar.width * ar.height - br.width * br.height;
+    });
+
+    return candidates[0] || null;
+  }
+
+  function findExactEmptyParameterText(root) {
+    if (!root) return null;
+
+    const exact = Array.from(root.querySelectorAll("*")).find((el) => {
+      if (!isVisible(el)) return false;
+
+      const text = String(el.textContent || "").trim();
+      if (text !== "No custom parameters for this node yet.") return false;
+
+      // Prefer a leaf-ish element so we inject exactly in the PARAMETERS column.
+      const childrenText = Array.from(el.children || [])
+        .map((child) => String(child.textContent || "").trim())
+        .join("");
+
+      return !childrenText || childrenText === text;
+    });
+
+    return exact || null;
+  }
+
+  function renderSettings(node) {
+    const nodeId = esc(node.id || "");
+    const type = String(node.type || "Step");
+    const approval = String(
+      node.approval_requirement ||
+      node.config?.approval_requirement ||
+      "auto",
+    );
+
+    const types = [
+      "Step",
+      "Trigger",
+      "App action",
+      "AI action",
+      "Logic / condition",
+      "Router",
+      "Tool / transform",
+      "Text Parser",
+      "Approval",
+      "Custom Logic",
+      "Content Asset",
+    ];
+
+    return `
+      <section class="aion-real-node-editor-ai-settings-v7" data-aion-real-node-editor-ai-settings-v7="true">
+        <div class="aion-real-node-editor-tabs-v7">
+          <button type="button" class="active">Node</button>
+          <button type="button" data-aion-real-node-open-logic-v7="${nodeId}">Logic / Variables</button>
+        </div>
+
+        <div class="aion-real-node-editor-card-v7">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="type">
+              ${types.map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="connector"
+              value="${esc(node.connector || node.app || node.config?.connector || node.type || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="action_id"
+              value="${esc(node.action_id || node.action || node.config?.action_id || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="title"
+              value="${esc(node.title || node.action_label || "")}"
+              placeholder="Watch emails, extract details, create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="approval_requirement">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" class="secondary-btn" data-aion-real-node-open-logic-v7="${nodeId}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectIntoRealNodeEditor() {
+    const root = findVisibleNodeEditorRoot();
+    if (!root) return false;
+
+    if (root.querySelector("[data-aion-real-node-editor-ai-settings-v7='true']")) {
+      return true;
+    }
+
+    const node = getSelectedNode();
+    if (!node) return false;
+
+    const emptyText = findExactEmptyParameterText(root);
+    if (!emptyText) return false;
+
+    emptyText.style.display = "none";
+
+    const mount = document.createElement("div");
+    mount.innerHTML = renderSettings(node);
+
+    emptyText.insertAdjacentElement("afterend", mount.firstElementChild);
+
+    console.info(`[${PATCH_ID}] injected AI settings into real double-click Node Editor`, {
+      nodeId: node.id,
+      title: node.title,
+    });
+
+    return true;
+  }
+
+  function openLogicForNode(nodeId) {
+    window.__aionWorkflowSelectedNodeId = nodeId || window.__aionWorkflowSelectedNodeId;
+    window.__aionArchitectSelectedStepId = nodeId || window.__aionArchitectSelectedStepId;
+    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+
+    // Use compact v7 logic modal if present, otherwise fall back to the existing advanced modal flag.
+    window.__aionArchitectAdvancedConfigOpen = true;
+
+    if (typeof requestRender === "function") requestRender();
+
+    setTimeout(() => {
+      const existing =
+        document.querySelector("[data-aion-main-step-logic-modal='true']") ||
+        document.querySelector("[data-aion-architect-advanced-backdrop='true']");
+
+      if (existing) return;
+
+      if (typeof renderAionArchitectAdvancedConfigModal === "function") {
+        const html = renderAionArchitectAdvancedConfigModal();
+        if (html) {
+          const mount = document.createElement("div");
+          mount.setAttribute("data-aion-real-node-forced-logic-mount-v7", "true");
+          mount.innerHTML = html;
+          document.body.appendChild(mount);
+        }
+      }
+    }, 50);
+  }
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
+      const field = input.getAttribute("data-aion-real-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
+      const field = input.getAttribute("data-aion-real-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+
+      if (typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const logic = event.target.closest?.("[data-aion-real-node-open-logic-v7]");
+      if (!logic) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      openLogicForNode(logic.getAttribute("data-aion-real-node-open-logic-v7"));
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(injectIntoRealNodeEditor) || setTimeout(injectIntoRealNodeEditor, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  // Extra polling because this modal may be patched after render by another listener.
+  setInterval(injectIntoRealNodeEditor, 250);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-real-node-editor-ai-settings-v7 {
+      margin-top: 18px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(15,23,42,0.10) !important;
+      display: grid !important;
+      gap: 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .aion-real-node-editor-tabs-v7 {
+      display: flex !important;
+      gap: 8px !important;
+      margin-bottom: 2px !important;
+      flex-wrap: wrap !important;
+    }
+
+    .aion-real-node-editor-tabs-v7 button {
+      height: 38px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.88) !important;
+      color: #0f172a !important;
+      padding: 0 14px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-real-node-editor-tabs-v7 button.active {
+      background: #0f172a !important;
+      color: white !important;
+      border-color: #0f172a !important;
+    }
+
+    .aion-real-node-editor-card-v7 {
+      display: grid !important;
+      gap: 13px !important;
+      padding: 16px !important;
+      border-radius: 18px !important;
+      background: rgba(248,250,252,0.9) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .aion-real-node-editor-card-v7 .eyebrow,
+    .aion-real-node-editor-card-v7 label span {
+      color: #475569 !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-real-node-editor-card-v7 label {
+      display: grid !important;
+      gap: 7px !important;
+      margin: 0 !important;
+    }
+
+    .aion-real-node-editor-card-v7 input,
+    .aion-real-node-editor-card-v7 select,
+    .aion-real-node-editor-card-v7 textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .aion-real-node-editor-card-v7 textarea {
+      min-height: 66px !important;
+      resize: vertical !important;
+      line-height: 1.35 !important;
+    }
+
+    .aion-real-node-editor-card-v7 .secondary-btn,
+    .aion-real-node-editor-card-v7 button.secondary-btn {
+      justify-self: start !important;
+      min-height: 40px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 14px !important;
+      cursor: pointer !important;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+
+  setTimeout(injectIntoRealNodeEditor, 250);
+})();
+
+
+/* AION PATCH: inject AI node settings into the real double-click Node Editor v7
+   Target:
+   - Main canvas node double-click modal
+   - PARAMETERS column containing "No custom parameters for this node yet."
+   - Does not depend on old AI Architect modal render functions
+*/
+(function installAionRealNodeEditorParametersInjectionV7() {
+  const PATCH_ID = "aion-real-node-editor-parameters-injection-v7";
+  if (window.__aionRealNodeEditorParametersInjectionV7 === true) return;
+  window.__aionRealNodeEditorParametersInjectionV7 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (!window.__aionWorkflowGraph) {
+      window.__aionWorkflowGraph = {
+        workflow_id: createAionWorkflowId(),
+        name: "Untitled workflow 1",
+        status: "draft",
+        nodes: [],
+        edges: [],
+      };
+    }
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function getSelectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId || "";
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[nodes.length - 1] ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function patchNode(nodeId, patch) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      const configPatch = {};
+      if (Object.prototype.hasOwnProperty.call(patch, "fields")) {
+        configPatch.fields = patch.fields;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "outputs")) {
+        configPatch.outputs = patch.outputs;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "action_id")) {
+        configPatch.action_id = patch.action_id;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "connector")) {
+        configPatch.connector = patch.connector;
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, "approval_requirement")) {
+        configPatch.approval_requirement = patch.approval_requirement;
+      }
+
+      return {
+        ...node,
+        ...patch,
+        config: {
+          ...(node.config || {}),
+          ...configPatch,
+        },
+      };
+    });
+
+    graph.dirty = true;
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] compile skipped`, error);
+    }
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] persist skipped`, error);
+    }
+  }
+
+  function isVisible(el) {
+    if (!el || !el.getBoundingClientRect) return false;
+    const rect = el.getBoundingClientRect();
+    const style = window.getComputedStyle(el);
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      style.display !== "none" &&
+      style.visibility !== "hidden" &&
+      style.opacity !== "0"
+    );
+  }
+
+  function findVisibleNodeEditorRoot() {
+    const candidates = Array.from(document.querySelectorAll("section, aside, main, div"))
+      .filter((el) => {
+        if (!isVisible(el)) return false;
+
+        const text = String(el.textContent || "");
+        if (!text.includes("NODE EDITOR")) return false;
+        if (!text.includes("PARAMETERS")) return false;
+        if (!text.includes("OUTPUT")) return false;
+        if (!text.includes("No custom parameters for this node yet.")) return false;
+
+        const rect = el.getBoundingClientRect();
+        return rect.width > 700 && rect.height > 400;
+      });
+
+    // Pick the smallest matching visible container, not body/root.
+    candidates.sort((a, b) => {
+      const ar = a.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      return ar.width * ar.height - br.width * br.height;
+    });
+
+    return candidates[0] || null;
+  }
+
+  function findExactEmptyParameterText(root) {
+    if (!root) return null;
+
+    const exact = Array.from(root.querySelectorAll("*")).find((el) => {
+      if (!isVisible(el)) return false;
+
+      const text = String(el.textContent || "").trim();
+      if (text !== "No custom parameters for this node yet.") return false;
+
+      // Prefer a leaf-ish element so we inject exactly in the PARAMETERS column.
+      const childrenText = Array.from(el.children || [])
+        .map((child) => String(child.textContent || "").trim())
+        .join("");
+
+      return !childrenText || childrenText === text;
+    });
+
+    return exact || null;
+  }
+
+  function renderSettings(node) {
+    const nodeId = esc(node.id || "");
+    const type = String(node.type || "Step");
+    const approval = String(
+      node.approval_requirement ||
+      node.config?.approval_requirement ||
+      "auto",
+    );
+
+    const types = [
+      "Step",
+      "Trigger",
+      "App action",
+      "AI action",
+      "Logic / condition",
+      "Router",
+      "Tool / transform",
+      "Text Parser",
+      "Approval",
+      "Custom Logic",
+      "Content Asset",
+    ];
+
+    return `
+      <section class="aion-real-node-editor-ai-settings-v7" data-aion-real-node-editor-ai-settings-v7="true">
+        <div class="aion-real-node-editor-tabs-v7">
+          <button type="button" class="active">Node</button>
+          <button type="button" data-aion-real-node-open-logic-v7="${nodeId}">Logic / Variables</button>
+        </div>
+
+        <div class="aion-real-node-editor-card-v7">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="type">
+              ${types.map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="connector"
+              value="${esc(node.connector || node.app || node.config?.connector || node.type || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="action_id"
+              value="${esc(node.action_id || node.action || node.config?.action_id || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="title"
+              value="${esc(node.title || node.action_label || "")}"
+              placeholder="Watch emails, extract details, create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-real-node-edit-v7="${nodeId}"
+              data-aion-real-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="approval_requirement">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" class="secondary-btn" data-aion-real-node-open-logic-v7="${nodeId}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectIntoRealNodeEditor() {
+    const root = findVisibleNodeEditorRoot();
+    if (!root) return false;
+
+    if (root.querySelector("[data-aion-real-node-editor-ai-settings-v7='true']")) {
+      return true;
+    }
+
+    const node = getSelectedNode();
+    if (!node) return false;
+
+    const emptyText = findExactEmptyParameterText(root);
+    if (!emptyText) return false;
+
+    emptyText.style.display = "none";
+
+    const mount = document.createElement("div");
+    mount.innerHTML = renderSettings(node);
+
+    emptyText.insertAdjacentElement("afterend", mount.firstElementChild);
+
+    console.info(`[${PATCH_ID}] injected AI settings into real double-click Node Editor`, {
+      nodeId: node.id,
+      title: node.title,
+    });
+
+    return true;
+  }
+
+  function openLogicForNode(nodeId) {
+    window.__aionWorkflowSelectedNodeId = nodeId || window.__aionWorkflowSelectedNodeId;
+    window.__aionArchitectSelectedStepId = nodeId || window.__aionArchitectSelectedStepId;
+    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+
+    // Use compact v7 logic modal if present, otherwise fall back to the existing advanced modal flag.
+    window.__aionArchitectAdvancedConfigOpen = true;
+
+    if (typeof requestRender === "function") requestRender();
+
+    setTimeout(() => {
+      const existing =
+        document.querySelector("[data-aion-main-step-logic-modal='true']") ||
+        document.querySelector("[data-aion-architect-advanced-backdrop='true']");
+
+      if (existing) return;
+
+      if (typeof renderAionArchitectAdvancedConfigModal === "function") {
+        const html = renderAionArchitectAdvancedConfigModal();
+        if (html) {
+          const mount = document.createElement("div");
+          mount.setAttribute("data-aion-real-node-forced-logic-mount-v7", "true");
+          mount.innerHTML = html;
+          document.body.appendChild(mount);
+        }
+      }
+    }, 50);
+  }
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
+      const field = input.getAttribute("data-aion-real-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
+      const field = input.getAttribute("data-aion-real-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+
+      if (typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const logic = event.target.closest?.("[data-aion-real-node-open-logic-v7]");
+      if (!logic) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      openLogicForNode(logic.getAttribute("data-aion-real-node-open-logic-v7"));
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(injectIntoRealNodeEditor) || setTimeout(injectIntoRealNodeEditor, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  // Extra polling because this modal may be patched after render by another listener.
+  setInterval(injectIntoRealNodeEditor, 250);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-real-node-editor-ai-settings-v7 {
+      margin-top: 18px !important;
+      padding-top: 18px !important;
+      border-top: 1px solid rgba(15,23,42,0.10) !important;
+      display: grid !important;
+      gap: 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+
+    .aion-real-node-editor-tabs-v7 {
+      display: flex !important;
+      gap: 8px !important;
+      margin-bottom: 2px !important;
+      flex-wrap: wrap !important;
+    }
+
+    .aion-real-node-editor-tabs-v7 button {
+      height: 38px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.88) !important;
+      color: #0f172a !important;
+      padding: 0 14px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-real-node-editor-tabs-v7 button.active {
+      background: #0f172a !important;
+      color: white !important;
+      border-color: #0f172a !important;
+    }
+
+    .aion-real-node-editor-card-v7 {
+      display: grid !important;
+      gap: 13px !important;
+      padding: 16px !important;
+      border-radius: 18px !important;
+      background: rgba(248,250,252,0.9) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .aion-real-node-editor-card-v7 .eyebrow,
+    .aion-real-node-editor-card-v7 label span {
+      color: #475569 !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-real-node-editor-card-v7 label {
+      display: grid !important;
+      gap: 7px !important;
+      margin: 0 !important;
+    }
+
+    .aion-real-node-editor-card-v7 input,
+    .aion-real-node-editor-card-v7 select,
+    .aion-real-node-editor-card-v7 textarea {
+      width: 100% !important;
+      border-radius: 14px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+    }
+
+    .aion-real-node-editor-card-v7 textarea {
+      min-height: 66px !important;
+      resize: vertical !important;
+      line-height: 1.35 !important;
+    }
+
+    .aion-real-node-editor-card-v7 .secondary-btn,
+    .aion-real-node-editor-card-v7 button.secondary-btn {
+      justify-self: start !important;
+      min-height: 40px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 14px !important;
+      cursor: pointer !important;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+
+  setTimeout(injectIntoRealNodeEditor, 250);
+})();
+
+
+/* AION PATCH: real node editor parameters injection v8
+   Targets the actual live modal:
+   .aion-node-editor-panel.aion-node-editor-parameters .aion-node-editor-form .empty-state
+*/
+(function installAionRealNodeEditorParametersInjectionV8() {
+  const PATCH_ID = "aion-real-node-editor-parameters-injection-v8";
+  if (window.__aionRealNodeEditorParametersInjectionV8 === true) return;
+  window.__aionRealNodeEditorParametersInjectionV8 = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function selectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = window.__aionWorkflowSelectedNodeId || "";
+
+    return (
+      nodes.find((node) => String(node.id) === String(selectedId)) ||
+      nodes[nodes.length - 1] ||
+      nodes[0] ||
+      null
+    );
+  }
+
+  function patchNode(nodeId, patch) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+
+    graph.nodes = nodes.map((node) => {
+      if (String(node.id) !== String(nodeId)) return node;
+
+      const configPatch = {};
+      ["connector", "action_id", "fields", "outputs", "approval_requirement"].forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(patch, key)) {
+          configPatch[key] = patch[key];
+        }
+      });
+
+      return {
+        ...node,
+        ...patch,
+        config: {
+          ...(node.config || {}),
+          ...configPatch,
+        },
+      };
+    });
+
+    graph.dirty = true;
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] compile skipped`, error);
+    }
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (error) {
+      console.warn(`[${PATCH_ID}] persist skipped`, error);
+    }
+  }
+
+  function renderSettings(node) {
+    const nodeId = esc(node.id || "");
+    const type = String(node.type || "Step");
+    const approval = String(node.approval_requirement || node.config?.approval_requirement || "auto");
+
+    const typeOptions = [
+      "Step",
+      "Trigger",
+      "App action",
+      "AI action",
+      "Logic / condition",
+      "Router",
+      "Tool / transform",
+      "Text Parser",
+      "Approval",
+      "Custom Logic",
+      "Content Asset",
+    ];
+
+    return `
+      <section class="aion-real-node-settings-v8" data-aion-real-node-settings-v8="true">
+        <div class="aion-real-node-tabs-v8">
+          <button type="button" class="active">Node</button>
+          <button type="button" data-aion-real-node-open-logic-v8="${nodeId}">
+            Logic / Variables
+          </button>
+        </div>
+
+        <div class="aion-real-node-card-v8">
+          <div class="eyebrow">AI canvas settings</div>
+
+          <label>
+            <span>What kind of step is this?</span>
+            <select data-aion-real-node-edit-v8="${nodeId}" data-aion-real-node-field="type">
+              ${typeOptions.map((item) => `
+                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
+              `).join("")}
+            </select>
+          </label>
+
+          <label>
+            <span>Use this app / system</span>
+            <input
+              data-aion-real-node-edit-v8="${nodeId}"
+              data-aion-real-node-field="connector"
+              value="${esc(node.connector || node.app || node.config?.connector || node.type || "")}"
+              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
+            />
+          </label>
+
+          <label>
+            <span>Action ID</span>
+            <input
+              data-aion-real-node-edit-v8="${nodeId}"
+              data-aion-real-node-field="action_id"
+              value="${esc(node.action_id || node.action || node.config?.action_id || "")}"
+              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
+            />
+          </label>
+
+          <label>
+            <span>What should happen?</span>
+            <input
+              data-aion-real-node-edit-v8="${nodeId}"
+              data-aion-real-node-field="title"
+              value="${esc(node.title || node.action_label || "")}"
+              placeholder="Watch emails, extract details, create draft"
+            />
+          </label>
+
+          <label>
+            <span>Aion should collect / use</span>
+            <textarea
+              data-aion-real-node-edit-v8="${nodeId}"
+              data-aion-real-node-field="fields"
+              placeholder="sender, subject, body, received_at"
+            >${esc(node.fields || node.config?.fields || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Pass this to next step as</span>
+            <textarea
+              data-aion-real-node-edit-v8="${nodeId}"
+              data-aion-real-node-field="outputs"
+              placeholder="new_email_event, customer_details, draft_reply"
+            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
+          </label>
+
+          <label>
+            <span>Approval / safety</span>
+            <select data-aion-real-node-edit-v8="${nodeId}" data-aion-real-node-field="approval_requirement">
+              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
+              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
+              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
+              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
+            </select>
+          </label>
+
+          <button type="button" class="secondary-btn" data-aion-real-node-open-logic-v8="${nodeId}">
+            Configure logic / variables
+          </button>
+        </div>
+      </section>
+    `;
+  }
+
+  function injectSettings() {
+    const panel = document.querySelector(
+      ".aion-node-editor-panel.aion-node-editor-parameters",
+    );
+
+    if (!panel) return false;
+
+    const form = panel.querySelector(".aion-node-editor-form") || panel;
+    if (!form) return false;
+
+    if (form.querySelector("[data-aion-real-node-settings-v8='true']")) {
+      return true;
+    }
+
+    const emptyState = Array.from(form.querySelectorAll(".empty-state")).find((el) =>
+      String(el.textContent || "").includes("No custom parameters for this node yet."),
+    );
+
+    const node = selectedNode();
+    if (!node) return false;
+
+    if (emptyState) {
+      emptyState.style.display = "none";
+    }
+
+    const wrap = document.createElement("div");
+    wrap.innerHTML = renderSettings(node);
+
+    form.appendChild(wrap.firstElementChild);
+
+    console.info(`[${PATCH_ID}] injected settings into actual node editor`, {
+      nodeId: node.id,
+      title: node.title,
+    });
+
+    return true;
+  }
+
+  function openLogic(nodeId) {
+    window.__aionWorkflowSelectedNodeId = nodeId || window.__aionWorkflowSelectedNodeId;
+    window.__aionArchitectSelectedStepId = nodeId || window.__aionArchitectSelectedStepId;
+    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
+    window.__aionArchitectAdvancedConfigOpen = true;
+
+    if (typeof requestRender === "function") requestRender();
+
+    setTimeout(() => {
+      const existing =
+        document.querySelector("[data-aion-architect-advanced-backdrop='true']") ||
+        document.querySelector("[data-aion-main-step-logic-modal='true']");
+
+      if (existing) return;
+
+      if (typeof renderAionArchitectAdvancedConfigModal === "function") {
+        const html = renderAionArchitectAdvancedConfigModal();
+        if (html) {
+          const mount = document.createElement("div");
+          mount.setAttribute("data-aion-real-node-logic-mount-v8", "true");
+          mount.innerHTML = html;
+          document.body.appendChild(mount);
+        }
+      }
+    }, 60);
+  }
+
+  document.addEventListener(
+    "input",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-real-node-edit-v8]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-real-node-edit-v8");
+      const field = input.getAttribute("data-aion-real-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "change",
+    (event) => {
+      const input = event.target.closest?.("[data-aion-real-node-edit-v8]");
+      if (!input) return;
+
+      const nodeId = input.getAttribute("data-aion-real-node-edit-v8");
+      const field = input.getAttribute("data-aion-real-node-field");
+      if (!nodeId || !field) return;
+
+      patchNode(nodeId, { [field]: input.value });
+
+      if (typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const logic = event.target.closest?.("[data-aion-real-node-open-logic-v8]");
+      if (!logic) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      openLogic(logic.getAttribute("data-aion-real-node-open-logic-v8"));
+    },
+    true,
+  );
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(injectSettings) || setTimeout(injectSettings, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  setInterval(injectSettings, 250);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-node-editor-form {
+      align-content: start !important;
+    }
+
+    .aion-real-node-settings-v8 {
+      display: grid !important;
+      gap: 14px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-top: 14px !important;
+      padding-top: 14px !important;
+      border-top: 1px solid rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-real-node-tabs-v8 {
+      display: flex !important;
+      gap: 8px !important;
+      flex-wrap: wrap !important;
+    }
+
+    .aion-real-node-tabs-v8 button {
+      height: 36px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: rgba(255,255,255,0.9) !important;
+      color: #0f172a !important;
+      padding: 0 13px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.07em !important;
+      text-transform: uppercase !important;
+      cursor: pointer !important;
+    }
+
+    .aion-real-node-tabs-v8 button.active {
+      background: #0f172a !important;
+      color: white !important;
+      border-color: #0f172a !important;
+    }
+
+    .aion-real-node-card-v8 {
+      display: grid !important;
+      gap: 12px !important;
+      padding: 15px !important;
+      border-radius: 18px !important;
+      background: rgba(248,250,252,0.94) !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-real-node-card-v8 .eyebrow,
+    .aion-real-node-card-v8 label span {
+      color: #475569 !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-real-node-card-v8 label {
+      display: grid !important;
+      gap: 6px !important;
+      margin: 0 !important;
+    }
+
+    .aion-real-node-card-v8 input,
+    .aion-real-node-card-v8 select,
+    .aion-real-node-card-v8 textarea {
+      width: 100% !important;
+      border-radius: 13px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: white !important;
+      color: #0f172a !important;
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+      font-weight: 750 !important;
+      outline: none !important;
+    }
+
+    .aion-real-node-card-v8 textarea {
+      min-height: 64px !important;
+      resize: vertical !important;
+      line-height: 1.35 !important;
+    }
+
+    .aion-real-node-card-v8 .secondary-btn,
+    .aion-real-node-card-v8 button.secondary-btn {
+      justify-self: start !important;
+      min-height: 40px !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(15,23,42,0.18) !important;
+      background: #f7fee7 !important;
+      color: #0f172a !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      padding: 0 14px !important;
+      cursor: pointer !important;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+
+  setTimeout(injectSettings, 250);
+})();
+
+
+/* AION PATCH: workflow canvas UI polish v1
+   Purpose:
+   - Clean Make/n8n-style node spacing
+   - Cleaner mini toolbar
+   - Better node labels
+   - More professional connector line
+   - Cleaner add-step node
+   Visual-only patch. No runtime logic changes.
+*/
+(function installAionWorkflowCanvasUiPolishV1() {
+  const PATCH_ID = "aion-workflow-canvas-ui-polish-v1";
+  if (window.__aionWorkflowCanvasUiPolishV1 === true) return;
+  window.__aionWorkflowCanvasUiPolishV1 = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    /* ================================
+       Main canvas layout / spacing
+       ================================ */
+
+    .aion-workflow-canvas-shell {
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.58), transparent 38%),
+        linear-gradient(180deg, #fff7ed 0%, #fff1e6 100%) !important;
+    }
+
+    .aion-workflow-canvas-viewport,
+    .aion-workflow-canvas-stage,
+    .aion-workflow-canvas-content {
+      overflow: visible !important;
+    }
+
+    /* ================================
+       Node wrapper
+       ================================ */
+
+    [data-aion-workflow-node-id] {
+      overflow: visible !important;
+      text-align: center !important;
+      filter: none !important;
+    }
+
+    [data-aion-workflow-node-id].selected,
+    [data-aion-workflow-node-id][aria-selected="true"] {
+      z-index: 30 !important;
+    }
+
+    /* ================================
+       Node icon / square
+       ================================ */
+
+    [data-aion-workflow-node-id] .aion-workflow-node-icon,
+    [data-aion-workflow-node-id] .aion-workflow-node-card,
+    [data-aion-workflow-node-id] .aion-workflow-node-visual,
+    [data-aion-workflow-node-id] .aion-workflow-node-square {
+      width: 82px !important;
+      height: 82px !important;
+      min-width: 82px !important;
+      min-height: 82px !important;
+      border-radius: 22px !important;
+      background:
+        linear-gradient(180deg, rgba(240,253,255,0.98), rgba(232,248,255,0.96)) !important;
+      border: 4px solid #0891a8 !important;
+      box-shadow:
+        0 0 0 8px rgba(14,165,185,0.09),
+        0 14px 28px rgba(15,23,42,0.10),
+        inset 0 0 0 3px rgba(255,255,255,0.72) !important;
+      display: grid !important;
+      place-items: center !important;
+      color: #0f172a !important;
+      font-size: 30px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      transition:
+        transform 150ms ease,
+        box-shadow 150ms ease,
+        border-color 150ms ease !important;
+    }
+
+    [data-aion-workflow-node-id]:hover .aion-workflow-node-icon,
+    [data-aion-workflow-node-id]:hover .aion-workflow-node-card,
+    [data-aion-workflow-node-id]:hover .aion-workflow-node-visual,
+    [data-aion-workflow-node-id]:hover .aion-workflow-node-square {
+      transform: translateY(-2px) !important;
+      border-color: #0284a3 !important;
+      box-shadow:
+        0 0 0 9px rgba(14,165,185,0.12),
+        0 18px 34px rgba(15,23,42,0.14),
+        inset 0 0 0 3px rgba(255,255,255,0.76) !important;
+    }
+
+    [data-aion-workflow-node-id].selected .aion-workflow-node-icon,
+    [data-aion-workflow-node-id].selected .aion-workflow-node-card,
+    [data-aion-workflow-node-id].selected .aion-workflow-node-visual,
+    [data-aion-workflow-node-id].selected .aion-workflow-node-square {
+      border-color: #0f172a !important;
+      box-shadow:
+        0 0 0 5px rgba(15,23,42,0.08),
+        0 0 0 10px rgba(14,165,185,0.14),
+        0 18px 38px rgba(15,23,42,0.18),
+        inset 0 0 0 3px rgba(255,255,255,0.72) !important;
+    }
+
+    /* ================================
+       Mini toolbar
+       ================================ */
+
+    .aion-main-node-mini-toolbar,
+    .aion-workflow-node-mini-toolbar,
+    .aion-architect-node-mini-toolbar {
+      position: absolute !important;
+      top: -38px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      z-index: 50 !important;
+      pointer-events: auto !important;
+      opacity: 0 !important;
+      transition: opacity 120ms ease, transform 120ms ease !important;
+    }
+
+    [data-aion-workflow-node-id]:hover .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-id]:hover .aion-workflow-node-mini-toolbar,
+    [data-aion-workflow-node-id]:hover .aion-architect-node-mini-toolbar,
+    [data-aion-workflow-node-id].selected .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-id].selected .aion-workflow-node-mini-toolbar,
+    [data-aion-workflow-node-id].selected .aion-architect-node-mini-toolbar {
+      opacity: 1 !important;
+      transform: translateX(-50%) translateY(-2px) !important;
+    }
+
+    .aion-main-node-mini-toolbar button,
+    .aion-workflow-node-mini-toolbar button,
+    .aion-architect-node-mini-toolbar button {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px !important;
+      min-height: 34px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(148,163,184,0.55) !important;
+      background: rgba(255,255,255,0.96) !important;
+      color: #0f172a !important;
+      box-shadow:
+        0 9px 20px rgba(15,23,42,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.95) !important;
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      display: grid !important;
+      place-items: center !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+    }
+
+    .aion-main-node-mini-toolbar button:hover,
+    .aion-workflow-node-mini-toolbar button:hover,
+    .aion-architect-node-mini-toolbar button:hover {
+      transform: translateY(-1px) !important;
+      background: #f8fafc !important;
+      border-color: rgba(15,23,42,0.28) !important;
+    }
+
+    .aion-main-node-mini-toolbar button[title*="Remove"],
+    .aion-workflow-node-mini-toolbar button[title*="Remove"],
+    .aion-architect-node-mini-toolbar button[title*="Remove"] {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+    }
+
+    /* Hide stray close X attached to selected node if present */
+    [data-aion-workflow-node-id] > button[title="Remove"],
+    [data-aion-workflow-node-id] > button[aria-label="Remove"],
+    [data-aion-workflow-node-id] > .aion-node-delete-button {
+      top: -18px !important;
+      right: -18px !important;
+      width: 30px !important;
+      height: 30px !important;
+      border-radius: 999px !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border: 1px solid rgba(148,163,184,0.55) !important;
+      box-shadow: 0 9px 20px rgba(15,23,42,0.13) !important;
+    }
+
+    /* ================================
+       Node labels
+       ================================ */
+
+    [data-aion-workflow-node-id] strong,
+    [data-aion-workflow-node-id] h3,
+    [data-aion-workflow-node-id] .aion-workflow-node-title {
+      margin-top: 18px !important;
+      display: block !important;
+      color: #111827 !important;
+      font-size: 17px !important;
+      line-height: 1.08 !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.025em !important;
+      max-width: 150px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      text-align: center !important;
+    }
+
+    [data-aion-workflow-node-id] p,
+    [data-aion-workflow-node-id] small,
+    [data-aion-workflow-node-id] .muted,
+    [data-aion-workflow-node-id] .aion-workflow-node-meta {
+      display: block !important;
+      color: rgba(51,65,85,0.86) !important;
+      font-size: 12px !important;
+      line-height: 1.25 !important;
+      font-weight: 750 !important;
+      max-width: 150px !important;
+      margin: 7px auto 0 !important;
+      text-align: center !important;
+    }
+
+    [data-aion-workflow-node-id] .aion-workflow-node-status,
+    [data-aion-workflow-node-id] .aion-workflow-node-badge,
+    [data-aion-workflow-node-id] [class*="badge"],
+    [data-aion-workflow-node-id] [class*="type"] {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-height: 22px !important;
+      padding: 3px 11px !important;
+      border-radius: 0 !important;
+      background: rgba(255,255,255,0.88) !important;
+      border: 1px solid rgba(148,163,184,0.35) !important;
+      color: #64748b !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase !important;
+      margin: 10px auto 0 !important;
+      width: fit-content !important;
+      max-width: 150px !important;
+    }
+
+    /* Dry-run line: smaller and less shouty */
+    [data-aion-workflow-node-id] .aion-workflow-node-dry-run,
+    [data-aion-workflow-node-id] [class*="dry"] {
+      margin-top: 13px !important;
+      color: rgba(63,63,70,0.82) !important;
+      font-size: 12px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+    }
+
+    /* ================================
+       Connector lines
+       ================================ */
+
+    .aion-workflow-edge,
+    .aion-workflow-connector,
+    .aion-workflow-node-link,
+    .aion-architect-node-link {
+      height: 0 !important;
+      border-top: 5px dotted rgba(13,148,166,0.34) !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      opacity: 1 !important;
+    }
+
+    svg .aion-workflow-edge,
+    svg .aion-workflow-connector,
+    svg path,
+    svg line {
+      stroke-linecap: round !important;
+      stroke-linejoin: round !important;
+    }
+
+    /* If edges are SVG, make them softer */
+    .aion-workflow-canvas-shell svg path,
+    .aion-workflow-canvas-shell svg line {
+      stroke: rgba(13,148,166,0.36) !important;
+      stroke-width: 4 !important;
+      stroke-dasharray: 1 13 !important;
+      stroke-linecap: round !important;
+      fill: none !important;
+    }
+
+    /* Small connector dots/ports */
+    .aion-workflow-port,
+    .aion-node-port,
+    [class*="port"] {
+      border-color: rgba(148,163,184,0.78) !important;
+      background: white !important;
+      box-shadow: 0 2px 8px rgba(15,23,42,0.08) !important;
+    }
+
+    /* ================================
+       Add step node
+       ================================ */
+
+    .aion-workflow-floating-add,
+    .aion-architect-add-step-node,
+    [data-aion-main-canvas-open-module-picker="true"].aion-workflow-floating-add {
+      border-radius: 14px !important;
+    }
+
+    .aion-workflow-canvas-shell [data-aion-main-canvas-open-module-picker="true"]:not(.aion-workflow-floating-add),
+    .aion-workflow-canvas-shell .aion-architect-add-step-node {
+      width: 74px !important;
+      height: 74px !important;
+      min-width: 74px !important;
+      min-height: 74px !important;
+      border-radius: 0 !important;
+      border: 3px dashed rgba(100,116,139,0.46) !important;
+      background: rgba(255,255,255,0.56) !important;
+      color: #0f172a !important;
+      box-shadow: none !important;
+      font-size: 32px !important;
+      font-weight: 950 !important;
+      display: grid !important;
+      place-items: center !important;
+      transition: background 140ms ease, border-color 140ms ease, transform 140ms ease !important;
+    }
+
+    .aion-workflow-canvas-shell [data-aion-main-canvas-open-module-picker="true"]:not(.aion-workflow-floating-add):hover,
+    .aion-workflow-canvas-shell .aion-architect-add-step-node:hover {
+      background: rgba(255,255,255,0.9) !important;
+      border-color: rgba(15,23,42,0.55) !important;
+      transform: translateY(-2px) !important;
+    }
+
+    /* ================================
+       Node editor overlap fix
+       ================================ */
+
+    .aion-node-editor-modal .aion-main-node-mini-toolbar,
+    .aion-node-editor-modal .aion-workflow-node-mini-toolbar,
+    .aion-node-editor-modal .aion-architect-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-main-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-workflow-node-mini-toolbar,
+    [data-aion-workflow-node-editor='true'] .aion-architect-node-mini-toolbar {
+      display: none !important;
+    }
+
+    /* ================================
+       Dark mode compatibility
+       ================================ */
+
+    body.aion-workflow-dark-mode [data-aion-workflow-node-id] strong,
+    body.aion-workflow-dark-glass [data-aion-workflow-node-id] strong,
+    body.aion-workflow-dark-mode [data-aion-workflow-node-id] h3,
+    body.aion-workflow-dark-glass [data-aion-workflow-node-id] h3 {
+      color: #f8fafc !important;
+    }
+
+    body.aion-workflow-dark-mode [data-aion-workflow-node-id] p,
+    body.aion-workflow-dark-glass [data-aion-workflow-node-id] p,
+    body.aion-workflow-dark-mode [data-aion-workflow-node-id] small,
+    body.aion-workflow-dark-glass [data-aion-workflow-node-id] small {
+      color: rgba(226,232,240,0.82) !important;
+    }
+  `;
+
+  if (!document.getElementById(PATCH_ID)) {
+    document.head.appendChild(style);
+  }
+})();
+
+
+
+
+/* REMOVED: /* AION PATCH: workflow canvas horizontal reflow v1 caused node/connector coordinate mismatch. */
+
+
+
+
+
+
+/* REMOVED: /* AION PATCH: main workflow lane normaliser v1 caused node/connector coordinate mismatch. */
+
+
+
+
+/* AION PATCH: fix main workflow node absolute positioning
+   Root cause:
+   .aion-canvas-node was relative, so each node stayed in document flow.
+   The second node inherited normal-flow vertical offset, then top:260px was added.
+   Fix:
+   The main workflow canvas nodes must be absolute children of the viewport.
+*/
+(function installAionCanvasNodeAbsolutePositionFixV1() {
+  const PATCH_ID = "aion-canvas-node-absolute-position-fix-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas-viewport {
+      position: relative !important;
+      overflow: visible !important;
+    }
+
+    .aion-workflow-connectors {
+      position: absolute !important;
+      inset: 0 auto auto 0 !important;
+      width: 2200px !important;
+      height: 1200px !important;
+      pointer-events: none !important;
+      overflow: visible !important;
+      z-index: 1 !important;
+    }
+
+    .aion-canvas-node[data-aion-workflow-node-id] {
+      position: absolute !important;
+      margin: 0 !important;
+      z-index: 5 !important;
+    }
+
+    .aion-canvas-node[data-aion-workflow-node-id].aion-canvas-node-selected {
+      z-index: 20 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: remove centred inner canvas frame
+   Purpose:
+   - Removes any visible centred frame/panel effect from the main workflow canvas.
+   - Keeps the node absolute-positioning fix intact.
+   - Does not change node/edge runtime logic.
+*/
+(function installAionWorkflowCanvasFrameCleanV1() {
+  const PATCH_ID = "aion-workflow-canvas-frame-clean-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas-shell,
+    .aion-workflow-layout,
+    .aion-workflow-canvas,
+    .aion-workflow-canvas-viewport {
+      box-shadow: none !important;
+      border: 0 !important;
+      outline: 0 !important;
+      border-radius: 0 !important;
+    }
+
+    .aion-workflow-canvas-shell::before,
+    .aion-workflow-canvas-shell::after,
+    .aion-workflow-layout::before,
+    .aion-workflow-layout::after,
+    .aion-workflow-canvas::before,
+    .aion-workflow-canvas::after,
+    .aion-workflow-canvas-viewport::before,
+    .aion-workflow-canvas-viewport::after {
+      display: none !important;
+      content: none !important;
+      opacity: 0 !important;
+      box-shadow: none !important;
+      border: 0 !important;
+      background: none !important;
+    }
+
+    .aion-workflow-canvas {
+      margin: 0 !important;
+      padding: 0 !important;
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.42), transparent 38%),
+        linear-gradient(180deg, #fff7ed 0%, #fff1e6 100%) !important;
+    }
+
+    .aion-workflow-canvas-viewport {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      position: relative !important;
+      overflow: visible !important;
+    }
+
+    .aion-workflow-connectors {
+      position: absolute !important;
+      left: 0 !important;
+      top: 0 !important;
+      width: 2200px !important;
+      height: 1200px !important;
+      pointer-events: none !important;
+      overflow: visible !important;
+      z-index: 1 !important;
+    }
+
+    .aion-canvas-node[data-aion-workflow-node-id] {
+      position: absolute !important;
+      margin: 0 !important;
+      z-index: 5 !important;
+    }
+
+    .aion-canvas-node[data-aion-workflow-node-id].aion-canvas-node-selected {
+      z-index: 20 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: workflow canvas full background bleed v2
+   Fixes the exposed top strip and right-edge strip after removing the inner canvas frame.
+   Visual-only. Keeps node absolute positioning untouched.
+*/
+(function installAionWorkflowCanvasFullBackgroundBleedV2() {
+  const PATCH_ID = "aion-workflow-canvas-full-background-bleed-v2";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .operations-agents-surface,
+    .operations-agents-canvas-mode,
+    .dashboard-shell,
+    .aion-workflow-canvas-shell,
+    .aion-workflow-topbar,
+    .aion-workflow-layout,
+    .aion-workflow-canvas,
+    .aion-workflow-canvas-viewport {
+      background:
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.42), transparent 38%),
+        linear-gradient(180deg, #fff7ed 0%, #fff1e6 100%) !important;
+    }
+
+    .aion-workflow-canvas-shell {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      min-height: 100vh !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-topbar {
+      margin: 0 !important;
+      padding-top: 0 !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-layout {
+      width: 100vw !important;
+      max-width: 100vw !important;
+      height: calc(100vh - 56px) !important;
+      min-height: calc(100vh - 56px) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-canvas {
+      width: 100% !important;
+      max-width: none !important;
+      height: 100% !important;
+      min-height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-canvas-viewport {
+      width: 100% !important;
+      max-width: none !important;
+      height: 100% !important;
+      min-height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: node remove control cleanup v1
+   Keeps only the X remove control and places it where the old minus remove button was.
+   Visual-only: does not change delete behaviour.
+*/
+(function installAionNodeRemoveControlCleanupV1() {
+  const PATCH_ID = "aion-node-remove-control-cleanup-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    /* Hide the duplicate minus remove button in mini toolbar */
+    .aion-main-node-mini-toolbar button[title="Remove step"],
+    .aion-main-node-mini-toolbar button[title*="Remove"],
+    .aion-workflow-node-mini-toolbar button[title="Remove step"],
+    .aion-workflow-node-mini-toolbar button[title*="Remove"],
+    .aion-architect-node-mini-toolbar button[title="Remove step"],
+    .aion-architect-node-mini-toolbar button[title*="Remove"] {
+      display: none !important;
+      pointer-events: none !important;
+    }
+
+    /* Keep the real X delete control and move it into the old minus position */
+    .aion-canvas-node-delete,
+    [data-aion-workflow-delete-node] {
+      position: absolute !important;
+      top: -46px !important;
+      right: -28px !important;
+      width: 54px !important;
+      height: 54px !important;
+      min-width: 54px !important;
+      min-height: 54px !important;
+      border-radius: 999px !important;
+      display: grid !important;
+      place-items: center !important;
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border: 1px solid #0f172a !important;
+      box-shadow:
+        0 12px 28px rgba(15,23,42,0.20),
+        inset 0 1px 0 rgba(255,255,255,0.14) !important;
+      font-size: 34px !important;
+      line-height: 1 !important;
+      font-weight: 950 !important;
+      cursor: pointer !important;
+      z-index: 80 !important;
+    }
+
+    .aion-canvas-node-delete:hover,
+    [data-aion-workflow-delete-node]:hover {
+      transform: translateY(-1px) !important;
+      background: #111827 !important;
+      border-color: #111827 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: main workflow canvas grid background v1
+   Adds the subtle AI Architect-style grid to the main workflow canvas.
+   Visual-only patch.
+*/
+(function installAionMainWorkflowCanvasGridBackgroundV1() {
+  const PATCH_ID = "aion-main-workflow-canvas-grid-background-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas {
+      background:
+        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.48), transparent 38%),
+        linear-gradient(180deg, #fff7ed 0%, #fff1e6 100%) !important;
+      background-size:
+        32px 32px,
+        32px 32px,
+        100% 100%,
+        100% 100% !important;
+      background-position:
+        0 0,
+        0 0,
+        center,
+        center !important;
+    }
+
+    .aion-workflow-canvas-viewport {
+      background: transparent !important;
+    }
+
+    .aion-workflow-connectors {
+      background: transparent !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: unify main workflow canvas background v1
+   Fixes the visible inner-canvas rectangle by making canvas + viewport share one grid background.
+   Visual-only patch.
+*/
+(function installAionMainWorkflowUnifiedCanvasBackgroundV1() {
+  const PATCH_ID = "aion-main-workflow-unified-canvas-background-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas {
+      background:
+        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.42), transparent 38%),
+        linear-gradient(180deg, #fff7ed 0%, #fff1e6 100%) !important;
+      background-size:
+        32px 32px,
+        32px 32px,
+        100% 100%,
+        100% 100% !important;
+      background-position:
+        0 0,
+        0 0,
+        center,
+        center !important;
+    }
+
+    .aion-workflow-canvas-viewport {
+      background: transparent !important;
+      background-color: transparent !important;
+      box-shadow: none !important;
+      border: 0 !important;
+      outline: 0 !important;
+    }
+
+    .aion-workflow-canvas-viewport::before,
+    .aion-workflow-canvas-viewport::after,
+    .aion-workflow-canvas::before,
+    .aion-workflow-canvas::after {
+      display: none !important;
+      content: none !important;
+      background: none !important;
+      box-shadow: none !important;
+      border: 0 !important;
+      opacity: 0 !important;
+    }
+
+    .aion-workflow-connectors {
+      background: transparent !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: make workflow viewport transparent over grid v1
+   Root cause:
+   .aion-workflow-canvas-viewport is transformed for pan/fit and has a solid
+   peach background, so it appears as a separate inner canvas block.
+   Fix:
+   Let the real .aion-workflow-canvas own the background/grid. The viewport
+   should be transparent and only hold SVG connectors + nodes.
+*/
+(function installAionWorkflowViewportTransparentOverGridV1() {
+  const PATCH_ID = "aion-workflow-viewport-transparent-over-grid-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas {
+      background-color: #fff3e8 !important;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.42), transparent 38%) !important;
+      background-size: 32px 32px, 32px 32px, 100% 100% !important;
+      background-position: 0 0, 0 0, center center !important;
+    }
+
+    .aion-workflow-canvas-viewport {
+      background: transparent !important;
+      background-color: transparent !important;
+      background-image: none !important;
+      box-shadow: none !important;
+      border: 0 !important;
+      outline: 0 !important;
+      border-radius: 0 !important;
+    }
+
+    .aion-workflow-canvas-viewport::before,
+    .aion-workflow-canvas-viewport::after {
+      display: none !important;
+      content: none !important;
+      background: none !important;
+      opacity: 0 !important;
+      box-shadow: none !important;
+      border: 0 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+/* AION PATCH: final workflow canvas grid + toolbar delete handler v1
+   Restores grid after removing duplicate delete patch.
+   Makes the remaining toolbar × delete the node reliably.
+*/
+(function installAionWorkflowGridAndDeleteFinalV1() {
+  const PATCH_ID = "aion-workflow-grid-delete-final-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  function getGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        return getAionWorkflowDraftState();
+      } catch (_) {}
+    }
+
+    return window.__aionWorkflowGraph || null;
+  }
+
+  function deleteWorkflowNode(nodeId) {
+    if (!nodeId) return false;
+
+    const graph = getGraph();
+    if (!graph || !Array.isArray(graph.nodes)) return false;
+
+    graph.nodes = graph.nodes.filter((node) => String(node.id) !== String(nodeId));
+
+    graph.edges = Array.isArray(graph.edges)
+      ? graph.edges.filter((edge) => {
+          const from = edge.from || edge.source;
+          const to = edge.to || edge.target;
+          return String(from) !== String(nodeId) && String(to) !== String(nodeId);
+        })
+      : [];
+
+    graph.dirty = true;
+    window.__aionWorkflowGraph = graph;
+
+    if (window.__aionWorkflowSelectedNodeId === nodeId) {
+      window.__aionWorkflowSelectedNodeId = graph.nodes[graph.nodes.length - 1]?.id || graph.nodes[0]?.id || null;
+    }
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (error) {
+      console.warn("[aion-delete] compile skipped", error);
+    }
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (error) {
+      console.warn("[aion-delete] persist skipped", error);
+    }
+
+    try {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage("Workflow node removed.", "success");
+      }
+    } catch (_) {}
+
+    if (typeof requestRender === "function") requestRender();
+
+    return true;
+  }
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const deleteButton = event.target.closest?.(
+        '[data-aion-main-node-toolbar="delete"]',
+      );
+
+      if (!deleteButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId =
+        deleteButton.getAttribute("data-aion-main-node-toolbar-node") ||
+        deleteButton.closest?.("[data-aion-workflow-node-id]")?.getAttribute("data-aion-workflow-node-id");
+
+      deleteWorkflowNode(nodeId);
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+
+      const deleteButton = event.target.closest?.(
+        '[data-aion-main-node-toolbar="delete"]',
+      );
+
+      if (!deleteButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId =
+        deleteButton.getAttribute("data-aion-main-node-toolbar-node") ||
+        deleteButton.closest?.("[data-aion-workflow-node-id]")?.getAttribute("data-aion-workflow-node-id");
+
+      deleteWorkflowNode(nodeId);
+    },
+    true,
+  );
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas,
+    .aion-workflow-canvas-viewport {
+      background-color: #fff3e8 !important;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
+        radial-gradient(circle at 50% 42%, rgba(255,255,255,0.36), transparent 38%) !important;
+      background-size: 32px 32px, 32px 32px, 100% 100% !important;
+      background-position: 0 0, 0 0, center center !important;
+      box-shadow: none !important;
+      border: 0 !important;
+      outline: 0 !important;
+    }
+
+    .aion-workflow-canvas-viewport::before,
+    .aion-workflow-canvas-viewport::after {
+      display: none !important;
+      content: none !important;
+      opacity: 0 !important;
+      background: none !important;
+      box-shadow: none !important;
+      border: 0 !important;
+    }
+
+    .aion-canvas-node > .aion-canvas-node-delete,
+    .aion-canvas-node-delete {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .aion-canvas-node .aion-main-node-mini-toolbar span[role="button"],
+    .aion-canvas-node .aion-main-node-mini-toolbar button {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    .aion-canvas-node .aion-main-node-mini-toolbar [data-aion-main-node-toolbar="delete"] {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+      font-size: 18px !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: final mini-toolbar delete hitbox fix v1
+   Root cause:
+   The visible X can be rendered but click target falls through to the node,
+   so the node is selected instead of deleted.
+   Fix:
+   Force mini-toolbar hitboxes above the node and handle delete from pointerdown/click.
+*/
+(function installAionMiniToolbarDeleteHitboxFixV1() {
+  const PATCH_ID = "aion-mini-toolbar-delete-hitbox-fix-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") return getAionWorkflowDraftState();
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || null;
+  }
+
+  function deleteNodeById(nodeId) {
+    if (!nodeId) return false;
+
+    const graph = getGraph();
+    if (!graph || !Array.isArray(graph.nodes)) return false;
+
+    const before = graph.nodes.length;
+
+    graph.nodes = graph.nodes.filter((node) => String(node.id) !== String(nodeId));
+    graph.edges = Array.isArray(graph.edges)
+      ? graph.edges.filter((edge) => {
+          const from = edge.from || edge.source;
+          const to = edge.to || edge.target;
+          return String(from) !== String(nodeId) && String(to) !== String(nodeId);
+        })
+      : [];
+
+    if (graph.nodes.length === before) return false;
+
+    graph.dirty = true;
+    window.__aionWorkflowGraph = graph;
+
+    if (window.__aionWorkflowSelectedNodeId === nodeId) {
+      window.__aionWorkflowSelectedNodeId =
+        graph.nodes[graph.nodes.length - 1]?.id || graph.nodes[0]?.id || null;
+    }
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    try {
+      window.localStorage?.setItem(
+        "aion.workflow.draft.v1",
+        JSON.stringify(graph),
+      );
+    } catch (_) {}
+
+    console.log("[aion-delete-final] deleted", nodeId, graph.nodes.map((n) => n.id));
+
+    if (typeof requestRender === "function") requestRender();
+    return true;
+  }
+
+  function findDeleteTarget(event) {
+    const direct = event.target.closest?.('[data-aion-main-node-toolbar="delete"]');
+    if (direct) return direct;
+
+    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+    return path.find?.(
+      (el) =>
+        el?.getAttribute?.("data-aion-main-node-toolbar") === "delete",
+    );
+  }
+
+  function handleDelete(event) {
+    const deleteTarget = findDeleteTarget(event);
+    if (!deleteTarget) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    const nodeId =
+      deleteTarget.getAttribute("data-aion-main-node-toolbar-node") ||
+      deleteTarget.closest?.("[data-aion-workflow-node-id]")?.getAttribute("data-aion-workflow-node-id");
+
+    deleteNodeById(nodeId);
+  }
+
+  document.addEventListener("pointerdown", handleDelete, true);
+  document.addEventListener("mousedown", handleDelete, true);
+  document.addEventListener("click", handleDelete, true);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-canvas-node .aion-main-node-mini-toolbar {
+      pointer-events: auto !important;
+      z-index: 999 !important;
+    }
+
+    .aion-canvas-node .aion-main-node-mini-toolbar [data-aion-main-node-toolbar] {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      position: relative !important;
+      z-index: 1000 !important;
+    }
+
+    .aion-canvas-node .aion-main-node-mini-toolbar [data-aion-main-node-toolbar="delete"] {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+      font-size: 18px !important;
+    }
+
+    .aion-canvas-node > .aion-canvas-node-delete,
+    .aion-canvas-node-delete,
+    [data-aion-workflow-delete-node]:not([data-aion-main-node-toolbar]) {
+      display: none !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: mini-toolbar settings opens node editor modal v1
+   Fix:
+   Clicking the settings icon should open the same Input / Parameters / Output
+   node editor modal as double-clicking the node.
+*/
+(function installAionMiniToolbarSettingsOpensNodeEditorV1() {
+  const PATCH_ID = "aion-mini-toolbar-settings-opens-node-editor-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  function getSettingsTarget(event) {
+    const direct = event.target.closest?.('[data-aion-main-node-toolbar="settings"]');
+    if (direct) return direct;
+
+    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+    return path.find?.(
+      (el) => el?.getAttribute?.("data-aion-main-node-toolbar") === "settings",
+    );
+  }
+
+  function openNodeEditorFromSettings(settingsTarget) {
+    if (!settingsTarget) return false;
+
+    const nodeId =
+      settingsTarget.getAttribute("data-aion-main-node-toolbar-node") ||
+      settingsTarget.closest?.("[data-aion-workflow-node-id]")?.getAttribute("data-aion-workflow-node-id");
+
+    if (!nodeId) return false;
+
+    window.__aionWorkflowSelectedNodeId = nodeId;
+
+    const safeId = window.CSS?.escape ? CSS.escape(nodeId) : nodeId;
+    const nodeEl = document.querySelector(`[data-aion-workflow-node-id="${safeId}"]`);
+
+    if (!nodeEl) return false;
+
+    // Use the existing node double-click path because that already opens
+    // the real Input / Parameters / Output modal.
+    nodeEl.dispatchEvent(
+      new MouseEvent("dblclick", {
+        bubbles: true,
+        cancelable: true,
+        view: window,
+      }),
+    );
+
+    return true;
+  }
+
+  function handleSettings(event) {
+    const settingsTarget = getSettingsTarget(event);
+    if (!settingsTarget) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    openNodeEditorFromSettings(settingsTarget);
+  }
+
+  document.addEventListener("pointerdown", handleSettings, true);
+  document.addEventListener("mousedown", handleSettings, true);
+  document.addEventListener("click", handleSettings, true);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-canvas-node .aion-main-node-mini-toolbar [data-aion-main-node-toolbar="settings"] {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      position: relative !important;
+      z-index: 1000 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: consolidated workflow bottom dock v1
+   One bottom dock: Execute, builder modes, Save, Glyph, Add.
+   Ask/Describe expand above the dock. Manual only shows active green light.
+*/
+(function installAionConsolidatedWorkflowBottomDockV1() {
+  const PATCH_ID = "aion-consolidated-workflow-bottom-dock-v1";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-unified-builder-tabs,
+    .aion-unified-builder-note {
+      display: none !important;
+    }
+
+    .aion-unified-builder-controls-compact {
+      position: fixed !important;
+      left: 50% !important;
+      bottom: 112px !important;
+      transform: translateX(-50%) !important;
+      width: min(1120px, calc(100vw - 180px)) !important;
+      z-index: 86 !important;
+      pointer-events: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-unified-builder-controls-compact.aion-unified-builder-manual-active {
+      display: none !important;
+    }
+
+    .aion-unified-builder-controls-compact .aion-unified-ai-bar,
+    .aion-unified-builder-controls-compact .aion-unified-describe-panel {
+      pointer-events: auto !important;
+      margin: 0 auto !important;
+      width: 100% !important;
+      border-radius: 24px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(255,255,255,0.96) !important;
+      box-shadow:
+        0 24px 60px rgba(15,23,42,0.14),
+        inset 0 1px 0 rgba(255,255,255,0.85) !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated {
+      width: auto !important;
+      max-width: calc(100vw - 160px) !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 10px !important;
+      padding: 12px 16px !important;
+      border-radius: 24px !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated .aion-workflow-execute-btn {
+      min-width: 260px !important;
+      height: 58px !important;
+      border-radius: 17px !important;
+    }
+
+    .aion-workflow-mode-btn {
+      height: 58px !important;
+      min-width: 116px !important;
+      padding: 0 18px !important;
+      border-radius: 17px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(255,255,255,0.94) !important;
+      color: #0f172a !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.04em !important;
+      cursor: pointer !important;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.82) !important;
+    }
+
+    .aion-workflow-mode-btn strong {
+      font-size: 14px !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-mode-btn.active {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+    }
+
+    .aion-workflow-mode-light {
+      width: 9px !important;
+      height: 9px !important;
+      border-radius: 999px !important;
+      background: rgba(148,163,184,0.55) !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-mode-btn.active .aion-workflow-mode-light {
+      background: #22c55e !important;
+      box-shadow:
+        0 0 0 4px rgba(34,197,94,0.16),
+        0 0 14px rgba(34,197,94,0.65) !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button:not(.aion-workflow-execute-btn):not(.aion-workflow-mode-btn):not(.aion-workflow-publish-toolbar-btn) {
+      width: 58px !important;
+      height: 58px !important;
+      min-width: 58px !important;
+      min-height: 58px !important;
+      border-radius: 17px !important;
+      display: grid !important;
+      place-items: center !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated .aion-workflow-floating-divider {
+      height: 42px !important;
+      width: 1px !important;
+      background: rgba(100,116,139,0.28) !important;
+      margin: 0 2px !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+/* AION PATCH: file cabinet final CRUD bindings v5
+   Uses existing core file-cabinet functions:
+   - addAionCabinetFolder(parentId)
+   - addAionCabinetWorkflow(parentId)
+   - deleteAionCabinetItem(itemId, itemName)
+   Fixes:
+   - + workflow click
+   - + folder click
+   - top-level folder click
+   - workflow row load/select
+   - compact hover button styling
+   - file icon styling
+*/
+(function installAionFileCabinetFinalCrudBindingsV5() {
+  const PATCH_ID = "aion-file-cabinet-final-crud-bindings-v5";
+  if (document.getElementById(PATCH_ID)) return;
+
+  function setCabinetOpen(open) {
+    window.__aionWorkflowFileCabinetOpen = open === true;
+    window.__aionFileCabinetOpen = open === true;
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function findCabinetNodeByWorkflowId(workflowId) {
+    if (!workflowId) return null;
+
+    const tree =
+      typeof getAionFileCabinetTree === "function"
+        ? getAionFileCabinetTree()
+        : window.__aionFileCabinetTree || window.__aionWorkflowFileCabinetTree;
+
+    function walk(items) {
+      for (const item of items || []) {
+        if (
+          String(item.workflow_id || item.id || "") === String(workflowId) &&
+          String(item.type || "") === "workflow"
+        ) {
+          return item;
+        }
+
+        const child = walk(item.children || []);
+        if (child) return child;
+      }
+
+      return null;
+    }
+
+    return walk(tree?.folders || tree?.children || []);
+  }
+
+  function makeStarterGraphFromWorkflowNode(workflowNode) {
+    const name = workflowNode?.name || "Untitled workflow";
+    const workflowId = workflowNode?.workflow_id || workflowNode?.id || `workflow_${Date.now()}`;
+
+    return {
+      workflow_id: workflowId,
+      name,
+      status: "draft",
+      saved_at: null,
+      dirty: false,
+      nodes: [
+        {
+          id: "node_choose_start",
+          title: "Choose",
+          type: "Step",
+          icon: "C",
+          status: "Dry-run",
+          meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+          tone: "teal",
+          x: 160,
+          y: 260,
+          config: {},
+        },
+      ],
+      edges: [],
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  function loadCabinetWorkflow(workflowId) {
+    const workflowNode = findCabinetNodeByWorkflowId(workflowId);
+
+    if (!workflowNode) {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage("Workflow not found in file cabinet.", "warning");
+      }
+      return;
+    }
+
+    const graph = workflowNode.graph || makeStarterGraphFromWorkflowNode(workflowNode);
+
+    graph.workflow_id = graph.workflow_id || workflowNode.workflow_id || workflowNode.id;
+    graph.name = graph.name || workflowNode.name || "Untitled workflow";
+    graph.dirty = false;
+
+    window.__aionWorkflowGraph = graph;
+    window.__aionWorkflowSelectedNodeId = graph.nodes?.[0]?.id || null;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (typeof safePatchMessage === "function") {
+      safePatchMessage(`Loaded workflow: ${graph.name}`, "success");
+    }
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function fallbackTopLevelFolder() {
+    const name = window.prompt?.("New top-level folder name", "New Department");
+    if (!name) return;
+
+    if (typeof getAionFileCabinetTree !== "function" || typeof saveAionFileCabinetTree !== "function") {
+      console.warn("[file-cabinet] Missing tree helpers for top-level folder.");
+      return;
+    }
+
+    const tree = getAionFileCabinetTree();
+    tree.folders = Array.isArray(tree.folders) ? tree.folders : [];
+
+    const id = `folder_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+
+    tree.folders.push({
+      id,
+      name,
+      type: "department",
+      children: [
+        {
+          id: `${id}_workflows`,
+          name: "Workflows",
+          type: "folder",
+          children: [],
+        },
+        {
+          id: `${id}_assets`,
+          name: "Assets",
+          type: "folder",
+          children: [],
+        },
+      ],
+    });
+
+    saveAionFileCabinetTree(tree);
+
+    if (typeof safePatchMessage === "function") {
+      safePatchMessage(`Created folder: ${name}`, "success");
+    }
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const filesTab = event.target.closest?.('[data-tab="file_cabinet"]');
+      if (filesTab) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        setCabinetOpen(window.__aionWorkflowFileCabinetOpen !== true);
+        return;
+      }
+
+      const close = event.target.closest?.("[data-aion-file-cabinet-close='true']");
+      if (close) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        setCabinetOpen(false);
+        return;
+      }
+
+      const topFolder =
+        event.target.closest?.("[data-aion-cabinet-top-folder='true']") ||
+        event.target.closest?.("[data-aion-file-cabinet-new-top-folder='true']");
+
+      if (topFolder) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        if (typeof addAionCabinetTopLevelFolder === "function") {
+          addAionCabinetTopLevelFolder();
+        } else {
+          fallbackTopLevelFolder();
+        }
+
+        return;
+      }
+
+      const newWorkflow =
+        event.target.closest?.("[data-aion-cabinet-new-workflow]") ||
+        event.target.closest?.("[data-aion-file-cabinet-new-workflow='true']");
+
+      if (newWorkflow) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const parentId =
+          newWorkflow.getAttribute("data-aion-cabinet-new-workflow") ||
+          newWorkflow.getAttribute("data-aion-file-cabinet-new-workflow") ||
+          "folder_operations_workflows";
+
+        if (typeof addAionCabinetWorkflow === "function") {
+          addAionCabinetWorkflow(parentId === "true" ? "folder_operations_workflows" : parentId);
+        } else {
+          console.warn("[file-cabinet] addAionCabinetWorkflow missing");
+        }
+
+        return;
+      }
+
+      const newFolder = event.target.closest?.("[data-aion-cabinet-new-folder]");
+      if (newFolder) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const parentId = newFolder.getAttribute("data-aion-cabinet-new-folder");
+
+        if (typeof addAionCabinetFolder === "function") {
+          addAionCabinetFolder(parentId);
+        } else {
+          console.warn("[file-cabinet] addAionCabinetFolder missing");
+        }
+
+        return;
+      }
+
+      const deleteItem = event.target.closest?.("[data-aion-cabinet-delete]");
+      if (deleteItem) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const id = deleteItem.getAttribute("data-aion-cabinet-delete");
+        const name = deleteItem.getAttribute("data-aion-cabinet-delete-name") || "this item";
+
+        if (typeof deleteAionCabinetItem === "function") {
+          deleteAionCabinetItem(id, name);
+        }
+
+        return;
+      }
+
+      const openWorkflow = event.target.closest?.("[data-aion-file-cabinet-open-workflow]");
+      if (openWorkflow) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        loadCabinetWorkflow(openWorkflow.getAttribute("data-aion-file-cabinet-open-workflow"));
+        return;
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "wheel",
+    (event) => {
+      const drawer = event.target.closest?.(".aion-workflow-file-cabinet.open");
+      if (!drawer) return;
+      event.stopPropagation();
+    },
+    { capture: true, passive: false },
+  );
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-sidebar [data-tab="file_cabinet"] {
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 54px !important;
+      height: 54px !important;
+      margin: 0 auto !important;
+      padding: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      color: #475569 !important;
+      font-size: 0 !important;
+      cursor: pointer !important;
+    }
+
+    .aion-workflow-sidebar [data-tab="file_cabinet"]::before {
+      content: "" !important;
+      width: 22px !important;
+      height: 27px !important;
+      display: block !important;
+      border: 2.5px solid currentColor !important;
+      border-radius: 5px !important;
+      box-sizing: border-box !important;
+      background:
+        linear-gradient(currentColor, currentColor) 5px 8px / 10px 2px no-repeat,
+        linear-gradient(currentColor, currentColor) 5px 14px / 11px 2px no-repeat,
+        linear-gradient(currentColor, currentColor) 5px 20px / 8px 2px no-repeat !important;
+    }
+
+    .aion-workflow-sidebar [data-tab="file_cabinet"]::after {
+      content: "" !important;
+      position: absolute !important;
+      width: 8px !important;
+      height: 8px !important;
+      top: 15px !important;
+      right: 16px !important;
+      border-top: 2.5px solid currentColor !important;
+      border-right: 2.5px solid currentColor !important;
+      background: #fff7ed !important;
+      box-sizing: border-box !important;
+    }
+
+    .aion-workflow-sidebar [data-tab="file_cabinet"].active,
+    .aion-workflow-sidebar [data-tab="file_cabinet"]:hover {
+      background: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    .aion-workflow-sidebar [data-tab="file_cabinet"].active::after,
+    .aion-workflow-sidebar [data-tab="file_cabinet"]:hover::after {
+      background: #0f172a !important;
+    }
+
+    .aion-workflow-file-cabinet {
+      position: absolute !important;
+      left: 64px !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      width: 0 !important;
+      max-width: 0 !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      opacity: 0 !important;
+      overflow: hidden !important;
+      pointer-events: none !important;
+      transform: translateX(-10px) !important;
+      z-index: 140 !important;
+      background: rgba(255,255,255,0.985) !important;
+      border-right: 1px solid rgba(15,23,42,0.12) !important;
+      box-shadow: none !important;
+      transition: width 160ms ease, max-width 160ms ease, opacity 120ms ease, transform 160ms ease !important;
+    }
+
+    .aion-workflow-file-cabinet.open {
+      width: 390px !important;
+      max-width: min(390px, calc(100vw - 64px)) !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: translateX(0) !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      overscroll-behavior: contain !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-shadow: 14px 0 34px rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-workflow-file-cabinet:not(.open) * {
+      pointer-events: none !important;
+    }
+
+    .aion-file-cabinet-row-actions {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 120ms ease !important;
+    }
+
+    .aion-file-cabinet-folder summary:hover .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-row:hover .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-row-actions:hover {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-file-cabinet-row-actions button,
+    [data-aion-cabinet-new-workflow],
+    [data-aion-cabinet-new-folder],
+    [data-aion-cabinet-delete] {
+      width: 28px !important;
+      height: 28px !important;
+      min-width: 28px !important;
+      min-height: 28px !important;
+      display: grid !important;
+      place-items: center !important;
+      border-radius: 8px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+    }
+
+    [data-aion-cabinet-new-workflow]:hover,
+    [data-aion-cabinet-new-folder]:hover {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    [data-aion-cabinet-delete]:hover {
+      background: #991b1b !important;
+      border-color: #991b1b !important;
+      color: #ffffff !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+
+/* AION PATCH: restore file cabinet styling v6
+   Restores the clean file-cabinet visual styling after the CRUD patch removed
+   the previous styling layer. Behaviour/data functions are left untouched.
+*/
+(function installAionFileCabinetStyleRestoreV6() {
+  const PATCH_ID = "aion-file-cabinet-style-restore-v6";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-file-cabinet {
+      position: absolute !important;
+      left: 64px !important;
+      top: 0 !important;
+      bottom: 0 !important;
+      width: 0 !important;
+      max-width: 0 !important;
+      height: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      opacity: 0 !important;
+      overflow: hidden !important;
+      pointer-events: none !important;
+      transform: translateX(-10px) !important;
+      z-index: 140 !important;
+      background: rgba(255,255,255,0.985) !important;
+      border-right: 1px solid rgba(15,23,42,0.12) !important;
+      box-shadow: none !important;
+      transition:
+        width 160ms ease,
+        max-width 160ms ease,
+        opacity 120ms ease,
+        transform 160ms ease !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      color: #0f172a !important;
+    }
+
+    .aion-workflow-file-cabinet.open {
+      width: 390px !important;
+      max-width: min(390px, calc(100vw - 64px)) !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      transform: translateX(0) !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      overscroll-behavior: contain !important;
+      -webkit-overflow-scrolling: touch !important;
+      box-shadow: 14px 0 34px rgba(15,23,42,0.10) !important;
+    }
+
+    .aion-workflow-file-cabinet:not(.open) * {
+      pointer-events: none !important;
+    }
+
+    .aion-file-cabinet-head {
+      display: flex !important;
+      align-items: flex-start !important;
+      justify-content: space-between !important;
+      gap: 14px !important;
+      padding: 24px 24px 18px !important;
+      border-bottom: 1px solid rgba(15,23,42,0.08) !important;
+      background: rgba(255,255,255,0.985) !important;
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 5 !important;
+    }
+
+    .aion-file-cabinet-head h2 {
+      margin: 4px 0 0 !important;
+      font-size: 22px !important;
+      line-height: 0.98 !important;
+      color: #0f172a !important;
+      letter-spacing: -0.04em !important;
+      font-weight: 900 !important;
+    }
+
+    .aion-file-cabinet-head .eyebrow {
+      color: #64748b !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.26em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-file-cabinet-head button {
+      width: 38px !important;
+      height: 38px !important;
+      min-width: 38px !important;
+      min-height: 38px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font-size: 22px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      display: grid !important;
+      place-items: center !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-file-cabinet-actions {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      gap: 12px !important;
+      padding: 18px 22px !important;
+      border-bottom: 1px solid rgba(15,23,42,0.08) !important;
+      background: rgba(255,255,255,0.96) !important;
+    }
+
+    .aion-file-cabinet-actions button {
+      min-height: 44px !important;
+      border-radius: 13px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      font-size: 13px !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      box-shadow: none !important;
+    }
+
+    .aion-file-cabinet-actions button:first-child {
+      background: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    .aion-file-cabinet-current,
+    .aion-file-cabinet-tree {
+      padding: 18px 20px 6px !important;
+    }
+
+    .aion-file-cabinet-section-title {
+      padding: 8px 0 10px !important;
+      color: #64748b !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.24em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-file-cabinet-folder {
+      margin: 3px 0 !important;
+    }
+
+    .aion-file-cabinet-folder summary,
+    .aion-file-cabinet-subtree summary {
+      display: grid !important;
+      grid-template-columns: 18px minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 9px !important;
+      min-height: 36px !important;
+      padding: 0 8px !important;
+      border-radius: 10px !important;
+      cursor: pointer !important;
+      color: #0f172a !important;
+      font-size: 15px !important;
+      font-weight: 850 !important;
+      list-style: none !important;
+      background: transparent !important;
+      border: 0 !important;
+    }
+
+    .aion-file-cabinet-folder summary:hover,
+    .aion-file-cabinet-subtree summary:hover {
+      background: rgba(15,23,42,0.045) !important;
+    }
+
+    .aion-file-cabinet-folder summary::-webkit-details-marker,
+    .aion-file-cabinet-subtree summary::-webkit-details-marker {
+      display: none !important;
+    }
+
+    .aion-file-cabinet-folder[open] > summary .aion-file-cabinet-caret,
+    .aion-file-cabinet-folder[open] > summary > span:first-child,
+    .aion-file-cabinet-subtree details[open] > summary > span:first-child {
+      transform: rotate(90deg) !important;
+    }
+
+    .aion-file-cabinet-subtree {
+      margin-left: 14px !important;
+      padding-left: 10px !important;
+      border-left: 1px solid rgba(15,23,42,0.08) !important;
+    }
+
+    .aion-file-cabinet-row {
+      position: relative !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      min-height: 38px !important;
+    }
+
+    .aion-file-cabinet-file {
+      width: 100% !important;
+      min-height: 38px !important;
+      display: grid !important;
+      grid-template-columns: 22px minmax(0, 1fr) auto !important;
+      gap: 10px !important;
+      align-items: center !important;
+      padding: 7px 10px !important;
+      border-radius: 12px !important;
+      border: 0 !important;
+      background: transparent !important;
+      color: #0f172a !important;
+      text-align: left !important;
+      cursor: pointer !important;
+      box-shadow: none !important;
+      font: inherit !important;
+    }
+
+    .aion-file-cabinet-file:hover {
+      background: rgba(15,23,42,0.06) !important;
+    }
+
+    .aion-file-cabinet-file.active {
+      background: rgba(14,165,185,0.10) !important;
+      outline: 1px solid rgba(14,165,185,0.25) !important;
+    }
+
+    .aion-file-cabinet-file span {
+      font-size: 18px !important;
+      line-height: 1 !important;
+      color: #0f172a !important;
+    }
+
+    .aion-file-cabinet-file strong {
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      font-size: 14px !important;
+      font-weight: 850 !important;
+      color: #0f172a !important;
+    }
+
+    .aion-file-cabinet-file em {
+      font-style: normal !important;
+      color: #16a34a !important;
+      font-size: 10px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.12em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-file-cabinet-row-actions {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 120ms ease !important;
+    }
+
+    .aion-file-cabinet-folder summary:hover .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-row:hover .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-row-actions:hover {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-file-cabinet-row-actions button,
+    [data-aion-cabinet-new-workflow],
+    [data-aion-cabinet-new-folder],
+    [data-aion-cabinet-delete] {
+      width: 28px !important;
+      height: 28px !important;
+      min-width: 28px !important;
+      min-height: 28px !important;
+      display: grid !important;
+      place-items: center !important;
+      border-radius: 8px !important;
+      border: 1px solid rgba(15,23,42,0.14) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+    }
+
+    [data-aion-cabinet-new-workflow]:hover,
+    [data-aion-cabinet-new-folder]:hover {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    [data-aion-cabinet-delete]:hover {
+      background: #991b1b !important;
+      border-color: #991b1b !important;
+      color: #ffffff !important;
+    }
+
+    @media (max-width: 760px) {
+      .aion-workflow-file-cabinet.open {
+        width: calc(100vw - 64px) !important;
+        max-width: calc(100vw - 64px) !important;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+})();
+
+/* AION PATCH: file cabinet action buttons hotfix v7
+   Fixes:
+   - Folder + workflow / + folder buttons not firing.
+   - Workflow rows missing delete button.
+   - Summary/details click swallowing action clicks.
+   - Action buttons hidden too aggressively by previous CSS.
+*/
+(function installAionFileCabinetActionButtonsHotfixV7() {
+  const PATCH_ID = "aion-file-cabinet-action-buttons-hotfix-v7";
+  if (document.getElementById(PATCH_ID)) return;
+
+  function api() {
+    return window.__aionWorkflowFileCabinetApi || {};
+  }
+
+  function callApi(name, ...args) {
+    const fn = api()[name];
+    if (typeof fn === "function") {
+      fn(...args);
+      return true;
+    }
+
+    console.warn(`[file-cabinet-hotfix] Missing API method: ${name}`, args);
+    return false;
+  }
+
+  function getCabinetRoot() {
+    return document.querySelector("[data-aion-workflow-file-cabinet='true'], .aion-workflow-file-cabinet");
+  }
+
+  function stop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  function closestAction(event, selector) {
+    const direct = event.target.closest?.(selector);
+    if (direct) return direct;
+
+    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+    return path.find?.((el) => el?.matches?.(selector)) || null;
+  }
+
+  function patchFolderSummary(summary) {
+    if (!summary || summary.querySelector(".aion-file-cabinet-row-actions")) return;
+
+    const details = summary.closest("details[data-aion-cabinet-node-id]");
+    const folderId = details?.getAttribute("data-aion-cabinet-node-id");
+    if (!folderId) return;
+
+    const actions = document.createElement("span");
+    actions.className = "aion-file-cabinet-row-actions";
+    actions.setAttribute("data-aion-file-cabinet-actions", "true");
+    actions.innerHTML = `
+      <button type="button" title="New workflow" aria-label="New workflow" data-aion-cabinet-new-workflow="${folderId}">+</button>
+      <button type="button" title="New folder" aria-label="New folder" data-aion-cabinet-new-folder="${folderId}">▣</button>
+      ${folderId === "marketing" || folderId === "sales" || folderId === "operations" || folderId === "finance" || folderId === "support"
+        ? ""
+        : `<button type="button" title="Delete folder" aria-label="Delete folder" data-aion-cabinet-delete="${folderId}">×</button>`}
+    `;
+
+    summary.appendChild(actions);
+  }
+
+  function patchWorkflowRow(row) {
+    if (!row || row.querySelector("[data-aion-cabinet-delete]")) return;
+
+    const openButton = row.querySelector("[data-aion-file-cabinet-open-workflow]");
+    const workflowId =
+      openButton?.getAttribute("data-aion-file-cabinet-open-workflow") ||
+      row.getAttribute("data-aion-cabinet-node-id");
+
+    if (!workflowId) return;
+
+    const actions = document.createElement("div");
+    actions.className = "aion-file-cabinet-row-actions";
+    actions.setAttribute("data-aion-file-cabinet-actions", "true");
+    actions.innerHTML = `
+      <button type="button" title="Delete workflow" aria-label="Delete workflow" data-aion-cabinet-delete="${workflowId}">×</button>
+    `;
+
+    row.appendChild(actions);
+  }
+
+  function patchDrawerActions() {
+    const root = getCabinetRoot();
+    if (!root) return;
+
+    root
+      .querySelectorAll("details[data-aion-cabinet-node-id] > summary")
+      .forEach(patchFolderSummary);
+
+    root
+      .querySelectorAll(".aion-file-cabinet-row, .aion-file-cabinet-workflow-row")
+      .forEach(patchWorkflowRow);
+
+    root
+      .querySelectorAll("[data-aion-file-cabinet-open-workflow]")
+      .forEach((btn) => {
+        const row = btn.closest(".aion-file-cabinet-row");
+        if (row && !row.getAttribute("data-aion-cabinet-node-id")) {
+          row.setAttribute(
+            "data-aion-cabinet-node-id",
+            btn.getAttribute("data-aion-file-cabinet-open-workflow") || "",
+          );
+        }
+      });
+  }
+
+  function handleAction(event) {
+    const newWorkflow = closestAction(event, "[data-aion-cabinet-new-workflow]");
+    if (newWorkflow) {
+      stop(event);
+      const parentId = newWorkflow.getAttribute("data-aion-cabinet-new-workflow");
+      callApi("createWorkflow", parentId);
+      return;
+    }
+
+    const newFolder = closestAction(event, "[data-aion-cabinet-new-folder]");
+    if (newFolder) {
+      stop(event);
+      const parentId = newFolder.getAttribute("data-aion-cabinet-new-folder");
+      callApi("createFolder", parentId);
+      return;
+    }
+
+    const deleteButton = closestAction(event, "[data-aion-cabinet-delete]");
+    if (deleteButton) {
+      stop(event);
+      const itemId = deleteButton.getAttribute("data-aion-cabinet-delete");
+      callApi("deleteNode", itemId);
+      return;
+    }
+
+    const openWorkflow = closestAction(event, "[data-aion-file-cabinet-open-workflow]");
+    if (openWorkflow) {
+      stop(event);
+      const workflowId = openWorkflow.getAttribute("data-aion-file-cabinet-open-workflow");
+      callApi("loadWorkflow", workflowId);
+      return;
+    }
+
+    const topFolder = closestAction(event, "[data-aion-file-cabinet-new-top-folder='true']");
+    if (topFolder) {
+      stop(event);
+      callApi("createTopFolder");
+      return;
+    }
+
+    const rootWorkflow = closestAction(event, "[data-aion-file-cabinet-new-workflow='true']");
+    if (rootWorkflow) {
+      stop(event);
+      if (typeof api().createRootWorkflow === "function") {
+        callApi("createRootWorkflow");
+      } else {
+        const operationsWorkflows =
+          document
+            .querySelector("details[data-aion-cabinet-node-id='operations_workflows']") ||
+          document
+            .querySelector("details[data-aion-cabinet-node-id='folder_operations_workflows']");
+
+        const parentId =
+          operationsWorkflows?.getAttribute("data-aion-cabinet-node-id") ||
+          "operations";
+
+        callApi("createWorkflow", parentId);
+      }
+      return;
+    }
+  }
+
+  ["pointerdown", "mousedown", "click"].forEach((eventName) => {
+    document.addEventListener(eventName, handleAction, true);
+  });
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(patchDrawerActions) || window.setTimeout(patchDrawerActions, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-file-cabinet-folder summary,
+    .aion-file-cabinet-row {
+      position: relative !important;
+    }
+
+    .aion-file-cabinet-folder summary {
+      grid-template-columns: 18px minmax(0, 1fr) auto !important;
+    }
+
+    .aion-file-cabinet-row {
+      grid-template-columns: minmax(0, 1fr) auto !important;
+    }
+
+    .aion-file-cabinet-row-actions,
+    [data-aion-file-cabinet-actions="true"] {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 6px !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      transition: opacity 120ms ease !important;
+      z-index: 10 !important;
+    }
+
+    .aion-file-cabinet-folder summary:hover .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-folder summary:focus-within .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-row:hover .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-row:focus-within .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-row-actions:hover {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-file-cabinet-row-actions button,
+    [data-aion-cabinet-new-workflow],
+    [data-aion-cabinet-new-folder],
+    [data-aion-cabinet-delete] {
+      width: 30px !important;
+      height: 30px !important;
+      min-width: 30px !important;
+      min-height: 30px !important;
+      display: grid !important;
+      place-items: center !important;
+      border-radius: 9px !important;
+      border: 1px solid rgba(15,23,42,0.16) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      cursor: pointer !important;
+      padding: 0 !important;
+      box-shadow: 0 6px 14px rgba(15,23,42,0.08) !important;
+      position: relative !important;
+      z-index: 20 !important;
+    }
+
+    [data-aion-cabinet-new-workflow]:hover,
+    [data-aion-cabinet-new-folder]:hover {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    [data-aion-cabinet-delete]:hover {
+      background: #991b1b !important;
+      border-color: #991b1b !important;
+      color: #ffffff !important;
+    }
+
+    [data-aion-cabinet-new-workflow]::after {
+      content: "New workflow" !important;
+    }
+
+    [data-aion-cabinet-new-folder]::after {
+      content: "New folder" !important;
+    }
+
+    [data-aion-cabinet-delete]::after {
+      content: "Delete" !important;
+    }
+
+    [data-aion-cabinet-new-workflow]::after,
+    [data-aion-cabinet-new-folder]::after,
+    [data-aion-cabinet-delete]::after {
+      position: absolute !important;
+      left: 50% !important;
+      bottom: -34px !important;
+      transform: translateX(-50%) !important;
+      white-space: nowrap !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-radius: 7px !important;
+      padding: 5px 8px !important;
+      font-size: 11px !important;
+      font-weight: 850 !important;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.20) !important;
+      z-index: 1000 !important;
+    }
+
+    [data-aion-cabinet-new-workflow]:hover::after,
+    [data-aion-cabinet-new-folder]:hover::after,
+    [data-aion-cabinet-delete]:hover::after {
+      opacity: 1 !important;
+    }
+
+    .aion-file-cabinet-file {
+      min-width: 0 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  window.setTimeout(patchDrawerActions, 0);
+  window.setTimeout(patchDrawerActions, 200);
+})();
+
+/* AION PATCH: file cabinet no-prompt functional final v8
+   Fixes:
+   - Desktop runtime does not support window.prompt().
+   - Older document-level handlers call prompt and throw.
+   - Intercepts actions at window capture level before older handlers.
+   - Creates workflow/folder with generated names.
+   - Loads selected workflow into canvas.
+   - Deletes workflow/folder with confirmation where supported.
+   - Exposes window.__aionWorkflowFileCabinetApi.
+*/
+(function installAionFileCabinetNoPromptFunctionalFinalV8() {
+  const PATCH_ID = "aion-file-cabinet-no-prompt-functional-final-v8";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const styleMarker = document.createElement("style");
+  styleMarker.id = PATCH_ID;
+  styleMarker.textContent = `
+    /* Keep existing styling. Only ensure workflow delete/action controls remain clickable. */
+    .aion-workflow-file-cabinet [data-aion-cabinet-new-workflow],
+    .aion-workflow-file-cabinet [data-aion-cabinet-new-folder],
+    .aion-workflow-file-cabinet [data-aion-cabinet-delete],
+    .aion-workflow-file-cabinet [data-aion-file-cabinet-open-workflow] {
+      pointer-events: auto !important;
+    }
+
+    .aion-file-cabinet-file-row,
+    .aion-file-cabinet-row {
+      position: relative !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    .aion-file-cabinet-file-row:hover .aion-file-cabinet-row-actions,
+    .aion-file-cabinet-file-row:focus-within .aion-file-cabinet-row-actions {
+      opacity: 1 !important;
+      pointer-events: auto !important;
+    }
+  `;
+  document.head.appendChild(styleMarker);
+
+  function stop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  function makeId(prefix) {
+    return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+  }
+
+  function safeMessage(message, type = "success") {
+    try {
+      if (typeof safePatchMessage === "function") safePatchMessage(message, type);
+    } catch (_) {}
+  }
+
+  function getTree() {
+    if (typeof getAionFileCabinetTree === "function") {
+      return getAionFileCabinetTree();
+    }
+
+    return {
+      schema_version: "aion.workflow_file_cabinet.v1",
+      business_container: state?.workspaceId || "costa-conexion",
+      folders: [],
+    };
+  }
+
+  function saveTree(tree) {
+    if (typeof saveAionFileCabinetTree === "function") {
+      saveAionFileCabinetTree(tree);
+      return;
+    }
+
+    try {
+      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
+    } catch (_) {}
+  }
+
+  function walk(nodes, fn, parent = null) {
+    for (const node of nodes || []) {
+      const result = fn(node, parent);
+      if (result) return result;
+
+      const childResult = walk(node.children || [], fn, node);
+      if (childResult) return childResult;
+    }
+
+    return null;
+  }
+
+  function findNodeById(tree, id) {
+    return walk(tree.folders || [], (node, parent) => {
+      if (String(node.id) === String(id) || String(node.workflow_id || "") === String(id)) {
+        return { node, parent };
+      }
+      return null;
+    });
+  }
+
+  function getCurrentGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        return getAionWorkflowDraftState();
+      } catch (_) {}
+    }
+
+    return window.__aionWorkflowGraph || null;
+  }
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function makeStarterGraph(name, workflowId) {
+    return {
+      workflow_id: workflowId || makeId("workflow"),
+      name: name || "Untitled workflow",
+      status: "draft",
+      saved_at: null,
+      dirty: true,
+      nodes: [
+        {
+          id: "node_choose_start",
+          title: "Choose",
+          type: "Step",
+          icon: "C",
+          status: "Dry-run",
+          meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+          tone: "teal",
+          x: 160,
+          y: 260,
+          config: {},
+        },
+      ],
+      edges: [],
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  function persistGraph(graph) {
+    window.__aionWorkflowGraph = graph;
+    window.__aionWorkflowSelectedNodeId = graph.nodes?.[0]?.id || null;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function syncCurrentWorkflowIntoTree() {
+    const graph = getCurrentGraph();
+    if (!graph) return;
+
+    const tree = getTree();
+    const workflowId = graph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft";
+    const name = graph.name || "Untitled workflow";
+
+    const existing = findNodeById(tree, workflowId);
+    if (existing?.node) {
+      existing.node.name = name;
+      existing.node.workflow_id = workflowId;
+      existing.node.graph = clone(graph);
+      saveTree(tree);
+      return;
+    }
+
+    const operationsWorkflows =
+      findNodeById(tree, "folder_operations_workflows")?.node ||
+      findNodeById(tree, "operations_workflows")?.node ||
+      walk(tree.folders || [], (node) => {
+        if (
+          (node.type === "folder" || node.type === "department") &&
+          String(node.name || "").toLowerCase() === "workflows"
+        ) {
+          return node;
+        }
+        return null;
+      });
+
+    if (operationsWorkflows) {
+      operationsWorkflows.children = Array.isArray(operationsWorkflows.children)
+        ? operationsWorkflows.children
+        : [];
+
+      operationsWorkflows.children.push({
+        id: workflowId,
+        name,
+        type: "workflow",
+        workflow_id: workflowId,
+        graph: clone(graph),
+      });
+
+      saveTree(tree);
+    }
+  }
+
+  function createWorkflow(parentId) {
+    const tree = getTree();
+    const found = findNodeById(tree, parentId);
+
+    if (!found?.node) {
+      safeMessage("Could not find folder for new workflow.", "error");
+      return;
+    }
+
+    const parent = found.node;
+    parent.children = Array.isArray(parent.children) ? parent.children : [];
+
+    const count = walk([parent], () => null) || 0;
+    const workflowId = makeId("workflow");
+    const name = `Untitled workflow ${String(Date.now()).slice(-4)}`;
+    const graph = makeStarterGraph(name, workflowId);
+
+    parent.children.push({
+      id: workflowId,
+      name,
+      type: "workflow",
+      workflow_id: workflowId,
+      graph: clone(graph),
+    });
+
+    saveTree(tree);
+    persistGraph(graph);
+    safeMessage(`Created workflow: ${name}`, "success");
+  }
+
+  function createRootWorkflow() {
+    const tree = getTree();
+
+    const operationsWorkflows =
+      findNodeById(tree, "folder_operations_workflows")?.node ||
+      findNodeById(tree, "operations_workflows")?.node ||
+      walk(tree.folders || [], (node) => {
+        if (
+          (node.type === "folder" || node.type === "department") &&
+          String(node.name || "").toLowerCase() === "workflows"
+        ) {
+          return node;
+        }
+        return null;
+      });
+
+    if (!operationsWorkflows) {
+      safeMessage("Could not find Operations / Workflows.", "error");
+      return;
+    }
+
+    saveTree(tree);
+    createWorkflow(operationsWorkflows.id);
+  }
+
+  function createFolder(parentId) {
+    const tree = getTree();
+    const found = findNodeById(tree, parentId);
+
+    if (!found?.node) {
+      safeMessage("Could not find parent folder.", "error");
+      return;
+    }
+
+    const parent = found.node;
+    parent.children = Array.isArray(parent.children) ? parent.children : [];
+
+    const name = `New folder ${String(Date.now()).slice(-4)}`;
+
+    parent.children.push({
+      id: makeId("folder"),
+      name,
+      type: "folder",
+      children: [],
+    });
+
+    saveTree(tree);
+    safeMessage(`Created folder: ${name}`, "success");
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function createTopFolder() {
+    const tree = getTree();
+    const name = `New Department ${String(Date.now()).slice(-4)}`;
+    const id = makeId("folder");
+
+    tree.folders = Array.isArray(tree.folders) ? tree.folders : [];
+    tree.folders.push({
+      id,
+      name,
+      type: "department",
+      children: [
+        {
+          id: makeId("folder_workflows"),
+          name: "Workflows",
+          type: "folder",
+          children: [],
+        },
+        {
+          id: makeId("folder_assets"),
+          name: "Assets",
+          type: "folder",
+          children: [],
+        },
+      ],
+    });
+
+    saveTree(tree);
+    safeMessage(`Created top folder: ${name}`, "success");
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function deleteNode(itemId) {
+    const tree = getTree();
+    const found = findNodeById(tree, itemId);
+
+    if (!found?.node || !found.parent) {
+      safeMessage("Could not find item to delete.", "error");
+      return;
+    }
+
+    const itemName = found.node.name || "this item";
+    const itemType = found.node.type === "workflow" ? "workflow" : "folder";
+
+    let ok = true;
+    try {
+      ok = window.confirm(`Are you sure you want to delete ${itemType} “${itemName}”?`);
+    } catch (_) {
+      ok = true;
+    }
+
+    if (!ok) return;
+
+    found.parent.children = (found.parent.children || []).filter((child) => {
+      return (
+        String(child.id) !== String(found.node.id) &&
+        String(child.workflow_id || "") !== String(itemId)
+      );
+    });
+
+    saveTree(tree);
+    safeMessage(`Deleted ${itemType}: ${itemName}`, "success");
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function loadWorkflow(workflowId) {
+    syncCurrentWorkflowIntoTree();
+
+    const tree = getTree();
+    const found = findNodeById(tree, workflowId);
+
+    if (!found?.node || found.node.type !== "workflow") {
+      safeMessage("Could not find workflow to load.", "error");
+      return;
+    }
+
+    const node = found.node;
+    const graph = clone(node.graph || makeStarterGraph(node.name, node.workflow_id || node.id));
+
+    graph.workflow_id = node.workflow_id || node.id || graph.workflow_id;
+    graph.name = node.name || graph.name || "Untitled workflow";
+    graph.dirty = false;
+    graph.updated_at = new Date().toISOString();
+
+    node.graph = clone(graph);
+    saveTree(tree);
+
+    persistGraph(graph);
+    safeMessage(`Loaded workflow: ${graph.name}`, "success");
+  }
+
+  function getAction(event, selector) {
+    const direct = event.target.closest?.(selector);
+    if (direct) return direct;
+
+    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+    return path.find?.((el) => el?.matches?.(selector)) || null;
+  }
+
+  function handleCabinetAction(event) {
+    const root = event.target.closest?.("[data-aion-workflow-file-cabinet='true'], .aion-workflow-file-cabinet");
+    const fileTab = getAction(event, '[data-tab="file_cabinet"]');
+
+    if (fileTab) {
+      stop(event);
+      syncCurrentWorkflowIntoTree();
+      window.__aionWorkflowFileCabinetOpen = window.__aionWorkflowFileCabinetOpen !== true;
+      window.__aionFileCabinetOpen = window.__aionWorkflowFileCabinetOpen;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    if (!root) return;
+
+    const close = getAction(event, "[data-aion-file-cabinet-close='true']");
+    if (close) {
+      stop(event);
+      window.__aionWorkflowFileCabinetOpen = false;
+      window.__aionFileCabinetOpen = false;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const topFolder =
+      getAction(event, "[data-aion-cabinet-top-folder='true']") ||
+      getAction(event, "[data-aion-file-cabinet-new-top-folder='true']");
+
+    if (topFolder) {
+      stop(event);
+      createTopFolder();
+      return;
+    }
+
+    const rootWorkflow = getAction(event, "[data-aion-file-cabinet-new-workflow='true']");
+    if (rootWorkflow) {
+      stop(event);
+      createRootWorkflow();
+      return;
+    }
+
+    const newWorkflow = getAction(event, "[data-aion-cabinet-new-workflow]");
+    if (newWorkflow) {
+      stop(event);
+      createWorkflow(newWorkflow.getAttribute("data-aion-cabinet-new-workflow"));
+      return;
+    }
+
+    const newFolder = getAction(event, "[data-aion-cabinet-new-folder]");
+    if (newFolder) {
+      stop(event);
+      createFolder(newFolder.getAttribute("data-aion-cabinet-new-folder"));
+      return;
+    }
+
+    const del = getAction(event, "[data-aion-cabinet-delete]");
+    if (del) {
+      stop(event);
+      deleteNode(del.getAttribute("data-aion-cabinet-delete"));
+      return;
+    }
+
+    const open = getAction(event, "[data-aion-file-cabinet-open-workflow]");
+    if (open) {
+      /*
+        Important:
+        Clicking the workflow name itself is handled by the inline rename patch.
+        Do not stop that event here, otherwise the earlier load-workflow handler
+        wins and the rename input never appears.
+      */
+      const nameTarget =
+        event.target.closest?.("[data-aion-file-cabinet-open-workflow] strong") ||
+        event.target.closest?.(".aion-file-cabinet-rename-input-v10") ||
+        event.target.closest?.(".aion-file-cabinet-rename-input");
+
+      if (nameTarget) {
+        return;
+      }
+
+      stop(event);
+      loadWorkflow(open.getAttribute("data-aion-file-cabinet-open-workflow"));
+      return;
+    }
+  }
+
+  ["pointerdown", "mousedown", "click"].forEach((eventName) => {
+    window.addEventListener(eventName, handleCabinetAction, true);
+  });
+
+  window.__aionWorkflowFileCabinetApi = {
+    createWorkflow,
+    createRootWorkflow,
+    createFolder,
+    createTopFolder,
+    deleteNode,
+    loadWorkflow,
+    syncCurrentWorkflowIntoTree,
+    getTree,
+    saveTree,
+  };
+
+  window.setTimeout(() => {
+    syncCurrentWorkflowIntoTree();
+  }, 0);
+})();
+
+/* AION PATCH: file cabinet inline workflow rename v9
+   Fix:
+   - Clicking a workflow name in the file cabinet turns the name into an inline editor.
+   - Enter / blur saves.
+   - Escape cancels.
+   - Clicking the diamond / row outside the name still loads the workflow.
+   - No prompt(), because prompt is unsupported in the desktop runtime.
+*/
+(function installAionFileCabinetInlineWorkflowRenameV9() {
+  const PATCH_ID = "aion-file-cabinet-inline-workflow-rename-v9";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const marker = document.createElement("style");
+  marker.id = PATCH_ID;
+  marker.textContent = `
+    .aion-file-cabinet-rename-input {
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 30px !important;
+      border-radius: 8px !important;
+      border: 1px solid rgba(14,165,185,0.45) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font: inherit !important;
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      padding: 0 8px !important;
+      outline: none !important;
+      box-shadow: 0 0 0 3px rgba(14,165,185,0.12) !important;
+    }
+
+    .aion-file-cabinet-file strong {
+      cursor: text !important;
+    }
+  `;
+  document.head.appendChild(marker);
+
+  function stop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  function getTree() {
+    if (typeof getAionFileCabinetTree === "function") return getAionFileCabinetTree();
+
+    try {
+      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function saveTree(tree) {
+    if (typeof saveAionFileCabinetTree === "function") {
+      saveAionFileCabinetTree(tree);
+      return;
+    }
+
+    try {
+      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
+    } catch (_) {}
+  }
+
+  function walk(nodes, fn, parent = null) {
+    for (const node of nodes || []) {
+      const result = fn(node, parent);
+      if (result) return result;
+
+      const childResult = walk(node.children || [], fn, node);
+      if (childResult) return childResult;
+    }
+
+    return null;
+  }
+
+  function findWorkflow(tree, workflowId) {
+    return walk(tree?.folders || [], (node, parent) => {
+      if (
+        node?.type === "workflow" &&
+        (String(node.id) === String(workflowId) ||
+          String(node.workflow_id || "") === String(workflowId))
+      ) {
+        return { node, parent };
+      }
+
+      return null;
+    });
+  }
+
+  function getCurrentGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        return getAionWorkflowDraftState();
+      } catch (_) {}
+    }
+
+    return window.__aionWorkflowGraph || null;
+  }
+
+  function persistCurrentGraphName(workflowId, newName) {
+    const graph = getCurrentGraph();
+
+    if (
+      graph &&
+      (String(graph.workflow_id || "") === String(workflowId) ||
+        String(window.__aionWorkflowGraph?.workflow_id || "") === String(workflowId))
+    ) {
+      graph.name = newName;
+      graph.dirty = true;
+      graph.updated_at = new Date().toISOString();
+      window.__aionWorkflowGraph = graph;
+
+      try {
+        if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+          compileAndAttachAionWorkflowGlyph(graph);
+        }
+      } catch (_) {}
+
+      try {
+        if (typeof persistAionWorkflowDraftState === "function") {
+          persistAionWorkflowDraftState();
+        }
+      } catch (_) {}
+    }
+  }
+
+  function renameWorkflow(workflowId, newName) {
+    const safeName = String(newName || "").trim();
+    if (!safeName) return false;
+
+    const tree = getTree();
+    const found = findWorkflow(tree, workflowId);
+    if (!found?.node) return false;
+
+    found.node.name = safeName;
+
+    if (found.node.graph && typeof found.node.graph === "object") {
+      found.node.graph.name = safeName;
+      found.node.graph.updated_at = new Date().toISOString();
+    }
+
+    saveTree(tree);
+    persistCurrentGraphName(workflowId, safeName);
+
+    try {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage(`Renamed workflow: ${safeName}`, "success");
+      }
+    } catch (_) {}
+
+    return true;
+  }
+
+  function startInlineRename(strongEl, workflowButton) {
+    if (!strongEl || !workflowButton) return;
+
+    const workflowId = workflowButton.getAttribute("data-aion-file-cabinet-open-workflow");
+    if (!workflowId) return;
+
+    if (strongEl.querySelector(".aion-file-cabinet-rename-input")) return;
+
+    const originalName = strongEl.textContent.trim();
+    const input = document.createElement("input");
+
+    input.type = "text";
+    input.className = "aion-file-cabinet-rename-input";
+    input.value = originalName;
+    input.setAttribute("aria-label", "Rename workflow");
+
+    strongEl.textContent = "";
+    strongEl.appendChild(input);
+
+    let done = false;
+
+    function finish(save) {
+      if (done) return;
+      done = true;
+
+      const nextName = input.value.trim() || originalName;
+
+      if (save && nextName !== originalName) {
+        renameWorkflow(workflowId, nextName);
+      }
+
+      strongEl.textContent = save ? nextName : originalName;
+
+      if (save && typeof requestRender === "function") {
+        requestRender();
+      }
+    }
+
+    input.addEventListener("click", (event) => {
+      event.stopPropagation();
+    });
+
+    input.addEventListener("pointerdown", (event) => {
+      event.stopPropagation();
+    });
+
+    input.addEventListener("mousedown", (event) => {
+      event.stopPropagation();
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        finish(true);
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        finish(false);
+      }
+    });
+
+    input.addEventListener("blur", () => {
+      finish(true);
+    });
+
+    window.setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 0);
+  }
+
+  function handleRenameClick(event) {
+    const strongEl = event.target.closest?.(
+      ".aion-workflow-file-cabinet [data-aion-file-cabinet-open-workflow] strong",
+    );
+
+    if (!strongEl) return;
+
+    const workflowButton = strongEl.closest("[data-aion-file-cabinet-open-workflow]");
+    if (!workflowButton) return;
+
+    stop(event);
+    startInlineRename(strongEl, workflowButton);
+  }
+
+  window.addEventListener("pointerdown", handleRenameClick, true);
+  window.addEventListener("mousedown", handleRenameClick, true);
+  window.addEventListener("click", handleRenameClick, true);
+
+  window.__aionWorkflowFileCabinetRenameWorkflow = renameWorkflow;
+})();
+
+/* AION PATCH: file cabinet workflow rename hotfix v10
+   Fix:
+   - Previous rename patch only worked if the event target was the <strong>.
+   - In Electron/Chromium the click often targets the parent workflow button.
+   - This detects clicks inside the workflow-name text bounds and edits inline.
+*/
+(function installAionFileCabinetWorkflowRenameHotfixV10() {
+  const PATCH_ID = "aion-file-cabinet-workflow-rename-hotfix-v10";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-file-cabinet [data-aion-file-cabinet-open-workflow] strong {
+      pointer-events: auto !important;
+      cursor: text !important;
+    }
+
+    .aion-file-cabinet-rename-input-v10 {
+      width: 100% !important;
+      min-width: 120px !important;
+      height: 32px !important;
+      border-radius: 9px !important;
+      border: 1px solid rgba(14, 165, 185, 0.55) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font: inherit !important;
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      padding: 0 9px !important;
+      outline: none !important;
+      box-shadow: 0 0 0 3px rgba(14, 165, 185, 0.14) !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function stop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  function getTree() {
+    if (typeof getAionFileCabinetTree === "function") {
+      return getAionFileCabinetTree();
+    }
+
+    try {
+      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function saveTree(tree) {
+    if (typeof saveAionFileCabinetTree === "function") {
+      saveAionFileCabinetTree(tree);
+      return;
+    }
+
+    try {
+      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
+    } catch (_) {}
+  }
+
+  function walk(nodes, fn, parent = null) {
+    for (const node of nodes || []) {
+      const result = fn(node, parent);
+      if (result) return result;
+
+      const child = walk(node.children || [], fn, node);
+      if (child) return child;
+    }
+
+    return null;
+  }
+
+  function findWorkflow(tree, workflowId) {
+    return walk(tree?.folders || [], (node, parent) => {
+      if (
+        node?.type === "workflow" &&
+        (String(node.id) === String(workflowId) ||
+          String(node.workflow_id || "") === String(workflowId))
+      ) {
+        return { node, parent };
+      }
+
+      return null;
+    });
+  }
+
+  function getCurrentGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        return getAionWorkflowDraftState();
+      } catch (_) {}
+    }
+
+    return window.__aionWorkflowGraph || null;
+  }
+
+  function renameWorkflow(workflowId, nextName) {
+    const safeName = String(nextName || "").trim();
+    if (!safeName) return false;
+
+    const tree = getTree();
+    const found = findWorkflow(tree, workflowId);
+
+    if (found?.node) {
+      found.node.name = safeName;
+
+      if (found.node.graph && typeof found.node.graph === "object") {
+        found.node.graph.name = safeName;
+        found.node.graph.updated_at = new Date().toISOString();
+      }
+
+      saveTree(tree);
+    }
+
+    const graph = getCurrentGraph();
+
+    if (graph && String(graph.workflow_id || "") === String(workflowId)) {
+      graph.name = safeName;
+      graph.dirty = true;
+      graph.updated_at = new Date().toISOString();
+      window.__aionWorkflowGraph = graph;
+
+      try {
+        if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+          compileAndAttachAionWorkflowGlyph(graph);
+        }
+      } catch (_) {}
+
+      try {
+        if (typeof persistAionWorkflowDraftState === "function") {
+          persistAionWorkflowDraftState();
+        }
+      } catch (_) {}
+    }
+
+    try {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage(`Renamed workflow: ${safeName}`, "success");
+      }
+    } catch (_) {}
+
+    return true;
+  }
+
+  function clickIsInsideName(event, strongEl) {
+    if (!strongEl) return false;
+
+    const rect = strongEl.getBoundingClientRect();
+
+    return (
+      event.clientX >= rect.left - 8 &&
+      event.clientX <= rect.right + 8 &&
+      event.clientY >= rect.top - 8 &&
+      event.clientY <= rect.bottom + 8
+    );
+  }
+
+  function startRename(button, strongEl) {
+    if (!button || !strongEl) return false;
+
+    const workflowId = button.getAttribute("data-aion-file-cabinet-open-workflow");
+    if (!workflowId) return false;
+
+    if (button.querySelector(".aion-file-cabinet-rename-input-v10")) return true;
+
+    const originalName = strongEl.textContent.trim();
+    const input = document.createElement("input");
+
+    input.type = "text";
+    input.value = originalName;
+    input.className = "aion-file-cabinet-rename-input-v10";
+    input.setAttribute("aria-label", "Rename workflow");
+
+    strongEl.textContent = "";
+    strongEl.appendChild(input);
+
+    let finished = false;
+
+    function finish(save) {
+      if (finished) return;
+      finished = true;
+
+      const nextName = input.value.trim() || originalName;
+
+      if (save && nextName !== originalName) {
+        renameWorkflow(workflowId, nextName);
+        strongEl.textContent = nextName;
+
+        if (typeof requestRender === "function") {
+          requestRender();
+        }
+      } else {
+        strongEl.textContent = originalName;
+      }
+    }
+
+    ["pointerdown", "mousedown", "click"].forEach((type) => {
+      input.addEventListener(type, (event) => {
+        event.stopPropagation();
+      });
+    });
+
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        finish(true);
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        finish(false);
+      }
+    });
+
+    input.addEventListener("blur", () => finish(true));
+
+    window.setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 0);
+
+    return true;
+  }
+
+  function handleRenameIntent(event) {
+    const button = event.target.closest?.(
+      ".aion-workflow-file-cabinet [data-aion-file-cabinet-open-workflow]",
+    );
+
+    if (!button) return;
+
+    const strongEl = button.querySelector("strong");
+    if (!strongEl) return;
+
+    const targetIsExistingInput = event.target.closest?.(".aion-file-cabinet-rename-input-v10");
+    if (targetIsExistingInput) return;
+
+    if (!clickIsInsideName(event, strongEl)) return;
+
+    stop(event);
+    startRename(button, strongEl);
+  }
+
+  /*
+    Use window capture so this runs before the older document-level
+    open-workflow handlers.
+  */
+  window.addEventListener("pointerdown", handleRenameIntent, true);
+  window.addEventListener("mousedown", handleRenameIntent, true);
+  window.addEventListener("click", handleRenameIntent, true);
+
+  window.__aionWorkflowFileCabinetRenameWorkflowV10 = renameWorkflow;
+})();
+
+
+/* AION PATCH: file cabinet rename space fix v12
+   Fix:
+   - Space inside inline workflow rename was being stolen by global keyboard handlers.
+   - We handle only Space at window capture level, manually insert the space,
+     then stop the event before canvas/global shortcuts see it.
+   - Other keys are left to the input normally.
+*/
+(function installAionFileCabinetRenameSpaceFixV12() {
+  const PATCH_ID = "aion-file-cabinet-rename-space-fix-v12";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-file-cabinet-rename-input,
+    .aion-file-cabinet-rename-input-v10,
+    .aion-file-cabinet-rename-input-v11,
+    .aion-file-cabinet-rename-input-v12 {
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      pointer-events: auto !important;
+      cursor: text !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function getRenameInput(target) {
+    return target?.closest?.(
+      ".aion-file-cabinet-rename-input, .aion-file-cabinet-rename-input-v10, .aion-file-cabinet-rename-input-v11, .aion-file-cabinet-rename-input-v12",
+    );
+  }
+
+  function insertText(input, text) {
+    const value = String(input.value || "");
+    const start = Number.isFinite(input.selectionStart) ? input.selectionStart : value.length;
+    const end = Number.isFinite(input.selectionEnd) ? input.selectionEnd : start;
+
+    input.value = value.slice(0, start) + text + value.slice(end);
+
+    const nextPos = start + text.length;
+    try {
+      input.setSelectionRange(nextPos, nextPos);
+    } catch (_) {}
+
+    input.dispatchEvent(
+      new InputEvent("input", {
+        bubbles: true,
+        cancelable: false,
+        inputType: "insertText",
+        data: text,
+      }),
+    );
+  }
+
+  function handleKeyDown(event) {
+    const input = getRenameInput(event.target);
+    if (!input) return;
+
+    const isSpace =
+      event.key === " " ||
+      event.key === "Spacebar" ||
+      event.code === "Space" ||
+      event.keyCode === 32;
+
+    if (!isSpace) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    insertText(input, " ");
+  }
+
+  function stopSpaceAfterInsert(event) {
+    const input = getRenameInput(event.target);
+    if (!input) return;
+
+    const isSpace =
+      event.key === " " ||
+      event.key === "Spacebar" ||
+      event.code === "Space" ||
+      event.keyCode === 32;
+
+    if (!isSpace) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  /*
+    Window capture runs before document/app shortcut handlers.
+    Only Space is intercepted; normal letters/numbers still type normally.
+  */
+  window.addEventListener("keydown", handleKeyDown, true);
+  window.addEventListener("keypress", stopSpaceAfterInsert, true);
+  window.addEventListener("keyup", stopSpaceAfterInsert, true);
+
+  /*
+    Prevent click/pointer bubbling from the input, but do not block typing.
+  */
+  const observer = new MutationObserver(() => {
+    document
+      .querySelectorAll(
+        ".aion-file-cabinet-rename-input, .aion-file-cabinet-rename-input-v10, .aion-file-cabinet-rename-input-v11, .aion-file-cabinet-rename-input-v12",
+      )
+      .forEach((input) => {
+        if (input.dataset.aionRenameSpaceFixV12 === "true") return;
+        input.dataset.aionRenameSpaceFixV12 = "true";
+
+        ["pointerdown", "mousedown", "click", "dblclick"].forEach((eventName) => {
+          input.addEventListener(
+            eventName,
+            (event) => {
+              event.stopPropagation();
+              event.stopImmediatePropagation();
+            },
+            true,
+          );
+        });
+      });
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+})();
+
+
+
+/* AION PATCH: file cabinet inline folder rename v13
+   Purpose:
+   - Allow inline rename for user-created folders.
+   - Keep system folders locked/read-only:
+     Marketing, Sales, Operations, Finance, Support, Workflows, Assets.
+   - Enter / blur saves.
+   - Escape cancels.
+   - Space works inside the rename input.
+*/
+(function installAionFileCabinetInlineFolderRenameV13() {
+  const PATCH_ID = "aion-file-cabinet-inline-folder-rename-v13";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const SYSTEM_FOLDER_IDS = new Set([
+    "folder_marketing",
+    "folder_sales",
+    "folder_operations",
+    "folder_finance",
+    "folder_support",
+    "folder_marketing_workflows",
+    "folder_marketing_assets",
+    "folder_sales_workflows",
+    "folder_sales_assets",
+    "folder_operations_workflows",
+    "folder_operations_assets",
+    "folder_finance_workflows",
+    "folder_finance_assets",
+    "folder_support_workflows",
+    "folder_support_assets",
+    "marketing",
+    "sales",
+    "operations",
+    "finance",
+    "support",
+    "marketing_workflows",
+    "marketing_assets",
+    "sales_workflows",
+    "sales_assets",
+    "operations_workflows",
+    "operations_assets",
+    "finance_workflows",
+    "finance_assets",
+    "support_workflows",
+    "support_assets",
+  ]);
+
+  const SYSTEM_FOLDER_NAMES = new Set([
+    "marketing",
+    "sales",
+    "operations",
+    "finance",
+    "support",
+    "workflows",
+    "assets",
+  ]);
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-file-cabinet-folder-name-rename-input-v13 {
+      width: 100% !important;
+      min-width: 120px !important;
+      height: 32px !important;
+      border-radius: 9px !important;
+      border: 1px solid rgba(14, 165, 185, 0.55) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      font: inherit !important;
+      font-size: 15px !important;
+      font-weight: 900 !important;
+      padding: 0 9px !important;
+      outline: none !important;
+      box-shadow: 0 0 0 3px rgba(14, 165, 185, 0.14) !important;
+      user-select: text !important;
+      -webkit-user-select: text !important;
+      pointer-events: auto !important;
+      cursor: text !important;
+    }
+
+    .aion-file-cabinet-folder summary strong {
+      cursor: default !important;
+    }
+
+    .aion-file-cabinet-folder[data-aion-user-folder-editable="true"] > summary strong {
+      cursor: text !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function stop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  function getTree() {
+    if (typeof getAionFileCabinetTree === "function") {
+      return getAionFileCabinetTree();
+    }
+
+    try {
+      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function saveTree(tree) {
+    if (typeof saveAionFileCabinetTree === "function") {
+      saveAionFileCabinetTree(tree);
+      return;
+    }
+
+    try {
+      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
+    } catch (_) {}
+  }
+
+  function walk(nodes, fn, parent = null) {
+    for (const node of nodes || []) {
+      const result = fn(node, parent);
+      if (result) return result;
+
+      const child = walk(node.children || [], fn, node);
+      if (child) return child;
+    }
+
+    return null;
+  }
+
+  function findFolder(tree, folderId) {
+    return walk(tree?.folders || [], (node, parent) => {
+      if (
+        (node?.type === "folder" || node?.type === "department") &&
+        String(node.id) === String(folderId)
+      ) {
+        return { node, parent };
+      }
+
+      return null;
+    });
+  }
+
+  function isSystemFolder(folderId, folderName) {
+    const id = String(folderId || "").trim();
+    const name = String(folderName || "").trim().toLowerCase();
+
+    if (SYSTEM_FOLDER_IDS.has(id)) return true;
+    if (SYSTEM_FOLDER_NAMES.has(name)) return true;
+
+    return false;
+  }
+
+  function markEditableFolders() {
+    document
+      .querySelectorAll(".aion-workflow-file-cabinet details[data-aion-cabinet-node-id] > summary")
+      .forEach((summary) => {
+        const details = summary.closest("details[data-aion-cabinet-node-id]");
+        const folderId = details?.getAttribute("data-aion-cabinet-node-id") || "";
+        const strong = summary.querySelector("strong");
+        const folderName = strong?.textContent?.trim() || "";
+
+        if (!details || !strong) return;
+
+        const editable = !isSystemFolder(folderId, folderName);
+        details.setAttribute("data-aion-user-folder-editable", editable ? "true" : "false");
+
+        if (editable) {
+          strong.setAttribute("title", "Click to rename folder");
+        } else {
+          strong.removeAttribute("title");
+        }
+      });
+  }
+
+  function renameFolder(folderId, nextName) {
+    const safeName = String(nextName || "").trim();
+    if (!safeName) return false;
+
+    const tree = getTree();
+    const found = findFolder(tree, folderId);
+    if (!found?.node) return false;
+
+    if (isSystemFolder(folderId, found.node.name)) {
+      return false;
+    }
+
+    found.node.name = safeName;
+    saveTree(tree);
+
+    try {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage(`Renamed folder: ${safeName}`, "success");
+      }
+    } catch (_) {}
+
+    return true;
+  }
+
+  function startRename(summary, strongEl) {
+    const details = summary.closest("details[data-aion-cabinet-node-id]");
+    const folderId = details?.getAttribute("data-aion-cabinet-node-id") || "";
+    const originalName = strongEl?.textContent?.trim() || "";
+
+    if (!folderId || !strongEl) return false;
+    if (isSystemFolder(folderId, originalName)) return false;
+    if (strongEl.querySelector(".aion-file-cabinet-folder-name-rename-input-v13")) return true;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = originalName;
+    input.className = "aion-file-cabinet-folder-name-rename-input-v13";
+    input.setAttribute("aria-label", "Rename folder");
+
+    strongEl.textContent = "";
+    strongEl.appendChild(input);
+
+    let finished = false;
+
+    function finish(save) {
+      if (finished) return;
+      finished = true;
+
+      const nextName = input.value.trim() || originalName;
+
+      if (save && nextName !== originalName) {
+        renameFolder(folderId, nextName);
+        strongEl.textContent = nextName;
+
+        if (typeof requestRender === "function") {
+          requestRender();
+        }
+      } else {
+        strongEl.textContent = originalName;
+      }
+    }
+
+    ["pointerdown", "mousedown", "click", "dblclick"].forEach((eventName) => {
+      input.addEventListener(
+        eventName,
+        (event) => {
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+        },
+        true,
+      );
+    });
+
+    input.addEventListener(
+      "keydown",
+      (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          finish(true);
+          return;
+        }
+
+        if (event.key === "Escape") {
+          event.preventDefault();
+          finish(false);
+          return;
+        }
+
+        if (
+          event.key === " " ||
+          event.key === "Spacebar" ||
+          event.code === "Space" ||
+          event.keyCode === 32
+        ) {
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation();
+
+          const value = String(input.value || "");
+          const start = Number.isFinite(input.selectionStart) ? input.selectionStart : value.length;
+          const end = Number.isFinite(input.selectionEnd) ? input.selectionEnd : start;
+
+          input.value = value.slice(0, start) + " " + value.slice(end);
+
+          const nextPos = start + 1;
+          try {
+            input.setSelectionRange(nextPos, nextPos);
+          } catch (_) {}
+
+          return;
+        }
+
+        event.stopPropagation();
+      },
+      true,
+    );
+
+    input.addEventListener("blur", () => finish(true));
+
+    window.setTimeout(() => {
+      input.focus();
+      input.select();
+    }, 0);
+
+    return true;
+  }
+
+  function handleFolderRenameIntent(event) {
+    const summary = event.target.closest?.(
+      ".aion-workflow-file-cabinet details[data-aion-cabinet-node-id] > summary",
+    );
+
+    if (!summary) return;
+
+    const strongEl = summary.querySelector("strong");
+    if (!strongEl) return;
+
+    if (event.target.closest?.(".aion-file-cabinet-row-actions")) return;
+    if (event.target.closest?.("button")) return;
+    if (event.target.closest?.(".aion-file-cabinet-folder-name-rename-input-v13")) return;
+
+    const details = summary.closest("details[data-aion-cabinet-node-id]");
+    const folderId = details?.getAttribute("data-aion-cabinet-node-id") || "";
+    const folderName = strongEl.textContent.trim();
+
+    if (isSystemFolder(folderId, folderName)) return;
+
+    const rect = strongEl.getBoundingClientRect();
+    const insideName =
+      event.clientX >= rect.left - 8 &&
+      event.clientX <= rect.right + 8 &&
+      event.clientY >= rect.top - 8 &&
+      event.clientY <= rect.bottom + 8;
+
+    if (!insideName) return;
+
+    stop(event);
+    startRename(summary, strongEl);
+  }
+
+  window.addEventListener("pointerdown", handleFolderRenameIntent, true);
+  window.addEventListener("mousedown", handleFolderRenameIntent, true);
+  window.addEventListener("click", handleFolderRenameIntent, true);
+
+  const observer = new MutationObserver(() => {
+    window.requestAnimationFrame?.(markEditableFolders) || window.setTimeout(markEditableFolders, 0);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  window.setTimeout(markEditableFolders, 0);
+  window.setTimeout(markEditableFolders, 200);
+
+  window.__aionWorkflowFileCabinetRenameFolderV13 = renameFolder;
+})();
+
+/* AION PATCH: file cabinet top-folder + close fix v14
+   Fix:
+   - + Top folder was still hitting an old prompt() path.
+   - Desktop runtime does not support prompt().
+   - This creates an editable top-level folder immediately.
+   - The folder name can then be edited inline using the existing folder rename patch.
+   - Close × is also handled here before older handlers.
+*/
+(function installAionFileCabinetTopFolderCloseFixV14() {
+  const PATCH_ID = "aion-file-cabinet-top-folder-close-fix-v14";
+  if (document.getElementById(PATCH_ID)) return;
+
+  let lastHandledAt = 0;
+  let lastHandledKind = "";
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-cabinet-top-folder="true"],
+    [data-aion-file-cabinet-new-top-folder="true"] {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+    }
+
+    [data-aion-file-cabinet-close="true"] {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      z-index: 1000 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function stop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  function recentlyHandled(kind) {
+    const now = Date.now();
+
+    if (lastHandledKind === kind && now - lastHandledAt < 350) {
+      lastHandledAt = now;
+      return true;
+    }
+
+    lastHandledKind = kind;
+    lastHandledAt = now;
+    return false;
+  }
+
+  function makeId(prefix) {
+    return `${prefix}_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+  }
+
+  function getTree() {
+    if (typeof getAionFileCabinetTree === "function") {
+      return getAionFileCabinetTree();
+    }
+
+    try {
+      const raw = window.localStorage?.getItem("aion.workflow_file_cabinet.v1");
+      return raw ? JSON.parse(raw) : { folders: [] };
+    } catch (_) {
+      return { folders: [] };
+    }
+  }
+
+  function saveTree(tree) {
+    if (typeof saveAionFileCabinetTree === "function") {
+      saveAionFileCabinetTree(tree);
+      return;
+    }
+
+    try {
+      window.localStorage?.setItem("aion.workflow_file_cabinet.v1", JSON.stringify(tree));
+    } catch (_) {}
+  }
+
+  function createTopFolderWithoutPrompt() {
+    const tree = getTree();
+
+    if (!tree || !Array.isArray(tree.folders)) {
+      return false;
+    }
+
+    const suffix = Date.now().toString().slice(-4);
+    const folderId = makeId("folder_custom_top");
+
+    tree.folders.push({
+      id: folderId,
+      name: `New folder ${suffix}`,
+      type: "folder",
+      children: [
+        {
+          id: makeId(`${folderId}_workflows`),
+          name: "Workflows",
+          type: "folder",
+          children: [],
+        },
+        {
+          id: makeId(`${folderId}_assets`),
+          name: "Assets",
+          type: "folder",
+          children: [],
+        },
+      ],
+    });
+
+    saveTree(tree);
+
+    try {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage("Created top-level folder.", "success");
+      }
+    } catch (_) {}
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+
+    return true;
+  }
+
+  function closeFileCabinet() {
+    window.__aionWorkflowFileCabinetOpen = false;
+    window.__aionFileCabinetOpen = false;
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+  }
+
+  function getAction(event, selector) {
+    const direct = event.target.closest?.(selector);
+    if (direct) return direct;
+
+    const path = typeof event.composedPath === "function" ? event.composedPath() : [];
+    return path.find?.((el) => el?.matches?.(selector)) || null;
+  }
+
+  function handle(event) {
+    const closeButton = getAction(event, "[data-aion-file-cabinet-close='true']");
+    if (closeButton) {
+      stop(event);
+
+      if (!recentlyHandled("close")) {
+        closeFileCabinet();
+      }
+
+      return;
+    }
+
+    const topFolderButton =
+      getAction(event, "[data-aion-cabinet-top-folder='true']") ||
+      getAction(event, "[data-aion-file-cabinet-new-top-folder='true']");
+
+    if (topFolderButton) {
+      stop(event);
+
+      if (!recentlyHandled("top-folder")) {
+        createTopFolderWithoutPrompt();
+      }
+
+      return;
+    }
+  }
+
+  ["pointerdown", "mousedown", "click"].forEach((eventName) => {
+    window.addEventListener(eventName, handle, true);
+    document.addEventListener(eventName, handle, true);
+  });
+
+  window.__aionWorkflowFileCabinetCreateTopFolderNoPromptV14 = createTopFolderWithoutPrompt;
+})();
+
+/* AION PATCH: file cabinet click-outside close v15
+   Behaviour:
+   - When the file cabinet is open, clicking the canvas/outside the drawer closes it.
+   - Clicks inside the file cabinet do not close it.
+   - Clicks on the left sidebar/file icon do not double-close/fight the normal toggle.
+*/
+(function installAionFileCabinetClickOutsideCloseV15() {
+  const PATCH_ID = "aion-file-cabinet-click-outside-close-v15";
+  if (document.getElementById(PATCH_ID)) return;
+
+  const marker = document.createElement("style");
+  marker.id = PATCH_ID;
+  marker.textContent = `
+    .aion-workflow-file-cabinet.open {
+      pointer-events: auto !important;
+    }
+  `;
+  document.head.appendChild(marker);
+
+  function isCabinetOpen() {
+    return window.__aionWorkflowFileCabinetOpen === true ||
+      document.querySelector(".aion-workflow-file-cabinet.open");
+  }
+
+  function closeCabinet() {
+    window.__aionWorkflowFileCabinetOpen = false;
+    window.__aionFileCabinetOpen = false;
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+  }
+
+  function isInside(target, selector) {
+    return Boolean(target?.closest?.(selector));
+  }
+
+  function handleOutsideClick(event) {
+    if (!isCabinetOpen()) return;
+
+    const target = event.target;
+
+    const insideCabinet = isInside(
+      target,
+      ".aion-workflow-file-cabinet, [data-aion-workflow-file-cabinet='true']",
+    );
+
+    const insideSidebar = isInside(
+      target,
+      ".aion-workflow-sidebar, [data-aion-workflow-sidebar='true']",
+    );
+
+    const fileTab = isInside(target, '[data-tab="file_cabinet"]');
+
+    if (insideCabinet || fileTab || insideSidebar) return;
+
+    const onCanvasOrMainArea =
+      isInside(target, ".aion-workflow-canvas") ||
+      isInside(target, ".aion-workflow-layout") ||
+      isInside(target, ".aion-workflow-canvas-viewport") ||
+      isInside(target, ".aion-canvas-node") ||
+      isInside(target, ".aion-workflow-floating-toolbar");
+
+    if (!onCanvasOrMainArea) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    closeCabinet();
+  }
+
+  window.addEventListener("pointerdown", handleOutsideClick, true);
+  window.addEventListener("mousedown", handleOutsideClick, true);
+})();
+
+/* AION PATCH: workflow file cabinet backend sync v1
+   Purpose:
+   - Keep existing local/sync file cabinet behaviour intact.
+   - Hydrate from backend API when available.
+   - Persist every saveTree(tree) to backend API.
+   - Avoid making getTree/saveTree async because existing UI callers expect sync methods.
+*/
+(function installAionWorkflowFileCabinetBackendSyncV1() {
+  const PATCH_ID = "aion-workflow-file-cabinet-backend-sync-v1";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function getApiBase() {
+    const stateApi =
+      window.__AION_DESKTOP_STATE__?.apiBase ||
+      window.__aionDesktopState?.apiBase ||
+      window.state?.apiBase;
+
+    const inputApi =
+      document.querySelector("[data-api-base]")?.value ||
+      document.querySelector("#apiBase")?.value ||
+      document.querySelector('input[name="apiBase"]')?.value;
+
+    return String(stateApi || inputApi || "http://127.0.0.1:8080").replace(/\/+$/, "");
+  }
+
+  function getWorkspaceId() {
+    const stateWorkspace =
+      window.__AION_DESKTOP_STATE__?.workspaceId ||
+      window.__aionDesktopState?.workspaceId ||
+      window.state?.workspaceId;
+
+    const inputWorkspace =
+      document.querySelector("[data-workspace-id]")?.value ||
+      document.querySelector("#workspaceId")?.value ||
+      document.querySelector('input[name="workspaceId"]')?.value;
+
+    return String(stateWorkspace || inputWorkspace || "costa-conexion").trim() || "costa-conexion";
+  }
+
+  function endpoint() {
+    return `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(getWorkspaceId())}`;
+  }
+
+  function installWhenReady() {
+    const api = window.__aionWorkflowFileCabinetApi;
+
+    if (!api || typeof api.getTree !== "function" || typeof api.saveTree !== "function") {
+      window.setTimeout(installWhenReady, 100);
+      return;
+    }
+
+    if (api.__backendSyncInstalledV1) return;
+
+    const originalGetTree = api.getTree.bind(api);
+    const originalSaveTree = api.saveTree.bind(api);
+
+    let backendHydrated = false;
+    let backendHydrating = false;
+    let backendSaveTimer = null;
+    let pendingSaveTree = null;
+
+    async function hydrateFromBackend() {
+      if (backendHydrated || backendHydrating) return;
+      backendHydrating = true;
+
+      try {
+        const res = await fetch(endpoint(), {
+          method: "GET",
+          headers: { Accept: "application/json" },
+        });
+
+        if (!res.ok) {
+          throw new Error(`GET failed ${res.status}`);
+        }
+
+        const tree = await res.json();
+
+        if (tree && typeof tree === "object" && tree.root && typeof tree.root === "object") {
+          originalSaveTree(tree);
+          backendHydrated = true;
+
+          // Existing file cabinet renderers read from getTree(); force a light rerender by changing tab if helpers exist.
+          try {
+            window.__aionWorkflowFileCabinetBackendTree = tree;
+            window.dispatchEvent(new CustomEvent("aion:workflow-file-cabinet:hydrated", { detail: tree }));
+          } catch (_) {}
+        }
+      } catch (err) {
+        console.warn("[AION] Workflow file cabinet backend hydrate failed:", err);
+      } finally {
+        backendHydrating = false;
+      }
+    }
+
+    async function persistToBackend(tree) {
+      try {
+        const res = await fetch(endpoint(), {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(tree),
+        });
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          throw new Error(`POST failed ${res.status} ${text}`);
+        }
+
+        const saved = await res.json();
+        window.__aionWorkflowFileCabinetBackendTree = saved;
+        window.dispatchEvent(new CustomEvent("aion:workflow-file-cabinet:saved", { detail: saved }));
+      } catch (err) {
+        console.warn("[AION] Workflow file cabinet backend save failed:", err);
+      }
+    }
+
+    api.getTree = function getTreeBackendSynced() {
+      hydrateFromBackend();
+      return originalGetTree();
+    };
+
+    api.saveTree = function saveTreeBackendSynced(tree) {
+      const savedLocal = originalSaveTree(tree);
+
+      pendingSaveTree = savedLocal || tree;
+      window.clearTimeout(backendSaveTimer);
+      backendSaveTimer = window.setTimeout(() => {
+        persistToBackend(pendingSaveTree);
+      }, 250);
+
+      return savedLocal;
+    };
+
+    api.hydrateFromBackend = hydrateFromBackend;
+    api.persistToBackend = persistToBackend;
+    api.__backendSyncInstalledV1 = true;
+
+    hydrateFromBackend();
+    console.log("[AION] Workflow file cabinet backend sync installed");
+  }
+
+  installWhenReady();
+})();
+
+/* AION PATCH: workflow file cabinet backend action persist v2
+   Fix:
+   - Some cabinet UI handlers call closed-over saveTree(), not exported api.saveTree.
+   - After any file-cabinet action, persist the current exported tree to backend.
+*/
+(function installAionWorkflowFileCabinetBackendActionPersistV2() {
+  const PATCH_ID = "aion-workflow-file-cabinet-backend-action-persist-v2";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function getApi() {
+    return window.__aionWorkflowFileCabinetApi || null;
+  }
+
+  function isCabinetAction(target) {
+    if (!target || !target.closest) return false;
+
+    return Boolean(
+      target.closest("[data-aion-file-cabinet-create-workflow]") ||
+      target.closest("[data-aion-file-cabinet-create-root-workflow]") ||
+      target.closest("[data-aion-file-cabinet-create-folder]") ||
+      target.closest("[data-aion-file-cabinet-create-top-folder]") ||
+      target.closest("[data-aion-file-cabinet-delete-node]") ||
+      target.closest("[data-aion-file-cabinet-open-workflow]") ||
+      target.closest(".aion-file-cabinet-rename-input") ||
+      target.closest(".aion-file-cabinet-rename-input-v10")
+    );
+  }
+
+  let persistTimer = null;
+
+  function persistCurrentTreeSoon() {
+    window.clearTimeout(persistTimer);
+
+    persistTimer = window.setTimeout(() => {
+      const api = getApi();
+
+      if (
+        !api ||
+        typeof api.getTree !== "function" ||
+        typeof api.persistToBackend !== "function"
+      ) {
+        return;
+      }
+
+      try {
+        const tree = api.getTree();
+        if (tree && typeof tree === "object" && tree.root) {
+          api.persistToBackend(tree);
+        }
+      } catch (err) {
+        console.warn("[AION] Workflow file cabinet action persist failed:", err);
+      }
+    }, 350);
+  }
+
+  ["click", "change", "blur", "keydown"].forEach((eventName) => {
+    window.addEventListener(
+      eventName,
+      (event) => {
+        if (eventName === "keydown" && !["Enter", "Escape"].includes(event.key)) {
+          return;
+        }
+
+        if (isCabinetAction(event.target)) {
+          persistCurrentTreeSoon();
+        }
+      },
+      true
+    );
+  });
+
+  window.addEventListener("aion:workflow-file-cabinet:force-save", persistCurrentTreeSoon);
+
+  console.log("[AION] Workflow file cabinet backend action persist v2 installed");
+})();
+
+/* AION PATCH: workflow file cabinet backend dirty poll sync v3
+   Fix:
+   - Cabinet UI can mutate closed-over local tree without calling exported saveTree().
+   - This watches api.getTree() and persists to backend whenever the tree changes.
+*/
+(function installAionWorkflowFileCabinetDirtyPollSyncV3() {
+  const PATCH_ID = "aion-workflow-file-cabinet-dirty-poll-sync-v3";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function stableStringify(value) {
+    try {
+      return JSON.stringify(value);
+    } catch (_) {
+      return "";
+    }
+  }
+
+  function getApi() {
+    return window.__aionWorkflowFileCabinetApi || null;
+  }
+
+  function installWhenReady() {
+    const api = getApi();
+
+    if (
+      !api ||
+      typeof api.getTree !== "function" ||
+      typeof api.persistToBackend !== "function"
+    ) {
+      window.setTimeout(installWhenReady, 250);
+      return;
+    }
+
+    if (api.__dirtyPollSyncInstalledV3) return;
+    api.__dirtyPollSyncInstalledV3 = true;
+
+    let lastSavedSignature = "";
+    let saving = false;
+    let saveTimer = null;
+
+    function schedulePersist(reason) {
+      window.clearTimeout(saveTimer);
+
+      saveTimer = window.setTimeout(async () => {
+        if (saving) return;
+
+        try {
+          const tree = api.getTree();
+          if (!tree || typeof tree !== "object" || !tree.root) return;
+
+          const signature = stableStringify(tree);
+          if (!signature || signature === lastSavedSignature) return;
+
+          saving = true;
+          await api.persistToBackend(tree);
+          lastSavedSignature = signature;
+
+          console.log("[AION] Workflow file cabinet dirty-sync saved:", reason);
+        } catch (err) {
+          console.warn("[AION] Workflow file cabinet dirty-sync failed:", err);
+        } finally {
+          saving = false;
+        }
+      }, 300);
+    }
+
+    // Seed from current tree so we only save when it changes after install.
+    try {
+      const initialTree = api.getTree();
+      lastSavedSignature = stableStringify(initialTree);
+    } catch (_) {}
+
+    window.setInterval(() => {
+      try {
+        const tree = api.getTree();
+        const signature = stableStringify(tree);
+
+        if (signature && signature !== lastSavedSignature) {
+          schedulePersist("poll-change");
+        }
+      } catch (_) {}
+    }, 1000);
+
+    window.addEventListener("blur", () => schedulePersist("window-blur"));
+    window.addEventListener("beforeunload", () => schedulePersist("beforeunload"));
+    window.addEventListener("aion:workflow-file-cabinet:force-save", () => {
+      lastSavedSignature = "";
+      schedulePersist("force-save");
+    });
+
+    console.log("[AION] Workflow file cabinet dirty poll sync v3 installed");
+  }
+
+  installWhenReady();
+})();
+
+/* AION PATCH: workflow file cabinet debug bridge v1 */
+(function installAionWorkflowFileCabinetDebugBridgeV1() {
+  const PATCH_ID = "aion-workflow-file-cabinet-debug-bridge-v1";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function getApi() {
+    return window.__aionWorkflowFileCabinetApi || null;
+  }
+
+  window.__debugAionWorkflowCabinet = async function debugAionWorkflowCabinet() {
+    const api = getApi();
+    const result = {
+      hasApi: !!api,
+      hasGetTree: !!api?.getTree,
+      hasSaveTree: !!api?.saveTree,
+      hasPersistToBackend: !!api?.persistToBackend,
+      backendSyncInstalled: !!api?.__backendSyncInstalledV1,
+      dirtyPollInstalled: !!api?.__dirtyPollSyncInstalledV3,
+      tree: null,
+      backendTree: null,
+      error: null,
+    };
+
+    try {
+      result.tree = api?.getTree?.() || null;
+    } catch (err) {
+      result.error = String(err?.message || err);
+    }
+
+    try {
+      const endpoint =
+        "http://127.0.0.1:8080/api/aion/business/workflow-file-cabinet/costa-conexion";
+      const res = await fetch(endpoint, { headers: { Accept: "application/json" } });
+      result.backendTree = await res.json();
+    } catch (err) {
+      result.backendError = String(err?.message || err);
+    }
+
+    console.log("[AION CABINET DEBUG]", result);
+    return result;
+  };
+
+  window.__forceSaveAionWorkflowCabinet = async function forceSaveAionWorkflowCabinet() {
+    const api = getApi();
+    if (!api?.getTree || !api?.persistToBackend) {
+      console.warn("[AION CABINET DEBUG] API not ready", api);
+      return null;
+    }
+
+    const tree = api.getTree();
+    console.log("[AION CABINET DEBUG] forcing save", tree);
+    await api.persistToBackend(tree);
+    return tree;
+  };
+
+  console.log("[AION] Workflow file cabinet debug bridge installed");
+})();
+
+/* AION PATCH: workflow file cabinet final force-save override v5 */
+(function () {
+  const PATCH_ID = "aion-workflow-file-cabinet-final-force-save-override-v5";
+  window[PATCH_ID] = true;
+
+  function getApiBase() {
+    return String(
+      window.__AION_DESKTOP_STATE__?.apiBase ||
+      window.__aionDesktopState?.apiBase ||
+      window.state?.apiBase ||
+      document.querySelector("[data-api-base]")?.value ||
+      document.querySelector("#apiBase")?.value ||
+      "http://127.0.0.1:8080"
+    ).replace(/\/+$/, "");
+  }
+
+  function getWorkspaceId() {
+    return String(
+      window.__AION_DESKTOP_STATE__?.workspaceId ||
+      window.__aionDesktopState?.workspaceId ||
+      window.state?.workspaceId ||
+      document.querySelector("[data-workspace-id]")?.value ||
+      document.querySelector("#workspaceId")?.value ||
+      "costa-conexion"
+    ).trim() || "costa-conexion";
+  }
+
+  function normalise(tree) {
+    const payload = JSON.parse(JSON.stringify(tree || {}));
+
+    payload.version = Number(payload.version || 1);
+    payload.workspace_id = payload.workspace_id || getWorkspaceId();
+    payload.business_container = payload.business_container || payload.workspace_id;
+    payload.schema_version = payload.schema_version || "aion.workflow_file_cabinet.v1";
+
+    if (!Array.isArray(payload.folders)) {
+      payload.folders = Array.isArray(payload.root?.children) ? payload.root.children : [];
+    }
+
+    payload.root = {
+      ...(payload.root || {}),
+      id: payload.root?.id || "root",
+      type: payload.root?.type || "folder",
+      name: payload.root?.name || "Workflows",
+      children: payload.folders,
+    };
+
+    payload.metadata = payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {};
+    payload.metadata.source = "aion_business_workflow_file_cabinet";
+
+    return payload;
+  }
+
+  async function forceSaveLiveCabinet() {
+    const api = window.__aionWorkflowFileCabinetApi;
+    if (!api || typeof api.getTree !== "function") {
+      throw new Error("Workflow file cabinet API not ready");
+    }
+
+    const payload = normalise(api.getTree());
+    const url = `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(getWorkspaceId())}`;
+
+    console.log("[AION CABINET FINAL SAVE V5] posting live tree", {
+      url,
+      folders: payload.folders.length,
+      containsDraft1: JSON.stringify(payload).includes("workflow_draft_1"),
+    });
+
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error(`POST failed ${res.status}: ${await res.text()}`);
+    }
+
+    const saved = await res.json();
+    window.__aionWorkflowFileCabinetBackendTree = saved;
+    return saved;
+  }
+
+  window.__forceSaveAionWorkflowCabinet = forceSaveLiveCabinet;
+
+  if (window.__aionWorkflowFileCabinetApi) {
+    window.__aionWorkflowFileCabinetApi.forceSaveBackendTree = forceSaveLiveCabinet;
+    window.__aionWorkflowFileCabinetApi.postLiveBackendTree = forceSaveLiveCabinet;
+  }
+
+  console.log("[AION] Workflow file cabinet final force-save override v5 installed");
+})();
+
+
+/* AION PATCH: unique workflow id fallback v6
+   Purpose:
+   - Prevent new/fallback workflows from reusing static workflow_draft IDs.
+   - Existing saved workflow_draft records are preserved when explicitly loaded.
+*/
+(function installAionUniqueWorkflowIdFallbackV6() {
+  const PATCH_ID = "aion-unique-workflow-id-fallback-v6";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  window.__aionCreateUniqueWorkflowId = function createUniqueWorkflowId(prefix = "workflow") {
+    const time = Date.now();
+    const rand = Math.random().toString(16).slice(2, 8);
+    return `${prefix}_${time}_${rand}`;
+  };
+
+  console.log("[AION] unique workflow id fallback v6 installed");
+})();
+
+
+/* AION PATCH: workflow file cabinet create workflow live save v7
+   Fix:
+   - Override api.createWorkflow after older file-cabinet patches.
+   - Create a unique workflow ID every time.
+   - Save into the live tree, then force POST current live tree to backend.
+*/
+(function installAionWorkflowFileCabinetCreateWorkflowLiveSaveV7() {
+  const PATCH_ID = "aion-workflow-file-cabinet-create-workflow-live-save-v7";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function makeWorkflowId() {
+    if (typeof window.__aionCreateUniqueWorkflowId === "function") {
+      return window.__aionCreateUniqueWorkflowId();
+    }
+    return `workflow_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+  }
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value || {}));
+    } catch (_) {
+      return {};
+    }
+  }
+
+  function ensureTreeShape(tree) {
+    const payload = tree && typeof tree === "object" ? tree : {};
+
+    payload.version = Number(payload.version || 1);
+    payload.workspace_id = payload.workspace_id || "costa-conexion";
+    payload.business_container = payload.business_container || payload.workspace_id;
+    payload.schema_version = payload.schema_version || "aion.workflow_file_cabinet.v1";
+
+    if (!Array.isArray(payload.folders)) {
+      payload.folders = Array.isArray(payload.root?.children) ? payload.root.children : [];
+    }
+
+    payload.root = {
+      ...(payload.root && typeof payload.root === "object" ? payload.root : {}),
+      id: payload.root?.id || "root",
+      type: payload.root?.type || "folder",
+      name: payload.root?.name || "Workflows",
+      children: payload.folders,
+    };
+
+    return payload;
+  }
+
+  function walk(items, fn) {
+    for (const item of items || []) {
+      const hit = fn(item);
+      if (hit) return hit;
+
+      const childHit = walk(item.children || [], fn);
+      if (childHit) return childHit;
+    }
+
+    return null;
+  }
+
+  function findNode(items, id) {
+    return walk(items, (item) => {
+      if (String(item.id || "") === String(id || "")) return item;
+      if (String(item.workflow_id || "") === String(id || "")) return item;
+      return null;
+    });
+  }
+
+  function makeStarterGraph(workflowId, name, businessContainer) {
+    return {
+      workflow_id: workflowId,
+      name,
+      status: "draft",
+      saved_at: null,
+      dirty: true,
+      business_container: businessContainer || "costa-conexion",
+      nodes: [
+        {
+          id: "node_choose_start",
+          title: "Choose",
+          type: "Step",
+          icon: "C",
+          status: "Dry-run",
+          meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+          tone: "teal",
+          x: 760,
+          y: 260,
+          config: {},
+        },
+      ],
+      edges: [],
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  function createWorkflowLive(parentId = "folder_operations_workflows") {
+    const api = window.__aionWorkflowFileCabinetApi;
+    if (!api || typeof api.getTree !== "function") {
+      throw new Error("Workflow file cabinet API not ready");
+    }
+
+    const tree = ensureTreeShape(api.getTree());
+
+    const parent =
+      findNode(tree.folders, parentId) ||
+      findNode(tree.folders, "folder_operations_workflows") ||
+      walk(tree.folders, (item) => {
+        if (
+          String(item.type || "") === "folder" &&
+          String(item.name || "").toLowerCase() === "workflows"
+        ) {
+          return item;
+        }
+        return null;
+      });
+
+    if (!parent) {
+      throw new Error(`Workflow parent folder not found: ${parentId}`);
+    }
+
+    parent.children = Array.isArray(parent.children) ? parent.children : [];
+
+    const workflowId = makeWorkflowId();
+    const name = `Untitled workflow ${String(Date.now()).slice(-4)}`;
+    const graph = makeStarterGraph(workflowId, name, tree.business_container || tree.workspace_id);
+
+    const node = {
+      id: workflowId,
+      workflow_id: workflowId,
+      type: "workflow",
+      name,
+      graph: clone(graph),
+    };
+
+    parent.children.push(node);
+
+    tree.root.children = tree.folders;
+
+    if (typeof api.saveTree === "function") {
+      api.saveTree(tree);
+    }
+
+    window.__aionWorkflowGraph = graph;
+    window.__aionWorkflowSelectedNodeId = "node_choose_start";
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(window.__aionWorkflowGraph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof window.__forceSaveAionWorkflowCabinet === "function") {
+        window.__forceSaveAionWorkflowCabinet();
+      }
+    } catch (err) {
+      console.warn("[AION] create workflow live backend save failed:", err);
+    }
+
+    if (typeof requestRender === "function") requestRender();
+
+    return node;
+  }
+
+  function installWhenReady() {
+    const api = window.__aionWorkflowFileCabinetApi;
+
+    if (!api || typeof api.getTree !== "function") {
+      window.setTimeout(installWhenReady, 100);
+      return;
+    }
+
+    api.createWorkflow = createWorkflowLive;
+    window.__createAionWorkflowInCabinet = createWorkflowLive;
+
+    console.log("[AION] workflow file cabinet create workflow live save v7 installed");
+  }
+
+  installWhenReady();
+})();
+
+/* AION PATCH: workflow file cabinet backend-authoritative hydrate v8
+   Fix:
+   - Startup/local cache can preserve stale workflow cabinet rows.
+   - Make backend tree authoritative whenever backend is reachable.
+   - Always replace local tree with backend tree, even if older hydrate guard already ran.
+*/
+(function installAionWorkflowFileCabinetBackendAuthoritativeHydrateV8() {
+  const PATCH_ID = "aion-workflow-file-cabinet-backend-authoritative-hydrate-v8";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function getApiBase() {
+    return String(
+      window.__AION_DESKTOP_STATE__?.apiBase ||
+      window.__aionDesktopState?.apiBase ||
+      window.state?.apiBase ||
+      document.querySelector("[data-api-base]")?.value ||
+      document.querySelector("#apiBase")?.value ||
+      "http://127.0.0.1:8080"
+    ).replace(/\/+$/, "");
+  }
+
+  function getWorkspaceId() {
+    return String(
+      window.__AION_DESKTOP_STATE__?.workspaceId ||
+      window.__aionDesktopState?.workspaceId ||
+      window.state?.workspaceId ||
+      document.querySelector("[data-workspace-id]")?.value ||
+      document.querySelector("#workspaceId")?.value ||
+      "costa-conexion"
+    ).trim() || "costa-conexion";
+  }
+
+  function normalise(tree) {
+    const payload = JSON.parse(JSON.stringify(tree || {}));
+
+    payload.version = Number(payload.version || 1);
+    payload.workspace_id = payload.workspace_id || getWorkspaceId();
+    payload.business_container = payload.business_container || payload.workspace_id;
+    payload.schema_version = payload.schema_version || "aion.workflow_file_cabinet.v1";
+
+    if (!Array.isArray(payload.folders)) {
+      payload.folders = Array.isArray(payload.root?.children) ? payload.root.children : [];
+    }
+
+    payload.root = {
+      ...(payload.root && typeof payload.root === "object" ? payload.root : {}),
+      id: payload.root?.id || "root",
+      type: payload.root?.type || "folder",
+      name: payload.root?.name || "Workflows",
+      children: payload.folders,
+    };
+
+    payload.metadata = payload.metadata && typeof payload.metadata === "object" ? payload.metadata : {};
+    payload.metadata.source = "aion_business_workflow_file_cabinet";
+
+    return payload;
+  }
+
+  async function hydrateBackendAuthoritative() {
+    const api = window.__aionWorkflowFileCabinetApi;
+    if (!api || typeof api.saveTree !== "function") return null;
+
+    const url = `${getApiBase()}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(getWorkspaceId())}`;
+
+    const res = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Workflow cabinet hydrate failed ${res.status}: ${await res.text()}`);
+    }
+
+    const backendTree = normalise(await res.json());
+
+    api.saveTree(backendTree);
+    window.__aionWorkflowFileCabinetBackendTree = backendTree;
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent("aion:workflow-file-cabinet:hydrated", {
+          detail: backendTree,
+        }),
+      );
+    } catch (_) {}
+
+    try {
+      if (typeof requestRender === "function") requestRender();
+    } catch (_) {}
+
+    console.log("[AION] Workflow file cabinet backend-authoritative hydrate v8 complete", {
+      folders: backendTree.folders.length,
+      containsDraft1: JSON.stringify(backendTree).includes("workflow_draft_1"),
+    });
+
+    return backendTree;
+  }
+
+  function installWhenReady() {
+    const api = window.__aionWorkflowFileCabinetApi;
+
+    if (!api || typeof api.saveTree !== "function") {
+      window.setTimeout(installWhenReady, 100);
+      return;
+    }
+
+    api.hydrateFromBackend = hydrateBackendAuthoritative;
+    api.hydrateBackendAuthoritative = hydrateBackendAuthoritative;
+    window.__hydrateAionWorkflowCabinetFromBackend = hydrateBackendAuthoritative;
+
+    window.setTimeout(() => {
+      hydrateBackendAuthoritative().catch((err) => {
+        console.warn("[AION] Workflow file cabinet backend-authoritative hydrate v8 failed:", err);
+      });
+    }, 250);
+  }
+
+  installWhenReady();
+
+  console.log("[AION] Workflow file cabinet backend-authoritative hydrate v8 installed");
+})();
+
+/* AION PATCH: workflow file cabinet mutation autosave v9
+   Purpose:
+   - After delete / rename / folder actions, force-post the current live cabinet tree.
+   - Keeps backend authoritative without needing manual DevTools force-save.
+*/
+(function installAionWorkflowFileCabinetMutationAutosaveV9() {
+  const PATCH_ID = "aion-workflow-file-cabinet-mutation-autosave-v9";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  let timer = null;
+
+  function scheduleAutosave(reason = "mutation") {
+    window.clearTimeout(timer);
+    timer = window.setTimeout(async () => {
+      try {
+        if (typeof window.__forceSaveAionWorkflowCabinet === "function") {
+          await window.__forceSaveAionWorkflowCabinet();
+          console.log("[AION] Workflow file cabinet mutation autosaved:", reason);
+        }
+      } catch (err) {
+        console.warn("[AION] Workflow file cabinet mutation autosave failed:", err);
+      }
+    }, 350);
+  }
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target;
+      if (!target?.closest) return;
+
+      if (
+        target.closest("[data-aion-cabinet-delete]") ||
+        target.closest("[data-aion-cabinet-new-folder]") ||
+        target.closest("[data-aion-cabinet-new-workflow]") ||
+        target.closest("[data-aion-cabinet-top-folder]")
+      ) {
+        scheduleAutosave("click-mutation");
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      const target = event.target;
+      if (!target?.closest) return;
+
+      if (
+        event.key === "Enter" &&
+        (
+          target.closest(".aion-file-cabinet-rename-input") ||
+          target.closest(".aion-file-cabinet-rename-input-v10")
+        )
+      ) {
+        scheduleAutosave("rename-enter");
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "focusout",
+    (event) => {
+      const target = event.target;
+      if (!target?.closest) return;
+
+      if (
+        target.closest(".aion-file-cabinet-rename-input") ||
+        target.closest(".aion-file-cabinet-rename-input-v10")
+      ) {
+        scheduleAutosave("rename-blur");
+      }
+    },
+    true,
+  );
+
+  window.__autosaveAionWorkflowCabinetMutation = scheduleAutosave;
+
+  console.log("[AION] Workflow file cabinet mutation autosave v9 installed");
+})();
+
+/* AION PATCH: workflow file cabinet strict delete v10
+   Fix:
+   - Delete must remove the exact clicked workflow/folder id.
+   - Prevent older overlapping handlers from deleting nearby/renamed rows.
+   - Force-save backend after delete.
+*/
+(function installAionWorkflowFileCabinetStrictDeleteV10() {
+  const PATCH_ID = "aion-workflow-file-cabinet-strict-delete-v10";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function removeByExactId(items, removeId) {
+    return (items || [])
+      .filter((item) => {
+        const id = String(item?.id || "");
+        const workflowId = String(item?.workflow_id || "");
+        return id !== removeId && workflowId !== removeId;
+      })
+      .map((item) => ({
+        ...item,
+        children: Array.isArray(item.children)
+          ? removeByExactId(item.children, removeId)
+          : item.children,
+      }));
+  }
+
+  async function strictDelete(deleteId, deleteName) {
+    const api = window.__aionWorkflowFileCabinetApi;
+    if (!api || typeof api.getTree !== "function" || typeof api.saveTree !== "function") {
+      throw new Error("Workflow file cabinet API not ready");
+    }
+
+    const ok = window.confirm?.(`Delete “${deleteName || deleteId}”?`) ?? true;
+    if (!ok) return null;
+
+    const tree = api.getTree();
+    tree.folders = removeByExactId(tree.folders || [], String(deleteId));
+
+    tree.root = {
+      ...(tree.root || {}),
+      id: "root",
+      type: "folder",
+      name: "Workflows",
+      children: tree.folders,
+    };
+
+    api.saveTree(tree);
+
+    if (typeof window.__forceSaveAionWorkflowCabinet === "function") {
+      await window.__forceSaveAionWorkflowCabinet();
+    }
+
+    if (typeof window.__hydrateAionWorkflowCabinetFromBackend === "function") {
+      await window.__hydrateAionWorkflowCabinetFromBackend();
+    }
+
+    if (typeof requestRender === "function") requestRender();
+
+    console.log("[AION] Workflow file cabinet strict delete v10 deleted:", deleteId);
+    return tree;
+  }
+
+  window.__strictDeleteAionWorkflowCabinetItem = strictDelete;
+
+  window.addEventListener(
+    "click",
+    (event) => {
+      const btn = event.target?.closest?.("[data-aion-cabinet-delete]");
+      if (!btn) return;
+
+      const drawer = btn.closest?.(".aion-workflow-file-cabinet");
+      if (!drawer) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const deleteId = String(btn.getAttribute("data-aion-cabinet-delete") || "").trim();
+      const deleteName = btn.getAttribute("data-aion-cabinet-delete-name") || deleteId;
+
+      if (!deleteId) return;
+
+      strictDelete(deleteId, deleteName).catch((err) => {
+        console.warn("[AION] Workflow file cabinet strict delete failed:", err);
+      });
+    },
+    true,
+  );
+
+  console.log("[AION] Workflow file cabinet strict delete v10 installed");
+})();
+
+/* AION PATCH: workflow file cabinet selected workflow binding v11
+   Purpose:
+   - Track the workflow selected from the file cabinet.
+   - Ensure Save current writes back to that exact workflow id.
+   - Prevent edits from drifting into workflow_draft or a fallback id after loading.
+*/
+(function installAionWorkflowFileCabinetSelectedWorkflowBindingV11() {
+  const PATCH_ID = "aion-workflow-file-cabinet-selected-workflow-binding-v11";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value || {}));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function walk(items, fn) {
+    for (const item of items || []) {
+      const result = fn(item);
+      if (result) return result;
+      const child = walk(item.children || [], fn);
+      if (child) return child;
+    }
+    return null;
+  }
+
+  function normaliseRoot(tree) {
+    tree.folders = Array.isArray(tree.folders)
+      ? tree.folders
+      : Array.isArray(tree.root?.children)
+        ? tree.root.children
+        : [];
+
+    tree.root = {
+      ...(tree.root || {}),
+      id: "root",
+      type: "folder",
+      name: "Workflows",
+      children: tree.folders,
+    };
+
+    return tree;
+  }
+
+  function getCurrentGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || {};
+  }
+
+  function setCurrentGraph(graph) {
+    window.__aionWorkflowGraph = graph;
+    window.__aionWorkflowSelectedNodeId =
+      graph?.nodes?.[0]?.id || window.__aionWorkflowSelectedNodeId || null;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function findWorkflow(tree, workflowId) {
+    return walk(tree.folders || tree.root?.children || [], (item) => {
+      if (
+        item?.type === "workflow" &&
+        (
+          String(item.id || "") === String(workflowId) ||
+          String(item.workflow_id || "") === String(workflowId)
+        )
+      ) {
+        return item;
+      }
+      return null;
+    });
+  }
+
+  async function saveSelectedWorkflowToCabinet(reason = "selected-save") {
+    const api = window.__aionWorkflowFileCabinetApi;
+    if (!api || typeof api.getTree !== "function" || typeof api.saveTree !== "function") {
+      throw new Error("Workflow file cabinet API not ready");
+    }
+
+    const graph = clone(getCurrentGraph());
+    const selectedWorkflowId =
+      window.__aionSelectedWorkflowId ||
+      window.__aionActiveWorkflowId ||
+      graph?.workflow_id;
+
+    if (!selectedWorkflowId) {
+      throw new Error("No selected workflow id available");
+    }
+
+    const tree = normaliseRoot(api.getTree());
+    const node = findWorkflow(tree, selectedWorkflowId);
+
+    if (!node) {
+      throw new Error(`Selected workflow not found in cabinet: ${selectedWorkflowId}`);
+    }
+
+    graph.workflow_id = selectedWorkflowId;
+    graph.name = graph.name || node.name || "Untitled workflow";
+    graph.updated_at = new Date().toISOString();
+    graph.dirty = false;
+
+    node.id = node.id || selectedWorkflowId;
+    node.workflow_id = selectedWorkflowId;
+    node.name = graph.name;
+    node.type = "workflow";
+    node.graph = clone(graph);
+
+    normaliseRoot(tree);
+    api.saveTree(tree);
+
+    if (typeof window.__forceSaveAionWorkflowCabinet === "function") {
+      await window.__forceSaveAionWorkflowCabinet();
+    }
+
+    console.log("[AION] Workflow file cabinet selected workflow saved:", {
+      workflowId: selectedWorkflowId,
+      name: graph.name,
+      reason,
+    });
+
+    return { tree, graph, workflowId: selectedWorkflowId };
+  }
+
+  async function loadWorkflowFromCabinet(workflowId) {
+    const api = window.__aionWorkflowFileCabinetApi;
+    if (!api || typeof api.getTree !== "function") {
+      throw new Error("Workflow file cabinet API not ready");
+    }
+
+    const tree = normaliseRoot(api.getTree());
+    const node = findWorkflow(tree, workflowId);
+
+    if (!node) {
+      throw new Error(`Workflow not found in cabinet: ${workflowId}`);
+    }
+
+    const graph = clone(node.graph || {});
+    graph.workflow_id = node.workflow_id || node.id || workflowId;
+    graph.name = node.name || graph.name || "Untitled workflow";
+    graph.status = graph.status || "draft";
+    graph.nodes = Array.isArray(graph.nodes)
+      ? graph.nodes
+      : [
+          {
+            id: "node_choose_start",
+            title: "Choose",
+            type: "Step",
+            icon: "C",
+            status: "Dry-run",
+            meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
+            tone: "teal",
+            x: 160,
+            y: 260,
+            config: {},
+          },
+        ];
+    graph.edges = Array.isArray(graph.edges) ? graph.edges : [];
+    graph.dirty = false;
+    graph.updated_at = new Date().toISOString();
+
+    window.__aionSelectedWorkflowId = graph.workflow_id;
+    window.__aionActiveWorkflowId = graph.workflow_id;
+
+    setCurrentGraph(graph);
+
+    console.log("[AION] Workflow file cabinet selected workflow loaded:", {
+      workflowId: graph.workflow_id,
+      name: graph.name,
+      nodes: graph.nodes.length,
+      edges: graph.edges.length,
+    });
+
+    return graph;
+  }
+
+  window.__loadAionWorkflowFromCabinetById = loadWorkflowFromCabinet;
+  window.__saveSelectedAionWorkflowToCabinet = saveSelectedWorkflowToCabinet;
+
+  window.addEventListener(
+    "click",
+    (event) => {
+      const open = event.target?.closest?.("[data-aion-file-cabinet-open-workflow]");
+      if (!open) return;
+
+      const drawer = open.closest?.(".aion-workflow-file-cabinet");
+      if (!drawer) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const workflowId = String(open.getAttribute("data-aion-file-cabinet-open-workflow") || "").trim();
+      if (!workflowId) return;
+
+      loadWorkflowFromCabinet(workflowId).catch((err) => {
+        console.warn("[AION] Workflow file cabinet selected workflow load failed:", err);
+      });
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "click",
+    (event) => {
+      const save = event.target?.closest?.("[data-aion-workflow-save='true']");
+      if (!save) return;
+
+      if (!window.__aionSelectedWorkflowId && !window.__aionActiveWorkflowId) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      saveSelectedWorkflowToCabinet("save-button").catch((err) => {
+        console.warn("[AION] Workflow file cabinet selected workflow save failed:", err);
+      });
+    },
+    true,
+  );
+
+  console.log("[AION] Workflow file cabinet selected workflow binding v11 installed");
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* AION PATCH: native workflow active strip styles v16
+   Purpose:
+   - Style the real in-render active workflow strip.
+   - Hide obsolete load notice/floating workflow status elements.
+   - No fixed overlay positioning.
+*/
+(function installAionNativeWorkflowActiveStripStylesV16() {
+  const PATCH_ID = "aion-native-workflow-active-strip-styles-v16";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-load-notice,
+    [data-aion-selected-workflow-banner='true'],
+    .aion-selected-workflow-banner,
+    [data-aion-selected-workflow-overlay='true'],
+    .aion-selected-workflow-overlay-v13,
+    [data-aion-selected-workflow-slim-header='true'],
+    .aion-selected-workflow-slim-header-v14 {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .aion-workflow-active-strip {
+      height: 34px !important;
+      min-height: 34px !important;
+      max-height: 34px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+      padding: 0 18px 0 24px !important;
+      margin: 0 !important;
+      border-top: 1px solid rgba(15,23,42,0.08) !important;
+      border-bottom: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(255,255,255,0.86) !important;
+      backdrop-filter: blur(10px) !important;
+      box-shadow: 0 8px 22px rgba(15,23,42,0.04) !important;
+      color: #0f172a !important;
+      position: relative !important;
+      z-index: 30 !important;
+    }
+
+    .aion-workflow-active-strip-left,
+    .aion-workflow-active-strip-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      min-width: 0 !important;
+    }
+
+    .aion-workflow-active-strip-left {
+      flex: 1 1 auto !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-active-strip-right {
+      flex: 0 0 auto !important;
+    }
+
+    .aion-workflow-active-strip-left span {
+      height: 22px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 10px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.95) !important;
+      color: #64748b !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: .10em !important;
+      text-transform: uppercase !important;
+      white-space: nowrap !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-active-strip strong {
+      font-size: 12px !important;
+      font-weight: 950 !important;
+      color: #0f172a !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      max-width: 320px !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-active-strip code {
+      font-size: 10px !important;
+      color: #64748b !important;
+      background: transparent !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      max-width: 260px !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-active-strip-right em,
+    .aion-workflow-active-strip-right b {
+      height: 22px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 9px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.95) !important;
+      color: #334155 !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      font-style: normal !important;
+      white-space: nowrap !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-active-strip-right b.saved,
+    .aion-workflow-active-strip-right b.clean,
+    .aion-workflow-active-strip-right b.success {
+      background: #ecfdf5 !important;
+      color: #047857 !important;
+      border-color: rgba(4,120,87,0.18) !important;
+    }
+
+    .aion-workflow-active-strip-right b.dirty,
+    .aion-workflow-active-strip-right b.warning {
+      background: #fff7ed !important;
+      color: #c2410c !important;
+      border-color: rgba(194,65,12,0.20) !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Native workflow active strip styles v16 installed");
+})();
+
+/* AION PATCH: inline active workflow meta styles v17
+   Fix:
+   - Workflow status lives inside the existing topbar subtitle.
+   - No extra strip between topbar and canvas.
+   - Restores canvas height and bottom zoom controls.
+*/
+(function installAionInlineActiveWorkflowMetaStylesV17() {
+  const PATCH_ID = "aion-inline-active-workflow-meta-styles-v17";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    /* Disable failed strip/overlay experiments */
+    .aion-workflow-active-strip,
+    [data-aion-workflow-active-strip='true'],
+    .aion-workflow-load-notice,
+    [data-aion-selected-workflow-banner='true'],
+    .aion-selected-workflow-banner,
+    [data-aion-selected-workflow-overlay='true'],
+    .aion-selected-workflow-overlay-v13,
+    [data-aion-selected-workflow-slim-header='true'],
+    .aion-selected-workflow-slim-header-v14 {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
+      max-width: 0 !important;
+      max-height: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-subtle-meta-active {
+      display: flex !important;
+      align-items: center !important;
+      gap: 7px !important;
+      flex-wrap: wrap !important;
+      min-height: 18px !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-subtle-meta-active span {
+      display: inline-flex !important;
+      align-items: center !important;
+      color: inherit !important;
+    }
+
+    .aion-workflow-subtle-meta-active em,
+    .aion-workflow-subtle-meta-active b,
+    .aion-workflow-subtle-meta-active strong {
+      height: 17px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 6px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.92) !important;
+      color: #475569 !important;
+      font-size: 9px !important;
+      font-weight: 850 !important;
+      font-style: normal !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+      white-space: nowrap !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-subtle-meta-active em {
+      max-width: 180px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.saved,
+    .aion-workflow-subtle-meta-active strong.clean,
+    .aion-workflow-subtle-meta-active strong.success {
+      background: #ecfdf5 !important;
+      color: #047857 !important;
+      border-color: rgba(4,120,87,0.18) !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.dirty,
+    .aion-workflow-subtle-meta-active strong.warning,
+    .aion-workflow-subtle-meta-active strong.draft {
+      background: #fff7ed !important;
+      color: #c2410c !important;
+      border-color: rgba(194,65,12,0.20) !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Inline active workflow meta styles v17 installed");
+})();
+
+/* AION PATCH: workflow header status row visual fix v18
+   Fix:
+   - v17 put workflow chips inside the subtitle and made them visually disappear.
+   - This turns the active workflow meta into a proper slim second row inside the top header.
+   - It does not add anything into the canvas layout.
+*/
+(function installAionWorkflowHeaderStatusRowVisualFixV18() {
+  const PATCH_ID = "aion-workflow-header-status-row-visual-fix-v18";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-topbar {
+      position: relative !important;
+      min-height: 112px !important;
+      height: 112px !important;
+      padding-bottom: 30px !important;
+      box-sizing: border-box !important;
+    }
+
+    .aion-workflow-subtle-meta-active {
+      position: absolute !important;
+      left: 96px !important;
+      right: 24px !important;
+      bottom: 0 !important;
+      height: 30px !important;
+
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+
+      padding: 0 14px !important;
+      margin: 0 !important;
+
+      border-top: 1px solid rgba(15,23,42,0.08) !important;
+      background: rgba(255,255,255,0.78) !important;
+      backdrop-filter: blur(10px) !important;
+
+      line-height: 1 !important;
+      overflow: hidden !important;
+      z-index: 20 !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span {
+      height: 20px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 9px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.95) !important;
+      color: #64748b !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: .10em !important;
+      text-transform: uppercase !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span::before {
+      content: "Active workflow" !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span {
+      font-size: 0 !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span::before {
+      font-size: 10px !important;
+    }
+
+    .aion-workflow-subtle-meta-active em,
+    .aion-workflow-subtle-meta-active b,
+    .aion-workflow-subtle-meta-active strong {
+      height: 20px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 8px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.95) !important;
+      color: #334155 !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      font-style: normal !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+      white-space: nowrap !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-subtle-meta-active em {
+      max-width: 260px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.saved,
+    .aion-workflow-subtle-meta-active strong.clean,
+    .aion-workflow-subtle-meta-active strong.success {
+      background: #ecfdf5 !important;
+      color: #047857 !important;
+      border-color: rgba(4,120,87,0.18) !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.dirty,
+    .aion-workflow-subtle-meta-active strong.warning,
+    .aion-workflow-subtle-meta-active strong.draft {
+      background: #fff7ed !important;
+      color: #c2410c !important;
+      border-color: rgba(194,65,12,0.20) !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow header status row visual fix v18 installed");
+})();
+
+/* AION PATCH: workflow header status row flush fix v19
+   Fix:
+   - Remove padding/gap around the active workflow row.
+   - Make it sit flush to the header and full-width after the left rail.
+*/
+(function installAionWorkflowHeaderStatusRowFlushFixV19() {
+  const PATCH_ID = "aion-workflow-header-status-row-flush-fix-v19";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-topbar {
+      min-height: 104px !important;
+      height: 104px !important;
+      padding-bottom: 30px !important;
+      margin-bottom: 0 !important;
+      border-bottom: 0 !important;
+    }
+
+    .aion-workflow-subtle-meta-active {
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+
+      width: 100% !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      max-height: 30px !important;
+
+      margin: 0 !important;
+      padding: 0 18px 0 96px !important;
+
+      border-top: 1px solid rgba(15,23,42,0.08) !important;
+      border-bottom: 1px solid rgba(15,23,42,0.10) !important;
+      border-left: 0 !important;
+      border-right: 0 !important;
+      border-radius: 0 !important;
+
+      background: rgba(255,255,255,0.92) !important;
+      box-shadow: none !important;
+      box-sizing: border-box !important;
+    }
+
+    .aion-workflow-layout {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+
+    .aion-workflow-canvas {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow header status row flush fix v19 installed");
+})();
+
+/* AION PATCH: workflow header status row micro-align v20
+   Fix:
+   - Remove final 10-15px visual gap between top header and active workflow row.
+*/
+(function installAionWorkflowHeaderStatusRowMicroAlignV20() {
+  const PATCH_ID = "aion-workflow-header-status-row-micro-align-v20";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-topbar {
+      padding-bottom: 30px !important;
+    }
+
+    .aion-workflow-subtle-meta-active {
+      bottom: -1px !important;
+      transform: translateY(-14px) !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      max-height: 30px !important;
+    }
+
+    .aion-workflow-layout {
+      margin-top: -14px !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow header status row micro-align v20 installed");
+})();
+
+/* AION PATCH: revert workflow header micro-align v20 */
+(function revertAionWorkflowHeaderMicroAlignV20() {
+  const PATCH_ID = "aion-revert-workflow-header-micro-align-v20";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-subtle-meta-active {
+      transform: none !important;
+      bottom: 0 !important;
+    }
+
+    .aion-workflow-layout {
+      margin-top: 0 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Reverted workflow header micro-align v20");
+})();
+
+/* AION PATCH: workflow header status row final align v21
+   Fix:
+   - Restore original 72px workflow header contract.
+   - Do not push canvas layout down.
+   - Place active workflow row as a 30px overlay on the bottom edge of the header.
+*/
+(function installAionWorkflowHeaderStatusRowFinalAlignV21() {
+  const PATCH_ID = "aion-workflow-header-status-row-final-align-v21";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-topbar {
+      position: relative !important;
+      height: 72px !important;
+      min-height: 72px !important;
+      max-height: 72px !important;
+      padding-bottom: 0 !important;
+      margin-bottom: 0 !important;
+      overflow: visible !important;
+      border-bottom: 0 !important;
+      box-sizing: border-box !important;
+      z-index: 60 !important;
+    }
+
+    .aion-workflow-layout {
+      height: calc(100vh - 72px) !important;
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+
+    .aion-workflow-subtle-meta-active {
+      position: absolute !important;
+      left: 64px !important;
+      right: 0 !important;
+      bottom: -30px !important;
+
+      width: auto !important;
+      height: 30px !important;
+      min-height: 30px !important;
+      max-height: 30px !important;
+
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 8px !important;
+
+      margin: 0 !important;
+      padding: 0 18px !important;
+
+      border-top: 1px solid rgba(15,23,42,0.08) !important;
+      border-bottom: 1px solid rgba(15,23,42,0.10) !important;
+      border-left: 0 !important;
+      border-right: 0 !important;
+      border-radius: 0 !important;
+
+      background: rgba(255,255,255,0.94) !important;
+      backdrop-filter: blur(10px) !important;
+      box-shadow: 0 8px 18px rgba(15,23,42,0.04) !important;
+
+      transform: none !important;
+      box-sizing: border-box !important;
+      overflow: hidden !important;
+      z-index: 80 !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-canvas {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+
+    .aion-workflow-canvas-viewport {
+      margin-top: 0 !important;
+      padding-top: 0 !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span {
+      height: 20px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 9px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.95) !important;
+      color: #64748b !important;
+      font-size: 0 !important;
+      font-weight: 950 !important;
+      letter-spacing: .10em !important;
+      text-transform: uppercase !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span::before {
+      content: "Active workflow" !important;
+      font-size: 10px !important;
+    }
+
+    .aion-workflow-subtle-meta-active em,
+    .aion-workflow-subtle-meta-active b,
+    .aion-workflow-subtle-meta-active strong {
+      height: 20px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 8px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(15,23,42,0.10) !important;
+      background: rgba(248,250,252,0.95) !important;
+      color: #334155 !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      font-style: normal !important;
+      white-space: nowrap !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-subtle-meta-active em {
+      max-width: 260px !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.saved,
+    .aion-workflow-subtle-meta-active strong.clean,
+    .aion-workflow-subtle-meta-active strong.success {
+      background: #ecfdf5 !important;
+      color: #047857 !important;
+      border-color: rgba(4,120,87,0.18) !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.dirty,
+    .aion-workflow-subtle-meta-active strong.warning,
+    .aion-workflow-subtle-meta-active strong.draft {
+      background: #fff7ed !important;
+      color: #c2410c !important;
+      border-color: rgba(194,65,12,0.20) !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow header status row final align v21 installed");
+})();
+
+/* AION PATCH: bottom toolbar publish UX v22
+   Purpose:
+   - Hide old top-right Save dropdown.
+   - Move Publish/Unpublish into bottom workflow toolbar.
+   - Treat Save as autosave/manual force-save, not the primary user action.
+*/
+(function installAionBottomToolbarPublishUxV22() {
+  const PATCH_ID = "aion-bottom-toolbar-publish-ux-v22";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    /* Remove old top-right Save dropdown from normal workflow view */
+    .aion-workflow-top-actions,
+    .aion-workflow-publish-control,
+    .aion-workflow-publish-menu,
+    .aion-workflow-publish-dropdown {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+    }
+
+    .aion-workflow-publish-toolbar-btn {
+      min-width: 122px !important;
+      height: 54px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 8px !important;
+      padding: 0 16px !important;
+      border-radius: 18px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: #ffffff !important;
+      color: #0f172a !important;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.08) !important;
+      cursor: pointer !important;
+    }
+
+    .aion-workflow-publish-toolbar-btn strong {
+      font-size: 13px !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.02em !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-publish-toolbar-btn.draft {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    .aion-workflow-publish-toolbar-btn.published {
+      background: #ffffff !important;
+      border-color: rgba(15,23,42,0.14) !important;
+      color: #0f172a !important;
+    }
+
+    .aion-workflow-publish-toolbar-btn:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.12) !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  function notify(message, tone = "success") {
+    try {
+      if (typeof safeAionDesktopPatch === "function") {
+        safeAionDesktopPatch({ message, messageTone: tone });
+      } else if (window.desktopStore?.patch) {
+        window.desktopStore.patch({ message, messageTone: tone });
+      }
+    } catch (_) {}
+
+    try {
+      window.__notifyAionWorkflowSlimHeader?.(message);
+    } catch (_) {}
+  }
+
+  function getGraph() {
+    try {
+      if (typeof syncAionWorkflowInspectorInputsToGraph === "function") {
+        return syncAionWorkflowInspectorInputsToGraph();
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || {};
+  }
+
+  async function persistGraph(graph) {
+    graph.updated_at = new Date().toISOString();
+    graph.saved_at = new Date().toISOString();
+    graph.dirty = false;
+    graph.dirty_reason = null;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    window.__aionWorkflowGraph = graph;
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof window.__saveSelectedAionWorkflowToCabinet === "function") {
+        await window.__saveSelectedAionWorkflowToCabinet(`publish-status-${graph.status || "draft"}`);
+      } else if (typeof window.__forceSaveAionWorkflowCabinet === "function") {
+        await window.__forceSaveAionWorkflowCabinet();
+      }
+    } catch (error) {
+      console.warn("[AION] Publish status backend persist failed:", error);
+      notify("Publish status saved locally; backend save failed", "warning");
+    }
+
+    try {
+      if (typeof requestRender === "function") requestRender();
+    } catch (_) {}
+  }
+
+  async function setPublishStatus(nextStatus) {
+    const graph = getGraph();
+
+    graph.status = nextStatus;
+    graph.publish_state = nextStatus === "published" ? "published" : "draft";
+    graph.published_at = nextStatus === "published" ? new Date().toISOString() : graph.published_at || null;
+    graph.unpublished_at = nextStatus === "draft" ? new Date().toISOString() : null;
+
+    await persistGraph(graph);
+
+    notify(
+      nextStatus === "published"
+        ? `Published workflow: ${graph.name || graph.workflow_id || "Untitled workflow"}`
+        : `Unpublished workflow: ${graph.name || graph.workflow_id || "Untitled workflow"}`,
+      "success",
+    );
+  }
+
+  window.__publishAionCurrentWorkflow = () => setPublishStatus("published");
+  window.__unpublishAionCurrentWorkflow = () => setPublishStatus("draft");
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const publish = event.target.closest?.("[data-aion-workflow-publish='true']");
+      const unpublish = event.target.closest?.("[data-aion-workflow-unpublish='true']");
+
+      if (!publish && !unpublish) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      if (publish) {
+        window.__publishAionCurrentWorkflow();
+        return;
+      }
+
+      if (unpublish) {
+        window.__unpublishAionCurrentWorkflow();
+      }
+    },
+    true,
+  );
+
+  console.log("[AION] Bottom toolbar publish UX v22 installed");
+})();
+
+/* AION PATCH: publish toolbar wide pill v23
+   Fix:
+   - Make Publish a wide action button, not a square icon button.
+   - Published state reads "Published" with upward caret.
+   - Clicking Published still triggers unpublish via existing handler.
+*/
+(function installAionPublishToolbarWidePillV23() {
+  const PATCH_ID = "aion-publish-toolbar-wide-pill-v23";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-floating-toolbar .aion-workflow-publish-toolbar-btn {
+      width: auto !important;
+      min-width: 148px !important;
+      max-width: none !important;
+      height: 54px !important;
+      min-height: 54px !important;
+
+      display: inline-flex !important;
+      flex: 0 0 auto !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 9px !important;
+
+      padding: 0 22px !important;
+      border-radius: 18px !important;
+      box-sizing: border-box !important;
+
+      font-size: 14px !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-floating-toolbar .aion-workflow-publish-toolbar-btn span {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: auto !important;
+      min-width: 14px !important;
+      height: auto !important;
+      font-size: 22px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-floating-toolbar .aion-workflow-publish-toolbar-btn strong {
+      display: inline-flex !important;
+      align-items: center !important;
+      width: auto !important;
+      max-width: none !important;
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-floating-toolbar .aion-workflow-publish-toolbar-btn.draft {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+
+    .aion-workflow-floating-toolbar .aion-workflow-publish-toolbar-btn.published {
+      background: #ecfdf5 !important;
+      border-color: rgba(4,120,87,0.24) !important;
+      color: #047857 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Publish toolbar wide pill v23 installed");
+})();
+
+/* AION PATCH: publish toolbar green wide button v24
+   Fix:
+   - Override square toolbar icon sizing.
+   - Make Publish a wide green action button like Ask Aion / Describe workflow.
+*/
+(function installAionPublishToolbarGreenWideButtonV24() {
+  const PATCH_ID = "aion-publish-toolbar-green-wide-button-v24";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn,
+    .aion-workflow-floating-toolbar-consolidated button.aion-workflow-publish-toolbar-btn,
+    button.aion-workflow-publish-toolbar-btn[data-aion-workflow-publish],
+    button.aion-workflow-publish-toolbar-btn[data-aion-workflow-unpublish] {
+      width: 210px !important;
+      min-width: 210px !important;
+      max-width: 210px !important;
+
+      height: 54px !important;
+      min-height: 54px !important;
+      max-height: 54px !important;
+
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 10px !important;
+
+      padding: 0 22px !important;
+      margin: 0 !important;
+
+      border-radius: 18px !important;
+      box-sizing: border-box !important;
+
+      border: 1px solid rgba(34,197,94,0.35) !important;
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+      color: #ffffff !important;
+
+      box-shadow:
+        0 12px 26px rgba(22,163,74,0.22),
+        inset 0 1px 0 rgba(255,255,255,0.28) !important;
+
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      cursor: pointer !important;
+      transform: none !important;
+    }
+
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn span,
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn strong {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
+
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+
+      margin: 0 !important;
+      padding: 0 !important;
+
+      color: inherit !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      overflow: visible !important;
+      text-overflow: clip !important;
+    }
+
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn span {
+      font-size: 20px !important;
+      font-weight: 950 !important;
+    }
+
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn strong {
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.02em !important;
+    }
+
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn:hover {
+      background: linear-gradient(180deg, #16a34a 0%, #15803d 100%) !important;
+      box-shadow:
+        0 16px 32px rgba(22,163,74,0.28),
+        inset 0 1px 0 rgba(255,255,255,0.28) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn.published {
+      border-color: rgba(4,120,87,0.22) !important;
+      background: #ecfdf5 !important;
+      color: #047857 !important;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.08) !important;
+    }
+
+    .aion-workflow-floating-toolbar button.aion-workflow-publish-toolbar-btn.published:hover {
+      background: #d1fae5 !important;
+      color: #065f46 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Publish toolbar green wide button v24 installed");
+})();
+
+/* AION PATCH: publish toolbar square-rule exclusion v25
+   Fix:
+   - Publish was being forced into square icon-button dimensions by the generic toolbar selector.
+   - This final override makes Publish behave like a wide action pill.
+*/
+(function installAionPublishToolbarSquareRuleExclusionV25() {
+  const PATCH_ID = "aion-publish-toolbar-square-rule-exclusion-v25";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn:not(.aion-workflow-execute-btn):not(.aion-workflow-mode-btn) {
+      width: 210px !important;
+      min-width: 210px !important;
+      max-width: 210px !important;
+      height: 54px !important;
+      min-height: 54px !important;
+      max-height: 54px !important;
+      display: inline-flex !important;
+      flex: 0 0 210px !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 10px !important;
+      padding: 0 22px !important;
+      border-radius: 18px !important;
+      white-space: nowrap !important;
+      box-sizing: border-box !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.draft {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+      border-color: rgba(34,197,94,0.40) !important;
+      color: #ffffff !important;
+      box-shadow:
+        0 12px 26px rgba(22,163,74,0.24),
+        inset 0 1px 0 rgba(255,255,255,0.28) !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.published {
+      background: #ecfdf5 !important;
+      border-color: rgba(4,120,87,0.24) !important;
+      color: #047857 !important;
+      box-shadow: 0 10px 24px rgba(15,23,42,0.08) !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn span,
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn strong {
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      color: inherit !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn span {
+      font-size: 20px !important;
+      font-weight: 950 !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn strong {
+      font-size: 15px !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.02em !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Publish toolbar square-rule exclusion v25 installed");
+})();
