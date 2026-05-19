@@ -45,16 +45,17 @@
           nodeId,
           key: "key",
           label: "Variable key",
-          value: config.key || "workflow_variable",
-          placeholder: "workflow_variable",
+          value: config.key || "lead_summary",
+          placeholder: "lead_summary",
         })}
         ${fieldHtml({
           nodeId,
           key: "value",
           label: "Value template",
-          value: config.value || "{{first_match}}",
-          placeholder: "{{first_match}}",
-          help: "Uses values from the previous step payload.",
+          value: config.value || "{{customer_name}} / {{email}} / {{subject}}",
+          placeholder: "{{customer_name}} / {{email}} / {{subject}}",
+          multiline: true,
+          help: "Uses values from the previous step payload, for example {{customer_name}}, {{email}}, {{subject}}, or {{previous_step.output}}.",
         })}
       `;
     }

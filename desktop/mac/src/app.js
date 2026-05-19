@@ -8505,13 +8505,15 @@ function persistAionWorkflowDraftState() {
           x: Number(node.x || 0),
           y: Number(node.y || 0),
           config: node.config && typeof node.config === "object" ? node.config : {},
+          settings: node.settings && typeof node.settings === "object" ? node.settings : {},
+          runtime: node.runtime && typeof node.runtime === "object" ? node.runtime : {},
         }))
       : [],
     edges: Array.isArray(graph.edges)
       ? graph.edges.map((edge) => ({
           from: edge.from,
           to: edge.to,
-          condition: edge.condition || "success",
+          condition: getAionWorkflowRewiredEdgeCondition(edge),
         }))
       : [],
     updated_at: new Date().toISOString(),
@@ -9188,7 +9190,7 @@ function getAionArchitectModuleCatalogue() {
       modules: [
         { id: "flow.if_else", label: "If / else", kind: "logic", app: "logic", action_id: "logic.if_else", description: "Split the workflow into true/false paths." },
         { id: "flow.router", label: "Router", kind: "router", app: "logic", action_id: "logic.router", description: "Route work into multiple paths." },
-        { id: "flow.merge", label: "Merge", kind: "router", app: "logic", action_id: "logic.merge", description: "Merge routes back into one path." },
+        { id: "flow.merge", label: "Merge", kind: "merge", app: "logic", action_id: "logic.merge", description: "Merge routes back into one path." },
         { id: "flow.iterator", label: "Iterator", kind: "logic", app: "logic", action_id: "logic.iterator", description: "Split an array into individual items." },
         { id: "flow.array_aggregator", label: "Array aggregator", kind: "logic", app: "logic", action_id: "logic.array_aggregator", description: "Combine many items into one array." },
         { id: "flow.repeater", label: "Repeater", kind: "logic", app: "logic", action_id: "logic.repeater", description: "Repeat the next modules a set number of times." },
@@ -9867,7 +9869,7 @@ function getAionUnifiedRealNodeFromModule(module) {
       status: "Draft",
       meta: "Merge routes back together",
       tone: "amber",
-      config: { merge_strategy: "first_available" },
+      config: { kind: "merge", merge_strategy: "first_available" },
     },
     "logic.iterator": {
       title: "Iterator",
@@ -10143,12 +10145,44 @@ function addAionUnifiedRealNodeFromModule(module) {
     .replace(/^_+|_+$/g, "")
     .toLowerCase();
 
+  const pendingBranchCondition = String(window.__aionWorkflowPendingBranchCondition || "").toLowerCase();
+  const isBranchInsert =
+    anchorNode?.id &&
+    (
+      (typeof isAionWorkflowBranchNode === "function" && isAionWorkflowBranchNode(anchorNode)) ||
+      (typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(anchorNode))
+    );
+
+  const routerRoutes =
+    typeof getAionWorkflowRouterRoutes === "function"
+      ? getAionWorkflowRouterRoutes(anchorNode)
+      : [];
+
+  const routerRouteIndex = routerRoutes.findIndex(
+    (route) => String(route.id).toLowerCase() === pendingBranchCondition,
+  );
+
+  const branchYOffset =
+    typeof isAionWorkflowRouterNode === "function" &&
+    isAionWorkflowRouterNode(anchorNode) &&
+    routerRouteIndex >= 0
+      ? getAionWorkflowRouterRouteOffset(routerRouteIndex, routerRoutes.length)
+      : pendingBranchCondition === "false" || pendingBranchCondition === "else"
+        ? 170
+        : pendingBranchCondition === "true"
+          ? -130
+          : 0;
+
+  const mergePlacement = getAionWorkflowMergePlacement(nodes, anchorNode);
+
   const newNode = {
     id: `node_${safeId}_${Date.now()}`,
     ...mappedNode,
-    x: Number(anchorNode.x || 160) + 275,
-    y: Number(anchorNode.y || 240),
+    x: isAionWorkflowNewMergeNode(mappedNode) ? mergePlacement.x : Number(anchorNode.x || 160) + (isBranchInsert ? 320 : 275),
+    y: isAionWorkflowNewMergeNode(mappedNode) ? mergePlacement.y : Number(anchorNode.y || 240) + branchYOffset,
   };
+
+  const newIsMerge = isAionWorkflowNewMergeNode(newNode);
 
   const anchorIndex = anchorNode?.id
     ? nodes.findIndex((node) => node.id === anchorNode.id)
@@ -10167,30 +10201,58 @@ function addAionUnifiedRealNodeFromModule(module) {
     ? edges.filter((edge) => edge.from === anchorNode.id)
     : [];
 
+  const branchCondition = getAionWorkflowNewEdgeCondition(anchorNode);
+
   const remainingEdges = anchorNode?.id
-    ? edges.filter((edge) => edge.from !== anchorNode.id)
+    ? isBranchInsert
+      ? edges.filter(
+          (edge) =>
+            !(
+              String(edge.from) === String(anchorNode.id) &&
+              String(edge.condition || "success") === String(branchCondition)
+            ),
+        )
+      : edges.filter((edge) => edge.from !== anchorNode.id)
     : edges;
 
-  const insertedEdges = anchorNode?.id
-    ? [
-        {
-          from: anchorNode.id,
-          to: newNode.id,
-          condition: "success",
-        },
-        ...outgoingEdges.map((edge) => ({
-          ...edge,
-          from: newNode.id,
-          condition: edge.condition || "success",
-        })),
-      ]
+  const insertedEdges = anchorNode?.id && !newIsMerge
+    ? isBranchInsert
+      ? [
+          {
+            from: anchorNode.id,
+            to: newNode.id,
+            condition: branchCondition,
+          },
+        ]
+      : [
+          {
+            from: anchorNode.id,
+            to: newNode.id,
+            condition: branchCondition,
+          },
+          ...outgoingEdges.map((edge) => ({
+            ...edge,
+            from: newNode.id,
+            condition: getAionWorkflowRewiredEdgeCondition(edge),
+          })),
+        ]
     : [];
 
-  const reflowedNodes = nextNodes.map((node, index) => ({
-    ...node,
-    x: 160 + index * 275,
-    y: Number(node.y || anchorNode.y || 240),
-  }));
+  const shouldPreserveLayout =
+    isBranchInsert ||
+    hasAionWorkflowBranchingEdges(edges) ||
+    (
+      typeof isAionWorkflowMergeNode === "function" &&
+      isAionWorkflowMergeNode(newNode)
+    );
+
+  const reflowedNodes = shouldPreserveLayout
+    ? nextNodes
+    : nextNodes.map((node, index) => ({
+        ...node,
+        x: 160 + index * 275,
+        y: Number(node.y || anchorNode.y || 240),
+      }));
 
   graph.nodes = reflowedNodes;
   graph.edges = [...remainingEdges, ...insertedEdges];
@@ -11843,7 +11905,7 @@ function addAionCabinetTopLevelFolder() {
   });
 
   saveAionFileCabinetTree(tree);
-  if (typeof requestRender === "function") requestRender();
+  if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 }
 
 function addAionCabinetFolder(parentId) {
@@ -11864,7 +11926,7 @@ function addAionCabinetFolder(parentId) {
   });
 
   saveAionFileCabinetTree(tree);
-  if (typeof requestRender === "function") requestRender();
+  if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 }
 
 function addAionCabinetWorkflow(parentId) {
@@ -11926,7 +11988,7 @@ function addAionCabinetWorkflow(parentId) {
     }
   } catch (_) {}
 
-  if (typeof requestRender === "function") requestRender();
+  if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 }
 
 function deleteAionCabinetItem(itemId, itemName) {
@@ -11937,7 +11999,7 @@ function deleteAionCabinetItem(itemId, itemName) {
   tree.folders = removeAionCabinetNode(tree.folders, itemId);
 
   saveAionFileCabinetTree(tree);
-  if (typeof requestRender === "function") requestRender();
+  if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 }
 
 function getAionCabinetChildren(node) {
@@ -12792,10 +12854,14 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
   `;
 
   const nodeHtml = nodes
-    .map(
-      (node) => `
+    .map((node) => {
+      const isBranchNode =
+        typeof isAionWorkflowBranchNode === "function" &&
+        isAionWorkflowBranchNode(node);
+
+      return `
         <button
-          class="aion-canvas-node aion-canvas-node-${escapeHtml(node.tone)} ${selectedNode && node.id === selectedNode.id ? "aion-canvas-node-selected" : ""}"
+          class="aion-canvas-node aion-canvas-node-${escapeHtml(node.tone)} ${selectedNode && node.id === selectedNode.id ? "aion-canvas-node-selected" : ""} ${isBranchNode ? "aion-canvas-node-branch" : ""}"
           style="left:${escapeHtml(node.x)}px; top:${escapeHtml(node.y)}px;"
           data-aion-workflow-node-id="${escapeHtml(node.id)}"
           type="button"
@@ -12816,8 +12882,104 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
             ${escapeHtml(node.status)}
           </div>
         </button>
-      `,
-    )
+      `;
+    })
+    .join("");
+
+  const branchControlsHtml = nodes
+    .filter((node) => typeof isAionWorkflowBranchNode === "function" && isAionWorkflowBranchNode(node))
+    .map((node) => {
+      const branchEdges = edges.filter((edge) => String(edge.from) === String(node.id));
+      const hasTrue = branchEdges.some((edge) => String(edge.condition || "").toLowerCase() === "true");
+      const hasFalse = branchEdges.some((edge) => String(edge.condition || "").toLowerCase() === "false");
+
+      const baseX = Number(node.x || 0);
+      const baseY = Number(node.y || 0);
+
+      const controls = [];
+
+      if (!hasTrue) {
+        controls.push(`
+          <button
+            type="button"
+            class="aion-branch-route-pill aion-branch-route-pill-add aion-branch-route-pill-true"
+            style="--branch-pill-left:${escapeHtml(String(baseX + 292))}px; --branch-pill-top:${escapeHtml(String(baseY - 91))}px;"
+            data-aion-workflow-open-action-picker="true"
+            data-aion-workflow-branch-condition="true"
+            data-aion-workflow-branch-anchor="${escapeHtml(node.id)}"
+            title="Add TRUE route"
+          >+ True</button>
+        `);
+      }
+
+      if (!hasFalse) {
+        controls.push(`
+          <button
+            type="button"
+            class="aion-branch-route-pill aion-branch-route-pill-add aion-branch-route-pill-false"
+            style="--branch-pill-left:${escapeHtml(String(baseX + 292))}px; --branch-pill-top:${escapeHtml(String(baseY + 159))}px;"
+            data-aion-workflow-open-action-picker="true"
+            data-aion-workflow-branch-condition="false"
+            data-aion-workflow-branch-anchor="${escapeHtml(node.id)}"
+            title="Add ELSE route"
+          >+ Else</button>
+        `);
+      }
+
+      return controls.join("");
+    })
+    .join("");
+
+  const routerControlsHtml = nodes
+    .filter((node) => typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(node))
+    .map((node) => {
+      const routes = getAionWorkflowRouterRoutes(node);
+      const outgoing = edges.filter((edge) => String(edge.from) === String(node.id));
+
+      return routes
+        .map((route, index) => {
+          const exists = outgoing.some(
+            (edge) => String(edge.condition || "").toLowerCase() === String(route.id).toLowerCase(),
+          );
+
+          if (exists) return "";
+
+          const routeOffset = getAionWorkflowRouterRouteOffset(index, routes.length);
+          const left = Number(node.x || 0) + 312;
+          const top = Number(node.y || 0) + routeOffset + 41;
+
+          return `
+            <button
+              type="button"
+              class="aion-branch-route-pill aion-router-route-pill"
+              style="--branch-pill-left:${escapeHtml(String(left))}px; --branch-pill-top:${escapeHtml(String(top))}px;"
+              data-aion-workflow-open-action-picker="true"
+              data-aion-workflow-branch-condition="${escapeHtml(route.id)}"
+              data-aion-workflow-branch-anchor="${escapeHtml(node.id)}"
+              title="Add ${escapeHtml(formatAionWorkflowRouteLabel(route.id || route.label))} route"
+            >+ ${escapeHtml(route.label)}</button>
+          `;
+        })
+        .join("");
+    })
+    .join("");
+
+  const portHtml = nodes
+    .map((node) => {
+      const ports =
+        typeof getAionWorkflowNodePorts === "function"
+          ? getAionWorkflowNodePorts(node)
+          : { inputs: [], outputs: [] };
+
+      return [
+        ...(Array.isArray(ports.inputs) ? ports.inputs : []).map((port) =>
+          renderAionWorkflowPort(node, port, "input"),
+        ),
+        ...(Array.isArray(ports.outputs) ? ports.outputs : []).map((port) =>
+          renderAionWorkflowPort(node, port, "output"),
+        ),
+      ].join("");
+    })
     .join("");
 
   const getEdgeNodeId = (edge, keyA, keyB) =>
@@ -12869,8 +13031,99 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
     };
   };
 
-  const renderConnectorPath = (fromNode, toNode) => {
+  const getRouteIndexForCondition = (node, condition) => {
+    const routes =
+      typeof getAionWorkflowRouterRoutes === "function"
+        ? getAionWorkflowRouterRoutes(node)
+        : [
+            { id: "route_1", label: "1st" },
+            { id: "route_2", label: "2nd" },
+            { id: "route_3", label: "3rd" },
+          ];
+
+    const conditionText = String(condition || "").toLowerCase();
+    const index = routes.findIndex(
+      (route) => String(route.id || "").toLowerCase() === conditionText,
+    );
+
+    return {
+      index: index >= 0 ? index : 0,
+      total: routes.length || 1,
+    };
+  };
+
+  const getConditionAwareNodePort = (node, side = "right", edge = {}) => {
+    if (!node) return { x: 0, y: 0 };
+
+    const condition = String(edge?.condition || "success").toLowerCase();
+
+    const isRouter =
+      typeof isAionWorkflowRouterNode === "function" &&
+      isAionWorkflowRouterNode(node);
+
+    const isMerge =
+      typeof isAionWorkflowMergeNode === "function" &&
+      isAionWorkflowMergeNode(node);
+
+    const isBranch =
+      typeof isAionWorkflowBranchNode === "function" &&
+      isAionWorkflowBranchNode(node);
+
+    const x = Number(node.x || 0);
+    const y = Number(node.y || 0);
+
+    const centerX = x + AION_CANVAS_NODE_RADIUS;
+    const centerY = y + AION_CANVAS_NODE_RADIUS;
+
+    let offset = 0;
+
+    if (condition.startsWith("route_") && (isRouter || isMerge)) {
+      const route = getRouteIndexForCondition(node, condition);
+      const rawOffset =
+        typeof getAionWorkflowRouterRouteOffset === "function"
+          ? getAionWorkflowRouterRouteOffset(route.index, route.total)
+          : Math.round((route.index - ((route.total - 1) / 2)) * 260);
+
+      // Router outputs stay wide.
+      // Merge inputs use the same compressed offset as renderAionWorkflowPort().
+      offset = isMerge ? Math.round(rawOffset * 0.34) : rawOffset;
+    }
+
+    if ((condition === "true" || condition === "false") && isBranch) {
+      offset = condition === "true" ? -130 : 170;
+    }
+
+    if (side === "left") {
+      return {
+        x: centerX - AION_CANVAS_NODE_RADIUS,
+        y: centerY + offset,
+      };
+    }
+
+    if (side === "top") {
+      return {
+        x: centerX,
+        y: centerY - AION_CANVAS_NODE_RADIUS,
+      };
+    }
+
+    if (side === "bottom") {
+      return {
+        x: centerX,
+        y: centerY + AION_CANVAS_NODE_RADIUS,
+      };
+    }
+
+    return {
+      x: centerX + AION_CANVAS_NODE_RADIUS,
+      y: centerY + offset,
+    };
+  };
+
+  const renderConnectorPath = (fromNode, toNode, edge = null) => {
     if (!fromNode || !toNode) return "";
+
+    const condition = String(edge?.condition || "success").toLowerCase();
 
     const fromCenterX = Number(fromNode.x || 0) + AION_CANVAS_NODE_RADIUS;
     const toCenterX = Number(toNode.x || 0) + AION_CANVAS_NODE_RADIUS;
@@ -12879,20 +13132,40 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
     const mostlyHorizontal = Math.abs(toCenterX - fromCenterX) >= Math.abs(toCenterY - fromCenterY);
 
-    const from = mostlyHorizontal
-      ? getNodePort(fromNode, toCenterX >= fromCenterX ? "right" : "left")
-      : getNodePort(fromNode, toCenterY >= fromCenterY ? "bottom" : "top");
+    const fromSide = mostlyHorizontal
+      ? toCenterX >= fromCenterX ? "right" : "left"
+      : toCenterY >= fromCenterY ? "bottom" : "top";
 
-    const to = mostlyHorizontal
-      ? getNodePort(toNode, toCenterX >= fromCenterX ? "left" : "right")
-      : getNodePort(toNode, toCenterY >= fromCenterY ? "top" : "bottom");
+    const toSide = mostlyHorizontal
+      ? toCenterX >= fromCenterX ? "left" : "right"
+      : toCenterY >= fromCenterY ? "top" : "bottom";
 
-    const dx = Math.max(70, Math.abs(to.x - from.x) * 0.42);
-    const dy = Math.max(70, Math.abs(to.y - from.y) * 0.42);
+    const from = getConditionAwareNodePort(fromNode, fromSide, edge || {});
+    const to = getConditionAwareNodePort(toNode, toSide, edge || {});
+
+    const toIsMerge =
+      typeof isAionWorkflowMergeNode === "function" &&
+      isAionWorkflowMergeNode(toNode);
+
+    const dx = toIsMerge
+      ? Math.max(46, Math.abs(to.x - from.x) * 0.28)
+      : Math.max(70, Math.abs(to.x - from.x) * 0.42);
+
+    const dy = toIsMerge
+      ? Math.max(46, Math.abs(to.y - from.y) * 0.28)
+      : Math.max(70, Math.abs(to.y - from.y) * 0.42);
 
     const d = mostlyHorizontal
       ? `M ${from.x} ${from.y} C ${from.x + (to.x >= from.x ? dx : -dx)} ${from.y}, ${to.x - (to.x >= from.x ? dx : -dx)} ${to.y}, ${to.x} ${to.y}`
       : `M ${from.x} ${from.y} C ${from.x} ${from.y + (to.y >= from.y ? dy : -dy)}, ${to.x} ${to.y - (to.y >= from.y ? dy : -dy)}, ${to.x} ${to.y}`;
+
+    const label =
+      condition && condition !== "success"
+        ? formatAionWorkflowRouteLabel(condition)
+        : "";
+
+    const labelX = from.x + (to.x - from.x) * 0.52;
+    const labelY = from.y + (to.y - from.y) * 0.52;
 
     return `
       <path
@@ -12904,8 +13177,228 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
         stroke-linecap="round"
         class="aion-workflow-connector-path"
       />
+      ${
+        label
+          ? `
+            <g class="aion-workflow-branch-svg-label">
+              <rect
+                x="${escapeHtml(String(labelX - 28))}"
+                y="${escapeHtml(String(labelY - 13))}"
+                width="56"
+                height="26"
+                rx="13"
+              />
+              <text
+                x="${escapeHtml(String(labelX))}"
+                y="${escapeHtml(String(labelY + 5))}"
+                text-anchor="middle"
+              >${escapeHtml(label)}</text>
+            </g>
+          `
+          : ""
+      }
     `;
   };
+
+  const renderMissingBranchConnector = (node, condition) => {
+    if (!node) return "";
+
+    const branch = String(condition || "").toLowerCase();
+    const from = getNodePort(node, "right");
+
+    const to = {
+      x: Number(node.x || 0) + 295,
+      y: Number(node.y || 0) + (branch === "false" ? 176 : -74),
+    };
+
+    const dx = Math.max(80, Math.abs(to.x - from.x) * 0.48);
+    const d = `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
+
+    const label = branch === "false" ? "ELSE" : "TRUE";
+    const labelX = from.x + Math.max(96, Math.abs(to.x - from.x) * 0.42);
+    const labelY = from.y + (to.y - from.y) * 0.42;
+
+    return `
+      <path
+        d="${escapeHtml(d)}"
+        fill="none"
+        stroke="rgba(10, 132, 160, 0.24)"
+        stroke-width="4"
+        stroke-dasharray="2 12"
+        stroke-linecap="round"
+        class="aion-workflow-connector-path aion-workflow-connector-branch aion-workflow-connector-ghost"
+      />
+      <g class="aion-workflow-branch-svg-label aion-workflow-branch-svg-label-ghost">
+        <rect
+          x="${escapeHtml(String(labelX - 32))}"
+          y="${escapeHtml(String(labelY - 13))}"
+          width="64"
+          height="26"
+          rx="13"
+        />
+        <text
+          x="${escapeHtml(String(labelX))}"
+          y="${escapeHtml(String(labelY + 5))}"
+          text-anchor="middle"
+        >${escapeHtml(label)}</text>
+      </g>
+    `;
+  };
+
+  const renderMissingRouterConnector = (node, route, index, total) => {
+    if (!node || !route) return "";
+
+    const from = getNodePort(node, "right");
+    const routeOffset = getAionWorkflowRouterRouteOffset(index, total);
+
+    const to = {
+      x: Number(node.x || 0) + 315,
+      y: Number(node.y || 0) + routeOffset + 58,
+    };
+
+    const dx = Math.max(80, Math.abs(to.x - from.x) * 0.48);
+    const d = `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
+
+    const label = formatAionWorkflowRouteLabel(route.id || route.label || `route_${index + 1}`);
+    const labelX = from.x + Math.max(96, Math.abs(to.x - from.x) * 0.42);
+    const labelY = from.y + (to.y - from.y) * 0.42;
+
+    return `
+      <path
+        d="${escapeHtml(d)}"
+        fill="none"
+        stroke="rgba(10, 132, 160, 0.24)"
+        stroke-width="4"
+        stroke-dasharray="2 12"
+        stroke-linecap="round"
+        class="aion-workflow-connector-path aion-workflow-connector-branch aion-workflow-connector-ghost"
+      />
+      <g class="aion-workflow-branch-svg-label aion-workflow-branch-svg-label-ghost">
+        <rect
+          x="${escapeHtml(String(labelX - 34))}"
+          y="${escapeHtml(String(labelY - 13))}"
+          width="68"
+          height="26"
+          rx="13"
+        />
+        <text
+          x="${escapeHtml(String(labelX))}"
+          y="${escapeHtml(String(labelY + 5))}"
+          text-anchor="middle"
+        >${escapeHtml(label)}</text>
+      </g>
+    `;
+  };
+
+  const missingRouterConnectorHtml = nodes
+    .filter((node) => typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(node))
+    .map((node) => {
+      const routes = getAionWorkflowRouterRoutes(node);
+      const outgoing = edges.filter((edge) => String(edge.from) === String(node.id));
+
+      return routes
+        .map((route, index) => {
+          const exists = outgoing.some(
+            (edge) => String(edge.condition || "").toLowerCase() === String(route.id).toLowerCase(),
+          );
+
+          return exists ? "" : renderMissingRouterConnector(node, route, index, routes.length);
+        })
+        .join("");
+    })
+    .join("");
+
+  const renderMissingMergeConnector = (node, route, index, total) => {
+    if (!node || !route) return "";
+
+    /*
+     * Merge ghost lanes are incoming placeholders.
+     * Unlike Router, they should stay close to the Merge node and flow left -> right
+     * into the Merge input port.
+     */
+    const middle = (Math.max(1, total) - 1) / 2;
+    const routeOffset = Math.round((index - middle) * 150);
+
+    const to = getNodePort(node, "left");
+
+    const from = {
+      x: Number(node.x || 0) - 92,
+      y: Number(node.y || 0) + AION_CANVAS_NODE_RADIUS + routeOffset,
+    };
+
+    const dx = Math.max(36, Math.abs(to.x - from.x) * 0.45);
+    const d = `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
+
+    const label = formatAionWorkflowRouteLabel(route.id || route.label || `route_${index + 1}`);
+    const labelX = from.x + 22;
+    const labelY = from.y;
+
+    return `
+      <path
+        d="${escapeHtml(d)}"
+        fill="none"
+        stroke="rgba(10, 132, 160, 0.24)"
+        stroke-width="4"
+        stroke-dasharray="2 12"
+        stroke-linecap="round"
+        class="aion-workflow-connector-path aion-workflow-connector-branch aion-workflow-connector-ghost aion-workflow-merge-ghost"
+      />
+      <g class="aion-workflow-branch-svg-label aion-workflow-branch-svg-label-ghost aion-workflow-merge-svg-label">
+        <rect
+          x="${escapeHtml(String(labelX - 34))}"
+          y="${escapeHtml(String(labelY - 13))}"
+          width="68"
+          height="26"
+          rx="13"
+        />
+        <text
+          x="${escapeHtml(String(labelX))}"
+          y="${escapeHtml(String(labelY + 5))}"
+          text-anchor="middle"
+        >${escapeHtml(label)}</text>
+      </g>
+    `;
+  };
+
+  const missingMergeConnectorHtml = nodes
+    .filter((node) => typeof isAionWorkflowMergeNode === "function" && isAionWorkflowMergeNode(node))
+    .map((node) => {
+      const routes =
+        typeof getAionWorkflowRouterRoutes === "function"
+          ? getAionWorkflowRouterRoutes(node)
+          : [
+              { id: "route_1", label: "1st" },
+              { id: "route_2", label: "2nd" },
+              { id: "route_3", label: "3rd" },
+            ];
+
+      const incoming = edges.filter((edge) => String(edge.to) === String(node.id));
+
+      return routes
+        .map((route, index) => {
+          const exists = incoming.some(
+            (edge) => String(edge.condition || "").toLowerCase() === String(route.id).toLowerCase(),
+          );
+
+          return exists ? "" : renderMissingMergeConnector(node, route, index, routes.length);
+        })
+        .join("");
+    })
+    .join("");
+
+  const missingBranchConnectorHtml = nodes
+    .filter((node) => typeof isAionWorkflowBranchNode === "function" && isAionWorkflowBranchNode(node))
+    .map((node) => {
+      const branchEdges = edges.filter((edge) => String(edge.from) === String(node.id));
+      const hasTrue = branchEdges.some((edge) => String(edge.condition || "").toLowerCase() === "true");
+      const hasFalse = branchEdges.some((edge) => String(edge.condition || "").toLowerCase() === "false");
+
+      return `
+        ${hasTrue ? "" : renderMissingBranchConnector(node, "true")}
+        ${hasFalse ? "" : renderMissingBranchConnector(node, "false")}
+      `;
+    })
+    .join("");
 
   const connectorHtml = edges.length
     ? edges
@@ -12916,7 +13409,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
           const fromNode = nodes.find((node) => String(node.id) === fromId);
           const toNode = nodes.find((node) => String(node.id) === toId);
 
-          return renderConnectorPath(fromNode, toNode);
+          return renderConnectorPath(fromNode, toNode, edge);
         })
         .join("")
     : nodes
@@ -13119,10 +13612,19 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
             data-aion-workflow-canvas-viewport="true"
           >
             <svg class="aion-workflow-connectors" aria-hidden="true">
+              ${missingMergeConnectorHtml}
+              ${missingRouterConnectorHtml}
+              ${missingBranchConnectorHtml}
               ${connectorHtml}
             </svg>
 
             ${nodeHtml}
+
+            ${portHtml}
+
+            ${branchControlsHtml}
+
+            ${routerControlsHtml}
 
             ${
               nodes.length === 0
@@ -13139,7 +13641,13 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
                   </div>
                 `
-                : `
+                : (
+                    selectedNode &&
+                    typeof isAionWorkflowMergeNode === "function" &&
+                    isAionWorkflowMergeNode(selectedNode)
+                  )
+                  ? ""
+                  : `
                   <button
                     class="aion-workflow-add-next-node"
                     style="left:${escapeHtml(String((nodes[nodes.length - 1]?.x || 160) + 260))}px; top:${escapeHtml(String((nodes[nodes.length - 1]?.y || 240) + 42))}px;"
@@ -23465,6 +23973,11 @@ if (action === "capture-browser-approval-checkpoint") {
 let renderQueued = false;
 
 function requestRender() {
+  if (window.__aionDraggingConnector) {
+    window.__aionSuppressRenderDuringConnectorDrag = true;
+    return;
+  }
+
   if (renderQueued) return;
 
   renderQueued = true;
@@ -23486,6 +23999,123 @@ window.requestRender = requestRender;
 function installAionWorkflowActionCardImmediateAddOverride() {
   if (window.__aionWorkflowActionImmediateOverrideBound === true) return;
   window.__aionWorkflowActionImmediateOverrideBound = true;
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      // Critical: while drawing a connector, block canvas/node drag handlers.
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (typeof updateAionConnectorDragPreview === "function") {
+        updateAionConnectorDragPreview(event);
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      window.__aionSuppressRenderDuringConnectorDrag = false;
+
+      if (typeof requestRender === "function") {
+        window.requestAnimationFrame?.(() => requestRender());
+      }
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -23665,12 +24295,42 @@ function installAionWorkflowActionCardImmediateAddOverride() {
         nodes[nodes.length - 1] ||
         { id: null, x: 160, y: 240 };
 
+      const pendingBranchCondition = String(window.__aionWorkflowPendingBranchCondition || "").toLowerCase();
+      const isBranchInsert =
+        anchorNode?.id &&
+        (
+          (typeof isAionWorkflowBranchNode === "function" && isAionWorkflowBranchNode(anchorNode)) ||
+          (typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(anchorNode))
+        );
+
+      const routerRoutes =
+        typeof getAionWorkflowRouterRoutes === "function"
+          ? getAionWorkflowRouterRoutes(anchorNode)
+          : [];
+
+      const routerRouteIndex = routerRoutes.findIndex(
+        (route) => String(route.id).toLowerCase() === pendingBranchCondition,
+      );
+
+      const branchYOffset =
+        typeof isAionWorkflowRouterNode === "function" &&
+        isAionWorkflowRouterNode(anchorNode) &&
+        routerRouteIndex >= 0
+          ? getAionWorkflowRouterRouteOffset(routerRouteIndex, routerRoutes.length)
+          : pendingBranchCondition === "false" || pendingBranchCondition === "else"
+            ? 170
+            : pendingBranchCondition === "true"
+              ? -130
+              : 0;
+
       const newNode = {
         id: `node_${actionType}_${Date.now()}`,
         ...actionMap[actionType],
-        x: Number(anchorNode.x || 160) + 275,
-        y: Number(anchorNode.y || 240),
+        x: Number(anchorNode.x || 160) + (isBranchInsert ? 320 : 275),
+        y: Number(anchorNode.y || 240) + branchYOffset,
       };
+
+      const newIsMerge = isAionWorkflowNewMergeNode(newNode);
 
       const anchorIndex = anchorNode?.id
         ? nodes.findIndex((node) => node.id === anchorNode.id)
@@ -23689,26 +24349,54 @@ function installAionWorkflowActionCardImmediateAddOverride() {
         ? edges.filter((edge) => edge.from === anchorNode.id)
         : [];
 
+      const branchCondition = getAionWorkflowNewEdgeCondition(anchorNode);
+
       const remainingEdges = anchorNode?.id
-        ? edges.filter((edge) => edge.from !== anchorNode.id)
+        ? isBranchInsert
+          ? edges.filter(
+              (edge) =>
+                !(
+                  String(edge.from) === String(anchorNode.id) &&
+                  String(edge.condition || "success") === String(branchCondition)
+                ),
+            )
+          : edges.filter((edge) => edge.from !== anchorNode.id)
         : edges;
 
-      const insertedEdges = anchorNode?.id
-        ? [
-            {
-              from: anchorNode.id,
-              to: newNode.id,
-              condition: "success",
-            },
-            ...outgoingEdges.map((edge) => ({
-              ...edge,
-              from: newNode.id,
-              condition: edge.condition || "success",
-            })),
-          ]
+      const insertedEdges = anchorNode?.id && !newIsMerge
+        ? isBranchInsert
+          ? [
+              {
+                from: anchorNode.id,
+                to: newNode.id,
+                condition: branchCondition,
+              },
+            ]
+          : [
+              {
+                from: anchorNode.id,
+                to: newNode.id,
+                condition: branchCondition,
+              },
+              ...outgoingEdges.map((edge) => ({
+                ...edge,
+                from: newNode.id,
+                condition: getAionWorkflowRewiredEdgeCondition(edge),
+              })),
+            ]
         : [];
 
-      const reflowedNodes = nextNodes.map((node, index) => ({
+      const shouldPreserveLayout =
+    isBranchInsert ||
+    hasAionWorkflowBranchingEdges(edges) ||
+    (
+      typeof isAionWorkflowMergeNode === "function" &&
+      isAionWorkflowMergeNode(newNode)
+    );
+
+  const reflowedNodes = shouldPreserveLayout
+    ? nextNodes
+    : nextNodes.map((node, index) => ({
         ...node,
         x: 160 + index * 275,
         y: Number(node.y || anchorNode.y || 240),
@@ -23718,6 +24406,7 @@ function installAionWorkflowActionCardImmediateAddOverride() {
       window.__aionWorkflowGraph.edges = [...remainingEdges, ...insertedEdges];
 
       window.__aionWorkflowSelectedNodeId = newNode.id;
+      window.__aionWorkflowPendingBranchCondition = "";
       window.__aionWorkflowPickerMode = null;
       window.__aionWorkflowInspectorOpen = false;
       persistAionWorkflowDraftState();
@@ -23733,6 +24422,111 @@ function installAionWorkflowActionCardImmediateAddOverride() {
 function installAionLegacyToolControls() {
   if (window.__aionLegacyToolControlsBound === true) return;
   window.__aionLegacyToolControlsBound = true;
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -25011,6 +25805,111 @@ function installWorkflowArchitectToolbarOpenControl() {
   window.__workflowArchitectToolbarOpenControlBound = true;
 
   document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
     "click",
     (event) => {
       const button = event.target.closest?.(
@@ -25131,6 +26030,111 @@ function installAionWorkflowBottomToolbarControls() {
 function installWorkflowArchitectNodeEditorModalControls() {
   if (window.__workflowArchitectNodeEditorModalControlsBound === true) return;
   window.__workflowArchitectNodeEditorModalControlsBound = true;
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -25728,6 +26732,854 @@ function getAionModuleWorkingActionType(module) {
   return map[id] || map[actionId] || "";
 }
 
+
+function isAionWorkflowBranchNode(node) {
+  const haystack = [
+    node?.title,
+    node?.type,
+    node?.app,
+    node?.connector,
+    node?.action,
+    node?.action_id,
+    node?.module_id,
+    node?.kind,
+    node?.config?.title,
+    node?.config?.type,
+    node?.config?.app,
+    node?.config?.connector,
+    node?.config?.action,
+    node?.config?.action_id,
+    node?.config?.module_id,
+    node?.config?.kind,
+  ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+  if (
+    haystack.includes("router") ||
+    haystack.includes("logic.router") ||
+    haystack.includes("merge") ||
+    haystack.includes("logic.merge")
+  ) {
+    return false;
+  }
+
+  return (
+    haystack.includes("if") ||
+    haystack.includes("else") ||
+    haystack.includes("filter") ||
+    haystack.includes("if_else") ||
+    haystack.includes("logic.if")
+  );
+}
+
+
+function isAionWorkflowRouterNode(node) {
+  const haystack = [
+    node?.title,
+    node?.type,
+    node?.app,
+    node?.connector,
+    node?.action,
+    node?.action_id,
+    node?.module_id,
+    node?.kind,
+    node?.config?.title,
+    node?.config?.type,
+    node?.config?.app,
+    node?.config?.connector,
+    node?.config?.action,
+    node?.config?.action_id,
+    node?.config?.module_id,
+    node?.config?.kind,
+  ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+  if (haystack.includes("merge") || haystack.includes("logic.merge")) {
+    return false;
+  }
+
+  return haystack.includes("router") || haystack.includes("logic.router");
+}
+
+
+function isAionWorkflowMergeNode(node) {
+  const haystack = [
+    node?.title,
+    node?.type,
+    node?.app,
+    node?.connector,
+    node?.action,
+    node?.action_id,
+    node?.module_id,
+    node?.kind,
+    node?.config?.title,
+    node?.config?.type,
+    node?.config?.app,
+    node?.config?.connector,
+    node?.config?.action,
+    node?.config?.action_id,
+    node?.config?.module_id,
+    node?.config?.kind,
+  ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+  return haystack.includes("merge") || haystack.includes("logic.merge");
+}
+
+function formatAionWorkflowRouteLabel(value) {
+  const text = String(value || "").trim();
+
+  const routeMatch = text.match(/^route_(\d+)$/i);
+  const numberText = routeMatch ? routeMatch[1] : text.match(/^\d+$/) ? text : "";
+
+  if (numberText) {
+    const number = Number(numberText);
+    const mod100 = number % 100;
+    const mod10 = number % 10;
+
+    let suffix = "TH";
+    if (mod100 < 11 || mod100 > 13) {
+      if (mod10 === 1) suffix = "ST";
+      if (mod10 === 2) suffix = "ND";
+      if (mod10 === 3) suffix = "RD";
+    }
+
+    return `${number}${suffix}`;
+  }
+
+  if (text.toLowerCase() === "true") return "TRUE";
+  if (text.toLowerCase() === "false") return "ELSE";
+  if (text.toLowerCase() === "else") return "ELSE";
+
+  return text.toUpperCase();
+}
+
+function getAionWorkflowRouterRoutes(node) {
+  const configured = Array.isArray(node?.config?.routes) ? node.config.routes : [];
+
+  const routes = configured.length
+    ? configured
+    : [
+        { id: "route_1", label: "1st" },
+        { id: "route_2", label: "2nd" },
+        { id: "route_3", label: "3rd" },
+      ];
+
+  return routes
+    .map((route, index) => {
+      if (typeof route === "string") {
+        return {
+          id: route || `route_${index + 1}`,
+          label: route || `${index + 1}`,
+        };
+      }
+
+      return {
+        id: String(route?.id || route?.key || route?.condition || `route_${index + 1}`),
+        label: String(route?.label || route?.name || route?.id || `${index + 1}`),
+      };
+    })
+    .slice(0, 6);
+}
+
+function getAionWorkflowRouterRouteOffset(index, total) {
+  const middle = (Math.max(1, total) - 1) / 2;
+  return Math.round((index - middle) * 260);
+}
+
+
+function getAionWorkflowNodePorts(node) {
+  if (!node) return { inputs: [], outputs: [] };
+
+  const isRouter =
+    typeof isAionWorkflowRouterNode === "function" &&
+    isAionWorkflowRouterNode(node);
+
+  const isMerge =
+    typeof isAionWorkflowMergeNode === "function" &&
+    isAionWorkflowMergeNode(node);
+
+  const isBranch =
+    typeof isAionWorkflowBranchNode === "function" &&
+    isAionWorkflowBranchNode(node);
+
+  const routes =
+    typeof getAionWorkflowRouterRoutes === "function"
+      ? getAionWorkflowRouterRoutes(node)
+      : [
+          { id: "route_1", label: "1st" },
+          { id: "route_2", label: "2nd" },
+          { id: "route_3", label: "3rd" },
+        ];
+
+  if (isMerge) {
+    return {
+      inputs: routes.map((route, index) => ({
+        id: String(route.id),
+        label: String(route.label || route.id),
+        condition: String(route.id),
+        role: "merge_input",
+        index,
+        total: routes.length,
+      })),
+      outputs: [
+        {
+          id: "success",
+          label: "Success",
+          condition: "success",
+          role: "main",
+          index: 0,
+          total: 1,
+        },
+      ],
+    };
+  }
+
+  if (isRouter) {
+    return {
+      inputs: [
+        {
+          id: "input",
+          label: "Input",
+          condition: "success",
+          role: "main",
+          index: 0,
+          total: 1,
+        },
+      ],
+      outputs: routes.map((route, index) => ({
+        id: String(route.id),
+        label: String(route.label || route.id),
+        condition: String(route.id),
+        role: "route",
+        index,
+        total: routes.length,
+      })),
+    };
+  }
+
+  if (isBranch) {
+    return {
+      inputs: [
+        {
+          id: "input",
+          label: "Input",
+          condition: "success",
+          role: "main",
+          index: 0,
+          total: 1,
+        },
+      ],
+      outputs: [
+        {
+          id: "true",
+          label: "True",
+          condition: "true",
+          role: "branch",
+          index: 0,
+          total: 2,
+        },
+        {
+          id: "false",
+          label: "Else",
+          condition: "false",
+          role: "branch",
+          index: 1,
+          total: 2,
+        },
+      ],
+    };
+  }
+
+  return {
+    inputs: [
+      {
+        id: "input",
+        label: "Input",
+        condition: "success",
+        role: "main",
+        index: 0,
+        total: 1,
+      },
+    ],
+    outputs: [
+      {
+        id: "success",
+        label: "Success",
+        condition: "success",
+        role: "main",
+        index: 0,
+        total: 1,
+      },
+    ],
+  };
+}
+
+function getAionWorkflowPortOffset(port) {
+  const total = Math.max(1, Number(port?.total || 1));
+  const index = Number(port?.index || 0);
+  const middle = (total - 1) / 2;
+
+  if (total === 1) return 0;
+
+  const role = String(port?.role || "").toLowerCase();
+
+  // Route ports need to align with Router/Merge visual lanes.
+  if (role === "route" || role === "merge_input") {
+    return Math.round((index - middle) * 260);
+  }
+
+  return Math.round((index - middle) * 72);
+}
+
+function renderAionWorkflowPort(node, port, direction) {
+  if (!node || !port) return "";
+
+  const nodeBox = 118;
+  const nodeRadius = nodeBox / 2;
+
+  const isInput = direction === "input";
+  const condition = String(port.condition || "success");
+  const role = String(port.role || "main").toLowerCase();
+
+  const nodeIsMerge =
+    typeof isAionWorkflowMergeNode === "function" &&
+    isAionWorkflowMergeNode(node);
+
+  const isRoutePort =
+    role === "route" ||
+    role === "merge_input" ||
+    condition.toLowerCase().startsWith("route_");
+
+  const rawOffset =
+    typeof getAionWorkflowPortOffset === "function"
+      ? getAionWorkflowPortOffset(port)
+      : 0;
+
+  /*
+   * Merge input ports are clickable targets for incoming routes.
+   * They should feel attached to the Merge node, not float out on the route labels.
+   */
+  const visualOffset =
+    nodeIsMerge && isInput && isRoutePort
+      ? Math.round(rawOffset * 0.34)
+      : rawOffset;
+
+  const left = isInput
+    ? Number(node.x || 0) - (nodeIsMerge && isRoutePort ? 10 : 15)
+    : Number(node.x || 0) + nodeBox + 7;
+
+  const top =
+    Number(node.y || 0) +
+    nodeRadius -
+    7 +
+    visualOffset;
+
+  const graph = window.__aionWorkflowGraph || {};
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+  const connected = isInput
+    ? edges.some(
+        (edge) =>
+          String(edge.to) === String(node.id) &&
+          String(edge.condition || "success") === condition,
+      )
+    : edges.some(
+        (edge) =>
+          String(edge.from) === String(node.id) &&
+          String(edge.condition || "success") === condition,
+      );
+
+  const pending = window.__aionPendingConnector || null;
+  const drag = window.__aionDraggingConnector || null;
+
+  const isPendingSource =
+    pending &&
+    String(pending.from || "") === String(node.id) &&
+    String(pending.condition || "") === condition;
+
+  const isDragSource =
+    drag &&
+    String(drag.from || "") === String(node.id) &&
+    String(drag.condition || "") === condition;
+
+  const label =
+    typeof formatAionWorkflowRouteLabel === "function"
+      ? formatAionWorkflowRouteLabel(port.label || port.condition || "")
+      : String(port.label || port.condition || "");
+
+  return `
+    <button
+      type="button"
+      class="aion-node-port aion-node-port-${escapeHtml(direction)} ${connected ? "aion-node-port-connected" : "aion-node-port-unconnected"} ${isPendingSource || isDragSource ? "aion-node-port-pending" : ""} ${nodeIsMerge && isInput && isRoutePort ? "aion-node-port-merge-input" : ""}"
+      style="left:${escapeHtml(String(left))}px; top:${escapeHtml(String(top))}px;"
+      data-aion-port-node-id="${escapeHtml(node.id)}"
+      data-aion-port-direction="${escapeHtml(direction)}"
+      data-aion-port-condition="${escapeHtml(condition)}"
+      data-aion-port-role="${escapeHtml(port.role || "main")}"
+      title="${escapeHtml(direction)} ${escapeHtml(label)} — drag to connect"
+      aria-label="${escapeHtml(direction)} ${escapeHtml(label)} — drag to connect"
+    >
+      <span class="aion-node-port-dot" aria-hidden="true"></span>
+    </button>
+  `;
+}
+
+
+function sanitizeAionWorkflowMergeEdges(graph) {
+  if (!graph || !Array.isArray(graph.nodes) || !Array.isArray(graph.edges)) return graph;
+
+  const nodes = graph.nodes;
+  const mergeNodeIds = new Set(
+    nodes
+      .filter((node) => typeof isAionWorkflowMergeNode === "function" && isAionWorkflowMergeNode(node))
+      .map((node) => String(node.id)),
+  );
+
+  if (!mergeNodeIds.size) return graph;
+
+  const allowedRoute = (condition) => /^route_\d+$/i.test(String(condition || ""));
+
+  const seenMergeRoute = new Set();
+
+  graph.edges = graph.edges.filter((edge) => {
+    const toMerge = mergeNodeIds.has(String(edge.to));
+    if (!toMerge) return true;
+
+    const condition = String(edge.condition || "");
+
+    // Merge input edges must be explicit route slots. Drop generic success.
+    if (!allowedRoute(condition)) return false;
+
+    // One incoming edge per merge route slot.
+    const key = `${String(edge.to)}::${condition.toLowerCase()}`;
+    if (seenMergeRoute.has(key)) return false;
+
+    seenMergeRoute.add(key);
+    return true;
+  });
+
+  return graph;
+}
+
+function createAionWorkflowEdgeFromPorts({ from, to, condition, targetCondition }) {
+  const graph = window.__aionWorkflowGraph || getAionWorkflowDraftState?.();
+  if (!graph) return false;
+
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+  const fromNode = nodes.find((node) => String(node.id) === String(from));
+  const toNode = nodes.find((node) => String(node.id) === String(to));
+
+  if (!fromNode || !toNode || String(from) === String(to)) return false;
+
+  const toIsMerge =
+    typeof isAionWorkflowMergeNode === "function" &&
+    isAionWorkflowMergeNode(toNode);
+
+  const edgeCondition = String(
+    toIsMerge
+      ? (targetCondition || condition || "success")
+      : (condition || targetCondition || "success")
+  );
+
+  const fromIsRouter =
+    typeof isAionWorkflowRouterNode === "function" &&
+    isAionWorkflowRouterNode(fromNode);
+
+  const fromIsBranch =
+    typeof isAionWorkflowBranchNode === "function" &&
+    isAionWorkflowBranchNode(fromNode);
+
+  let nextEdges = edges.filter((edge) => {
+    const sameFrom = String(edge.from) === String(from);
+    const sameTo = String(edge.to) === String(to);
+    const sameCondition = String(edge.condition || "success") === edgeCondition;
+
+    if (toIsMerge) {
+      const edgeToSameMerge = String(edge.to) === String(to);
+      const edgeFromSameSource = String(edge.from) === String(from);
+      const edgeCondition = String(edge.condition || "success");
+
+      // Merge incoming ports are route slots. Never keep an old generic
+      // success edge from the same source into the same Merge node.
+      if (edgeToSameMerge && edgeFromSameSource && edgeCondition === "success") {
+        return false;
+      }
+
+      // One incoming edge per Merge route slot.
+      return !(edgeToSameMerge && sameCondition);
+    }
+
+    if (fromIsRouter || fromIsBranch) {
+      return !(String(edge.from) === String(from) && sameCondition);
+    }
+
+    return !(sameFrom && sameTo);
+  });
+
+  nextEdges.push({
+    from: String(from),
+    to: String(to),
+    condition: edgeCondition,
+  });
+
+  graph.edges = nextEdges;
+  sanitizeAionWorkflowMergeEdges(graph);
+  graph.dirty = true;
+  window.__aionWorkflowGraph = graph;
+
+  if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+    compileAndAttachAionWorkflowGlyph(graph);
+  }
+
+  if (typeof persistAionWorkflowDraftState === "function") {
+    persistAionWorkflowDraftState();
+  }
+
+  return true;
+}
+
+function ensureAionConnectorDragPreviewSvg() {
+  let svg = document.querySelector("[data-aion-connector-drag-preview='true']");
+  if (svg) return svg;
+
+  const viewport = document.querySelector("[data-aion-workflow-canvas-viewport='true']");
+  if (!viewport) return null;
+
+  svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("data-aion-connector-drag-preview", "true");
+  svg.setAttribute("aria-hidden", "true");
+  svg.style.position = "absolute";
+  svg.style.inset = "0";
+  svg.style.width = "100%";
+  svg.style.height = "100%";
+  svg.style.pointerEvents = "none";
+  svg.style.zIndex = "55";
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("data-aion-connector-drag-preview-path", "true");
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", "rgba(244, 26, 255, 0.82)");
+  path.setAttribute("stroke-width", "5");
+  path.setAttribute("stroke-dasharray", "8 9");
+  path.setAttribute("stroke-linecap", "round");
+
+  svg.appendChild(path);
+  viewport.appendChild(svg);
+
+  return svg;
+}
+
+function clearAionConnectorDragPreview() {
+  document
+    .querySelectorAll("[data-aion-connector-drag-preview='true']")
+    .forEach((item) => item.remove());
+}
+
+function updateAionConnectorDragPreview(event) {
+  const drag = window.__aionDraggingConnector || null;
+  if (!drag?.from) return;
+
+  const graph = window.__aionWorkflowGraph || {};
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const fromNode = nodes.find((node) => String(node.id) === String(drag.from));
+  if (!fromNode) return;
+
+  const viewport = document.querySelector("[data-aion-workflow-canvas-viewport='true']");
+  const rect = viewport?.getBoundingClientRect?.();
+  if (!viewport || !rect) return;
+
+  const zoom = Number(window.__aionWorkflowCanvasView?.zoom || window.__aionWorkflowZoom || 1);
+  const nodeBox = 118;
+  const nodeRadius = nodeBox / 2;
+
+  const from = {
+    x: Number(fromNode.x || 0) + nodeBox,
+    y: Number(fromNode.y || 0) + nodeRadius,
+  };
+
+  const to = {
+    x: (event.clientX - rect.left) / zoom,
+    y: (event.clientY - rect.top) / zoom,
+  };
+
+  const dx = Math.max(70, Math.abs(to.x - from.x) * 0.45);
+  const d = `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
+
+  const svg = ensureAionConnectorDragPreviewSvg();
+  const path = svg?.querySelector?.("[data-aion-connector-drag-preview-path='true']");
+  if (path) path.setAttribute("d", d);
+}
+
+function installAionWorkflowConnectorPortControls() {
+  if (window.__aionWorkflowConnectorPortControlsBound === true) return;
+  window.__aionWorkflowConnectorPortControlsBound = true;
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const direction = port.getAttribute("data-aion-port-direction");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      if (direction === "output") {
+        window.__aionPendingConnector = {
+          from: nodeId,
+          condition,
+          role,
+        };
+
+        if (typeof safeAionDesktopPatch === "function") {
+          safeAionDesktopPatch({
+            message: `Connector armed: ${condition}. Click an input port to connect.`,
+            messageTone: "info",
+          });
+        }
+
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+        return;
+      }
+
+      if (direction === "input") {
+        const pending = window.__aionPendingConnector || null;
+
+        if (!pending?.from) {
+          if (typeof safeAionDesktopPatch === "function") {
+            safeAionDesktopPatch({
+              message: "Click an output port first, then an input port.",
+              messageTone: "info",
+            });
+          }
+
+          return;
+        }
+
+        const ok = createAionWorkflowEdgeFromPorts({
+          from: pending.from,
+          to: nodeId,
+          condition: pending.condition || "success",
+          targetCondition: condition || "success",
+        });
+
+        window.__aionPendingConnector = null;
+
+        if (typeof safeAionDesktopPatch === "function") {
+          safeAionDesktopPatch({
+            message: ok ? "Connected workflow nodes." : "Could not connect those ports.",
+            messageTone: ok ? "success" : "error",
+          });
+        }
+
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+      }
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Escape") return;
+      if (!window.__aionPendingConnector) return;
+
+      window.__aionPendingConnector = null;
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+}
+
+
+
+
+function getAionWorkflowMergePlacement(nodes = [], anchorNode = {}) {
+  const list = Array.isArray(nodes) ? nodes : [];
+  const branchTargets = list.filter((node) => {
+    const title = String(node?.title || "").toLowerCase();
+    return (
+      title.includes("draft") ||
+      title.includes("variable") ||
+      title.includes("compose") ||
+      title.includes("email")
+    );
+  });
+
+  const source = branchTargets.length ? branchTargets : list;
+
+  const maxX = source.length
+    ? Math.max(...source.map((node) => Number(node.x || 0)))
+    : Number(anchorNode.x || 160);
+
+  const avgY = source.length
+    ? Math.round(source.reduce((sum, node) => sum + Number(node.y || 0), 0) / source.length)
+    : Number(anchorNode.y || 260);
+
+  return {
+    x: maxX + 340,
+    y: avgY,
+  };
+}
+
+function isAionWorkflowNewMergeNode(node) {
+  return (
+    node &&
+    typeof isAionWorkflowMergeNode === "function" &&
+    isAionWorkflowMergeNode(node)
+  );
+}
+
+function hasAionWorkflowBranchingEdges(edges = []) {
+  return Array.isArray(edges) && edges.some((edge) => {
+    const condition = String(edge?.condition || "success").toLowerCase();
+    return (
+      condition === "true" ||
+      condition === "false" ||
+      condition === "else" ||
+      /^route_\d+$/i.test(condition)
+    );
+  });
+}
+
+function getAionWorkflowNewEdgeCondition(anchorNode, preferredCondition = "") {
+  if (!anchorNode?.id) return "success";
+
+  const requested = String(
+    preferredCondition ||
+      window.__aionWorkflowPendingBranchCondition ||
+      ""
+  ).toLowerCase();
+
+  if (typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(anchorNode)) {
+    return requested && requested !== "true" && requested !== "false"
+      ? requested
+      : "route_1";
+  }
+
+  if (isAionWorkflowBranchNode(anchorNode)) {
+    if (requested === "false" || requested === "else") return "false";
+    return "true";
+  }
+
+  return "success";
+}
+
+function getAionWorkflowRewiredEdgeCondition(edge) {
+  return edge?.condition || "success";
+}
+
+
 function addAionWorkflowNodeFromWorkingAction(actionType, module = {}) {
   const actionMap = getAionWorkflowWorkingActionMap();
   const base = actionMap[actionType];
@@ -25769,6 +27621,34 @@ function addAionWorkflowNodeFromWorkingAction(actionType, module = {}) {
     nodes[nodes.length - 1] ||
     { id: null, x: 160, y: 240 };
 
+  const pendingBranchCondition = String(window.__aionWorkflowPendingBranchCondition || "").toLowerCase();
+  const isBranchInsert =
+    anchorNode?.id &&
+    (
+      (typeof isAionWorkflowBranchNode === "function" && isAionWorkflowBranchNode(anchorNode)) ||
+      (typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(anchorNode))
+    );
+
+  const routerRoutes =
+    typeof getAionWorkflowRouterRoutes === "function"
+      ? getAionWorkflowRouterRoutes(anchorNode)
+      : [];
+
+  const routerRouteIndex = routerRoutes.findIndex(
+    (route) => String(route.id).toLowerCase() === pendingBranchCondition,
+  );
+
+  const branchYOffset =
+    typeof isAionWorkflowRouterNode === "function" &&
+    isAionWorkflowRouterNode(anchorNode) &&
+    routerRouteIndex >= 0
+      ? getAionWorkflowRouterRouteOffset(routerRouteIndex, routerRoutes.length)
+      : pendingBranchCondition === "false" || pendingBranchCondition === "else"
+        ? 170
+        : pendingBranchCondition === "true"
+          ? -130
+          : 0;
+
   const newNode = {
     id: `node_${actionType}_${Date.now()}`,
     ...base,
@@ -25776,9 +27656,11 @@ function addAionWorkflowNodeFromWorkingAction(actionType, module = {}) {
     module_id: module.id || "",
     module_group: module.group || "",
     module_kind: module.kind || "",
-    x: Number(anchorNode.x || 160) + 275,
-    y: Number(anchorNode.y || 240),
+    x: Number(anchorNode.x || 160) + 320,
+    y: Number(anchorNode.y || 240) + branchYOffset,
   };
+
+  const newIsMerge = isAionWorkflowNewMergeNode(newNode);
 
   const anchorIndex = anchorNode?.id
     ? nodes.findIndex((node) => node.id === anchorNode.id)
@@ -25806,26 +27688,36 @@ function addAionWorkflowNodeFromWorkingAction(actionType, module = {}) {
         {
           from: anchorNode.id,
           to: newNode.id,
-          condition: "success",
+          condition: getAionWorkflowNewEdgeCondition(anchorNode),
         },
         ...outgoingEdges.map((edge) => ({
           ...edge,
           from: newNode.id,
-          condition: edge.condition || "success",
+          condition: getAionWorkflowRewiredEdgeCondition(edge),
         })),
       ]
     : [];
 
-  const reflowedNodes = nextNodes.map((node, index) => ({
-    ...node,
-    x: 160 + index * 275,
-    y: Number(node.y || anchorNode.y || 240),
-  }));
+  const shouldPreserveLayout =
+        hasAionWorkflowBranchingEdges(edges) ||
+        (
+          typeof isAionWorkflowMergeNode === "function" &&
+          isAionWorkflowMergeNode(newNode)
+        );
+
+      const reflowedNodes = shouldPreserveLayout
+        ? nextNodes
+        : nextNodes.map((node, index) => ({
+            ...node,
+            x: 160 + index * 275,
+            y: Number(node.y || anchorNode.y || 240),
+          }));
 
   window.__aionWorkflowGraph.nodes = reflowedNodes;
   window.__aionWorkflowGraph.edges = [...remainingEdges, ...insertedEdges];
 
   window.__aionWorkflowSelectedNodeId = newNode.id;
+  window.__aionWorkflowPendingBranchCondition = "";
   window.__aionWorkflowPickerMode = null;
   window.__aionWorkflowInspectorOpen = false;
   window.__aionArchitectModulePickerOpen = false;
@@ -25841,6 +27733,111 @@ function installAionWorkflowActionControls() {
   window.__aionWorkflowActionControlsBound = true;
 
   document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
     "click",
     (event) => {
       const openActionPicker = event.target.closest?.("[data-aion-workflow-open-action-picker='true']");
@@ -25853,6 +27850,22 @@ function installAionWorkflowActionControls() {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
+
+        const branchCondition =
+          openUnifiedModulePicker.getAttribute?.("data-aion-workflow-branch-condition") || "";
+
+        const branchAnchor =
+          openUnifiedModulePicker.getAttribute?.("data-aion-workflow-branch-anchor") || "";
+
+        if (branchCondition) {
+          window.__aionWorkflowPendingBranchCondition = String(branchCondition).toLowerCase();
+
+          if (branchAnchor) {
+            window.__aionWorkflowSelectedNodeId = branchAnchor;
+          }
+        } else {
+          window.__aionWorkflowPendingBranchCondition = "";
+        }
 
         // Do not open the old right-side drawer from + anymore.
         window.__aionWorkflowPickerMode = "";
@@ -26041,12 +28054,42 @@ function installAionWorkflowActionControls() {
         nodes[nodes.length - 1] ||
         { id: null, x: 160, y: 240 };
 
+      const pendingBranchCondition = String(window.__aionWorkflowPendingBranchCondition || "").toLowerCase();
+      const isBranchInsert =
+        anchorNode?.id &&
+        (
+          (typeof isAionWorkflowBranchNode === "function" && isAionWorkflowBranchNode(anchorNode)) ||
+          (typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(anchorNode))
+        );
+
+      const routerRoutes =
+        typeof getAionWorkflowRouterRoutes === "function"
+          ? getAionWorkflowRouterRoutes(anchorNode)
+          : [];
+
+      const routerRouteIndex = routerRoutes.findIndex(
+        (route) => String(route.id).toLowerCase() === pendingBranchCondition,
+      );
+
+      const branchYOffset =
+        typeof isAionWorkflowRouterNode === "function" &&
+        isAionWorkflowRouterNode(anchorNode) &&
+        routerRouteIndex >= 0
+          ? getAionWorkflowRouterRouteOffset(routerRouteIndex, routerRoutes.length)
+          : pendingBranchCondition === "false" || pendingBranchCondition === "else"
+            ? 170
+            : pendingBranchCondition === "true"
+              ? -130
+              : 0;
+
       const newNode = {
         id: `node_${actionType}_${Date.now()}`,
         ...actionMap[actionType],
-        x: Number(anchorNode.x || 160) + 275,
-        y: Number(anchorNode.y || 240),
+        x: Number(anchorNode.x || 160) + (isBranchInsert ? 320 : 275),
+        y: Number(anchorNode.y || 240) + branchYOffset,
       };
+
+      const newIsMerge = isAionWorkflowNewMergeNode(newNode);
 
       const anchorIndex = anchorNode?.id
         ? nodes.findIndex((node) => node.id === anchorNode.id)
@@ -26065,26 +28108,54 @@ function installAionWorkflowActionControls() {
         ? edges.filter((edge) => edge.from === anchorNode.id)
         : [];
 
+      const branchCondition = getAionWorkflowNewEdgeCondition(anchorNode);
+
       const remainingEdges = anchorNode?.id
-        ? edges.filter((edge) => edge.from !== anchorNode.id)
+        ? isBranchInsert
+          ? edges.filter(
+              (edge) =>
+                !(
+                  String(edge.from) === String(anchorNode.id) &&
+                  String(edge.condition || "success") === String(branchCondition)
+                ),
+            )
+          : edges.filter((edge) => edge.from !== anchorNode.id)
         : edges;
 
-      const insertedEdges = anchorNode?.id
-        ? [
-            {
-              from: anchorNode.id,
-              to: newNode.id,
-              condition: "success",
-            },
-            ...outgoingEdges.map((edge) => ({
-              ...edge,
-              from: newNode.id,
-              condition: edge.condition || "success",
-            })),
-          ]
+      const insertedEdges = anchorNode?.id && !newIsMerge
+        ? isBranchInsert
+          ? [
+              {
+                from: anchorNode.id,
+                to: newNode.id,
+                condition: branchCondition,
+              },
+            ]
+          : [
+              {
+                from: anchorNode.id,
+                to: newNode.id,
+                condition: branchCondition,
+              },
+              ...outgoingEdges.map((edge) => ({
+                ...edge,
+                from: newNode.id,
+                condition: getAionWorkflowRewiredEdgeCondition(edge),
+              })),
+            ]
         : [];
 
-      const reflowedNodes = nextNodes.map((node, index) => ({
+      const shouldPreserveLayout =
+    isBranchInsert ||
+    hasAionWorkflowBranchingEdges(edges) ||
+    (
+      typeof isAionWorkflowMergeNode === "function" &&
+      isAionWorkflowMergeNode(newNode)
+    );
+
+  const reflowedNodes = shouldPreserveLayout
+    ? nextNodes
+    : nextNodes.map((node, index) => ({
         ...node,
         x: 160 + index * 275,
         y: Number(node.y || anchorNode.y || 240),
@@ -26110,7 +28181,7 @@ function installAionWorkflowActionControls() {
 
       window.requestAnimationFrame?.(() => {
         window.__aionArchitectModulePickerOpen = false;
-        if (typeof requestRender === "function") requestRender();
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       });
     },
     true,
@@ -26121,6 +28192,111 @@ function installAionWorkflowActionControls() {
 function installAionWorkflowFirstStepControls() {
   if (window.__aionWorkflowFirstStepControlsBound === true) return;
   window.__aionWorkflowFirstStepControlsBound = true;
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -26849,6 +29025,7 @@ function render() {
   installAionWorkflowFirstStepControls();
   installAionWorkflowActionCardImmediateAddOverride();
   installAionWorkflowActionControls();
+  installAionWorkflowConnectorPortControls();
 installAionWorkflowBottomToolbarControls();
   installAionWorkflowTrackpadCanvasControls();
 
@@ -28161,6 +30338,111 @@ async function hydrateRecoveredDesktopState() {
   } catch (_) {}
 
   applyDarkModeState(initial);
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -31020,6 +33302,111 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
   window.__aionArchitectToolbarOpenOverrideInstalled = true;
 
   document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
     "click",
     (event) => {
       const openButton = event.target.closest?.(
@@ -31076,7 +33463,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       window.__aionArchitectAdvancedConfigOpen = true;
       window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31088,7 +33475,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
 
       window.__aionArchitectAdvancedConfigOpen = false;
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31101,7 +33488,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
 
       window.__aionArchitectAdvancedConfigOpen = false;
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31114,7 +33501,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       window.__aionArchitectAdvancedConfigTab =
         tab.getAttribute("data-aion-architect-advanced-tab") || "filters";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
   }, true);
@@ -31305,7 +33692,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       window.__aionArchitectModulePickerOpen = true;
       window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31356,7 +33743,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       );
 
       window.__aionArchitectSelectedStepId = stepId;
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31389,7 +33776,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       );
 
       window.__aionArchitectSelectedStepId = stepId;
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31400,7 +33787,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       event.stopImmediatePropagation();
 
       window.__aionArchitectSettingsMore = window.__aionArchitectSettingsMore !== true;
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31411,7 +33798,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       event.stopImmediatePropagation();
 
       window.__aionArchitectSettingsExpanded = window.__aionArchitectSettingsExpanded !== true;
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31422,7 +33809,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       event.stopImmediatePropagation();
 
       window.__aionArchitectSettingsHelp = window.__aionArchitectSettingsHelp !== true;
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
   }, true);
@@ -31452,7 +33839,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
     });
 
     window.__aionArchitectSelectedStepId = stepId;
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }, true);
 
   document.addEventListener("input", (event) => {
@@ -31587,7 +33974,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       window.__aionArchitectModulePickerOpen = true;
       window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31599,7 +33986,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
 
       window.__aionArchitectModulePickerOpen = false;
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31612,7 +33999,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
 
       window.__aionArchitectModulePickerOpen = false;
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31625,7 +34012,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
       window.__aionArchitectModulePickerGroup =
         group.getAttribute("data-aion-architect-module-group") || "apps";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31657,7 +34044,7 @@ const AION_EXEC_DEBUG_DETAILS_LOCK = `<details class="aion-exec-debug">
         });
       }
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
   }, true);
@@ -31949,7 +34336,7 @@ function safeAionDesktopPatch(payload) {
       window.__aionArchitectModulePickerOpen = true;
       window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31961,7 +34348,7 @@ function safeAionDesktopPatch(payload) {
 
       window.__aionArchitectModulePickerOpen = false;
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31974,7 +34361,7 @@ function safeAionDesktopPatch(payload) {
 
       window.__aionArchitectModulePickerOpen = false;
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -31987,7 +34374,7 @@ function safeAionDesktopPatch(payload) {
       window.__aionArchitectModulePickerGroup =
         group.getAttribute("data-aion-architect-module-group") || "apps";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -32022,12 +34409,12 @@ function safeAionDesktopPatch(payload) {
         window.__aionArchitectSettingsOpen = false;
         safeAionDesktopMessage(`Added ${module.label || "step"} to the workflow canvas.`, "success");
 
-        if (typeof requestRender === "function") requestRender();
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 
         window.requestAnimationFrame?.(() => {
           window.__aionArchitectModulePickerOpen = false;
           window.__aionArchitectSettingsOpen = false;
-          if (typeof requestRender === "function") requestRender();
+          if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
         });
 
         return;
@@ -32057,11 +34444,11 @@ function safeAionDesktopPatch(payload) {
 
       safeAionDesktopMessage(`Added ${nextStep.action_label || nextStep.app || "step"} to the workflow.`, "success");
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 
       window.requestAnimationFrame?.(() => {
         window.__aionArchitectModulePickerOpen = false;
-        if (typeof requestRender === "function") requestRender();
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       });
 
       return;
@@ -32093,7 +34480,7 @@ function safeAionDesktopPatch(payload) {
 
       setAionUnifiedBuilderMode(modeButton.getAttribute("data-aion-unified-builder-mode"));
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -32109,7 +34496,7 @@ function safeAionDesktopPatch(payload) {
           message: "Tell Aion what step to add first.",
           messageTone: "warning",
         });
-        if (typeof requestRender === "function") requestRender();
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
         return;
       }
 
@@ -32123,7 +34510,7 @@ function safeAionDesktopPatch(payload) {
         messageTone: "success",
       });
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -32139,7 +34526,7 @@ function safeAionDesktopPatch(payload) {
           message: "Describe the workflow before generating.",
           messageTone: "warning",
         });
-        if (typeof requestRender === "function") requestRender();
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
         return;
       }
 
@@ -32151,7 +34538,7 @@ function safeAionDesktopPatch(payload) {
         messageTone: "success",
       });
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -32163,7 +34550,7 @@ function safeAionDesktopPatch(payload) {
 
       window.__aionUnifiedDescribePrompt = "";
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
   }, true);
@@ -32346,7 +34733,7 @@ function safeAionDesktopPatch(payload) {
     window.__aionArchitectModulePickerOpen = true;
     window.__aionArchitectModulePickerGroup = window.__aionArchitectModulePickerGroup || "apps";
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }, true);
 })();
 
@@ -32411,14 +34798,14 @@ function safeAionDesktopPatch(payload) {
   window.enableAionLegacyDrawers = function enableAionLegacyDrawers() {
     window.localStorage?.setItem("aion_dev_legacy_drawers", "1");
     document.body?.classList?.add("aion-show-legacy-drawers");
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   };
 
   window.disableAionLegacyDrawers = function disableAionLegacyDrawers() {
     window.localStorage?.removeItem("aion_dev_legacy_drawers");
     document.body?.classList?.remove("aion-show-legacy-drawers");
     window.__aionWorkflowPickerMode = "";
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   };
 })();
 
@@ -32983,7 +35370,7 @@ function safeAionDesktopPatch(payload) {
 
     safePatchMessage("Workflow node removed.", "success");
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function openAdvancedLogic(nodeId) {
@@ -33020,7 +35407,7 @@ function safeAionDesktopPatch(payload) {
       ];
     }
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function openNodeEditor(nodeId) {
@@ -33036,7 +35423,7 @@ function safeAionDesktopPatch(payload) {
       return;
     }
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function injectMiniToolbars() {
@@ -33112,6 +35499,111 @@ function safeAionDesktopPatch(payload) {
     injectMiniToolbars();
     ensureAdvancedModalMounted();
   }
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -33199,7 +35691,7 @@ function safeAionDesktopPatch(payload) {
           }
         } catch (_) {}
 
-        if (typeof requestRender === "function") requestRender();
+        if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
         return;
       }
     },
@@ -33323,7 +35815,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function safeRequestRender() {
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function persistGraph(graph) {
@@ -33563,6 +36055,111 @@ function safeAionDesktopPatch(payload) {
   );
 
   document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
     "click",
     (event) => {
       const logicButton = event.target.closest?.("[data-aion-main-node-open-logic]");
@@ -33746,7 +36343,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function request() {
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function selectedNode() {
@@ -34024,6 +36621,111 @@ function safeAionDesktopPatch(payload) {
       .querySelectorAll("[data-aion-main-forced-advanced-mount='true']")
       .forEach((item) => item.remove());
   }
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -34680,7 +37382,7 @@ function safeAionDesktopPatch(payload) {
 
       patchNode(nodeId, { [field]: input.value });
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
     },
     true,
   );
@@ -34985,7 +37687,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function request() {
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function selectedNode() {
@@ -35705,7 +38407,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function request() {
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function selectedNode() {
@@ -37122,7 +39824,7 @@ function safeAionDesktopPatch(payload) {
     window.__aionArchitectAdvancedConfigOpen = true;
     window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   document.addEventListener(
@@ -37152,7 +39854,112 @@ function safeAionDesktopPatch(payload) {
 
       patchNode(nodeId, { [field]: input.value });
 
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
     },
     true,
   );
@@ -37589,7 +40396,7 @@ function safeAionDesktopPatch(payload) {
     window.__aionArchitectAdvancedConfigOpen = true;
     window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   document.addEventListener(
@@ -37618,7 +40425,112 @@ function safeAionDesktopPatch(payload) {
       if (!nodeId || !field) return;
 
       patchNode(nodeId, field, input.value);
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
     },
     true,
   );
@@ -37736,2134 +40648,6 @@ function safeAionDesktopPatch(payload) {
 
   document.head.appendChild(style);
 })();
-
-/* AION PATCH: main canvas node editor forced AI settings mount v7
-   Purpose:
-   - Put AI canvas node settings visibly inside the main Node Editor PARAMETERS area.
-   - Stop relying on old brittle DOM guesses.
-   - Remove duplicate/large legacy Configure Step Logic modal when compact modal exists.
-*/
-(function installAionMainNodeEditorAiSettingsV7() {
-  const PATCH_ID = "aion-main-node-editor-ai-settings-v7";
-  if (window.__aionMainNodeEditorAiSettingsV7 === true) return;
-  window.__aionMainNodeEditorAiSettingsV7 = true;
-
-  function esc(value) {
-    if (typeof escapeHtml === "function") return escapeHtml(value);
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function graph() {
-    try {
-      if (typeof getAionWorkflowDraftState === "function") return getAionWorkflowDraftState();
-    } catch (_) {}
-
-    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
-      workflow_id: createAionWorkflowId(),
-      name: "Untitled workflow 1",
-      status: "draft",
-      nodes: [],
-      edges: [],
-    };
-
-    return window.__aionWorkflowGraph;
-  }
-
-  function selectedNode() {
-    const g = graph();
-    const nodes = Array.isArray(g.nodes) ? g.nodes : [];
-    const selectedId = window.__aionWorkflowSelectedNodeId;
-
-    return (
-      nodes.find((node) => String(node.id) === String(selectedId)) ||
-      nodes[nodes.length - 1] ||
-      nodes[0] ||
-      null
-    );
-  }
-
-  function patchNode(nodeId, patch) {
-    const g = graph();
-    const nodes = Array.isArray(g.nodes) ? g.nodes : [];
-
-    g.nodes = nodes.map((node) => {
-      if (String(node.id) !== String(nodeId)) return node;
-
-      const next = {
-        ...node,
-        ...patch,
-      };
-
-      next.config = {
-        ...(node.config || {}),
-        ...(patch.config || {}),
-      };
-
-      if (patch.fields !== undefined) next.config.fields = patch.fields;
-      if (patch.outputs !== undefined) next.config.outputs = patch.outputs;
-      if (patch.action_id !== undefined) next.config.action_id = patch.action_id;
-      if (patch.connector !== undefined) next.config.connector = patch.connector;
-      if (patch.approval_requirement !== undefined) {
-        next.config.approval_requirement = patch.approval_requirement;
-      }
-
-      return next;
-    });
-
-    g.dirty = true;
-    g.status = g.status || "draft";
-
-    window.__aionWorkflowGraph = g;
-
-    try {
-      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
-        compileAndAttachAionWorkflowGlyph(g);
-      }
-    } catch (_) {}
-
-    try {
-      if (typeof persistAionWorkflowDraftState === "function") {
-        persistAionWorkflowDraftState();
-      }
-    } catch (_) {}
-  }
-
-  function getVisibleRect(el) {
-    if (!el || typeof el.getBoundingClientRect !== "function") return null;
-    const rect = el.getBoundingClientRect();
-    if (rect.width < 500 || rect.height < 280) return null;
-    if (rect.bottom < 0 || rect.right < 0) return null;
-    if (rect.top > window.innerHeight || rect.left > window.innerWidth) return null;
-    return rect;
-  }
-
-  function findNodeEditorModal() {
-    const candidates = Array.from(document.querySelectorAll("section, aside, main, div"))
-      .map((el) => {
-        const text = String(el.textContent || "");
-        const rect = getVisibleRect(el);
-        if (!rect) return null;
-
-        const isNodeEditor =
-          text.includes("NODE EDITOR") &&
-          text.includes("PARAMETERS") &&
-          text.includes("OUTPUT") &&
-          text.includes("TEST NODE") &&
-          text.includes("SAVE NODE");
-
-        if (!isNodeEditor) return null;
-
-        return {
-          el,
-          rect,
-          area: rect.width * rect.height,
-        };
-      })
-      .filter(Boolean)
-      .sort((a, b) => a.area - b.area);
-
-    return candidates[0] || null;
-  }
-
-  function renderSettings(node) {
-    const type = String(node.type || "Step");
-    const connector = String(node.connector || node.app || node.config?.connector || "");
-    const actionId = String(node.action_id || node.action || node.config?.action_id || "");
-    const title = String(node.title || node.action_label || "Choose");
-    const fields = String(node.fields || node.config?.fields || "");
-    const outputs = String(node.outputs || node.config?.outputs || "");
-    const approval = String(node.approval_requirement || node.config?.approval_requirement || "auto");
-
-    const typeOptions = [
-      "Step",
-      "Trigger",
-      "App action",
-      "AI action",
-      "Logic / condition",
-      "Router",
-      "Tool / transform",
-      "Text Parser",
-      "Approval",
-      "Custom Logic",
-      "Content Asset",
-    ];
-
-    return `
-      <section
-        class="aion-node-editor-ai-settings-v7"
-        data-aion-node-editor-ai-settings-v7="true"
-        data-aion-node-id="${esc(node.id)}"
-      >
-        <div class="aion-node-editor-ai-tabs-v7">
-          <button type="button" class="active">Node</button>
-          <button type="button" data-aion-node-editor-open-logic-v7="${esc(node.id)}">Logic / Variables</button>
-        </div>
-
-        <div class="aion-node-editor-ai-card-v7">
-          <div class="eyebrow">AI canvas settings</div>
-
-          <label>
-            <span>What kind of step is this?</span>
-            <select data-aion-node-editor-field-v7="type" data-aion-node-id="${esc(node.id)}">
-              ${typeOptions.map((item) => `
-                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
-              `).join("")}
-            </select>
-          </label>
-
-          <label>
-            <span>Use this app / system</span>
-            <input
-              data-aion-node-editor-field-v7="connector"
-              data-aion-node-id="${esc(node.id)}"
-              value="${esc(connector)}"
-              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
-            />
-          </label>
-
-          <label>
-            <span>Action ID</span>
-            <input
-              data-aion-node-editor-field-v7="action_id"
-              data-aion-node-id="${esc(node.id)}"
-              value="${esc(actionId)}"
-              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
-            />
-          </label>
-
-          <label>
-            <span>What should happen?</span>
-            <input
-              data-aion-node-editor-field-v7="title"
-              data-aion-node-id="${esc(node.id)}"
-              value="${esc(title)}"
-              placeholder="Watch emails, extract details, create draft"
-            />
-          </label>
-
-          <label>
-            <span>Aion should collect / use</span>
-            <textarea
-              data-aion-node-editor-field-v7="fields"
-              data-aion-node-id="${esc(node.id)}"
-              placeholder="sender, subject, body, received_at"
-            >${esc(fields)}</textarea>
-          </label>
-
-          <label>
-            <span>Pass this to next step as</span>
-            <textarea
-              data-aion-node-editor-field-v7="outputs"
-              data-aion-node-id="${esc(node.id)}"
-              placeholder="new_email_event, customer_details, draft_reply"
-            >${esc(outputs)}</textarea>
-          </label>
-
-          <label>
-            <span>Approval / safety</span>
-            <select data-aion-node-editor-field-v7="approval_requirement" data-aion-node-id="${esc(node.id)}">
-              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
-              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
-              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
-              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
-            </select>
-          </label>
-        </div>
-      </section>
-    `;
-  }
-
-  function removeSettings() {
-    document
-      .querySelectorAll("[data-aion-node-editor-ai-settings-v7='true']")
-      .forEach((el) => el.remove());
-  }
-
-  function mountSettings() {
-    const found = findNodeEditorModal();
-    const node = selectedNode();
-
-    if (!found || !node) {
-      removeSettings();
-      return;
-    }
-
-    const existing = document.querySelector("[data-aion-node-editor-ai-settings-v7='true']");
-    const existingNodeId = existing?.getAttribute("data-aion-node-id");
-
-    if (existing && String(existingNodeId) === String(node.id)) {
-      positionSettings(existing, found.rect);
-      return;
-    }
-
-    removeSettings();
-
-    const wrap = document.createElement("div");
-    wrap.innerHTML = renderSettings(node);
-    const panel = wrap.firstElementChild;
-
-    document.body.appendChild(panel);
-    positionSettings(panel, found.rect);
-  }
-
-  function positionSettings(panel, rect) {
-    if (!panel || !rect) return;
-
-    const left = Math.round(rect.left + rect.width * 0.315);
-    const top = Math.round(rect.top + 185);
-    const width = Math.max(420, Math.round(rect.width * 0.365));
-    const maxHeight = Math.max(260, Math.round(rect.height - 245));
-
-    panel.style.left = `${left}px`;
-    panel.style.top = `${top}px`;
-    panel.style.width = `${width}px`;
-    panel.style.maxHeight = `${maxHeight}px`;
-  }
-
-  function openCompactLogic(nodeId) {
-    const node = selectedNode();
-    const safeNodeId = nodeId || node?.id || window.__aionWorkflowSelectedNodeId || "";
-
-    window.__aionWorkflowSelectedNodeId = safeNodeId;
-    window.__aionArchitectSelectedStepId = safeNodeId;
-    window.__aionArchitectAdvancedConfigOpen = false;
-
-    document
-      .querySelectorAll(
-        [
-          "[data-aion-architect-advanced-backdrop='true']",
-          "[data-aion-main-forced-advanced-mount='true']",
-          "[data-aion-main-step-logic-modal='true']",
-        ].join(","),
-      )
-      .forEach((el) => el.remove());
-
-    const tabs = [
-      ["filters", "Filters"],
-      ["variables", "Variables"],
-      ["text", "Text tools"],
-      ["dates", "Dates"],
-      ["lists", "Lists"],
-      ["json", "JSON"],
-    ];
-
-    const active = window.__aionNodeLogicTabV7 || "filters";
-
-    const itemsByTab = {
-      filters: ["Subject contains", "Sender is", "Body contains", "Date is after", "Has attachment"],
-      variables: ["Email sender", "Email subject", "Email body", "Customer name", "AI response", "Draft text"],
-      text: ["contains", "replace", "split", "trim", "lowercase", "uppercase", "extract email"],
-      dates: ["now", "received date", "add days", "add hours", "before", "after"],
-      lists: ["first item", "join", "contains", "remove duplicates", "count"],
-      json: ["get field", "map object", "parse JSON", "pick value", "fallback value"],
-    };
-
-    const titleByTab = {
-      filters: "Only continue if...",
-      variables: "Use values from earlier steps",
-      text: "Clean or transform text",
-      dates: "Schedule or compare time",
-      lists: "Work with lists",
-      json: "Read structured data",
-    };
-
-    const modal = document.createElement("div");
-    modal.setAttribute("data-aion-node-logic-modal-v7", "true");
-    modal.innerHTML = `
-      <div class="aion-node-logic-backdrop-v7">
-        <aside class="aion-node-logic-card-v7">
-          <header class="aion-node-logic-head-v7">
-            <div>
-              <h2>Configure step logic</h2>
-              <p>Add filters, variables, text tools, dates, lists, JSON, and conditions for this step.</p>
-            </div>
-            <button type="button" data-aion-node-logic-close-v7="true">×</button>
-          </header>
-
-          <nav class="aion-node-logic-tabs-v7">
-            ${tabs.map(([key, label]) => `
-              <button
-                type="button"
-                class="${active === key ? "active" : ""}"
-                data-aion-node-logic-tab-v7="${esc(key)}"
-              >${esc(label)}</button>
-            `).join("")}
-          </nav>
-
-          <main class="aion-node-logic-body-v7">
-            <h3>${esc(titleByTab[active] || "Configure")}</h3>
-            <p>Click an item later to insert it into the selected step condition or field.</p>
-
-            <div class="aion-node-logic-chips-v7">
-              ${(itemsByTab[active] || []).map((item) => `<button type="button">${esc(item)}</button>`).join("")}
-            </div>
-
-            <div class="aion-node-logic-example-v7">
-              <strong>Example:</strong> If subject contains "quote", then extract name, email, phone, enquiry and pass it to the next step as customer_details.
-            </div>
-          </main>
-        </aside>
-      </div>
-    `;
-
-    document.body.appendChild(modal);
-  }
-
-  document.addEventListener(
-    "input",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-node-editor-field-v7]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-node-id");
-      const field = input.getAttribute("data-aion-node-editor-field-v7");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "change",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-node-editor-field-v7]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-node-id");
-      const field = input.getAttribute("data-aion-node-editor-field-v7");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-
-      if (typeof requestRender === "function") requestRender();
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "click",
-    (event) => {
-      const logicButton =
-        event.target.closest?.("[data-aion-node-editor-open-logic-v7]") ||
-        event.target.closest?.("[data-aion-main-open-step-logic-v5]") ||
-        event.target.closest?.("[data-aion-main-open-step-logic]") ||
-        event.target.closest?.("[data-aion-architect-open-advanced-config]");
-
-      if (logicButton) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-        const nodeId =
-          logicButton.getAttribute("data-aion-node-editor-open-logic-v7") ||
-          logicButton.getAttribute("data-aion-main-open-step-logic-v5") ||
-          logicButton.getAttribute("data-aion-main-open-step-logic") ||
-          logicButton.getAttribute("data-aion-architect-open-advanced-config") ||
-          window.__aionWorkflowSelectedNodeId ||
-          "";
-
-        openCompactLogic(nodeId);
-        return;
-      }
-
-      const closeLogic = event.target.closest?.("[data-aion-node-logic-close-v7='true']");
-      if (closeLogic) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-        document
-          .querySelectorAll("[data-aion-node-logic-modal-v7='true']")
-          .forEach((el) => el.remove());
-
-        window.__aionArchitectAdvancedConfigOpen = false;
-        return;
-      }
-
-      const logicTab = event.target.closest?.("[data-aion-node-logic-tab-v7]");
-      if (logicTab) {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-
-        window.__aionNodeLogicTabV7 = logicTab.getAttribute("data-aion-node-logic-tab-v7") || "filters";
-
-        document
-          .querySelectorAll("[data-aion-node-logic-modal-v7='true']")
-          .forEach((el) => el.remove());
-
-        openCompactLogic(window.__aionWorkflowSelectedNodeId || "");
-        return;
-      }
-
-      const closeEditor = event.target.closest?.("[data-aion-workflow-node-editor-close='true']");
-      if (closeEditor) {
-        setTimeout(removeSettings, 0);
-      }
-    },
-    true,
-  );
-
-  const observer = new MutationObserver(() => {
-    window.requestAnimationFrame?.(mountSettings) || setTimeout(mountSettings, 0);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  window.addEventListener("resize", mountSettings);
-  setInterval(mountSettings, 350);
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    [data-aion-node-editor-ai-settings-v7='true'] {
-      position: fixed !important;
-      z-index: 999998 !important;
-      overflow: auto !important;
-      display: grid !important;
-      gap: 12px !important;
-      padding: 0 !important;
-      pointer-events: auto !important;
-    }
-
-    .aion-node-editor-ai-tabs-v7 {
-      display: flex !important;
-      gap: 8px !important;
-      margin-bottom: 8px !important;
-    }
-
-    .aion-node-editor-ai-tabs-v7 button {
-      height: 38px !important;
-      border-radius: 999px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: rgba(255,255,255,0.94) !important;
-      color: #0f172a !important;
-      padding: 0 14px !important;
-      font-size: 12px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
-      cursor: pointer !important;
-    }
-
-    .aion-node-editor-ai-tabs-v7 button.active {
-      background: #0f172a !important;
-      color: white !important;
-      border-color: #0f172a !important;
-    }
-
-    .aion-node-editor-ai-card-v7 {
-      display: grid !important;
-      gap: 12px !important;
-      padding: 15px !important;
-      border-radius: 18px !important;
-      background: rgba(248,250,252,0.92) !important;
-      border: 1px solid rgba(15,23,42,0.12) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.92) !important;
-    }
-
-    .aion-node-editor-ai-card-v7 .eyebrow,
-    .aion-node-editor-ai-card-v7 label span {
-      color: #475569 !important;
-      font-size: 10px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.20em !important;
-      text-transform: uppercase !important;
-    }
-
-    .aion-node-editor-ai-card-v7 label {
-      display: grid !important;
-      gap: 6px !important;
-      margin: 0 !important;
-    }
-
-    .aion-node-editor-ai-card-v7 input,
-    .aion-node-editor-ai-card-v7 select,
-    .aion-node-editor-ai-card-v7 textarea {
-      width: 100% !important;
-      border-radius: 13px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: white !important;
-      color: #0f172a !important;
-      padding: 10px 12px !important;
-      font-size: 13px !important;
-      font-weight: 750 !important;
-      outline: none !important;
-    }
-
-    .aion-node-editor-ai-card-v7 textarea {
-      min-height: 66px !important;
-      resize: vertical !important;
-      line-height: 1.35 !important;
-    }
-
-    [data-aion-node-logic-modal-v7='true'] {
-      position: fixed !important;
-      inset: 0 !important;
-      z-index: 1000000 !important;
-    }
-
-    .aion-node-logic-backdrop-v7 {
-      position: fixed !important;
-      inset: 0 !important;
-      display: grid !important;
-      place-items: center !important;
-      background: rgba(15,23,42,0.34) !important;
-      backdrop-filter: blur(10px) !important;
-      -webkit-backdrop-filter: blur(10px) !important;
-    }
-
-    .aion-node-logic-card-v7 {
-      width: min(980px, calc(100vw - 70px)) !important;
-      max-height: min(620px, calc(100vh - 70px)) !important;
-      overflow: auto !important;
-      border-radius: 30px !important;
-      background: white !important;
-      box-shadow: 0 38px 120px rgba(15,23,42,0.34) !important;
-      color: #0f172a !important;
-    }
-
-    .aion-node-logic-head-v7 {
-      display: flex !important;
-      align-items: flex-start !important;
-      justify-content: space-between !important;
-      gap: 24px !important;
-      padding: 30px 36px 24px !important;
-    }
-
-    .aion-node-logic-head-v7 h2 {
-      margin: 0 0 8px !important;
-      font-size: 34px !important;
-      line-height: 1 !important;
-      letter-spacing: -0.05em !important;
-    }
-
-    .aion-node-logic-head-v7 p {
-      margin: 0 !important;
-      color: #64748b !important;
-      font-size: 17px !important;
-      font-weight: 750 !important;
-    }
-
-    .aion-node-logic-head-v7 button {
-      width: 52px !important;
-      height: 52px !important;
-      border: 1px solid #d9f99d !important;
-      background: white !important;
-      color: #000 !important;
-      font-size: 34px !important;
-      font-weight: 950 !important;
-      cursor: pointer !important;
-    }
-
-    .aion-node-logic-tabs-v7 {
-      display: flex !important;
-      background: #1f2937 !important;
-      padding-left: 22px !important;
-      overflow-x: auto !important;
-    }
-
-    .aion-node-logic-tabs-v7 button {
-      border: 0 !important;
-      background: transparent !important;
-      color: white !important;
-      padding: 18px 24px !important;
-      font-size: 18px !important;
-      font-weight: 950 !important;
-      cursor: pointer !important;
-    }
-
-    .aion-node-logic-tabs-v7 button.active {
-      background: white !important;
-      color: #0f172a !important;
-    }
-
-    .aion-node-logic-body-v7 {
-      padding: 32px 38px 36px !important;
-    }
-
-    .aion-node-logic-body-v7 h3 {
-      margin: 0 0 18px !important;
-      font-size: 30px !important;
-      letter-spacing: -0.04em !important;
-    }
-
-    .aion-node-logic-body-v7 p {
-      margin: 0 0 22px !important;
-      color: #737373 !important;
-      font-size: 18px !important;
-      font-weight: 700 !important;
-    }
-
-    .aion-node-logic-chips-v7 {
-      display: flex !important;
-      flex-wrap: wrap !important;
-      gap: 12px !important;
-      margin-bottom: 28px !important;
-    }
-
-    .aion-node-logic-chips-v7 button {
-      border-radius: 13px !important;
-      border: 1px solid rgba(15,23,42,0.12) !important;
-      background: #f8fafc !important;
-      padding: 12px 16px !important;
-      color: #0f172a !important;
-      font-size: 17px !important;
-      font-weight: 950 !important;
-      cursor: pointer !important;
-    }
-
-    .aion-node-logic-example-v7 {
-      border: 1px solid #bef264 !important;
-      background: #f7fee7 !important;
-      color: #365314 !important;
-      border-radius: 18px !important;
-      padding: 20px 22px !important;
-      font-size: 17px !important;
-      line-height: 1.55 !important;
-      font-weight: 700 !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-  setTimeout(mountSettings, 0);
-  setTimeout(mountSettings, 300);
-})();
-
-
-/* AION PATCH: inject AI node settings into the real double-click Node Editor v7
-   Target:
-   - Main canvas node double-click modal
-   - PARAMETERS column containing "No custom parameters for this node yet."
-   - Does not depend on old AI Architect modal render functions
-*/
-(function installAionRealNodeEditorParametersInjectionV7() {
-  const PATCH_ID = "aion-real-node-editor-parameters-injection-v7";
-  if (window.__aionRealNodeEditorParametersInjectionV7 === true) return;
-  window.__aionRealNodeEditorParametersInjectionV7 = true;
-
-  function esc(value) {
-    if (typeof escapeHtml === "function") return escapeHtml(value);
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function getGraph() {
-    try {
-      if (typeof getAionWorkflowDraftState === "function") {
-        return getAionWorkflowDraftState();
-      }
-    } catch (_) {}
-
-    if (!window.__aionWorkflowGraph) {
-      window.__aionWorkflowGraph = {
-        workflow_id: createAionWorkflowId(),
-        name: "Untitled workflow 1",
-        status: "draft",
-        nodes: [],
-        edges: [],
-      };
-    }
-
-    return window.__aionWorkflowGraph;
-  }
-
-  function getSelectedNode() {
-    const graph = getGraph();
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-    const selectedId = window.__aionWorkflowSelectedNodeId || "";
-
-    return (
-      nodes.find((node) => String(node.id) === String(selectedId)) ||
-      nodes[nodes.length - 1] ||
-      nodes[0] ||
-      null
-    );
-  }
-
-  function patchNode(nodeId, patch) {
-    const graph = getGraph();
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-
-    graph.nodes = nodes.map((node) => {
-      if (String(node.id) !== String(nodeId)) return node;
-
-      const configPatch = {};
-      if (Object.prototype.hasOwnProperty.call(patch, "fields")) {
-        configPatch.fields = patch.fields;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "outputs")) {
-        configPatch.outputs = patch.outputs;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "action_id")) {
-        configPatch.action_id = patch.action_id;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "connector")) {
-        configPatch.connector = patch.connector;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "approval_requirement")) {
-        configPatch.approval_requirement = patch.approval_requirement;
-      }
-
-      return {
-        ...node,
-        ...patch,
-        config: {
-          ...(node.config || {}),
-          ...configPatch,
-        },
-      };
-    });
-
-    graph.dirty = true;
-    window.__aionWorkflowGraph = graph;
-
-    try {
-      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
-        compileAndAttachAionWorkflowGlyph(graph);
-      }
-    } catch (error) {
-      console.warn(`[${PATCH_ID}] compile skipped`, error);
-    }
-
-    try {
-      if (typeof persistAionWorkflowDraftState === "function") {
-        persistAionWorkflowDraftState();
-      }
-    } catch (error) {
-      console.warn(`[${PATCH_ID}] persist skipped`, error);
-    }
-  }
-
-  function isVisible(el) {
-    if (!el || !el.getBoundingClientRect) return false;
-    const rect = el.getBoundingClientRect();
-    const style = window.getComputedStyle(el);
-    return (
-      rect.width > 0 &&
-      rect.height > 0 &&
-      style.display !== "none" &&
-      style.visibility !== "hidden" &&
-      style.opacity !== "0"
-    );
-  }
-
-  function findVisibleNodeEditorRoot() {
-    const candidates = Array.from(document.querySelectorAll("section, aside, main, div"))
-      .filter((el) => {
-        if (!isVisible(el)) return false;
-
-        const text = String(el.textContent || "");
-        if (!text.includes("NODE EDITOR")) return false;
-        if (!text.includes("PARAMETERS")) return false;
-        if (!text.includes("OUTPUT")) return false;
-        if (!text.includes("No custom parameters for this node yet.")) return false;
-
-        const rect = el.getBoundingClientRect();
-        return rect.width > 700 && rect.height > 400;
-      });
-
-    // Pick the smallest matching visible container, not body/root.
-    candidates.sort((a, b) => {
-      const ar = a.getBoundingClientRect();
-      const br = b.getBoundingClientRect();
-      return ar.width * ar.height - br.width * br.height;
-    });
-
-    return candidates[0] || null;
-  }
-
-  function findExactEmptyParameterText(root) {
-    if (!root) return null;
-
-    const exact = Array.from(root.querySelectorAll("*")).find((el) => {
-      if (!isVisible(el)) return false;
-
-      const text = String(el.textContent || "").trim();
-      if (text !== "No custom parameters for this node yet.") return false;
-
-      // Prefer a leaf-ish element so we inject exactly in the PARAMETERS column.
-      const childrenText = Array.from(el.children || [])
-        .map((child) => String(child.textContent || "").trim())
-        .join("");
-
-      return !childrenText || childrenText === text;
-    });
-
-    return exact || null;
-  }
-
-  function renderSettings(node) {
-    const nodeId = esc(node.id || "");
-    const type = String(node.type || "Step");
-    const approval = String(
-      node.approval_requirement ||
-      node.config?.approval_requirement ||
-      "auto",
-    );
-
-    const types = [
-      "Step",
-      "Trigger",
-      "App action",
-      "AI action",
-      "Logic / condition",
-      "Router",
-      "Tool / transform",
-      "Text Parser",
-      "Approval",
-      "Custom Logic",
-      "Content Asset",
-    ];
-
-    return `
-      <section class="aion-real-node-editor-ai-settings-v7" data-aion-real-node-editor-ai-settings-v7="true">
-        <div class="aion-real-node-editor-tabs-v7">
-          <button type="button" class="active">Node</button>
-          <button type="button" data-aion-real-node-open-logic-v7="${nodeId}">Logic / Variables</button>
-        </div>
-
-        <div class="aion-real-node-editor-card-v7">
-          <div class="eyebrow">AI canvas settings</div>
-
-          <label>
-            <span>What kind of step is this?</span>
-            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="type">
-              ${types.map((item) => `
-                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
-              `).join("")}
-            </select>
-          </label>
-
-          <label>
-            <span>Use this app / system</span>
-            <input
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="connector"
-              value="${esc(node.connector || node.app || node.config?.connector || node.type || "")}"
-              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
-            />
-          </label>
-
-          <label>
-            <span>Action ID</span>
-            <input
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="action_id"
-              value="${esc(node.action_id || node.action || node.config?.action_id || "")}"
-              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
-            />
-          </label>
-
-          <label>
-            <span>What should happen?</span>
-            <input
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="title"
-              value="${esc(node.title || node.action_label || "")}"
-              placeholder="Watch emails, extract details, create draft"
-            />
-          </label>
-
-          <label>
-            <span>Aion should collect / use</span>
-            <textarea
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="fields"
-              placeholder="sender, subject, body, received_at"
-            >${esc(node.fields || node.config?.fields || "")}</textarea>
-          </label>
-
-          <label>
-            <span>Pass this to next step as</span>
-            <textarea
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="outputs"
-              placeholder="new_email_event, customer_details, draft_reply"
-            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
-          </label>
-
-          <label>
-            <span>Approval / safety</span>
-            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="approval_requirement">
-              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
-              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
-              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
-              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
-            </select>
-          </label>
-
-          <button type="button" class="secondary-btn" data-aion-real-node-open-logic-v7="${nodeId}">
-            Configure logic / variables
-          </button>
-        </div>
-      </section>
-    `;
-  }
-
-  function injectIntoRealNodeEditor() {
-    const root = findVisibleNodeEditorRoot();
-    if (!root) return false;
-
-    if (root.querySelector("[data-aion-real-node-editor-ai-settings-v7='true']")) {
-      return true;
-    }
-
-    const node = getSelectedNode();
-    if (!node) return false;
-
-    const emptyText = findExactEmptyParameterText(root);
-    if (!emptyText) return false;
-
-    emptyText.style.display = "none";
-
-    const mount = document.createElement("div");
-    mount.innerHTML = renderSettings(node);
-
-    emptyText.insertAdjacentElement("afterend", mount.firstElementChild);
-
-    console.info(`[${PATCH_ID}] injected AI settings into real double-click Node Editor`, {
-      nodeId: node.id,
-      title: node.title,
-    });
-
-    return true;
-  }
-
-  function openLogicForNode(nodeId) {
-    window.__aionWorkflowSelectedNodeId = nodeId || window.__aionWorkflowSelectedNodeId;
-    window.__aionArchitectSelectedStepId = nodeId || window.__aionArchitectSelectedStepId;
-    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
-
-    // Use compact v7 logic modal if present, otherwise fall back to the existing advanced modal flag.
-    window.__aionArchitectAdvancedConfigOpen = true;
-
-    if (typeof requestRender === "function") requestRender();
-
-    setTimeout(() => {
-      const existing =
-        document.querySelector("[data-aion-main-step-logic-modal='true']") ||
-        document.querySelector("[data-aion-architect-advanced-backdrop='true']");
-
-      if (existing) return;
-
-      if (typeof renderAionArchitectAdvancedConfigModal === "function") {
-        const html = renderAionArchitectAdvancedConfigModal();
-        if (html) {
-          const mount = document.createElement("div");
-          mount.setAttribute("data-aion-real-node-forced-logic-mount-v7", "true");
-          mount.innerHTML = html;
-          document.body.appendChild(mount);
-        }
-      }
-    }, 50);
-  }
-
-  document.addEventListener(
-    "input",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
-      const field = input.getAttribute("data-aion-real-node-field");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "change",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
-      const field = input.getAttribute("data-aion-real-node-field");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-
-      if (typeof requestRender === "function") requestRender();
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "click",
-    (event) => {
-      const logic = event.target.closest?.("[data-aion-real-node-open-logic-v7]");
-      if (!logic) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      openLogicForNode(logic.getAttribute("data-aion-real-node-open-logic-v7"));
-    },
-    true,
-  );
-
-  const observer = new MutationObserver(() => {
-    window.requestAnimationFrame?.(injectIntoRealNodeEditor) || setTimeout(injectIntoRealNodeEditor, 0);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  // Extra polling because this modal may be patched after render by another listener.
-  setInterval(injectIntoRealNodeEditor, 250);
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    .aion-real-node-editor-ai-settings-v7 {
-      margin-top: 18px !important;
-      padding-top: 18px !important;
-      border-top: 1px solid rgba(15,23,42,0.10) !important;
-      display: grid !important;
-      gap: 14px !important;
-      width: 100% !important;
-      max-width: 100% !important;
-    }
-
-    .aion-real-node-editor-tabs-v7 {
-      display: flex !important;
-      gap: 8px !important;
-      margin-bottom: 2px !important;
-      flex-wrap: wrap !important;
-    }
-
-    .aion-real-node-editor-tabs-v7 button {
-      height: 38px !important;
-      border-radius: 999px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: rgba(255,255,255,0.88) !important;
-      color: #0f172a !important;
-      padding: 0 14px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
-      cursor: pointer !important;
-    }
-
-    .aion-real-node-editor-tabs-v7 button.active {
-      background: #0f172a !important;
-      color: white !important;
-      border-color: #0f172a !important;
-    }
-
-    .aion-real-node-editor-card-v7 {
-      display: grid !important;
-      gap: 13px !important;
-      padding: 16px !important;
-      border-radius: 18px !important;
-      background: rgba(248,250,252,0.9) !important;
-      border: 1px solid rgba(15,23,42,0.10) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
-    }
-
-    .aion-real-node-editor-card-v7 .eyebrow,
-    .aion-real-node-editor-card-v7 label span {
-      color: #475569 !important;
-      font-size: 10px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.18em !important;
-      text-transform: uppercase !important;
-    }
-
-    .aion-real-node-editor-card-v7 label {
-      display: grid !important;
-      gap: 7px !important;
-      margin: 0 !important;
-    }
-
-    .aion-real-node-editor-card-v7 input,
-    .aion-real-node-editor-card-v7 select,
-    .aion-real-node-editor-card-v7 textarea {
-      width: 100% !important;
-      border-radius: 14px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: white !important;
-      color: #0f172a !important;
-      padding: 10px 12px !important;
-      font-size: 13px !important;
-      font-weight: 750 !important;
-      outline: none !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
-    }
-
-    .aion-real-node-editor-card-v7 textarea {
-      min-height: 66px !important;
-      resize: vertical !important;
-      line-height: 1.35 !important;
-    }
-
-    .aion-real-node-editor-card-v7 .secondary-btn,
-    .aion-real-node-editor-card-v7 button.secondary-btn {
-      justify-self: start !important;
-      min-height: 40px !important;
-      border-radius: 12px !important;
-      border: 1px solid rgba(15,23,42,0.18) !important;
-      background: #f7fee7 !important;
-      color: #0f172a !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
-      padding: 0 14px !important;
-      cursor: pointer !important;
-    }
-  `;
-
-  if (!document.getElementById(PATCH_ID)) {
-    document.head.appendChild(style);
-  }
-
-  setTimeout(injectIntoRealNodeEditor, 250);
-})();
-
-
-/* AION PATCH: inject AI node settings into the real double-click Node Editor v7
-   Target:
-   - Main canvas node double-click modal
-   - PARAMETERS column containing "No custom parameters for this node yet."
-   - Does not depend on old AI Architect modal render functions
-*/
-(function installAionRealNodeEditorParametersInjectionV7() {
-  const PATCH_ID = "aion-real-node-editor-parameters-injection-v7";
-  if (window.__aionRealNodeEditorParametersInjectionV7 === true) return;
-  window.__aionRealNodeEditorParametersInjectionV7 = true;
-
-  function esc(value) {
-    if (typeof escapeHtml === "function") return escapeHtml(value);
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function getGraph() {
-    try {
-      if (typeof getAionWorkflowDraftState === "function") {
-        return getAionWorkflowDraftState();
-      }
-    } catch (_) {}
-
-    if (!window.__aionWorkflowGraph) {
-      window.__aionWorkflowGraph = {
-        workflow_id: createAionWorkflowId(),
-        name: "Untitled workflow 1",
-        status: "draft",
-        nodes: [],
-        edges: [],
-      };
-    }
-
-    return window.__aionWorkflowGraph;
-  }
-
-  function getSelectedNode() {
-    const graph = getGraph();
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-    const selectedId = window.__aionWorkflowSelectedNodeId || "";
-
-    return (
-      nodes.find((node) => String(node.id) === String(selectedId)) ||
-      nodes[nodes.length - 1] ||
-      nodes[0] ||
-      null
-    );
-  }
-
-  function patchNode(nodeId, patch) {
-    const graph = getGraph();
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-
-    graph.nodes = nodes.map((node) => {
-      if (String(node.id) !== String(nodeId)) return node;
-
-      const configPatch = {};
-      if (Object.prototype.hasOwnProperty.call(patch, "fields")) {
-        configPatch.fields = patch.fields;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "outputs")) {
-        configPatch.outputs = patch.outputs;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "action_id")) {
-        configPatch.action_id = patch.action_id;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "connector")) {
-        configPatch.connector = patch.connector;
-      }
-      if (Object.prototype.hasOwnProperty.call(patch, "approval_requirement")) {
-        configPatch.approval_requirement = patch.approval_requirement;
-      }
-
-      return {
-        ...node,
-        ...patch,
-        config: {
-          ...(node.config || {}),
-          ...configPatch,
-        },
-      };
-    });
-
-    graph.dirty = true;
-    window.__aionWorkflowGraph = graph;
-
-    try {
-      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
-        compileAndAttachAionWorkflowGlyph(graph);
-      }
-    } catch (error) {
-      console.warn(`[${PATCH_ID}] compile skipped`, error);
-    }
-
-    try {
-      if (typeof persistAionWorkflowDraftState === "function") {
-        persistAionWorkflowDraftState();
-      }
-    } catch (error) {
-      console.warn(`[${PATCH_ID}] persist skipped`, error);
-    }
-  }
-
-  function isVisible(el) {
-    if (!el || !el.getBoundingClientRect) return false;
-    const rect = el.getBoundingClientRect();
-    const style = window.getComputedStyle(el);
-    return (
-      rect.width > 0 &&
-      rect.height > 0 &&
-      style.display !== "none" &&
-      style.visibility !== "hidden" &&
-      style.opacity !== "0"
-    );
-  }
-
-  function findVisibleNodeEditorRoot() {
-    const candidates = Array.from(document.querySelectorAll("section, aside, main, div"))
-      .filter((el) => {
-        if (!isVisible(el)) return false;
-
-        const text = String(el.textContent || "");
-        if (!text.includes("NODE EDITOR")) return false;
-        if (!text.includes("PARAMETERS")) return false;
-        if (!text.includes("OUTPUT")) return false;
-        if (!text.includes("No custom parameters for this node yet.")) return false;
-
-        const rect = el.getBoundingClientRect();
-        return rect.width > 700 && rect.height > 400;
-      });
-
-    // Pick the smallest matching visible container, not body/root.
-    candidates.sort((a, b) => {
-      const ar = a.getBoundingClientRect();
-      const br = b.getBoundingClientRect();
-      return ar.width * ar.height - br.width * br.height;
-    });
-
-    return candidates[0] || null;
-  }
-
-  function findExactEmptyParameterText(root) {
-    if (!root) return null;
-
-    const exact = Array.from(root.querySelectorAll("*")).find((el) => {
-      if (!isVisible(el)) return false;
-
-      const text = String(el.textContent || "").trim();
-      if (text !== "No custom parameters for this node yet.") return false;
-
-      // Prefer a leaf-ish element so we inject exactly in the PARAMETERS column.
-      const childrenText = Array.from(el.children || [])
-        .map((child) => String(child.textContent || "").trim())
-        .join("");
-
-      return !childrenText || childrenText === text;
-    });
-
-    return exact || null;
-  }
-
-  function renderSettings(node) {
-    const nodeId = esc(node.id || "");
-    const type = String(node.type || "Step");
-    const approval = String(
-      node.approval_requirement ||
-      node.config?.approval_requirement ||
-      "auto",
-    );
-
-    const types = [
-      "Step",
-      "Trigger",
-      "App action",
-      "AI action",
-      "Logic / condition",
-      "Router",
-      "Tool / transform",
-      "Text Parser",
-      "Approval",
-      "Custom Logic",
-      "Content Asset",
-    ];
-
-    return `
-      <section class="aion-real-node-editor-ai-settings-v7" data-aion-real-node-editor-ai-settings-v7="true">
-        <div class="aion-real-node-editor-tabs-v7">
-          <button type="button" class="active">Node</button>
-          <button type="button" data-aion-real-node-open-logic-v7="${nodeId}">Logic / Variables</button>
-        </div>
-
-        <div class="aion-real-node-editor-card-v7">
-          <div class="eyebrow">AI canvas settings</div>
-
-          <label>
-            <span>What kind of step is this?</span>
-            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="type">
-              ${types.map((item) => `
-                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
-              `).join("")}
-            </select>
-          </label>
-
-          <label>
-            <span>Use this app / system</span>
-            <input
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="connector"
-              value="${esc(node.connector || node.app || node.config?.connector || node.type || "")}"
-              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
-            />
-          </label>
-
-          <label>
-            <span>Action ID</span>
-            <input
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="action_id"
-              value="${esc(node.action_id || node.action || node.config?.action_id || "")}"
-              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
-            />
-          </label>
-
-          <label>
-            <span>What should happen?</span>
-            <input
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="title"
-              value="${esc(node.title || node.action_label || "")}"
-              placeholder="Watch emails, extract details, create draft"
-            />
-          </label>
-
-          <label>
-            <span>Aion should collect / use</span>
-            <textarea
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="fields"
-              placeholder="sender, subject, body, received_at"
-            >${esc(node.fields || node.config?.fields || "")}</textarea>
-          </label>
-
-          <label>
-            <span>Pass this to next step as</span>
-            <textarea
-              data-aion-real-node-edit-v7="${nodeId}"
-              data-aion-real-node-field="outputs"
-              placeholder="new_email_event, customer_details, draft_reply"
-            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
-          </label>
-
-          <label>
-            <span>Approval / safety</span>
-            <select data-aion-real-node-edit-v7="${nodeId}" data-aion-real-node-field="approval_requirement">
-              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
-              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
-              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
-              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
-            </select>
-          </label>
-
-          <button type="button" class="secondary-btn" data-aion-real-node-open-logic-v7="${nodeId}">
-            Configure logic / variables
-          </button>
-        </div>
-      </section>
-    `;
-  }
-
-  function injectIntoRealNodeEditor() {
-    const root = findVisibleNodeEditorRoot();
-    if (!root) return false;
-
-    if (root.querySelector("[data-aion-real-node-editor-ai-settings-v7='true']")) {
-      return true;
-    }
-
-    const node = getSelectedNode();
-    if (!node) return false;
-
-    const emptyText = findExactEmptyParameterText(root);
-    if (!emptyText) return false;
-
-    emptyText.style.display = "none";
-
-    const mount = document.createElement("div");
-    mount.innerHTML = renderSettings(node);
-
-    emptyText.insertAdjacentElement("afterend", mount.firstElementChild);
-
-    console.info(`[${PATCH_ID}] injected AI settings into real double-click Node Editor`, {
-      nodeId: node.id,
-      title: node.title,
-    });
-
-    return true;
-  }
-
-  function openLogicForNode(nodeId) {
-    window.__aionWorkflowSelectedNodeId = nodeId || window.__aionWorkflowSelectedNodeId;
-    window.__aionArchitectSelectedStepId = nodeId || window.__aionArchitectSelectedStepId;
-    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
-
-    // Use compact v7 logic modal if present, otherwise fall back to the existing advanced modal flag.
-    window.__aionArchitectAdvancedConfigOpen = true;
-
-    if (typeof requestRender === "function") requestRender();
-
-    setTimeout(() => {
-      const existing =
-        document.querySelector("[data-aion-main-step-logic-modal='true']") ||
-        document.querySelector("[data-aion-architect-advanced-backdrop='true']");
-
-      if (existing) return;
-
-      if (typeof renderAionArchitectAdvancedConfigModal === "function") {
-        const html = renderAionArchitectAdvancedConfigModal();
-        if (html) {
-          const mount = document.createElement("div");
-          mount.setAttribute("data-aion-real-node-forced-logic-mount-v7", "true");
-          mount.innerHTML = html;
-          document.body.appendChild(mount);
-        }
-      }
-    }, 50);
-  }
-
-  document.addEventListener(
-    "input",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
-      const field = input.getAttribute("data-aion-real-node-field");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "change",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-real-node-edit-v7]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-real-node-edit-v7");
-      const field = input.getAttribute("data-aion-real-node-field");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-
-      if (typeof requestRender === "function") requestRender();
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "click",
-    (event) => {
-      const logic = event.target.closest?.("[data-aion-real-node-open-logic-v7]");
-      if (!logic) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      openLogicForNode(logic.getAttribute("data-aion-real-node-open-logic-v7"));
-    },
-    true,
-  );
-
-  const observer = new MutationObserver(() => {
-    window.requestAnimationFrame?.(injectIntoRealNodeEditor) || setTimeout(injectIntoRealNodeEditor, 0);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  // Extra polling because this modal may be patched after render by another listener.
-  setInterval(injectIntoRealNodeEditor, 250);
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    .aion-real-node-editor-ai-settings-v7 {
-      margin-top: 18px !important;
-      padding-top: 18px !important;
-      border-top: 1px solid rgba(15,23,42,0.10) !important;
-      display: grid !important;
-      gap: 14px !important;
-      width: 100% !important;
-      max-width: 100% !important;
-    }
-
-    .aion-real-node-editor-tabs-v7 {
-      display: flex !important;
-      gap: 8px !important;
-      margin-bottom: 2px !important;
-      flex-wrap: wrap !important;
-    }
-
-    .aion-real-node-editor-tabs-v7 button {
-      height: 38px !important;
-      border-radius: 999px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: rgba(255,255,255,0.88) !important;
-      color: #0f172a !important;
-      padding: 0 14px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
-      cursor: pointer !important;
-    }
-
-    .aion-real-node-editor-tabs-v7 button.active {
-      background: #0f172a !important;
-      color: white !important;
-      border-color: #0f172a !important;
-    }
-
-    .aion-real-node-editor-card-v7 {
-      display: grid !important;
-      gap: 13px !important;
-      padding: 16px !important;
-      border-radius: 18px !important;
-      background: rgba(248,250,252,0.9) !important;
-      border: 1px solid rgba(15,23,42,0.10) !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
-    }
-
-    .aion-real-node-editor-card-v7 .eyebrow,
-    .aion-real-node-editor-card-v7 label span {
-      color: #475569 !important;
-      font-size: 10px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.18em !important;
-      text-transform: uppercase !important;
-    }
-
-    .aion-real-node-editor-card-v7 label {
-      display: grid !important;
-      gap: 7px !important;
-      margin: 0 !important;
-    }
-
-    .aion-real-node-editor-card-v7 input,
-    .aion-real-node-editor-card-v7 select,
-    .aion-real-node-editor-card-v7 textarea {
-      width: 100% !important;
-      border-radius: 14px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: white !important;
-      color: #0f172a !important;
-      padding: 10px 12px !important;
-      font-size: 13px !important;
-      font-weight: 750 !important;
-      outline: none !important;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
-    }
-
-    .aion-real-node-editor-card-v7 textarea {
-      min-height: 66px !important;
-      resize: vertical !important;
-      line-height: 1.35 !important;
-    }
-
-    .aion-real-node-editor-card-v7 .secondary-btn,
-    .aion-real-node-editor-card-v7 button.secondary-btn {
-      justify-self: start !important;
-      min-height: 40px !important;
-      border-radius: 12px !important;
-      border: 1px solid rgba(15,23,42,0.18) !important;
-      background: #f7fee7 !important;
-      color: #0f172a !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
-      padding: 0 14px !important;
-      cursor: pointer !important;
-    }
-  `;
-
-  if (!document.getElementById(PATCH_ID)) {
-    document.head.appendChild(style);
-  }
-
-  setTimeout(injectIntoRealNodeEditor, 250);
-})();
-
-
-/* AION PATCH: real node editor parameters injection v8
-   Targets the actual live modal:
-   .aion-node-editor-panel.aion-node-editor-parameters .aion-node-editor-form .empty-state
-*/
-(function installAionRealNodeEditorParametersInjectionV8() {
-  const PATCH_ID = "aion-real-node-editor-parameters-injection-v8";
-  if (window.__aionRealNodeEditorParametersInjectionV8 === true) return;
-  window.__aionRealNodeEditorParametersInjectionV8 = true;
-
-  function esc(value) {
-    if (typeof escapeHtml === "function") return escapeHtml(value);
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function getGraph() {
-    try {
-      if (typeof getAionWorkflowDraftState === "function") {
-        return getAionWorkflowDraftState();
-      }
-    } catch (_) {}
-
-    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
-  }
-
-  function selectedNode() {
-    const graph = getGraph();
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-    const selectedId = window.__aionWorkflowSelectedNodeId || "";
-
-    return (
-      nodes.find((node) => String(node.id) === String(selectedId)) ||
-      nodes[nodes.length - 1] ||
-      nodes[0] ||
-      null
-    );
-  }
-
-  function patchNode(nodeId, patch) {
-    const graph = getGraph();
-    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
-
-    graph.nodes = nodes.map((node) => {
-      if (String(node.id) !== String(nodeId)) return node;
-
-      const configPatch = {};
-      ["connector", "action_id", "fields", "outputs", "approval_requirement"].forEach((key) => {
-        if (Object.prototype.hasOwnProperty.call(patch, key)) {
-          configPatch[key] = patch[key];
-        }
-      });
-
-      return {
-        ...node,
-        ...patch,
-        config: {
-          ...(node.config || {}),
-          ...configPatch,
-        },
-      };
-    });
-
-    graph.dirty = true;
-    window.__aionWorkflowGraph = graph;
-
-    try {
-      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
-        compileAndAttachAionWorkflowGlyph(graph);
-      }
-    } catch (error) {
-      console.warn(`[${PATCH_ID}] compile skipped`, error);
-    }
-
-    try {
-      if (typeof persistAionWorkflowDraftState === "function") {
-        persistAionWorkflowDraftState();
-      }
-    } catch (error) {
-      console.warn(`[${PATCH_ID}] persist skipped`, error);
-    }
-  }
-
-  function renderSettings(node) {
-    const nodeId = esc(node.id || "");
-    const type = String(node.type || "Step");
-    const approval = String(node.approval_requirement || node.config?.approval_requirement || "auto");
-
-    const typeOptions = [
-      "Step",
-      "Trigger",
-      "App action",
-      "AI action",
-      "Logic / condition",
-      "Router",
-      "Tool / transform",
-      "Text Parser",
-      "Approval",
-      "Custom Logic",
-      "Content Asset",
-    ];
-
-    return `
-      <section class="aion-real-node-settings-v8" data-aion-real-node-settings-v8="true">
-        <div class="aion-real-node-tabs-v8">
-          <button type="button" class="active">Node</button>
-          <button type="button" data-aion-real-node-open-logic-v8="${nodeId}">
-            Logic / Variables
-          </button>
-        </div>
-
-        <div class="aion-real-node-card-v8">
-          <div class="eyebrow">AI canvas settings</div>
-
-          <label>
-            <span>What kind of step is this?</span>
-            <select data-aion-real-node-edit-v8="${nodeId}" data-aion-real-node-field="type">
-              ${typeOptions.map((item) => `
-                <option value="${esc(item)}" ${type === item ? "selected" : ""}>${esc(item)}</option>
-              `).join("")}
-            </select>
-          </label>
-
-          <label>
-            <span>Use this app / system</span>
-            <input
-              data-aion-real-node-edit-v8="${nodeId}"
-              data-aion-real-node-field="connector"
-              value="${esc(node.connector || node.app || node.config?.connector || node.type || "")}"
-              placeholder="Gmail, Aion, Tools, Text Parser, Approval"
-            />
-          </label>
-
-          <label>
-            <span>Action ID</span>
-            <input
-              data-aion-real-node-edit-v8="${nodeId}"
-              data-aion-real-node-field="action_id"
-              value="${esc(node.action_id || node.action || node.config?.action_id || "")}"
-              placeholder="gmail.watch_emails, tools.set_variable, text.match_pattern"
-            />
-          </label>
-
-          <label>
-            <span>What should happen?</span>
-            <input
-              data-aion-real-node-edit-v8="${nodeId}"
-              data-aion-real-node-field="title"
-              value="${esc(node.title || node.action_label || "")}"
-              placeholder="Watch emails, extract details, create draft"
-            />
-          </label>
-
-          <label>
-            <span>Aion should collect / use</span>
-            <textarea
-              data-aion-real-node-edit-v8="${nodeId}"
-              data-aion-real-node-field="fields"
-              placeholder="sender, subject, body, received_at"
-            >${esc(node.fields || node.config?.fields || "")}</textarea>
-          </label>
-
-          <label>
-            <span>Pass this to next step as</span>
-            <textarea
-              data-aion-real-node-edit-v8="${nodeId}"
-              data-aion-real-node-field="outputs"
-              placeholder="new_email_event, customer_details, draft_reply"
-            >${esc(node.outputs || node.config?.outputs || "")}</textarea>
-          </label>
-
-          <label>
-            <span>Approval / safety</span>
-            <select data-aion-real-node-edit-v8="${nodeId}" data-aion-real-node-field="approval_requirement">
-              <option value="auto" ${approval === "auto" ? "selected" : ""}>Auto</option>
-              <option value="not_required" ${approval === "not_required" ? "selected" : ""}>No approval needed</option>
-              <option value="required" ${approval === "required" ? "selected" : ""}>Require human approval</option>
-              <option value="before_external_write" ${approval === "before_external_write" ? "selected" : ""}>Require approval before external write</option>
-            </select>
-          </label>
-
-          <button type="button" class="secondary-btn" data-aion-real-node-open-logic-v8="${nodeId}">
-            Configure logic / variables
-          </button>
-        </div>
-      </section>
-    `;
-  }
-
-  function injectSettings() {
-    const panel = document.querySelector(
-      ".aion-node-editor-panel.aion-node-editor-parameters",
-    );
-
-    if (!panel) return false;
-
-    const form = panel.querySelector(".aion-node-editor-form") || panel;
-    if (!form) return false;
-
-    if (form.querySelector("[data-aion-real-node-settings-v8='true']")) {
-      return true;
-    }
-
-    const emptyState = Array.from(form.querySelectorAll(".empty-state")).find((el) =>
-      String(el.textContent || "").includes("No custom parameters for this node yet."),
-    );
-
-    const node = selectedNode();
-    if (!node) return false;
-
-    if (emptyState) {
-      emptyState.style.display = "none";
-    }
-
-    const wrap = document.createElement("div");
-    wrap.innerHTML = renderSettings(node);
-
-    form.appendChild(wrap.firstElementChild);
-
-    console.info(`[${PATCH_ID}] injected settings into actual node editor`, {
-      nodeId: node.id,
-      title: node.title,
-    });
-
-    return true;
-  }
-
-  function openLogic(nodeId) {
-    window.__aionWorkflowSelectedNodeId = nodeId || window.__aionWorkflowSelectedNodeId;
-    window.__aionArchitectSelectedStepId = nodeId || window.__aionArchitectSelectedStepId;
-    window.__aionArchitectAdvancedConfigTab = window.__aionArchitectAdvancedConfigTab || "filters";
-    window.__aionArchitectAdvancedConfigOpen = true;
-
-    if (typeof requestRender === "function") requestRender();
-
-    setTimeout(() => {
-      const existing =
-        document.querySelector("[data-aion-architect-advanced-backdrop='true']") ||
-        document.querySelector("[data-aion-main-step-logic-modal='true']");
-
-      if (existing) return;
-
-      if (typeof renderAionArchitectAdvancedConfigModal === "function") {
-        const html = renderAionArchitectAdvancedConfigModal();
-        if (html) {
-          const mount = document.createElement("div");
-          mount.setAttribute("data-aion-real-node-logic-mount-v8", "true");
-          mount.innerHTML = html;
-          document.body.appendChild(mount);
-        }
-      }
-    }, 60);
-  }
-
-  document.addEventListener(
-    "input",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-real-node-edit-v8]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-real-node-edit-v8");
-      const field = input.getAttribute("data-aion-real-node-field");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "change",
-    (event) => {
-      const input = event.target.closest?.("[data-aion-real-node-edit-v8]");
-      if (!input) return;
-
-      const nodeId = input.getAttribute("data-aion-real-node-edit-v8");
-      const field = input.getAttribute("data-aion-real-node-field");
-      if (!nodeId || !field) return;
-
-      patchNode(nodeId, { [field]: input.value });
-
-      if (typeof requestRender === "function") requestRender();
-    },
-    true,
-  );
-
-  document.addEventListener(
-    "click",
-    (event) => {
-      const logic = event.target.closest?.("[data-aion-real-node-open-logic-v8]");
-      if (!logic) return;
-
-      event.preventDefault();
-      event.stopPropagation();
-      event.stopImmediatePropagation();
-
-      openLogic(logic.getAttribute("data-aion-real-node-open-logic-v8"));
-    },
-    true,
-  );
-
-  const observer = new MutationObserver(() => {
-    window.requestAnimationFrame?.(injectSettings) || setTimeout(injectSettings, 0);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  setInterval(injectSettings, 250);
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    .aion-node-editor-form {
-      align-content: start !important;
-    }
-
-    .aion-real-node-settings-v8 {
-      display: grid !important;
-      gap: 14px !important;
-      width: 100% !important;
-      max-width: 100% !important;
-      margin-top: 14px !important;
-      padding-top: 14px !important;
-      border-top: 1px solid rgba(15,23,42,0.10) !important;
-    }
-
-    .aion-real-node-tabs-v8 {
-      display: flex !important;
-      gap: 8px !important;
-      flex-wrap: wrap !important;
-    }
-
-    .aion-real-node-tabs-v8 button {
-      height: 36px !important;
-      border-radius: 999px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: rgba(255,255,255,0.9) !important;
-      color: #0f172a !important;
-      padding: 0 13px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.07em !important;
-      text-transform: uppercase !important;
-      cursor: pointer !important;
-    }
-
-    .aion-real-node-tabs-v8 button.active {
-      background: #0f172a !important;
-      color: white !important;
-      border-color: #0f172a !important;
-    }
-
-    .aion-real-node-card-v8 {
-      display: grid !important;
-      gap: 12px !important;
-      padding: 15px !important;
-      border-radius: 18px !important;
-      background: rgba(248,250,252,0.94) !important;
-      border: 1px solid rgba(15,23,42,0.10) !important;
-    }
-
-    .aion-real-node-card-v8 .eyebrow,
-    .aion-real-node-card-v8 label span {
-      color: #475569 !important;
-      font-size: 10px !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.18em !important;
-      text-transform: uppercase !important;
-    }
-
-    .aion-real-node-card-v8 label {
-      display: grid !important;
-      gap: 6px !important;
-      margin: 0 !important;
-    }
-
-    .aion-real-node-card-v8 input,
-    .aion-real-node-card-v8 select,
-    .aion-real-node-card-v8 textarea {
-      width: 100% !important;
-      border-radius: 13px !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      background: white !important;
-      color: #0f172a !important;
-      padding: 10px 12px !important;
-      font-size: 13px !important;
-      font-weight: 750 !important;
-      outline: none !important;
-    }
-
-    .aion-real-node-card-v8 textarea {
-      min-height: 64px !important;
-      resize: vertical !important;
-      line-height: 1.35 !important;
-    }
-
-    .aion-real-node-card-v8 .secondary-btn,
-    .aion-real-node-card-v8 button.secondary-btn {
-      justify-self: start !important;
-      min-height: 40px !important;
-      border-radius: 12px !important;
-      border: 1px solid rgba(15,23,42,0.18) !important;
-      background: #f7fee7 !important;
-      color: #0f172a !important;
-      font-weight: 950 !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
-      padding: 0 14px !important;
-      cursor: pointer !important;
-    }
-  `;
-
-  if (!document.getElementById(PATCH_ID)) {
-    document.head.appendChild(style);
-  }
-
-  setTimeout(injectSettings, 250);
-})();
-
 
 /* AION PATCH: workflow canvas UI polish v1
    Purpose:
@@ -40717,10 +41501,115 @@ function safeAionDesktopPatch(payload) {
       }
     } catch (_) {}
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 
     return true;
   }
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -40886,7 +41775,7 @@ function safeAionDesktopPatch(payload) {
 
     console.log("[aion-delete-final] deleted", nodeId, graph.nodes.map((n) => n.id));
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
     return true;
   }
 
@@ -41145,13 +42034,20 @@ function safeAionDesktopPatch(payload) {
     }
 
     .aion-workflow-floating-toolbar-consolidated > button:not(.aion-workflow-execute-btn):not(.aion-workflow-mode-btn):not(.aion-workflow-publish-toolbar-btn) {
-      width: 58px !important;
-      height: 58px !important;
-      min-width: 58px !important;
-      min-height: 58px !important;
-      border-radius: 17px !important;
-      display: grid !important;
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
+      max-width: 44px !important;
+      max-height: 44px !important;
+      flex: 0 0 44px !important;
+      border-radius: 11px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       place-items: center !important;
+      padding: 0 !important;
+      box-sizing: border-box !important;
     }
 
     .aion-workflow-floating-toolbar-consolidated .aion-workflow-floating-divider {
@@ -41186,7 +42082,7 @@ function safeAionDesktopPatch(payload) {
   function setCabinetOpen(open) {
     window.__aionWorkflowFileCabinetOpen = open === true;
     window.__aionFileCabinetOpen = open === true;
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function findCabinetNodeByWorkflowId(workflowId) {
@@ -41280,7 +42176,7 @@ function safeAionDesktopPatch(payload) {
       safePatchMessage(`Loaded workflow: ${graph.name}`, "success");
     }
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function fallbackTopLevelFolder() {
@@ -41323,8 +42219,113 @@ function safeAionDesktopPatch(payload) {
       safePatchMessage(`Created folder: ${name}`, "success");
     }
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -42374,7 +43375,7 @@ function safeAionDesktopPatch(payload) {
       }
     } catch (_) {}
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function syncCurrentWorkflowIntoTree() {
@@ -42502,7 +43503,7 @@ function safeAionDesktopPatch(payload) {
 
     saveTree(tree);
     safeMessage(`Created folder: ${name}`, "success");
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function createTopFolder() {
@@ -42533,7 +43534,7 @@ function safeAionDesktopPatch(payload) {
 
     saveTree(tree);
     safeMessage(`Created top folder: ${name}`, "success");
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function deleteNode(itemId) {
@@ -42566,7 +43567,7 @@ function safeAionDesktopPatch(payload) {
 
     saveTree(tree);
     safeMessage(`Deleted ${itemType}: ${itemName}`, "success");
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function loadWorkflow(workflowId) {
@@ -42612,7 +43613,7 @@ function safeAionDesktopPatch(payload) {
       syncCurrentWorkflowIntoTree();
       window.__aionWorkflowFileCabinetOpen = window.__aionWorkflowFileCabinetOpen !== true;
       window.__aionFileCabinetOpen = window.__aionWorkflowFileCabinetOpen;
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -42623,7 +43624,7 @@ function safeAionDesktopPatch(payload) {
       stop(event);
       window.__aionWorkflowFileCabinetOpen = false;
       window.__aionFileCabinetOpen = false;
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
       return;
     }
 
@@ -44619,7 +45620,7 @@ function safeAionDesktopPatch(payload) {
       console.warn("[AION] create workflow live backend save failed:", err);
     }
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 
     return node;
   }
@@ -44729,7 +45730,7 @@ function safeAionDesktopPatch(payload) {
     } catch (_) {}
 
     try {
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
     } catch (_) {}
 
     console.log("[AION] Workflow file cabinet backend-authoritative hydrate v8 complete", {
@@ -44789,6 +45790,111 @@ function safeAionDesktopPatch(payload) {
       }
     }, 350);
   }
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -44904,7 +46010,7 @@ function safeAionDesktopPatch(payload) {
       await window.__hydrateAionWorkflowCabinetFromBackend();
     }
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
 
     console.log("[AION] Workflow file cabinet strict delete v10 deleted:", deleteId);
     return tree;
@@ -45014,7 +46120,7 @@ function safeAionDesktopPatch(payload) {
       }
     } catch (_) {}
 
-    if (typeof requestRender === "function") requestRender();
+    if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
   }
 
   function findWorkflow(tree, workflowId) {
@@ -45949,7 +47055,7 @@ function safeAionDesktopPatch(payload) {
     }
 
     try {
-      if (typeof requestRender === "function") requestRender();
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
     } catch (_) {}
   }
 
@@ -45973,6 +47079,111 @@ function safeAionDesktopPatch(payload) {
 
   window.__publishAionCurrentWorkflow = () => setPublishStatus("published");
   window.__unpublishAionCurrentWorkflow = () => setPublishStatus("draft");
+
+  document.addEventListener(
+    "pointerdown",
+    (event) => {
+      const port = event.target.closest?.("[data-aion-port-node-id]");
+      if (!port) return;
+
+      const direction = port.getAttribute("data-aion-port-direction");
+      if (direction !== "output") return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const nodeId = port.getAttribute("data-aion-port-node-id");
+      const condition = port.getAttribute("data-aion-port-condition") || "success";
+      const role = port.getAttribute("data-aion-port-role") || "main";
+
+      window.__aionDraggingConnector = {
+        from: nodeId,
+        condition,
+        role,
+        startedAt: Date.now(),
+      };
+
+      window.__aionPendingConnector = {
+        from: nodeId,
+        condition,
+        role,
+      };
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      document.body.classList.add("aion-connector-dragging");
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (targetPort) {
+        targetPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
+
+  document.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const targetPort = event.target.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']");
+
+      if (targetPort) {
+        const nodeId = targetPort.getAttribute("data-aion-port-node-id");
+        const condition = targetPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to: nodeId,
+          condition: drag.condition || "success",
+          targetCondition: condition || "success",
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+      document
+        .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+        .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+
+      if (!window.__aionDraggingConnector && typeof requestRender === "function") requestRender();
+    },
+    true,
+  );
 
   document.addEventListener(
     "click",
@@ -46268,4 +47479,3063 @@ function safeAionDesktopPatch(payload) {
   document.head.appendChild(style);
 
   console.log("[AION] Publish toolbar square-rule exclusion v25 installed");
+})();
+
+/* AION PATCH: workflow bottom toolbar height alignment v26
+   Fix:
+   - Align Save / G / Publish / + to the same height as Manual / Ask Aion / Describe workflow.
+   - Reduce Publish width so it is obvious but not oversized.
+*/
+(function installAionWorkflowBottomToolbarHeightAlignmentV26() {
+  const PATCH_ID = "aion-workflow-bottom-toolbar-height-alignment-v26";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-floating-toolbar-consolidated {
+      align-items: center !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated .aion-workflow-mode-btn,
+    .aion-workflow-floating-toolbar-consolidated > button:not(.aion-workflow-execute-btn):not(.aion-workflow-mode-btn),
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn {
+      height: 48px !important;
+      min-height: 48px !important;
+      max-height: 48px !important;
+      align-self: center !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Square icon buttons: Save, G, + */
+    .aion-workflow-floating-toolbar-consolidated > button:not(.aion-workflow-execute-btn):not(.aion-workflow-mode-btn):not(.aion-workflow-publish-toolbar-btn) {
+      width: 48px !important;
+      min-width: 48px !important;
+      max-width: 48px !important;
+      padding: 0 !important;
+      border-radius: 15px !important;
+    }
+
+    /* Publish button: same height, modest width */
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn {
+      width: 148px !important;
+      min-width: 148px !important;
+      max-width: 148px !important;
+      flex: 0 0 148px !important;
+      padding: 0 16px !important;
+      border-radius: 15px !important;
+      gap: 8px !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn span {
+      font-size: 18px !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn strong {
+      font-size: 14px !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.draft {
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+      border-color: rgba(34,197,94,0.40) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 22px rgba(22,163,74,0.20) !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.published {
+      background: #ecfdf5 !important;
+      border-color: rgba(4,120,87,0.24) !important;
+      color: #047857 !important;
+      box-shadow: 0 8px 20px rgba(15,23,42,0.08) !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow bottom toolbar height alignment v26 installed");
+})();
+
+/* AION PATCH: publish toolbar exact size override v27
+   Fix:
+   - Beats older v25/v26 selectors.
+   - Publish becomes compact-width.
+   - Save / G / Publish / + match Manual / Ask Aion height.
+*/
+(function installAionPublishToolbarExactSizeOverrideV27() {
+  const PATCH_ID = "aion-publish-toolbar-exact-size-override-v27";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    /* Shared normal toolbar button height */
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-mode-btn,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-save='true'],
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-glyph-debug='true'],
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-floating-add,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn {
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
+      align-self: center !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      box-sizing: border-box !important;
+    }
+
+    /* Square buttons only */
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-save='true'],
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-glyph-debug='true'],
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-floating-add {
+      width: 44px !important;
+      min-width: 44px !important;
+      max-width: 44px !important;
+      flex: 0 0 44px !important;
+      padding: 0 !important;
+      border-radius: 14px !important;
+    }
+
+    /* Publish: compact wide button, not huge */
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.draft,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.published,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn[data-aion-workflow-publish='true'],
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn[data-aion-workflow-unpublish='true'] {
+      width: 126px !important;
+      min-width: 126px !important;
+      max-width: 126px !important;
+      flex: 0 0 126px !important;
+
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
+
+      display: inline-flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 7px !important;
+
+      padding: 0 13px !important;
+      border-radius: 14px !important;
+      box-sizing: border-box !important;
+      white-space: nowrap !important;
+
+      background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%) !important;
+      border: 1px solid rgba(34,197,94,0.40) !important;
+      color: #ffffff !important;
+      box-shadow: 0 8px 18px rgba(22,163,74,0.18) !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn span,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn strong {
+      width: auto !important;
+      min-width: 0 !important;
+      max-width: none !important;
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      color: inherit !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn span {
+      font-size: 16px !important;
+      font-weight: 950 !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn strong {
+      font-size: 13px !important;
+      font-weight: 950 !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.published {
+      background: #ecfdf5 !important;
+      border-color: rgba(4,120,87,0.24) !important;
+      color: #047857 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Publish toolbar exact size override v27 installed");
+})();
+
+/* AION PATCH: toolbar square buttons match mode height v28
+   Fix:
+   - Save, G, and + were still taller than Manual / Ask Aion.
+   - Force square toolbar buttons to the same visual height as mode buttons.
+*/
+(function installAionToolbarSquareButtonsMatchModeHeightV28() {
+  const PATCH_ID = "aion-toolbar-square-buttons-match-mode-height-v28";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-save='true'],
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-glyph-debug='true'],
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-floating-add {
+      width: 42px !important;
+      min-width: 42px !important;
+      max-width: 42px !important;
+      flex: 0 0 42px !important;
+
+      height: 42px !important;
+      min-height: 42px !important;
+      max-height: 42px !important;
+
+      padding: 0 !important;
+      margin: 0 !important;
+      align-self: center !important;
+
+      border-radius: 13px !important;
+      box-sizing: border-box !important;
+
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-save='true'] span,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-glyph-debug='true'] span,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-floating-add span {
+      font-size: 15px !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated .aion-workflow-floating-divider {
+      height: 42px !important;
+      align-self: center !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Toolbar square buttons match mode height v28 installed");
+})();
+
+/* AION PATCH: toolbar icon button min-height kill v29
+   Fix:
+   - Save, G, and + were stuck at min-height:58px.
+   - Force them to exact 44px so they match Manual / Ask Aion.
+*/
+(function installAionToolbarIconButtonMinHeightKillV29() {
+  const PATCH_ID = "aion-toolbar-icon-button-min-height-kill-v29";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-save="true"],
+    html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-glyph-debug="true"],
+    html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-floating-add {
+      width: 44px !important;
+      min-width: 44px !important;
+      max-width: 44px !important;
+      flex-basis: 44px !important;
+      flex: 0 0 44px !important;
+
+      height: 44px !important;
+      min-height: 44px !important;
+      max-height: 44px !important;
+
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      place-items: center !important;
+
+      padding: 0 !important;
+      margin: 0 !important;
+      border-radius: 11px !important;
+      box-sizing: border-box !important;
+      line-height: 1 !important;
+      overflow: hidden !important;
+    }
+
+    html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-save="true"] *,
+    html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-glyph-debug="true"] *,
+    html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-floating-add * {
+      height: auto !important;
+      min-height: 0 !important;
+      max-height: none !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Toolbar icon button min-height kill v29 installed");
+})();
+
+/* AION PATCH: publish button completed-green palette v30
+   Fix:
+   - Use the same muted completed-state green as the COMPLETED badge.
+*/
+(function installAionPublishButtonCompletedGreenPaletteV30() {
+  const PATCH_ID = "aion-publish-button-completed-green-palette-v30";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.draft,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn[data-aion-workflow-publish='true'] {
+      background: #f0f6ee !important;
+      border: 1px solid #9dac9b !important;
+      color: #375136 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn:hover,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.draft:hover {
+      background: #e6efe3 !important;
+      border-color: #8fa08d !important;
+      color: #375136 !important;
+      box-shadow: 0 8px 18px rgba(55,81,54,0.10) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.published,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn[data-aion-workflow-unpublish='true'] {
+      background: #f0f6ee !important;
+      border: 1px solid #9dac9b !important;
+      color: #375136 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn span,
+    .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn strong {
+      color: inherit !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Publish button completed-green palette v30 installed");
+})();
+
+/* AION PATCH: step logic modal boardroom styling v31
+   Purpose:
+   - Restyle Configure Step Logic modal to match AION Business / Train Agent boardroom styling.
+   - Targets the active compact modal v4 and older modal variants.
+*/
+(function installAionStepLogicModalBoardroomStylingV31() {
+  const PATCH_ID = "aion-step-logic-modal-boardroom-styling-v31";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-main-step-logic-modal-v4='true'],
+    [data-aion-main-step-logic-modal-v3='true'],
+    [data-aion-main-step-logic-modal='true'],
+    [data-aion-architect-advanced-modal='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999990 !important;
+      display: grid !important;
+      place-items: center !important;
+      padding: 42px !important;
+      background: rgba(15, 15, 15, 0.38) !important;
+      backdrop-filter: blur(7px) saturate(0.9) !important;
+    }
+
+    .aion-main-step-logic-modal-v4,
+    .aion-main-step-logic-modal-v3,
+    .aion-main-step-logic-modal,
+    .aion-architect-advanced-modal {
+      width: min(1120px, calc(100vw - 96px)) !important;
+      max-height: min(760px, calc(100vh - 96px)) !important;
+      overflow: hidden !important;
+
+      display: grid !important;
+      grid-template-rows: auto auto minmax(0, 1fr) !important;
+
+      border-radius: 18px !important;
+      border: 1px solid rgba(15,23,42,0.16) !important;
+      background: #fff3e7 !important;
+      color: #0f172a !important;
+
+      box-shadow:
+        0 34px 90px rgba(15,23,42,0.24),
+        inset 0 1px 0 rgba(255,255,255,0.78) !important;
+
+      font-family: inherit !important;
+    }
+
+    .aion-main-step-logic-modal-v4 header,
+    .aion-main-step-logic-modal-v3 header,
+    .aion-main-step-logic-modal header,
+    .aion-architect-advanced-modal header {
+      min-height: 112px !important;
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: start !important;
+      gap: 20px !important;
+
+      padding: 30px 34px 24px !important;
+      border-bottom: 1px solid rgba(15,23,42,0.12) !important;
+      background:
+        radial-gradient(circle at 12% 0%, rgba(255,255,255,0.82), transparent 34%),
+        linear-gradient(180deg, #fff7ed 0%, #fff3e7 100%) !important;
+    }
+
+    .aion-main-step-logic-modal-v4 header::before,
+    .aion-main-step-logic-modal-v3 header::before,
+    .aion-main-step-logic-modal header::before,
+    .aion-architect-advanced-modal header::before {
+      content: "AION STEP LOGIC" !important;
+      grid-column: 1 / -1 !important;
+      display: block !important;
+      margin-bottom: -12px !important;
+      color: #64748b !important;
+      font-size: 10px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.24em !important;
+      text-transform: uppercase !important;
+    }
+
+    .aion-main-step-logic-modal-v4 h2,
+    .aion-main-step-logic-modal-v3 h2,
+    .aion-main-step-logic-modal h2,
+    .aion-architect-advanced-modal h2 {
+      margin: 0 !important;
+      color: #0f172a !important;
+      font-size: 34px !important;
+      line-height: 0.95 !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.055em !important;
+    }
+
+    .aion-main-step-logic-modal-v4 header p,
+    .aion-main-step-logic-modal-v3 header p,
+    .aion-main-step-logic-modal header p,
+    .aion-architect-advanced-modal header p {
+      max-width: 820px !important;
+      margin: 8px 0 0 !important;
+      color: rgba(51,65,85,0.78) !important;
+      font-size: 15px !important;
+      line-height: 1.35 !important;
+      font-weight: 750 !important;
+    }
+
+    .aion-main-step-logic-modal-v4 header button,
+    .aion-main-step-logic-modal-v3 header button,
+    .aion-main-step-logic-modal header button,
+    .aion-architect-advanced-modal header button,
+    .aion-main-step-logic-modal-v4 [data-aion-close],
+    .aion-main-step-logic-modal-v3 [data-aion-close],
+    .aion-main-step-logic-modal [data-aion-close] {
+      width: 44px !important;
+      height: 44px !important;
+      min-width: 44px !important;
+      min-height: 44px !important;
+
+      display: inline-grid !important;
+      place-items: center !important;
+
+      border-radius: 0 !important;
+      border: 2px solid #bde87f !important;
+      background: rgba(255,255,255,0.92) !important;
+      color: #0f172a !important;
+
+      font-size: 30px !important;
+      font-weight: 950 !important;
+      line-height: 1 !important;
+      cursor: pointer !important;
+
+      box-shadow: none !important;
+    }
+
+    .aion-main-step-logic-modal-v4 nav,
+    .aion-main-step-logic-modal-v3 nav,
+    .aion-main-step-logic-modal nav,
+    .aion-architect-advanced-modal nav {
+      display: flex !important;
+      align-items: stretch !important;
+      gap: 0 !important;
+
+      margin: 0 !important;
+      padding: 0 34px !important;
+
+      min-height: 58px !important;
+      background: #1f2937 !important;
+      border-bottom: 1px solid rgba(15,23,42,0.16) !important;
+      overflow-x: auto !important;
+    }
+
+    .aion-main-step-logic-modal-v4 nav button,
+    .aion-main-step-logic-modal-v3 nav button,
+    .aion-main-step-logic-modal nav button,
+    .aion-architect-advanced-modal nav button {
+      min-width: 124px !important;
+      height: 58px !important;
+
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      padding: 0 22px !important;
+      margin: 0 !important;
+
+      border-radius: 0 !important;
+      border: 0 !important;
+      border-right: 1px solid rgba(255,255,255,0.08) !important;
+      background: transparent !important;
+      color: rgba(255,255,255,0.92) !important;
+
+      font-size: 14px !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.025em !important;
+      cursor: pointer !important;
+      box-shadow: none !important;
+    }
+
+    .aion-main-step-logic-modal-v4 nav button.active,
+    .aion-main-step-logic-modal-v4 nav button[aria-selected='true'],
+    .aion-main-step-logic-modal-v3 nav button.active,
+    .aion-main-step-logic-modal-v3 nav button[aria-selected='true'],
+    .aion-main-step-logic-modal nav button.active,
+    .aion-main-step-logic-modal nav button[aria-selected='true'],
+    .aion-architect-advanced-modal nav button.active,
+    .aion-architect-advanced-modal nav button[aria-selected='true'] {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      box-shadow: inset 0 -3px 0 #bde87f !important;
+    }
+
+    .aion-main-step-logic-modal-v4 section,
+    .aion-main-step-logic-modal-v3 section,
+    .aion-main-step-logic-modal section,
+    .aion-architect-advanced-modal section {
+      overflow: auto !important;
+      padding: 34px !important;
+      background: #fff3e7 !important;
+    }
+
+    .aion-main-step-logic-modal-v4 section h3,
+    .aion-main-step-logic-modal-v3 section h3,
+    .aion-main-step-logic-modal section h3,
+    .aion-architect-advanced-modal section h3 {
+      margin: 0 0 12px !important;
+      color: #0f172a !important;
+      font-size: 30px !important;
+      line-height: 1 !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.055em !important;
+    }
+
+    .aion-main-step-logic-modal-v4 section p,
+    .aion-main-step-logic-modal-v3 section p,
+    .aion-main-step-logic-modal section p,
+    .aion-architect-advanced-modal section p {
+      margin: 0 0 22px !important;
+      color: rgba(51,65,85,0.78) !important;
+      font-size: 15px !important;
+      line-height: 1.35 !important;
+      font-weight: 750 !important;
+    }
+
+    .aion-main-step-logic-modal-v4 section button,
+    .aion-main-step-logic-modal-v3 section button,
+    .aion-main-step-logic-modal section button,
+    .aion-architect-advanced-modal section button {
+      min-height: 42px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      margin: 0 10px 10px 0 !important;
+      padding: 0 18px !important;
+
+      border-radius: 13px !important;
+      border: 1px solid rgba(15,23,42,0.12) !important;
+      background: rgba(255,255,255,0.78) !important;
+      color: #0f172a !important;
+
+      font-size: 14px !important;
+      font-weight: 900 !important;
+      letter-spacing: -0.02em !important;
+
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.82) !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-modal-v4 section button:hover,
+    .aion-main-step-logic-modal-v3 section button:hover,
+    .aion-main-step-logic-modal section button:hover,
+    .aion-architect-advanced-modal section button:hover {
+      background: #ffffff !important;
+      border-color: rgba(15,23,42,0.22) !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .aion-main-step-logic-modal-v4 pre,
+    .aion-main-step-logic-modal-v3 pre,
+    .aion-main-step-logic-modal pre,
+    .aion-architect-advanced-modal pre {
+      margin-top: 18px !important;
+      padding: 22px 24px !important;
+
+      border-radius: 18px !important;
+      border: 1px solid #9dac9b !important;
+      background: #f0f6ee !important;
+      color: #375136 !important;
+
+      white-space: pre-wrap !important;
+      font-size: 15px !important;
+      line-height: 1.45 !important;
+      font-weight: 850 !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+
+      box-shadow: none !important;
+    }
+
+    .aion-main-step-logic-modal-v4 code,
+    .aion-main-step-logic-modal-v3 code,
+    .aion-main-step-logic-modal code,
+    .aion-architect-advanced-modal code {
+      color: #375136 !important;
+      background: rgba(240,246,238,0.9) !important;
+      border: 1px solid rgba(157,172,155,0.55) !important;
+      border-radius: 7px !important;
+      padding: 1px 5px !important;
+      font-weight: 850 !important;
+    }
+
+    @media (max-width: 980px) {
+      .aion-main-step-logic-modal-v4,
+      .aion-main-step-logic-modal-v3,
+      .aion-main-step-logic-modal,
+      .aion-architect-advanced-modal {
+        width: calc(100vw - 32px) !important;
+        max-height: calc(100vh - 32px) !important;
+      }
+
+      [data-aion-main-step-logic-modal-v4='true'],
+      [data-aion-main-step-logic-modal-v3='true'],
+      [data-aion-main-step-logic-modal='true'],
+      [data-aion-architect-advanced-modal='true'] {
+        padding: 16px !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Step logic modal boardroom styling v31 installed");
+})();
+
+/* AION PATCH: step logic modal classic desktop styling v32
+   Fix:
+   - Target the actual live modal classes:
+     [data-aion-main-step-logic-modal='true']
+     .aion-main-step-logic-backdrop
+     .aion-main-step-logic-modal
+   - Restyle to match Business Dashboard / Operations Flow:
+     flat cream surface, thin rules, serif heading, minimal shadow, no bulky SaaS modal.
+*/
+(function installAionStepLogicModalClassicDesktopStylingV32() {
+  const PATCH_ID = "aion-step-logic-modal-classic-desktop-styling-v32";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-main-step-logic-modal='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999990 !important;
+      display: grid !important;
+      place-items: center !important;
+      padding: 44px !important;
+      background: rgba(17, 17, 18, 0.34) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .aion-main-step-logic-backdrop {
+      position: fixed !important;
+      inset: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      padding: 44px !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .aion-main-step-logic-modal {
+      width: min(1040px, calc(100vw - 110px)) !important;
+      max-height: min(680px, calc(100vh - 110px)) !important;
+      overflow: hidden !important;
+
+      display: grid !important;
+      grid-template-rows: auto auto minmax(0, 1fr) !important;
+
+      background: #f7efe3 !important;
+      color: #1f1f1f !important;
+      border: 1px solid rgba(31,31,31,0.22) !important;
+      border-radius: 0 !important;
+      box-shadow: 0 18px 42px rgba(0,0,0,0.18) !important;
+
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+
+    .aion-main-step-logic-head {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: start !important;
+      gap: 24px !important;
+
+      padding: 30px 34px 24px !important;
+      background: #f7efe3 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.22) !important;
+    }
+
+    .aion-main-step-logic-head > div:first-child::before {
+      content: "AION STEP LOGIC" !important;
+      display: block !important;
+      margin: 0 0 10px !important;
+      color: rgba(31,31,31,0.62) !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.24em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+    }
+
+    .aion-main-step-logic-head h2 {
+      margin: 0 !important;
+      color: #1f1f1f !important;
+      font-family: Georgia, "Times New Roman", ui-serif, serif !important;
+      font-size: 42px !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.055em !important;
+      line-height: 0.92 !important;
+    }
+
+    .aion-main-step-logic-head p {
+      max-width: 780px !important;
+      margin: 12px 0 0 !important;
+      color: rgba(31,31,31,0.62) !important;
+      font-size: 15px !important;
+      font-weight: 500 !important;
+      line-height: 1.45 !important;
+      letter-spacing: 0 !important;
+    }
+
+    .aion-main-step-logic-head button,
+    .aion-main-step-logic-close {
+      width: 46px !important;
+      height: 46px !important;
+      min-width: 46px !important;
+      min-height: 46px !important;
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.34) !important;
+      background: transparent !important;
+      color: #1f1f1f !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 26px !important;
+      font-weight: 850 !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-head button:hover,
+    .aion-main-step-logic-close:hover {
+      background: rgba(31,31,31,0.06) !important;
+      border-color: #1f1f1f !important;
+    }
+
+    .aion-main-step-logic-tabs {
+      display: flex !important;
+      align-items: stretch !important;
+      gap: 0 !important;
+      padding: 0 34px !important;
+      min-height: 48px !important;
+
+      background: #f7efe3 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.22) !important;
+      overflow-x: auto !important;
+    }
+
+    .aion-main-step-logic-tabs button {
+      height: 48px !important;
+      min-height: 48px !important;
+      padding: 0 18px !important;
+      margin: 0 !important;
+
+      border: 0 !important;
+      border-radius: 0 !important;
+      border-bottom: 3px solid transparent !important;
+      background: transparent !important;
+      color: #1f1f1f !important;
+
+      font-size: 12px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.10em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs button.active,
+    .aion-main-step-logic-tabs button[aria-selected='true'] {
+      background: transparent !important;
+      color: #1f1f1f !important;
+      border-bottom-color: #0d8fa3 !important;
+    }
+
+    .aion-main-step-logic-tabs button:hover {
+      background: rgba(31,31,31,0.04) !important;
+    }
+
+    .aion-main-step-logic-body {
+      overflow: auto !important;
+      padding: 34px !important;
+      background: #f7efe3 !important;
+    }
+
+    .aion-main-step-logic-body h3 {
+      margin: 0 0 12px !important;
+      color: #1f1f1f !important;
+      font-family: Georgia, "Times New Roman", ui-serif, serif !important;
+      font-size: 32px !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.045em !important;
+      line-height: 1 !important;
+    }
+
+    .aion-main-step-logic-body p {
+      margin: 0 0 22px !important;
+      color: rgba(31,31,31,0.62) !important;
+      font-size: 15px !important;
+      font-weight: 500 !important;
+      line-height: 1.45 !important;
+    }
+
+    .aion-main-step-logic-body button {
+      min-height: 34px !important;
+      margin: 0 8px 8px 0 !important;
+      padding: 0 13px !important;
+
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.24) !important;
+      background: rgba(255,255,255,0.34) !important;
+      color: #1f1f1f !important;
+
+      font-size: 11px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+
+      box-shadow: none !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-body button:hover {
+      background: rgba(255,255,255,0.62) !important;
+      border-color: rgba(31,31,31,0.42) !important;
+      transform: none !important;
+    }
+
+    .aion-main-step-logic-body pre {
+      margin: 28px 0 0 !important;
+      padding: 18px 20px !important;
+
+      border-radius: 0 !important;
+      border: 1px solid #9dac9b !important;
+      background: #f0f6ee !important;
+      color: #375136 !important;
+
+      white-space: pre-wrap !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 14px !important;
+      font-weight: 700 !important;
+      line-height: 1.55 !important;
+
+      box-shadow: none !important;
+    }
+
+    .aion-main-step-logic-body code,
+    .aion-main-step-logic-modal code {
+      padding: 1px 5px !important;
+      border-radius: 0 !important;
+      border: 1px solid rgba(157,172,155,0.50) !important;
+      background: rgba(240,246,238,0.86) !important;
+      color: #375136 !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 0.92em !important;
+      font-weight: 700 !important;
+    }
+
+    /* Kill previous v31/v4 rounded SaaS styling where it leaks */
+    .aion-main-step-logic-modal *,
+    .aion-main-step-logic-modal-v4 *,
+    .aion-architect-advanced-modal * {
+      text-shadow: none !important;
+    }
+
+    @media (max-width: 900px) {
+      [data-aion-main-step-logic-modal='true'],
+      .aion-main-step-logic-backdrop {
+        padding: 18px !important;
+      }
+
+      .aion-main-step-logic-modal {
+        width: calc(100vw - 36px) !important;
+        max-height: calc(100vh - 36px) !important;
+      }
+
+      .aion-main-step-logic-head,
+      .aion-main-step-logic-body {
+        padding-left: 22px !important;
+        padding-right: 22px !important;
+      }
+
+      .aion-main-step-logic-head h2 {
+        font-size: 34px !important;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Step logic modal classic desktop styling v32 installed");
+})();
+
+/* AION PATCH: step logic modal classic controls v33
+   Fix:
+   - Remove bubble styling from condition/tool buttons.
+   - Make controls match Run Inspector / Dashboard: flat, ruled, uppercase, compact.
+   - Make example panel less neon/rounded and closer to COMPLETED status styling.
+*/
+(function installAionStepLogicModalClassicControlsV33() {
+  const PATCH_ID = "aion-step-logic-modal-classic-controls-v33";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-main-step-logic-body h3 {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 850 !important;
+      letter-spacing: -0.025em !important;
+      line-height: 1.08 !important;
+      margin: 0 0 10px !important;
+      color: #1f1f1f !important;
+    }
+
+    .aion-main-step-logic-body p {
+      max-width: 760px !important;
+      margin: 0 0 18px !important;
+      color: rgba(31,31,31,0.58) !important;
+      font-size: 14px !important;
+      font-weight: 500 !important;
+      line-height: 1.45 !important;
+    }
+
+    .aion-main-step-logic-body button {
+      min-height: 28px !important;
+      height: 28px !important;
+      margin: 0 7px 8px 0 !important;
+      padding: 0 11px !important;
+
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.22) !important;
+      background: rgba(255,255,255,0.22) !important;
+      color: #1f1f1f !important;
+
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.13em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    .aion-main-step-logic-body button:hover {
+      background: rgba(31,31,31,0.045) !important;
+      border-color: rgba(31,31,31,0.46) !important;
+      transform: none !important;
+    }
+
+    .aion-main-step-logic-body pre {
+      margin: 24px 0 0 !important;
+      padding: 16px 18px !important;
+
+      border-radius: 0 !important;
+      border: 1px solid #9dac9b !important;
+      background: rgba(240,246,238,0.72) !important;
+      color: #375136 !important;
+
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 13px !important;
+      font-weight: 650 !important;
+      line-height: 1.5 !important;
+
+      box-shadow: none !important;
+    }
+
+    .aion-main-step-logic-body pre strong,
+    .aion-main-step-logic-body pre b {
+      font-weight: 850 !important;
+      color: #375136 !important;
+    }
+
+    .aion-main-step-logic-body code,
+    .aion-main-step-logic-modal code {
+      padding: 0 3px !important;
+      border-radius: 0 !important;
+      border: 0 !important;
+      background: transparent !important;
+      color: #375136 !important;
+
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 0.95em !important;
+      font-weight: 750 !important;
+      letter-spacing: 0.01em !important;
+    }
+
+    .aion-main-step-logic-body pre code {
+      border: 0 !important;
+      background: transparent !important;
+      padding: 0 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+  console.log("[AION] Step logic modal classic controls v33 installed");
+})();
+
+/* AION PATCH: step logic modal run-inspector compact style v34
+   Fix:
+   - Previous v32/v33 was still too large / heroic / bubbly.
+   - Match Run Inspector style: compact, flat, thin borders, sans-serif, small labels.
+*/
+(function installAionStepLogicModalRunInspectorCompactStyleV34() {
+  const PATCH_ID = "aion-step-logic-modal-run-inspector-compact-style-v34";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    [data-aion-main-step-logic-modal='true'] {
+      position: fixed !important;
+      inset: 0 !important;
+      z-index: 999990 !important;
+      display: grid !important;
+      place-items: center !important;
+      padding: 42px !important;
+      background: rgba(15,15,15,0.32) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .aion-main-step-logic-backdrop {
+      position: fixed !important;
+      inset: 0 !important;
+      display: grid !important;
+      place-items: center !important;
+      padding: 42px !important;
+      background: transparent !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
+    }
+
+    .aion-main-step-logic-modal {
+      width: min(920px, calc(100vw - 120px)) !important;
+      max-height: min(620px, calc(100vh - 120px)) !important;
+      overflow: hidden !important;
+      display: grid !important;
+      grid-template-rows: auto auto minmax(0, 1fr) !important;
+
+      background: #f7efe3 !important;
+      color: #1f1f1f !important;
+      border: 1px solid rgba(31,31,31,0.22) !important;
+      border-radius: 0 !important;
+      box-shadow: 0 16px 34px rgba(0,0,0,0.16) !important;
+
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+
+    .aion-main-step-logic-head {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: start !important;
+      gap: 18px !important;
+      padding: 22px 26px 20px !important;
+      background: #f7efe3 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.22) !important;
+    }
+
+    .aion-main-step-logic-head > div:first-child::before {
+      content: "AION STEP LOGIC" !important;
+      display: block !important;
+      margin: 0 0 8px !important;
+      color: rgba(31,31,31,0.58) !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.24em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+    }
+
+    .aion-main-step-logic-head h2 {
+      margin: 0 !important;
+      color: #1f1f1f !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 850 !important;
+      letter-spacing: -0.025em !important;
+      line-height: 1.05 !important;
+    }
+
+    .aion-main-step-logic-head p {
+      margin: 7px 0 0 !important;
+      color: rgba(31,31,31,0.58) !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      line-height: 1.35 !important;
+      letter-spacing: 0 !important;
+    }
+
+    .aion-main-step-logic-head button,
+    .aion-main-step-logic-close {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      min-height: 36px !important;
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.32) !important;
+      background: transparent !important;
+      color: #1f1f1f !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 22px !important;
+      font-weight: 850 !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+    }
+
+    .aion-main-step-logic-tabs {
+      display: flex !important;
+      align-items: stretch !important;
+      gap: 0 !important;
+      padding: 0 26px !important;
+      min-height: 40px !important;
+      background: #f7efe3 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.22) !important;
+      overflow-x: auto !important;
+    }
+
+    .aion-main-step-logic-tabs button {
+      height: 40px !important;
+      min-height: 40px !important;
+      padding: 0 15px !important;
+      margin: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      border-bottom: 3px solid transparent !important;
+      background: transparent !important;
+      color: #1f1f1f !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.15em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-main-step-logic-tabs button.active,
+    .aion-main-step-logic-tabs button[aria-selected='true'] {
+      border-bottom-color: #0d8fa3 !important;
+      background: transparent !important;
+      color: #1f1f1f !important;
+    }
+
+    .aion-main-step-logic-body {
+      overflow: auto !important;
+      padding: 24px 26px 28px !important;
+      background: #f7efe3 !important;
+    }
+
+    .aion-main-step-logic-body h3 {
+      margin: 0 0 8px !important;
+      color: #1f1f1f !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 18px !important;
+      font-weight: 850 !important;
+      letter-spacing: -0.02em !important;
+      line-height: 1.1 !important;
+    }
+
+    .aion-main-step-logic-body p {
+      margin: 0 0 16px !important;
+      color: rgba(31,31,31,0.58) !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      line-height: 1.4 !important;
+    }
+
+    .aion-main-step-logic-body button {
+      height: 26px !important;
+      min-height: 26px !important;
+      margin: 0 6px 7px 0 !important;
+      padding: 0 10px !important;
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.24) !important;
+      background: rgba(255,255,255,0.24) !important;
+      color: #1f1f1f !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.11em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    .aion-main-step-logic-body button:hover {
+      background: rgba(31,31,31,0.045) !important;
+      border-color: rgba(31,31,31,0.44) !important;
+    }
+
+    .aion-main-step-logic-body pre {
+      margin: 20px 0 0 !important;
+      padding: 14px 16px !important;
+      border-radius: 0 !important;
+      border: 1px solid #9dac9b !important;
+      background: rgba(240,246,238,0.62) !important;
+      color: #375136 !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
+      line-height: 1.45 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-main-step-logic-body code,
+    .aion-main-step-logic-modal code {
+      padding: 0 !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      color: #375136 !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 0.95em !important;
+      font-weight: 700 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Step logic modal run-inspector compact style v34 installed");
+})();
+
+/* AION PATCH: workflow canvas classic surface header v35
+   Fix:
+   - Remove random middle DRAFT pill/button from workflow canvas header.
+   - Restyle workflow builder header to match Dashboard / Operations Flow classic surface header.
+   - Preserve editable workflow title input.
+   - Preserve workspace/business container and workflow id as metadata.
+*/
+(function installAionWorkflowCanvasClassicSurfaceHeaderV35() {
+  const PATCH_ID = "aion-workflow-canvas-classic-surface-header-v35";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas-shell {
+      background: #f7efe3 !important;
+    }
+
+    .aion-workflow-topbar {
+      min-height: 152px !important;
+      height: 152px !important;
+      padding: 24px 36px 20px !important;
+
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      align-items: start !important;
+      gap: 24px !important;
+
+      background: #f7efe3 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.24) !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-title-wrap,
+    .aion-workflow-title-wrap-compact {
+      display: grid !important;
+      grid-template-columns: auto minmax(0, 1fr) !important;
+      align-items: start !important;
+      gap: 18px !important;
+      min-width: 0 !important;
+      width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-logo {
+      width: 54px !important;
+      height: 54px !important;
+      min-width: 54px !important;
+      min-height: 54px !important;
+      border-radius: 0 !important;
+      background: #0f172a !important;
+      color: #ffffff !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 20px !important;
+      font-weight: 950 !important;
+      letter-spacing: -0.04em !important;
+      box-shadow: none !important;
+      margin-top: 4px !important;
+    }
+
+    .aion-workflow-breadcrumb-title {
+      min-width: 0 !important;
+      display: grid !important;
+      align-content: start !important;
+      gap: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb-title::before {
+      content: "AION WORKFLOW BUILDER" !important;
+      display: block !important;
+      order: -2 !important;
+      margin: 0 0 10px !important;
+
+      color: rgba(31,31,31,0.58) !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.24em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-breadcrumb {
+      order: -1 !important;
+      display: flex !important;
+      align-items: baseline !important;
+      gap: 13px !important;
+      min-width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb span {
+      color: rgba(31,31,31,0.58) !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 750 !important;
+      letter-spacing: -0.035em !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-breadcrumb span:nth-child(2) {
+      color: rgba(13,143,163,0.34) !important;
+      font-size: 26px !important;
+      font-weight: 650 !important;
+    }
+
+    .aion-workflow-title-input {
+      width: min(720px, 100%) !important;
+      min-width: 220px !important;
+      max-width: 820px !important;
+
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+      outline: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+
+      color: #0f172a !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 26px !important;
+      font-weight: 900 !important;
+      letter-spacing: -0.045em !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-title-input:focus {
+      box-shadow: inset 0 -2px 0 #0d8fa3 !important;
+    }
+
+    .aion-workflow-subtle-meta,
+    .aion-workflow-subtle-meta-active {
+      margin-top: 14px !important;
+      padding: 0 !important;
+      min-height: 0 !important;
+
+      display: flex !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      color: rgba(31,31,31,0.58) !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span {
+      display: inline-flex !important;
+      align-items: center !important;
+      height: 24px !important;
+      padding: 0 !important;
+      margin-right: 6px !important;
+
+      background: transparent !important;
+      border: 0 !important;
+      border-radius: 0 !important;
+
+      color: rgba(31,31,31,0.58) !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.20em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span::before {
+      display: none !important;
+      content: none !important;
+    }
+
+    .aion-workflow-subtle-meta-active em,
+    .aion-workflow-subtle-meta-active b,
+    .aion-workflow-subtle-meta-active strong {
+      height: 24px !important;
+      min-height: 24px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      padding: 0 9px !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.22) !important;
+      background: rgba(255,255,255,0.22) !important;
+
+      color: #1f1f1f !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      font-style: normal !important;
+      letter-spacing: 0.12em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.saved,
+    .aion-workflow-subtle-meta-active strong.clean,
+    .aion-workflow-subtle-meta-active strong.success {
+      border-color: #9dac9b !important;
+      background: rgba(240,246,238,0.72) !important;
+      color: #375136 !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.dirty,
+    .aion-workflow-subtle-meta-active strong.warning,
+    .aion-workflow-subtle-meta-active strong.draft {
+      border-color: rgba(31,31,31,0.22) !important;
+      background: rgba(255,255,255,0.22) !important;
+      color: #1f1f1f !important;
+    }
+
+    /* Remove random centre DRAFT pill/status in header */
+    .aion-workflow-title-wrap > .aion-workflow-status-pill,
+    .aion-workflow-topbar > .aion-workflow-status-pill,
+    .aion-workflow-status-pill {
+      display: none !important;
+    }
+
+    /* Top-right actions were moved to bottom toolbar; keep hidden on workflow canvas */
+    .aion-workflow-topbar .aion-workflow-top-actions,
+    .aion-workflow-topbar .aion-workflow-publish-control,
+    .aion-workflow-topbar .aion-workflow-publish-main,
+    .aion-workflow-topbar .aion-workflow-publish-menu {
+      display: none !important;
+    }
+
+    /* Recalculate canvas height now header is taller */
+    .aion-workflow-layout {
+      height: calc(100vh - 152px) !important;
+    }
+
+    /* Sidebar starts below classic header, not inside it */
+    .aion-workflow-sidebar {
+      border-top: 0 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+  console.log("[AION] Workflow canvas classic surface header v35 installed");
+})();
+
+/* AION PATCH: workflow header rollback repair v36
+   Fix:
+   - v35 made the workflow header too tall and pushed/destroyed the slim workflow strip.
+   - Restore compact header: logo + workspace / editable workflow title only.
+   - Keep workflow metadata/status in the slim sticky strip below the header.
+   - Hide the random centre/top DRAFT pill and top-right save dropdown.
+*/
+(function installAionWorkflowHeaderRollbackRepairV36() {
+  const PATCH_ID = "aion-workflow-header-rollback-repair-v36";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas-shell {
+      background: #f7efe3 !important;
+    }
+
+    .aion-workflow-topbar {
+      height: 88px !important;
+      min-height: 88px !important;
+      max-height: 88px !important;
+      padding: 14px 28px !important;
+
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 24px !important;
+
+      background: #f7efe3 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.18) !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-title-wrap,
+    .aion-workflow-title-wrap-compact {
+      display: flex !important;
+      align-items: center !important;
+      gap: 18px !important;
+      width: auto !important;
+      min-width: 0 !important;
+      height: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-logo {
+      width: 54px !important;
+      height: 54px !important;
+      min-width: 54px !important;
+      min-height: 54px !important;
+      margin: 0 !important;
+      border-radius: 0 !important;
+      background: #0f172a !important;
+      color: #ffffff !important;
+      display: grid !important;
+      place-items: center !important;
+      font-size: 20px !important;
+      font-weight: 950 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb-title {
+      display: grid !important;
+      gap: 7px !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb-title::before {
+      content: "AION WORKFLOW BUILDER" !important;
+      display: block !important;
+      color: rgba(31,31,31,0.50) !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.24em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+      margin: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb {
+      display: flex !important;
+      align-items: baseline !important;
+      gap: 12px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      min-width: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb span {
+      color: rgba(31,31,31,0.54) !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 750 !important;
+      letter-spacing: -0.035em !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-breadcrumb span:nth-child(2) {
+      color: rgba(13,143,163,0.34) !important;
+      font-size: 26px !important;
+      font-weight: 650 !important;
+    }
+
+    .aion-workflow-title-input {
+      width: min(620px, 52vw) !important;
+      min-width: 220px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+
+      border: 0 !important;
+      outline: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+
+      color: #0f172a !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 23px !important;
+      font-weight: 900 !important;
+      letter-spacing: -0.045em !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-title-input:focus {
+      box-shadow: inset 0 -2px 0 #0d8fa3 !important;
+    }
+
+    /* Metadata belongs in the slim sticky strip, not inside the large header */
+    .aion-workflow-topbar .aion-workflow-subtle-meta,
+    .aion-workflow-topbar .aion-workflow-subtle-meta-active {
+      display: none !important;
+    }
+
+    /* Remove random DRAFT pill/button and old top-right save menu */
+    .aion-workflow-status-pill,
+    .aion-workflow-topbar .aion-workflow-top-actions,
+    .aion-workflow-topbar .aion-workflow-publish-control,
+    .aion-workflow-topbar .aion-workflow-publish-main,
+    .aion-workflow-topbar .aion-workflow-publish-menu {
+      display: none !important;
+    }
+
+    .aion-workflow-layout {
+      height: calc(100vh - 88px) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Restore slim sticky workflow strip */
+    [data-aion-selected-workflow-slim-header='true'],
+    .aion-selected-workflow-slim-header-v14 {
+      position: fixed !important;
+      top: 88px !important;
+      left: 64px !important;
+      right: 0 !important;
+      height: 34px !important;
+      min-height: 34px !important;
+      max-height: 34px !important;
+
+      z-index: 99998 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+
+      padding: 0 18px !important;
+      margin: 0 !important;
+      border-top: 0 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.12) !important;
+      background: rgba(255,255,255,0.88) !important;
+      color: #1f1f1f !important;
+      box-shadow: none !important;
+      pointer-events: none !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-left,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      min-width: 0 !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-label,
+    [data-aion-selected-workflow-slim-header='true'] strong,
+    [data-aion-selected-workflow-slim-header='true'] code,
+    [data-aion-selected-workflow-slim-header='true'] span,
+    [data-aion-selected-workflow-slim-header='true'] b,
+    [data-aion-selected-workflow-slim-header='true'] em {
+      border-radius: 0 !important;
+      box-shadow: none !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-label {
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.16em !important;
+      text-transform: uppercase !important;
+      color: rgba(31,31,31,0.56) !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] strong {
+      font-size: 12px !important;
+      font-weight: 850 !important;
+      color: #1f1f1f !important;
+      max-width: 320px !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] code {
+      font-size: 10px !important;
+      color: rgba(31,31,31,0.56) !important;
+      background: transparent !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right span,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right em {
+      height: 22px !important;
+      padding: 0 8px !important;
+      border: 1px solid rgba(31,31,31,0.18) !important;
+      background: rgba(255,255,255,0.28) !important;
+      color: #1f1f1f !important;
+      font-size: 10px !important;
+      font-weight: 850 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b.saved {
+      border-color: #9dac9b !important;
+      background: rgba(240,246,238,0.72) !important;
+      color: #375136 !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b.dirty {
+      border-color: rgba(31,31,31,0.22) !important;
+      background: rgba(255,255,255,0.28) !important;
+      color: #1f1f1f !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  window.setTimeout(() => {
+    window.__renderAionSelectedWorkflowSlimHeader?.("");
+  }, 100);
+
+  window.setTimeout(() => {
+    window.__renderAionSelectedWorkflowSlimHeader?.("");
+  }, 750);
+
+  console.log("[AION] Workflow header rollback repair v36 installed");
+})();
+
+/* AION PATCH: workflow boardroom-style header restore v37
+   Fix:
+   - Remove AI square logo from workflow canvas header.
+   - Use Boardroom / Operations Flow style header typography.
+   - Restore slim active workflow strip below header.
+   - Preserve editable workflow title.
+*/
+(function installAionWorkflowBoardroomStyleHeaderRestoreV37() {
+  const PATCH_ID = "aion-workflow-boardroom-style-header-restore-v37";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas-shell {
+      background: #f7efe3 !important;
+    }
+
+    .aion-workflow-topbar {
+      height: 154px !important;
+      min-height: 154px !important;
+      max-height: 154px !important;
+
+      padding: 24px 40px 22px !important;
+      display: block !important;
+
+      background: #f7efe3 !important;
+      border-top: 1px solid rgba(31,31,31,0.22) !important;
+      border-bottom: 1px solid rgba(31,31,31,0.22) !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-title-wrap,
+    .aion-workflow-title-wrap-compact {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    /* remove top-left AI logo on workflow canvas */
+    .aion-workflow-topbar .aion-workflow-logo {
+      display: none !important;
+    }
+
+    .aion-workflow-breadcrumb-title {
+      display: block !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb-title::before {
+      content: "AION BUSINESS DESKTOP" !important;
+      display: block !important;
+      margin: 0 0 8px !important;
+
+      color: rgba(31,31,31,0.58) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-breadcrumb {
+      display: flex !important;
+      align-items: baseline !important;
+      gap: 15px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb span:first-child {
+      color: rgba(31,31,31,0.54) !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 650 !important;
+      letter-spacing: -0.035em !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-breadcrumb span:nth-child(2) {
+      color: rgba(13,143,163,0.32) !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 28px !important;
+      font-weight: 500 !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-title-input {
+      width: min(980px, 70vw) !important;
+      min-width: 260px !important;
+
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+      outline: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+
+      color: #1f1f1f !important;
+      font-family: Georgia, "Times New Roman", ui-serif, serif !important;
+      font-size: 56px !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.065em !important;
+      line-height: 0.98 !important;
+    }
+
+    .aion-workflow-title-input:focus {
+      box-shadow: inset 0 -3px 0 rgba(13,143,163,0.75) !important;
+    }
+
+    .aion-workflow-topbar .aion-workflow-subtle-meta,
+    .aion-workflow-topbar .aion-workflow-subtle-meta-active {
+      display: none !important;
+    }
+
+    .aion-workflow-status-pill,
+    .aion-workflow-topbar .aion-workflow-top-actions,
+    .aion-workflow-topbar .aion-workflow-publish-control,
+    .aion-workflow-topbar .aion-workflow-publish-main,
+    .aion-workflow-topbar .aion-workflow-publish-menu {
+      display: none !important;
+    }
+
+    .aion-workflow-layout {
+      height: calc(100vh - 154px) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* Restore active workflow sticky strip */
+    [data-aion-selected-workflow-slim-header='true'],
+    .aion-selected-workflow-slim-header-v14 {
+      position: fixed !important;
+      top: 154px !important;
+      left: 64px !important;
+      right: 0 !important;
+      height: 34px !important;
+      min-height: 34px !important;
+      max-height: 34px !important;
+
+      z-index: 99998 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+
+      padding: 0 18px !important;
+      margin: 0 !important;
+      border-top: 0 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.14) !important;
+      background: rgba(255,255,255,0.88) !important;
+      color: #1f1f1f !important;
+      box-shadow: none !important;
+      pointer-events: none !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-left,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      min-width: 0 !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.16em !important;
+      text-transform: uppercase !important;
+      color: rgba(31,31,31,0.56) !important;
+      white-space: nowrap !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] strong {
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      color: #1f1f1f !important;
+      max-width: 360px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      color: rgba(31,31,31,0.56) !important;
+      background: transparent !important;
+      white-space: nowrap !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right span,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right em {
+      height: 22px !important;
+      padding: 0 8px !important;
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.18) !important;
+      background: rgba(255,255,255,0.28) !important;
+      color: #1f1f1f !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      box-shadow: none !important;
+      white-space: nowrap !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b.saved {
+      border-color: #9dac9b !important;
+      background: rgba(240,246,238,0.72) !important;
+      color: #375136 !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b.dirty {
+      border-color: rgba(31,31,31,0.22) !important;
+      background: rgba(255,255,255,0.28) !important;
+      color: #1f1f1f !important;
+    }
+
+    /* Push canvas content below sticky strip so it does not overlap */
+    .aion-workflow-canvas {
+      padding-top: 34px !important;
+      box-sizing: border-box !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  window.setTimeout(() => {
+    window.__renderAionSelectedWorkflowSlimHeader?.("");
+  }, 100);
+
+  window.setTimeout(() => {
+    window.__renderAionSelectedWorkflowSlimHeader?.("");
+  }, 700);
+
+  console.log("[AION] Workflow boardroom-style header restore v37 installed");
+})();
+
+/* AION PATCH: workflow compact boardroom header + real sticky strip v38
+   Fix:
+   - v37 styled a sticky strip but the render function was undefined.
+   - Create the sticky strip node/function directly.
+   - Reduce workflow header height from 154px to 118px.
+   - Keep Boardroom-style header typography but less tall.
+*/
+(function installAionWorkflowCompactHeaderRealStickyStripV38() {
+  const PATCH_ID = "aion-workflow-compact-header-real-sticky-strip-v38";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const HEADER_H = 118;
+  const STRIP_H = 34;
+
+  function esc(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        return getAionWorkflowDraftState() || {};
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || {};
+  }
+
+  function renderStickyStrip(message = "") {
+    const graph = getGraph();
+
+    const workflowId =
+      window.__aionSelectedWorkflowId ||
+      window.__aionActiveWorkflowId ||
+      graph.workflow_id ||
+      "workflow_draft";
+
+    const name = graph.name || "Untitled workflow";
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes.length : 0;
+    const edges = Array.isArray(graph.edges) ? graph.edges.length : 0;
+
+    const dirty = graph.dirty === true;
+    const status = dirty ? "Draft" : "Saved";
+    const statusClass = dirty ? "dirty" : "saved";
+
+    let node = document.querySelector("[data-aion-selected-workflow-slim-header='true']");
+
+    if (!node) {
+      node = document.createElement("div");
+      node.setAttribute("data-aion-selected-workflow-slim-header", "true");
+      node.className = "aion-selected-workflow-slim-header-v38";
+      document.body.appendChild(node);
+    }
+
+    node.innerHTML = `
+      <div class="aion-slim-left">
+        <span class="aion-slim-label">Active workflow</span>
+        <strong>${esc(name)}</strong>
+        <code>${esc(workflowId)}</code>
+      </div>
+      <div class="aion-slim-right">
+        ${message ? `<em>${esc(message)}</em>` : ""}
+        <span>${esc(nodes)} nodes</span>
+        <span>${esc(edges)} edges</span>
+        <b class="${statusClass}">${esc(status)}</b>
+      </div>
+    `;
+
+    return node;
+  }
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-topbar {
+      height: ${HEADER_H}px !important;
+      min-height: ${HEADER_H}px !important;
+      max-height: ${HEADER_H}px !important;
+      padding: 22px 40px 18px !important;
+
+      display: block !important;
+      background: #f7efe3 !important;
+      border-top: 1px solid rgba(31,31,31,0.20) !important;
+      border-bottom: 1px solid rgba(31,31,31,0.20) !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-topbar .aion-workflow-logo {
+      display: none !important;
+    }
+
+    .aion-workflow-title-wrap,
+    .aion-workflow-title-wrap-compact {
+      display: block !important;
+      width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb-title {
+      display: block !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb-title::before {
+      content: "AION BUSINESS DESKTOP" !important;
+      display: block !important;
+      margin: 0 0 10px !important;
+      color: rgba(31,31,31,0.58) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-breadcrumb {
+      display: flex !important;
+      align-items: baseline !important;
+      gap: 14px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb span:first-child {
+      color: rgba(31,31,31,0.54) !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 650 !important;
+      letter-spacing: -0.035em !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-breadcrumb span:nth-child(2) {
+      color: rgba(13,143,163,0.34) !important;
+      font-size: 26px !important;
+      font-weight: 500 !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-title-input {
+      width: min(900px, 70vw) !important;
+      min-width: 260px !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+      outline: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+
+      color: #1f1f1f !important;
+      font-family: Georgia, "Times New Roman", ui-serif, serif !important;
+      font-size: 31px !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.055em !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-title-input:focus {
+      box-shadow: inset 0 -2px 0 rgba(13,143,163,0.75) !important;
+    }
+
+    .aion-workflow-topbar .aion-workflow-subtle-meta,
+    .aion-workflow-topbar .aion-workflow-subtle-meta-active,
+    .aion-workflow-status-pill,
+    .aion-workflow-topbar .aion-workflow-top-actions,
+    .aion-workflow-topbar .aion-workflow-publish-control,
+    .aion-workflow-topbar .aion-workflow-publish-main,
+    .aion-workflow-topbar .aion-workflow-publish-menu {
+      display: none !important;
+    }
+
+    .aion-workflow-layout {
+      height: calc(100vh - ${HEADER_H}px) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .aion-workflow-canvas {
+      padding-top: ${STRIP_H}px !important;
+      box-sizing: border-box !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'],
+    .aion-selected-workflow-slim-header-v38,
+    .aion-selected-workflow-slim-header-v14 {
+      position: fixed !important;
+      top: ${HEADER_H}px !important;
+      left: 64px !important;
+      right: 0 !important;
+      height: ${STRIP_H}px !important;
+      min-height: ${STRIP_H}px !important;
+      max-height: ${STRIP_H}px !important;
+
+      z-index: 999999 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 12px !important;
+
+      padding: 0 18px !important;
+      margin: 0 !important;
+      border-top: 0 !important;
+      border-bottom: 1px solid rgba(31,31,31,0.14) !important;
+      background: rgba(255,255,255,0.90) !important;
+      color: #1f1f1f !important;
+      box-shadow: none !important;
+      pointer-events: none !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-left,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      min-width: 0 !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.16em !important;
+      text-transform: uppercase !important;
+      color: rgba(31,31,31,0.56) !important;
+      white-space: nowrap !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] strong {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 12px !important;
+      font-weight: 800 !important;
+      color: #1f1f1f !important;
+      max-width: 360px !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      color: rgba(31,31,31,0.56) !important;
+      background: transparent !important;
+      white-space: nowrap !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right span,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b,
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right em {
+      height: 22px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      padding: 0 8px !important;
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.18) !important;
+      background: rgba(255,255,255,0.28) !important;
+      color: #1f1f1f !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      text-transform: uppercase !important;
+      box-shadow: none !important;
+      white-space: nowrap !important;
+      font-style: normal !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b.saved {
+      border-color: #9dac9b !important;
+      background: rgba(240,246,238,0.72) !important;
+      color: #375136 !important;
+    }
+
+    [data-aion-selected-workflow-slim-header='true'] .aion-slim-right b.dirty {
+      border-color: rgba(31,31,31,0.22) !important;
+      background: rgba(255,255,255,0.28) !important;
+      color: #1f1f1f !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  window.__renderAionSelectedWorkflowSlimHeader = renderStickyStrip;
+  window.__notifyAionWorkflowSlimHeader = function notifyAionWorkflowSlimHeader(message) {
+    renderStickyStrip(message);
+    window.clearTimeout(window.__aionSlimHeaderNotificationTimer);
+    window.__aionSlimHeaderNotificationTimer = window.setTimeout(() => renderStickyStrip(""), 2200);
+  };
+
+  window.addEventListener("aion:workflow-file-cabinet:saved", () => {
+    window.__notifyAionWorkflowSlimHeader?.("Saved");
+  });
+
+  window.addEventListener("aion:workflow-file-cabinet:hydrated", () => {
+    window.__notifyAionWorkflowSlimHeader?.("Hydrated");
+  });
+
+  renderStickyStrip("");
+
+  window.setTimeout(() => renderStickyStrip(""), 250);
+  window.setTimeout(() => renderStickyStrip(""), 1000);
+
+  console.log("[AION] Workflow compact header + real sticky strip v38 installed");
+})();
+
+/* AION PATCH: workflow header restore in-dom active row v39
+   Fix:
+   - Restores the original white active workflow row inside the workflow header.
+   - Removes dependency on external/body slim sticky strip.
+   - Keeps Boardroom-style header, but compact.
+   - Removes excess header height.
+*/
+(function installAionWorkflowHeaderRestoreInDomActiveRowV39() {
+  const PATCH_ID = "aion-workflow-header-restore-in-dom-active-row-v39";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-canvas-shell {
+      background: #f7efe3 !important;
+    }
+
+    .aion-workflow-topbar {
+      position: relative !important;
+      height: 118px !important;
+      min-height: 118px !important;
+      max-height: 118px !important;
+
+      padding: 24px 40px 34px !important;
+      display: block !important;
+
+      background: #f7efe3 !important;
+      border-top: 1px solid rgba(31,31,31,0.18) !important;
+      border-bottom: 0 !important;
+      box-shadow: none !important;
+      overflow: hidden !important;
+    }
+
+    .aion-workflow-topbar .aion-workflow-logo {
+      display: none !important;
+    }
+
+    .aion-workflow-title-wrap,
+    .aion-workflow-title-wrap-compact {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb-title {
+      display: block !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb-title::before {
+      content: "AION BUSINESS DESKTOP" !important;
+      display: block !important;
+      margin: 0 0 12px !important;
+
+      color: rgba(31,31,31,0.58) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 11px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.22em !important;
+      text-transform: uppercase !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-breadcrumb {
+      display: flex !important;
+      align-items: baseline !important;
+      gap: 14px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+    }
+
+    .aion-workflow-breadcrumb span:first-child {
+      color: rgba(31,31,31,0.54) !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      font-size: 22px !important;
+      font-weight: 650 !important;
+      letter-spacing: -0.035em !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-breadcrumb span:nth-child(2) {
+      color: rgba(13,143,163,0.34) !important;
+      font-size: 26px !important;
+      font-weight: 500 !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-title-input {
+      width: min(760px, 65vw) !important;
+      min-width: 260px !important;
+
+      padding: 0 !important;
+      margin: 0 !important;
+      border: 0 !important;
+      outline: 0 !important;
+      border-radius: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+
+      color: #1f1f1f !important;
+      font-family: Georgia, "Times New Roman", ui-serif, serif !important;
+      font-size: 30px !important;
+      font-weight: 700 !important;
+      letter-spacing: -0.055em !important;
+      line-height: 1 !important;
+    }
+
+    .aion-workflow-title-input:focus {
+      box-shadow: inset 0 -2px 0 rgba(13,143,163,0.75) !important;
+    }
+
+    /* Hide random top status/save UI */
+    .aion-workflow-status-pill,
+    .aion-workflow-topbar .aion-workflow-top-actions,
+    .aion-workflow-topbar .aion-workflow-publish-control,
+    .aion-workflow-topbar .aion-workflow-publish-main,
+    .aion-workflow-topbar .aion-workflow-publish-menu {
+      display: none !important;
+    }
+
+    /* Restore the original white active workflow row */
+    .aion-workflow-topbar .aion-workflow-subtle-meta,
+    .aion-workflow-topbar .aion-workflow-subtle-meta-active {
+      position: absolute !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+
+      width: 100% !important;
+      height: 34px !important;
+      min-height: 34px !important;
+      max-height: 34px !important;
+
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      gap: 10px !important;
+
+      margin: 0 !important;
+      padding: 0 18px 0 76px !important;
+
+      border-top: 1px solid rgba(31,31,31,0.10) !important;
+      border-bottom: 1px solid rgba(31,31,31,0.12) !important;
+      border-left: 0 !important;
+      border-right: 0 !important;
+      border-radius: 0 !important;
+
+      background: rgba(255,255,255,0.92) !important;
+      box-shadow: none !important;
+      box-sizing: border-box !important;
+
+      color: #1f1f1f !important;
+      overflow: hidden !important;
+      z-index: 20 !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span,
+    .aion-workflow-subtle-meta-active em,
+    .aion-workflow-subtle-meta-active b,
+    .aion-workflow-subtle-meta-active strong {
+      height: 22px !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+
+      margin: 0 !important;
+      padding: 0 9px !important;
+
+      border-radius: 0 !important;
+      border: 1px solid rgba(31,31,31,0.18) !important;
+      background: rgba(255,255,255,0.36) !important;
+      box-shadow: none !important;
+
+      color: #1f1f1f !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.08em !important;
+      line-height: 1 !important;
+      text-transform: uppercase !important;
+      font-style: normal !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-workflow-subtle-meta-active > span {
+      border: 0 !important;
+      background: transparent !important;
+      padding-left: 0 !important;
+      color: rgba(31,31,31,0.56) !important;
+      letter-spacing: 0.20em !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.saved,
+    .aion-workflow-subtle-meta-active strong.clean,
+    .aion-workflow-subtle-meta-active strong.success {
+      border-color: #9dac9b !important;
+      background: rgba(240,246,238,0.72) !important;
+      color: #375136 !important;
+    }
+
+    .aion-workflow-subtle-meta-active strong.dirty,
+    .aion-workflow-subtle-meta-active strong.warning,
+    .aion-workflow-subtle-meta-active strong.draft {
+      border-color: rgba(31,31,31,0.22) !important;
+      background: rgba(255,255,255,0.36) !important;
+      color: #1f1f1f !important;
+    }
+
+    /* Do not use external/body sticky strip now */
+    [data-aion-selected-workflow-slim-header='true'],
+    .aion-selected-workflow-slim-header-v14,
+    .aion-selected-workflow-slim-header-v38 {
+      display: none !important;
+    }
+
+    .aion-workflow-layout {
+      height: calc(100vh - 118px) !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
+    .aion-workflow-canvas {
+      padding-top: 0 !important;
+      margin-top: 0 !important;
+      box-sizing: border-box !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow header in-DOM active row v39 installed");
+})();
+
+/* AION PATCH: workflow header vertical spacing tune v40
+   Fix:
+   - Reduce gap between eyebrow and title row.
+   - Add more breathing room below title row before the active workflow strip/border.
+*/
+(function installAionWorkflowHeaderVerticalSpacingTuneV40() {
+  const PATCH_ID = "aion-workflow-header-vertical-spacing-tune-v40";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-topbar {
+      height: 124px !important;
+      min-height: 124px !important;
+      max-height: 124px !important;
+      padding: 22px 40px 42px !important;
+    }
+
+    .aion-workflow-breadcrumb-title::before {
+      margin: 0 0 6px !important;
+    }
+
+    .aion-workflow-breadcrumb {
+      margin-bottom: 8px !important;
+    }
+
+    .aion-workflow-topbar .aion-workflow-subtle-meta,
+    .aion-workflow-topbar .aion-workflow-subtle-meta-active {
+      height: 34px !important;
+      min-height: 34px !important;
+      max-height: 34px !important;
+    }
+
+    .aion-workflow-layout {
+      height: calc(100vh - 124px) !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow header vertical spacing tune v40 installed");
+})();
+
+/* AION PATCH: workflow header left alignment tune v41
+   Fix:
+   - Move Boardroom-style workflow header text left so it visually aligns better
+     with the left sidebar icon rail.
+   - Preserve current vertical spacing from v40.
+*/
+(function installAionWorkflowHeaderLeftAlignmentTuneV41() {
+  const PATCH_ID = "aion-workflow-header-left-alignment-tune-v41";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-workflow-topbar {
+      padding-left: 26px !important;
+      padding-right: 40px !important;
+    }
+
+    .aion-workflow-breadcrumb-title {
+      margin-left: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb-title::before {
+      margin-left: 0 !important;
+    }
+
+    .aion-workflow-breadcrumb {
+      margin-left: 0 !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  console.log("[AION] Workflow header left alignment tune v41 installed");
+})();
+
+
+/* CONNECTOR PORTS V1 */
+(function installAionConnectorPortsStyle() {
+  if (document.getElementById("aion-connector-ports-v1-style")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-connector-ports-v1-style";
+  style.textContent = `
+    .aion-node-port {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 999px;
+      border: 2px solid rgba(10, 132, 160, 0.72);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+      z-index: 22;
+      cursor: crosshair;
+      opacity: 0.88;
+      transition:
+        transform 120ms ease,
+        opacity 120ms ease,
+        box-shadow 120ms ease,
+        background 120ms ease;
+    }
+
+    .aion-node-port:hover,
+    .aion-node-port-pending {
+      opacity: 1;
+      transform: scale(1.35);
+      background: rgba(219, 252, 255, 1);
+      box-shadow: 0 10px 28px rgba(10, 132, 160, 0.25);
+    }
+
+    .aion-node-port-input {
+      border-color: rgba(203, 114, 30, 0.72);
+    }
+
+    .aion-node-port-output {
+      border-color: rgba(10, 132, 160, 0.72);
+    }
+
+    .aion-node-port-pending {
+      border-color: rgba(244, 26, 255, 0.95);
+      background: rgba(255, 240, 255, 1);
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* CONNECTOR DRAG + PORT AFFORDANCE V1 */
+(function installAionConnectorDragAffordanceStyle() {
+  if (document.getElementById("aion-connector-drag-affordance-v1")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-connector-drag-affordance-v1";
+  style.textContent = `
+    .aion-node-port {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border-width: 2px;
+      background: rgba(255, 255, 255, 0.96);
+      cursor: grab;
+      overflow: visible;
+    }
+
+    .aion-node-port:active {
+      cursor: grabbing;
+    }
+
+    .aion-node-port-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: currentColor;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .aion-node-port-output {
+      color: rgba(10, 132, 160, 0.95);
+    }
+
+    .aion-node-port-input {
+      color: rgba(203, 114, 30, 0.95);
+    }
+
+    .aion-node-port-unconnected {
+      animation: aionPortSoftPulse 1.8s ease-in-out infinite;
+      box-shadow:
+        0 0 0 4px rgba(10, 132, 160, 0.08),
+        0 8px 22px rgba(15, 23, 42, 0.12);
+    }
+
+    .aion-node-port-input.aion-node-port-unconnected {
+      box-shadow:
+        0 0 0 4px rgba(203, 114, 30, 0.08),
+        0 8px 22px rgba(15, 23, 42, 0.12);
+    }
+
+    .aion-node-port-connected {
+      opacity: 0.72;
+      box-shadow: 0 5px 14px rgba(15, 23, 42, 0.08);
+    }
+
+    .aion-node-port:hover,
+    .aion-node-port-pending,
+    .aion-node-port[data-aion-port-connect-drop-target='true'] {
+      opacity: 1;
+      transform: scale(1.45);
+      z-index: 120;
+    }
+
+    .aion-node-port:hover::after,
+    .aion-node-port-pending::after,
+    .aion-node-port[data-aion-port-connect-drop-target='true']::after {
+      content: "";
+      position: absolute;
+      inset: -9px;
+      border-radius: 999px;
+      border: 2px solid currentColor;
+      opacity: 0.22;
+      pointer-events: none;
+    }
+
+    .aion-node-port[data-aion-port-connect-drop-target='true'] {
+      background: rgba(255, 247, 237, 1);
+      box-shadow:
+        0 0 0 8px rgba(203, 114, 30, 0.14),
+        0 16px 38px rgba(203, 114, 30, 0.28);
+    }
+
+    body.aion-connector-dragging .aion-node-port-input {
+      animation: aionPortDropPulse 0.9s ease-in-out infinite;
+    }
+
+    body.aion-connector-dragging .aion-node-port-output:not(.aion-node-port-pending) {
+      opacity: 0.45;
+    }
+
+    body.aion-connector-dragging .aion-canvas-node {
+      transition: filter 120ms ease, transform 120ms ease;
+    }
+
+    body.aion-connector-dragging .aion-canvas-node:hover {
+      filter: drop-shadow(0 18px 34px rgba(244, 26, 255, 0.16));
+    }
+
+    @keyframes aionPortSoftPulse {
+      0%, 100% {
+        box-shadow:
+          0 0 0 3px rgba(10, 132, 160, 0.06),
+          0 8px 22px rgba(15, 23, 42, 0.10);
+      }
+      50% {
+        box-shadow:
+          0 0 0 7px rgba(10, 132, 160, 0.12),
+          0 10px 28px rgba(15, 23, 42, 0.14);
+      }
+    }
+
+    @keyframes aionPortDropPulse {
+      0%, 100% {
+        box-shadow:
+          0 0 0 4px rgba(203, 114, 30, 0.10),
+          0 8px 22px rgba(15, 23, 42, 0.10);
+      }
+      50% {
+        box-shadow:
+          0 0 0 10px rgba(203, 114, 30, 0.18),
+          0 14px 34px rgba(203, 114, 30, 0.18);
+      }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* CONNECTOR DRAG SHAKE SHIELD */
+(function installAionConnectorDragMouseMoveShield() {
+  if (window.__aionConnectorDragMouseMoveShieldInstalled === true) return;
+  window.__aionConnectorDragMouseMoveShieldInstalled = true;
+
+  const shield = (event) => {
+    if (!window.__aionDraggingConnector) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    if (typeof updateAionConnectorDragPreview === "function") {
+      updateAionConnectorDragPreview(event);
+    }
+  };
+
+  document.addEventListener("mousemove", shield, true);
+  document.addEventListener("dragstart", shield, true);
+})();
+
+/* CONNECTOR DRAG NO-SHAKE CSS */
+(function installAionConnectorNoShakeCss() {
+  if (document.getElementById("aion-connector-no-shake-css")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-connector-no-shake-css";
+  style.textContent = `
+    body.aion-connector-dragging .aion-node-port,
+    body.aion-connector-dragging .aion-node-port:hover,
+    body.aion-connector-dragging .aion-node-port-pending,
+    body.aion-connector-dragging .aion-node-port[data-aion-port-connect-drop-target='true'] {
+      transform: none !important;
+    }
+
+    body.aion-connector-dragging .aion-canvas-node,
+    body.aion-connector-dragging .aion-canvas-node:hover {
+      transform: none !important;
+      transition: none !important;
+    }
+
+    body.aion-connector-dragging,
+    body.aion-connector-dragging * {
+      user-select: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* CONNECTOR DRAG WINDOW SHIELD V2
+   Purpose:
+   - Multiple connector drag handlers were accidentally registered during patching.
+   - This window-level capture shield runs before document-level handlers.
+   - It prevents duplicate pointermove/pointerup handlers from re-rendering/shaking the canvas.
+*/
+(function installAionConnectorDragWindowShieldV2() {
+  if (window.__aionConnectorDragWindowShieldV2Installed === true) return;
+  window.__aionConnectorDragWindowShieldV2Installed = true;
+
+  function getInputPortAtPoint(event) {
+    const el = document.elementFromPoint(event.clientX, event.clientY);
+    return el?.closest?.("[data-aion-port-node-id][data-aion-port-direction='input']") || null;
+  }
+
+  function clearDropTargets() {
+    document
+      .querySelectorAll("[data-aion-port-connect-drop-target='true']")
+      .forEach((item) => item.removeAttribute("data-aion-port-connect-drop-target"));
+  }
+
+  window.addEventListener(
+    "pointermove",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionPendingConnectorMouse = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+
+      clearDropTargets();
+
+      const inputPort = getInputPortAtPoint(event);
+      if (inputPort) {
+        inputPort.setAttribute("data-aion-port-connect-drop-target", "true");
+      }
+
+      if (typeof updateAionConnectorDragPreview === "function") {
+        updateAionConnectorDragPreview(event);
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "pointerup",
+    (event) => {
+      const drag = window.__aionDraggingConnector || null;
+      if (!drag) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      const inputPort = getInputPortAtPoint(event);
+
+      if (inputPort && typeof createAionWorkflowEdgeFromPorts === "function") {
+        const to = inputPort.getAttribute("data-aion-port-node-id");
+        const targetCondition = inputPort.getAttribute("data-aion-port-condition") || "success";
+
+        createAionWorkflowEdgeFromPorts({
+          from: drag.from,
+          to,
+          condition: drag.condition || "success",
+          targetCondition,
+        });
+      }
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      window.__aionSuppressRenderDuringConnectorDrag = false;
+
+      clearDropTargets();
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+
+      window.requestAnimationFrame?.(() => {
+        if (typeof requestRender === "function") requestRender();
+      });
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "pointercancel",
+    (event) => {
+      if (!window.__aionDraggingConnector) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+
+      window.__aionDraggingConnector = null;
+      window.__aionPendingConnector = null;
+      window.__aionPendingConnectorMouse = null;
+      window.__aionSuppressRenderDuringConnectorDrag = false;
+
+      clearDropTargets();
+      clearAionConnectorDragPreview?.();
+
+      document.body.classList.remove("aion-connector-dragging");
+
+      window.requestAnimationFrame?.(() => {
+        if (typeof requestRender === "function") requestRender();
+      });
+    },
+    true,
+  );
 })();
