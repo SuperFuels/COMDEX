@@ -894,6 +894,101 @@
     ];
   }
 
+  function normaliseIteratorItems(value) {
+    if (Array.isArray(value)) return value;
+
+    if (value && typeof value === "object") {
+      if (Array.isArray(value.items)) return value.items;
+      if (Array.isArray(value.array)) return value.array;
+      if (Array.isArray(value.results)) return value.results;
+      if (Array.isArray(value.data)) return value.data;
+    }
+
+    if (typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) return parsed;
+        if (parsed && typeof parsed === "object") {
+          if (Array.isArray(parsed.items)) return parsed.items;
+          if (Array.isArray(parsed.array)) return parsed.array;
+          if (Array.isArray(parsed.results)) return parsed.results;
+          if (Array.isArray(parsed.data)) return parsed.data;
+        }
+      } catch (_) {
+        return value
+          .split(/\n|,/)
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+    }
+
+    return value === undefined || value === null ? [] : [value];
+  }
+
+  function getIteratorArrayFromInput(config = {}, firstInput = {}) {
+    const configuredArray = config.array ?? config.source ?? config.items;
+
+    if (Array.isArray(configuredArray)) return configuredArray;
+
+    if (typeof configuredArray === "string") {
+      const template = configuredArray.trim();
+
+      if (template === "{{items}}") return normaliseIteratorItems(firstInput.items);
+      if (template === "{{array}}") return normaliseIteratorItems(firstInput.array);
+      if (template === "{{results}}") return normaliseIteratorItems(firstInput.results);
+      if (template === "{{data}}") return normaliseIteratorItems(firstInput.data);
+
+      const keyMatch = template.match(/^\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}$/);
+      if (keyMatch) {
+        const key = keyMatch[1];
+        return normaliseIteratorItems(key.split(".").reduce((value, part) => value?.[part], firstInput));
+      }
+
+      return normaliseIteratorItems(templateValue(template, firstInput));
+    }
+
+    return normaliseIteratorItems(
+      firstInput.items ||
+      firstInput.array ||
+      firstInput.results ||
+      firstInput.data ||
+      firstInput.merged_items ||
+      firstInput
+    );
+  }
+
+  function executeIteratorNode(node, inputItems) {
+    const config = node.config || {};
+    const firstInput = getInputJson(inputItems[0]) || {};
+
+    const items = getIteratorArrayFromInput(config, firstInput);
+    const outputKey = normaliseText(config.output || "item") || "item";
+    const total = items.length;
+
+    return items.map((value, index) => {
+      const itemValue = value && typeof value === "object" && !Array.isArray(value)
+        ? value
+        : { value };
+
+      return {
+        json: {
+          ...firstInput,
+          [outputKey]: value,
+          item: value,
+          item_json: itemValue,
+          iterator_index: index,
+          iterator_number: index + 1,
+          iterator_total: total,
+          iterated_by: node.id,
+          source: "logic.iterator",
+          input_count: inputItems.length,
+          executed_at: new Date().toISOString(),
+          dry_run: true,
+        },
+      };
+    });
+  }
+
   function executeCodePreviewNode(node, inputItems) {
     const config = node.config || {};
     const firstInput = getInputJson(inputItems[0]) || {};
@@ -1010,6 +1105,13 @@
       title.includes("merge")
     ) {
       return executeMergeNode(node, inputItems);
+    }
+
+    if (
+      actionKey.includes("iterator") ||
+      title.includes("iterator")
+    ) {
+      return executeIteratorNode(node, inputItems);
     }
 
     if (
