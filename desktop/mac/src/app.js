@@ -12964,6 +12964,37 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
     })
     .join("");
 
+  const mergeContinuationControlsHtml = nodes
+    .filter((node) => typeof isAionWorkflowMergeNode === "function" && isAionWorkflowMergeNode(node))
+    .map((node) => {
+      const hasSuccessOut = edges.some(
+        (edge) =>
+          String(edge.from) === String(node.id) &&
+          String(edge.condition || "success").toLowerCase() === "success",
+      );
+
+      if (hasSuccessOut) return "";
+
+      const left = Number(node.x || 0) + 186;
+      const top = Number(node.y || 0) + 42;
+
+      return `
+        <button
+          class="aion-workflow-add-next-node aion-merge-continuation-add"
+          style="left:${escapeHtml(String(left))}px; top:${escapeHtml(String(top))}px;"
+          data-aion-workflow-open-action-picker="true"
+          data-aion-workflow-branch-anchor="${escapeHtml(node.id)}"
+          data-aion-workflow-branch-condition="success"
+          type="button"
+          title="Add next step after Merge"
+          aria-label="Add next step after Merge"
+        >
+          +
+        </button>
+      `;
+    })
+    .join("");
+
   const portHtml = nodes
     .map((node) => {
       const ports =
@@ -13626,6 +13657,8 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
             ${routerControlsHtml}
 
+            ${mergeContinuationControlsHtml}
+
             ${
               nodes.length === 0
                 ? `
@@ -13641,13 +13674,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
                   </div>
                 `
-                : (
-                    selectedNode &&
-                    typeof isAionWorkflowMergeNode === "function" &&
-                    isAionWorkflowMergeNode(selectedNode)
-                  )
-                  ? ""
-                  : `
+                : `
                   <button
                     class="aion-workflow-add-next-node"
                     style="left:${escapeHtml(String((nodes[nodes.length - 1]?.x || 160) + 260))}px; top:${escapeHtml(String((nodes[nodes.length - 1]?.y || 240) + 42))}px;"
