@@ -989,6 +989,45 @@
     });
   }
 
+  function executeArrayAggregatorNode(node, inputItems) {
+    const config = node.config || {};
+    const outputKey = normaliseText(config.output || "array") || "array";
+    const sourceKey = normaliseText(config.source_key || config.key || "") || "";
+
+    const items = Array.isArray(inputItems) ? inputItems : [];
+
+    const aggregatedItems = items.map((item, index) => {
+      const json = getInputJson(item) || {};
+
+      if (sourceKey && json[sourceKey] !== undefined) {
+        return json[sourceKey];
+      }
+
+      if (json.item !== undefined) return json.item;
+      if (json.item_json !== undefined) return json.item_json;
+
+      return json;
+    });
+
+    const firstInput = getInputJson(items[0]) || {};
+
+    return [
+      {
+        json: {
+          ...firstInput,
+          aggregated: true,
+          item_count: aggregatedItems.length,
+          [outputKey]: aggregatedItems,
+          array: aggregatedItems,
+          source: "logic.array_aggregator",
+          input_count: items.length,
+          executed_at: new Date().toISOString(),
+          dry_run: true,
+        },
+      },
+    ];
+  }
+
   function executeCodePreviewNode(node, inputItems) {
     const config = node.config || {};
     const firstInput = getInputJson(inputItems[0]) || {};
@@ -1105,6 +1144,14 @@
       title.includes("merge")
     ) {
       return executeMergeNode(node, inputItems);
+    }
+
+    if (
+      actionKey.includes("array_aggregator") ||
+      actionKey.includes("array aggregator") ||
+      title.includes("array aggregator")
+    ) {
+      return executeArrayAggregatorNode(node, inputItems);
     }
 
     if (
