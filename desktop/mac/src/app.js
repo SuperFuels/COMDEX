@@ -51426,6 +51426,7 @@ function loadWorkflowArchitectReviewOntoCanvas() {
 function installWorkflowArchitectDesktopControls() {
   if (window.__aionWorkflowArchitectDesktopControlsBound === true) return;
   window.__aionWorkflowArchitectDesktopControlsBound = true;
+}
 
 function renderWorkflowArchitectGuidedStepBuilder() {
   return `
@@ -51465,5 +51466,3 @@ function syncWorkflowArchitectModalInputsToState() {
 if (typeof installAionWorkflowGlyphLibraryDrawerControls === "function") {
   installAionWorkflowGlyphLibraryDrawerControls();
 }
-
-})();
