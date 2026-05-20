@@ -8226,9 +8226,38 @@ function normaliseAionWorkflowNodeToGlyphStep(node, index = 0) {
   };
 }
 
+function isAionWorkflowSyntheticChooseNode(node) {
+  if (!node) return false;
+
+  const id = String(node.id || "");
+  const title = String(node.title || node.label || "").trim().toLowerCase();
+  const actionId = String(node.action_id || node.action || node.config?.action_id || "").trim().toLowerCase();
+
+  return (
+    id === "node_choose_start" ||
+    (
+      title === "choose" &&
+      (!actionId || actionId === "generic.step")
+    )
+  );
+}
+
 function orderAionWorkflowNodesForGlyph(graph) {
-  const nodes = Array.isArray(graph?.nodes) ? [...graph.nodes] : [];
-  const edges = Array.isArray(graph?.edges) ? graph.edges : [];
+  const nodes = Array.isArray(graph?.nodes)
+    ? graph.nodes.filter((node) => !isAionWorkflowSyntheticChooseNode(node))
+    : [];
+
+  const syntheticChooseIds = new Set(
+    Array.isArray(graph?.nodes)
+      ? graph.nodes
+          .filter((node) => isAionWorkflowSyntheticChooseNode(node))
+          .map((node) => String(node.id))
+      : [],
+  );
+
+  const edges = Array.isArray(graph?.edges)
+    ? graph.edges.filter((edge) => !syntheticChooseIds.has(String(edge?.from || "")))
+    : [];
 
   if (!nodes.length) return [];
 
@@ -8279,6 +8308,69 @@ function orderAionWorkflowNodesForGlyph(graph) {
   return [...ordered, ...remaining];
 }
 
+function collectAionWorkflowRequiredConnectors(graph) {
+  const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+
+  return Array.from(
+    new Set(
+      nodes
+        .map((node) => {
+          const config = node?.config && typeof node.config === "object" ? node.config : {};
+          return String(config.connector || node.connector || config.app || "").trim();
+        })
+        .filter(Boolean)
+        .filter((connector) => !["logic", "tools", "tool", "flow"].includes(connector.toLowerCase())),
+    ),
+  );
+}
+
+function collectAionWorkflowBoardroomEvents(graph) {
+  const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+
+  return Array.from(
+    new Set(
+      nodes.flatMap((node) => {
+        const config = node?.config && typeof node.config === "object" ? node.config : {};
+        const declared =
+          config.boardroom_events ||
+          config.boardroom_event ||
+          config.events ||
+          node.boardroom_events ||
+          [];
+
+        if (Array.isArray(declared)) return declared;
+        if (typeof declared === "string") {
+          return declared
+            .split(",")
+            .map((item) => item.trim())
+            .filter(Boolean);
+        }
+
+        return [];
+      }),
+    ),
+  );
+}
+
+function inferAionWorkflowRiskTier(graph) {
+  const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+  const hasExternalWrite = nodes.some((node) => {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const action = String(config.action_id || config.module_id || node?.action_id || "").toLowerCase();
+
+    return (
+      config.external_write === true ||
+      config.requires_approval === true ||
+      action.includes("send") ||
+      action.includes("publish") ||
+      action.includes("create_draft") ||
+      action.includes("post_social")
+    );
+  });
+
+  return hasExternalWrite ? "medium" : "low";
+}
+
 function compileAionWorkflowGraphToGlyph(graph) {
   const safeGraph = graph && typeof graph === "object" ? graph : {};
   const orderedNodes = orderAionWorkflowNodesForGlyph(safeGraph);
@@ -8286,17 +8378,37 @@ function compileAionWorkflowGraphToGlyph(graph) {
     normaliseAionWorkflowNodeToGlyphStep(node, index),
   );
 
+  const syntheticChooseIds = new Set(
+    Array.isArray(safeGraph.nodes)
+      ? safeGraph.nodes
+          .filter((node) => isAionWorkflowSyntheticChooseNode(node))
+          .map((node) => String(node.id))
+      : [],
+  );
+
   const edges = Array.isArray(safeGraph.edges)
-    ? safeGraph.edges.map((edge) => ({
-        from: String(edge?.from || ""),
-        to: String(edge?.to || ""),
-        condition: String(edge?.condition || "success"),
-      }))
+    ? safeGraph.edges
+        .filter((edge) => !syntheticChooseIds.has(String(edge?.from || "")))
+        .filter((edge) => !syntheticChooseIds.has(String(edge?.to || "")))
+        .map((edge) => ({
+          from: String(edge?.from || ""),
+          to: String(edge?.to || ""),
+          condition: String(edge?.condition || "success"),
+        }))
     : [];
+
+  const approvalPolicy = {
+    dry_run_first: true,
+    approval_before_external_write: true,
+    raw_glyph_execution: false,
+    raw_glyphs_are_ui_decoration_only: true,
+  };
 
   return {
     schema_version: AION_WORKFLOW_GLYPH_SCHEMA_VERSION,
     namespace: AION_WORKFLOW_GLYPH_NAMESPACE,
+    glyph_type: "workflow_capsule",
+    callable: true,
     op: AION_WORKFLOW_OPS.SEQUENCE,
     workflow: {
       workflow_id: String(safeGraph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft"),
@@ -8306,12 +8418,19 @@ function compileAionWorkflowGraphToGlyph(graph) {
       ),
       status: String(safeGraph.status || "draft"),
     },
-    policy: {
-      dry_run_first: true,
-      approval_before_external_write: true,
-      raw_glyph_execution: false,
-      raw_glyphs_are_ui_decoration_only: true,
-    },
+    inputs_schema:
+      safeGraph.inputs_schema && typeof safeGraph.inputs_schema === "object"
+        ? safeGraph.inputs_schema
+        : {},
+    outputs_schema:
+      safeGraph.outputs_schema && typeof safeGraph.outputs_schema === "object"
+        ? safeGraph.outputs_schema
+        : {},
+    required_connectors: collectAionWorkflowRequiredConnectors(safeGraph),
+    approval_policy: approvalPolicy,
+    risk_tier: String(safeGraph.risk_tier || inferAionWorkflowRiskTier(safeGraph) || "low"),
+    boardroom_events: collectAionWorkflowBoardroomEvents(safeGraph),
+    policy: approvalPolicy,
     steps,
     flow_links: edges,
     compiled_at: new Date().toISOString(),
@@ -8338,9 +8457,43 @@ function getDefaultAionWorkflowDraftState() {
   };
 }
 
+function stripAionWorkflowSyntheticChooseNode(graph) {
+  if (!graph || typeof graph !== "object") return graph;
+
+  const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+  const syntheticIds = new Set(
+    nodes
+      .filter((node) =>
+        typeof isAionWorkflowSyntheticChooseNode === "function" &&
+        isAionWorkflowSyntheticChooseNode(node)
+      )
+      .map((node) => String(node.id)),
+  );
+
+  if (!syntheticIds.size) return graph;
+
+  graph.nodes = nodes.filter((node) => !syntheticIds.has(String(node.id)));
+  graph.edges = Array.isArray(graph.edges)
+    ? graph.edges.filter(
+        (edge) =>
+          !syntheticIds.has(String(edge?.from || "")) &&
+          !syntheticIds.has(String(edge?.to || "")),
+      )
+    : [];
+
+  if (syntheticIds.has(String(window.__aionWorkflowSelectedNodeId || ""))) {
+    window.__aionWorkflowSelectedNodeId = graph.nodes[0]?.id || null;
+  }
+
+  graph.updated_at = new Date().toISOString();
+  graph.dirty = true;
+
+  return graph;
+}
+
 function getAionWorkflowDraftState() {
   if (window.__aionWorkflowGraph) {
-    return window.__aionWorkflowGraph;
+    return stripAionWorkflowSyntheticChooseNode(window.__aionWorkflowGraph);
   }
 
   try {
@@ -8348,12 +8501,12 @@ function getAionWorkflowDraftState() {
     if (raw) {
       const parsed = JSON.parse(raw);
       if (parsed && typeof parsed === "object") {
-        window.__aionWorkflowGraph = {
+        window.__aionWorkflowGraph = stripAionWorkflowSyntheticChooseNode({
           ...getDefaultAionWorkflowDraftState(),
           ...parsed,
           nodes: Array.isArray(parsed.nodes) ? parsed.nodes : [],
           edges: Array.isArray(parsed.edges) ? parsed.edges : [],
-        };
+        });
         return window.__aionWorkflowGraph;
       }
     }
@@ -8767,12 +8920,109 @@ async function saveAionWorkflowToBusinessContainer(graph) {
   safeGraph.business_container = result.business_container || businessContainer;
   safeGraph.backend_saved_at = result.updated_at || new Date().toISOString();
   safeGraph.backend_storage_path = result.path || "";
+
+  compileAndAttachAionWorkflowGlyph(safeGraph);
+  safeGraph.glyph_capsule_registry_item =
+    upsertAionWorkflowGlyphCapsuleRegistryItem(safeGraph);
+
   return result;
 }
 
 
 
 
+
+
+
+const AION_WORKFLOW_GLYPH_CAPSULE_REGISTRY_KEY = "aion.workflow.glyph_capsules.v1";
+
+function getAionWorkflowGlyphCapsuleRegistry() {
+  try {
+    const raw = window.localStorage?.getItem(AION_WORKFLOW_GLYPH_CAPSULE_REGISTRY_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistAionWorkflowGlyphCapsuleRegistry(items = []) {
+  const safeItems = Array.isArray(items) ? items : [];
+  try {
+    window.localStorage?.setItem(
+      AION_WORKFLOW_GLYPH_CAPSULE_REGISTRY_KEY,
+      JSON.stringify(safeItems, null, 2),
+    );
+  } catch (error) {
+    console.warn("[workflow] failed to persist glyph capsule registry", error);
+  }
+  return safeItems;
+}
+
+function upsertAionWorkflowGlyphCapsuleRegistryItem(graph) {
+  const safeGraph = graph || getAionWorkflowDraftState();
+  const compiledGlyph =
+    safeGraph?.compiled_glyph || compileAionWorkflowGraphToGlyph(safeGraph);
+
+  const workflowId =
+    compiledGlyph?.workflow?.workflow_id ||
+    safeGraph.workflow_id ||
+    window.__aionCreateUniqueWorkflowId?.() ||
+    "workflow_draft";
+
+  const businessContainer =
+    compiledGlyph?.workflow?.business_container ||
+    safeGraph.business_container ||
+    getAionWorkflowBusinessContainerId();
+
+  const item = {
+    id: `${businessContainer}:${workflowId}`,
+    workflow_id: workflowId,
+    name: compiledGlyph?.workflow?.name || safeGraph.name || "Untitled workflow 1",
+    business_container: businessContainer,
+    status: compiledGlyph?.workflow?.status || safeGraph.status || "draft",
+    glyph_type: compiledGlyph?.glyph_type || "workflow_capsule",
+    callable: compiledGlyph?.callable === true,
+    risk_tier: compiledGlyph?.risk_tier || "low",
+    required_connectors: Array.isArray(compiledGlyph?.required_connectors)
+      ? compiledGlyph.required_connectors
+      : [],
+    boardroom_events: Array.isArray(compiledGlyph?.boardroom_events)
+      ? compiledGlyph.boardroom_events
+      : [],
+    compiled_at: compiledGlyph?.compiled_at || new Date().toISOString(),
+    saved_at: new Date().toISOString(),
+    compiled_glyph: compiledGlyph,
+  };
+
+  const registry = getAionWorkflowGlyphCapsuleRegistry();
+  const next = [
+    item,
+    ...registry.filter((existing) => String(existing?.id || "") !== item.id),
+  ].slice(0, 100);
+
+  persistAionWorkflowGlyphCapsuleRegistry(next);
+  return item;
+}
+
+function listAionWorkflowGlyphCapsules() {
+  return getAionWorkflowGlyphCapsuleRegistry();
+}
+
+function findAionWorkflowGlyphCapsule(workflowIdOrName) {
+  const needle = String(workflowIdOrName || "").trim().toLowerCase();
+  if (!needle) return null;
+
+  return (
+    getAionWorkflowGlyphCapsuleRegistry().find((item) => {
+      return (
+        String(item?.workflow_id || "").toLowerCase() === needle ||
+        String(item?.name || "").toLowerCase() === needle ||
+        String(item?.id || "").toLowerCase() === needle
+      );
+    }) || null
+  );
+}
 
 
 
@@ -12001,7 +12251,7 @@ function addAionCabinetWorkflow(parentId) {
     updated_at: new Date().toISOString(),
   };
 
-  window.__aionWorkflowSelectedNodeId = "node_choose_start";
+  window.__aionWorkflowSelectedNodeId = null;
 
   try {
     if (typeof compileAndAttachAionWorkflowGlyph === "function") {
@@ -13798,7 +14048,10 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
                   <div class="aion-workflow-empty-start">
                     <button
                       class="aion-workflow-empty-card"
-                      data-aion-workflow-open-trigger-picker="true"
+                      data-aion-workflow-open-action-picker="true"
+                      data-aion-workflow-empty-start="true"
+                      data-aion-workflow-branch-condition="success"
+                      title="Add first workflow step"
                       type="button"
                     >
                       <span>+</span>
@@ -28106,11 +28359,21 @@ function installAionWorkflowActionControls() {
         event.stopPropagation();
         event.stopImmediatePropagation();
 
+        const isEmptyStart =
+          openUnifiedModulePicker.getAttribute?.("data-aion-workflow-empty-start") === "true";
+
         const branchCondition =
           openUnifiedModulePicker.getAttribute?.("data-aion-workflow-branch-condition") || "";
 
         const branchAnchor =
           openUnifiedModulePicker.getAttribute?.("data-aion-workflow-branch-anchor") || "";
+
+        if (isEmptyStart) {
+          window.__aionWorkflowPendingInsertMode = "empty_start";
+          window.__aionWorkflowPendingBranchAnchor = "";
+          window.__aionWorkflowPendingBranchCondition = "success";
+          window.__aionWorkflowSelectedNodeId = null;
+        }
 
         if (branchCondition) {
           window.__aionWorkflowPendingBranchCondition = String(branchCondition).toLowerCase();
@@ -28740,6 +29003,43 @@ function installAionWorkflowNodeConfigInputControls() {
   document.addEventListener("blur", updateConfig, true);
 }
 
+function installAionWorkflowWindowDebugExports() {
+  if (window.__aionWorkflowWindowDebugExportsBound === true) return;
+  window.__aionWorkflowWindowDebugExportsBound = true;
+
+  if (typeof getAionWorkflowDraftState === "function") {
+    window.getAionWorkflowDraftState = getAionWorkflowDraftState;
+  }
+
+  if (typeof persistAionWorkflowDraftState === "function") {
+    window.persistAionWorkflowDraftState = persistAionWorkflowDraftState;
+  }
+
+  if (typeof compileAionWorkflowGraphToGlyph === "function") {
+    window.compileAionWorkflowGraphToGlyph = compileAionWorkflowGraphToGlyph;
+  }
+
+  if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+    window.compileAndAttachAionWorkflowGlyph = compileAndAttachAionWorkflowGlyph;
+  }
+
+  if (typeof saveAionWorkflowToBusinessContainer === "function") {
+    window.saveAionWorkflowToBusinessContainer = saveAionWorkflowToBusinessContainer;
+  }
+
+  if (typeof loadAionWorkflowFromBusinessContainer === "function") {
+    window.loadAionWorkflowFromBusinessContainer = loadAionWorkflowFromBusinessContainer;
+  }
+
+  if (typeof saveAionWorkflowCanvasAsCapsule === "function") {
+    window.saveAionWorkflowCanvasAsCapsule = saveAionWorkflowCanvasAsCapsule;
+  }
+
+  if (typeof buildAionWorkflowCanvasCapsulePayload === "function") {
+    window.buildAionWorkflowCanvasCapsulePayload = buildAionWorkflowCanvasCapsulePayload;
+  }
+}
+
 
 
 
@@ -28855,6 +29155,7 @@ function installAionWorkflowTrackpadCanvasControls() {
 function installAionWorkflowNodeDragControls() {
   installAionWorkflowInspectorInputGuard();
   installAionWorkflowNodeConfigInputControls();
+  installAionWorkflowWindowDebugExports();
 
   window.AionWorkflowNodeEditor?.installControls?.({
     getAionWorkflowDraftState,
@@ -35491,20 +35792,7 @@ function safeAionDesktopPatch(payload) {
       name: "business email process",
       status: "draft",
       business_container: businessContainer,
-      nodes: [
-        {
-          id: "node_choose_start",
-          title: "Choose",
-          type: "Step",
-          icon: "C",
-          status: "Dry-run",
-          meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
-          tone: "teal",
-          x: 760,
-          y: 260,
-          config: {},
-        },
-      ],
+      nodes: [],
       edges: [],
       dirty: true,
     };
@@ -35536,7 +35824,7 @@ function safeAionDesktopPatch(payload) {
     if (!isEmptyGraph(graph) && !isOldStarterGraph(graph)) return false;
 
     window.__aionWorkflowGraph = makeBlankWorkflowGraph();
-    window.__aionWorkflowSelectedNodeId = "node_choose_start";
+    window.__aionWorkflowSelectedNodeId = null;
     window.__aionWorkflowPickerMode = "";
     window.__aionWorkflowInspectorOpen = false;
 
@@ -35598,7 +35886,7 @@ function safeAionDesktopPatch(payload) {
 
     if (!nextNodes.length) {
       window.__aionWorkflowGraph = makeBlankWorkflowGraph();
-      window.__aionWorkflowSelectedNodeId = "node_choose_start";
+      window.__aionWorkflowSelectedNodeId = null;
     } else {
       graph.nodes = nextNodes;
       graph.edges = nextEdges;
@@ -35911,7 +36199,7 @@ function safeAionDesktopPatch(payload) {
 
         if (!nextNodes.length && typeof makeBlankWorkflowGraph === "function") {
           window.__aionWorkflowGraph = makeBlankWorkflowGraph();
-          window.__aionWorkflowSelectedNodeId = "node_choose_start";
+          window.__aionWorkflowSelectedNodeId = null;
         } else {
           graph.nodes = nextNodes;
           graph.edges = nextEdges;
@@ -45786,20 +46074,7 @@ function safeAionDesktopPatch(payload) {
       saved_at: null,
       dirty: true,
       business_container: businessContainer || "costa-conexion",
-      nodes: [
-        {
-          id: "node_choose_start",
-          title: "Choose",
-          type: "Step",
-          icon: "C",
-          status: "Dry-run",
-          meta: "Choose a trigger, app action, AI action, flow control, tool, parser, or approval step.",
-          tone: "teal",
-          x: 760,
-          y: 260,
-          config: {},
-        },
-      ],
+      nodes: [],
       edges: [],
       updated_at: new Date().toISOString(),
     };
@@ -45853,7 +46128,7 @@ function safeAionDesktopPatch(payload) {
     }
 
     window.__aionWorkflowGraph = graph;
-    window.__aionWorkflowSelectedNodeId = "node_choose_start";
+    window.__aionWorkflowSelectedNodeId = null;
 
     try {
       if (typeof compileAndAttachAionWorkflowGlyph === "function") {
