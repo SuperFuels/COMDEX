@@ -48,6 +48,89 @@
     return node.runtime;
   }
 
+  function normaliseAionBoardroomEventDeclarations(value) {
+    if (!value) return [];
+
+    if (Array.isArray(value)) {
+      return value.flatMap((item) => normaliseAionBoardroomEventDeclarations(item));
+    }
+
+    if (typeof value === "object") {
+      return [value];
+    }
+
+    return String(value || "")
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean)
+      .map((eventType) => ({ event_type: eventType }));
+  }
+
+  function getNodeBoardroomEventDeclarations(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+
+    return [
+      ...normaliseAionBoardroomEventDeclarations(node?.boardroom_events),
+      ...normaliseAionBoardroomEventDeclarations(config.boardroom_events),
+      ...normaliseAionBoardroomEventDeclarations(config.boardroom_event),
+      ...normaliseAionBoardroomEventDeclarations(config.emits_boardroom_events),
+    ];
+  }
+
+  function buildNodeBoardroomEvents(node, json = {}, executedAt = new Date().toISOString()) {
+    const graph = getGraph();
+    const workflowId = String(graph?.workflow_id || "");
+    const workflowName = String(graph?.name || "");
+    const nodeId = String(node?.id || json.node_id || "");
+    const nodeTitle = String(node?.title || node?.config?.title || json.title || "Untitled node");
+
+    const explicitEvents = normaliseAionBoardroomEventDeclarations(json.boardroom_events);
+    const declaredEvents = getNodeBoardroomEventDeclarations(node);
+
+    return [...explicitEvents, ...declaredEvents]
+      .map((event, index) => {
+        const eventType = String(
+          event?.event_type ||
+          event?.type ||
+          event?.name ||
+          event?.event ||
+          ""
+        ).trim();
+
+        if (!eventType) return null;
+
+        const payload =
+          event?.payload && typeof event.payload === "object"
+            ? event.payload
+            : {
+                source: json.source || node?.config?.action_id || node?.config?.module_id || "node.runtime",
+                subject: json.subject || "",
+                email: json.email || json.from || "",
+                customer_name: json.customer_name || json.sender_name || "",
+              };
+
+        return {
+          event_type: eventType,
+          source_node_id: nodeId,
+          source_node_title: nodeTitle,
+          workflow_id: workflowId,
+          workflow_name: workflowName,
+          dry_run: true,
+          payload,
+          emitted_at: String(event?.emitted_at || executedAt),
+          event_index: index,
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function collectBoardroomEventsFromItems(outputItems = []) {
+    return (Array.isArray(outputItems) ? outputItems : []).flatMap((item) => {
+      const json = getInputJson(item) || {};
+      return Array.isArray(json.boardroom_events) ? json.boardroom_events : [];
+    });
+  }
+
   function normaliseNodeOutputItems(node, inputItems, outputItems, executedAt = new Date().toISOString()) {
     const safeInputItems = Array.isArray(inputItems) ? inputItems : [];
     const safeOutputItems = Array.isArray(outputItems) ? outputItems : [];
@@ -57,6 +140,7 @@
       const json = getInputJson(item) || {};
       const errorValue =
         Object.prototype.hasOwnProperty.call(json, "error") ? json.error : null;
+      const boardroomEvents = buildNodeBoardroomEvents(node, json, executedAt);
 
       return {
         ...(item && typeof item === "object" ? item : {}),
@@ -75,6 +159,7 @@
           item_index: index,
           item_number: index + 1,
           item_total: outputCount,
+          boardroom_events: boardroomEvents,
         },
       };
     });
@@ -1943,6 +2028,7 @@ function normaliseRuntimeError(value) {
       ).filter((node) => !isSyntheticChooseStartNode(node));
 
     const trace = [];
+    const boardroomEvents = [];
     const executedAt = new Date().toISOString();
 
     // Clear stale runtime before a full-chain run, but preserve explicitly seeded
@@ -2010,6 +2096,7 @@ function normaliseRuntimeError(value) {
           output_items_count: 0,
           input_items_preview: [],
           output_items_preview: [],
+          boardroom_events: [],
         });
 
         return;
@@ -2043,6 +2130,9 @@ function normaliseRuntimeError(value) {
               ? "error ignored"
               : "executed";
 
+      const nodeBoardroomEvents = collectBoardroomEventsFromItems(outputItems);
+      boardroomEvents.push(...nodeBoardroomEvents);
+
       trace.push({
         node_id: nodeId,
         title,
@@ -2059,6 +2149,7 @@ function normaliseRuntimeError(value) {
         output_items_count: Array.isArray(outputItems) ? outputItems.length : 0,
         input_items_preview: inputItems,
         output_items_preview: outputItems,
+        boardroom_events: nodeBoardroomEvents,
       });
     });
 
@@ -2083,6 +2174,7 @@ function normaliseRuntimeError(value) {
       workflow_name: String(safeGraph.name || "Untitled workflow"),
       steps: trace.length,
       trace,
+      boardroom_events: boardroomEvents,
       blocked_external_writes: [],
       approval_required: false,
       approval_request: null,
