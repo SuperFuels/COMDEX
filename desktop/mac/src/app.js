@@ -29031,6 +29031,10 @@ function installAionWorkflowWindowDebugExports() {
     window.loadAionWorkflowFromBusinessContainer = loadAionWorkflowFromBusinessContainer;
   }
 
+  if (typeof listAionWorkflowGlyphCapsules === "function") {
+    window.listAionWorkflowGlyphCapsules = listAionWorkflowGlyphCapsules;
+  }
+
   if (typeof saveAionWorkflowCanvasAsCapsule === "function") {
     window.saveAionWorkflowCanvasAsCapsule = saveAionWorkflowCanvasAsCapsule;
   }
