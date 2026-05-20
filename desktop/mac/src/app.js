@@ -9009,6 +9009,175 @@ function listAionWorkflowGlyphCapsules() {
   return getAionWorkflowGlyphCapsuleRegistry();
 }
 
+
+function getAionWorkflowGlyphLibraryBusinessContainer() {
+  const graph =
+    typeof getAionWorkflowDraftState === "function"
+      ? getAionWorkflowDraftState()
+      : window.__aionWorkflowGraph || {};
+
+  return String(
+    graph?.business_container ||
+    graph?.compiled_glyph?.workflow?.business_container ||
+    "costa-conexion"
+  );
+}
+
+function normaliseAionWorkflowGlyphLibraryItem(item = {}) {
+  const compiled = item.compiled_glyph || {};
+  const workflow = compiled.workflow || {};
+
+  return {
+    id: String(item.id || item.workflow_id || workflow.workflow_id || "workflow_glyph"),
+    workflow_id: String(item.workflow_id || workflow.workflow_id || item.id || "workflow_glyph"),
+    name: String(item.name || item.title || workflow.name || "Untitled workflow glyph"),
+    business_container: String(item.business_container || workflow.business_container || "costa-conexion"),
+    status: String(item.status || workflow.status || "draft"),
+    glyph_type: String(item.glyph_type || compiled.glyph_type || "workflow_capsule"),
+    callable: item.callable === true || compiled.callable === true,
+    risk_tier: String(item.risk_tier || compiled.risk_tier || "low"),
+    required_connectors: Array.isArray(item.required_connectors)
+      ? item.required_connectors
+      : Array.isArray(compiled.required_connectors)
+        ? compiled.required_connectors
+        : [],
+    inputs_schema: item.inputs_schema || compiled.inputs_schema || {},
+    outputs_schema: item.outputs_schema || compiled.outputs_schema || {},
+    saved_at: String(item.saved_at || item.updated_at || item.compiled_at || ""),
+  };
+}
+
+function listAionWorkflowGlyphLibraryItems() {
+  const businessContainer = getAionWorkflowGlyphLibraryBusinessContainer();
+
+  return listAionWorkflowGlyphCapsules()
+    .map((item) => normaliseAionWorkflowGlyphLibraryItem(item))
+    .filter((item) => item.business_container === businessContainer)
+    .sort((a, b) => String(b.saved_at || "").localeCompare(String(a.saved_at || "")));
+}
+
+function summariseAionWorkflowGlyphSchema(schema = {}) {
+  if (!schema || typeof schema !== "object") return "—";
+
+  const properties =
+    schema.properties && typeof schema.properties === "object"
+      ? Object.keys(schema.properties)
+      : Object.keys(schema);
+
+  return properties.length ? properties.slice(0, 6).join(", ") : "Any payload";
+}
+
+function renderAionWorkflowGlyphLibraryLauncher() {
+  return `
+    <button
+      class="btn ghost"
+      data-aion-workflow-glyph-library-open="true"
+      style="position:fixed;right:22px;bottom:22px;z-index:1200;"
+      title="Open Workflow Glyph Library"
+    >
+      ⌁ Glyph Library
+    </button>
+  `;
+}
+
+function renderAionWorkflowGlyphLibraryDrawer() {
+  if (window.__aionWorkflowGlyphLibraryOpen !== true) return "";
+
+  const businessContainer = getAionWorkflowGlyphLibraryBusinessContainer();
+  const items = listAionWorkflowGlyphLibraryItems();
+
+  const rows = items.length
+    ? items.map((item) => {
+        const connectors = item.required_connectors.length
+          ? item.required_connectors
+              .map((connector) => `<span class="badge">${escapeHtml(connector)}</span>`)
+              .join("")
+          : `<span class="muted">No external connectors</span>`;
+
+        return `
+          <div class="list-item">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+              <div>
+                <div class="list-item-title">${escapeHtml(item.name)}</div>
+                <div class="muted">${escapeHtml(item.workflow_id)}</div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;">
+                <span class="badge">${escapeHtml(item.status)}</span>
+                <span class="badge">risk: ${escapeHtml(item.risk_tier)}</span>
+                ${item.callable ? `<span class="badge">callable</span>` : `<span class="badge">not callable</span>`}
+              </div>
+            </div>
+
+            <div style="display:grid;gap:8px;margin-top:12px;">
+              <div>
+                <div class="muted">Required connectors</div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">${connectors}</div>
+              </div>
+              <div>
+                <div class="muted">Inputs</div>
+                <div>${escapeHtml(summariseAionWorkflowGlyphSchema(item.inputs_schema))}</div>
+              </div>
+              <div>
+                <div class="muted">Outputs</div>
+                <div>${escapeHtml(summariseAionWorkflowGlyphSchema(item.outputs_schema))}</div>
+              </div>
+            </div>
+
+            <button class="btn ghost" disabled style="margin-top:12px;">
+              Add glyph to canvas later
+            </button>
+          </div>
+        `;
+      }).join("")
+    : `<div class="empty-state">No saved workflow glyphs found for ${escapeHtml(businessContainer)} yet.</div>`;
+
+  return `
+    <aside
+      class="aion-workflow-picker-drawer"
+      data-aion-workflow-glyph-library-drawer="true"
+      style="display:block;z-index:1300;"
+    >
+      <button
+        class="aion-workflow-picker-drawer-close"
+        data-aion-workflow-glyph-library-close="true"
+        aria-label="Close Workflow Glyph Library"
+      >×</button>
+
+      <div class="eyebrow">Workflow Glyph Library</div>
+      <h2>Saved callable glyphs</h2>
+      <p class="muted">Business container: ${escapeHtml(businessContainer)}</p>
+
+      <div style="display:grid;gap:12px;margin-top:16px;">
+        ${rows}
+      </div>
+    </aside>
+  `;
+}
+
+function installAionWorkflowGlyphLibraryDrawerControls() {
+  if (window.__aionWorkflowGlyphLibraryDrawerControlsBound === true) return;
+  window.__aionWorkflowGlyphLibraryDrawerControlsBound = true;
+
+  document.addEventListener("click", (event) => {
+    const open = event.target.closest?.("[data-aion-workflow-glyph-library-open='true']");
+    if (open) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.__aionWorkflowGlyphLibraryOpen = true;
+      if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const close = event.target.closest?.("[data-aion-workflow-glyph-library-close='true']");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.__aionWorkflowGlyphLibraryOpen = false;
+      if (typeof requestRender === "function") requestRender();
+    }
+  }, true);
+}
+
 function findAionWorkflowGlyphCapsule(workflowIdOrName) {
   const needle = String(workflowIdOrName || "").trim().toLowerCase();
   if (!needle) return null;
@@ -14015,6 +14184,8 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
         </aside>
 
         ${renderAionWorkflowFileCabinetDrawer()}
+        ${renderAionWorkflowGlyphLibraryLauncher()}
+        ${renderAionWorkflowGlyphLibraryDrawer()}
 
         <main class="aion-workflow-canvas">
           <div
@@ -29033,6 +29204,10 @@ function installAionWorkflowWindowDebugExports() {
 
   if (typeof listAionWorkflowGlyphCapsules === "function") {
     window.listAionWorkflowGlyphCapsules = listAionWorkflowGlyphCapsules;
+  }
+
+  if (typeof listAionWorkflowGlyphLibraryItems === "function") {
+    window.listAionWorkflowGlyphLibraryItems = listAionWorkflowGlyphLibraryItems;
   }
 
   if (typeof saveAionWorkflowCanvasAsCapsule === "function") {
@@ -51284,6 +51459,11 @@ function syncWorkflowArchitectModalInputsToState() {
     provider: getWorkflowArchitectSelectedProvider(),
   };
   return window.__syncedArchitectInput;
+}
+
+
+if (typeof installAionWorkflowGlyphLibraryDrawerControls === "function") {
+  installAionWorkflowGlyphLibraryDrawerControls();
 }
 
 })();
