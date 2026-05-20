@@ -12930,7 +12930,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
           <button
             type="button"
             class="aion-branch-route-pill aion-branch-route-pill-add aion-branch-route-pill-true"
-            style="--branch-pill-left:${escapeHtml(String(baseX + 292))}px; --branch-pill-top:${escapeHtml(String(baseY - 91))}px;"
+            style="--branch-pill-left:${escapeHtml(String(baseX + 139 + 176))}px; --branch-pill-top:${escapeHtml(String(baseY + 66 - 90 - 17))}px;"
             data-aion-workflow-open-action-picker="true"
             data-aion-workflow-branch-condition="true"
             data-aion-workflow-branch-anchor="${escapeHtml(node.id)}"
@@ -12944,7 +12944,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
           <button
             type="button"
             class="aion-branch-route-pill aion-branch-route-pill-add aion-branch-route-pill-false"
-            style="--branch-pill-left:${escapeHtml(String(baseX + 292))}px; --branch-pill-top:${escapeHtml(String(baseY + 159))}px;"
+            style="--branch-pill-left:${escapeHtml(String(baseX + 139 + 176))}px; --branch-pill-top:${escapeHtml(String(baseY + 66 + 90 - 17))}px;"
             data-aion-workflow-open-action-picker="true"
             data-aion-workflow-branch-condition="false"
             data-aion-workflow-branch-anchor="${escapeHtml(node.id)}"
@@ -12954,6 +12954,27 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
       }
 
       return controls.join("");
+    })
+    .join("");
+
+  const routerAddRouteControlsHtml = nodes
+    .filter((node) => typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(node))
+    .map((node) => {
+      const routes = getAionWorkflowRouterRoutes(node);
+      const left = Number(node.x || 0) + 146;
+      const top = Number(node.y || 0) + 10;
+
+      return `
+        <button
+          type="button"
+          class="aion-router-add-route-btn"
+          style="left:${escapeHtml(String(left))}px; top:${escapeHtml(String(top))}px;"
+          data-aion-router-add-route="true"
+          data-aion-router-add-route-node="${escapeHtml(node.id)}"
+          title="Add another router route"
+          aria-label="Add another router route"
+        >+ route</button>
+      `;
     })
     .join("");
 
@@ -12972,8 +12993,8 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
           if (exists) return "";
 
           const routeOffset = getAionWorkflowRouterRouteOffset(index, routes.length);
-          const left = Number(node.x || 0) + 312;
-          const top = Number(node.y || 0) + routeOffset + 41;
+          const left = Number(node.x || 0) + 139 + 176;
+          const top = Number(node.y || 0) + 66 + routeOffset - 17;
 
           return `
             <button
@@ -13018,6 +13039,47 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
         >
           +
         </button>
+      `;
+    })
+    .join("");
+
+  const nodeContinuationControlsHtml = nodes
+    .filter((node) => {
+      if (!selectedNode || String(selectedNode.id) !== String(node.id)) return false;
+
+      const isRouterNode =
+        typeof isAionWorkflowRouterNode === "function" &&
+        isAionWorkflowRouterNode(node);
+
+      const isBranchNode =
+        typeof isAionWorkflowBranchNode === "function" &&
+        isAionWorkflowBranchNode(node);
+
+      if (isRouterNode || isBranchNode) return false;
+
+      const hasSuccessOut = edges.some(
+        (edge) =>
+          String(edge.from) === String(node.id) &&
+          String(edge.condition || "success").toLowerCase() === "success",
+      );
+
+      return !hasSuccessOut;
+    })
+    .map((node) => {
+      const left = Number(node.x || 0) + 158;
+      const top = Number(node.y || 0) + 42;
+
+      return `
+        <button
+          type="button"
+          class="aion-node-continuation-add"
+          style="left:${escapeHtml(String(left))}px; top:${escapeHtml(String(top))}px;"
+          data-aion-workflow-open-action-picker="true"
+          data-aion-workflow-branch-condition="success"
+          data-aion-workflow-branch-anchor="${escapeHtml(node.id)}"
+          title="Add next node"
+          aria-label="Add next node"
+        >+ next</button>
       `;
     })
     .join("");
@@ -13148,13 +13210,34 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
     }
 
     if ((condition === "true" || condition === "false") && isBranch) {
-      offset = condition === "true" ? -130 : 170;
+      // Match getAionWorkflowPortOffset() for branch role.
+      offset = condition === "true" ? -90 : 90;
     }
+
+    /*
+     * Match the visual port buttons rendered by renderAionWorkflowPort().
+     *
+     * renderAionWorkflowPort uses:
+     *   input left  = node.x - 15
+     *   output left = node.x + nodeBox + 7
+     *   top         = node.y + nodeRadius - 7 + offset
+     *
+     * The visible port button is approximately 28px, so the visual centre
+     * is +14px from that rendered top-left.
+     */
+    const portButtonCenter = 14;
 
     if (side === "left") {
       return {
-        x: centerX - AION_CANVAS_NODE_RADIUS,
-        y: centerY + offset,
+        x: x - 15 + portButtonCenter,
+        y: y + AION_CANVAS_NODE_RADIUS - 7 + offset + portButtonCenter,
+      };
+    }
+
+    if (side === "right") {
+      return {
+        x: x + AION_CANVAS_NODE_BOX + 7 + portButtonCenter,
+        y: y + AION_CANVAS_NODE_RADIUS - 7 + offset + portButtonCenter,
       };
     }
 
@@ -13173,7 +13256,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
     }
 
     return {
-      x: centerX + AION_CANVAS_NODE_RADIUS,
+      x: centerX,
       y: centerY + offset,
     };
   };
@@ -13198,7 +13281,20 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
       ? toCenterX >= fromCenterX ? "left" : "right"
       : toCenterY >= fromCenterY ? "top" : "bottom";
 
-    const from = getConditionAwareNodePort(fromNode, fromSide, edge || {});
+    const fromIsRouter =
+      typeof isAionWorkflowRouterNode === "function" &&
+      isAionWorkflowRouterNode(fromNode);
+
+    /*
+     * Router route edges must start from the Router's single visible fork port.
+     * The edge condition still carries route_1 / route_2 / route_3 for runtime
+     * and glyph compilation, but the visual start point should not use detached
+     * route-offset ports.
+     */
+    const from = fromIsRouter && condition.startsWith("route_")
+      ? getConditionAwareNodePort(fromNode, fromSide, { condition: "success" })
+      : getConditionAwareNodePort(fromNode, fromSide, edge || {});
+
     const to = getConditionAwareNodePort(toNode, toSide, edge || {});
 
     const toIsMerge =
@@ -13262,19 +13358,24 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
     if (!node) return "";
 
     const branch = String(condition || "").toLowerCase();
-    const from = getNodePort(node, "right");
-
-    const to = {
-      x: Number(node.x || 0) + 295,
-      y: Number(node.y || 0) + (branch === "false" ? 176 : -74),
+    const edge = { condition: branch || "true" };
+    const fromCenter = getConditionAwareNodePort(node, "right", edge);
+    const from = {
+      x: fromCenter.x + 15,
+      y: fromCenter.y,
     };
 
-    const dx = Math.max(80, Math.abs(to.x - from.x) * 0.48);
+    const to = {
+      x: from.x + 176,
+      y: from.y,
+    };
+
+    const dx = Math.max(64, Math.abs(to.x - from.x) * 0.45);
     const d = `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
 
     const label = branch === "false" ? "ELSE" : "TRUE";
-    const labelX = from.x + Math.max(96, Math.abs(to.x - from.x) * 0.42);
-    const labelY = from.y + (to.y - from.y) * 0.42;
+    const labelX = from.x + (to.x - from.x) * 0.48;
+    const labelY = from.y;
 
     return `
       <path
@@ -13306,20 +13407,29 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
   const renderMissingRouterConnector = (node, route, index, total) => {
     if (!node || !route) return "";
 
-    const from = getNodePort(node, "right");
-    const routeOffset = getAionWorkflowRouterRouteOffset(index, total);
+    const condition = String(route.id || `route_${index + 1}`).toLowerCase();
+    const edge = { condition };
 
-    const to = {
-      x: Number(node.x || 0) + 315,
-      y: Number(node.y || 0) + routeOffset + 58,
+    /*
+     * Router ghost lanes should visually fork from the Router node itself.
+     * Do not start from the detached route port marker; that makes branches
+     * look like independent floating lines.
+     */
+    const fork = getConditionAwareNodePort(node, "right", { condition: "success" });
+    const routePort = getConditionAwareNodePort(node, "right", edge);
+
+    const from = {
+      x: fork.x + 8,
+      y: fork.y,
     };
 
-    const dx = Math.max(80, Math.abs(to.x - from.x) * 0.48);
-    const d = `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
+    const to = {
+      x: routePort.x + 176,
+      y: routePort.y,
+    };
 
-    const label = formatAionWorkflowRouteLabel(route.id || route.label || `route_${index + 1}`);
-    const labelX = from.x + Math.max(96, Math.abs(to.x - from.x) * 0.42);
-    const labelY = from.y + (to.y - from.y) * 0.42;
+    const midX = from.x + Math.max(86, Math.abs(to.x - from.x) * 0.34);
+    const d = `M ${from.x} ${from.y} C ${midX} ${from.y}, ${midX} ${to.y}, ${to.x} ${to.y}`;
 
     return `
       <path
@@ -13331,20 +13441,6 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
         stroke-linecap="round"
         class="aion-workflow-connector-path aion-workflow-connector-branch aion-workflow-connector-ghost"
       />
-      <g class="aion-workflow-branch-svg-label aion-workflow-branch-svg-label-ghost">
-        <rect
-          x="${escapeHtml(String(labelX - 34))}"
-          y="${escapeHtml(String(labelY - 13))}"
-          width="68"
-          height="26"
-          rx="13"
-        />
-        <text
-          x="${escapeHtml(String(labelX))}"
-          y="${escapeHtml(String(labelY + 5))}"
-          text-anchor="middle"
-        >${escapeHtml(label)}</text>
-      </g>
     `;
   };
 
@@ -13371,24 +13467,23 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
     /*
      * Merge ghost lanes are incoming placeholders.
-     * Unlike Router, they should stay close to the Merge node and flow left -> right
-     * into the Merge input port.
+     * They must terminate at the same compressed route input ports used by
+     * renderAionWorkflowPort() and renderConnectorPath().
      */
-    const middle = (Math.max(1, total) - 1) / 2;
-    const routeOffset = Math.round((index - middle) * 150);
-
-    const to = getNodePort(node, "left");
+    const condition = String(route.id || `route_${index + 1}`).toLowerCase();
+    const edge = { condition };
+    const to = getConditionAwareNodePort(node, "left", edge);
 
     const from = {
-      x: Number(node.x || 0) - 92,
-      y: Number(node.y || 0) + AION_CANVAS_NODE_RADIUS + routeOffset,
+      x: to.x - 110,
+      y: to.y,
     };
 
     const dx = Math.max(36, Math.abs(to.x - from.x) * 0.45);
     const d = `M ${from.x} ${from.y} C ${from.x + dx} ${from.y}, ${to.x - dx} ${to.y}, ${to.x} ${to.y}`;
 
     const label = formatAionWorkflowRouteLabel(route.id || route.label || `route_${index + 1}`);
-    const labelX = from.x + 22;
+    const labelX = from.x + 28;
     const labelY = from.y;
 
     return `
@@ -13457,6 +13552,13 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
       `;
     })
     .join("");
+
+  const selectedNodeUsesRouteSpecificAdd =
+    selectedNode &&
+    (
+      (typeof isAionWorkflowBranchNode === "function" && isAionWorkflowBranchNode(selectedNode)) ||
+      (typeof isAionWorkflowRouterNode === "function" && isAionWorkflowRouterNode(selectedNode))
+    );
 
   const connectorHtml = edges.length
     ? edges
@@ -13684,7 +13786,11 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
             ${routerControlsHtml}
 
+            ${routerAddRouteControlsHtml}
+
             ${mergeContinuationControlsHtml}
+
+            ${nodeContinuationControlsHtml}
 
             ${
               nodes.length === 0
@@ -13701,7 +13807,9 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
                   </div>
                 `
-                : `
+                : selectedNodeUsesRouteSpecificAdd
+                  ? ""
+                  : `
                   <button
                     class="aion-workflow-add-next-node"
                     style="left:${escapeHtml(String((nodes[nodes.length - 1]?.x || 160) + 260))}px; top:${escapeHtml(String((nodes[nodes.length - 1]?.y || 240) + 42))}px;"
@@ -26987,6 +27095,11 @@ function getAionWorkflowNodePorts(node) {
   }
 
   if (isRouter) {
+    /*
+     * Router uses a single visible fork/output port.
+     * Individual route lanes are rendered by routerControlsHtml /
+     * renderMissingRouterConnector(), not as detached port circles.
+     */
     return {
       inputs: [
         {
@@ -26998,14 +27111,16 @@ function getAionWorkflowNodePorts(node) {
           total: 1,
         },
       ],
-      outputs: routes.map((route, index) => ({
-        id: String(route.id),
-        label: String(route.label || route.id),
-        condition: String(route.id),
-        role: "route",
-        index,
-        total: routes.length,
-      })),
+      outputs: [
+        {
+          id: "success",
+          label: "Fork",
+          condition: "success",
+          role: "main",
+          index: 0,
+          total: 1,
+        },
+      ],
     };
   }
 
@@ -27078,6 +27193,11 @@ function getAionWorkflowPortOffset(port) {
   // Route ports need to align with Router/Merge visual lanes.
   if (role === "route" || role === "merge_input") {
     return Math.round((index - middle) * 260);
+  }
+
+  // If/Else branch ports need enough vertical separation for real workflows.
+  if (role === "branch") {
+    return Math.round((index - middle) * 180);
   }
 
   return Math.round((index - middle) * 72);
@@ -27154,6 +27274,14 @@ function renderAionWorkflowPort(node, port, direction) {
     String(drag.from || "") === String(node.id) &&
     String(drag.condition || "") === condition;
 
+  const nodeIsRouter =
+    typeof isAionWorkflowRouterNode === "function" &&
+    isAionWorkflowRouterNode(node);
+
+  const nodeIsBranch =
+    typeof isAionWorkflowBranchNode === "function" &&
+    isAionWorkflowBranchNode(node);
+
   const label =
     typeof formatAionWorkflowRouteLabel === "function"
       ? formatAionWorkflowRouteLabel(port.label || port.condition || "")
@@ -27162,7 +27290,7 @@ function renderAionWorkflowPort(node, port, direction) {
   return `
     <button
       type="button"
-      class="aion-node-port aion-node-port-${escapeHtml(direction)} ${connected ? "aion-node-port-connected" : "aion-node-port-unconnected"} ${isPendingSource || isDragSource ? "aion-node-port-pending" : ""} ${nodeIsMerge && isInput && isRoutePort ? "aion-node-port-merge-input" : ""}"
+      class="aion-node-port aion-node-port-${escapeHtml(direction)} ${connected ? "aion-node-port-connected" : "aion-node-port-unconnected"} ${isPendingSource || isDragSource ? "aion-node-port-pending" : ""} ${nodeIsMerge && isInput && isRoutePort ? "aion-node-port-merge-input" : ""} ${nodeIsRouter && !isInput && isRoutePort ? "aion-node-port-router-route" : ""} ${nodeIsBranch && !isInput && String(port.role || "").toLowerCase() === "branch" ? "aion-node-port-branch-route" : ""}"
       style="left:${escapeHtml(String(left))}px; top:${escapeHtml(String(top))}px;"
       data-aion-port-node-id="${escapeHtml(node.id)}"
       data-aion-port-direction="${escapeHtml(direction)}"
@@ -27894,6 +28022,63 @@ function installAionWorkflowActionControls() {
   document.addEventListener(
     "click",
     (event) => {
+      const addRouterRoute = event.target.closest?.("[data-aion-router-add-route='true']");
+      if (addRouterRoute) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+
+        const nodeId = addRouterRoute.getAttribute("data-aion-router-add-route-node") || "";
+        const graph = window.__aionWorkflowGraph || getAionWorkflowDraftState?.();
+        const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+        const node = nodes.find((item) => String(item.id) === String(nodeId));
+
+        if (node) {
+          const existingRoutes =
+            Array.isArray(node.config?.routes) && node.config.routes.length
+              ? node.config.routes
+              : [
+                  { id: "route_1", label: "1st" },
+                  { id: "route_2", label: "2nd" },
+                  { id: "route_3", label: "3rd" },
+                ];
+
+          const nextNumber = existingRoutes.length + 1;
+          const nextId = `route_${nextNumber}`;
+          const nextLabel =
+            typeof formatAionWorkflowRouteLabel === "function"
+              ? formatAionWorkflowRouteLabel(nextId)
+              : `${nextNumber}`;
+
+          node.config = {
+            ...(node.config || {}),
+            routes: [
+              ...existingRoutes,
+              {
+                id: nextId,
+                label: nextLabel.toLowerCase(),
+              },
+            ],
+          };
+
+          graph.dirty = true;
+          window.__aionWorkflowGraph = graph;
+          compileAndAttachAionWorkflowGlyph?.(graph);
+          persistAionWorkflowDraftState?.();
+
+          if (typeof safeAionDesktopPatch === "function") {
+            safeAionDesktopPatch({
+              message: `Added Router route ${nextLabel}.`,
+              messageTone: "success",
+            });
+          }
+
+          requestRender?.();
+        }
+
+        return;
+      }
+
       const openActionPicker = event.target.closest?.("[data-aion-workflow-open-action-picker='true']");
       const openUnifiedModulePicker =
         event.target.closest?.("[data-aion-main-canvas-open-module-picker='true']") ||

@@ -8262,3 +8262,353 @@ pre {
   }
 }
 
+
+/* AION PATCH: workflow library drawer polish */
+.aion-file-cabinet-head p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.aion-file-cabinet-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.aion-file-cabinet-stats div {
+  padding: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.aion-file-cabinet-stats strong {
+  display: block;
+  font-size: 18px;
+  line-height: 1;
+  color: #0f172a;
+}
+
+.aion-file-cabinet-stats span {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+.aion-file-cabinet-node-main {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+  text-align: left;
+}
+
+.aion-file-cabinet-node-main strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-file-cabinet-node-main small {
+  display: block;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 650;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-file-cabinet-empty {
+  margin: 8px 0 8px 26px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.aion-file-cabinet-file {
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.aion-file-cabinet-folder summary {
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* AION PATCH: If/else branch add controls */
+.aion-canvas-node-branch {
+  overflow: visible !important;
+}
+
+.aion-branch-add-wrap {
+  position: absolute !important;
+  right: -94px !important;
+  top: 22px !important;
+  display: grid !important;
+  gap: 8px !important;
+  z-index: 20 !important;
+  pointer-events: auto !important;
+}
+
+.aion-branch-add {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 74px !important;
+  height: 30px !important;
+  padding: 0 10px !important;
+  border: 1px solid rgba(17, 17, 17, 0.18) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: #111827 !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 22px rgba(17, 17, 17, 0.14) !important;
+}
+
+.aion-branch-add-true {
+  border-color: rgba(15, 118, 110, 0.36) !important;
+}
+
+.aion-branch-add-false {
+  border-color: rgba(194, 65, 12, 0.36) !important;
+}
+
+/* AION PATCH: force branch controls to use inline canvas coordinates */
+.aion-workflow-canvas-viewport .aion-branch-add-wrap {
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+}
+
+/* AION PATCH: Make.com-style branch route pills */
+.aion-workflow-canvas-viewport .aion-branch-add-wrap {
+  display: none !important;
+}
+
+.aion-workflow-canvas-viewport .aion-branch-route-pill {
+  position: absolute !important;
+  left: var(--branch-pill-left) !important;
+  top: var(--branch-pill-top) !important;
+  z-index: 90 !important;
+  pointer-events: auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 92px !important;
+  height: 34px !important;
+  padding: 0 14px !important;
+  border: 1px solid rgba(17, 17, 17, 0.18) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: #111827 !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+  cursor: pointer !important;
+  box-shadow: 0 8px 22px rgba(17, 17, 17, 0.14) !important;
+}
+
+.aion-workflow-canvas-viewport .aion-branch-route-pill-true {
+  border-color: rgba(15, 118, 110, 0.42) !important;
+}
+
+.aion-workflow-canvas-viewport .aion-branch-route-pill-false {
+  border-color: rgba(194, 65, 12, 0.42) !important;
+}
+
+.aion-workflow-branch-svg-label rect {
+  fill: rgba(255, 255, 255, 0.94) !important;
+  stroke: rgba(17, 17, 17, 0.16) !important;
+  stroke-width: 1 !important;
+}
+
+.aion-workflow-branch-svg-label text {
+  fill: #4b5563 !important;
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+}
+
+/* AION PATCH: empty If/else branch ghost connectors */
+.aion-workflow-connector-ghost {
+  opacity: 0.78 !important;
+}
+
+.aion-workflow-branch-svg-label-ghost rect {
+  fill: rgba(255, 255, 255, 0.9) !important;
+  stroke: rgba(17, 17, 17, 0.12) !important;
+}
+
+.aion-workflow-branch-svg-label-ghost text {
+  fill: rgba(75, 85, 99, 0.72) !important;
+}
+
+/* Flow-control branch-local add affordance v2 */
+.aion-workflow-canvas-viewport .aion-branch-route-pill {
+  min-width: 54px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 10px;
+  opacity: 0.72;
+  transform: scale(0.96);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-weight: 950;
+  letter-spacing: 0.14em;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    background 140ms ease;
+}
+
+/* Route add buttons already include their visible + label in markup. */
+.aion-workflow-canvas-viewport .aion-branch-route-pill::before {
+  content: none;
+}
+
+.aion-workflow-canvas-viewport .aion-branch-route-pill::after {
+  content: "Add node";
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: rgba(15, 23, 42, 0.86);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.aion-workflow-canvas-viewport:hover .aion-branch-route-pill,
+.aion-branch-route-pill:hover,
+.aion-branch-route-pill:focus-visible {
+  opacity: 1;
+  transform: scale(1);
+  border-color: rgba(10, 132, 160, 0.68);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.14);
+}
+
+.aion-branch-route-pill:hover::after,
+.aion-branch-route-pill:focus-visible::after {
+  opacity: 1;
+}
+
+
+/* Router route ports are represented by fork lanes, not detached floating dots. */
+.aion-node-port-router-route {
+  opacity: 0;
+  pointer-events: none;
+}
+
+
+.aion-router-add-route-btn {
+  position: absolute;
+  z-index: 62;
+  min-width: 72px;
+  height: 30px;
+  border: 1px solid rgba(203, 213, 225, 0.9);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0f172a;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.10);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.74;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.aion-router-add-route-btn:hover,
+.aion-router-add-route-btn:focus-visible {
+  opacity: 1;
+  transform: translateY(-1px);
+  border-color: rgba(10, 132, 160, 0.72);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+}
+
+
+.aion-node-continuation-add {
+  position: absolute;
+  z-index: 62;
+  min-width: 76px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(203, 213, 225, 0.95);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #0f172a;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.78;
+  transition:
+    opacity 140ms ease,
+    transform 140ms ease,
+    border-color 140ms ease,
+    box-shadow 140ms ease;
+}
+
+.aion-node-continuation-add:hover,
+.aion-node-continuation-add:focus-visible {
+  opacity: 1;
+  transform: translateY(-1px);
+  border-color: rgba(10, 132, 160, 0.72);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+}
+
+.aion-node-continuation-add::after {
+  content: "Add node";
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  padding: 5px 8px;
+  border-radius: 7px;
+  background: rgba(15, 23, 42, 0.86);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.aion-node-continuation-add:hover::after,
+.aion-node-continuation-add:focus-visible::after {
+  opacity: 1;
+}
+
