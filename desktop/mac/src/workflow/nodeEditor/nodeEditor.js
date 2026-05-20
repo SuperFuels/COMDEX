@@ -48,6 +48,88 @@
     return node.runtime;
   }
 
+  function normaliseNodeOutputItems(node, inputItems, outputItems, executedAt = new Date().toISOString()) {
+    const safeInputItems = Array.isArray(inputItems) ? inputItems : [];
+    const safeOutputItems = Array.isArray(outputItems) ? outputItems : [];
+    const outputCount = safeOutputItems.length;
+
+    return safeOutputItems.map((item, index) => {
+      const json = getInputJson(item) || {};
+      const errorValue =
+        Object.prototype.hasOwnProperty.call(json, "error") ? json.error : null;
+
+      return {
+        ...(item && typeof item === "object" ? item : {}),
+        json: {
+          ...json,
+          // Runtime identity must belong to the node that just executed.
+          // Do not inherit node_id/title/counts from upstream payloads.
+          node_id: String(node?.id || ""),
+          title: String(node?.title || node?.config?.title || json.title || "Untitled node"),
+          source: String(json.source || node?.config?.action_id || node?.config?.module_id || node?.type || "node.runtime"),
+          input_count: safeInputItems.length,
+          output_count: outputCount,
+          executed_at: String(json.executed_at || executedAt),
+          dry_run: json.dry_run !== false,
+          error: errorValue,
+          item_index: index,
+          item_number: index + 1,
+          item_total: outputCount,
+        },
+      };
+    });
+  }
+
+  function clearNodeRuntime(node, reason = "runtime_cleared") {
+    if (!node || typeof node !== "object") return;
+
+    node.runtime = {
+      ...(node.runtime || {}),
+      input_items: [],
+      output_items: [],
+      execution_status: "idle",
+      last_run_at: null,
+      last_input_at: null,
+      error: null,
+      cleared_at: new Date().toISOString(),
+      cleared_reason: reason,
+    };
+  }
+
+  function clearDownstreamRuntimeFromNode(graph, startNodeId, reason = "upstream_changed") {
+    if (!graph || !startNodeId) return [];
+
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const edges = Array.isArray(graph.edges) ? graph.edges : [];
+    const nodeById = new Map(nodes.map((node) => [String(node.id || ""), node]));
+
+    const queue = [String(startNodeId)];
+    const seen = new Set();
+    const cleared = [];
+
+    while (queue.length) {
+      const currentId = queue.shift();
+
+      for (const edge of edges) {
+        if (String(edge?.from || "") !== String(currentId)) continue;
+
+        const nextId = String(edge?.to || "");
+        if (!nextId || seen.has(nextId)) continue;
+
+        seen.add(nextId);
+        queue.push(nextId);
+
+        const nextNode = nodeById.get(nextId);
+        if (nextNode) {
+          clearNodeRuntime(nextNode, reason);
+          cleared.push(nextId);
+        }
+      }
+    }
+
+    return cleared;
+  }
+
   function getTraceRows() {
     const result = window.__aionWorkflowDryRunResult;
     return Array.isArray(result?.trace) ? result.trace : [];
@@ -590,7 +672,25 @@
       if (!key) return "";
 
       if (key === "previous_step.output") return JSON.stringify(source);
-      if (Object.prototype.hasOwnProperty.call(source, key)) return source[key] ?? "";
+
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        return source[key] ?? "";
+      }
+
+      // Merge nodes wrap branch outputs under merged_items. This lets a final
+      // Compose string resolve {{customer_name}}, {{email}}, {{subject}}, etc.
+      // from the first merged branch item that contains the field.
+      if (Array.isArray(source?.merged_items)) {
+        for (const mergedItem of source.merged_items) {
+          if (
+            mergedItem &&
+            typeof mergedItem === "object" &&
+            Object.prototype.hasOwnProperty.call(mergedItem, key)
+          ) {
+            return mergedItem[key] ?? "";
+          }
+        }
+      }
 
       return "";
     });
@@ -704,12 +804,26 @@
         json: {
           id: `dry_email_${Date.now()}`,
           from: "customer@example.com",
+          email: "customer@example.com",
+          customer_name: "Example Customer",
           sender_name: "Example Customer",
           subject: "Quote request for villa repair",
           body: "Hi, I need help with a repair at my villa. Can you send me a quote please?",
+          items: [
+            { name: "Item A", value: 1 },
+            { name: "Item B", value: 2 },
+            { name: "Item C", value: 3 },
+          ],
+          error: null,
           received_at: now,
           source: "gmail.watch_emails",
           dry_run: true,
+          node_id: String(node?.id || ""),
+          title: String(node?.title || node?.config?.title || "Gmail new email"),
+          input_count: Array.isArray(inputItems) ? inputItems.length : 0,
+          output_count: 1,
+          executed_at: now,
+          error: null,
         },
       },
     ];
@@ -749,6 +863,55 @@
         },
       },
     ];
+  }
+
+
+  function executeComposeStringNode(node, inputItems) {
+    const config = node.config || {};
+    const template = normaliseText(
+      config.template ||
+      config.body ||
+      config.text ||
+      config.value ||
+      "Hello {{customer_name}}"
+    );
+
+    const outputKey = normaliseText(
+      config.output ||
+      config.output_key ||
+      "composed_text"
+    );
+
+    const safeItems = Array.isArray(inputItems) && inputItems.length
+      ? inputItems
+      : [{ json: {} }];
+
+    const executedAt = new Date().toISOString();
+
+    return safeItems.map((item, index) => {
+      const json = getInputJson(item) || {};
+      const composedText = templateValue(template, json);
+
+      return {
+        json: {
+          ...json,
+          [outputKey]: composedText,
+          composed_text: composedText,
+          template,
+          output_key: outputKey,
+          source: "tools.compose_string",
+          dry_run: true,
+          composed_by: String(node.id || ""),
+          node_id: String(node.id || ""),
+          title: String(node.title || "Compose string"),
+          input_count: safeItems.length,
+          item_index: index,
+          item_number: index + 1,
+          item_total: safeItems.length,
+          executed_at: executedAt,
+        },
+      };
+    });
   }
 
   function executeSetVariableNode(node, inputItems) {
@@ -1072,7 +1235,29 @@
     });
   }
 
-  function normaliseRuntimeError(value) {
+  
+function getTraceStatusLabel(entry = {}) {
+  const json =
+    entry?.output_items_preview?.[0]?.json ||
+    entry?.output_preview?.[0]?.json ||
+    entry?.json ||
+    {};
+
+  const opText = String(entry?.op || entry?.title || "").toLowerCase();
+
+  if (
+    opText.includes("ignore_error") ||
+    opText.includes("ignore error") ||
+    json.source === "logic.ignore_error"
+  ) {
+    if (json.pass_through === true) return "passed through";
+    if (json.error_was_ignored === true || json.ignored_error === true) return "error ignored";
+  }
+
+  return entry?.status || "unknown";
+}
+
+function normaliseRuntimeError(value) {
     if (!value) return null;
 
     if (value instanceof Error) {
@@ -1126,10 +1311,11 @@
       return {
         json: {
           ...json,
-          ignored_error: true,
-          error_was_ignored: Boolean(originalError || json.execution_status === "failed"),
+          ignored_error: Boolean(originalError),
+          error_was_ignored: Boolean(originalError),
           original_error: originalError,
-          recovered: true,
+          recovered: Boolean(originalError),
+          pass_through: !originalError,
           continue_on_error: true,
           ignore_error_index: index,
           ignore_error_total: items.length,
@@ -1270,7 +1456,7 @@
     ];
   }
 
-  function executeNodeDryRun(node, inputItems) {
+  function executeNodeDryRunRaw(node, inputItems) {
     const config = node.config || {};
     const title = String(config.title || node.title || "").toLowerCase();
     const actionKey = getActionKey(node);
@@ -1300,6 +1486,14 @@
 
     if (actionKey.includes("set_variable") || title.includes("set variable")) {
       return executeSetVariableNode(node, inputItems);
+    }
+
+    if (
+      actionKey.includes("compose_string") ||
+      actionKey.includes("compose string") ||
+      title.includes("compose string")
+    ) {
+      return executeComposeStringNode(node, inputItems);
     }
 
     if (
@@ -1410,6 +1604,37 @@
     return nodes.find((item) => String(item.id) === String(incoming.from)) || null;
   }
 
+
+  function executeNodeDryRun(node, inputItems) {
+    const executedAt = new Date().toISOString();
+
+    try {
+      const rawOutputItems = executeNodeDryRunRaw(node, inputItems);
+      return normaliseNodeOutputItems(node, inputItems, rawOutputItems, executedAt);
+    } catch (error) {
+      const message = error?.message || String(error || "Unknown runtime error");
+
+      return normaliseNodeOutputItems(
+        node,
+        inputItems,
+        [
+          {
+            json: {
+              runtime_error: message,
+              error: {
+                message,
+                source: "executeNodeDryRun",
+              },
+              source: "node.runtime.error",
+              dry_run: true,
+            },
+          },
+        ],
+        executedAt,
+      );
+    }
+  }
+
   function executePreviousNodeIfNeeded(node, nodes, edges, helpers = {}) {
     const runtime = getNodeRuntime(node);
     if (Array.isArray(runtime.input_items) && runtime.input_items.length) {
@@ -1443,6 +1668,22 @@
     helpers.persistAionWorkflowDraftState?.();
 
     return runtime.input_items;
+  }
+
+  function isSyntheticChooseStartNode(node) {
+    if (!node) return false;
+
+    const id = String(node.id || "");
+    const title = String(node.title || node.label || "").trim().toLowerCase();
+    const actionId = String(node.action_id || node.action || node.config?.action_id || "").trim().toLowerCase();
+
+    return (
+      id === "node_choose_start" ||
+      (
+        title === "choose" &&
+        (!actionId || actionId === "generic.step")
+      )
+    );
   }
 
   function getOutputItemsForEdgeCondition(outputItems, edge) {
@@ -1486,7 +1727,11 @@
     }
 
     const incomingEdges = Array.isArray(edges)
-      ? edges.filter((edge) => String(edge.to) === String(node.id))
+      ? edges.filter((edge) => {
+          if (String(edge.to) !== String(node.id)) return false;
+          const previousNode = nodes.find((item) => String(item.id) === String(edge.from));
+          return !isSyntheticChooseStartNode(previousNode);
+        })
       : [];
 
     if (!incomingEdges.length) {
@@ -1521,9 +1766,11 @@
     const edges = Array.isArray(safeGraph.edges) ? safeGraph.edges : [];
 
     const orderedNodes =
-      typeof helpers.orderAionWorkflowNodesForGlyph === "function"
-        ? helpers.orderAionWorkflowNodesForGlyph(safeGraph)
-        : nodes;
+      (
+        typeof helpers.orderAionWorkflowNodesForGlyph === "function"
+          ? helpers.orderAionWorkflowNodesForGlyph(safeGraph)
+          : nodes
+      ).filter((node) => !isSyntheticChooseStartNode(node));
 
     const trace = [];
     const executedAt = new Date().toISOString();
@@ -1532,7 +1779,11 @@
     // start-node outputs so manual tests can still inject input data.
     nodes.forEach((node) => {
       const runtime = getNodeRuntime(node);
-      const hasIncoming = edges.some((edge) => String(edge.to) === String(node.id));
+      const hasIncoming = edges.some((edge) => {
+        if (String(edge.to) !== String(node.id)) return false;
+        const previousNode = nodes.find((item) => String(item.id) === String(edge.from));
+        return !isSyntheticChooseStartNode(previousNode);
+      });
       const preserveStartOutput =
         !hasIncoming &&
         Array.isArray(runtime.output_items) &&
@@ -1554,7 +1805,11 @@
       const nodeId = String(node.id || "");
       const title = String(node.title || node.label || nodeId || "Node");
 
-      const hasIncoming = edges.some((edge) => String(edge.to) === String(node.id));
+      const hasIncoming = edges.some((edge) => {
+        if (String(edge.to) !== String(node.id)) return false;
+        const previousNode = nodes.find((item) => String(item.id) === String(edge.from));
+        return !isSyntheticChooseStartNode(previousNode);
+      });
       const preserveStartOutput =
         !hasIncoming &&
         Array.isArray(runtime.output_items) &&
@@ -1605,11 +1860,24 @@
         return json.workflow_paused === true || json.retry_later === true || json.stopped === true;
       });
 
+      const firstOutputJson = getInputJson(outputItems?.[0]) || {};
+      const actionKey = getActionKey(node) || "";
+      const isIgnoreErrorNode = actionKey.includes("ignore_error");
+
+      const smartStatus =
+        paused
+          ? "paused"
+          : isIgnoreErrorNode && firstOutputJson.pass_through === true
+            ? "passed through"
+            : isIgnoreErrorNode && (firstOutputJson.error_was_ignored === true || firstOutputJson.ignored_error === true)
+              ? "error ignored"
+              : "executed";
+
       trace.push({
         node_id: nodeId,
         title,
         op: getActionKey(node) || "workflow_step",
-        status: paused ? "paused" : "executed",
+        status: smartStatus,
         marker: "node_runtime_dry_run",
         risk_tier: "low",
         permission: {
@@ -1997,6 +2265,13 @@
           event.stopPropagation();
 
           const modal = save.closest(".aion-node-editor-modal");
+          const nodeId =
+            window.__aionWorkflowNodeEditorOpenId ||
+            window.__aionWorkflowSelectedNodeId ||
+            "";
+
+          const graph = window.__aionWorkflowGraph || helpers.getAionWorkflowDraftState?.() || getGraph();
+
           patchOpenNode(
             {
               config: collectConfigFromModal(modal),
@@ -2004,6 +2279,12 @@
             },
             helpers,
           );
+
+          clearDownstreamRuntimeFromNode(graph, nodeId, "node_config_saved");
+          graph.dirty = true;
+          window.__aionWorkflowGraph = graph;
+          helpers.compileAndAttachAionWorkflowGlyph?.(graph);
+          helpers.persistAionWorkflowDraftState?.();
 
           helpers.requestRender?.();
           return;
@@ -2095,6 +2376,8 @@
           };
         }
       }
+
+      clearDownstreamRuntimeFromNode(graph, nodeId, "node_config_autosaved");
 
       graph.dirty = true;
       window.__aionWorkflowGraph = graph;
