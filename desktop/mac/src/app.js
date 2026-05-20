@@ -51506,3 +51506,5 @@ function syncWorkflowArchitectModalInputsToState() {
 if (typeof installAionWorkflowGlyphLibraryDrawerControls === "function") {
   installAionWorkflowGlyphLibraryDrawerControls();
 }
+
+})();
