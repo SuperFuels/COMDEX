@@ -35602,6 +35602,10 @@ function safeAionDesktopPatch(payload) {
       ? result.blocked_external_writes
       : [];
 
+    const boardroomEvents = Array.isArray(result.boardroom_events)
+      ? result.boardroom_events
+      : trace.flatMap((item) => Array.isArray(item?.boardroom_events) ? item.boardroom_events : []);
+
     const message =
       result.message ||
       result.error ||
@@ -35662,6 +35666,22 @@ function safeAionDesktopPatch(payload) {
                   <div class="aion-io-row">
                     <strong>${escapeHtml(item.action || item.action_id || item.label || "External write")}</strong>
                     <span>${escapeHtml(item.reason || "Blocked by safety policy")}</span>
+                  </div>
+                `).join("")}
+              </section>
+            `
+            : ""
+        }
+
+        ${
+          boardroomEvents.length
+            ? `
+              <section class="aion-exec-card">
+                <div class="eyebrow">Boardroom events</div>
+                ${boardroomEvents.map((event) => `
+                  <div class="aion-io-row">
+                    <strong>${escapeHtml(event.event_type || event.type || event.name || "boardroom_event")}</strong>
+                    <span>${escapeHtml(event.node_title || event.node_id || event.source || "runtime trace")}</span>
                   </div>
                 `).join("")}
               </section>
@@ -35742,6 +35762,10 @@ function safeAionDesktopPatch(payload) {
       ? result.blocked_external_writes
       : [];
 
+    const boardroomEvents = Array.isArray(result?.boardroom_events)
+      ? result.boardroom_events
+      : trace.flatMap((item) => Array.isArray(item?.boardroom_events) ? item.boardroom_events : []);
+
     const panel = document.createElement("aside");
     panel.setAttribute("data-aion-direct-dry-run-panel", "true");
     panel.className = "aion-direct-dry-run-panel";
@@ -35790,6 +35814,22 @@ function safeAionDesktopPatch(payload) {
                 <div class="aion-direct-dry-run-row">
                   <strong>${safeEscape(item.action || item.action_id || item.label || "External write")}</strong>
                   <span>${safeEscape(item.reason || "Blocked by safety policy")}</span>
+                </div>
+              `).join("")}
+            </section>
+          `
+          : ""
+      }
+
+      ${
+        boardroomEvents.length
+          ? `
+            <section>
+              <div class="eyebrow">Boardroom events</div>
+              ${boardroomEvents.map((event) => `
+                <div class="aion-direct-dry-run-row">
+                  <strong>${safeEscape(event.event_type || event.type || event.name || "boardroom_event")}</strong>
+                  <span>${safeEscape(event.node_title || event.node_id || event.source || "runtime trace")}</span>
                 </div>
               `).join("")}
             </section>
