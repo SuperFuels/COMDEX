@@ -9898,6 +9898,15 @@ function getAionUnifiedRealNodeFromModule(module) {
       tone: "amber",
       config: { repeat_count: 3, max_repeat_count: 25, output: "repeat" },
     },
+    "logic.ignore_error": {
+      title: "Ignore error",
+      type: "Flow Control",
+      icon: "!",
+      status: "Draft",
+      meta: "Continue even if the previous step failed",
+      tone: "amber",
+      config: { continue_on_error: true, output: "ignored_error" },
+    },
 
     // Text parser
     "text.match_pattern": {

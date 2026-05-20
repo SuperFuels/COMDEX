@@ -1072,6 +1072,78 @@
     });
   }
 
+  function normaliseRuntimeError(value) {
+    if (!value) return null;
+
+    if (value instanceof Error) {
+      return {
+        message: value.message || "Unknown error",
+        name: value.name || "Error",
+        stack: value.stack || "",
+      };
+    }
+
+    if (typeof value === "string") {
+      return {
+        message: value,
+      };
+    }
+
+    if (typeof value === "object") {
+      return {
+        message:
+          value.message ||
+          value.error ||
+          value.reason ||
+          value.statusText ||
+          "Unknown runtime error",
+        code: value.code || value.status || value.error_code || "",
+        source: value.source || value.node_id || value.action_id || "",
+        details: value,
+      };
+    }
+
+    return {
+      message: String(value),
+    };
+  }
+
+  function executeIgnoreErrorNode(node, inputItems) {
+    const items = Array.isArray(inputItems) && inputItems.length
+      ? inputItems
+      : [{ json: {} }];
+
+    const executedAt = new Date().toISOString();
+
+    return items.map((inputItem, index) => {
+      const json = getInputJson(inputItem) || {};
+      const originalError =
+        normaliseRuntimeError(json.error) ||
+        normaliseRuntimeError(json.runtime_error) ||
+        normaliseRuntimeError(inputItem?.error) ||
+        null;
+
+      return {
+        json: {
+          ...json,
+          ignored_error: true,
+          error_was_ignored: Boolean(originalError || json.execution_status === "failed"),
+          original_error: originalError,
+          recovered: true,
+          continue_on_error: true,
+          ignore_error_index: index,
+          ignore_error_total: items.length,
+          ignored_by: node.id,
+          source: "logic.ignore_error",
+          input_count: items.length,
+          executed_at: executedAt,
+          dry_run: true,
+          error: null,
+        },
+      };
+    });
+  }
+
   function executeCodePreviewNode(node, inputItems) {
     const config = node.config || {};
     const firstInput = getInputJson(inputItems[0]) || {};
@@ -1188,6 +1260,14 @@
       title.includes("merge")
     ) {
       return executeMergeNode(node, inputItems);
+    }
+
+    if (
+      actionKey.includes("ignore_error") ||
+      actionKey.includes("ignore error") ||
+      title.includes("ignore error")
+    ) {
+      return executeIgnoreErrorNode(node, inputItems);
     }
 
     if (
