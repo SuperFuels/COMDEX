@@ -9889,6 +9889,15 @@ function getAionUnifiedRealNodeFromModule(module) {
       tone: "amber",
       config: { source: "{{items}}", output: "array" },
     },
+    "logic.repeater": {
+      title: "Repeater",
+      type: "Flow Control",
+      icon: "↻",
+      status: "Draft",
+      meta: "Repeat the next step a set number of times",
+      tone: "amber",
+      config: { repeat_count: 3, max_repeat_count: 25, output: "repeat" },
+    },
 
     // Text parser
     "text.match_pattern": {

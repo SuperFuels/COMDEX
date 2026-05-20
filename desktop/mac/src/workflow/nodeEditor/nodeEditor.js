@@ -1028,6 +1028,50 @@
     ];
   }
 
+  function executeRepeaterNode(node, inputItems) {
+    const config = node.config || {};
+    const rawCount =
+      config.repeat_count ??
+      config.count ??
+      config.times ??
+      config.repeats ??
+      3;
+
+    const rawMax =
+      config.max_repeat_count ??
+      config.max_count ??
+      25;
+
+    const maxRepeatCount = Math.max(1, Math.min(100, Number(rawMax) || 25));
+    const repeatCount = Math.max(0, Math.min(maxRepeatCount, Number(rawCount) || 0));
+
+    const sourceItems = Array.isArray(inputItems) && inputItems.length
+      ? inputItems
+      : [{ json: {} }];
+
+    const executedAt = new Date().toISOString();
+
+    return sourceItems.flatMap((inputItem, inputIndex) => {
+      const inputJson = getInputJson(inputItem) || {};
+
+      return Array.from({ length: repeatCount }, (_, repeatIndex) => ({
+        json: {
+          ...inputJson,
+          repeat_index: repeatIndex,
+          repeat_number: repeatIndex + 1,
+          repeat_total: repeatCount,
+          repeat_input_index: inputIndex,
+          repeat_input_total: sourceItems.length,
+          repeated_by: node.id,
+          source: "logic.repeater",
+          input_count: sourceItems.length,
+          executed_at: executedAt,
+          dry_run: true,
+        },
+      }));
+    });
+  }
+
   function executeCodePreviewNode(node, inputItems) {
     const config = node.config || {};
     const firstInput = getInputJson(inputItems[0]) || {};
@@ -1147,6 +1191,13 @@
     }
 
     if (
+      actionKey.includes("repeater") ||
+      title.includes("repeater")
+    ) {
+      return executeRepeaterNode(node, inputItems);
+    }
+
+    if (
       actionKey.includes("array_aggregator") ||
       actionKey.includes("array aggregator") ||
       title.includes("array aggregator")
@@ -1186,24 +1237,33 @@
       return executeCodePreviewNode(node, inputItems);
     }
 
-    const firstInput = getInputJson(inputItems[0]) || {};
+    const items = Array.isArray(inputItems) && inputItems.length
+      ? inputItems
+      : [{ json: {} }];
 
-    return [
-      {
+    const executedAt = new Date().toISOString();
+
+    return items.map((inputItem, index) => {
+      const inputJson = getInputJson(inputItem) || {};
+
+      return {
         json: {
-          ...firstInput,
+          ...inputJson,
           node_id: node.id,
           title: node.title || "Node",
           type: node.type || "Action",
           connector: config.connector || node.connector || node.app || "aion",
           action_id: config.action_id || node.action_id || node.action || "generic.step",
-          executed_at: new Date().toISOString(),
-          input_count: inputItems.length,
+          item_index: index,
+          item_number: index + 1,
+          item_total: items.length,
+          executed_at: executedAt,
+          input_count: items.length,
           source: "generic.step",
           dry_run: true,
         },
-      },
-    ];
+      };
+    });
   }
 
   function findPreviousConnectedNode(node, nodes, edges) {
