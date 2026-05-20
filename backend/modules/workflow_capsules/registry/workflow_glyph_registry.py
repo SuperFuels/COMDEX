@@ -262,15 +262,19 @@ class WorkflowGlyphRegistry:
                 log.warning("[WorkflowGlyphRegistry] skipped repository item: %s", e)
 
         # Second: direct scan capsule roots. This is the hard fallback.
+        #
+        # Important:
+        # - When a repository is explicitly injected, its root is authoritative.
+        # - Do not also scan the default data/workflow_capsules tree, otherwise
+        #   isolated tests and workspace-specific registries get polluted by
+        #   unrelated local capsules and stale aliases.
         scan_roots = []
 
         repo_root = getattr(self.repository, "root", None)
         if repo_root:
             scan_roots.append(Path(repo_root))
-
-        default_root = Path("data/workflow_capsules")
-        if default_root not in scan_roots:
-            scan_roots.append(default_root)
+        else:
+            scan_roots.append(Path("data/workflow_capsules"))
 
         for root in scan_roots:
             if not root.exists():
