@@ -52852,3 +52852,246 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
 
 })();
+
+/* AION PATCH: Master Glyph Canvas v5 staged connection confirm
+   Purpose:
+   - Allow explicit user confirmation of a previewed glyph connection.
+   - Create draft-only canvas edges.
+   - Do not execute workflows.
+   - Do not call child glyphs.
+   - Do not mutate saved glyphs.
+   - Do not perform external writes.
+*/
+(function installAionMasterGlyphConnectionStagePatch() {
+  const PATCH_ID = "aion-master-glyph-connection-stage-v5";
+
+  if (window.__aionMasterGlyphConnectionStagePatchInstalled === true) return;
+  window.__aionMasterGlyphConnectionStagePatchInstalled = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        const graph = getAionWorkflowDraftState();
+        if (graph && typeof graph === "object") return graph;
+      } catch (_) {}
+    }
+
+    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+      workflow_id: `workflow_${Date.now()}`,
+      name: "Untitled workflow",
+      status: "draft",
+      nodes: [],
+      edges: [],
+    };
+
+    return window.__aionWorkflowGraph;
+  }
+
+  function markDraftEdited(reason = "master_glyph_connection_staged") {
+    try {
+      if (typeof markAionWorkflowGraphEdited === "function") {
+        markAionWorkflowGraphEdited(reason);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(getGraph());
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (typeof requestRender === "function") requestRender();
+  }
+
+  function normaliseEdgeId(from, to) {
+    return `edge_${String(from || "").replace(/[^a-zA-Z0-9_-]/g, "_")}_${String(to || "").replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+  }
+
+  function stageMasterGlyphDraftConnection(from, to, meta = {}) {
+    const fromId = String(from || "").trim();
+    const toId = String(to || "").trim();
+
+    if (!fromId || !toId || fromId === toId) {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage("Cannot stage invalid glyph connection.", "error");
+      }
+      return null;
+    }
+
+    const graph = getGraph();
+    graph.nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    graph.edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+    const exists = graph.edges.some((edge) =>
+      String(edge?.from || edge?.source || "") === fromId &&
+      String(edge?.to || edge?.target || "") === toId
+    );
+
+    if (exists) {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage("Connection already exists on canvas.", "warning");
+      }
+      return null;
+    }
+
+    const edge = {
+      id: normaliseEdgeId(fromId, toId),
+      from: fromId,
+      to: toId,
+      source: fromId,
+      target: toId,
+      condition: "success",
+      status: "staged",
+      mode: "draft_only",
+      staged: true,
+      staged_by: "master_glyph_canvas_v5",
+      created_at: new Date().toISOString(),
+      dry_run_only: true,
+      live_send_enabled: false,
+      executes_workflow: false,
+      performs_external_write: false,
+      mutates_saved_glyph: false,
+      meta: {
+        ...(meta && typeof meta === "object" ? meta : {}),
+        source: "master_glyph_connection_preview",
+        safety: "draft_edge_only",
+      },
+    };
+
+    graph.edges.push(edge);
+    graph.dirty = true;
+    graph.updated_at = new Date().toISOString();
+
+    window.__aionWorkflowGraph = graph;
+    window.__aionMasterGlyphLastStagedConnection = edge;
+
+    if (typeof safePatchMessage === "function") {
+      safePatchMessage("Draft glyph connection staged. No workflow was executed.", "success");
+    }
+
+    markDraftEdited("master_glyph_connection_staged");
+    return edge;
+  }
+
+  function patchConnectionPreviewRows() {
+    document
+      .querySelectorAll("[data-aion-master-glyph-connection-preview='true'] code")
+      .forEach((code) => {
+        if (code.dataset.aionMasterGlyphStageBound === "true") return;
+
+        const text = String(code.textContent || "");
+        const parts = text.split("→").map((part) => part.trim()).filter(Boolean);
+        if (parts.length !== 2) return;
+
+        code.dataset.aionMasterGlyphStageBound = "true";
+        code.setAttribute("role", "button");
+        code.setAttribute("tabindex", "0");
+        code.setAttribute("title", "Stage this connection as a draft-only edge");
+        code.setAttribute("data-aion-master-glyph-stage-connection", "true");
+        code.setAttribute("data-from-node-id", parts[0]);
+        code.setAttribute("data-to-node-id", parts[1]);
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "secondary-btn secondary-btn-small";
+        button.setAttribute("data-aion-master-glyph-stage-connection", "true");
+        button.setAttribute("data-from-node-id", parts[0]);
+        button.setAttribute("data-to-node-id", parts[1]);
+        button.textContent = "Stage draft edge";
+
+        code.insertAdjacentElement("afterend", button);
+      });
+  }
+
+  function installStyle() {
+    if (document.getElementById(PATCH_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = PATCH_ID;
+    style.textContent = `
+      [data-aion-master-glyph-stage-connection="true"] {
+        cursor: pointer;
+      }
+
+      .aion-master-glyph-connection-row .secondary-btn-small {
+        justify-self: start;
+        margin-top: 2px;
+        font-size: 11px;
+        padding: 7px 10px;
+        border-radius: 10px;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.addEventListener("click", (event) => {
+    const target = event.target.closest?.("[data-aion-master-glyph-stage-connection='true']");
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    stageMasterGlyphDraftConnection(
+      target.getAttribute("data-from-node-id"),
+      target.getAttribute("data-to-node-id"),
+      {
+        confirmed_by_user: true,
+        preview_panel: "master_glyph_connection_preview_v4",
+      },
+    );
+  }, true);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    const target = event.target.closest?.("[data-aion-master-glyph-stage-connection='true']");
+    if (!target) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    stageMasterGlyphDraftConnection(
+      target.getAttribute("data-from-node-id"),
+      target.getAttribute("data-to-node-id"),
+      {
+        confirmed_by_user: true,
+        preview_panel: "master_glyph_connection_preview_v4",
+        input_method: "keyboard",
+      },
+    );
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionMasterGlyphConnectionStagePatchTimer);
+    window.__aionMasterGlyphConnectionStagePatchTimer = window.setTimeout(patchConnectionPreviewRows, 80);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  installStyle();
+  window.stageMasterGlyphDraftConnection = stageMasterGlyphDraftConnection;
+  window.__patchAionMasterGlyphConnectionPreviewRows = patchConnectionPreviewRows;
+
+  window.setTimeout(patchConnectionPreviewRows, 250);
+
+  console.log("[AION] Master Glyph Canvas v5 staged connection confirm installed");
+})();
