@@ -53095,3 +53095,225 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
   console.log("[AION] Master Glyph Canvas v5 staged connection confirm installed");
 })();
+
+/* AION PATCH: Master Glyph Canvas toolbar mount + click safety correction v6-ui
+   Purpose:
+   - Move Master Glyph Canvas entry point out of the left rail / big side section.
+   - Add a compact bottom-toolbar icon/button.
+   - Force Master Glyph Canvas overlay to behave like an overlay, not a sidebar column.
+   - Make Close and Stage buttons clickable.
+   - Keep all existing safety rules: no execution, no saved glyph mutation, no external writes.
+*/
+(function installAionMasterGlyphToolbarMountPatch() {
+  const PATCH_ID = "aion-master-glyph-toolbar-mount-v6-ui";
+
+  if (window.__aionMasterGlyphToolbarMountPatchInstalled === true) return;
+  window.__aionMasterGlyphToolbarMountPatchInstalled = true;
+
+  function safeRequestRender() {
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+  }
+
+  function openMasterGlyphCanvas() {
+    window.__aionMasterGlyphCanvasOpen = true;
+    safeRequestRender();
+  }
+
+  function closeMasterGlyphCanvas() {
+    window.__aionMasterGlyphCanvasOpen = false;
+
+    document
+      .querySelectorAll(
+        [
+          "[data-aion-master-glyph-canvas='true']",
+          "[data-aion-master-glyph-staged-inspector='true']",
+          "[data-aion-master-glyph-connection-preview='true']",
+        ].join(",")
+      )
+      .forEach((node) => node.remove());
+
+    safeRequestRender();
+  }
+
+  function injectToolbarButton() {
+    const toolbar =
+      document.querySelector(".aion-workflow-floating-toolbar") ||
+      document.querySelector("[data-aion-workflow-floating-toolbar='true']") ||
+      document.querySelector(".aion-workflow-bottom-toolbar") ||
+      document.querySelector(".aion-workflow-canvas-shell");
+
+    if (!toolbar) return;
+
+    if (document.querySelector("[data-aion-master-glyph-toolbar-open='true']")) {
+      return;
+    }
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary-btn aion-master-glyph-toolbar-button";
+    button.setAttribute("data-aion-master-glyph-toolbar-open", "true");
+    button.title = "Open Master Glyph Canvas";
+    button.innerHTML = "⌁ Master";
+
+    toolbar.appendChild(button);
+  }
+
+  function removeBadSideRailMasterGlyphLabels() {
+    document.querySelectorAll("body *").forEach((node) => {
+      if (!node || node.children?.length > 4) return;
+
+      const text = String(node.textContent || "").trim();
+      if (text !== "MASTER GLYPH CANVAS") return;
+
+      const rect = node.getBoundingClientRect?.();
+      if (!rect) return;
+
+      // This catches the huge vertical/side-rail label shown in the screenshot,
+      // but avoids touching the real overlay header.
+      if (rect.width > 180 && rect.height > 500) {
+        node.style.display = "none";
+        node.style.pointerEvents = "none";
+      }
+    });
+  }
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-master-glyph-toolbar-button {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      min-width: 112px !important;
+      height: 38px !important;
+      border-radius: 14px !important;
+      font-weight: 900 !important;
+      letter-spacing: 0.04em !important;
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      z-index: 3000 !important;
+    }
+
+    [data-aion-master-glyph-canvas="true"] {
+      position: fixed !important;
+      inset: 72px 28px 28px 82px !important;
+      width: auto !important;
+      height: auto !important;
+      max-width: none !important;
+      max-height: none !important;
+      z-index: 1450 !important;
+      pointer-events: auto !important;
+      overflow: hidden !important;
+      border-radius: 26px !important;
+    }
+
+    [data-aion-master-glyph-canvas="true"] button,
+    [data-aion-master-glyph-canvas="true"] [data-aion-master-glyph-stage-to-canvas="true"],
+    [data-aion-master-glyph-canvas-close="true"],
+    [data-aion-master-glyph-staged-inspector-close="true"],
+    [data-aion-workflow-glyph-library-open="true"] {
+      pointer-events: auto !important;
+      cursor: pointer !important;
+      position: relative !important;
+      z-index: 4000 !important;
+    }
+
+    .aion-master-glyph-canvas-stage {
+      position: relative !important;
+      min-height: 520px !important;
+      overflow: auto !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-master-glyph-node {
+      pointer-events: auto !important;
+      z-index: 1500 !important;
+    }
+
+    .aion-master-glyph-node * {
+      pointer-events: auto !important;
+    }
+
+    .aion-master-glyph-staged-inspector,
+    [data-aion-master-glyph-staged-inspector="true"] {
+      z-index: 4600 !important;
+      pointer-events: auto !important;
+    }
+
+    .aion-master-glyph-connection-preview,
+    [data-aion-master-glyph-connection-preview="true"] {
+      z-index: 4550 !important;
+      pointer-events: auto !important;
+    }
+
+    [data-aion-workflow-glyph-library-open="true"] {
+      right: 18px !important;
+      bottom: 18px !important;
+      z-index: 4300 !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.addEventListener("click", (event) => {
+    const toolbarOpen = event.target.closest?.("[data-aion-master-glyph-toolbar-open='true']");
+    if (toolbarOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      openMasterGlyphCanvas();
+      return;
+    }
+
+    const legacyOpen = event.target.closest?.("[data-aion-master-glyph-canvas-open='true']");
+    if (legacyOpen) {
+      event.preventDefault();
+      event.stopPropagation();
+      openMasterGlyphCanvas();
+      return;
+    }
+
+    const close = event.target.closest?.("[data-aion-master-glyph-canvas-close='true']");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      closeMasterGlyphCanvas();
+      return;
+    }
+
+    const stage = event.target.closest?.("[data-aion-master-glyph-stage-to-canvas='true']");
+    if (stage) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const workflowId =
+        stage.getAttribute("data-workflow-id") ||
+        stage.closest("[data-workflow-id]")?.getAttribute("data-workflow-id") ||
+        "";
+
+      if (typeof window.__stageAionMasterGlyphToWorkflowCanvas === "function") {
+        window.__stageAionMasterGlyphToWorkflowCanvas(workflowId);
+      }
+
+      return;
+    }
+  }, true);
+
+  function syncUi() {
+    injectToolbarButton();
+    removeBadSideRailMasterGlyphLabels();
+  }
+
+  window.addEventListener("aion:workflow-rendered", syncUi);
+  window.addEventListener("DOMContentLoaded", syncUi);
+  window.setTimeout(syncUi, 100);
+  window.setTimeout(syncUi, 500);
+  window.setTimeout(syncUi, 1200);
+
+  window.__openAionMasterGlyphCanvas = openMasterGlyphCanvas;
+  window.__closeAionMasterGlyphCanvas = closeMasterGlyphCanvas;
+
+  console.log("[AION] Master Glyph Canvas toolbar mount + click safety correction installed");
+})();
+
