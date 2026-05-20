@@ -53317,3 +53317,187 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   console.log("[AION] Master Glyph Canvas toolbar mount + click safety correction installed");
 })();
 
+
+/* AION PATCH: Master Glyph Canvas toolbar launcher fix v7
+   Purpose:
+   - Keep Master Glyph Canvas and Glyph Library as compact bottom-toolbar controls.
+   - Stop either launcher from becoming a giant overlay.
+   - Preserve existing Master Canvas overlay, staging, inspector, preview, and draft-edge logic.
+*/
+(function installAionMasterGlyphToolbarLauncherFixV7() {
+  const PATCH_ID = "aion-master-glyph-toolbar-launcher-fix-v7";
+
+  if (window.__aionMasterGlyphToolbarLauncherFixV7Installed === true) return;
+  window.__aionMasterGlyphToolbarLauncherFixV7Installed = true;
+
+  function getToolbar() {
+    return (
+      document.querySelector(".aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated") ||
+      document.querySelector(".aion-workflow-floating-toolbar") ||
+      document.querySelector("[data-aion-workflow-floating-toolbar='true']")
+    );
+  }
+
+  function removeBadStandaloneLaunchers() {
+    document
+      .querySelectorAll("[data-aion-master-glyph-canvas-open='true'], [data-aion-workflow-glyph-library-open='true']")
+      .forEach((button) => {
+        if (button.closest(".aion-workflow-floating-toolbar")) return;
+        if (button.dataset.aionToolbarManaged === "true") return;
+        button.remove();
+      });
+  }
+
+  function ensureToolbarButton(toolbar, id, label, title, attr) {
+    let button = toolbar.querySelector(`[data-aion-toolbar-managed-id="${id}"]`);
+    if (button) return button;
+
+    button = document.createElement("button");
+    button.type = "button";
+    button.className = "secondary-btn aion-master-glyph-toolbar-btn";
+    button.dataset.aionToolbarManaged = "true";
+    button.dataset.aionToolbarManagedId = id;
+    button.setAttribute(attr, "true");
+    button.title = title;
+    button.innerHTML = label;
+
+    toolbar.appendChild(button);
+    return button;
+  }
+
+  function mountToolbarButtons() {
+    const toolbar = getToolbar();
+    if (!toolbar) return;
+
+    removeBadStandaloneLaunchers();
+
+    ensureToolbarButton(
+      toolbar,
+      "master-glyph-canvas",
+      "⌁<span>Master Glyph</span>",
+      "Open Master Glyph Canvas",
+      "data-aion-master-glyph-canvas-open",
+    );
+
+    ensureToolbarButton(
+      toolbar,
+      "workflow-glyph-library",
+      "⌁<span>Glyph Library</span>",
+      "Open Workflow Glyph Library",
+      "data-aion-workflow-glyph-library-open",
+    );
+  }
+
+  if (!document.getElementById(PATCH_ID)) {
+    const style = document.createElement("style");
+    style.id = PATCH_ID;
+    style.textContent = `
+      .aion-workflow-floating-toolbar .aion-master-glyph-toolbar-btn {
+        width: auto !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        max-width: 150px !important;
+        padding: 0 12px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 7px !important;
+        border-radius: 14px !important;
+        position: relative !important;
+        inset: auto !important;
+        transform: none !important;
+        z-index: auto !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        pointer-events: auto !important;
+        cursor: pointer !important;
+      }
+
+      .aion-workflow-floating-toolbar .aion-master-glyph-toolbar-btn span {
+        display: inline !important;
+        font-size: 11px !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.06em !important;
+        text-transform: uppercase !important;
+        line-height: 1 !important;
+      }
+
+      body [data-aion-master-glyph-canvas-open="true"]:not(.aion-master-glyph-toolbar-btn):not(.aion-toolbar-allow-standalone),
+      body [data-aion-workflow-glyph-library-open="true"]:not(.aion-master-glyph-toolbar-btn):not(.aion-toolbar-allow-standalone) {
+        display: none !important;
+      }
+
+      [data-aion-master-glyph-canvas="true"] {
+        position: fixed !important;
+        inset: 74px 32px 32px 76px !important;
+        width: auto !important;
+        height: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        z-index: 1450 !important;
+        overflow: hidden !important;
+        pointer-events: auto !important;
+      }
+
+      [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-stage {
+        position: relative !important;
+        width: 100% !important;
+        height: calc(100vh - 220px) !important;
+        min-height: 520px !important;
+        overflow: auto !important;
+      }
+
+      [data-aion-master-glyph-stage-to-canvas="true"],
+      [data-aion-master-glyph-canvas-close="true"],
+      [data-aion-workflow-glyph-library-close="true"],
+      [data-aion-master-glyph-connection-preview-close="true"],
+      [data-aion-master-glyph-staged-inspector-close="true"] {
+        pointer-events: auto !important;
+        cursor: pointer !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.addEventListener("click", (event) => {
+    const master = event.target.closest?.("[data-aion-master-glyph-canvas-open='true']");
+    if (master) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.__aionMasterGlyphCanvasOpen = true;
+      if (typeof requestRender === "function") requestRender();
+      window.setTimeout(mountToolbarButtons, 80);
+      return;
+    }
+
+    const library = event.target.closest?.("[data-aion-workflow-glyph-library-open='true']");
+    if (library) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.__aionWorkflowGlyphLibraryOpen = true;
+      if (typeof requestRender === "function") requestRender();
+      window.setTimeout(mountToolbarButtons, 80);
+      return;
+    }
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionMasterGlyphToolbarLauncherFixTimer);
+    window.__aionMasterGlyphToolbarLauncherFixTimer = window.setTimeout(mountToolbarButtons, 80);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  window.addEventListener("aion:workflow-rendered", mountToolbarButtons);
+  window.__mountAionMasterGlyphToolbarButtons = mountToolbarButtons;
+
+  window.setTimeout(mountToolbarButtons, 50);
+  window.setTimeout(mountToolbarButtons, 300);
+  window.setTimeout(mountToolbarButtons, 900);
+
+  console.log("[AION] Master Glyph toolbar launcher fix v7 installed");
+})();
+
