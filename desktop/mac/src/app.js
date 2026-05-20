@@ -52424,4 +52424,431 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   window.setTimeout(syncInspector, 250);
 
   console.log("[AION] Master Glyph Canvas v3 staged node inspector installed");
+
+/* AION PATCH: Master Glyph Canvas v4 staged glyph connection preview
+   Purpose:
+   - Preview compatible upstream/downstream canvas nodes for a staged workflow glyph.
+   - Do not create edges.
+   - Do not execute.
+   - Do not mutate saved glyphs.
+   - Do not perform external writes.
+*/
+(function installAionMasterGlyphConnectionPreviewPatch() {
+  const PATCH_ID = "aion-master-glyph-connection-preview-v4";
+
+  if (window.__aionMasterGlyphConnectionPreviewPatchInstalled === true) return;
+  window.__aionMasterGlyphConnectionPreviewPatchInstalled = true;
+
+  if (document.getElementById(PATCH_ID)) return;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        const graph = getAionWorkflowDraftState();
+        if (graph && typeof graph === "object") return graph;
+      } catch (_) {}
+    }
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function getSelectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId =
+      window.__aionMasterGlyphSelectedStagedNodeId ||
+      window.__aionWorkflowSelectedNodeId ||
+      "";
+
+    return nodes.find((node) => String(node?.id || "") === String(selectedId)) || null;
+  }
+
+  function isStagedWorkflowGlyphNode(node) {
+    if (!node || typeof node !== "object") return false;
+
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node.type,
+      node.action_id,
+      node.module_id,
+      node.title,
+      node.label,
+      config.action_id,
+      config.module_id,
+      config.workflow_id,
+      config.child_workflow_id,
+    ]
+      .map((value) => String(value || "").toLowerCase())
+      .join(" ");
+
+    return (
+      haystack.includes("call_workflow_glyph") ||
+      haystack.includes("workflow.call_workflow_glyph") ||
+      haystack.includes("workflow glyph")
+    );
+  }
+
+  function summariseSchemaKeys(value, fallback = "Any payload") {
+    if (!value || typeof value !== "object") return fallback;
+
+    const keys = Object.keys(value);
+    if (!keys.length) return fallback;
+
+    if (value.properties && typeof value.properties === "object") {
+      const propKeys = Object.keys(value.properties);
+      return propKeys.length ? propKeys.slice(0, 8).join(", ") : fallback;
+    }
+
+    return keys.slice(0, 8).join(", ");
+  }
+
+  function nodeTitle(node) {
+    return String(node?.title || node?.label || node?.id || "Untitled node");
+  }
+
+  function nodeKind(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    return String(
+      node?.type ||
+      node?.node_type ||
+      node?.action_id ||
+      config.action_id ||
+      config.module_id ||
+      "workflow_step",
+    );
+  }
+
+  function inferConnectionReason(sourceNode, stagedNode, direction) {
+    const stagedConfig =
+      stagedNode?.config && typeof stagedNode.config === "object" ? stagedNode.config : {};
+    const stagedInputs = stagedConfig.inputs_schema || {};
+    const stagedOutputs = stagedConfig.outputs_schema || {};
+
+    if (direction === "incoming") {
+      return `Potential input source for child glyph inputs: ${summariseSchemaKeys(stagedInputs)}`;
+    }
+
+    return `Potential downstream consumer for child glyph outputs: ${summariseSchemaKeys(stagedOutputs, "Dry-run payload")}`;
+  }
+
+  function buildConnectionPreviewModel(stagedNode) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const stagedId = String(stagedNode?.id || "");
+
+    const candidates = nodes.filter((node) => {
+      if (!node || String(node.id || "") === stagedId) return false;
+      return !isStagedWorkflowGlyphNode(node) || String(node.id || "") !== stagedId;
+    });
+
+    const incoming = candidates.slice(0, 6).map((node) => ({
+      node_id: String(node.id || ""),
+      title: nodeTitle(node),
+      type: nodeKind(node),
+      preview_direction: "incoming",
+      reason: inferConnectionReason(node, stagedNode, "incoming"),
+      would_create_edge: {
+        from: String(node.id || ""),
+        to: stagedId,
+      },
+    }));
+
+    const outgoing = candidates.slice(0, 6).map((node) => ({
+      node_id: String(node.id || ""),
+      title: nodeTitle(node),
+      type: nodeKind(node),
+      preview_direction: "outgoing",
+      reason: inferConnectionReason(node, stagedNode, "outgoing"),
+      would_create_edge: {
+        from: stagedId,
+        to: String(node.id || ""),
+      },
+    }));
+
+    return {
+      staged_node_id: stagedId,
+      staged_node_title: nodeTitle(stagedNode),
+      mode: "preview_only",
+      read_only: true,
+      creates_edges: false,
+      executes_workflow: false,
+      mutates_saved_glyph: false,
+      incoming,
+      outgoing,
+    };
+  }
+
+  function renderPreviewRow(item) {
+    return `
+      <div class="aion-master-glyph-connection-row">
+        <div>
+          <strong>${esc(item.title)}</strong>
+          <small>${esc(item.type)}</small>
+          <p>${esc(item.reason)}</p>
+        </div>
+        <code>${esc(item.would_create_edge.from)} → ${esc(item.would_create_edge.to)}</code>
+      </div>
+    `;
+  }
+
+  function renderAionMasterGlyphConnectionPreview(stagedNode) {
+    const model = buildConnectionPreviewModel(stagedNode);
+
+    return `
+      <aside
+        class="aion-master-glyph-connection-preview"
+        data-aion-master-glyph-connection-preview="true"
+      >
+        <div class="aion-master-glyph-connection-preview-head">
+          <div>
+            <div class="eyebrow">Master Glyph Canvas v4</div>
+            <h2>Connection preview</h2>
+            <p>Preview-only. No execution, no editing, no wiring, no external writes.</p>
+          </div>
+          <button
+            type="button"
+            class="secondary-btn"
+            data-aion-master-glyph-connection-preview-close="true"
+          >Close</button>
+        </div>
+
+        <div class="aion-master-glyph-connection-contract">
+          Preview-only · No edge creation · No execution · No editing · No wiring · No external writes · Saved glyph preserved
+        </div>
+
+        <section>
+          <div class="eyebrow">Possible inputs into staged glyph</div>
+          ${
+            model.incoming.length
+              ? model.incoming.map(renderPreviewRow).join("")
+              : `<div class="empty-state">No possible upstream nodes found.</div>`
+          }
+        </section>
+
+        <section>
+          <div class="eyebrow">Possible outputs from staged glyph</div>
+          ${
+            model.outgoing.length
+              ? model.outgoing.map(renderPreviewRow).join("")
+              : `<div class="empty-state">No possible downstream nodes found.</div>`
+          }
+        </section>
+
+        <details class="aion-master-glyph-connection-debug">
+          <summary>Connection preview debug block</summary>
+          <pre>${esc(JSON.stringify(model, null, 2))}</pre>
+        </details>
+      </aside>
+    `;
+  }
+
+  function removePreview() {
+    document
+      .querySelectorAll("[data-aion-master-glyph-connection-preview='true']")
+      .forEach((node) => node.remove());
+  }
+
+  function syncPreview() {
+    if (window.__aionMasterGlyphConnectionPreviewOpen !== true) {
+      removePreview();
+      return;
+    }
+
+    const node = getSelectedNode();
+
+    if (!isStagedWorkflowGlyphNode(node)) {
+      removePreview();
+      return;
+    }
+
+    removePreview();
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = renderAionMasterGlyphConnectionPreview(node);
+    const panel = wrapper.firstElementChild;
+    if (panel) document.body.appendChild(panel);
+  }
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-master-glyph-connection-preview {
+      position: fixed;
+      left: 24px;
+      top: 88px;
+      width: min(480px, calc(100vw - 48px));
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+      z-index: 1590;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(14, 165, 233, 0.28);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+      color: #0f172a;
+    }
+
+    .aion-master-glyph-connection-preview-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .aion-master-glyph-connection-preview h2 {
+      margin: 2px 0 4px;
+      font-size: 20px;
+      line-height: 1.1;
+    }
+
+    .aion-master-glyph-connection-preview p {
+      margin: 4px 0 0;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .aion-master-glyph-connection-contract {
+      margin: 10px 0 14px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: rgba(14, 165, 233, 0.08);
+      color: #075985;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .aion-master-glyph-connection-preview section {
+      margin-top: 14px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .aion-master-glyph-connection-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 8px;
+      padding: 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: rgba(248, 250, 252, 0.92);
+    }
+
+    .aion-master-glyph-connection-row strong {
+      display: block;
+      font-size: 13px;
+      color: #0f172a;
+    }
+
+    .aion-master-glyph-connection-row small {
+      display: block;
+      margin-top: 2px;
+      color: #64748b;
+      font-weight: 800;
+      overflow-wrap: anywhere;
+    }
+
+    .aion-master-glyph-connection-row code {
+      display: block;
+      padding: 8px;
+      border-radius: 10px;
+      background: rgba(15, 23, 42, 0.06);
+      color: #0f172a;
+      font-size: 11px;
+      overflow-wrap: anywhere;
+    }
+
+    .aion-master-glyph-connection-debug {
+      margin-top: 14px;
+      border-top: 1px solid rgba(148, 163, 184, 0.35);
+      padding-top: 12px;
+    }
+
+    .aion-master-glyph-connection-debug summary {
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 900;
+      color: #075985;
+    }
+
+    .aion-master-glyph-connection-debug pre {
+      max-height: 260px;
+      overflow: auto;
+      white-space: pre-wrap;
+      font-size: 11px;
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    body.aion-workflow-dark-mode .aion-master-glyph-connection-preview {
+      background: rgba(15, 23, 42, 0.96);
+      border-color: rgba(56, 189, 248, 0.45);
+      color: #f8fafc;
+    }
+
+    body.aion-workflow-dark-mode .aion-master-glyph-connection-row {
+      background: rgba(30, 41, 59, 0.92);
+      border-color: rgba(148, 163, 184, 0.25);
+    }
+
+    body.aion-workflow-dark-mode .aion-master-glyph-connection-row strong,
+    body.aion-workflow-dark-mode .aion-master-glyph-connection-row code {
+      color: #f8fafc;
+    }
+
+    body.aion-workflow-dark-mode .aion-master-glyph-connection-preview p,
+    body.aion-workflow-dark-mode .aion-master-glyph-connection-row small {
+      color: #cbd5e1;
+    }
+  `;
+  document.head.appendChild(style);
+
+  document.addEventListener("click", (event) => {
+    const close = event.target.closest?.("[data-aion-master-glyph-connection-preview-close='true']");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      window.__aionMasterGlyphConnectionPreviewOpen = false;
+      removePreview();
+      return;
+    }
+
+    const selectedNode = event.target.closest?.("[data-aion-workflow-node-id]");
+    if (selectedNode) {
+      window.setTimeout(() => {
+        const node = getSelectedNode();
+        if (isStagedWorkflowGlyphNode(node)) {
+          window.__aionMasterGlyphSelectedStagedNodeId = String(node.id || "");
+          window.__aionMasterGlyphConnectionPreviewOpen = true;
+          syncPreview();
+        }
+      }, 100);
+    }
+  }, true);
+
+  window.addEventListener("aion:workflow-rendered", syncPreview);
+  window.addEventListener("aion:workflow-selection-changed", syncPreview);
+
+  window.renderAionMasterGlyphConnectionPreview = renderAionMasterGlyphConnectionPreview;
+  window.__syncAionMasterGlyphConnectionPreview = syncPreview;
+  window.__aionMasterGlyphConnectionPreviewOpen =
+    window.__aionMasterGlyphConnectionPreviewOpen || false;
+
+  console.log("[AION] Master Glyph Canvas v4 connection preview installed");
+})();
+
+
 })();
