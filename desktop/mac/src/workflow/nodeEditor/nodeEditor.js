@@ -1144,6 +1144,53 @@
     });
   }
 
+  function executeBreakRetryNode(node, inputItems) {
+    const config = node.config || {};
+    const items = Array.isArray(inputItems) && inputItems.length
+      ? inputItems
+      : [{ json: {} }];
+
+    const executedAt = new Date().toISOString();
+    const retryQueue = normaliseText(config.retry_queue || "workflow_retry_queue") || "workflow_retry_queue";
+    const reason =
+      normaliseText(config.reason || config.retry_reason || "") ||
+      "Stopped for review or retry later";
+
+    return items.map((inputItem, index) => {
+      const json = getInputJson(inputItem) || {};
+      const originalError =
+        normaliseRuntimeError(json.error) ||
+        normaliseRuntimeError(json.runtime_error) ||
+        normaliseRuntimeError(json.original_error) ||
+        normaliseRuntimeError(inputItem?.error) ||
+        null;
+
+      return {
+        json: {
+          ...json,
+          break_retry_later: true,
+          retry_later: true,
+          retry_status: "queued_for_review",
+          workflow_paused: true,
+          recovered: false,
+          stopped: true,
+          reason,
+          retry_queue: retryQueue,
+          retry_item_id: `retry_${Date.now()}_${index}`,
+          original_error: originalError,
+          break_retry_index: index,
+          break_retry_total: items.length,
+          broken_by: node.id,
+          source: "logic.break_error",
+          input_count: items.length,
+          executed_at: executedAt,
+          dry_run: true,
+          error: null,
+        },
+      };
+    });
+  }
+
   function executeCodePreviewNode(node, inputItems) {
     const config = node.config || {};
     const firstInput = getInputJson(inputItems[0]) || {};
@@ -1260,6 +1307,16 @@
       title.includes("merge")
     ) {
       return executeMergeNode(node, inputItems);
+    }
+
+    if (
+      actionKey.includes("break_error") ||
+      actionKey.includes("break error") ||
+      actionKey.includes("retry later") ||
+      title.includes("break / retry") ||
+      title.includes("retry later")
+    ) {
+      return executeBreakRetryNode(node, inputItems);
     }
 
     if (

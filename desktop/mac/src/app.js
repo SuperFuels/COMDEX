@@ -9907,6 +9907,15 @@ function getAionUnifiedRealNodeFromModule(module) {
       tone: "amber",
       config: { continue_on_error: true, output: "ignored_error" },
     },
+    "logic.break_error": {
+      title: "Break / retry later",
+      type: "Flow Control",
+      icon: "⏸",
+      status: "Draft",
+      meta: "Stop failed bundles for review or retry",
+      tone: "amber",
+      config: { retry_later: true, retry_queue: "workflow_retry_queue", output: "retry_item" },
+    },
 
     // Text parser
     "text.match_pattern": {
