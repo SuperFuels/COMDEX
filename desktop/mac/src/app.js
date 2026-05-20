@@ -8507,7 +8507,7 @@ function getAionWorkflowDraftState() {
           nodes: Array.isArray(parsed.nodes) ? parsed.nodes : [],
           edges: Array.isArray(parsed.edges) ? parsed.edges : [],
         });
-        return window.__aionWorkflowGraph;
+        return window["__aionWorkflowGraph"];
       }
     }
   } catch (error) {
@@ -8515,7 +8515,7 @@ function getAionWorkflowDraftState() {
   }
 
   window.__aionWorkflowGraph = getDefaultAionWorkflowDraftState();
-  return window.__aionWorkflowGraph;
+  return window["__aionWorkflowGraph"];
 }
 
 
@@ -8630,7 +8630,7 @@ function syncAionWorkflowInspectorInputsToGraph() {
       };
     });
 
-  window.__aionWorkflowGraph = graph;
+  window["__aionWorkflowGraph"] = graph;
   compileAndAttachAionWorkflowGlyph(graph);
 
   return graph;
@@ -8748,7 +8748,7 @@ function markAionWorkflowDraftDirty(reason = "updated") {
   graph.dirty_reason = reason;
   graph.saved_at = graph.saved_at || null;
   compileAndAttachAionWorkflowGlyph(graph);
-  window.__aionWorkflowGraph = graph;
+  window["__aionWorkflowGraph"] = graph;
   persistAionWorkflowDraftState();
   return graph;
 }
@@ -9176,8 +9176,18 @@ function renderAionMasterGlyphCanvasNode(item, index = 0) {
       </div>
 
       <div class="aion-master-glyph-readonly-note">
-        Read-only glyph node · no execution · no mutation
+        Master glyph source · no execution · saved glyph not mutated
       </div>
+
+      <button
+        type="button"
+        class="secondary-btn secondary-btn-small"
+        data-aion-master-glyph-stage-to-canvas="true"
+        data-workflow-id="${escapeHtml(workflowId)}"
+        title="Stage this callable glyph as a dry-run call_workflow_glyph node"
+      >
+        Stage to workflow canvas
+      </button>
     </article>
   `;
 }
@@ -9192,15 +9202,15 @@ function renderAionMasterGlyphCanvasPanel() {
     <section class="aion-master-glyph-canvas" data-aion-master-glyph-canvas="true">
       <div class="aion-master-glyph-canvas-header">
         <div>
-          <div class="eyebrow">Master Glyph Canvas v1</div>
+          <div class="eyebrow">Master Glyph Canvas v2</div>
           <h2>Callable workflow glyphs</h2>
-          <p>Read-only foundation. Saved callable workflow glyphs are rendered as glyph nodes only.</p>
+          <p>Saved callable workflow glyphs are shown as glyph nodes. v2 can stage a dry-run-only call node onto the normal workflow canvas.</p>
         </div>
         <button type="button" class="secondary-btn" data-aion-master-glyph-canvas-close="true">Close</button>
       </div>
 
       <div class="aion-master-glyph-canvas-contract">
-        No execution · No editing · No wiring · No external writes · Current workflow canvas preserved
+        Read-only staging · No execution · No editing · No wiring · No saved-glyph mutation · No live orchestration · No external writes · Current workflow canvas preserved
       </div>
 
       <div class="aion-master-glyph-canvas-stage">
@@ -9231,6 +9241,148 @@ function installAionMasterGlyphCanvasControls() {
   if (window.__aionMasterGlyphCanvasControlsInstalled === true) return;
   window.__aionMasterGlyphCanvasControlsInstalled = true;
 
+  function cloneMasterGlyphValue(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function getCurrentWorkflowGraphForMasterGlyphStage() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        const graph = getAionWorkflowDraftState();
+        if (graph && typeof graph === "object") return graph;
+      } catch (_) {}
+    }
+
+    window["__aionWorkflowGraph"] = window["__aionWorkflowGraph"] || {
+      workflow_id: `workflow_${Date.now()}`,
+      name: "Untitled workflow",
+      status: "draft",
+      nodes: [],
+      edges: [],
+    };
+
+    return window["__aionWorkflowGraph"];
+  }
+
+  function findMasterGlyphCanvasItem(workflowId) {
+    const needle = String(workflowId || "").trim().toLowerCase();
+    if (!needle) return null;
+
+    const items = typeof listAionMasterGlyphCanvasItems === "function"
+      ? listAionMasterGlyphCanvasItems()
+      : [];
+
+    return items.find((item) => {
+      const compiled = item?.compiled_glyph || {};
+      return [
+        item?.workflow_id,
+        item?.id,
+        item?.name,
+        compiled?.workflow?.workflow_id,
+        compiled?.workflow?.name,
+      ].some((value) => String(value || "").trim().toLowerCase() === needle);
+    }) || null;
+  }
+
+  function stageMasterGlyphToWorkflowCanvas(workflowId) {
+    const item = findMasterGlyphCanvasItem(workflowId);
+    if (!item) {
+      if (typeof safePatchMessage === "function") {
+        safePatchMessage("Could not find callable workflow glyph to stage.", "error");
+      }
+      return null;
+    }
+
+    const compiled = cloneMasterGlyphValue(item.compiled_glyph || {});
+    const childWorkflowId =
+      item.workflow_id ||
+      compiled?.workflow?.workflow_id ||
+      item.id ||
+      workflowId;
+
+    const graph = getCurrentWorkflowGraphForMasterGlyphStage();
+    graph.nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    graph.edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+    const nodeId = `call_workflow_glyph_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+    const x = 220 + (graph.nodes.length % 4) * 280;
+    const y = 260 + Math.floor(graph.nodes.length / 4) * 180;
+
+    const stagedNode = {
+      id: nodeId,
+      title: `Call ${item.name || compiled?.workflow?.name || childWorkflowId}`,
+      label: `Call ${item.name || compiled?.workflow?.name || childWorkflowId}`,
+      type: "Workflow Glyph",
+      icon: "⌁",
+      status: "Staged",
+      meta: "Staged from Master Glyph Canvas · dry-run only · no execution yet",
+      tone: "violet",
+      x,
+      y,
+      dry_run_only: true,
+      live_send_enabled: false,
+      action_id: "call_workflow_glyph",
+      module_id: "workflow.call_workflow_glyph",
+      config: {
+        action_id: "call_workflow_glyph",
+        module_id: "workflow.call_workflow_glyph",
+        workflow_id: childWorkflowId,
+        child_workflow_id: childWorkflowId,
+        glyph_id: item.id || childWorkflowId,
+        callable: true,
+        dry_run_only: true,
+        live_send_enabled: false,
+        risk_tier: item.risk_tier || compiled.risk_tier || "low",
+        required_connectors: cloneMasterGlyphValue(item.required_connectors || compiled.required_connectors || []),
+        inputs_schema: cloneMasterGlyphValue(item.inputs_schema || compiled.inputs_schema || {}),
+        outputs_schema: cloneMasterGlyphValue(item.outputs_schema || compiled.outputs_schema || {}),
+        approval_policy: cloneMasterGlyphValue(item.approval_policy || compiled.approval_policy || {}),
+        boardroom_events: cloneMasterGlyphValue(item.boardroom_events || compiled.boardroom_events || []),
+        compiled_glyph: compiled,
+      },
+      runtime: {
+        input_items: [],
+        output_items: [],
+        execution_status: "idle",
+        last_run_at: null,
+        error: null,
+      },
+    };
+
+    graph.nodes.push(stagedNode);
+    graph.dirty = true;
+    graph.updated_at = new Date().toISOString();
+
+    window["__aionWorkflowGraph"] = graph;
+    window.__aionWorkflowSelectedNodeId = nodeId;
+
+    try {
+      if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+        compileAndAttachAionWorkflowGlyph(graph);
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof persistAionWorkflowDraftState === "function") {
+        persistAionWorkflowDraftState();
+      }
+    } catch (_) {}
+
+    if (typeof safePatchMessage === "function") {
+      safePatchMessage(`Staged workflow glyph: ${item.name || childWorkflowId}`, "success");
+    }
+
+    if (typeof requestRender === "function") requestRender();
+
+    return stagedNode;
+  }
+
+  window.__stageAionMasterGlyphToWorkflowCanvas = stageMasterGlyphToWorkflowCanvas;
+
   document.addEventListener("click", (event) => {
     const open = event.target.closest?.("[data-aion-master-glyph-canvas-open='true']");
     if (open) {
@@ -9247,6 +9399,14 @@ function installAionMasterGlyphCanvasControls() {
       event.stopPropagation();
       window.__aionMasterGlyphCanvasOpen = false;
       if (typeof requestRender === "function") requestRender();
+      return;
+    }
+
+    const stage = event.target.closest?.("[data-aion-master-glyph-stage-to-canvas='true']");
+    if (stage) {
+      event.preventDefault();
+      event.stopPropagation();
+      stageMasterGlyphToWorkflowCanvas(stage.getAttribute("data-workflow-id"));
       return;
     }
   }, true);
@@ -12294,7 +12454,7 @@ function appendAionUnifiedSuggestedStepsToMainWorkflow(steps) {
   graph.dirty = true;
   graph.status = "draft";
 
-  window.__aionWorkflowGraph = graph;
+  window["__aionWorkflowGraph"] = graph;
 
   if (typeof persistAionWorkflowDraftState === "function") {
     persistAionWorkflowDraftState();
@@ -12959,7 +13119,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
 
   maybeLoadAionWorkflowFromBusinessContainerOnce();
   const graph = getAionWorkflowDraftState();
-  window.__aionWorkflowGraph = graph;
+  window["__aionWorkflowGraph"] = graph;
   compileAndAttachAionWorkflowGlyph(graph);
 
   const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
@@ -25606,7 +25766,7 @@ function installAionWorkflowDraftPersistenceControls() {
       [key]: configInput.value,
     };
 
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
     compileAndAttachAionWorkflowGlyph(graph);
     persistAionWorkflowDraftState();
   });
@@ -26370,7 +26530,7 @@ function installAionWorkflowDraftPersistenceControls() {
     graph.dirty = false;
     graph.dirty_reason = null;
     compileAndAttachAionWorkflowGlyph(graph);
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     const saved = persistAionWorkflowDraftState();
 
@@ -28035,7 +28195,7 @@ function createAionWorkflowEdgeFromPorts({ from, to, condition, targetCondition 
   graph.edges = nextEdges;
   sanitizeAionWorkflowMergeEdges(graph);
   graph.dirty = true;
-  window.__aionWorkflowGraph = graph;
+  window["__aionWorkflowGraph"] = graph;
 
   if (typeof compileAndAttachAionWorkflowGlyph === "function") {
     compileAndAttachAionWorkflowGlyph(graph);
@@ -28690,7 +28850,7 @@ function installAionWorkflowActionControls() {
           };
 
           graph.dirty = true;
-          window.__aionWorkflowGraph = graph;
+          window["__aionWorkflowGraph"] = graph;
           compileAndAttachAionWorkflowGlyph?.(graph);
           persistAionWorkflowDraftState?.();
 
@@ -29271,7 +29431,7 @@ function installAionWorkflowFirstStepControls() {
       graph.edges = [];
       graph.status = graph.status || "draft";
 
-      window.__aionWorkflowGraph = graph;
+      window["__aionWorkflowGraph"] = graph;
       window.__aionWorkflowSelectedNodeId = node.id;
       window.__aionWorkflowPickerMode = null;
       window.__aionWorkflowInspectorOpen = false;
@@ -29605,7 +29765,7 @@ function installAionWorkflowNodeDragControls() {
     node.x = nextX;
     node.y = nextY;
 
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
     window.__aionWorkflowDidDragNode = dragState.moved;
 
     const nodeEl = document.querySelector(
@@ -36302,7 +36462,7 @@ function safeAionDesktopPatch(payload) {
       graph.nodes = nextNodes;
       graph.edges = nextEdges;
       graph.dirty = true;
-      window.__aionWorkflowGraph = graph;
+      window["__aionWorkflowGraph"] = graph;
       window.__aionWorkflowSelectedNodeId = nextNodes[nextNodes.length - 1]?.id || null;
     }
 
@@ -36615,7 +36775,7 @@ function safeAionDesktopPatch(payload) {
           graph.nodes = nextNodes;
           graph.edges = nextEdges;
           graph.dirty = true;
-          window.__aionWorkflowGraph = graph;
+          window["__aionWorkflowGraph"] = graph;
 
           if (window.__aionWorkflowSelectedNodeId === resolvedNodeId) {
             window.__aionWorkflowSelectedNodeId =
@@ -36773,7 +36933,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function persistGraph(graph) {
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     if (typeof compileAndAttachAionWorkflowGlyph === "function") {
       try {
@@ -37273,11 +37433,11 @@ function safeAionDesktopPatch(payload) {
       window.__aionWorkflowGraph = { nodes: [], edges: [] };
     }
 
-    return window.__aionWorkflowGraph;
+    return window["__aionWorkflowGraph"];
   }
 
   function persistGraph(graph) {
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     try {
       if (typeof compileAndAttachAionWorkflowGlyph === "function") {
@@ -37902,12 +38062,12 @@ function safeAionDesktopPatch(payload) {
       } catch (_) {}
     }
 
-    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+    window["__aionWorkflowGraph"] = window["__aionWorkflowGraph"] || {
       nodes: [],
       edges: [],
     };
 
-    return window.__aionWorkflowGraph;
+    return window["__aionWorkflowGraph"];
   }
 
   function nodes() {
@@ -38613,7 +38773,7 @@ function safeAionDesktopPatch(payload) {
       }
     } catch (_) {}
 
-    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+    window["__aionWorkflowGraph"] = window["__aionWorkflowGraph"] || {
       workflow_id: createAionWorkflowId(),
       name: "Untitled workflow 1",
       status: "draft",
@@ -38621,11 +38781,11 @@ function safeAionDesktopPatch(payload) {
       edges: [],
     };
 
-    return window.__aionWorkflowGraph;
+    return window["__aionWorkflowGraph"];
   }
 
   function saveGraph(graph) {
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     try {
       if (typeof compileAndAttachAionWorkflowGlyph === "function") {
@@ -39333,7 +39493,7 @@ function safeAionDesktopPatch(payload) {
       }
     } catch (_) {}
 
-    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+    window["__aionWorkflowGraph"] = window["__aionWorkflowGraph"] || {
       workflow_id: createAionWorkflowId(),
       name: "Untitled workflow 1",
       status: "draft",
@@ -39341,11 +39501,11 @@ function safeAionDesktopPatch(payload) {
       edges: [],
     };
 
-    return window.__aionWorkflowGraph;
+    return window["__aionWorkflowGraph"];
   }
 
   function saveGraph(graph) {
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     try {
       if (typeof compileAndAttachAionWorkflowGlyph === "function") {
@@ -40502,7 +40662,7 @@ function safeAionDesktopPatch(payload) {
       };
     }
 
-    return window.__aionWorkflowGraph;
+    return window["__aionWorkflowGraph"];
   }
 
   function selectedNode() {
@@ -41107,7 +41267,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function persistGraph(graph) {
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     try {
       if (typeof compileAndAttachAionWorkflowGlyph === "function") {
@@ -42427,7 +42587,7 @@ function safeAionDesktopPatch(payload) {
       : [];
 
     graph.dirty = true;
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     if (window.__aionWorkflowSelectedNodeId === nodeId) {
       window.__aionWorkflowSelectedNodeId = graph.nodes[graph.nodes.length - 1]?.id || graph.nodes[0]?.id || null;
@@ -42701,7 +42861,7 @@ function safeAionDesktopPatch(payload) {
     if (graph.nodes.length === before) return false;
 
     graph.dirty = true;
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     if (window.__aionWorkflowSelectedNodeId === nodeId) {
       window.__aionWorkflowSelectedNodeId =
@@ -43111,7 +43271,7 @@ function safeAionDesktopPatch(payload) {
     graph.name = graph.name || workflowNode.name || "Untitled workflow";
     graph.dirty = false;
 
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
     window.__aionWorkflowSelectedNodeId = graph.nodes?.[0]?.id || null;
 
     try {
@@ -44314,7 +44474,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function persistGraph(graph) {
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
     window.__aionWorkflowSelectedNodeId = graph.nodes?.[0]?.id || null;
 
     try {
@@ -44776,7 +44936,7 @@ function safeAionDesktopPatch(payload) {
       graph.name = newName;
       graph.dirty = true;
       graph.updated_at = new Date().toISOString();
-      window.__aionWorkflowGraph = graph;
+      window["__aionWorkflowGraph"] = graph;
 
       try {
         if (typeof compileAndAttachAionWorkflowGlyph === "function") {
@@ -45038,7 +45198,7 @@ function safeAionDesktopPatch(payload) {
       graph.name = safeName;
       graph.dirty = true;
       graph.updated_at = new Date().toISOString();
-      window.__aionWorkflowGraph = graph;
+      window["__aionWorkflowGraph"] = graph;
 
       try {
         if (typeof compileAndAttachAionWorkflowGlyph === "function") {
@@ -46538,7 +46698,7 @@ function safeAionDesktopPatch(payload) {
       api.saveTree(tree);
     }
 
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
     window.__aionWorkflowSelectedNodeId = null;
 
     try {
@@ -47045,7 +47205,7 @@ function safeAionDesktopPatch(payload) {
   }
 
   function setCurrentGraph(graph) {
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
     window.__aionWorkflowSelectedNodeId =
       graph?.nodes?.[0]?.id || window.__aionWorkflowSelectedNodeId || null;
 
@@ -47976,7 +48136,7 @@ function safeAionDesktopPatch(payload) {
       }
     } catch (_) {}
 
-    window.__aionWorkflowGraph = graph;
+    window["__aionWorkflowGraph"] = graph;
 
     try {
       if (typeof persistAionWorkflowDraftState === "function") {
