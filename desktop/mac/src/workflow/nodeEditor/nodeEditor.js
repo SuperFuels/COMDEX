@@ -1722,10 +1722,6 @@ function normaliseRuntimeError(value) {
   function getGraphDryRunInputItems(node, nodes, edges) {
     const runtime = getNodeRuntime(node);
 
-    if (Array.isArray(runtime.input_items) && runtime.input_items.length) {
-      return runtime.input_items;
-    }
-
     const incomingEdges = Array.isArray(edges)
       ? edges.filter((edge) => {
           if (String(edge.to) !== String(node.id)) return false;
