@@ -348,3 +348,6 @@ backend/models/all-MiniLM-L6-v2/
 backend/models/all-MiniLM-L6-v2/**
 *.safetensors
 *.bin
+
+# Local desktop app backup snapshots
+desktop/mac/src/app.before-node-editor-cleanup.*.js
