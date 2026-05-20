@@ -52198,7 +52198,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
           <div>
             <div class="eyebrow">Master Glyph Canvas v3</div>
             <h2>Staged workflow glyph</h2>
-            <p>Read-only inspector. No execution, no editing, no wiring, no external writes.</p>
+            <p>Read-only inspector. No execution, no editing, no wiring, No external writes.</p>
           </div>
           <button
             type="button"
@@ -52208,7 +52208,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
         </div>
 
         <div class="aion-master-glyph-staged-contract">
-          Read-only · No execution · No editing · No wiring · No live orchestration · Saved glyph preserved
+          Read-only · No execution · No editing · No wiring · No external writes · No live orchestration · Saved glyph preserved
         </div>
 
         <div class="aion-master-glyph-staged-grid">
@@ -52416,6 +52416,8 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     subtree: true,
   });
 
+  window.__aionMasterGlyphStagedInspectorOpen = false;
+  window.__aionMasterGlyphSelectedStagedNodeId = window.__aionMasterGlyphSelectedStagedNodeId || null;
   window.renderAionMasterGlyphStagedNodeInspector = renderAionMasterGlyphStagedNodeInspector;
   window.__syncAionMasterGlyphStagedNodeInspector = syncInspector;
 
