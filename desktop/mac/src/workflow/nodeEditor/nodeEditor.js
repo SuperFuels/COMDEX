@@ -1445,6 +1445,220 @@
     return runtime.input_items;
   }
 
+  function getOutputItemsForEdgeCondition(outputItems, edge) {
+    const condition = String(edge?.condition || "success").toLowerCase();
+    const items = Array.isArray(outputItems) ? outputItems : [];
+
+    if (condition.startsWith("route_")) {
+      const routedItems = items.filter((item) => {
+        const json = getInputJson(item) || {};
+        return String(json.route || "").toLowerCase() === condition;
+      });
+
+      return routedItems.length ? routedItems : [];
+    }
+
+    if (condition === "true" || condition === "false") {
+      const routedItems = items.filter((item) => {
+        const json = getInputJson(item) || {};
+        const route = String(json.route || "").toLowerCase();
+
+        if (route === condition) return true;
+
+        if (typeof json.passed === "boolean") {
+          return condition === "true" ? json.passed === true : json.passed === false;
+        }
+
+        return false;
+      });
+
+      return routedItems.length ? routedItems : [];
+    }
+
+    return items;
+  }
+
+  function getGraphDryRunInputItems(node, nodes, edges) {
+    const runtime = getNodeRuntime(node);
+
+    if (Array.isArray(runtime.input_items) && runtime.input_items.length) {
+      return runtime.input_items;
+    }
+
+    const incomingEdges = Array.isArray(edges)
+      ? edges.filter((edge) => String(edge.to) === String(node.id))
+      : [];
+
+    if (!incomingEdges.length) {
+      if (Array.isArray(runtime.output_items) && runtime.output_items.length) {
+        return runtime.input_items || [];
+      }
+
+      return [
+        {
+          json: {
+            source: "workflow_dry_run_start",
+            dry_run: true,
+          },
+        },
+      ];
+    }
+
+    if (isMergeNode(node)) {
+      return getInputItemsFromIncomingEdges(node, nodes, { edges });
+    }
+
+    return incomingEdges.flatMap((edge) => {
+      const previousNode = nodes.find((item) => String(item.id) === String(edge.from));
+      const previousRuntime = previousNode ? getNodeRuntime(previousNode) : {};
+      return getOutputItemsForEdgeCondition(previousRuntime.output_items || [], edge);
+    });
+  }
+
+  function executeGraphDryRun(graph, helpers = {}) {
+    const safeGraph = graph || getGraph();
+    const nodes = Array.isArray(safeGraph.nodes) ? safeGraph.nodes : [];
+    const edges = Array.isArray(safeGraph.edges) ? safeGraph.edges : [];
+
+    const orderedNodes =
+      typeof helpers.orderAionWorkflowNodesForGlyph === "function"
+        ? helpers.orderAionWorkflowNodesForGlyph(safeGraph)
+        : nodes;
+
+    const trace = [];
+    const executedAt = new Date().toISOString();
+
+    // Clear stale runtime before a full-chain run, but preserve explicitly seeded
+    // start-node outputs so manual tests can still inject input data.
+    nodes.forEach((node) => {
+      const runtime = getNodeRuntime(node);
+      const hasIncoming = edges.some((edge) => String(edge.to) === String(node.id));
+      const preserveStartOutput =
+        !hasIncoming &&
+        Array.isArray(runtime.output_items) &&
+        runtime.output_items.length;
+
+      node.runtime = {
+        ...(node.runtime || {}),
+        input_items: preserveStartOutput ? (runtime.input_items || []) : [],
+        output_items: preserveStartOutput ? runtime.output_items : [],
+        execution_status: preserveStartOutput ? "success" : "idle",
+        last_run_at: preserveStartOutput ? (runtime.last_run_at || executedAt) : null,
+        last_input_at: null,
+        error: null,
+      };
+    });
+
+    orderedNodes.forEach((node) => {
+      const runtime = getNodeRuntime(node);
+      const nodeId = String(node.id || "");
+      const title = String(node.title || node.label || nodeId || "Node");
+
+      const hasIncoming = edges.some((edge) => String(edge.to) === String(node.id));
+      const preserveStartOutput =
+        !hasIncoming &&
+        Array.isArray(runtime.output_items) &&
+        runtime.output_items.length;
+
+      let inputItems = getGraphDryRunInputItems(node, nodes, edges);
+
+      if (hasIncoming && (!Array.isArray(inputItems) || !inputItems.length)) {
+        runtime.input_items = [];
+        runtime.output_items = [];
+        runtime.execution_status = "skipped";
+        runtime.last_run_at = new Date().toISOString();
+        runtime.error = null;
+
+        trace.push({
+          node_id: nodeId,
+          title,
+          op: getActionKey(node) || "workflow_step",
+          status: "skipped",
+          marker: "node_runtime_dry_run_skipped_empty_input",
+          risk_tier: "low",
+          permission: {
+            decision: "skip",
+            requires_approval: false,
+            reason: "no_matching_input_items_for_incoming_condition",
+          },
+          input_items_count: 0,
+          output_items_count: 0,
+          input_items_preview: [],
+          output_items_preview: [],
+        });
+
+        return;
+      }
+
+      let outputItems = preserveStartOutput
+        ? runtime.output_items
+        : executeNodeDryRun(node, inputItems);
+
+      runtime.input_items = inputItems;
+      runtime.output_items = outputItems;
+      runtime.execution_status = "success";
+      runtime.last_run_at = new Date().toISOString();
+      runtime.error = null;
+
+      const paused = outputItems.some((item) => {
+        const json = getInputJson(item) || {};
+        return json.workflow_paused === true || json.retry_later === true || json.stopped === true;
+      });
+
+      trace.push({
+        node_id: nodeId,
+        title,
+        op: getActionKey(node) || "workflow_step",
+        status: paused ? "paused" : "executed",
+        marker: "node_runtime_dry_run",
+        risk_tier: "low",
+        permission: {
+          decision: "auto_run",
+          requires_approval: false,
+          reason: "local_node_runtime_dry_run",
+        },
+        input_items_count: Array.isArray(inputItems) ? inputItems.length : 0,
+        output_items_count: Array.isArray(outputItems) ? outputItems.length : 0,
+        input_items_preview: inputItems,
+        output_items_preview: outputItems,
+      });
+    });
+
+    safeGraph.dirty = true;
+    window.__aionWorkflowGraph = safeGraph;
+
+    helpers.compileAndAttachAionWorkflowGlyph?.(safeGraph);
+    helpers.persistAionWorkflowDraftState?.();
+
+    const compiledGlyph =
+      safeGraph.compiled_glyph ||
+      helpers.compileAionWorkflowGraphToGlyph?.(safeGraph) ||
+      null;
+
+    return {
+      ok: true,
+      mode: "local_canvas_node_runtime_dry_run",
+      execution_route: "node_editor_runtime_full_chain",
+      dry_run: true,
+      local_preview: true,
+      workflow_id: String(safeGraph.workflow_id || "workflow_draft"),
+      workflow_name: String(safeGraph.name || "Untitled workflow"),
+      steps: trace.length,
+      trace,
+      blocked_external_writes: [],
+      approval_required: false,
+      approval_request: null,
+      compiled_glyph: compiledGlyph,
+      message: "Node runtime dry-run completed. No external writes were detected.",
+    };
+  }
+
+  window.__aionNodeEditorRuntime = {
+    ...(window.__aionNodeEditorRuntime || {}),
+    executeNodeDryRun,
+    executeGraphDryRun,
+  };
+
   function executeOpenNode(helpers = {}) {
     const graph = helpers.getAionWorkflowDraftState?.() || getGraph();
     const nodeId = window.__aionWorkflowNodeEditorOpenId;

@@ -24821,6 +24821,22 @@ function buildAionWorkflowLocalDryRunResult(graph) {
   const compiledGlyph =
     safeGraph.compiled_glyph || compileAionWorkflowGraphToGlyph(safeGraph);
 
+  const nodeRuntimeDryRun =
+    typeof window !== "undefined" &&
+    window.__aionNodeEditorRuntime &&
+    typeof window.__aionNodeEditorRuntime.executeGraphDryRun === "function"
+      ? window.__aionNodeEditorRuntime.executeGraphDryRun
+      : null;
+
+  if (nodeRuntimeDryRun) {
+    return nodeRuntimeDryRun(safeGraph, {
+      compileAndAttachAionWorkflowGlyph,
+      compileAionWorkflowGraphToGlyph,
+      orderAionWorkflowNodesForGlyph,
+      persistAionWorkflowDraftState,
+    });
+  }
+
   const orderedNodes =
     typeof orderAionWorkflowNodesForGlyph === "function"
       ? orderAionWorkflowNodesForGlyph(safeGraph)
