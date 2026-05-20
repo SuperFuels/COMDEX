@@ -1456,10 +1456,184 @@ function normaliseRuntimeError(value) {
     ];
   }
 
+  function resolveCallableWorkflowGlyph(config = {}) {
+    const wantedId = String(
+      config.workflow_id ||
+      config.glyph_workflow_id ||
+      config.child_workflow_id ||
+      config.workflow_key ||
+      config.canonical_key ||
+      config.glyph_id ||
+      "",
+    ).trim();
+
+    const wantedName = String(config.workflow_name || config.name || config.glyph_name || "").trim().toLowerCase();
+
+    const capsules =
+      typeof window !== "undefined" &&
+      typeof window.listAionWorkflowGlyphCapsules === "function"
+        ? window.listAionWorkflowGlyphCapsules()
+        : [];
+
+    const safeCapsules = Array.isArray(capsules) ? capsules : [];
+
+    if (!wantedId && !wantedName) {
+      return safeCapsules[0] || null;
+    }
+
+    return (
+      safeCapsules.find((item) => {
+        const compiled = item?.compiled_glyph || {};
+        const workflow = compiled.workflow || {};
+        const ids = [
+          item?.workflow_id,
+          item?.id,
+          item?.canonical_key,
+          item?.glyph_id,
+          workflow.workflow_id,
+          workflow.name,
+        ].map((value) => String(value || "").trim());
+
+        if (wantedId && ids.some((value) => value === wantedId)) return true;
+
+        if (wantedName) {
+          return ids.some((value) => value.toLowerCase() === wantedName);
+        }
+
+        return false;
+      }) || null
+    );
+  }
+
+  function executeCallWorkflowGlyphNode(node, inputItems) {
+    const config = node.config || {};
+    const items = Array.isArray(inputItems) && inputItems.length
+      ? inputItems
+      : [{ json: {} }];
+
+    const glyph = resolveCallableWorkflowGlyph(config);
+    const compiledGlyph = glyph?.compiled_glyph || glyph?.compiled || glyph || null;
+    const workflow = compiledGlyph?.workflow || {};
+
+    const parentWorkflowId = String(config.parent_workflow_id || config.workflow_id || "");
+    const childWorkflowId = String(
+      workflow.workflow_id ||
+      glyph?.workflow_id ||
+      glyph?.id ||
+      config.child_workflow_id ||
+      config.workflow_key ||
+      config.canonical_key ||
+      "unknown_child_workflow",
+    );
+
+    if (parentWorkflowId && parentWorkflowId === childWorkflowId) {
+      return [
+        {
+          json: {
+            source: "workflow.call_workflow_glyph",
+            dry_run: true,
+            call_workflow_glyph: true,
+            status: "blocked_recursive_call",
+            error: {
+              message: "Recursive workflow glyph call blocked.",
+              source: "workflow.call_workflow_glyph",
+            },
+            child_workflow_id: childWorkflowId,
+            parent_workflow_id: parentWorkflowId,
+            input_count: items.length,
+            output_count: 0,
+          },
+        },
+      ];
+    }
+
+    if (!glyph || !compiledGlyph) {
+      return items.map((inputItem, index) => ({
+        json: {
+          ...(getInputJson(inputItem) || {}),
+          source: "workflow.call_workflow_glyph",
+          dry_run: true,
+          call_workflow_glyph: true,
+          status: "missing_child_glyph",
+          error: {
+            message: "No callable workflow glyph was found for this node.",
+            source: "workflow.call_workflow_glyph",
+          },
+          child_workflow_id: childWorkflowId,
+          input_count: items.length,
+          output_count: 0,
+          item_index: index,
+        },
+      }));
+    }
+
+    const approvalPolicy = compiledGlyph.approval_policy || compiledGlyph.policy || {};
+    const childRequiresApproval =
+      approvalPolicy.approval_before_external_write === true ||
+      approvalPolicy.requires_approval === true ||
+      String(compiledGlyph.risk_tier || "low").toLowerCase() !== "low";
+
+    const childTrace = Array.isArray(compiledGlyph.steps)
+      ? compiledGlyph.steps.map((step, index) => ({
+          index,
+          node_id: step.node_id || step.ref || `child_step_${index + 1}`,
+          title: step.title || step.op || `Child step ${index + 1}`,
+          op: step.op || "aion.workflow:step",
+          status: childRequiresApproval ? "preview_requires_approval" : "previewed",
+          dry_run: true,
+        }))
+      : [];
+
+    return items.map((inputItem, index) => {
+      const inputJson = getInputJson(inputItem) || {};
+
+      return {
+        json: {
+          ...inputJson,
+          source: "workflow.call_workflow_glyph",
+          dry_run: true,
+          call_workflow_glyph: true,
+          status: childRequiresApproval ? "approval_required" : "executed",
+          child_workflow_id: childWorkflowId,
+          child_workflow_name: String(workflow.name || glyph?.display_name || glyph?.title || "Workflow glyph"),
+          child_glyph_type: String(compiledGlyph.glyph_type || "workflow_capsule"),
+          child_callable: compiledGlyph.callable === true,
+          child_risk_tier: String(compiledGlyph.risk_tier || "low"),
+          child_required_connectors: Array.isArray(compiledGlyph.required_connectors)
+            ? compiledGlyph.required_connectors
+            : [],
+          child_approval_policy: approvalPolicy,
+          child_trace: childTrace,
+          child_trace_count: childTrace.length,
+          child_output: {
+            ok: !childRequiresApproval,
+            dry_run: true,
+            received_input: inputJson,
+            workflow_id: childWorkflowId,
+          },
+          approval_required: childRequiresApproval,
+          input_count: items.length,
+          output_count: 1,
+          item_index: index,
+          item_number: index + 1,
+          item_total: items.length,
+        },
+      };
+    });
+  }
+
   function executeNodeDryRunRaw(node, inputItems) {
     const config = node.config || {};
     const title = String(config.title || node.title || "").toLowerCase();
     const actionKey = getActionKey(node);
+
+    if (
+      actionKey.includes("call_workflow_glyph") ||
+      actionKey.includes("workflow.call") ||
+      title.includes("call workflow glyph")
+    ) {
+      return executeCallWorkflowGlyphNode(node, inputItems);
+    }
 
     if (actionKey.includes("gmail.watch") || title.includes("gmail new email")) {
       return executeGmailWatchNode(node, inputItems);
