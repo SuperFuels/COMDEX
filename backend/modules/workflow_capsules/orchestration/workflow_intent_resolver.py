@@ -6,6 +6,9 @@ from typing import Any, Dict, List, Optional
 from backend.modules.workflow_capsules.registry.workflow_glyph_registry import (
     WorkflowGlyphRegistry,
 )
+from backend.modules.workflow_capsules.habits.habit_capsule_registry import (
+    HabitCapsuleRegistry,
+)
 
 
 @dataclass
@@ -41,8 +44,13 @@ class WorkflowIntentResolver:
     It does not execute workflows. It only resolves intent to a capsule key.
     """
 
-    def __init__(self, registry: Optional[WorkflowGlyphRegistry] = None) -> None:
+    def __init__(
+        self,
+        registry: Optional[WorkflowGlyphRegistry] = None,
+        habit_registry: Optional[HabitCapsuleRegistry] = None,
+    ) -> None:
         self.registry = registry or WorkflowGlyphRegistry()
+        self.habit_registry = habit_registry or HabitCapsuleRegistry()
 
     def resolve(self, user_text: str, *, rebuild_registry: bool = True) -> WorkflowIntentResolution:
         raw = str(user_text or "").strip()
@@ -53,6 +61,21 @@ class WorkflowIntentResolver:
 
         if rebuild_registry:
             self.registry.rebuild_and_save()
+
+        # Advisory habit resolution.
+        # Habits never execute directly. They resolve back to a source workflow key,
+        # then execution still goes through WorkflowGlyphRegistry/WorkflowCapsuleRunner.
+        try:
+            self.habit_registry.rebuild_and_save()
+            habit_matches = self.habit_registry.find(raw)
+            if habit_matches:
+                top_habit = habit_matches[0]
+                return self._resolve_query(
+                    top_habit.source_workflow_key,
+                    reason=f"habit_advisory_match:{top_habit.reason}",
+                )
+        except Exception:
+            pass
 
         # Explicit workflow identity paths.
         if "workflow:gmail.enquiry_reply.v1" in t:

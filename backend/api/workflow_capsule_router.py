@@ -20,6 +20,9 @@ from backend.modules.workflow_capsules.repository.workflow_capsule_repository im
 from backend.modules.workflow_capsules.registry.workflow_glyph_registry import (
     WorkflowGlyphRegistry,
 )
+from backend.modules.workflow_capsules.orchestration.workflow_intent_resolver import (
+    WorkflowIntentResolver,
+)
 
 
 router = APIRouter(prefix="/api/workflow-capsules", tags=["workflow-capsules"])
@@ -66,6 +69,10 @@ def get_runner() -> WorkflowCapsuleRunner:
     return WorkflowCapsuleRunner()
 
 
+def get_intent_resolver() -> WorkflowIntentResolver:
+    return WorkflowIntentResolver()
+
+
 def get_approval_store() -> WorkflowCapsuleApprovalStore:
     return WorkflowCapsuleApprovalStore()
 
@@ -73,9 +80,18 @@ def get_approval_store() -> WorkflowCapsuleApprovalStore:
 @router.post("/run-dry")
 def run_dry(payload: WorkflowRunDryRequest) -> Dict[str, Any]:
     runner = get_runner()
+    resolver = get_intent_resolver()
+
+    raw_value = str(payload.value or "").strip()
+    resolution = resolver.resolve(raw_value, rebuild_registry=True)
+    resolution_payload = resolution.to_dict()
+
+    resolved_value = raw_value
+    if resolution.ok and resolution.matched and resolution.canonical_key:
+        resolved_value = resolution.canonical_key
 
     result = runner.run_dry(
-        payload.value,
+        resolved_value,
         inputs=payload.inputs,
         available_vault_requirements=payload.available_vault_requirements,
         cau_state=payload.cau_state,
@@ -83,12 +99,19 @@ def run_dry(payload: WorkflowRunDryRequest) -> Dict[str, Any]:
             **payload.extra,
             "source": "workflow_capsule_api",
             "route": "run_dry",
+            "raw_value": raw_value,
+            "resolved_value": resolved_value,
+            "intent_resolution": resolution_payload,
         },
         rebuild_registry=True,
         create_approval=payload.create_approval,
     )
 
-    return result.to_dict()
+    out = result.to_dict()
+    out["intent_resolution"] = resolution_payload
+    out["raw_value"] = raw_value
+    out["resolved_value"] = resolved_value
+    return out
 
 
 @router.post("/canvas/compile-save")
