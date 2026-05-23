@@ -62338,3 +62338,541 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   console.log("[AION] Glyph Tabs Square Active Style v6 installed");
 })();
 
+
+
+/*
+ * AION PATCH: Glyph Library Instant Open Lock v7
+ * ---------------------------------------------------------
+ * Purpose:
+ * - The glyph library button must always open immediately.
+ * - Never block the modal on backend refresh / timeout.
+ * - Capture all old glyph-library button variants before legacy handlers.
+ * - Refresh backend glyphs in the background after the modal is visible.
+ */
+(function installAionGlyphLibraryInstantOpenLockV7() {
+  if (window.__aionGlyphLibraryInstantOpenLockV7Installed === true) return;
+  window.__aionGlyphLibraryInstantOpenLockV7Installed = true;
+
+  const BUTTON_ATTR = "data-aion-glyph-library-instant-open-v7";
+
+  function notify(message, type = "info") {
+    if (typeof safePatchMessage === "function") {
+      safePatchMessage(message, type);
+      return;
+    }
+    if (typeof showToast === "function") {
+      showToast({ message, type });
+      return;
+    }
+    console.log(`[AION] ${message}`);
+  }
+
+  function markGlyphLibraryButtons() {
+    document.querySelectorAll("button, [role='button']").forEach((button) => {
+      const text = String(button.textContent || "").trim();
+      const title = String(button.getAttribute("title") || "").toLowerCase();
+      const aria = String(button.getAttribute("aria-label") || "").toLowerCase();
+
+      const isGlyphButton =
+        text === "⌘" ||
+        title.includes("glyph library") ||
+        aria.includes("glyph library") ||
+        button.hasAttribute("data-aion-workflow-glyph-library-open") ||
+        button.hasAttribute("data-aion-glyph-library-v37-open") ||
+        button.hasAttribute("data-aion-glyph-library-hard-open-v2") ||
+        button.hasAttribute("data-aion-glyph-library-force-open-v3") ||
+        button.hasAttribute("data-aion-glyph-library-force-open-v4");
+
+      if (!isGlyphButton) return;
+
+      button.setAttribute(BUTTON_ATTR, "true");
+      button.setAttribute("title", "Workflow Glyph Library");
+      button.setAttribute("aria-label", "Workflow Glyph Library");
+      button.style.setProperty("display", "inline-flex", "important");
+      button.style.setProperty("visibility", "visible", "important");
+      button.style.setProperty("opacity", "1", "important");
+      button.style.setProperty("pointer-events", "auto", "important");
+    });
+  }
+
+  function renderLibraryNow() {
+    window.__aionWorkflowGlyphLibraryOpen = true;
+
+    if (typeof window.__renderAionGlyphMarketplaceModal === "function") {
+      window.__renderAionGlyphMarketplaceModal();
+      notify("Glyph Library opened.", "success");
+      return true;
+    }
+
+    if (typeof window.__forceOpenBackendGlyphLibrary === "function") {
+      const maybePromise = window.__forceOpenBackendGlyphLibrary();
+      if (maybePromise && typeof maybePromise.catch === "function") {
+        maybePromise.catch((err) => console.warn("[AION] fallback glyph open failed", err));
+      }
+      return true;
+    }
+
+    console.warn("[AION] Glyph Library renderer unavailable.");
+    notify("Glyph Library renderer is not available yet.", "warning");
+    return false;
+  }
+
+  function refreshInBackground() {
+    if (typeof window.__refreshAionWorkflowGlyphsFromApi !== "function") return;
+
+    Promise.resolve()
+      .then(() => window.__refreshAionWorkflowGlyphsFromApi({ silent: true }))
+      .then(() => {
+        if (
+          window.__aionWorkflowGlyphLibraryOpen === true &&
+          typeof window.__renderAionGlyphMarketplaceModal === "function"
+        ) {
+          window.__renderAionGlyphMarketplaceModal();
+        }
+      })
+      .catch((err) => {
+        console.warn("[AION] background glyph refresh failed", err);
+      });
+  }
+
+  function openGlyphLibraryInstantly() {
+    markGlyphLibraryButtons();
+    renderLibraryNow();
+    refreshInBackground();
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest?.(
+      `[${BUTTON_ATTR}='true'], ` +
+      "[data-aion-glyph-library-force-open-v4='true'], " +
+      "[data-aion-glyph-library-force-open-v3='true'], " +
+      "[data-aion-glyph-library-hard-open-v2='true'], " +
+      "[data-aion-glyph-library-v37-open='true'], " +
+      "[data-aion-workflow-glyph-library-open='true']"
+    );
+
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    openGlyphLibraryInstantly();
+  }, true);
+
+  const previousRequestRender = window.requestRender;
+  if (typeof previousRequestRender === "function" && previousRequestRender.__aionGlyphLibraryInstantOpenV7Wrapped !== true) {
+    const wrapped = function requestRenderGlyphLibraryInstantOpenV7Wrapped(...args) {
+      const out = previousRequestRender.apply(this, args);
+      window.setTimeout(markGlyphLibraryButtons, 0);
+      window.setTimeout(markGlyphLibraryButtons, 120);
+      return out;
+    };
+    wrapped.__aionGlyphLibraryInstantOpenV7Wrapped = true;
+    window.requestRender = wrapped;
+  }
+
+  window.__openAionWorkflowGlyphLibrary = openGlyphLibraryInstantly;
+  window.__forceOpenBackendGlyphLibraryInstantV7 = openGlyphLibraryInstantly;
+  window.__bindAionGlyphLibraryInstantOpenV7 = markGlyphLibraryButtons;
+  window.__debugAionGlyphLibraryInstantOpenV7 = function debugAionGlyphLibraryInstantOpenV7() {
+    markGlyphLibraryButtons();
+    return {
+      installed: true,
+      openFn: typeof window.__openAionWorkflowGlyphLibrary,
+      refreshFn: typeof window.__refreshAionWorkflowGlyphsFromApi,
+      rendererFn: typeof window.__renderAionGlyphMarketplaceModal,
+      modalOpen: window.__aionWorkflowGlyphLibraryOpen === true,
+      buttonCount: document.querySelectorAll(`[${BUTTON_ATTR}='true']`).length,
+      backendGlyphCount: Array.isArray(window.__aionBackendWorkflowGlyphs)
+        ? window.__aionBackendWorkflowGlyphs.length
+        : 0,
+    };
+  };
+
+  window.setTimeout(markGlyphLibraryButtons, 50);
+  window.setTimeout(markGlyphLibraryButtons, 250);
+  window.setTimeout(markGlyphLibraryButtons, 900);
+
+  console.log("[AION] Glyph Library Instant Open Lock v7 installed");
+})();
+
+
+/*
+ * AION PATCH: Glyph Tabs Hide Over Modals Lock v8
+ * ---------------------------------------------------------
+ * Purpose:
+ * - The glyph workflow tab strip must not appear over modal dialogs.
+ * - Hide top tabs when Add Module / module picker / drawer modal is open.
+ * - Preserve the tab strip on the normal workflow canvas.
+ */
+(function installAionGlyphTabsHideOverModalsLockV8() {
+  if (window.__aionGlyphTabsHideOverModalsLockV8Installed === true) return;
+  window.__aionGlyphTabsHideOverModalsLockV8Installed = true;
+
+  const STYLE_ID = "aion-glyph-tabs-hide-over-modals-lock-v8-style";
+  const TAB_SELECTORS = [
+    "#aion-glyph-workflow-top-tabs-v2",
+    "#aion-master-glyph-workflow-tabs-v2",
+    "[data-aion-glyph-workflow-top-tabs='true']",
+    ".aion-glyph-workflow-top-tabs",
+    ".aion-master-glyph-workflow-tabs",
+    ".aion-glyph-tabs-strip",
+  ].join(", ");
+
+  const MODAL_SELECTORS = [
+    "[role='dialog']",
+    ".aion-module-picker-modal",
+    ".aion-workflow-module-picker",
+    ".aion-module-picker",
+    ".aion-step-module-picker",
+    ".aion-architect-module-picker",
+    ".aion-first-step-picker-modal",
+    "[data-aion-module-picker='true']",
+    "[data-aion-workflow-module-picker='true']",
+    "[data-aion-architect-module-picker='true']",
+    "[data-aion-main-canvas-module-picker='true']",
+    "[data-aion-auth-glyph-library-root='true']",
+    ".aion-auth-glyph-modal",
+    ".aion-auth-glyph-backdrop",
+  ];
+
+  function isVisible(el) {
+    if (!el || !(el instanceof Element)) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === "none" || style.visibility === "hidden" || style.opacity === "0") return false;
+    const rect = el.getBoundingClientRect();
+    return rect.width > 8 && rect.height > 8;
+  }
+
+  function modalIsOpen() {
+    return MODAL_SELECTORS.some((selector) => {
+      try {
+        return [...document.querySelectorAll(selector)].some(isVisible);
+      } catch (_) {
+        return false;
+      }
+    });
+  }
+
+  function setTabsHidden(hidden) {
+    document.querySelectorAll(TAB_SELECTORS).forEach((el) => {
+      if (hidden) {
+        el.setAttribute("data-aion-hidden-by-modal-v8", "true");
+        el.style.setProperty("display", "none", "important");
+        el.style.setProperty("visibility", "hidden", "important");
+        el.style.setProperty("pointer-events", "none", "important");
+      } else if (el.getAttribute("data-aion-hidden-by-modal-v8") === "true") {
+        el.removeAttribute("data-aion-hidden-by-modal-v8");
+        el.style.removeProperty("display");
+        el.style.removeProperty("visibility");
+        el.style.removeProperty("pointer-events");
+      }
+    });
+  }
+
+  function syncGlyphTabsVisibility() {
+    setTabsHidden(modalIsOpen());
+  }
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      body.aion-module-picker-open #aion-glyph-workflow-top-tabs-v2,
+      body.aion-workflow-modal-open #aion-glyph-workflow-top-tabs-v2,
+      body.aion-any-modal-open #aion-glyph-workflow-top-tabs-v2 {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      [data-aion-hidden-by-modal-v8="true"] {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.addEventListener("click", () => {
+    window.setTimeout(syncGlyphTabsVisibility, 0);
+    window.setTimeout(syncGlyphTabsVisibility, 80);
+    window.setTimeout(syncGlyphTabsVisibility, 250);
+  }, true);
+
+  document.addEventListener("keydown", () => {
+    window.setTimeout(syncGlyphTabsVisibility, 0);
+    window.setTimeout(syncGlyphTabsVisibility, 120);
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionGlyphTabsHideOverModalsV8Timer);
+    window.__aionGlyphTabsHideOverModalsV8Timer = window.setTimeout(syncGlyphTabsVisibility, 60);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ["class", "style", "aria-hidden", "open"],
+  });
+
+  const previousRequestRender = window.requestRender;
+  if (typeof previousRequestRender === "function" && previousRequestRender.__aionGlyphTabsHideOverModalsV8Wrapped !== true) {
+    const wrapped = function requestRenderGlyphTabsHideOverModalsV8Wrapped(...args) {
+      const out = previousRequestRender.apply(this, args);
+      window.setTimeout(syncGlyphTabsVisibility, 0);
+      window.setTimeout(syncGlyphTabsVisibility, 120);
+      return out;
+    };
+    wrapped.__aionGlyphTabsHideOverModalsV8Wrapped = true;
+    window.requestRender = wrapped;
+  }
+
+  window.__syncAionGlyphTabsModalVisibilityV8 = syncGlyphTabsVisibility;
+  window.__debugAionGlyphTabsHideOverModalsV8 = function debugAionGlyphTabsHideOverModalsV8() {
+    syncGlyphTabsVisibility();
+    return {
+      installed: true,
+      modalOpen: modalIsOpen(),
+      tabCount: document.querySelectorAll(TAB_SELECTORS).length,
+      hiddenTabCount: document.querySelectorAll("[data-aion-hidden-by-modal-v8='true']").length,
+      visibleDialogs: MODAL_SELECTORS
+        .flatMap((selector) => [...document.querySelectorAll(selector)].filter(isVisible).map((el) => ({
+          selector,
+          tag: el.tagName,
+          id: el.id || "",
+          className: String(el.className || "").slice(0, 120),
+          text: String(el.textContent || "").trim().slice(0, 80),
+        }))),
+    };
+  };
+
+  window.setTimeout(syncGlyphTabsVisibility, 50);
+  window.setTimeout(syncGlyphTabsVisibility, 250);
+  window.setTimeout(syncGlyphTabsVisibility, 900);
+
+  console.log("[AION] Glyph Tabs Hide Over Modals Lock v8 installed");
+})();
+
+
+/*
+ * AION PATCH: Glyph Tab Editor Migration Lock v1
+ * -------------------------------------------------------------
+ * Purpose:
+ * - Master Glyph Canvas is now legacy/source-only.
+ * - Glyph editing moves into top workflow tabs.
+ * - Universal glyphs are immutable shared templates.
+ * - Editing a universal glyph must copy/fork it to My Glyphs first.
+ * - My Glyphs may be renamed/customised and saved back to backend glyph store.
+ * - call_workflow_glyph nodes remain dry-run only until parent/child validation.
+ * - Existing Master Glyph compiler/registry/staging logic must be migrated, not deleted.
+ */
+(function installAionGlyphTabEditorMigrationLockV1() {
+  if (window.__aionGlyphTabEditorMigrationLockV1Installed === true) return;
+  window.__aionGlyphTabEditorMigrationLockV1Installed = true;
+
+  window.__AION_GLYPH_EDITOR_STRATEGY_V1 = Object.freeze({
+    masterGlyphCanvasMode: "legacy_source_only",
+    editorSurface: "top_workflow_tabs",
+    universalGlyphPolicy: "immutable_template_copy_before_edit",
+    myGlyphPolicy: "editable_save_to_backend",
+    runtimePolicy: "dry_run_only_until_parent_child_validation",
+    migrateBeforeRemove: [
+      "compileAionWorkflowGraphToGlyph",
+      "compileAndAttachAionWorkflowGlyph",
+      "getAionWorkflowGlyphCapsuleRegistry",
+      "persistAionWorkflowGlyphCapsuleRegistry",
+      "upsertAionWorkflowGlyphCapsuleRegistryItem",
+      "listAionWorkflowGlyphLibraryItems",
+      "stageMasterGlyphToWorkflowCanvas",
+      "connection_preview_contract",
+    ],
+  });
+
+  function notify(message, type = "info") {
+    if (typeof safePatchMessage === "function") return safePatchMessage(message, type);
+    if (typeof showToast === "function") return showToast({ message, type });
+    console.log(`[AION] ${message}`);
+  }
+
+  function clone(value) {
+    try { return JSON.parse(JSON.stringify(value)); } catch (_) { return value; }
+  }
+
+  function getApiBase() {
+    const base =
+      window.__AION_API_BASE__ ||
+      window.__aionApiBase ||
+      window.apiBase ||
+      localStorage.getItem("aion.apiBase") ||
+      "http://127.0.0.1:8080";
+
+    return String(base || "http://127.0.0.1:8080").replace(/\/+$/, "");
+  }
+
+  function normaliseGlyph(glyph = {}) {
+    const scope = String(glyph.scope || glyph.glyph_scope || "my").toLowerCase() === "universal"
+      ? "universal"
+      : "my";
+
+    return {
+      ...clone(glyph),
+      glyph_code: glyph.glyph_code || glyph.code || "",
+      name: glyph.name || glyph.display_name || glyph.workflow_id || "Workflow Glyph",
+      workflow_id: glyph.workflow_id || "",
+      glyph_version: glyph.glyph_version || glyph.workflow_version || "v1",
+      workflow_version: glyph.workflow_version || "v1",
+      scope,
+      glyph_scope: scope,
+      source_glyph_code: glyph.source_glyph_code || null,
+      runtime_plan: glyph.runtime_plan || {},
+      approval_policy: glyph.approval_policy || {},
+      input_schema: glyph.input_schema || glyph.inputs_schema || {},
+      output_schema: glyph.output_schema || glyph.outputs_schema || {},
+      required_connectors: Array.isArray(glyph.required_connectors) ? glyph.required_connectors : [],
+      risk_tier: glyph.risk_tier || "low",
+      callable: glyph.callable !== false,
+    };
+  }
+
+  async function copyUniversalGlyphBeforeEdit(glyph) {
+    const source = normaliseGlyph(glyph);
+    if (source.glyph_scope !== "universal") return source;
+
+    const response = await fetch(`${getApiBase()}/api/workflow-glyphs/copy`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        source_glyph_code: source.glyph_code,
+        name: `${source.name} Copy`,
+      }),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload?.ok === false) {
+      throw new Error(payload?.detail || payload?.error || `HTTP ${response.status}`);
+    }
+
+    const copied = normaliseGlyph(payload.glyph || payload.copied || payload.saved?.glyph || {});
+    if (!copied.glyph_code) {
+      throw new Error("copy_response_missing_glyph_code");
+    }
+
+    if (typeof window.__refreshAionWorkflowGlyphsFromApi === "function") {
+      Promise.resolve()
+        .then(() => window.__refreshAionWorkflowGlyphsFromApi({ silent: true }))
+        .catch((err) => console.warn("[AION] background glyph refresh failed after copy", err));
+    }
+
+    return copied;
+  }
+
+  async function saveMyGlyphFromTab(glyphPatch = {}) {
+    const current = normaliseGlyph(window.__aionOpenedGlyphWorkflow || {});
+    const next = normaliseGlyph({ ...current, ...clone(glyphPatch) });
+
+    if (!next.glyph_code) {
+      notify("Cannot save glyph: missing glyph_code.", "error");
+      return null;
+    }
+
+    if (next.glyph_scope === "universal") {
+      notify("Universal glyphs are immutable. Saving as My Glyph first.", "info");
+      const copied = await copyUniversalGlyphBeforeEdit(next);
+      window.__aionOpenedGlyphWorkflow = copied;
+      window.__aionGlyphWorkflowTabOpen = true;
+      if (typeof window.__renderAionGlyphWorkflowTab === "function") {
+        window.__renderAionGlyphWorkflowTab();
+      }
+      return copied;
+    }
+
+    const response = await fetch(`${getApiBase()}/api/workflow-glyphs`, {
+      method: "POST",
+      headers: {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        glyph: {
+          ...next,
+          scope: "my",
+          glyph_scope: "my",
+        },
+        rebuild_index: true,
+      }),
+    });
+
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || payload?.ok === false) {
+      throw new Error(payload?.detail || payload?.error || `HTTP ${response.status}`);
+    }
+
+    const saved = normaliseGlyph(payload.glyph || next);
+    window.__aionOpenedGlyphWorkflow = saved;
+
+    if (typeof window.__refreshAionWorkflowGlyphsFromApi === "function") {
+      Promise.resolve()
+        .then(() => window.__refreshAionWorkflowGlyphsFromApi({ silent: true }))
+        .catch((err) => console.warn("[AION] background glyph refresh failed after save", err));
+    }
+
+    if (typeof window.__renderAionGlyphWorkflowTab === "function") {
+      window.__renderAionGlyphWorkflowTab();
+    }
+
+    notify(`Saved My Glyph ${saved.glyph_code}.`, "success");
+    return saved;
+  }
+
+  function addOpenedGlyphToCurrentWorkflow() {
+    const glyph = normaliseGlyph(window.__aionOpenedGlyphWorkflow || {});
+    if (!glyph.glyph_code) {
+      notify("No glyph tab is open to add.", "warning");
+      return null;
+    }
+
+    if (typeof window.__stageAionBackendGlyphToWorkflowCanvas === "function") {
+      return window.__stageAionBackendGlyphToWorkflowCanvas(glyph.glyph_code);
+    }
+
+    if (typeof window.__openAionWorkflowGlyphLibrary === "function") {
+      notify("Add-to-current-workflow needs backend staging bridge. Use Stage to canvas from the Glyph Library for now.", "info");
+      return null;
+    }
+
+    notify("No staging bridge available yet.", "warning");
+    return null;
+  }
+
+  function deprecateMasterGlyphCanvasEditing() {
+    document.body.classList.add("aion-master-glyph-canvas-legacy-source-only");
+  }
+
+  window.__copyAionUniversalGlyphBeforeEdit = copyUniversalGlyphBeforeEdit;
+  window.__saveAionMyGlyphFromTab = saveMyGlyphFromTab;
+  window.__addOpenedAionGlyphToCurrentWorkflow = addOpenedGlyphToCurrentWorkflow;
+  window.__deprecateAionMasterGlyphCanvasEditing = deprecateMasterGlyphCanvasEditing;
+
+  window.__debugAionGlyphTabEditorMigrationLockV1 = function debugAionGlyphTabEditorMigrationLockV1() {
+    return {
+      installed: true,
+      strategy: window.__AION_GLYPH_EDITOR_STRATEGY_V1,
+      openedGlyph: window.__aionOpenedGlyphWorkflow?.glyph_code || null,
+      openedScope: window.__aionOpenedGlyphWorkflow?.scope || window.__aionOpenedGlyphWorkflow?.glyph_scope || null,
+      hasSaveFn: typeof window.__saveAionMyGlyphFromTab === "function",
+      hasCopyFn: typeof window.__copyAionUniversalGlyphBeforeEdit === "function",
+      hasAddFn: typeof window.__addOpenedAionGlyphToCurrentWorkflow === "function",
+    };
+  };
+
+  deprecateMasterGlyphCanvasEditing();
+
+  console.log("[AION] Glyph Tab Editor Migration Lock v1 installed");
+})();
