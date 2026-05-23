@@ -58703,7 +58703,9 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       id: nodeId,
       title: `Call ${glyph.name}`,
       label: `Call ${glyph.name}`,
-      type: "Workflow Glyph",
+      type: "call_workflow_glyph",
+      kind: "call_workflow_glyph",
+      display_type: "Workflow Glyph",
       icon: "⌁",
       status: "Staged",
       meta: `Staged from Backend Glyph Store · ${glyph.glyph_code} · dry-run only`,
@@ -58714,14 +58716,37 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       live_send_enabled: false,
       action_id: "call_workflow_glyph",
       module_id: "workflow.call_workflow_glyph",
+
+      /*
+       * Contract lock:
+       * staged glyph nodes must be real call_workflow_glyph nodes, not just
+       * visual placeholders. Runtime remains dry-run only until validation is
+       * complete.
+       */
+      glyph_code: glyph.glyph_code,
+      glyph_id: glyph.glyph_id,
+      glyph_version: glyph.glyph_version || "v1",
+      glyph_scope: glyph.scope || glyph.glyph_scope || "my",
+      child_workflow_id: glyph.workflow_id,
+      source_glyph_code: glyph.source_glyph_code || null,
+      version_hash: glyph.version_hash || glyph.meta?.version_hash || "",
+      input_schema: clone(glyph.input_schema || {}),
+      output_schema: clone(glyph.output_schema || {}),
+      required_connectors: clone(glyph.required_connectors || []),
+      risk_tier: glyph.risk_tier || "low",
+      approval_policy: clone(glyph.approval_policy || {}),
+      runtime_plan: clone(glyph.runtime_plan || {}),
       config: {
         action_id: "call_workflow_glyph",
         module_id: "workflow.call_workflow_glyph",
         glyph_code: glyph.glyph_code,
         glyph_id: glyph.glyph_id,
-        glyph_version: glyph.glyph_version,
+        glyph_version: glyph.glyph_version || "v1",
+        glyph_scope: glyph.scope || glyph.glyph_scope || "my",
         workflow_id: glyph.workflow_id,
         child_workflow_id: glyph.workflow_id,
+        source_glyph_code: glyph.source_glyph_code || null,
+        version_hash: glyph.version_hash || glyph.meta?.version_hash || "",
         callable: glyph.callable !== false,
         dry_run_only: true,
         live_send_enabled: false,
