@@ -58508,6 +58508,23 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     console.log(`[AION] ${message}`);
   }
 
+  function getApiBase() {
+    const candidates = [
+      window.__AION_API_BASE__,
+      window.__aionApiBase,
+      window.apiBase,
+      localStorage.getItem("aion.apiBase"),
+      localStorage.getItem("aion.api_base"),
+      "http://127.0.0.1:8080",
+    ];
+
+    const found = candidates
+      .map((value) => String(value || "").trim())
+      .find(Boolean);
+
+    return String(found || "http://127.0.0.1:8080").replace(/\/+$/, "");
+  }
+
   function clone(value) {
     try {
       return JSON.parse(JSON.stringify(value));
@@ -58762,6 +58779,55 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     }
   }
 
+  async function copyGlyphToMyGlyphs(code) {
+    const glyph = findGlyph(code);
+    if (!glyph) {
+      notify(`Could not find glyph ${code}.`, "error");
+      return;
+    }
+
+    if (String(glyph.scope || glyph.glyph_scope || "") !== "universal") {
+      notify(`${glyph.glyph_code} is already in My Glyphs.`, "info");
+      return;
+    }
+
+    try {
+      const response = await fetch(`${getApiBase()}/api/workflow-glyphs/copy`, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          source_glyph_code: glyph.glyph_code,
+        }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+
+      if (!response.ok || payload?.ok === false) {
+        throw new Error(payload?.detail || payload?.error || `HTTP ${response.status}`);
+      }
+
+      if (typeof window.__refreshAionWorkflowGlyphsFromApi === "function") {
+        await window.__refreshAionWorkflowGlyphsFromApi({ silent: true });
+      }
+
+      const copiedCode =
+        payload?.glyph?.glyph_code ||
+        payload?.copied?.glyph_code ||
+        payload?.saved?.glyph_code ||
+        "new My Glyph";
+
+      window.__aionGlyphLibrarySearch = "";
+      renderModal();
+
+      notify(`Copied ${glyph.glyph_code} to My Glyphs as ${copiedCode}.`, "success");
+    } catch (error) {
+      notify(`Could not copy ${glyph.glyph_code}: ${String(error?.message || error)}`, "error");
+    }
+  }
+
   function renderCard(glyph) {
     return `
       <article class="aion-auth-glyph-card">
@@ -58781,6 +58847,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
         <div class="aion-auth-glyph-actions">
           <button type="button" data-aion-auth-stage-glyph="${esc(glyph.glyph_code)}">Stage to canvas</button>
           <button type="button" data-aion-auth-open-glyph="${esc(glyph.glyph_code)}">Open workflow</button>
+          ${String(glyph.scope || glyph.glyph_scope || "") === "universal" ? `<button type="button" data-aion-auth-copy-glyph="${esc(glyph.glyph_code)}">Copy to My Glyphs</button>` : ""}
         </div>
       </article>
     `;
@@ -59110,6 +59177,15 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       event.preventDefault();
       event.stopPropagation();
       openWorkflow(openGlyph.getAttribute("data-aion-auth-open-glyph"));
+      return;
+    }
+
+    const copyGlyph = event.target.closest?.("[data-aion-auth-copy-glyph]");
+    if (copyGlyph) {
+      event.preventDefault();
+      event.stopPropagation();
+      copyGlyphToMyGlyphs(copyGlyph.getAttribute("data-aion-auth-copy-glyph"));
+      return;
     }
   }, true);
 
