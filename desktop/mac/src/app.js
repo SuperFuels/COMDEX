@@ -60442,3 +60442,418 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
   console.log("[AION] Master Glyph Staged Inspector Close Lock v1 installed");
 })();
+
+
+/*
+ * AION PATCH: Master Glyph Staged Inspector Contract Display v2
+ * -------------------------------------------------------------
+ * Purpose:
+ * - Make the staged call_workflow_glyph inspector show the real node contract.
+ * - Prefer top-level node contract fields, then config fields, then compiled glyph.
+ * - Show glyph_code, glyph_version, glyph_scope, child_workflow_id, version_hash.
+ * - Show input_schema, output_schema, required_connectors, approval_policy, risk_tier.
+ * - Warn when required connectors are not available.
+ * - UI-only: does not execute workflows and does not delete/mutate nodes.
+ */
+(function installAionMasterGlyphStagedInspectorContractDisplayV2() {
+  if (window.__aionMasterGlyphStagedInspectorContractDisplayV2Installed === true) return;
+  window.__aionMasterGlyphStagedInspectorContractDisplayV2Installed = true;
+
+  const STYLE_ID = "aion-master-glyph-staged-inspector-contract-display-v2-style";
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function compactJson(value) {
+    try {
+      return JSON.stringify(value ?? {}, null, 2);
+    } catch (_) {
+      return String(value ?? "");
+    }
+  }
+
+  function summarise(value, fallback = "None") {
+    if (Array.isArray(value)) {
+      return value.length ? value.map(String).join(", ") : fallback;
+    }
+
+    if (value && typeof value === "object") {
+      const keys = Object.keys(value);
+      return keys.length ? keys.slice(0, 8).join(", ") : fallback;
+    }
+
+    const text = String(value || "").trim();
+    return text || fallback;
+  }
+
+  function getAvailableConnectorIds() {
+    const raw = [
+      window.__aionAvailableConnectors,
+      window.__aionConnectorStatus,
+      window.__aionConnectedProviders,
+      window.__aionWorkflowConnectors,
+    ];
+
+    const out = new Set();
+
+    raw.forEach((value) => {
+      if (Array.isArray(value)) {
+        value.forEach((item) => {
+          if (typeof item === "string") out.add(item.toLowerCase());
+          if (item && typeof item === "object") {
+            [item.id, item.key, item.name, item.connector, item.provider].forEach((v) => {
+              if (v) out.add(String(v).toLowerCase());
+            });
+          }
+        });
+      }
+
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        Object.keys(value).forEach((key) => {
+          const item = value[key];
+          if (item === true || item?.connected === true || item?.available === true || item?.ok === true) {
+            out.add(String(key).toLowerCase());
+          }
+        });
+      }
+    });
+
+    return out;
+  }
+
+  function missingConnectors(required) {
+    const ids = getAvailableConnectorIds();
+    const list = Array.isArray(required) ? required : [];
+
+    /*
+     * If no connector status registry exists yet, do not show a false hard error.
+     * Runtime validation will enforce this later.
+     */
+    if (!ids.size) return [];
+
+    return list
+      .map((x) => String(x || "").trim())
+      .filter(Boolean)
+      .filter((x) => !ids.has(x.toLowerCase()));
+  }
+
+  function getGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        const graph = getAionWorkflowDraftState();
+        if (graph && typeof graph === "object") return graph;
+      } catch (_) {}
+    }
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function getSelectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedNodeId =
+      window.__aionWorkflowSelectedNodeId ||
+      window.__aionMasterGlyphSelectedStagedNodeId ||
+      "";
+
+    if (!selectedNodeId) return null;
+
+    return nodes.find((node) => String(node?.id || "") === String(selectedNodeId)) || null;
+  }
+
+  function isCallWorkflowGlyphNode(node) {
+    if (!node || typeof node !== "object") return false;
+
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node.id,
+      node.type,
+      node.kind,
+      node.action_id,
+      node.module_id,
+      node.glyph_code,
+      config.action_id,
+      config.module_id,
+      config.glyph_code,
+    ]
+      .map((value) => String(value || "").toLowerCase())
+      .join(" ");
+
+    return (
+      haystack.includes("call_workflow_glyph") ||
+      haystack.includes("workflow.call_workflow_glyph")
+    );
+  }
+
+  function readContract(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const compiled = config.compiled_glyph && typeof config.compiled_glyph === "object"
+      ? config.compiled_glyph
+      : {};
+
+    const glyphCode =
+      node.glyph_code ||
+      config.glyph_code ||
+      compiled.glyph_code ||
+      "";
+
+    const glyphVersion =
+      node.glyph_version ||
+      config.glyph_version ||
+      compiled.glyph_version ||
+      compiled.version ||
+      "v1";
+
+    const glyphScope =
+      node.glyph_scope ||
+      config.glyph_scope ||
+      node.scope ||
+      config.scope ||
+      "my";
+
+    const childWorkflowId =
+      node.child_workflow_id ||
+      config.child_workflow_id ||
+      node.workflow_id ||
+      config.workflow_id ||
+      compiled?.workflow?.workflow_id ||
+      "";
+
+    const requiredConnectors = clone(
+      node.required_connectors ||
+      config.required_connectors ||
+      compiled.required_connectors ||
+      []
+    );
+
+    return {
+      node_id: node?.id || "",
+      node_title: node?.title || node?.label || "Workflow Glyph",
+      glyph_code: glyphCode,
+      glyph_id: node.glyph_id || config.glyph_id || compiled.glyph_id || glyphCode,
+      glyph_version: glyphVersion,
+      glyph_scope: glyphScope,
+      child_workflow_id: childWorkflowId,
+      source_glyph_code: node.source_glyph_code || config.source_glyph_code || null,
+      version_hash:
+        node.version_hash ||
+        config.version_hash ||
+        compiled.version_hash ||
+        compiled?.meta?.version_hash ||
+        "",
+      callable: node.callable === true || config.callable === true || compiled.callable === true,
+      dry_run_only: node.dry_run_only !== false && config.dry_run_only !== false,
+      live_send_enabled: node.live_send_enabled === true || config.live_send_enabled === true,
+      risk_tier: node.risk_tier || config.risk_tier || compiled.risk_tier || "low",
+      required_connectors: requiredConnectors,
+      missing_connectors: missingConnectors(requiredConnectors),
+      input_schema: clone(
+        node.input_schema ||
+        config.input_schema ||
+        config.inputs_schema ||
+        compiled.input_schema ||
+        compiled.inputs_schema ||
+        {}
+      ),
+      output_schema: clone(
+        node.output_schema ||
+        config.output_schema ||
+        config.outputs_schema ||
+        compiled.output_schema ||
+        compiled.outputs_schema ||
+        {}
+      ),
+      approval_policy: clone(
+        node.approval_policy ||
+        config.approval_policy ||
+        compiled.approval_policy ||
+        {}
+      ),
+      runtime_plan: clone(
+        node.runtime_plan ||
+        config.runtime_plan ||
+        compiled.runtime_plan ||
+        {}
+      ),
+    };
+  }
+
+  function renderContractInspector(node) {
+    const model = readContract(node);
+    const missing = model.missing_connectors || [];
+
+    return `
+      <aside
+        class="aion-master-glyph-staged-inspector aion-master-glyph-contract-inspector-v2"
+        data-aion-master-glyph-staged-inspector="true"
+        data-aion-master-glyph-contract-inspector-v2="true"
+      >
+        <div class="aion-master-glyph-staged-inspector-head">
+          <div>
+            <div class="eyebrow">call_workflow_glyph contract</div>
+            <h2>${esc(model.glyph_code || "Staged workflow glyph")}</h2>
+            <p>${esc(model.node_title)} · dry-run only · no external writes</p>
+          </div>
+          <button
+            type="button"
+            class="secondary-btn"
+            data-aion-master-glyph-staged-inspector-close="true"
+          >Close</button>
+        </div>
+
+        <div class="aion-master-glyph-staged-contract">
+          Runtime remains dry-run only until validation is complete.
+        </div>
+
+        ${
+          missing.length
+            ? `<div class="aion-master-glyph-contract-warning-v2">
+                Missing connector${missing.length === 1 ? "" : "s"}: ${esc(missing.join(", "))}
+              </div>`
+            : ""
+        }
+
+        <div class="aion-master-glyph-staged-grid">
+          <span>glyph_code</span><b>${esc(model.glyph_code)}</b>
+          <span>glyph_version</span><b>${esc(model.glyph_version)}</b>
+          <span>glyph_scope</span><b>${esc(model.glyph_scope)}</b>
+          <span>child_workflow_id</span><b>${esc(model.child_workflow_id)}</b>
+          <span>glyph_id</span><b>${esc(model.glyph_id)}</b>
+          <span>source_glyph_code</span><b>${esc(model.source_glyph_code || "none")}</b>
+          <span>version_hash</span><b>${esc(model.version_hash || "unpinned")}</b>
+          <span>risk_tier</span><b>${esc(model.risk_tier)}</b>
+          <span>required_connectors</span><b>${esc(summarise(model.required_connectors, "None"))}</b>
+          <span>missing_connectors</span><b>${esc(summarise(model.missing_connectors, "None detected"))}</b>
+          <span>callable</span><b>${model.callable ? "true" : "false"}</b>
+          <span>dry_run_only</span><b>${model.dry_run_only ? "true" : "false"}</b>
+          <span>live_send_enabled</span><b>${model.live_send_enabled ? "true" : "false"}</b>
+        </div>
+
+        <details class="aion-master-glyph-staged-debug" open>
+          <summary>input_schema</summary>
+          <pre>${esc(compactJson(model.input_schema))}</pre>
+        </details>
+
+        <details class="aion-master-glyph-staged-debug">
+          <summary>output_schema</summary>
+          <pre>${esc(compactJson(model.output_schema))}</pre>
+        </details>
+
+        <details class="aion-master-glyph-staged-debug">
+          <summary>approval_policy</summary>
+          <pre>${esc(compactJson(model.approval_policy))}</pre>
+        </details>
+
+        <details class="aion-master-glyph-staged-debug">
+          <summary>runtime_plan</summary>
+          <pre>${esc(compactJson(model.runtime_plan))}</pre>
+        </details>
+      </aside>
+    `;
+  }
+
+  function removeInspector() {
+    document
+      .querySelectorAll(
+        "[data-aion-master-glyph-staged-inspector='true'], [data-aion-master-glyph-contract-inspector-v2='true']"
+      )
+      .forEach((node) => node.remove());
+  }
+
+  function syncContractInspector() {
+    const node = getSelectedNode();
+
+    if (!isCallWorkflowGlyphNode(node)) {
+      const existing = document.querySelector("[data-aion-master-glyph-contract-inspector-v2='true']");
+      if (existing) existing.remove();
+      return;
+    }
+
+    removeInspector();
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = renderContractInspector(node);
+    const panel = wrapper.firstElementChild;
+    if (panel) document.body.appendChild(panel);
+  }
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      .aion-master-glyph-contract-inspector-v2 {
+        z-index: 2147482500 !important;
+        width: min(500px, calc(100vw - 48px)) !important;
+      }
+
+      .aion-master-glyph-contract-warning-v2 {
+        margin: 10px 0 14px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(245, 158, 11, 0.14);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        color: #92400e;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      body.aion-workflow-dark-mode .aion-master-glyph-contract-warning-v2 {
+        background: rgba(245, 158, 11, 0.18);
+        color: #fbbf24;
+        border-color: rgba(245, 158, 11, 0.35);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  const previousSync = window.__syncAionMasterGlyphStagedNodeInspector;
+
+  window.__syncAionMasterGlyphStagedNodeInspector = function syncAionMasterGlyphStagedNodeInspectorContractV2() {
+    if (typeof previousSync === "function") {
+      try {
+        previousSync();
+      } catch (_) {}
+    }
+
+    window.setTimeout(syncContractInspector, 0);
+  };
+
+  document.addEventListener("click", () => {
+    window.setTimeout(syncContractInspector, 80);
+  }, true);
+
+  window.addEventListener("aion:workflow-rendered", () => window.setTimeout(syncContractInspector, 80));
+  window.addEventListener("aion:workflow-selection-changed", () => window.setTimeout(syncContractInspector, 80));
+
+  window.__renderAionMasterGlyphContractInspectorV2 = renderContractInspector;
+  window.__debugAionMasterGlyphContractInspectorV2 = function debugAionMasterGlyphContractInspectorV2() {
+    const node = getSelectedNode();
+    return {
+      installed: true,
+      selectedNodeId: node?.id || null,
+      isCallWorkflowGlyphNode: isCallWorkflowGlyphNode(node),
+      contract: node ? readContract(node) : null,
+      inspectorExists: !!document.querySelector("[data-aion-master-glyph-contract-inspector-v2='true']"),
+    };
+  };
+
+  window.setTimeout(syncContractInspector, 150);
+
+  console.log("[AION] Master Glyph Staged Inspector Contract Display v2 installed");
+})();
+
