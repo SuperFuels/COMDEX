@@ -60266,3 +60266,154 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
   console.log("[AION] Backend Glyph API Hard Refresh v2 installed");
 })();
+
+
+/*
+ * AION PATCH: Master Glyph Staged Inspector Close Lock v1
+ * -------------------------------------------------------
+ * Purpose:
+ * - Fix old staged call_workflow_glyph inspector overlays that do not close.
+ * - Applies to the Master Glyph Canvas v3/v4 staged glyph inspector/card overlays.
+ * - Does not delete staged glyph nodes.
+ * - Does not close the backend marketplace modal.
+ * - Does not close the glyph workflow tab.
+ * - UI-only safety patch.
+ */
+(function installAionMasterGlyphStagedInspectorCloseLockV1() {
+  if (window.__aionMasterGlyphStagedInspectorCloseLockV1Installed === true) return;
+  window.__aionMasterGlyphStagedInspectorCloseLockV1Installed = true;
+
+  function notify(message, type = "info") {
+    if (typeof safePatchMessage === "function") {
+      safePatchMessage(message, type);
+      return;
+    }
+    if (typeof showToast === "function") {
+      showToast({ message, type });
+      return;
+    }
+    console.log(`[AION] ${message}`);
+  }
+
+  function closeStagedGlyphInspector() {
+    window.__aionMasterGlyphSelectedStagedNodeId = null;
+    window.__aionMasterGlyphStagedInspectorOpen = false;
+    window.__aionMasterGlyphConnectionPreviewOpen = false;
+    window.__aionMasterGlyphLastStagedConnection = null;
+
+    document
+      .querySelectorAll([
+        "[data-aion-master-glyph-staged-inspector='true']",
+        "[data-aion-master-glyph-inspector='true']",
+        ".aion-master-glyph-staged-inspector",
+        ".aion-master-glyph-inspector",
+        ".aion-master-glyph-canvas-inspector",
+      ].join(","))
+      .forEach((node) => {
+        node.remove();
+      });
+
+    if (typeof window.__syncAionMasterGlyphStagedNodeInspector === "function") {
+      try {
+        window.__syncAionMasterGlyphStagedNodeInspector();
+      } catch (_) {}
+    }
+
+    if (typeof window.requestRender === "function") {
+      window.requestRender();
+    }
+
+    notify("Closed staged glyph inspector.", "info");
+  }
+
+  function looksLikeStagedGlyphInspectorClose(button) {
+    if (!button) return false;
+
+    const text = String(button.textContent || "").trim().toLowerCase();
+    const aria = String(button.getAttribute?.("aria-label") || "").toLowerCase();
+    const title = String(button.getAttribute?.("title") || "").toLowerCase();
+    const blob = `${text} ${aria} ${title}`;
+
+    const inspectorRoot = button.closest?.([
+      "[data-aion-master-glyph-staged-inspector='true']",
+      "[data-aion-master-glyph-inspector='true']",
+      ".aion-master-glyph-staged-inspector",
+      ".aion-master-glyph-inspector",
+      ".aion-master-glyph-canvas-inspector",
+    ].join(","));
+
+    const nearbyText = String(
+      inspectorRoot?.textContent ||
+      button.closest?.("aside,section,article,div")?.textContent ||
+      ""
+    ).toLowerCase();
+
+    return (
+      (blob.includes("close") || text === "×" || text === "x") &&
+      (
+        nearbyText.includes("staged workflow glyph") ||
+        nearbyText.includes("master glyph canvas v3") ||
+        nearbyText.includes("read-only inspector") ||
+        nearbyText.includes("no execution") ||
+        nearbyText.includes("call_workflow_glyph")
+      )
+    );
+  }
+
+  document.addEventListener(
+    "click",
+    (event) => {
+      const button = event.target.closest?.("button,[role='button']");
+      if (!looksLikeStagedGlyphInspectorClose(button)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+
+      closeStagedGlyphInspector();
+    },
+    true
+  );
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key !== "Escape") return;
+
+      const hasInspector =
+        window.__aionMasterGlyphStagedInspectorOpen === true ||
+        !!document.querySelector([
+          "[data-aion-master-glyph-staged-inspector='true']",
+          "[data-aion-master-glyph-inspector='true']",
+          ".aion-master-glyph-staged-inspector",
+          ".aion-master-glyph-inspector",
+          ".aion-master-glyph-canvas-inspector",
+        ].join(","));
+
+      if (!hasInspector) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      closeStagedGlyphInspector();
+    },
+    true
+  );
+
+  window.__closeAionMasterGlyphStagedInspector = closeStagedGlyphInspector;
+  window.__debugAionMasterGlyphStagedInspectorCloseLock = function debugAionMasterGlyphStagedInspectorCloseLock() {
+    return {
+      installed: true,
+      selectedStagedNodeId: window.__aionMasterGlyphSelectedStagedNodeId || null,
+      inspectorOpen: window.__aionMasterGlyphStagedInspectorOpen === true,
+      candidateCount: document.querySelectorAll([
+        "[data-aion-master-glyph-staged-inspector='true']",
+        "[data-aion-master-glyph-inspector='true']",
+        ".aion-master-glyph-staged-inspector",
+        ".aion-master-glyph-inspector",
+        ".aion-master-glyph-canvas-inspector",
+      ].join(",")).length,
+    };
+  };
+
+  console.log("[AION] Master Glyph Staged Inspector Close Lock v1 installed");
+})();
