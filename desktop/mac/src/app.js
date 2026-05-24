@@ -9193,6 +9193,18 @@ function renderAionMasterGlyphCanvasNode(item, index = 0) {
 }
 
 function renderAionMasterGlyphCanvasPanel() {
+  /*
+   * Read-only Master Glyph Canvas.
+   * No execution.
+   * No editing.
+   * No wiring.
+   * No external writes.
+   * Current workflow canvas preserved.
+   * This panel stages/inspects glyphs only.
+   * It does not execute workflows.
+   */
+
+
   const open = window.__aionMasterGlyphCanvasOpen === true;
   if (!open) return "";
 
@@ -9206,34 +9218,6 @@ function renderAionMasterGlyphCanvasPanel() {
           <h2>Callable workflow glyphs</h2>
           <p>Saved callable workflow glyphs are shown as glyph nodes. v2 can stage a dry-run-only call node onto the normal workflow canvas.</p>
         </div>
-        <button type="button" class="secondary-btn" data-aion-master-glyph-canvas-close="true">Close</button>
-      </div>
-
-      <div class="aion-master-glyph-canvas-contract">
-        Read-only staging · No execution · No editing · No wiring · No saved-glyph mutation · No live orchestration · No external writes · Current workflow canvas preserved
-      </div>
-
-      <div class="aion-master-glyph-canvas-stage">
-        ${
-          items.length
-            ? items.map((item, index) => renderAionMasterGlyphCanvasNode(item, index)).join("")
-            : `<div class="empty-state">No callable workflow glyphs saved yet. Save a workflow glyph first, then reopen Master Glyph Canvas.</div>`
-        }
-      </div>
-    </section>
-  `;
-}
-
-function renderAionMasterGlyphCanvasLauncher() {
-  return `
-    <button
-      type="button"
-      class="secondary-btn"
-      data-aion-master-glyph-canvas-open="true"
-      title="Open Master Glyph Canvas"
-    >
-      Master Glyph Canvas
-    </button>
   `;
 }
 
@@ -13063,15 +13047,6 @@ function renderAionWorkflowFloatingToolbar() {
 
       <button
         type="button"
-        data-aion-workflow-save="true"
-        title="Save workflow"
-        aria-label="Save workflow"
-      >
-        <span aria-hidden="true">💾</span>
-      </button>
-
-      <button
-        type="button"
         data-aion-workflow-glyph-debug="true"
         title="Open compiled glyph debug"
         aria-label="Open compiled glyph debug"
@@ -13111,26 +13086,6 @@ function renderAionWorkflowFloatingToolbar() {
 
       <button
         type="button"
-        class="aion-workflow-floating-add aion-canvas-mode-icon-btn ${window.__aionCanvasMode !== "master_glyph" ? "active" : ""}"
-        data-aion-canvas-mode="workflow"
-        title="Workflow Canvas"
-        aria-label="Workflow Canvas"
-      >
-        <span aria-hidden="true">◇</span>
-      </button>
-
-      <button
-        type="button"
-        class="aion-workflow-floating-add aion-canvas-mode-icon-btn ${window.__aionCanvasMode === "master_glyph" ? "active" : ""}"
-        data-aion-canvas-mode="master_glyph"
-        title="Master Glyph Canvas"
-        aria-label="Master Glyph Canvas"
-      >
-        <span aria-hidden="true">⌁</span>
-      </button>
-
-      <button
-        type="button"
         class="aion-master-glyph-utility-btn"
         data-aion-workflow-glyph-library-open="true"
         title="Workflow Glyph Library"
@@ -13138,18 +13093,29 @@ function renderAionWorkflowFloatingToolbar() {
       >
         <span aria-hidden="true">⌘</span>
       </button>
-
+    
+      <!-- LOCK: preserved Workflow Canvas mode button. Not Master Glyph Canvas. -->
       <button
         type="button"
-        class="aion-master-glyph-utility-btn"
+        class="aion-workflow-mode-btn"
+        data-aion-canvas-mode="workflow"
+        title="Workflow Canvas"
+        aria-label="Workflow Canvas"
+      >
+        Workflow Canvas
+      </button>
+
+      <!-- LOCK: staged call_workflow_glyph clear control preserved. -->
+      <button
+        type="button"
+        class="aion-workflow-mode-btn"
         data-aion-master-glyph-clear-staged="true"
         title="Clear staged glyph nodes"
         aria-label="Clear staged glyph nodes"
       >
-        <span aria-hidden="true">×</span>
+        Clear staged glyphs
       </button>
-
-    </div>
+</div>
   `;
 }
 
@@ -25631,6 +25597,311 @@ function doesAionWorkflowNodeRequireApproval(node) {
   );
 }
 
+
+function isAionCallWorkflowGlyphNodeForDryRun(node) {
+  if (!node || typeof node !== "object") return false;
+
+  const config = node.config && typeof node.config === "object" ? node.config : {};
+  const haystack = [
+    node.id,
+    node.type,
+    node.kind,
+    node.action_id,
+    node.module_id,
+    node.title,
+    node.label,
+    node.glyph_code,
+    node.child_workflow_id,
+    config.action_id,
+    config.module_id,
+    config.glyph_code,
+    config.workflow_id,
+    config.child_workflow_id,
+  ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+  return (
+    haystack.includes("call_workflow_glyph") ||
+    haystack.includes("workflow.call_workflow_glyph")
+  );
+}
+
+function getAionCallWorkflowGlyphRegistryForDryRun() {
+  const sources = [
+    window.__aionBackendWorkflowGlyphs,
+    window.__aionWorkflowGlyphs,
+    window.__aionGlyphRegistry,
+    window.__aionUserGlyphCopies,
+  ];
+
+  const out = [];
+
+  sources.forEach((source) => {
+    if (Array.isArray(source)) {
+      source.forEach((item) => {
+        if (item && typeof item === "object") out.push(item);
+      });
+      return;
+    }
+
+    if (source && typeof source === "object") {
+      if (Array.isArray(source.glyphs)) {
+        source.glyphs.forEach((item) => {
+          if (item && typeof item === "object") out.push(item);
+        });
+        return;
+      }
+
+      Object.values(source).forEach((item) => {
+        if (item && typeof item === "object") out.push(item);
+      });
+    }
+  });
+
+  return out;
+}
+
+function resolveAionCallWorkflowGlyphForDryRun(node) {
+  const config = node?.config && typeof node.config === "object" ? node.config : {};
+  const code = String(node?.glyph_code || config.glyph_code || "").trim().toLowerCase();
+  if (!code) return null;
+
+  return getAionCallWorkflowGlyphRegistryForDryRun().find((glyph) => {
+    const glyphCode = String(glyph?.glyph_code || glyph?.code || "").trim().toLowerCase();
+    return glyphCode && glyphCode === code;
+  }) || null;
+}
+
+function getAionAvailableConnectorIdsForDryRun() {
+  return []
+    .concat(window.__aionAvailableConnectors || [])
+    .concat(window.__aionConnectedConnectors || [])
+    .concat(window.__aionEnabledConnectors || [])
+    .map((item) => String(item?.id || item?.key || item?.name || item?.connector || item?.provider || item || "").toLowerCase())
+    .filter(Boolean);
+}
+
+function getAionCallWorkflowGlyphContractForDryRun(node, registryGlyph) {
+  const config = node?.config && typeof node.config === "object" ? node.config : {};
+  const glyph = registryGlyph && typeof registryGlyph === "object" ? registryGlyph : {};
+  const runtimePlan = node?.runtime_plan || config.runtime_plan || glyph.runtime_plan || {};
+
+  return {
+    glyph_code: node?.glyph_code || config.glyph_code || glyph.glyph_code || glyph.code || "UNKNOWN",
+    glyph_version: node?.glyph_version || config.glyph_version || glyph.glyph_version || glyph.workflow_version || "v1",
+    child_workflow_id:
+      node?.child_workflow_id ||
+      config.child_workflow_id ||
+      config.workflow_id ||
+      glyph.workflow_id ||
+      glyph.child_workflow_id ||
+      "",
+    version_hash: node?.version_hash || config.version_hash || glyph.version_hash || glyph.meta?.version_hash || "",
+    required_connectors: node?.required_connectors || config.required_connectors || glyph.required_connectors || [],
+    approval_policy: node?.approval_policy || config.approval_policy || glyph.approval_policy || {},
+    input_schema: node?.input_schema || config.input_schema || config.inputs_schema || glyph.input_schema || glyph.inputs_schema || {},
+    output_schema: node?.output_schema || config.output_schema || config.outputs_schema || glyph.output_schema || glyph.outputs_schema || {},
+    runtime_plan: runtimePlan,
+    dry_run_only: node?.dry_run_only !== false && config.dry_run_only !== false && runtimePlan?.dry_run_only !== false,
+    live_send_enabled: node?.live_send_enabled === true || config.live_send_enabled === true || runtimePlan?.live_send_enabled === true,
+  };
+}
+
+function validateAionCallWorkflowGlyphForLocalRuntimeDryRun(node, registryGlyph, parentPayload = {}) {
+  const contract = getAionCallWorkflowGlyphContractForDryRun(node, registryGlyph);
+  const errors = [];
+  const warnings = [];
+
+  if (!contract.glyph_code || contract.glyph_code === "UNKNOWN") errors.push("missing_glyph_code");
+  if (!contract.child_workflow_id) errors.push("missing_child_workflow_id");
+  if (!registryGlyph) errors.push("glyph_registry_resolution_failed");
+
+  if (registryGlyph) {
+    const registryVersion = registryGlyph.glyph_version || registryGlyph.workflow_version || registryGlyph.version;
+    const registryHash = registryGlyph.version_hash || registryGlyph.meta?.version_hash || "";
+
+    if (registryVersion && String(contract.glyph_version) !== String(registryVersion)) {
+      errors.push("pinned_glyph_version_mismatch");
+    }
+
+    if (contract.version_hash && registryHash && String(contract.version_hash) !== String(registryHash)) {
+      errors.push("pinned_glyph_hash_mismatch");
+    }
+  }
+
+  const available = getAionAvailableConnectorIdsForDryRun();
+  const required = Array.isArray(contract.required_connectors) ? contract.required_connectors.map(String).filter(Boolean) : [];
+  const missingConnectors = available.length
+    ? required.filter((connector) => !available.includes(String(connector).toLowerCase()))
+    : [];
+
+  if (missingConnectors.length) errors.push("missing_required_connectors");
+
+  const requiredInputs = Array.isArray(contract.input_schema?.required) ? contract.input_schema.required : [];
+  requiredInputs.forEach((key) => {
+    if (parentPayload && typeof parentPayload === "object" && !(key in parentPayload)) {
+      errors.push(`parent_output_missing_child_input:${key}`);
+    }
+  });
+
+  if (contract.live_send_enabled === true && contract.dry_run_only === true) {
+    warnings.push("live_send_enabled_ignored_in_dry_run");
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings,
+    missing_connectors: missingConnectors,
+    runtime_blocked: errors.length > 0,
+  };
+}
+
+function executeAionCallWorkflowGlyphLocalDryRun(node, parentPayload, parentRunId, index) {
+  const registryGlyph = resolveAionCallWorkflowGlyphForDryRun(node);
+  const contract = getAionCallWorkflowGlyphContractForDryRun(node, registryGlyph);
+  const validation = validateAionCallWorkflowGlyphForLocalRuntimeDryRun(node, registryGlyph, parentPayload);
+  const childRunId = `${parentRunId}::${contract.glyph_code || "call_workflow_glyph"}::dry_run_child`;
+  const runtimeSteps = Array.isArray(contract.runtime_plan?.steps) ? contract.runtime_plan.steps : [];
+
+  if (!validation.valid) {
+    return {
+      node_id: String(node?.id || `node_${index + 1}`),
+      title: String(node?.title || node?.label || contract.glyph_code || "call_workflow_glyph"),
+      op: "call_workflow_glyph",
+      status: "blocked_by_validation",
+      marker: "call_workflow_glyph_validation_blocked",
+      dry_run: true,
+      risk_tier: String(node?.risk_tier || node?.config?.risk_tier || "low"),
+      input_items_count: 1,
+      output_items_count: 0,
+      validation,
+      nested_glyph_run: {
+        ok: false,
+        status: "blocked_by_validation",
+        dry_run: true,
+        glyph_code: contract.glyph_code,
+        glyph_version: contract.glyph_version,
+        child_workflow_id: contract.child_workflow_id,
+        parent_run_id: parentRunId,
+        child_run_id: childRunId,
+        child_input: parentPayload || {},
+        child_output: {},
+        steps: [],
+        provenance: {
+          parent_run_id: parentRunId,
+          child_run_id: childRunId,
+          mode: "dry_run_only",
+        },
+        metrics: {
+          runtime_blocked: true,
+          steps_executed: 0,
+          ai_planning_bypassed: true,
+          external_writes_performed: 0,
+          registry_lookup_cached: Boolean(registryGlyph),
+          estimated_cost: {
+            currency: "USD",
+            estimated_total: 0.0,
+            ai_planning_cost: 0.0,
+            external_write_cost: 0.0,
+            compiled_step_count: childSteps.length,
+            cost_model: "compiled_dry_run_zero_cost_v1",
+          },
+        },
+      },
+      output_items_preview: [
+        {
+          ok: false,
+          dry_run: true,
+          reason: "call_workflow_glyph_validation_blocked",
+          errors: validation.errors,
+        },
+      ],
+      boardroom_events: [
+        {
+          event_type: "call_workflow_glyph.validation_blocked",
+          node_id: String(node?.id || ""),
+          glyph_code: contract.glyph_code,
+          child_workflow_id: contract.child_workflow_id,
+          runtime_blocked: true,
+        },
+      ],
+    };
+  }
+
+  const childOutput = {
+    ...(parentPayload && typeof parentPayload === "object" ? parentPayload : {}),
+    child_workflow_id: contract.child_workflow_id,
+    glyph_code: contract.glyph_code,
+    dry_run: true,
+    runtime_plan_completed: true,
+  };
+
+  return {
+    node_id: String(node?.id || `node_${index + 1}`),
+    title: String(node?.title || node?.label || contract.glyph_code || "call_workflow_glyph"),
+    op: "call_workflow_glyph",
+    status: "dry_run_completed",
+    marker: "call_workflow_glyph_dry_run_completed",
+    dry_run: true,
+    risk_tier: String(node?.risk_tier || node?.config?.risk_tier || "low"),
+    input_items_count: 1,
+    output_items_count: 1,
+    validation,
+    nested_glyph_run: {
+      ok: true,
+      status: "dry_run_completed",
+      dry_run: true,
+      glyph_code: contract.glyph_code,
+      glyph_version: contract.glyph_version,
+      child_workflow_id: contract.child_workflow_id,
+      parent_run_id: parentRunId,
+      child_run_id: childRunId,
+      child_input: parentPayload || {},
+      child_output: childOutput,
+      steps: runtimeSteps.map((step, stepIndex) => ({
+        index: stepIndex + 1,
+        op: String(step.op || step.kind || step.step_id || `step_${stepIndex + 1}`),
+        status: "dry_run_simulated",
+        dry_run: true,
+      })),
+      provenance: {
+        parent_run_id: parentRunId,
+        child_run_id: childRunId,
+        parent_payload_passed_to_child: true,
+        child_output_returned_to_parent: true,
+        mode: "dry_run_only",
+      },
+      metrics: {
+        runtime_blocked: false,
+        steps_executed: runtimeSteps.length,
+        ai_planning_bypassed: true,
+        external_writes_performed: 0,
+      },
+    },
+    output_items_preview: [
+      {
+        ok: true,
+        dry_run: true,
+        glyph_code: contract.glyph_code,
+        child_workflow_id: contract.child_workflow_id,
+        child_output: childOutput,
+      },
+    ],
+    boardroom_events: [
+      {
+        event_type: "call_workflow_glyph.dry_run_completed",
+        source: "desktop_local_nested_glyph_runtime",
+        node_id: String(node?.id || ""),
+        glyph_code: contract.glyph_code,
+        child_workflow_id: contract.child_workflow_id,
+        parent_run_id: parentRunId,
+        child_run_id: childRunId,
+      },
+    ],
+  };
+}
+
+
 function buildAionWorkflowLocalDryRunResult(graph) {
   const safeGraph = graph || getAionWorkflowDraftState();
   const compiledGlyph =
@@ -25672,6 +25943,17 @@ function buildAionWorkflowLocalDryRunResult(graph) {
       node?.config?.permission?.risk_tier ||
       (externalWrite ? "medium" : "low")
     );
+
+    if (isAionCallWorkflowGlyphNodeForDryRun(node)) {
+      const parentRunId = String(safeGraph.workflow_id || window.__aionCreateUniqueWorkflowId?.() || "workflow_draft");
+      const parentPayload = {
+        source: "local_canvas_dry_run",
+        workflow_id: parentRunId,
+        workflow_name: String(safeGraph.name || "Untitled workflow"),
+      };
+
+      return executeAionCallWorkflowGlyphLocalDryRun(node, parentPayload, parentRunId, index);
+    }
 
     let status = "simulated";
     let marker = "dry_run_preview";
@@ -38180,7 +38462,7 @@ function safeAionDesktopPatch(payload) {
   function removeAdvancedModal() {
     document
       .querySelectorAll("[data-aion-main-step-logic-modal='true']")
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     window.__aionArchitectAdvancedConfigOpen = false;
   }
@@ -38414,7 +38696,7 @@ function safeAionDesktopPatch(payload) {
 
     modal
       .querySelectorAll(".aion-architect-node-mini-toolbar, .aion-main-node-mini-toolbar")
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     if (modal.querySelector("[data-aion-main-node-settings-panel='true']")) return;
 
@@ -39028,7 +39310,7 @@ function safeAionDesktopPatch(payload) {
       .querySelectorAll(
         ".aion-main-node-mini-toolbar, .aion-workflow-node-mini-toolbar, .aion-architect-node-mini-toolbar",
       )
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     if (modal.querySelector("[data-aion-main-node-settings-panel-v3='true']")) {
       return;
@@ -39062,7 +39344,7 @@ function safeAionDesktopPatch(payload) {
     window.__aionArchitectAdvancedConfigOpen = false;
     document
       .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
   }
 
   function showLogicModal(nodeId) {
@@ -39082,7 +39364,7 @@ function safeAionDesktopPatch(payload) {
 
     document
       .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     const tabs = [
       {
@@ -39748,7 +40030,7 @@ function safeAionDesktopPatch(payload) {
       .querySelectorAll(
         ".aion-main-node-mini-toolbar, .aion-workflow-node-mini-toolbar, .aion-architect-node-mini-toolbar",
       )
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     if (modal.querySelector("[data-aion-main-node-settings-panel-v3='true']")) {
       return;
@@ -39782,7 +40064,7 @@ function safeAionDesktopPatch(payload) {
     window.__aionArchitectAdvancedConfigOpen = false;
     document
       .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
   }
 
   function showLogicModal(nodeId) {
@@ -39802,7 +40084,7 @@ function safeAionDesktopPatch(payload) {
 
     document
       .querySelectorAll("[data-aion-main-step-logic-modal-v3='true']")
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     const tabs = [
       {
@@ -40297,7 +40579,7 @@ function safeAionDesktopPatch(payload) {
           ".aion-architect-advanced-backdrop",
         ].join(","),
       )
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
   }
 
   function renderCompactLogicModal(nodeId) {
@@ -40515,7 +40797,7 @@ function safeAionDesktopPatch(payload) {
       )
       .forEach((el) => {
         if (compactOpen || window.__aionArchitectAdvancedConfigOpen === true) {
-          el.remove();
+          el.style.display = 'none'; el.style.visibility = 'hidden';
           window.__aionArchitectAdvancedConfigOpen = false;
         }
       });
@@ -40936,7 +41218,7 @@ function safeAionDesktopPatch(payload) {
           ".aion-architect-node-mini-toolbar",
         ].join(","),
       )
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     if (modal.querySelector("[data-aion-main-node-settings-v5='true']")) return;
 
@@ -41522,7 +41804,7 @@ function safeAionDesktopPatch(payload) {
       .querySelectorAll(
         ".aion-main-node-mini-toolbar, .aion-workflow-node-mini-toolbar, .aion-architect-node-mini-toolbar",
       )
-      .forEach((el) => el.remove());
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
 
     if (editor.querySelector("[data-aion-main-node-ai-settings-v6='true']")) return;
 
@@ -52314,10 +52596,48 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       return;
     }
 
+    /*
+     * SOURCE FIX V18:
+     * If the user closed the canonical call_workflow_glyph inspector for this
+     * selected node, do not immediately reopen it from legacy staged sync.
+     */
+    if (
+      window.__aionCallWorkflowGlyphClosedNodeIdV18 &&
+      String(window.__aionCallWorkflowGlyphClosedNodeIdV18) === String(node?.id || "")
+    ) {
+      removeInspector();
+      return;
+    }
+
+    /*
+     * SOURCE FIX V14:
+     * Do not destroy/recreate the inspector if the same call_workflow_glyph node
+     * is already open. Rebuilding the DOM while the user scrolls resets scrollTop
+     * and makes the panel jump back to the top.
+     */
+    const existingCanonical = document.querySelector("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    if (
+      existingCanonical &&
+      String(existingCanonical.getAttribute("data-aion-call-workflow-glyph-node-id") || "") === String(node?.id || "")
+    ) {
+      return;
+    }
+
     removeInspector();
 
+    /*
+     * SOURCE FIX: Master Glyph Canvas v3 legacy inspector must no longer render
+     * the old "MASTER GLYPH CANVAS V3 / Staged workflow glyph" panel for
+     * call_workflow_glyph nodes. Once the canonical contract renderer is loaded,
+     * delegate to it directly from the original source path.
+     */
     const wrapper = document.createElement("div");
-    wrapper.innerHTML = renderAionMasterGlyphStagedNodeInspector(node);
+    if (typeof window.__renderAionCallWorkflowGlyphContractInspectorV3 === "function") {
+      wrapper.innerHTML = window.__renderAionCallWorkflowGlyphContractInspectorV3(node);
+    } else {
+      wrapper.innerHTML = renderAionMasterGlyphStagedNodeInspector(node);
+    }
+
     const panel = wrapper.firstElementChild;
     if (panel) document.body.appendChild(panel);
   }
@@ -52435,11 +52755,31 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   document.head.appendChild(style);
 
   document.addEventListener("click", (event) => {
+    /*
+     * SOURCE FIX V19:
+     * Canonical call_workflow_glyph inspector owns its own close/details clicks.
+     * This check must happen BEFORE the old close selector.
+     */
+    if (event.target?.closest?.("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")) {
+      return;
+    }
+
     const close = event.target.closest?.("[data-aion-master-glyph-staged-inspector-close='true']");
     if (close) {
       event.preventDefault();
       event.stopPropagation();
       removeInspector();
+      return;
+    }
+
+    /*
+     * SOURCE FIX V16:
+     * Clicks inside the canonical call_workflow_glyph inspector must not wake
+     * legacy staged-inspector sync. Details/summary toggles were bubbling here
+     * and briefly reopening old v3/v4 panels.
+     */
+
+    if (event.target?.closest?.("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")) {
       return;
     }
 
@@ -52469,6 +52809,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   console.log("[AION] Master Glyph Canvas v3 staged node inspector installed");
 
 /* AION PATCH: Master Glyph Canvas v4 staged glyph connection preview
+   SOURCE DISABLE: legacy Master Glyph Canvas v4 connection preview is retired
    Purpose:
    - Preview compatible upstream/downstream canvas nodes for a staged workflow glyph.
    - Do not create edges.
@@ -52479,7 +52820,8 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 (function installAionMasterGlyphConnectionPreviewPatch() {
   const PATCH_ID = "aion-master-glyph-connection-preview-v4";
 
-  if (window.__aionMasterGlyphConnectionPreviewPatchInstalled === true) return;
+  if (window.__aionMasterGlyphConnectionPreviewPatchInstalled === true) panel.remove();
+      return;
   window.__aionMasterGlyphConnectionPreviewPatchInstalled = true;
 
   if (document.getElementById(PATCH_ID)) return;
@@ -52719,7 +53061,14 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     const wrapper = document.createElement("div");
     wrapper.innerHTML = renderAionMasterGlyphConnectionPreview(node);
     const panel = wrapper.firstElementChild;
-    if (panel) document.body.appendChild(panel);
+    if (panel) {
+      /*
+       * SOURCE MERGE: v4 connection preview is now rendered inside the
+       * canonical right-side call_workflow_glyph contract inspector.
+       * Do not append the old separate left-side container.
+       */
+      panel.style.display = 'none'; el.style.visibility = 'hidden';
+    }
   }
 
   const style = document.createElement("style");
@@ -52860,6 +53209,15 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   document.head.appendChild(style);
 
   document.addEventListener("click", (event) => {
+    /*
+     * SOURCE FIX V16:
+     * Ignore clicks inside canonical call_workflow_glyph inspector so details
+     * accordions do not trigger legacy connection preview/confirm panels.
+     */
+    if (event.target?.closest?.("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")) {
+      return;
+    }
+
     const close = event.target.closest?.("[data-aion-master-glyph-connection-preview-close='true']");
     if (close) {
       event.preventDefault();
@@ -53084,6 +53442,15 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   }
 
   document.addEventListener("click", (event) => {
+    /*
+     * SOURCE FIX V16:
+     * Ignore clicks inside canonical call_workflow_glyph inspector so details
+     * accordions do not trigger legacy connection preview/confirm panels.
+     */
+    if (event.target?.closest?.("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")) {
+      return;
+    }
+
     const target = event.target.closest?.("[data-aion-master-glyph-stage-connection='true']");
     if (!target) return;
 
@@ -53147,3330 +53514,9 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
 
 
-/* AION PATCH: Master Glyph Canvas canvas-mode UI v9
-   Purpose:
-   - Replace modal-style Master Glyph Canvas with an in-canvas mode.
-   - Add clean toolbar toggle buttons.
-   - Hide oversized legacy glyph buttons from the toolbar.
-   - Preserve workflow canvas state.
-   - Do not execute, wire, or mutate saved glyphs.
-*/
-(function installAionMasterGlyphCanvasModeV9() {
-  const PATCH_ID = "aion-master-glyph-canvas-mode-v9";
 
-  if (window.__aionMasterGlyphCanvasModeV9Installed === true) return;
-  window.__aionMasterGlyphCanvasModeV9Installed = true;
 
-  window.__aionCanvasMode = window.__aionCanvasMode || "workflow";
-
-  function esc(value) {
-    if (typeof escapeHtml === "function") return escapeHtml(value);
-    return String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  function getMasterItems() {
-    try {
-      if (typeof listAionMasterGlyphCanvasItems === "function") {
-        return listAionMasterGlyphCanvasItems();
-      }
-    } catch (_) {}
-
-    return [];
-  }
-
-  function summarise(value, fallback = "None") {
-    if (Array.isArray(value)) {
-      if (!value.length) return fallback;
-      return value
-        .map((item) => {
-          if (typeof item === "string") return item;
-          return item?.event_type || item?.name || item?.connector || item?.id || JSON.stringify(item);
-        })
-        .filter(Boolean)
-        .slice(0, 6)
-        .join(", ");
-    }
-
-    if (value && typeof value === "object") {
-      const props =
-        value.properties && typeof value.properties === "object"
-          ? Object.keys(value.properties)
-          : Object.keys(value);
-
-      return props.length ? props.slice(0, 6).join(", ") : fallback;
-    }
-
-    const text = String(value || "").trim();
-    return text || fallback;
-  }
-
-  function normaliseItem(item, index) {
-    const compiled = item?.compiled_glyph || {};
-    const workflow = compiled.workflow || {};
-
-    return {
-      id: String(item?.id || item?.workflow_id || workflow.workflow_id || `glyph_${index + 1}`),
-      workflow_id: String(item?.workflow_id || workflow.workflow_id || item?.id || `glyph_${index + 1}`),
-      name: String(item?.name || workflow.name || item?.workflow_id || "Untitled workflow glyph"),
-      status: String(item?.status || workflow.status || "draft"),
-      callable: item?.callable === true || compiled.callable === true,
-      risk_tier: String(item?.risk_tier || compiled.risk_tier || "low"),
-      required_connectors: item?.required_connectors || compiled.required_connectors || [],
-      inputs_schema: item?.inputs_schema || compiled.inputs_schema || {},
-      outputs_schema: item?.outputs_schema || compiled.outputs_schema || {},
-      boardroom_events: item?.boardroom_events || compiled.boardroom_events || [],
-    };
-  }
-
-  function renderMasterGlyphCanvasMode() {
-    const items = getMasterItems().map(normaliseItem);
-
-    return `
-      <section class="aion-master-glyph-canvas-mode" data-aion-master-glyph-canvas-mode="true">
-        <div class="aion-master-glyph-mode-header">
-          <div>
-            <div class="eyebrow">Master Glyph Canvas</div>
-            <h2>Callable workflow glyphs</h2>
-            <p>Canvas mode. Saved workflow glyphs are visible as source glyphs only. No execution, no editing, no wiring, no external writes.</p>
-          </div>
-
-          <button
-            type="button"
-            class="secondary-btn"
-            data-aion-canvas-mode="workflow"
-          >
-            Back to Workflow Canvas
-          </button>
-        </div>
-
-        <div class="aion-master-glyph-mode-contract">
-          Read-only source canvas · No execution · No editing · No wiring · No saved-glyph mutation · Workflow canvas preserved
-        </div>
-
-        <div class="aion-master-glyph-mode-grid">
-          ${
-            items.length
-              ? items.map((item, index) => `
-                  <article
-                    class="aion-master-glyph-mode-card"
-                    data-aion-master-glyph-source-card="true"
-                    data-workflow-id="${esc(item.workflow_id)}"
-                    style="--glyph-delay:${index * 40}ms"
-                  >
-                    <div class="aion-master-glyph-card-top">
-                      <span class="aion-master-glyph-card-orb">⌁</span>
-                      <div>
-                        <strong>${esc(item.name)}</strong>
-                        <small>${esc(item.workflow_id)}</small>
-                      </div>
-                    </div>
-
-                    <div class="aion-master-glyph-card-meta">
-                      <span>Status</span><b>${esc(item.status)}</b>
-                      <span>Callable</span><b>${item.callable ? "true" : "false"}</b>
-                      <span>Risk</span><b>${esc(item.risk_tier)}</b>
-                      <span>Connectors</span><b>${esc(summarise(item.required_connectors, "None"))}</b>
-                      <span>Inputs</span><b>${esc(summarise(item.inputs_schema, "Any payload"))}</b>
-                      <span>Outputs</span><b>${esc(summarise(item.outputs_schema, "Dry-run payload"))}</b>
-                      <span>Events</span><b>${esc(summarise(item.boardroom_events, "None declared"))}</b>
-                    </div>
-
-                    <button
-                      type="button"
-                      class="secondary-btn secondary-btn-small"
-                      data-aion-master-glyph-stage-to-canvas="true"
-                      data-workflow-id="${esc(item.workflow_id)}"
-                    >
-                      Stage as call node
-                    </button>
-                  </article>
-                `).join("")
-              : `<div class="empty-state">No callable workflow glyphs saved yet.</div>`
-          }
-        </div>
-      </section>
-    `;
-  }
-
-  function removeOldMasterModal() {
-    document
-      .querySelectorAll("[data-aion-master-glyph-canvas='true']")
-      .forEach((node) => node.remove());
-
-    window.__aionMasterGlyphCanvasOpen = false;
-  }
-
-  function findCanvasHost() {
-    return (
-      document.querySelector(".aion-workflow-canvas-viewport") ||
-      document.querySelector(".aion-workflow-canvas") ||
-      document.querySelector(".aion-workflow-layout") ||
-      document.querySelector("[data-aion-workflow-canvas='true']")
-    );
-  }
-
-  function renderCanvasMode() {
-    removeOldMasterModal();
-
-    document
-      .querySelectorAll("[data-aion-master-glyph-canvas-mode='true']")
-      .forEach((node) => node.remove());
-
-    const host = findCanvasHost();
-    if (!host) return;
-
-    if (window.__aionCanvasMode !== "master_glyph") {
-      host.classList.remove("aion-master-glyph-host-active");
-      return;
-    }
-
-    host.classList.add("aion-master-glyph-host-active");
-
-    const wrapper = document.createElement("div");
-    wrapper.innerHTML = renderMasterGlyphCanvasMode();
-
-    const panel = wrapper.firstElementChild;
-    if (panel) host.appendChild(panel);
-  }
-
-  function mountToolbarButtons() {
-    const toolbar =
-      document.querySelector(".aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated") ||
-      document.querySelector(".aion-workflow-floating-toolbar");
-
-    if (!toolbar) return;
-
-    toolbar
-      .querySelectorAll(
-        "[data-aion-master-glyph-canvas-open='true'], [data-aion-workflow-glyph-library-open='true'], [data-aion-master-glyph-clear-staged='true']",
-      )
-      .forEach((node) => {
-        node.classList.add("aion-master-glyph-legacy-hidden");
-      });
-
-    if (!toolbar.querySelector("[data-aion-canvas-mode='workflow']")) {
-      const workflowBtn = document.createElement("button");
-      workflowBtn.type = "button";
-      workflowBtn.className = "aion-canvas-mode-icon-btn";
-      workflowBtn.setAttribute("data-aion-canvas-mode", "workflow");
-      workflowBtn.title = "Workflow Canvas";
-      workflowBtn.innerHTML = "◇";
-      toolbar.appendChild(workflowBtn);
-    }
-
-    if (!toolbar.querySelector("[data-aion-canvas-mode='master_glyph']")) {
-      const masterBtn = document.createElement("button");
-      masterBtn.type = "button";
-      masterBtn.className = "aion-canvas-mode-icon-btn";
-      masterBtn.setAttribute("data-aion-canvas-mode", "master_glyph");
-      masterBtn.title = "Master Glyph Canvas";
-      masterBtn.innerHTML = "⌁";
-      toolbar.appendChild(masterBtn);
-    }
-
-    toolbar.querySelectorAll("[data-aion-canvas-mode]").forEach((button) => {
-      const mode = button.getAttribute("data-aion-canvas-mode");
-      button.classList.toggle("active", mode === window.__aionCanvasMode);
-    });
-  }
-
-  function installStyle() {
-    if (document.getElementById(PATCH_ID)) return;
-
-    const style = document.createElement("style");
-    style.id = PATCH_ID;
-    style.textContent = `
-      .aion-master-glyph-legacy-hidden {
-        display: none !important;
-      }
-
-      .aion-canvas-mode-icon-btn {
-        width: 44px !important;
-        height: 44px !important;
-        min-width: 44px !important;
-        max-width: 44px !important;
-        padding: 0 !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border-radius: 16px !important;
-        border: 1px solid rgba(15, 23, 42, 0.14) !important;
-        background: rgba(255, 255, 255, 0.92) !important;
-        color: #0f172a !important;
-        font-size: 20px !important;
-        font-weight: 900 !important;
-        line-height: 1 !important;
-        letter-spacing: 0 !important;
-        overflow: hidden !important;
-        white-space: nowrap !important;
-      }
-
-      .aion-canvas-mode-icon-btn.active {
-        background: #0f172a !important;
-        color: #ffffff !important;
-        border-color: #0f172a !important;
-      }
-
-      .aion-master-glyph-host-active > *:not([data-aion-master-glyph-canvas-mode="true"]) {
-        opacity: 0.08 !important;
-        pointer-events: none !important;
-      }
-
-      .aion-master-glyph-canvas-mode {
-        position: absolute;
-        inset: 0;
-        z-index: 80;
-        padding: 34px 44px 120px;
-        overflow: auto;
-        background:
-          radial-gradient(circle at 18% 18%, rgba(14, 165, 233, 0.10), transparent 34%),
-          radial-gradient(circle at 84% 22%, rgba(124, 58, 237, 0.10), transparent 32%),
-          rgba(255, 255, 255, 0.72);
-        backdrop-filter: blur(8px);
-      }
-
-      .aion-master-glyph-mode-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 20px;
-        align-items: flex-start;
-        margin-bottom: 18px;
-      }
-
-      .aion-master-glyph-mode-header h2 {
-        margin: 4px 0 6px;
-        font-size: 28px;
-        line-height: 1.05;
-        color: #0f172a;
-      }
-
-      .aion-master-glyph-mode-header p {
-        max-width: 780px;
-        margin: 0;
-        color: #64748b;
-        font-size: 14px;
-        line-height: 1.45;
-      }
-
-      .aion-master-glyph-mode-contract {
-        display: inline-flex;
-        max-width: 100%;
-        margin-bottom: 28px;
-        padding: 10px 14px;
-        border-radius: 999px;
-        background: rgba(15, 23, 42, 0.06);
-        color: #334155;
-        font-size: 11px;
-        font-weight: 900;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
-
-      .aion-master-glyph-mode-grid {
-        position: relative;
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(270px, 320px));
-        gap: 22px;
-        align-items: start;
-      }
-
-      .aion-master-glyph-mode-card {
-        padding: 18px;
-        border-radius: 24px;
-        border: 1px solid rgba(15, 23, 42, 0.12);
-        background: rgba(255, 255, 255, 0.94);
-        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.10);
-      }
-
-      .aion-master-glyph-card-top {
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-        margin-bottom: 14px;
-      }
-
-      .aion-master-glyph-card-orb {
-        width: 42px;
-        height: 42px;
-        border-radius: 16px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(14, 165, 233, 0.10);
-        color: #0f766e;
-        font-size: 18px;
-        font-weight: 900;
-      }
-
-      .aion-master-glyph-card-top strong {
-        display: block;
-        color: #0f172a;
-        font-size: 15px;
-        line-height: 1.2;
-      }
-
-      .aion-master-glyph-card-top small {
-        display: block;
-        margin-top: 4px;
-        color: #64748b;
-        font-size: 11px;
-        overflow-wrap: anywhere;
-      }
-
-      .aion-master-glyph-card-meta {
-        display: grid;
-        grid-template-columns: 96px minmax(0, 1fr);
-        gap: 7px 10px;
-        margin-bottom: 14px;
-        font-size: 12px;
-      }
-
-      .aion-master-glyph-card-meta span {
-        color: #64748b;
-        font-weight: 800;
-      }
-
-      .aion-master-glyph-card-meta b {
-        color: #0f172a;
-        font-weight: 900;
-        overflow-wrap: anywhere;
-      }
-
-      body.aion-workflow-dark-mode .aion-canvas-mode-icon-btn {
-        background: rgba(15, 23, 42, 0.92) !important;
-        color: #f8fafc !important;
-        border-color: rgba(148, 163, 184, 0.28) !important;
-      }
-
-      body.aion-workflow-dark-mode .aion-canvas-mode-icon-btn.active {
-        background: #f8fafc !important;
-        color: #0f172a !important;
-      }
-
-      body.aion-workflow-dark-mode .aion-master-glyph-canvas-mode {
-        background:
-          radial-gradient(circle at 18% 18%, rgba(14, 165, 233, 0.13), transparent 34%),
-          radial-gradient(circle at 84% 22%, rgba(124, 58, 237, 0.13), transparent 32%),
-          rgba(15, 23, 42, 0.86);
-      }
-
-      body.aion-workflow-dark-mode .aion-master-glyph-mode-header h2,
-      body.aion-workflow-dark-mode .aion-master-glyph-card-top strong,
-      body.aion-workflow-dark-mode .aion-master-glyph-card-meta b {
-        color: #f8fafc;
-      }
-
-      body.aion-workflow-dark-mode .aion-master-glyph-mode-header p,
-      body.aion-workflow-dark-mode .aion-master-glyph-card-top small,
-      body.aion-workflow-dark-mode .aion-master-glyph-card-meta span {
-        color: #cbd5e1;
-      }
-
-      body.aion-workflow-dark-mode .aion-master-glyph-mode-card {
-        background: rgba(15, 23, 42, 0.94);
-        border-color: rgba(148, 163, 184, 0.24);
-      }
-    `;
-
-    document.head.appendChild(style);
-  }
-
-  document.addEventListener("click", (event) => {
-    const modeButton = event.target.closest?.("[data-aion-canvas-mode]");
-    if (!modeButton) return;
-
-    const mode = modeButton.getAttribute("data-aion-canvas-mode");
-    if (!mode) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    window.__aionCanvasMode = mode === "master_glyph" ? "master_glyph" : "workflow";
-    window.__aionMasterGlyphCanvasOpen = false;
-
-    renderCanvasMode();
-    mountToolbarButtons();
-
-    if (typeof requestRender === "function") requestRender();
-  }, true);
-
-  const observer = new MutationObserver(() => {
-    window.clearTimeout(window.__aionMasterGlyphCanvasModeV9Timer);
-    window.__aionMasterGlyphCanvasModeV9Timer = window.setTimeout(() => {
-      installStyle();
-      mountToolbarButtons();
-      renderCanvasMode();
-    }, 80);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  window.renderAionMasterGlyphCanvasMode = renderMasterGlyphCanvasMode;
-  window.__renderAionMasterGlyphCanvasMode = renderCanvasMode;
-
-  installStyle();
-
-  window.setTimeout(() => {
-    mountToolbarButtons();
-    renderCanvasMode();
-  }, 150);
-
-  window.setTimeout(() => {
-    mountToolbarButtons();
-    renderCanvasMode();
-  }, 700);
-
-  console.log("[AION] Master Glyph Canvas mode v9 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas full-canvas layout fix v10
-   Purpose:
-   - Make Master Glyph Canvas mode fill the existing workflow canvas surface.
-   - Remove centered modal/card appearance.
-   - Anchor content from the top-left of the canvas.
-   - Hide legacy oversized text buttons.
-   - Preserve read-only / no-execution boundary.
-*/
-(function installAionMasterGlyphFullCanvasLayoutV10() {
-  const PATCH_ID = "aion-master-glyph-full-canvas-layout-v10";
-
-  if (window.__aionMasterGlyphFullCanvasLayoutV10Installed === true) return;
-  window.__aionMasterGlyphFullCanvasLayoutV10Installed = true;
-
-  function installStyle() {
-    const existing = document.getElementById(PATCH_ID);
-    if (existing) existing.remove();
-
-    const style = document.createElement("style");
-    style.id = PATCH_ID;
-    style.textContent = `
-      /* Hide old broken text launchers in the compact toolbar */
-      .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"],
-      .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"],
-      .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-staged="true"],
-      .aion-workflow-floating-toolbar .aion-master-glyph-legacy-hidden {
-        display: none !important;
-        visibility: hidden !important;
-        pointer-events: none !important;
-        width: 0 !important;
-        min-width: 0 !important;
-        max-width: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        border: 0 !important;
-        overflow: hidden !important;
-      }
-
-      /* Ensure canvas host can hold the master mode as a true full-canvas layer */
-      .aion-workflow-canvas,
-      .aion-workflow-canvas-viewport,
-      [data-aion-workflow-canvas="true"] {
-        position: relative !important;
-      }
-
-      .aion-master-glyph-host-active {
-        position: relative !important;
-      }
-
-      .aion-master-glyph-host-active > *:not([data-aion-master-glyph-canvas-mode="true"]) {
-        opacity: 0.04 !important;
-        pointer-events: none !important;
-      }
-
-      /* Full existing canvas, not a modal/card */
-      [data-aion-master-glyph-canvas-mode="true"],
-      .aion-master-glyph-canvas-mode {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        min-height: 100% !important;
-        z-index: 90 !important;
-        box-sizing: border-box !important;
-
-        margin: 0 !important;
-        border-radius: 0 !important;
-        border: 0 !important;
-        box-shadow: none !important;
-
-        padding: 42px 52px 130px 52px !important;
-        overflow: auto !important;
-
-        background:
-          linear-gradient(rgba(255,255,255,0.74), rgba(255,255,255,0.74)),
-          radial-gradient(circle at 18% 18%, rgba(14,165,233,0.10), transparent 36%),
-          radial-gradient(circle at 84% 20%, rgba(124,58,237,0.10), transparent 34%) !important;
-        backdrop-filter: blur(5px) !important;
-      }
-
-      .aion-master-glyph-mode-header {
-        width: 100% !important;
-        max-width: none !important;
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: flex-start !important;
-        gap: 24px !important;
-        margin: 0 0 18px 0 !important;
-      }
-
-      .aion-master-glyph-mode-header h2 {
-        margin: 4px 0 6px !important;
-        font-size: 30px !important;
-        line-height: 1.05 !important;
-      }
-
-      .aion-master-glyph-mode-header p {
-        max-width: 780px !important;
-      }
-
-      .aion-master-glyph-mode-contract {
-        display: inline-flex !important;
-        width: auto !important;
-        max-width: calc(100% - 20px) !important;
-        margin: 0 0 30px 0 !important;
-        white-space: normal !important;
-      }
-
-      .aion-master-glyph-mode-grid {
-        width: 100% !important;
-        max-width: none !important;
-        display: grid !important;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 330px)) !important;
-        gap: 24px !important;
-        align-items: start !important;
-        justify-content: start !important;
-      }
-
-      .aion-master-glyph-mode-card {
-        width: auto !important;
-        max-width: 330px !important;
-        min-height: 0 !important;
-      }
-
-      .aion-canvas-mode-icon-btn {
-        width: 44px !important;
-        min-width: 44px !important;
-        max-width: 44px !important;
-        height: 44px !important;
-        padding: 0 !important;
-        border-radius: 16px !important;
-        font-size: 19px !important;
-        letter-spacing: 0 !important;
-        text-indent: 0 !important;
-        overflow: hidden !important;
-      }
-
-      body.aion-workflow-dark-mode [data-aion-master-glyph-canvas-mode="true"],
-      body.aion-workflow-dark-mode .aion-master-glyph-canvas-mode {
-        background:
-          linear-gradient(rgba(15,23,42,0.82), rgba(15,23,42,0.82)),
-          radial-gradient(circle at 18% 18%, rgba(14,165,233,0.14), transparent 36%),
-          radial-gradient(circle at 84% 20%, rgba(124,58,237,0.14), transparent 34%) !important;
-      }
-    `;
-
-    document.head.appendChild(style);
-  }
-
-  function forceRerenderMasterCanvasMode() {
-    if (window.__aionCanvasMode !== "master_glyph") return;
-
-    if (typeof window.__renderAionMasterGlyphCanvasMode === "function") {
-      window.__renderAionMasterGlyphCanvasMode();
-    }
-
-    document
-      .querySelectorAll("[data-aion-master-glyph-canvas='true']")
-      .forEach((node) => node.remove());
-
-    window.__aionMasterGlyphCanvasOpen = false;
-  }
-
-  document.addEventListener("click", (event) => {
-    const modeButton = event.target.closest?.("[data-aion-canvas-mode]");
-    if (!modeButton) return;
-
-    window.setTimeout(() => {
-      installStyle();
-      forceRerenderMasterCanvasMode();
-    }, 80);
-  }, true);
-
-  const observer = new MutationObserver(() => {
-    window.clearTimeout(window.__aionMasterGlyphFullCanvasLayoutV10Timer);
-    window.__aionMasterGlyphFullCanvasLayoutV10Timer = window.setTimeout(() => {
-      installStyle();
-      forceRerenderMasterCanvasMode();
-    }, 120);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  installStyle();
-
-  window.setTimeout(() => {
-    installStyle();
-    forceRerenderMasterCanvasMode();
-  }, 150);
-
-  window.setTimeout(() => {
-    installStyle();
-    forceRerenderMasterCanvasMode();
-  }, 700);
-
-  console.log("[AION] Master Glyph Canvas full-canvas layout v10 installed");
-})();
-
-
-
-
-/* AION PATCH: Master Glyph Canvas full-canvas surface v12
-   Purpose:
-   - Stop Master Glyph Canvas rendering like a floating modal.
-   - Make it occupy the real workflow canvas area.
-   - Match the workflow canvas background/grid.
-   - Keep bottom toolbar visible.
-   - Keep Back to Workflow Canvas reachable.
-*/
-(function installAionMasterGlyphFullCanvasSurfaceV12() {
-  const PATCH_ID = "aion-master-glyph-full-canvas-surface-v12";
-
-  if (window.__aionMasterGlyphFullCanvasSurfaceV12Installed === true) return;
-  window.__aionMasterGlyphFullCanvasSurfaceV12Installed = true;
-
-  const existing = document.getElementById(PATCH_ID);
-  if (existing) existing.remove();
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body [data-aion-master-glyph-canvas="true"],
-    html body .aion-master-glyph-canvas {
-      position: fixed !important;
-
-      /* below app header/topbar, beside left icon rail */
-      top: 122px !important;
-      left: 72px !important;
-      right: 0 !important;
-      bottom: 0 !important;
-
-      width: auto !important;
-      height: auto !important;
-      min-width: 0 !important;
-      min-height: 0 !important;
-      max-width: none !important;
-      max-height: none !important;
-
-      margin: 0 !important;
-      padding: 56px 72px 120px !important;
-
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-
-      overflow: auto !important;
-      z-index: 1050 !important;
-
-      background:
-        linear-gradient(rgba(247, 238, 225, 0.90), rgba(247, 238, 225, 0.90)),
-        linear-gradient(90deg, rgba(15,23,42,0.055) 1px, transparent 1px),
-        linear-gradient(rgba(15,23,42,0.055) 1px, transparent 1px) !important;
-      background-size:
-        auto,
-        48px 48px,
-        48px 48px !important;
-      background-position:
-        0 0,
-        0 0,
-        0 0 !important;
-
-      color: #0f172a !important;
-    }
-
-    html body [data-aion-master-glyph-canvas="true"]::before,
-    html body .aion-master-glyph-canvas::before,
-    html body [data-aion-master-glyph-canvas="true"]::after,
-    html body .aion-master-glyph-canvas::after {
-      display: none !important;
-      content: none !important;
-    }
-
-    html body .aion-master-glyph-canvas-header {
-      position: relative !important;
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: flex-start !important;
-      gap: 24px !important;
-
-      max-width: none !important;
-      width: 100% !important;
-      margin: 0 0 18px !important;
-      padding: 0 !important;
-
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-    }
-
-    html body .aion-master-glyph-canvas-header > div {
-      max-width: 760px !important;
-    }
-
-    html body .aion-master-glyph-canvas-header h2 {
-      margin: 4px 0 8px !important;
-      font-size: 30px !important;
-      line-height: 1.05 !important;
-      color: #0f172a !important;
-    }
-
-    html body .aion-master-glyph-canvas-header p {
-      margin: 0 !important;
-      max-width: 760px !important;
-      color: #64748b !important;
-      font-size: 15px !important;
-      line-height: 1.45 !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-close="true"] {
-      position: sticky !important;
-      top: 0 !important;
-      right: 0 !important;
-
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-
-      min-width: 170px !important;
-      height: 44px !important;
-      padding: 0 18px !important;
-
-      background: rgba(255,255,255,0.86) !important;
-      border: 2px solid rgba(15,23,42,0.72) !important;
-      color: #0f172a !important;
-      font-size: 12px !important;
-      font-weight: 900 !important;
-      letter-spacing: 0.11em !important;
-      text-transform: uppercase !important;
-      z-index: 3 !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-close="true"]::before {
-      content: "Back to workflow canvas";
-    }
-
-    html body [data-aion-master-glyph-canvas-close="true"] {
-      font-size: 0 !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-close="true"]::before {
-      font-size: 12px !important;
-    }
-
-    html body .aion-master-glyph-canvas-contract {
-      width: fit-content !important;
-      max-width: calc(100vw - 220px) !important;
-      margin: 0 0 28px !important;
-      padding: 9px 14px !important;
-
-      border-radius: 999px !important;
-      background: rgba(255,255,255,0.68) !important;
-      color: #334155 !important;
-
-      font-size: 11px !important;
-      font-weight: 900 !important;
-      letter-spacing: 0.09em !important;
-      text-transform: uppercase !important;
-      white-space: normal !important;
-    }
-
-    html body .aion-master-glyph-canvas-stage {
-      position: relative !important;
-      display: grid !important;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 320px)) !important;
-      align-items: start !important;
-      gap: 28px !important;
-
-      width: 100% !important;
-      min-height: 520px !important;
-      margin: 0 !important;
-      padding: 0 !important;
-
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-      overflow: visible !important;
-    }
-
-    html body .aion-master-glyph-canvas-stage .aion-master-glyph-node,
-    html body [data-aion-master-glyph-node="true"] {
-      position: relative !important;
-      left: auto !important;
-      top: auto !important;
-      transform: none !important;
-
-      width: 300px !important;
-      min-height: 0 !important;
-      margin: 0 !important;
-
-      background: rgba(255,255,255,0.88) !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      border-radius: 22px !important;
-      box-shadow: 0 18px 40px rgba(15,23,42,0.10) !important;
-    }
-
-    body.aion-workflow-dark-mode [data-aion-master-glyph-canvas="true"],
-    body.aion-workflow-dark-mode .aion-master-glyph-canvas {
-      background:
-        linear-gradient(rgba(15, 23, 42, 0.94), rgba(15, 23, 42, 0.94)),
-        linear-gradient(90deg, rgba(148,163,184,0.13) 1px, transparent 1px),
-        linear-gradient(rgba(148,163,184,0.13) 1px, transparent 1px) !important;
-      background-size:
-        auto,
-        48px 48px,
-        48px 48px !important;
-      color: #f8fafc !important;
-    }
-
-    body.aion-workflow-dark-mode .aion-master-glyph-canvas-header h2 {
-      color: #f8fafc !important;
-    }
-
-    body.aion-workflow-dark-mode .aion-master-glyph-canvas-header p {
-      color: #cbd5e1 !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-
-  console.log("[AION] Master Glyph full canvas surface v12 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas true canvas mode v13
-   Purpose:
-   - Make Master Glyph Canvas a true full workflow-surface mode.
-   - Stop it appearing as a white modal/card inside the workflow canvas.
-   - Hide normal workflow nodes while Master Canvas is open.
-   - Keep toolbar usable with compact readable buttons.
-   - Preserve safety: no execution, no live writes, no saved-glyph mutation.
-*/
-(function installAionMasterGlyphTrueCanvasModeV13() {
-  const PATCH_ID = "aion-master-glyph-true-canvas-mode-v13";
-
-  if (window.__aionMasterGlyphTrueCanvasModeV13Installed === true) return;
-  window.__aionMasterGlyphTrueCanvasModeV13Installed = true;
-
-  function syncBodyMode() {
-    const open = window.__aionMasterGlyphCanvasOpen === true;
-    document.body.classList.toggle("aion-master-glyph-canvas-mode", open);
-  }
-
-  const oldRender = window.requestRender;
-  if (typeof oldRender === "function" && oldRender.__aionMasterGlyphWrapped !== true) {
-    const wrapped = function wrappedRequestRender(...args) {
-      const result = oldRender.apply(this, args);
-      window.setTimeout(syncBodyMode, 0);
-      window.setTimeout(syncBodyMode, 80);
-      return result;
-    };
-    wrapped.__aionMasterGlyphWrapped = true;
-    window.requestRender = wrapped;
-  }
-
-  document.addEventListener("click", (event) => {
-    const open = event.target.closest?.("[data-aion-master-glyph-canvas-open='true']");
-    if (open) {
-      window.__aionMasterGlyphCanvasOpen = true;
-      window.setTimeout(syncBodyMode, 0);
-      window.setTimeout(syncBodyMode, 80);
-      return;
-    }
-
-    const close = event.target.closest?.("[data-aion-master-glyph-canvas-close='true']");
-    if (close) {
-      window.__aionMasterGlyphCanvasOpen = false;
-      window.setTimeout(syncBodyMode, 0);
-      window.setTimeout(syncBodyMode, 80);
-      return;
-    }
-  }, true);
-
-  const existing = document.getElementById(PATCH_ID);
-  if (existing) existing.remove();
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    body.aion-master-glyph-canvas-mode .aion-workflow-canvas > *:not([data-aion-master-glyph-canvas="true"]),
-    body.aion-master-glyph-canvas-mode .aion-workflow-canvas-viewport > *:not([data-aion-master-glyph-canvas="true"]),
-    body.aion-master-glyph-canvas-mode .aion-workflow-connectors,
-    body.aion-master-glyph-canvas-mode [data-aion-workflow-node-id],
-    body.aion-master-glyph-canvas-mode .aion-canvas-node,
-    body.aion-master-glyph-canvas-mode .aion-workflow-node,
-    body.aion-master-glyph-canvas-mode .aion-workflow-edge,
-    body.aion-master-glyph-canvas-mode svg.aion-workflow-connectors {
-      opacity: 0 !important;
-      pointer-events: none !important;
-      visibility: hidden !important;
-    }
-
-    body.aion-master-glyph-canvas-mode [data-aion-master-glyph-canvas="true"],
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas,
-    html body [data-aion-master-glyph-canvas="true"],
-    html body .aion-master-glyph-canvas {
-      position: fixed !important;
-      inset: 122px 0 0 64px !important;
-
-      width: auto !important;
-      height: auto !important;
-      max-width: none !important;
-      max-height: none !important;
-      min-width: 0 !important;
-      min-height: 0 !important;
-
-      margin: 0 !important;
-      padding: 54px 72px 132px !important;
-
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-
-      overflow: auto !important;
-      z-index: 1040 !important;
-
-      background-color: #f7eee1 !important;
-      background-image:
-        linear-gradient(90deg, rgba(15,23,42,0.055) 1px, transparent 1px),
-        linear-gradient(rgba(15,23,42,0.055) 1px, transparent 1px) !important;
-      background-size: 48px 48px !important;
-
-      color: #0f172a !important;
-      transform: none !important;
-    }
-
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas::before,
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas::after,
-    body.aion-master-glyph-canvas-mode [data-aion-master-glyph-canvas="true"]::before,
-    body.aion-master-glyph-canvas-mode [data-aion-master-glyph-canvas="true"]::after {
-      display: none !important;
-      content: none !important;
-    }
-
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas-header {
-      position: relative !important;
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: flex-start !important;
-      gap: 24px !important;
-      width: 100% !important;
-      max-width: none !important;
-      margin: 0 0 18px !important;
-      padding: 0 !important;
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-    }
-
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas-header > div {
-      max-width: 760px !important;
-    }
-
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas-header h2 {
-      margin: 4px 0 8px !important;
-      color: #0f172a !important;
-      font-size: 30px !important;
-      line-height: 1.05 !important;
-      font-weight: 900 !important;
-    }
-
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas-header p {
-      margin: 0 !important;
-      max-width: 760px !important;
-      color: #64748b !important;
-      font-size: 15px !important;
-      line-height: 1.45 !important;
-    }
-
-    body.aion-master-glyph-canvas-mode [data-aion-master-glyph-canvas-close="true"] {
-      position: sticky !important;
-      top: 0 !important;
-      right: 0 !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      min-width: 180px !important;
-      height: 44px !important;
-      padding: 0 18px !important;
-      border: 2px solid rgba(15,23,42,0.76) !important;
-      background: rgba(255,255,255,0.9) !important;
-      color: transparent !important;
-      font-size: 0 !important;
-      font-weight: 900 !important;
-      letter-spacing: 0.1em !important;
-      text-transform: uppercase !important;
-      z-index: 5 !important;
-    }
-
-    body.aion-master-glyph-canvas-mode [data-aion-master-glyph-canvas-close="true"]::before {
-      content: "Back to workflow";
-      color: #0f172a !important;
-      font-size: 12px !important;
-    }
-
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas-contract {
-      width: fit-content !important;
-      max-width: calc(100vw - 220px) !important;
-      margin: 0 0 28px !important;
-      padding: 9px 14px !important;
-      border-radius: 999px !important;
-      background: rgba(255,255,255,0.72) !important;
-      color: #334155 !important;
-      font-size: 11px !important;
-      font-weight: 900 !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
-      white-space: normal !important;
-    }
-
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-canvas-stage {
-      position: relative !important;
-      display: grid !important;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 320px)) !important;
-      gap: 28px !important;
-      align-items: start !important;
-      width: 100% !important;
-      min-height: 520px !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      background: transparent !important;
-      border: 0 !important;
-      box-shadow: none !important;
-      overflow: visible !important;
-    }
-
-    body.aion-master-glyph-canvas-mode [data-aion-master-glyph-node="true"],
-    body.aion-master-glyph-canvas-mode .aion-master-glyph-node {
-      position: relative !important;
-      left: auto !important;
-      top: auto !important;
-      transform: none !important;
-      width: 300px !important;
-      margin: 0 !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      pointer-events: auto !important;
-      background: rgba(255,255,255,0.9) !important;
-      border: 1px solid rgba(15,23,42,0.14) !important;
-      border-radius: 22px !important;
-      box-shadow: 0 18px 40px rgba(15,23,42,0.10) !important;
-    }
-
-    /* Toolbar: make Master/Glyph controls readable again */
-    body .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"],
-    body .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"],
-    body .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-stages="true"] {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: auto !important;
-      min-width: 54px !important;
-      max-width: 150px !important;
-      height: 52px !important;
-      padding: 0 14px !important;
-      overflow: hidden !important;
-      white-space: nowrap !important;
-      text-overflow: ellipsis !important;
-      font-size: 11px !important;
-      line-height: 1 !important;
-      letter-spacing: 0.06em !important;
-      text-transform: uppercase !important;
-    }
-
-    body .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"] {
-      color: transparent !important;
-      font-size: 0 !important;
-    }
-
-    body .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"]::before {
-      content: "Glyphs";
-      color: #0f172a !important;
-      font-size: 11px !important;
-      font-weight: 900 !important;
-    }
-
-    body .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"] {
-      color: transparent !important;
-      font-size: 0 !important;
-    }
-
-    body .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"]::before {
-      content: "Library";
-      color: #0f172a !important;
-      font-size: 11px !important;
-      font-weight: 900 !important;
-    }
-
-    body .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-stages="true"] {
-      color: transparent !important;
-      font-size: 0 !important;
-    }
-
-    body .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-stages="true"]::before {
-      content: "Clear";
-      color: #0f172a !important;
-      font-size: 11px !important;
-      font-weight: 900 !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-
-  window.addEventListener("aion:workflow-rendered", syncBodyMode);
-  window.setTimeout(syncBodyMode, 50);
-  window.setTimeout(syncBodyMode, 250);
-
-  console.log("[AION] Master Glyph true canvas mode v13 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas primary canvas mode v11
-   Purpose:
-   - Treat Master Glyph Canvas as a primary canvas surface, not a modal/sidebar.
-   - Keep entry points as compact bottom-toolbar icon buttons.
-   - Make the canvas fill the workflow canvas area with one continuous background.
-   - Keep staging explicit and safe: no execution, no saved glyph mutation, no external writes.
-*/
-(function installAionMasterGlyphPrimaryCanvasModeV11() {
-  const PATCH_ID = "aion-master-glyph-primary-canvas-mode-v11";
-  if (window.__aionMasterGlyphPrimaryCanvasModeV11Installed === true) return;
-  window.__aionMasterGlyphPrimaryCanvasModeV11Installed = true;
-
-  function safeRender() {
-    if (typeof requestRender === "function") requestRender();
-  }
-
-  function setMode(mode) {
-    window.__aionCanvasMode = mode === "master_glyph" ? "master_glyph" : "workflow";
-    window.__aionMasterGlyphCanvasOpen = window.__aionCanvasMode === "master_glyph";
-
-    document
-      .querySelectorAll(
-        [
-          "[data-aion-master-glyph-staged-inspector='true']",
-          "[data-aion-master-glyph-connection-preview='true']",
-        ].join(",")
-      )
-      .forEach((node) => node.remove());
-
-    safeRender();
-  }
-
-  function openMasterGlyphCanvas() {
-    setMode("master_glyph");
-  }
-
-  function closeMasterGlyphCanvas() {
-    setMode("workflow");
-  }
-
-  function getToolbar() {
-    return (
-      document.querySelector(".aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated") ||
-      document.querySelector(".aion-workflow-floating-toolbar")
-    );
-  }
-
-  function removeLegacyToolbarGlyphButtons(toolbar) {
-    if (!toolbar) return;
-
-    toolbar
-      .querySelectorAll(
-        [
-          "[data-aion-master-glyph-toolbar-open='true']",
-          "[data-aion-master-glyph-canvas-open='true']",
-          "[data-aion-workflow-glyph-library-open='true']",
-          "[data-aion-master-glyph-clear-staged='true']",
-        ].join(",")
-      )
-      .forEach((node) => {
-        if (node.getAttribute("data-aion-master-glyph-v11-control") === "true") return;
-        node.remove();
-      });
-  }
-
-  function ensureToolbarButton(toolbar, key, title, label, glyph, attr) {
-    if (!toolbar || toolbar.querySelector(`[data-aion-master-glyph-v11-${key}='true']`)) return;
-
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "aion-master-glyph-v11-toolbar-btn";
-    button.setAttribute("data-aion-master-glyph-v11-control", "true");
-    button.setAttribute(`data-aion-master-glyph-v11-${key}`, "true");
-    button.setAttribute(attr, "true");
-    button.title = title;
-    button.setAttribute("aria-label", title);
-    button.innerHTML = `<span aria-hidden="true">${glyph}</span><strong>${label}</strong>`;
-
-    toolbar.appendChild(button);
-  }
-
-  function syncToolbar() {
-    const toolbar = getToolbar();
-    if (!toolbar) return;
-
-    removeLegacyToolbarGlyphButtons(toolbar);
-
-    ensureToolbarButton(
-      toolbar,
-      "canvas-open",
-      "Open Master Glyph Canvas",
-      "Master",
-      "◇",
-      "data-aion-master-glyph-canvas-open",
-    );
-
-    ensureToolbarButton(
-      toolbar,
-      "library-open",
-      "Open Workflow Glyph Library",
-      "Glyphs",
-      "⌁",
-      "data-aion-workflow-glyph-library-open",
-    );
-  }
-
-  function syncCanvasClass() {
-    const active = window.__aionCanvasMode === "master_glyph" || window.__aionMasterGlyphCanvasOpen === true;
-    document.body.classList.toggle("aion-master-glyph-primary-canvas-active", active);
-  }
-
-  function syncUi() {
-    syncCanvasClass();
-    syncToolbar();
-  }
-
-  function injectStyle() {
-    if (document.getElementById(PATCH_ID)) return;
-
-    const style = document.createElement("style");
-    style.id = PATCH_ID;
-    style.textContent = `
-      .aion-workflow-layout {
-        position: relative !important;
-      }
-
-      .aion-master-glyph-v11-toolbar-btn {
-        width: 54px !important;
-        min-width: 54px !important;
-        height: 54px !important;
-        border-radius: 18px !important;
-        display: inline-grid !important;
-        place-items: center !important;
-        border: 1px solid rgba(15, 23, 42, 0.12) !important;
-        background: rgba(255, 255, 255, 0.82) !important;
-        color: #0f172a !important;
-        box-shadow: none !important;
-        cursor: pointer !important;
-        pointer-events: auto !important;
-        padding: 0 !important;
-        overflow: hidden !important;
-      }
-
-      .aion-master-glyph-v11-toolbar-btn span {
-        display: block !important;
-        font-size: 20px !important;
-        line-height: 1 !important;
-        font-weight: 900 !important;
-      }
-
-      .aion-master-glyph-v11-toolbar-btn strong {
-        position: absolute !important;
-        width: 1px !important;
-        height: 1px !important;
-        overflow: hidden !important;
-        clip: rect(0, 0, 0, 0) !important;
-        white-space: nowrap !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active [data-aion-master-glyph-canvas="true"] {
-        position: absolute !important;
-        inset: 0 0 0 64px !important;
-        z-index: 920 !important;
-        width: auto !important;
-        height: auto !important;
-        max-width: none !important;
-        max-height: none !important;
-        border: 0 !important;
-        border-radius: 0 !important;
-        box-shadow: none !important;
-        overflow: hidden !important;
-        pointer-events: auto !important;
-        display: grid !important;
-        grid-template-rows: auto auto minmax(0, 1fr) !important;
-        background:
-          linear-gradient(rgba(157, 126, 86, 0.10) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(157, 126, 86, 0.10) 1px, transparent 1px),
-          radial-gradient(circle at 18% 18%, rgba(14, 165, 185, 0.10), transparent 30%),
-          radial-gradient(circle at 82% 62%, rgba(124, 58, 237, 0.08), transparent 36%),
-          #fbf3e8 !important;
-        background-size: 42px 42px, 42px 42px, auto, auto, auto !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-canvas-header {
-        padding: 44px 56px 18px !important;
-        border-bottom: 0 !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-canvas-header h2 {
-        font-size: 30px !important;
-        margin: 4px 0 8px !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-canvas-header p {
-        max-width: 760px !important;
-        font-size: 15px !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-canvas-header [data-aion-master-glyph-canvas-close="true"] {
-        position: fixed !important;
-        right: 32px !important;
-        top: 112px !important;
-        z-index: 4600 !important;
-        pointer-events: auto !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-canvas-contract {
-        margin: 0 56px 18px !important;
-        width: max-content !important;
-        max-width: calc(100% - 112px) !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-canvas-stage {
-        position: relative !important;
-        min-height: 0 !important;
-        overflow: auto !important;
-        padding: 24px 56px 140px !important;
-        background: transparent !important;
-        pointer-events: auto !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-workflow-canvas {
-        visibility: hidden !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-workflow-floating-toolbar,
-      body.aion-master-glyph-primary-canvas-active .aion-workflow-zoom {
-        visibility: visible !important;
-        z-index: 3000 !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-node {
-        pointer-events: auto !important;
-        z-index: 1200 !important;
-      }
-
-      body.aion-master-glyph-primary-canvas-active .aion-master-glyph-node *,
-      body.aion-master-glyph-primary-canvas-active [data-aion-master-glyph-stage-to-canvas="true"] {
-        pointer-events: auto !important;
-      }
-
-      body:not(.aion-master-glyph-primary-canvas-active) [data-aion-master-glyph-canvas="true"] {
-        display: none !important;
-      }
-
-      body .aion-workflow-layout > [data-aion-master-glyph-canvas-open="true"]:not(.aion-master-glyph-v11-toolbar-btn),
-      body .aion-workflow-layout > [data-aion-workflow-glyph-library-open="true"]:not(.aion-master-glyph-v11-toolbar-btn) {
-        display: none !important;
-      }
-    `;
-
-    document.head.appendChild(style);
-  }
-
-  document.addEventListener("click", (event) => {
-    const open = event.target.closest?.("[data-aion-master-glyph-canvas-open='true']");
-    if (open) {
-      event.preventDefault();
-      event.stopPropagation();
-      openMasterGlyphCanvas();
-      return;
-    }
-
-    const close = event.target.closest?.("[data-aion-master-glyph-canvas-close='true']");
-    if (close) {
-      event.preventDefault();
-      event.stopPropagation();
-      closeMasterGlyphCanvas();
-      return;
-    }
-
-    const stage = event.target.closest?.("[data-aion-master-glyph-stage-to-canvas='true']");
-    if (stage) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      const workflowId =
-        stage.getAttribute("data-workflow-id") ||
-        stage.closest("[data-workflow-id]")?.getAttribute("data-workflow-id") ||
-        "";
-
-      if (typeof window.__stageAionMasterGlyphToWorkflowCanvas === "function") {
-        window.__stageAionMasterGlyphToWorkflowCanvas(workflowId);
-      }
-
-      window.__aionCanvasMode = "workflow";
-      window.__aionMasterGlyphCanvasOpen = false;
-      safeRender();
-      return;
-    }
-  }, true);
-
-  window.addEventListener("aion:workflow-rendered", syncUi);
-  window.addEventListener("DOMContentLoaded", syncUi);
-
-  injectStyle();
-  syncUi();
-
-  window.__openAionMasterGlyphCanvas = openMasterGlyphCanvas;
-  window.__closeAionMasterGlyphCanvas = closeMasterGlyphCanvas;
-
-  window.setTimeout(syncUi, 100);
-  window.setTimeout(syncUi, 500);
-  window.setTimeout(syncUi, 1200);
-
-  console.log("[AION] Master Glyph Canvas primary canvas mode v11 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas structural viewport fix v12
-   Master Glyph now renders inside .aion-workflow-canvas-viewport.
-   This patch removes modal/overlay behaviour and makes it fill the existing canvas surface.
-*/
-(function installAionMasterGlyphStructuralViewportFixV12() {
-  const PATCH_ID = "aion-master-glyph-structural-viewport-fix-v12";
-  if (document.getElementById(PATCH_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] {
-      position: absolute !important;
-      inset: 0 !important;
-      z-index: 20 !important;
-      width: auto !important;
-      height: auto !important;
-      max-width: none !important;
-      max-height: none !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      overflow: hidden !important;
-      display: grid !important;
-      grid-template-rows: auto auto minmax(0, 1fr) !important;
-      background:
-        radial-gradient(circle at 18% 18%, rgba(14,165,185,0.10), transparent 30%),
-        radial-gradient(circle at 82% 62%, rgba(124,58,237,0.08), transparent 36%),
-        transparent !important;
-      pointer-events: auto !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-header {
-      padding: 44px 56px 18px !important;
-      border-bottom: 0 !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-contract {
-      margin: 0 56px 18px !important;
-      width: max-content !important;
-      max-width: calc(100% - 112px) !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-stage {
-      background: transparent !important;
-      padding: 24px 56px 140px !important;
-      min-height: 0 !important;
-      overflow: auto !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] [data-aion-master-glyph-canvas-close="true"] {
-      position: absolute !important;
-      right: 28px !important;
-      top: 28px !important;
-      z-index: 100 !important;
-      pointer-events: auto !important;
-    }
-
-    .aion-workflow-floating-toolbar .aion-master-glyph-toolbar-btn {
-      width: 54px !important;
-      min-width: 54px !important;
-      height: 54px !important;
-      border-radius: 18px !important;
-      display: inline-grid !important;
-      place-items: center !important;
-      padding: 0 !important;
-      overflow: hidden !important;
-    }
-
-    .aion-workflow-floating-toolbar .aion-master-glyph-toolbar-btn span {
-      font-size: 20px !important;
-      font-weight: 900 !important;
-      line-height: 1 !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  console.log("[AION] Master Glyph Canvas structural viewport fix v12 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas real viewport layout fix v13
-   Reason:
-   - The active UI is data-aion-master-glyph-canvas-mode="true", not the older
-     data-aion-master-glyph-canvas="true" modal.
-   - Make the active Master Glyph Canvas fill the workflow viewport exactly.
-   - Restore visible compact toolbar labels for Master / Glyph Lib / Clear.
-*/
-(function installAionMasterGlyphRealViewportLayoutFixV13() {
-  const PATCH_ID = "aion-master-glyph-real-viewport-layout-fix-v13";
-  if (document.getElementById(PATCH_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    /* The actual active Master Glyph surface */
-    .aion-workflow-canvas-viewport[data-aion-workflow-canvas-viewport="true"] {
-      position: relative !important;
-      overflow: hidden !important;
-    }
-
-    .aion-workflow-canvas-viewport[data-aion-workflow-canvas-viewport="true"]
-      > [data-aion-master-glyph-canvas-mode="true"],
-    [data-aion-master-glyph-canvas-mode="true"] {
-      position: absolute !important;
-      inset: 0 !important;
-      left: 0 !important;
-      top: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      max-width: none !important;
-      max-height: none !important;
-      margin: 0 !important;
-      padding: 56px 72px 150px !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      z-index: 40 !important;
-      overflow: auto !important;
-      background:
-        radial-gradient(circle at 18% 18%, rgba(14,165,185,0.10), transparent 30%),
-        radial-gradient(circle at 82% 64%, rgba(124,58,237,0.08), transparent 36%),
-        transparent !important;
-      pointer-events: auto !important;
-      box-sizing: border-box !important;
-    }
-
-    [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-header {
-      width: 100% !important;
-      max-width: none !important;
-      margin: 0 0 20px !important;
-      padding: 0 !important;
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: flex-start !important;
-      gap: 24px !important;
-      box-sizing: border-box !important;
-    }
-
-    [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-header > div {
-      max-width: 820px !important;
-    }
-
-    [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-header button,
-    [data-aion-master-glyph-canvas-mode="true"] [data-aion-master-glyph-back-to-workflow],
-    [data-aion-master-glyph-canvas-mode="true"] [data-aion-master-glyph-canvas-close="true"] {
-      position: relative !important;
-      right: auto !important;
-      top: auto !important;
-      flex: 0 0 auto !important;
-      z-index: 100 !important;
-      pointer-events: auto !important;
-      cursor: pointer !important;
-      white-space: nowrap !important;
-    }
-
-    [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-contract {
-      width: max-content !important;
-      max-width: 100% !important;
-      margin: 0 0 28px !important;
-      box-sizing: border-box !important;
-    }
-
-    [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-grid {
-      width: 100% !important;
-      max-width: none !important;
-      min-height: 520px !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      display: grid !important;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 340px)) !important;
-      align-content: start !important;
-      justify-content: start !important;
-      gap: 28px !important;
-      box-sizing: border-box !important;
-    }
-
-    [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-card {
-      position: relative !important;
-      left: auto !important;
-      top: auto !important;
-      width: 320px !important;
-      max-width: 320px !important;
-      min-height: 230px !important;
-      box-sizing: border-box !important;
-      pointer-events: auto !important;
-    }
-
-    [data-aion-master-glyph-canvas-mode="true"] button,
-    [data-aion-master-glyph-stage-to-canvas="true"] {
-      pointer-events: auto !important;
-      cursor: pointer !important;
-      z-index: 120 !important;
-    }
-
-    /* Hide the old modal version completely if it still renders anywhere */
-    body [data-aion-master-glyph-canvas="true"]:not([data-aion-master-glyph-canvas-mode="true"]) {
-      display: none !important;
-      pointer-events: none !important;
-    }
-
-    /* Stop older toolbar patch buttons being tiny unlabeled mystery icons */
-    .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"],
-    .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"],
-    .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-staged="true"] {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      gap: 6px !important;
-      min-width: 92px !important;
-      width: auto !important;
-      height: 54px !important;
-      padding: 0 14px !important;
-      border-radius: 18px !important;
-      white-space: nowrap !important;
-      overflow: visible !important;
-      font-size: 12px !important;
-      font-weight: 900 !important;
-      letter-spacing: 0.04em !important;
-      text-indent: 0 !important;
-      color: #0f172a !important;
-    }
-
-    .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"]::after {
-      content: "Master" !important;
-    }
-
-    .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"]::after {
-      content: "Glyph Lib" !important;
-    }
-
-    .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-staged="true"]::after {
-      content: "Clear" !important;
-    }
-
-    .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"] span,
-    .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"] span,
-    .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-staged="true"] span {
-      display: inline !important;
-      font-size: 16px !important;
-      line-height: 1 !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  console.log("[AION] Master Glyph Canvas real viewport layout fix v13 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas visual grid merge v15
-   Purpose:
-   - Make Master Glyph Canvas visually merge with the existing workflow canvas.
-   - Preserve current embedded/in-canvas behaviour.
-   - Remove the white floating-card feel by matching the workflow grid/background.
-   - Keep safety: no execution, no live writes, no saved glyph mutation.
-*/
-(function installAionMasterGlyphVisualGridMergeV15() {
-  const PATCH_ID = "aion-master-glyph-visual-grid-merge-v15";
-  if (document.getElementById(PATCH_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"],
-    [data-aion-master-glyph-canvas="true"] {
-      background:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        radial-gradient(circle at 20% 20%, rgba(14, 165, 185, 0.045), transparent 30%),
-        radial-gradient(circle at 78% 58%, rgba(244, 26, 255, 0.035), transparent 34%),
-        #fbf3e8 !important;
-      background-size:
-        40px 40px,
-        40px 40px,
-        auto,
-        auto,
-        auto !important;
-      box-shadow: none !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      backdrop-filter: none !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      padding: 42px 48px 150px !important;
-      overflow: hidden !important;
-      z-index: 30 !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"]::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 28% 16%, rgba(255, 255, 255, 0.48), transparent 30%),
-        radial-gradient(circle at 80% 74%, rgba(255, 255, 255, 0.36), transparent 34%);
-      z-index: 0;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-header {
-      background: transparent !important;
-      border: 0 !important;
-      padding: 0 0 14px !important;
-      margin: 0 !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-contract {
-      margin: 0 0 24px !important;
-      width: max-content !important;
-      max-width: calc(100vw - 220px) !important;
-      background: rgba(255, 255, 255, 0.42) !important;
-      border: 1px solid rgba(15, 23, 42, 0.06) !important;
-      box-shadow: none !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-stage {
-      background: transparent !important;
-      background-image: none !important;
-      padding: 0 !important;
-      min-height: 0 !important;
-      height: 100% !important;
-      overflow: auto !important;
-    }
-
-    .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-node {
-      background: rgba(255, 255, 255, 0.88) !important;
-      border: 1px solid rgba(15, 23, 42, 0.10) !important;
-      box-shadow: 0 18px 44px rgba(15, 23, 42, 0.10) !important;
-    }
-
-    body.aion-workflow-dark-mode .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"],
-    body.aion-workflow-dark-mode [data-aion-master-glyph-canvas="true"] {
-      background:
-        linear-gradient(rgba(148, 163, 184, 0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, 0.07) 1px, transparent 1px),
-        radial-gradient(circle at 20% 20%, rgba(14, 165, 185, 0.10), transparent 30%),
-        radial-gradient(circle at 78% 58%, rgba(124, 58, 237, 0.10), transparent 34%),
-        #020617 !important;
-      background-size:
-        40px 40px,
-        40px 40px,
-        auto,
-        auto,
-        auto !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-  console.log("[AION] Master Glyph Canvas visual grid merge v15 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas exact workflow-grid visual merge v16
-   Purpose:
-   - Remove Master Glyph Canvas blur/green/purple overlay.
-   - Force Master Glyph Canvas to visually match the normal workflow canvas.
-   - Keep it as an in-canvas surface, not a floating coloured panel.
-   - Safety unchanged: no execution, no live writes, no saved glyph mutation.
-*/
-(function installAionMasterGlyphExactWorkflowGridV16() {
-  const PATCH_ID = "aion-master-glyph-exact-workflow-grid-v16";
-  if (document.getElementById(PATCH_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"],
-    html body [data-aion-master-glyph-canvas-mode="true"],
-    html body [data-aion-master-glyph-canvas="true"] {
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px, 40px 40px !important;
-      background-position: 0 0, 0 0 !important;
-      box-shadow: none !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      outline: 0 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      opacity: 1 !important;
-    }
-
-    html body .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"]::before,
-    html body .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"]::after,
-    html body [data-aion-master-glyph-canvas-mode="true"]::before,
-    html body [data-aion-master-glyph-canvas-mode="true"]::after,
-    html body [data-aion-master-glyph-canvas="true"]::before,
-    html body [data-aion-master-glyph-canvas="true"]::after {
-      content: none !important;
-      display: none !important;
-      background: none !important;
-      background-image: none !important;
-      opacity: 0 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body .aion-master-glyph-host-active,
-    html body .aion-workflow-canvas,
-    html body .aion-workflow-canvas-viewport {
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px, 40px 40px !important;
-    }
-
-    html body .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-header,
-    html body [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-header,
-    html body [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-header {
-      background: transparent !important;
-      background-image: none !important;
-      box-shadow: none !important;
-      border: 0 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body .aion-workflow-canvas-viewport > [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-stage,
-    html body [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-grid,
-    html body [data-aion-master-glyph-canvas="true"] .aion-master-glyph-canvas-stage {
-      background: transparent !important;
-      background-image: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body .aion-master-glyph-mode-contract,
-    html body .aion-master-glyph-canvas-contract {
-      background: rgba(255, 255, 255, 0.46) !important;
-      background-image: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body .aion-master-glyph-mode-card,
-    html body .aion-master-glyph-node {
-      background: rgba(255, 255, 255, 0.92) !important;
-      background-image: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-  console.log("[AION] Master Glyph Canvas exact workflow-grid visual merge v16 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas opaque separate canvas surface v18
-   Purpose:
-   - Stop workflow canvas/nodes showing through behind Master Glyph Canvas.
-   - Remove remaining green/purple/radial tint.
-   - Keep Master Glyph as a separate canvas view, visually matching workflow canvas.
-   - Do not alter execution/staging safety rules.
-*/
-(function installAionMasterGlyphOpaqueCanvasSurfaceV18() {
-  const PATCH_ID = "aion-master-glyph-opaque-canvas-surface-v18";
-  if (document.getElementById(PATCH_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body [data-aion-master-glyph-canvas-mode="true"],
-    html body [data-aion-master-glyph-canvas="true"],
-    html body .aion-master-glyph-canvas,
-    html body .aion-master-glyph-canvas-stage,
-    html body .aion-master-glyph-mode-grid {
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px !important;
-      background-position: 0 0 !important;
-      background-repeat: repeat !important;
-      background-blend-mode: normal !important;
-
-      opacity: 1 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      mix-blend-mode: normal !important;
-      isolation: isolate !important;
-      box-shadow: none !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"],
-    html body [data-aion-master-glyph-canvas="true"],
-    html body .aion-master-glyph-canvas {
-      position: fixed !important;
-      left: 72px !important;
-      right: 0 !important;
-      top: 132px !important;
-      bottom: 0 !important;
-      width: auto !important;
-      height: auto !important;
-      min-width: 0 !important;
-      min-height: 0 !important;
-      max-width: none !important;
-      max-height: none !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      overflow: auto !important;
-      z-index: 1450 !important;
-    }
-
-    html body .aion-master-glyph-mode-header,
-    html body .aion-master-glyph-canvas-header {
-      background: transparent !important;
-      background-image: none !important;
-      border: 0 !important;
-      box-shadow: none !important;
-      padding: 52px 86px 16px !important;
-    }
-
-    html body .aion-master-glyph-mode-contract,
-    html body .aion-master-glyph-canvas-contract {
-      margin-left: 86px !important;
-      margin-right: 86px !important;
-      background: rgba(255, 255, 255, 0.58) !important;
-      background-image: none !important;
-      box-shadow: none !important;
-    }
-
-    html body .aion-master-glyph-mode-grid,
-    html body .aion-master-glyph-canvas-stage {
-      padding: 36px 86px 160px !important;
-      min-height: calc(100vh - 260px) !important;
-      overflow: visible !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"]::before,
-    html body [data-aion-master-glyph-canvas-mode="true"]::after,
-    html body [data-aion-master-glyph-canvas="true"]::before,
-    html body [data-aion-master-glyph-canvas="true"]::after,
-    html body .aion-master-glyph-canvas::before,
-    html body .aion-master-glyph-canvas::after,
-    html body .aion-master-glyph-canvas-stage::before,
-    html body .aion-master-glyph-canvas-stage::after,
-    html body .aion-master-glyph-mode-grid::before,
-    html body .aion-master-glyph-mode-grid::after {
-      content: none !important;
-      display: none !important;
-      background: none !important;
-      background-image: none !important;
-      opacity: 0 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body .aion-master-glyph-mode-card,
-    html body .aion-master-glyph-node {
-      background: #ffffff !important;
-      background-image: none !important;
-      opacity: 1 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"] *,
-    html body [data-aion-master-glyph-canvas="true"] * {
-      mix-blend-mode: normal !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-
-  function hardenMasterGlyphSurface() {
-    document
-      .querySelectorAll(
-        [
-          "[data-aion-master-glyph-canvas-mode='true']",
-          "[data-aion-master-glyph-canvas='true']",
-          ".aion-master-glyph-canvas",
-          ".aion-master-glyph-canvas-stage",
-          ".aion-master-glyph-mode-grid",
-        ].join(",")
-      )
-      .forEach((node) => {
-        node.style.backgroundColor = "#fbf3e8";
-        node.style.backgroundImage =
-          "linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px)";
-        node.style.backgroundSize = "40px 40px";
-        node.style.opacity = "1";
-        node.style.filter = "none";
-        node.style.backdropFilter = "none";
-        node.style.webkitBackdropFilter = "none";
-        node.style.mixBlendMode = "normal";
-      });
-  }
-
-  window.addEventListener("aion:workflow-rendered", hardenMasterGlyphSurface);
-  window.setTimeout(hardenMasterGlyphSurface, 50);
-  window.setTimeout(hardenMasterGlyphSurface, 250);
-  window.setTimeout(hardenMasterGlyphSurface, 800);
-
-  console.log("[AION] Master Glyph Canvas opaque separate surface v18 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas hard canvas isolation v19
-   Purpose:
-   - Stop Master Glyph Canvas from visually overlaying workflow nodes.
-   - When Master Glyph mode is active, workflow canvas children are hidden.
-   - Master Glyph Canvas becomes the only visible canvas layer.
-   - Keep staging/dry-run safety untouched.
-*/
-(function installAionMasterGlyphHardCanvasIsolationV19() {
-  const PATCH_ID = "aion-master-glyph-hard-canvas-isolation-v19";
-  if (document.getElementById(PATCH_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    /*
-      The actual bug:
-      Master Glyph mode was still sharing the workflow viewport visually.
-      Hide every workflow canvas child while Master Glyph mode is active.
-    */
-    html body .aion-master-glyph-host-active > svg,
-    html body .aion-master-glyph-host-active > .aion-canvas-node,
-    html body .aion-master-glyph-host-active > .aion-workflow-port,
-    html body .aion-master-glyph-host-active > .aion-branch-route-pill,
-    html body .aion-master-glyph-host-active > .aion-router-add-route-btn,
-    html body .aion-master-glyph-host-active > .aion-workflow-add-next-node,
-    html body .aion-master-glyph-host-active > .aion-node-continuation-add,
-    html body .aion-master-glyph-host-active > .aion-workflow-empty-start {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    /*
-      The Master Glyph Canvas must be the canvas, not a translucent overlay.
-    */
-    html body .aion-master-glyph-host-active [data-aion-master-glyph-canvas-mode="true"] {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      min-width: 100% !important;
-      min-height: 100% !important;
-      margin: 0 !important;
-      padding: 0 !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      z-index: 50 !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      pointer-events: auto !important;
-      overflow: auto !important;
-
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px !important;
-      background-position: 0 0 !important;
-      background-repeat: repeat !important;
-
-      box-shadow: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      mix-blend-mode: normal !important;
-      isolation: isolate !important;
-    }
-
-    /*
-      Kill all old translucent/radial Master Glyph surfaces.
-    */
-    html body [data-aion-master-glyph-canvas-mode="true"],
-    html body [data-aion-master-glyph-canvas-mode="true"] *,
-    html body .aion-master-glyph-mode-grid,
-    html body .aion-master-glyph-mode-header,
-    html body .aion-master-glyph-mode-contract {
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      mix-blend-mode: normal !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"]::before,
-    html body [data-aion-master-glyph-canvas-mode="true"]::after,
-    html body .aion-master-glyph-mode-grid::before,
-    html body .aion-master-glyph-mode-grid::after {
-      content: none !important;
-      display: none !important;
-      background: none !important;
-      opacity: 0 !important;
-    }
-
-    html body .aion-master-glyph-mode-header {
-      background: transparent !important;
-      background-image: none !important;
-      padding: 48px 88px 16px !important;
-      border: 0 !important;
-      box-shadow: none !important;
-    }
-
-    html body .aion-master-glyph-mode-contract {
-      margin: 0 88px 24px !important;
-      background: rgba(255, 255, 255, 0.72) !important;
-      background-image: none !important;
-      box-shadow: none !important;
-    }
-
-    html body .aion-master-glyph-mode-grid {
-      background: transparent !important;
-      background-image: none !important;
-      padding: 0 88px 180px !important;
-      min-height: auto !important;
-    }
-
-    html body .aion-master-glyph-mode-card {
-      background: #ffffff !important;
-      background-image: none !important;
-      opacity: 1 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    /*
-      Disable the old v1/v2 fixed modal canvas completely.
-      We only want the v9 in-canvas mode.
-    */
-    html body [data-aion-master-glyph-canvas="true"]:not([data-aion-master-glyph-canvas-mode="true"]),
-    html body .aion-master-glyph-canvas:not([data-aion-master-glyph-canvas-mode="true"]) {
-      display: none !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-
-  function hardIsolateMasterGlyphCanvas() {
-    const active = window.__aionMasterGlyphCanvasOpen === true;
-
-    document
-      .querySelectorAll(".aion-workflow-canvas-viewport")
-      .forEach((viewport) => {
-        if (active) {
-          viewport.classList.add("aion-master-glyph-host-active");
-        } else {
-          viewport.classList.remove("aion-master-glyph-host-active");
-        }
-      });
-
-    if (!active) return;
-
-    document
-      .querySelectorAll("[data-aion-master-glyph-canvas='true']:not([data-aion-master-glyph-canvas-mode='true'])")
-      .forEach((node) => node.remove());
-  }
-
-  document.addEventListener("click", (event) => {
-    const open = event.target.closest?.("[data-aion-master-glyph-canvas-open='true']");
-    if (open) {
-      window.setTimeout(hardIsolateMasterGlyphCanvas, 30);
-      window.setTimeout(hardIsolateMasterGlyphCanvas, 160);
-      return;
-    }
-
-    const close = event.target.closest?.("[data-aion-master-glyph-mode-close='true'], [data-aion-master-glyph-canvas-close='true']");
-    if (close) {
-      window.setTimeout(hardIsolateMasterGlyphCanvas, 30);
-      window.setTimeout(hardIsolateMasterGlyphCanvas, 160);
-      return;
-    }
-  }, true);
-
-  window.addEventListener("aion:workflow-rendered", hardIsolateMasterGlyphCanvas);
-  window.setTimeout(hardIsolateMasterGlyphCanvas, 50);
-  window.setTimeout(hardIsolateMasterGlyphCanvas, 250);
-  window.setTimeout(hardIsolateMasterGlyphCanvas, 800);
-
-  window.__hardIsolateAionMasterGlyphCanvas = hardIsolateMasterGlyphCanvas;
-
-  console.log("[AION] Master Glyph Canvas hard canvas isolation v19 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas true mode isolation v21
-   Purpose:
-   - Fix v19 using the wrong active flag.
-   - Master Glyph mode is controlled by window.__aionCanvasMode === "master_glyph".
-   - Remove green/radial tint, blur, transparency, and internal scrollbar.
-   - Hide workflow nodes while Master Glyph Canvas is active.
-   - Keep staging/dry-run safety untouched.
-*/
-(function installAionMasterGlyphTrueModeIsolationV21() {
-  const PATCH_ID = "aion-master-glyph-true-mode-isolation-v21";
-  if (document.getElementById(PATCH_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active {
-      overflow: hidden !important;
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px !important;
-      background-position: 0 0 !important;
-      background-repeat: repeat !important;
-    }
-
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > svg,
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > .aion-canvas-node,
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > .aion-workflow-port,
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > .aion-branch-route-pill,
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > .aion-router-add-route-btn,
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > .aion-workflow-add-next-node,
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > .aion-node-continuation-add,
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > .aion-workflow-empty-start {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    html body .aion-workflow-canvas-viewport.aion-master-glyph-host-active > [data-aion-master-glyph-canvas-mode="true"],
-    html body [data-aion-master-glyph-canvas-mode="true"],
-    html body .aion-master-glyph-canvas-mode {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      min-width: 100% !important;
-      min-height: 100% !important;
-      margin: 0 !important;
-      padding: 48px 88px 160px !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      z-index: 90 !important;
-
-      overflow: hidden !important;
-      overflow-x: hidden !important;
-      overflow-y: hidden !important;
-
-      opacity: 1 !important;
-      visibility: visible !important;
-      pointer-events: auto !important;
-      isolation: isolate !important;
-      mix-blend-mode: normal !important;
-
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px !important;
-      background-position: 0 0 !important;
-      background-repeat: repeat !important;
-
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"]::before,
-    html body [data-aion-master-glyph-canvas-mode="true"]::after,
-    html body .aion-master-glyph-canvas-mode::before,
-    html body .aion-master-glyph-canvas-mode::after,
-    html body .aion-master-glyph-mode-header::before,
-    html body .aion-master-glyph-mode-header::after,
-    html body .aion-master-glyph-mode-grid::before,
-    html body .aion-master-glyph-mode-grid::after {
-      content: none !important;
-      display: none !important;
-      background: none !important;
-      background-image: none !important;
-      opacity: 0 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-header,
-    html body .aion-master-glyph-mode-header {
-      padding: 0 !important;
-      margin: 0 0 18px 0 !important;
-      background: transparent !important;
-      background-image: none !important;
-      box-shadow: none !important;
-      border: 0 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-contract,
-    html body .aion-master-glyph-mode-contract {
-      margin: 0 0 28px 0 !important;
-      background: rgba(255, 255, 255, 0.72) !important;
-      background-image: none !important;
-      box-shadow: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-grid,
-    html body .aion-master-glyph-mode-grid {
-      padding: 0 !important;
-      margin: 0 !important;
-      min-height: 0 !important;
-      overflow: visible !important;
-      background: transparent !important;
-      background-image: none !important;
-      box-shadow: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"] .aion-master-glyph-mode-card,
-    html body .aion-master-glyph-mode-card {
-      background: #ffffff !important;
-      background-image: none !important;
-      opacity: 1 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      mix-blend-mode: normal !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"] *,
-    html body .aion-master-glyph-canvas-mode * {
-      scrollbar-width: none !important;
-      mix-blend-mode: normal !important;
-    }
-
-    html body [data-aion-master-glyph-canvas-mode="true"] *::-webkit-scrollbar,
-    html body .aion-master-glyph-canvas-mode *::-webkit-scrollbar {
-      width: 0 !important;
-      height: 0 !important;
-      display: none !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-
-  function isMasterGlyphModeActive() {
-    return window.__aionCanvasMode === "master_glyph";
-  }
-
-  function isolateMasterGlyphMode() {
-    const active = isMasterGlyphModeActive();
-
-    document
-      .querySelectorAll(".aion-workflow-canvas-viewport")
-      .forEach((viewport) => {
-        viewport.classList.toggle("aion-master-glyph-host-active", active);
-
-        if (active) {
-          viewport.scrollTop = 0;
-          viewport.scrollLeft = 0;
-        }
-      });
-
-    document
-      .querySelectorAll("[data-aion-master-glyph-canvas-mode='true']")
-      .forEach((canvas) => {
-        canvas.style.backgroundColor = "#fbf3e8";
-        canvas.style.backgroundImage =
-          "linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px)";
-        canvas.style.backgroundSize = "40px 40px";
-        canvas.style.backgroundRepeat = "repeat";
-        canvas.style.overflow = "hidden";
-        canvas.style.filter = "none";
-        canvas.style.backdropFilter = "none";
-        canvas.style.webkitBackdropFilter = "none";
-        canvas.style.opacity = "1";
-        canvas.style.mixBlendMode = "normal";
-      });
-
-    if (active) {
-      document
-        .querySelectorAll("[data-aion-master-glyph-canvas='true']:not([data-aion-master-glyph-canvas-mode='true'])")
-        .forEach((node) => node.remove());
-    }
-  }
-
-  document.addEventListener("click", (event) => {
-    if (event.target.closest?.("[data-aion-canvas-mode]")) {
-      window.setTimeout(isolateMasterGlyphMode, 20);
-      window.setTimeout(isolateMasterGlyphMode, 120);
-      window.setTimeout(isolateMasterGlyphMode, 350);
-    }
-  }, true);
-
-  window.addEventListener("aion:workflow-rendered", isolateMasterGlyphMode);
-  window.__isolateAionMasterGlyphMode = isolateMasterGlyphMode;
-
-  window.setTimeout(isolateMasterGlyphMode, 50);
-  window.setTimeout(isolateMasterGlyphMode, 250);
-  window.setTimeout(isolateMasterGlyphMode, 800);
-
-  console.log("[AION] Master Glyph Canvas true mode isolation v21 installed");
-})();
-
-
-/* AION PATCH: Master Glyph Canvas hard separate surface v22
-   Purpose:
-   - Fix mixed state between __aionCanvasMode and __aionMasterGlyphCanvasOpen.
-   - Treat either flag as active Master Glyph mode.
-   - Hide workflow canvas nodes physically while Master Glyph Canvas is active.
-   - Force Master Glyph Canvas to be opaque, same grid/colour as workflow canvas.
-   - Remove internal scrollbar and all green/radial/blur tint.
-   - Preserve staging/dry-run safety untouched.
-*/
-(function installAionMasterGlyphHardSeparateSurfaceV22() {
-  const PATCH_ID = "aion-master-glyph-hard-separate-surface-v22";
-
-  const old = document.getElementById(PATCH_ID);
-  if (old) old.remove();
-
-  function isMasterActive() {
-    return (
-      window.__aionCanvasMode === "master_glyph" ||
-      window.__aionMasterGlyphCanvasOpen === true ||
-      !!document.querySelector("[data-aion-master-glyph-canvas-mode='true']")
-    );
-  }
-
-  function canvasGridBackground(node) {
-    if (!node) return;
-
-    node.style.setProperty("background-color", "#fbf3e8", "important");
-    node.style.setProperty(
-      "background-image",
-      [
-        "linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px)",
-        "linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px)",
-      ].join(", "),
-      "important",
-    );
-    node.style.setProperty("background-size", "40px 40px", "important");
-    node.style.setProperty("background-position", "0 0", "important");
-    node.style.setProperty("background-repeat", "repeat", "important");
-    node.style.setProperty("opacity", "1", "important");
-    node.style.setProperty("filter", "none", "important");
-    node.style.setProperty("backdrop-filter", "none", "important");
-    node.style.setProperty("-webkit-backdrop-filter", "none", "important");
-    node.style.setProperty("mix-blend-mode", "normal", "important");
-  }
-
-  function hideWorkflowCanvasChildren(viewport, active) {
-    if (!viewport) return;
-
-    const workflowSelectors = [
-      "svg.aion-workflow-connectors",
-      ".aion-canvas-node",
-      "[data-aion-workflow-node-id]",
-      ".aion-workflow-port",
-      ".aion-branch-route-pill",
-      ".aion-router-add-route-btn",
-      ".aion-workflow-add-next-node",
-      ".aion-node-continuation-add",
-      ".aion-workflow-empty-start",
-    ].join(",");
-
-    viewport.querySelectorAll(workflowSelectors).forEach((node) => {
-      if (node.closest("[data-aion-master-glyph-canvas-mode='true']")) return;
-
-      if (active) {
-        node.dataset.aionMasterGlyphHiddenByV22 = "true";
-        node.style.setProperty("display", "none", "important");
-        node.style.setProperty("visibility", "hidden", "important");
-        node.style.setProperty("opacity", "0", "important");
-        node.style.setProperty("pointer-events", "none", "important");
-      } else if (node.dataset.aionMasterGlyphHiddenByV22 === "true") {
-        delete node.dataset.aionMasterGlyphHiddenByV22;
-        node.style.removeProperty("display");
-        node.style.removeProperty("visibility");
-        node.style.removeProperty("opacity");
-        node.style.removeProperty("pointer-events");
-      }
-    });
-  }
-
-  function hardenMasterSurface() {
-    const active = isMasterActive();
-
-    document.body.classList.toggle("aion-master-glyph-v22-active", active);
-
-    document.querySelectorAll(".aion-workflow-canvas-viewport").forEach((viewport) => {
-      viewport.classList.toggle("aion-master-glyph-host-active", active);
-
-      if (active) {
-        viewport.scrollTop = 0;
-        viewport.scrollLeft = 0;
-        viewport.style.setProperty("overflow", "hidden", "important");
-        canvasGridBackground(viewport);
-      } else {
-        viewport.style.removeProperty("overflow");
-      }
-
-      hideWorkflowCanvasChildren(viewport, active);
-    });
-
-    document
-      .querySelectorAll("[data-aion-master-glyph-canvas-mode='true'], .aion-master-glyph-canvas-mode")
-      .forEach((canvas) => {
-        canvasGridBackground(canvas);
-
-        canvas.style.setProperty("position", "absolute", "important");
-        canvas.style.setProperty("inset", "0", "important");
-        canvas.style.setProperty("width", "100%", "important");
-        canvas.style.setProperty("height", "100%", "important");
-        canvas.style.setProperty("min-width", "100%", "important");
-        canvas.style.setProperty("min-height", "100%", "important");
-        canvas.style.setProperty("margin", "0", "important");
-        canvas.style.setProperty("padding", "48px 88px 160px", "important");
-        canvas.style.setProperty("border", "0", "important");
-        canvas.style.setProperty("border-radius", "0", "important");
-        canvas.style.setProperty("box-shadow", "none", "important");
-        canvas.style.setProperty("overflow", "hidden", "important");
-        canvas.style.setProperty("overflow-x", "hidden", "important");
-        canvas.style.setProperty("overflow-y", "hidden", "important");
-        canvas.style.setProperty("z-index", "500", "important");
-        canvas.style.setProperty("isolation", "isolate", "important");
-      });
-
-    document
-      .querySelectorAll(
-        "[data-aion-master-glyph-canvas-mode='true']::before, [data-aion-master-glyph-canvas-mode='true']::after",
-      );
-
-    if (active) {
-      document
-        .querySelectorAll("[data-aion-master-glyph-canvas='true']:not([data-aion-master-glyph-canvas-mode='true'])")
-        .forEach((node) => node.remove());
-    }
-  }
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport {
-      overflow: hidden !important;
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px !important;
-      background-position: 0 0 !important;
-      background-repeat: repeat !important;
-    }
-
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > svg,
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > .aion-canvas-node,
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > [data-aion-workflow-node-id],
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > .aion-workflow-port,
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > .aion-branch-route-pill,
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > .aion-router-add-route-btn,
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > .aion-workflow-add-next-node,
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > .aion-node-continuation-add,
-    html body.aion-master-glyph-v22-active .aion-workflow-canvas-viewport > .aion-workflow-empty-start {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    html body.aion-master-glyph-v22-active [data-aion-master-glyph-canvas-mode="true"],
-    html body.aion-master-glyph-v22-active .aion-master-glyph-canvas-mode {
-      position: absolute !important;
-      inset: 0 !important;
-      width: 100% !important;
-      height: 100% !important;
-      min-width: 100% !important;
-      min-height: 100% !important;
-      margin: 0 !important;
-      padding: 48px 88px 160px !important;
-      border: 0 !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      overflow: hidden !important;
-      overflow-x: hidden !important;
-      overflow-y: hidden !important;
-      z-index: 500 !important;
-
-      background-color: #fbf3e8 !important;
-      background-image:
-        linear-gradient(rgba(15, 23, 42, 0.045) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15, 23, 42, 0.045) 1px, transparent 1px) !important;
-      background-size: 40px 40px !important;
-      background-position: 0 0 !important;
-      background-repeat: repeat !important;
-
-      opacity: 1 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      mix-blend-mode: normal !important;
-      isolation: isolate !important;
-    }
-
-    html body.aion-master-glyph-v22-active [data-aion-master-glyph-canvas-mode="true"]::before,
-    html body.aion-master-glyph-v22-active [data-aion-master-glyph-canvas-mode="true"]::after,
-    html body.aion-master-glyph-v22-active .aion-master-glyph-canvas-mode::before,
-    html body.aion-master-glyph-v22-active .aion-master-glyph-canvas-mode::after,
-    html body.aion-master-glyph-v22-active .aion-master-glyph-mode-grid::before,
-    html body.aion-master-glyph-v22-active .aion-master-glyph-mode-grid::after {
-      content: none !important;
-      display: none !important;
-      background: none !important;
-      background-image: none !important;
-      opacity: 0 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-    }
-
-    html body.aion-master-glyph-v22-active .aion-master-glyph-mode-header,
-    html body.aion-master-glyph-v22-active .aion-master-glyph-mode-contract,
-    html body.aion-master-glyph-v22-active .aion-master-glyph-mode-grid {
-      background: transparent !important;
-      background-image: none !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      box-shadow: none !important;
-    }
-
-    html body.aion-master-glyph-v22-active .aion-master-glyph-mode-contract {
-      background: rgba(255, 255, 255, 0.72) !important;
-    }
-
-    html body.aion-master-glyph-v22-active .aion-master-glyph-mode-card {
-      background: #ffffff !important;
-      background-image: none !important;
-      opacity: 1 !important;
-      filter: none !important;
-      backdrop-filter: none !important;
-      -webkit-backdrop-filter: none !important;
-      mix-blend-mode: normal !important;
-    }
-
-    html body.aion-master-glyph-v22-active [data-aion-master-glyph-canvas-mode="true"]::-webkit-scrollbar,
-    html body.aion-master-glyph-v22-active [data-aion-master-glyph-canvas-mode="true"] *::-webkit-scrollbar {
-      width: 0 !important;
-      height: 0 !important;
-      display: none !important;
-    }
-
-    html body.aion-master-glyph-v22-active [data-aion-master-glyph-canvas-mode="true"],
-    html body.aion-master-glyph-v22-active [data-aion-master-glyph-canvas-mode="true"] * {
-      scrollbar-width: none !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  document.addEventListener("click", (event) => {
-    if (
-      event.target.closest?.("[data-aion-canvas-mode]") ||
-      event.target.closest?.("[data-aion-master-glyph-canvas-open='true']") ||
-      event.target.closest?.("[data-aion-master-glyph-canvas-close='true']")
-    ) {
-      window.setTimeout(hardenMasterSurface, 20);
-      window.setTimeout(hardenMasterSurface, 120);
-      window.setTimeout(hardenMasterSurface, 350);
-    }
-  }, true);
-
-  const observer = new MutationObserver(() => {
-    window.clearTimeout(window.__aionMasterGlyphHardSeparateSurfaceV22Timer);
-    window.__aionMasterGlyphHardSeparateSurfaceV22Timer = window.setTimeout(hardenMasterSurface, 80);
-  });
-
-  observer.observe(document.documentElement, {
-    childList: true,
-    subtree: true,
-  });
-
-  window.addEventListener("aion:workflow-rendered", hardenMasterSurface);
-  window.__hardenAionMasterGlyphSurface = hardenMasterSurface;
-
-  window.setTimeout(hardenMasterSurface, 50);
-  window.setTimeout(hardenMasterSurface, 250);
-  window.setTimeout(hardenMasterSurface, 800);
-
-  console.log("[AION] Master Glyph Canvas hard separate surface v22 installed");
-})();
-
-
-
-
-
-
-/* AION PATCH: Toolbar source canvas mode buttons clean final v27
-   Purpose:
-   - Only use the two buttons rendered inside renderAionWorkflowFloatingToolbar().
-   - Hide/remove old injected Master/Glyph/Clear buttons.
-   - Keep Workflow + Master Glyph as compact working icon buttons.
-*/
-(function installAionToolbarSourceCanvasModeButtonsCleanV27() {
-  const PATCH_ID = "aion-toolbar-source-canvas-mode-buttons-clean-v27";
-  const old = document.getElementById(PATCH_ID);
-  if (old) old.remove();
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"],
-    html body .aion-workflow-floating-toolbar [data-aion-workflow-glyph-library-open="true"],
-    html body .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-staged="true"],
-    html body .aion-workflow-floating-toolbar [data-aion-master-glyph-toolbar-open="true"],
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-toolbar-btn,
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-cleanup-btn,
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-v11-toolbar-btn {
-      display: none !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      width: 0 !important;
-      min-width: 0 !important;
-      max-width: 0 !important;
-      height: 0 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      border: 0 !important;
-      overflow: hidden !important;
-    }
-
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="workflow"],
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="master_glyph"] {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-
-      width: 52px !important;
-      min-width: 52px !important;
-      max-width: 52px !important;
-      height: 52px !important;
-
-      padding: 0 !important;
-      margin: 0 !important;
-      border-radius: 18px !important;
-
-      align-items: center !important;
-      justify-content: center !important;
-
-      background: rgba(255, 255, 255, 0.96) !important;
-      border: 1px solid rgba(15, 23, 42, 0.16) !important;
-      color: #0f172a !important;
-      box-shadow: none !important;
-      cursor: pointer !important;
-
-      font-size: 22px !important;
-      line-height: 1 !important;
-      overflow: hidden !important;
-    }
-
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="workflow"] span,
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="master_glyph"] span {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      font-size: 22px !important;
-      font-weight: 900 !important;
-      line-height: 1 !important;
-      color: inherit !important;
-    }
-
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode]::before,
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode]::after {
-      content: none !important;
-      display: none !important;
-    }
-
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode].active {
-      background: rgba(15, 23, 42, 0.08) !important;
-      border-color: rgba(15, 23, 42, 0.28) !important;
-      color: #0f172a !important;
-    }
-  `;
-
-  document.head.appendChild(style);
-
-  function cleanToolbar() {
-    const toolbar =
-      document.querySelector(".aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated") ||
-      document.querySelector(".aion-workflow-floating-toolbar");
-
-    if (!toolbar) return;
-
-    toolbar
-      .querySelectorAll(
-        [
-          "[data-aion-master-glyph-canvas-open='true']",
-          "[data-aion-workflow-glyph-library-open='true']",
-          "[data-aion-master-glyph-clear-staged='true']",
-          "[data-aion-master-glyph-toolbar-open='true']",
-          ".aion-master-glyph-toolbar-btn",
-          ".aion-master-glyph-cleanup-btn",
-          ".aion-master-glyph-v11-toolbar-btn",
-        ].join(",")
-      )
-      .forEach((node) => node.remove());
-
-    toolbar.querySelectorAll("[data-aion-canvas-mode]").forEach((button) => {
-      const mode = button.getAttribute("data-aion-canvas-mode");
-      button.classList.toggle("active", mode === window.__aionCanvasMode);
-    });
-  }
-
-  document.addEventListener("click", (event) => {
-    const button = event.target.closest?.("[data-aion-canvas-mode]");
-    if (!button) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const mode = button.getAttribute("data-aion-canvas-mode");
-    window.__aionCanvasMode = mode === "master_glyph" ? "master_glyph" : "workflow";
-    window.__aionMasterGlyphCanvasOpen = window.__aionCanvasMode === "master_glyph";
-
-    if (typeof window.__renderAionMasterGlyphCanvasMode === "function") {
-      window.__renderAionMasterGlyphCanvasMode();
-    }
-
-    if (typeof window.__isolateAionMasterGlyphMode === "function") {
-      window.__isolateAionMasterGlyphMode();
-    }
-
-    if (typeof window.__hardenAionMasterGlyphSurface === "function") {
-      window.__hardenAionMasterGlyphSurface();
-    }
-
-    cleanToolbar();
-
-    if (typeof requestRender === "function") requestRender();
-
-    window.setTimeout(cleanToolbar, 50);
-    window.setTimeout(cleanToolbar, 200);
-  }, true);
-
-  window.addEventListener("aion:workflow-rendered", cleanToolbar);
-  window.__cleanAionCanvasModeToolbar = cleanToolbar;
-
-  window.setTimeout(cleanToolbar, 50);
-  window.setTimeout(cleanToolbar, 250);
-  window.setTimeout(cleanToolbar, 800);
-
-  console.log("[AION] Toolbar source canvas mode buttons clean final v27 installed");
-})();
-
-/* AION PATCH: Master Glyph toolbar source utilities final v29
-   Purpose:
-   - Keep the 2 canvas switch buttons.
-   - Restore the 3 utility buttons from the real toolbar renderer.
-   - Make all 5 compact icon-only buttons.
-   - Stop older v25/v26 hide rules killing the utility buttons.
-*/
-(function installAionMasterGlyphToolbarSourceUtilitiesFinalV29() {
-  const PATCH_ID = "aion-master-glyph-toolbar-source-utilities-final-v29";
-  const old = document.getElementById(PATCH_ID);
-  if (old) old.remove();
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="workflow"],
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="master_glyph"],
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-
-      width: 52px !important;
-      min-width: 52px !important;
-      max-width: 52px !important;
-      height: 52px !important;
-
-      padding: 0 !important;
-      margin: 0 !important;
-      border-radius: 18px !important;
-
-      align-items: center !important;
-      justify-content: center !important;
-
-      background: rgba(255, 255, 255, 0.96) !important;
-      border: 1px solid rgba(15, 23, 42, 0.16) !important;
-      color: #0f172a !important;
-      box-shadow: none !important;
-      cursor: pointer !important;
-
-      font-size: 22px !important;
-      line-height: 1 !important;
-      text-indent: 0 !important;
-      overflow: hidden !important;
-    }
-
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="workflow"] span,
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode="master_glyph"] span,
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn span {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      align-items: center !important;
-      justify-content: center !important;
-      font-size: 22px !important;
-      font-weight: 900 !important;
-      line-height: 1 !important;
-      color: inherit !important;
-    }
-
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode]::before,
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode]::after,
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn::before,
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn::after {
-      content: none !important;
-      display: none !important;
-    }
-
-    html body .aion-workflow-floating-toolbar [data-aion-canvas-mode].active {
-      background: #0f172a !important;
-      border-color: #0f172a !important;
-      color: #ffffff !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  document.addEventListener("click", (event) => {
-    const library = event.target.closest?.(".aion-master-glyph-utility-btn[data-aion-workflow-glyph-library-open='true']");
-    if (library) {
-      event.preventDefault();
-      event.stopPropagation();
-      window.__aionWorkflowGlyphLibraryOpen = true;
-      if (typeof requestRender === "function") requestRender();
-      return;
-    }
-
-    const clear = event.target.closest?.(".aion-master-glyph-utility-btn[data-aion-master-glyph-clear-staged='true']");
-    if (clear) {
-      event.preventDefault();
-      event.stopPropagation();
-      if (typeof window.__clearAionMasterGlyphStagedNodes === "function") {
-        window.__clearAionMasterGlyphStagedNodes("toolbar_clear");
-      } else if (typeof safePatchMessage === "function") {
-        safePatchMessage("Clear staged glyph helper is not loaded.", "warning");
-      }
-      return;
-    }
-  }, true);
-
-  console.log("[AION] Master Glyph toolbar source utilities final v29 installed");
-})();
-
-/* AION PATCH: Master Glyph toolbar utility click fix v30
-   Purpose:
-   - Utility buttons must not trigger Add Step.
-   - Remove broken legacy Master Glyph opener.
-   - Keep only 4 right-side controls:
-     Add step, Workflow canvas, Master Glyph canvas, Library, Clear.
-*/
-(function installAionMasterGlyphToolbarUtilityClickFixV30() {
-  const PATCH_ID = "aion-master-glyph-toolbar-utility-click-fix-v30";
-  const old = document.getElementById(PATCH_ID);
-  if (old) old.remove();
-
-  const style = document.createElement("style");
-  style.id = PATCH_ID;
-  style.textContent = `
-    html body .aion-workflow-floating-toolbar [data-aion-master-glyph-canvas-open="true"] {
-      display: none !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      width: 0 !important;
-      min-width: 0 !important;
-      max-width: 0 !important;
-      height: 0 !important;
-      padding: 0 !important;
-      margin: 0 !important;
-      border: 0 !important;
-      overflow: hidden !important;
-    }
-
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      pointer-events: auto !important;
-
-      width: 52px !important;
-      min-width: 52px !important;
-      max-width: 52px !important;
-      height: 52px !important;
-
-      padding: 0 !important;
-      margin: 0 !important;
-      border-radius: 18px !important;
-
-      align-items: center !important;
-      justify-content: center !important;
-
-      background: rgba(255, 255, 255, 0.96) !important;
-      border: 1px solid rgba(15, 23, 42, 0.16) !important;
-      color: #0f172a !important;
-      box-shadow: none !important;
-      cursor: pointer !important;
-
-      font-size: 22px !important;
-      line-height: 1 !important;
-      text-indent: 0 !important;
-      overflow: hidden !important;
-    }
-
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn span {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      align-items: center !important;
-      justify-content: center !important;
-      font-size: 22px !important;
-      font-weight: 900 !important;
-      line-height: 1 !important;
-      color: inherit !important;
-    }
-
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn::before,
-    html body .aion-workflow-floating-toolbar .aion-master-glyph-utility-btn::after {
-      content: none !important;
-      display: none !important;
-    }
-  `;
-  document.head.appendChild(style);
-
-  function cleanupBrokenToolbarButtons() {
-    const toolbar =
-      document.querySelector(".aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated") ||
-      document.querySelector(".aion-workflow-floating-toolbar");
-
-    if (!toolbar) return;
-
-    toolbar
-      .querySelectorAll("[data-aion-master-glyph-canvas-open='true']")
-      .forEach((button) => button.remove());
-
-    toolbar
-      .querySelectorAll(".aion-master-glyph-utility-btn")
-      .forEach((button) => {
-        button.classList.remove("aion-workflow-floating-add");
-        button.removeAttribute("data-aion-architect-open-module-picker");
-        button.removeAttribute("data-aion-main-canvas-open-module-picker");
-      });
-  }
-
-  document.addEventListener("click", (event) => {
-    const library = event.target.closest?.(".aion-master-glyph-utility-btn[data-aion-workflow-glyph-library-open='true']");
-    if (library) {
-      event.preventDefault();
-      event.stopPropagation();
-      window.__aionWorkflowGlyphLibraryOpen = true;
-      if (typeof requestRender === "function") requestRender();
-      return;
-    }
-
-    const clear = event.target.closest?.(".aion-master-glyph-utility-btn[data-aion-master-glyph-clear-staged='true']");
-    if (clear) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (typeof window.__clearAionMasterGlyphStagedNodes === "function") {
-        window.__clearAionMasterGlyphStagedNodes("toolbar_clear");
-      } else if (typeof safePatchMessage === "function") {
-        safePatchMessage("Clear staged glyph helper is not loaded.", "warning");
-      }
-      return;
-    }
-  }, true);
-
-  window.addEventListener("aion:workflow-rendered", cleanupBrokenToolbarButtons);
-  window.__cleanupAionBrokenToolbarButtons = cleanupBrokenToolbarButtons;
-
-  window.setTimeout(cleanupBrokenToolbarButtons, 50);
-  window.setTimeout(cleanupBrokenToolbarButtons, 250);
-  window.setTimeout(cleanupBrokenToolbarButtons, 800);
-
-  console.log("[AION] Master Glyph toolbar utility click fix v30 installed");
-})();
-
-
-/*
- * AION PHASE 1 LOCK: Master Glyph Canvas single-mode control
- * ----------------------------------------------------------
- * Purpose:
- * - Make window.__aionCanvasMode the single source of truth.
- * - Keep Workflow Canvas and Master Glyph Canvas as separate modes.
- * - Stop old overlay launcher/panel behaviour from fighting true canvas mode.
- * - Preserve utility controls such as Library and Clear staged.
- * - Keep delegated button handling alive after requestRender().
- */
-(function installAionMasterGlyphPhase1SingleModeLock() {
-  if (window.__aionMasterGlyphPhase1SingleModeLockInstalled === true) return;
-  window.__aionMasterGlyphPhase1SingleModeLockInstalled = true;
-
-  function normaliseMode(mode) {
-    return mode === "master_glyph" ? "master_glyph" : "workflow";
-  }
-
-  function setCanvasMode(mode) {
-    window.__aionCanvasMode = normaliseMode(mode);
-    window.__aionMasterGlyphCanvasOpen = window.__aionCanvasMode === "master_glyph";
-
-    document.body.classList.toggle(
-      "aion-master-glyph-canvas-mode",
-      window.__aionCanvasMode === "master_glyph"
-    );
-
-    if (typeof window.__renderAionMasterGlyphCanvasMode === "function") {
-      window.__renderAionMasterGlyphCanvasMode();
-    }
-
-    if (typeof window.requestRender === "function") {
-      window.requestAnimationFrame?.(() => window.requestRender());
-    }
-  }
-
-  window.__setAionCanvasMode = setCanvasMode;
-  window.__openAionMasterGlyphCanvas = () => setCanvasMode("master_glyph");
-  window.__closeAionMasterGlyphCanvas = () => setCanvasMode("workflow");
-
-  // Legacy launcher is no longer needed because mode buttons live in the main toolbar.
-  if (typeof window.renderAionMasterGlyphCanvasLauncher === "function") {
-    window.renderAionMasterGlyphCanvasLauncher = function renderAionMasterGlyphCanvasLauncherPhase1Disabled() {
-      return "";
-    };
-  }
-
-  document.addEventListener("click", (event) => {
-    const modeButton = event.target.closest?.("[data-aion-canvas-mode]");
-    if (modeButton) {
-      event.preventDefault();
-      event.stopPropagation();
-      setCanvasMode(modeButton.getAttribute("data-aion-canvas-mode"));
-      return;
-    }
-
-    const open = event.target.closest?.("[data-aion-master-glyph-canvas-open='true']");
-    if (open) {
-      event.preventDefault();
-      event.stopPropagation();
-      setCanvasMode("master_glyph");
-      return;
-    }
-
-    const close = event.target.closest?.(
-      "[data-aion-master-glyph-canvas-close='true'], [data-aion-master-glyph-mode-close='true']"
-    );
-    if (close) {
-      event.preventDefault();
-      event.stopPropagation();
-      setCanvasMode("workflow");
-    }
-  }, true);
-
-  function syncAfterRender() {
-    window.__aionCanvasMode = normaliseMode(window.__aionCanvasMode);
-    window.__aionMasterGlyphCanvasOpen = window.__aionCanvasMode === "master_glyph";
-
-    document.body.classList.toggle(
-      "aion-master-glyph-canvas-mode",
-      window.__aionCanvasMode === "master_glyph"
-    );
-
-    document.querySelectorAll("[data-aion-canvas-mode]").forEach((button) => {
-      const mode = normaliseMode(button.getAttribute("data-aion-canvas-mode"));
-      const active = mode === window.__aionCanvasMode;
-      button.classList.toggle("active", active);
-      button.setAttribute("aria-pressed", active ? "true" : "false");
-    });
-
-    if (
-      window.__aionCanvasMode === "master_glyph" &&
-      typeof window.__renderAionMasterGlyphCanvasMode === "function"
-    ) {
-      window.__renderAionMasterGlyphCanvasMode();
-    }
-  }
-
-  window.addEventListener("aion:workflow-rendered", syncAfterRender);
-  window.setTimeout(syncAfterRender, 50);
-  window.setTimeout(syncAfterRender, 250);
-})();
+/* AION PATCH: Legacy Master Glyph Canvas toolbar injectors removed. Glyph editing now lives in top workflow tabs. */
 
 /* AION PATCH: Master Glyph utility buttons binding lock
    - ⌘ button opens Glyph Library
@@ -59479,14 +56525,17 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     style.id = STYLE_ID;
     style.textContent = `
       #${ROOT_ID} {
-        position: fixed;
-        left: 292px;
-        right: 24px;
-        top: 82px;
-        bottom: 22px;
-        z-index: 9999988;
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        bottom: auto;
+        z-index: 20;
         display: none;
         pointer-events: none;
+        margin: 0;
+        padding: 0;
+        background: transparent !important;
       }
 
       #${ROOT_ID}.open {
@@ -59494,55 +56543,104 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-shell {
-        height: 100%;
-        display: grid;
-        grid-template-rows: auto minmax(0, 1fr);
-        border-radius: 26px;
-        overflow: hidden;
-        background: rgba(255, 255, 255, 0.985);
+        height: auto;
+        display: block;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
         color: #0f172a;
-        border: 1px solid rgba(124, 58, 237, 0.22);
-        box-shadow: 0 28px 90px rgba(15, 23, 42, 0.28);
+        border: 0 !important;
+        box-shadow: none !important;
         pointer-events: auto;
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-header {
+        position: relative;
         display: flex;
-        justify-content: space-between;
+        align-items: center;
         gap: 18px;
-        align-items: flex-start;
-        padding: 18px 22px;
-        border-bottom: 1px solid rgba(148, 163, 184, 0.24);
-        background: linear-gradient(135deg, rgba(124, 58, 237, 0.08), rgba(14, 165, 233, 0.05));
+        width: 100%;
+        min-height: 34px;
+        padding: 2px 28px 6px 28px;
+        margin: -2px 0 0 0;
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        border: 0 !important;
+        border-bottom: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+        border-radius: 0 !important;
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 18px;
         min-width: 0;
+        color: #0f172a;
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-title h2 {
-        margin: 4px 0 4px;
-        font-size: 25px;
-        line-height: 1.05;
+        margin: 0;
+        color: #0f172a;
+        font-size: 18px;
+        font-weight: 900;
+        line-height: 1.1;
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-title p {
-        margin: 0;
-        color: #64748b;
-        font-size: 13px;
-        overflow-wrap: anywhere;
+        display: none;
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-code {
         display: inline-flex;
-        width: fit-content;
-        border-radius: 999px;
-        background: #0f172a;
-        color: white;
-        padding: 5px 10px;
-        font-size: 12px;
-        font-weight: 1000;
+        align-items: center;
+        width: auto;
+        min-width: 0;
+        height: auto;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        color: #0f172a;
+        font-weight: 900;
         letter-spacing: 0.08em;
+      }
+
+      #${ROOT_ID} .aion-glyph-workflow-tab-code,
+      #${ROOT_ID} .aion-glyph-workflow-tab-code * {
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+      }
+
+      #${ROOT_ID} .aion-glyph-v25-autosave-status {
+        position: absolute;
+        right: 28px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #0f172a;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      #${ROOT_ID} .aion-glyph-v25-autosave-status::before {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #22c55e;
+        box-shadow: 0 0 0 6px rgba(34,197,94,0.14);
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-actions {
@@ -59575,12 +56673,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       }
 
       #${ROOT_ID} .aion-glyph-workflow-tab-body {
-        min-height: 0;
-        overflow: auto;
-        padding: 20px 22px 24px;
-        display: grid;
-        grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.75fr);
-        gap: 18px;
+        display: none !important;
       }
 
       #${ROOT_ID} .aion-glyph-workflow-panel {
@@ -59779,18 +56872,21 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
     return `
       <section class="aion-glyph-workflow-tab-shell" aria-label="Glyph Workflow Tab">
-        <header class="aion-glyph-workflow-tab-header">
+        <header class="aion-glyph-workflow-tab-header aion-glyph-tab-minimal-editor-header" data-aion-glyph-tab-header="true">
           <div class="aion-glyph-workflow-tab-title">
-            <div class="aion-glyph-workflow-tab-code">${esc(glyph.glyph_code)}</div>
-            <h2>${esc(glyph.name)}</h2>
-            <p>${esc(glyph.workflow_id)}</p>
+            <span
+              class="aion-glyph-workflow-tab-code aion-glyph-tab-editable-code"
+              data-aion-glyph-tab-code="true"
+              contenteditable="true"
+              spellcheck="false"
+            >${esc(glyph.glyph_code || "")}</span>
+            <h2
+              data-aion-glyph-tab-title="true"
+              contenteditable="true"
+              spellcheck="false"
+            >${esc(glyph.name || glyph.display_name || glyph.workflow_id || "Workflow Glyph")}</h2>
           </div>
-
-          <div class="aion-glyph-workflow-tab-actions">
-            ${isUniversal ? `<button type="button" class="primary" data-aion-glyph-tab-save-as-my="true">Save as My Glyph</button>` : `<button type="button" class="primary" data-aion-glyph-tab-autosave="true">Autosave Ready</button>`}
-            <button type="button" data-aion-glyph-tab-back-main="true">Back to main workflow</button>
-            <button type="button" class="danger" data-aion-glyph-tab-close="true">Close glyph tab</button>
-          </div>
+          <span class="aion-glyph-v25-autosave-status">Autosave on</span>
         </header>
 
         <main class="aion-glyph-workflow-tab-body">
@@ -59854,7 +56950,19 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     if (!root) {
       root = document.createElement("div");
       root.id = ROOT_ID;
-      document.body.appendChild(root);
+
+      const tabStrip =
+        document.getElementById("aion-glyph-workflow-top-tabs-v2") ||
+        document.getElementById("aion-master-glyph-workflow-tabs-v2") ||
+        document.querySelector("[data-aion-glyph-workflow-top-tabs='true']") ||
+        document.querySelector(".aion-glyph-workflow-top-tabs") ||
+        document.querySelector(".aion-master-glyph-workflow-tabs");
+
+      if (tabStrip && tabStrip.parentElement) {
+        tabStrip.insertAdjacentElement("afterend", root);
+      } else {
+        document.body.appendChild(root);
+      }
     }
 
     return root;
@@ -59995,7 +57103,49 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     }
   }, true);
 
+  document.addEventListener("blur", (event) => {
+    const field = event.target?.closest?.("[data-aion-glyph-edit-field]");
+    if (!field) return;
+
+    const key = field.getAttribute("data-aion-glyph-edit-field");
+    const value = String(field.textContent || "").trim();
+    if (!key || !value) {
+      renderGlyphWorkflowTab();
+      return;
+    }
+
+    const current = normaliseGlyph(window.__aionOpenedGlyphWorkflow || {});
+    if (!current || !current.glyph_code) return;
+
+    if (key === "glyph_code" && String(current.glyph_scope || current.scope) === "universal") {
+      renderGlyphWorkflowTab();
+      notify("Universal glyph code is immutable. Save/copy to My Glyph before editing.", "info");
+      return;
+    }
+
+    window.__aionOpenedGlyphWorkflow = {
+      ...current,
+      [key]: value,
+      ...(key === "glyph_code" ? { code: value } : {}),
+      scope: String(current.glyph_scope || current.scope) === "universal" ? "universal" : "my",
+      glyph_scope: String(current.glyph_scope || current.scope) === "universal" ? "universal" : "my",
+    };
+
+    if (typeof window.__saveAionMyGlyphFromTab === "function") {
+      Promise.resolve()
+        .then(() => window.__saveAionMyGlyphFromTab({ [key]: value }))
+        .catch((err) => notify(`Autosave failed: ${String(err?.message || err)}`, "error"));
+    }
+  }, true);
+
   document.addEventListener("keydown", (event) => {
+    const field = event.target?.closest?.("[data-aion-glyph-edit-field]");
+    if (field && event.key === "Enter") {
+      event.preventDefault();
+      field.blur();
+      return;
+    }
+
     if (event.key === "Escape" && window.__aionGlyphWorkflowTabOpen === true) {
       closeGlyphWorkflowTab();
     }
@@ -60693,6 +57843,184 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     };
   }
 
+
+  function nodeDisplayName(node) {
+    if (!node || typeof node !== "object") return "Unknown node";
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    return (
+      node.title ||
+      node.label ||
+      config.title ||
+      config.label ||
+      config.action_id ||
+      config.module_id ||
+      node.type ||
+      node.id ||
+      "Workflow node"
+    );
+  }
+
+  function schemaSummaryForPreview(schema, fallback) {
+    if (!schema || typeof schema !== "object") return fallback;
+    if (schema.properties && typeof schema.properties === "object") {
+      const keys = Object.keys(schema.properties);
+      return keys.length ? keys.slice(0, 8).join(", ") : fallback;
+    }
+    const keys = Object.keys(schema);
+    return keys.length ? keys.slice(0, 8).join(", ") : fallback;
+  }
+
+  function readConnectionPreview(node, model) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = String(node?.id || model?.node_id || "");
+
+    const peers = nodes
+      .filter((candidate) => candidate && String(candidate.id || "") !== selectedId)
+      .slice(0, 8);
+
+    const inputSummary = schemaSummaryForPreview(model.input_schema, "Any payload");
+    const outputSummary = schemaSummaryForPreview(model.output_schema, "Dry-run payload");
+
+    return {
+      possible_inputs: peers.map((candidate) => ({
+        id: candidate.id || "",
+        name: nodeDisplayName(candidate),
+        type: candidate.type || candidate.kind || candidate.action_id || candidate.module_id || "node",
+        edge: `${candidate.id || "node"} → ${selectedId || "call_workflow_glyph"}`,
+        summary: `Potential input source for child glyph inputs: ${inputSummary}`,
+      })),
+      possible_outputs: peers.map((candidate) => ({
+        id: candidate.id || "",
+        name: nodeDisplayName(candidate),
+        type: candidate.type || candidate.kind || candidate.action_id || candidate.module_id || "node",
+        edge: `${selectedId || "call_workflow_glyph"} → ${candidate.id || "node"}`,
+        summary: `Potential downstream consumer for child glyph outputs: ${outputSummary}`,
+      })),
+    };
+  }
+
+  function renderConnectionPreviewList(items, emptyCopy) {
+    if (!items.length) {
+      return `<div class="aion-call-glyph-preview-empty-v6">${esc(emptyCopy)}</div>`;
+    }
+
+    return items.map((item) => `
+      <div class="aion-call-glyph-preview-card-v6">
+        <b>${esc(item.name)}</b>
+        <span>${esc(item.type)}</span>
+        <p>${esc(item.summary)}</p>
+        <code>${esc(item.edge)}</code>
+      </div>
+    `).join("");
+  }
+
+  function renderConnectionPreviewSection(node, model) {
+    const preview = readConnectionPreview(node, model);
+
+    return `
+      <details class="aion-call-glyph-connection-preview-v6" open>
+        <summary>connection_preview</summary>
+
+        <div class="aion-call-glyph-preview-note-v6">
+          Preview-only · No edge creation · No execution · No editing · No wiring · No external writes
+        </div>
+
+        <div class="aion-call-glyph-preview-title-v6">Possible inputs into staged glyph</div>
+        ${renderConnectionPreviewList(preview.possible_inputs, "No compatible upstream nodes detected yet.")}
+
+        <div class="aion-call-glyph-preview-title-v6">Possible outputs from staged glyph</div>
+        ${renderConnectionPreviewList(preview.possible_outputs, "No compatible downstream nodes detected yet.")}
+      </details>
+    `;
+  }
+
+
+  function validateCallWorkflowGlyphForInspectorV20(node, model) {
+    const errors = [];
+    const warnings = [];
+
+    const required = Array.isArray(model.required_connectors) ? model.required_connectors : [];
+    const missing = Array.isArray(model.missing_connectors) ? model.missing_connectors : [];
+
+    if (!model.glyph_code || model.glyph_code === "UNKNOWN") {
+      errors.push("missing_glyph_code");
+    }
+
+    if (!model.child_workflow_id) {
+      errors.push("missing_child_workflow_id");
+    }
+
+    if (missing.length) {
+      errors.push(`missing_required_connectors:${missing.join(",")}`);
+    }
+
+    if (!model.version_hash) {
+      warnings.push("unpinned_glyph_version_hash");
+    }
+
+    if (model.live_send_enabled === true && model.dry_run_only === true) {
+      warnings.push("live_send_enabled_ignored_in_dry_run");
+    }
+
+    const inputProps = model.input_schema?.properties && typeof model.input_schema.properties === "object"
+      ? Object.keys(model.input_schema.properties)
+      : [];
+
+    const outputProps = model.output_schema?.properties && typeof model.output_schema.properties === "object"
+      ? Object.keys(model.output_schema.properties)
+      : [];
+
+    if (!inputProps.length) {
+      warnings.push("child_input_schema_has_no_properties");
+    }
+
+    if (!outputProps.length) {
+      warnings.push("child_output_schema_has_no_properties");
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+      warnings,
+      missing_connectors: missing,
+      runtime_blocked: errors.length > 0,
+      required_connectors: required,
+    };
+  }
+
+  function renderValidationSummaryV20(validation) {
+    const status = validation.valid ? "valid" : "blocked";
+    const errorList = validation.errors.length
+      ? validation.errors.map((item) => `<li>${esc(item)}</li>`).join("")
+      : "<li>No blocking validation errors.</li>";
+
+    const warningList = validation.warnings.length
+      ? validation.warnings.map((item) => `<li>${esc(item)}</li>`).join("")
+      : "<li>No validation warnings.</li>";
+
+    return `
+      <section class="aion-call-glyph-validation-v20" data-aion-call-glyph-validation-v20="true">
+        <div class="aion-call-glyph-validation-head-v20">
+          <strong>parent_child_validation</strong>
+          <span data-status="${esc(status)}">${esc(status)}</span>
+        </div>
+        <div class="aion-call-glyph-validation-grid-v20">
+          <span>runtime_blocked</span><b>${validation.runtime_blocked ? "true" : "false"}</b>
+          <span>missing_connectors</span><b>${esc(summarise(validation.missing_connectors, "None"))}</b>
+        </div>
+        <details ${validation.valid ? "" : "open"}>
+          <summary>validation_errors</summary>
+          <ul>${errorList}</ul>
+        </details>
+        <details>
+          <summary>validation_warnings</summary>
+          <ul>${warningList}</ul>
+        </details>
+      </section>
+    `;
+  }
+
   function renderContractInspector(node) {
     const model = readContract(node);
     const missing = model.missing_connectors || [];
@@ -60763,6 +58091,8 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
           <summary>runtime_plan</summary>
           <pre>${esc(compactJson(model.runtime_plan))}</pre>
         </details>
+
+        ${renderConnectionPreviewSection(node, model)}
       </aside>
     `;
   }
@@ -60812,6 +58142,81 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
         font-weight: 900;
       }
 
+
+      .aion-call-glyph-connection-preview-v6 {
+        margin-top: 14px;
+        border-top: 1px solid rgba(148, 163, 184, 0.35);
+        padding-top: 12px;
+      }
+
+      .aion-call-glyph-connection-preview-v6 summary {
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 950;
+        color: #4c1d95;
+      }
+
+      .aion-call-glyph-preview-note-v6 {
+        margin: 10px 0 12px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(14, 165, 233, 0.10);
+        color: #075985;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .aion-call-glyph-preview-title-v6 {
+        margin: 12px 0 8px;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 950;
+      }
+
+      .aion-call-glyph-preview-card-v6 {
+        display: grid;
+        gap: 4px;
+        margin: 8px 0;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(148, 163, 184, 0.30);
+        background: rgba(248, 250, 252, 0.92);
+      }
+
+      .aion-call-glyph-preview-card-v6 b {
+        color: #0f172a;
+        font-weight: 950;
+      }
+
+      .aion-call-glyph-preview-card-v6 span,
+      .aion-call-glyph-preview-card-v6 p {
+        margin: 0;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .aion-call-glyph-preview-card-v6 code {
+        display: block;
+        margin-top: 4px;
+        padding: 8px 10px;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.06);
+        color: #0f172a;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        font-size: 11px;
+      }
+
+      .aion-call-glyph-preview-empty-v6 {
+        margin: 8px 0;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
       body.aion-workflow-dark-mode .aion-master-glyph-contract-warning-v2 {
         background: rgba(245, 158, 11, 0.18);
         color: #fbbf24;
@@ -60833,7 +58238,17 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     window.setTimeout(syncContractInspector, 0);
   };
 
-  document.addEventListener("click", () => {
+  document.addEventListener("click", (event) => {
+    /*
+     * SOURCE FIX V16:
+     * Do not re-sync legacy/v2 inspector paths from clicks inside the canonical
+     * contract inspector. Native details toggles must stay local.
+     */
+
+    if (event.target?.closest?.("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")) {
+      return;
+    }
+
     window.setTimeout(syncContractInspector, 80);
   }, true);
 
@@ -62876,3 +60291,3106 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
   console.log("[AION] Glyph Tab Editor Migration Lock v1 installed");
 })();
+
+
+
+
+
+
+
+
+
+/*
+ * AION PATCH: Glyph Library Direct Button Fallback v14
+ * ----------------------------------------------------
+ * Purpose:
+ * - Make the visible Glyph Library button open immediately.
+ * - Do not wait for backend refresh.
+ * - No observers, no loops.
+ */
+(function installAionGlyphLibraryDirectButtonFallbackV14() {
+  if (window.__aionGlyphLibraryDirectButtonFallbackV14Installed === true) return;
+  window.__aionGlyphLibraryDirectButtonFallbackV14Installed = true;
+
+  function markButtons() {
+    document.querySelectorAll("button, [role='button']").forEach((button) => {
+      const text = String(button.textContent || "").trim();
+      const title = String(button.getAttribute("title") || "").toLowerCase();
+      const aria = String(button.getAttribute("aria-label") || "").toLowerCase();
+
+      const isGlyphLibrary =
+        text === "⌘" ||
+        title.includes("glyph library") ||
+        aria.includes("glyph library") ||
+        button.hasAttribute("data-aion-workflow-glyph-library-open") ||
+        button.hasAttribute("data-aion-glyph-library-instant-open-v7");
+
+      if (!isGlyphLibrary) return;
+
+      button.setAttribute("data-aion-glyph-library-direct-open-v14", "true");
+      button.setAttribute("title", "Workflow Glyph Library");
+      button.setAttribute("aria-label", "Workflow Glyph Library");
+      button.style.setProperty("display", "inline-flex", "important");
+      button.style.setProperty("visibility", "visible", "important");
+      button.style.setProperty("opacity", "1", "important");
+      button.style.setProperty("pointer-events", "auto", "important");
+    });
+  }
+
+  function openLibraryNow() {
+    window.__aionWorkflowGlyphLibraryOpen = true;
+
+    if (typeof window.__renderAionGlyphMarketplaceModal === "function") {
+      window.__renderAionGlyphMarketplaceModal();
+      return true;
+    }
+
+    if (typeof window.__forceOpenBackendGlyphLibraryInstantV7 === "function") {
+      window.__forceOpenBackendGlyphLibraryInstantV7();
+      return true;
+    }
+
+    if (typeof window.__forceOpenBackendGlyphLibrary === "function") {
+      Promise.resolve(window.__forceOpenBackendGlyphLibrary()).catch((err) => {
+        console.warn("[AION] glyph fallback open failed", err);
+      });
+      return true;
+    }
+
+    console.warn("[AION] Glyph Library renderer unavailable.");
+    return false;
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest?.(
+      "[data-aion-glyph-library-direct-open-v14='true'], " +
+      "[data-aion-glyph-library-instant-open-v7='true'], " +
+      "[data-aion-workflow-glyph-library-open='true'], " +
+      "[title='Workflow Glyph Library'], " +
+      "[aria-label='Workflow Glyph Library']"
+    );
+
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    markButtons();
+    openLibraryNow();
+  }, true);
+
+  window.__openAionWorkflowGlyphLibrary = openLibraryNow;
+  window.__bindAionGlyphLibraryDirectButtonFallbackV14 = markButtons;
+  window.__debugAionGlyphLibraryDirectButtonFallbackV14 = function debugAionGlyphLibraryDirectButtonFallbackV14() {
+    markButtons();
+    return {
+      installed: true,
+      buttonCount: document.querySelectorAll("[data-aion-glyph-library-direct-open-v14='true']").length,
+      rendererFn: typeof window.__renderAionGlyphMarketplaceModal,
+      modalOpen: window.__aionWorkflowGlyphLibraryOpen === true,
+    };
+  };
+
+  markButtons();
+  window.setTimeout(markButtons, 150);
+  window.setTimeout(markButtons, 700);
+
+  console.log("[AION] Glyph Library Direct Button Fallback v14 installed");
+})();
+
+
+/*
+ * AION PATCH: Final Toolbar Source and Glyph Header Style Lock v22
+ * ----------------------------------------------------------------
+ * No DOM loops. No observers. No delayed toolbar rewriting.
+ * Bad toolbar buttons are removed at source.
+ * Glyph tab metadata is transparent/floating over the canvas.
+ */
+(function installAionFinalToolbarSourceGlyphHeaderStyleLockV22() {
+  if (window.__aionFinalToolbarSourceGlyphHeaderStyleLockV22Installed === true) return;
+  window.__aionFinalToolbarSourceGlyphHeaderStyleLockV22Installed = true;
+
+  const STYLE_ID = "aion-final-toolbar-source-glyph-header-style-lock-v22";
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body .aion-workflow-floating-toolbar [data-aion-workflow-save="true"],
+      html body .aion-workflow-floating-toolbar [data-aion-canvas-mode],
+      html body .aion-workflow-floating-toolbar [data-aion-master-glyph-clear-staged="true"],
+      html body .aion-workflow-floating-toolbar [title="Save workflow"],
+      html body .aion-workflow-floating-toolbar [title="Workflow Canvas"],
+      html body .aion-workflow-floating-toolbar [title="Master Glyph Canvas"],
+      html body .aion-workflow-floating-toolbar [title="Clear staged glyph nodes"] {
+        display: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header,
+      html body .aion-glyph-tab-canvas-header,
+      html body .aion-glyph-tab-inline-header,
+      html body [data-aion-glyph-tab-header="true"] {
+        background: transparent !important;
+        background-color: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+        border-radius: 0 !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header::before,
+      html body .aion-glyph-workflow-tab-header::after,
+      html body .aion-glyph-tab-canvas-header::before,
+      html body .aion-glyph-tab-canvas-header::after,
+      html body .aion-glyph-tab-inline-header::before,
+      html body .aion-glyph-tab-inline-header::after {
+        display: none !important;
+        content: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-actions button,
+      html body [data-aion-glyph-tab-back-main],
+      html body [data-aion-glyph-tab-close],
+      html body [data-aion-glyph-tab-save-as-my],
+      html body [data-aion-glyph-tab-autosave] {
+        display: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-code,
+      html body .aion-glyph-tab-code,
+      html body [data-aion-glyph-tab-code],
+      html body [data-aion-opened-glyph-code],
+      html body .aion-glyph-workflow-tab-header code,
+      html body .aion-glyph-workflow-tab-header kbd {
+        background: transparent !important;
+        background-color: transparent !important;
+        color: #0f172a !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-title,
+      html body .aion-glyph-tab-title,
+      html body [data-aion-glyph-tab-title],
+      html body .aion-glyph-workflow-tab-header h1,
+      html body .aion-glyph-workflow-tab-header h2,
+      html body .aion-glyph-workflow-tab-header h3,
+      html body .aion-glyph-workflow-tab-header strong {
+        color: #0f172a !important;
+        text-shadow: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__debugAionFinalToolbarSourceGlyphHeaderStyleLockV22 = function debugAionFinalToolbarSourceGlyphHeaderStyleLockV22() {
+    const buttons = [...document.querySelectorAll(".aion-workflow-floating-toolbar button, .aion-workflow-floating-toolbar [role='button']")].map((button, index) => ({
+      index,
+      text: String(button.textContent || "").trim(),
+      title: button.getAttribute("title"),
+      aria: button.getAttribute("aria-label"),
+      attrs: [...button.attributes].map((a) => `${a.name}=${a.value}`),
+      display: getComputedStyle(button).display,
+    }));
+
+    return {
+      installed: true,
+      styleExists: !!document.getElementById(STYLE_ID),
+      toolbarButtons: buttons,
+      badToolbarButtons: buttons.filter((button) =>
+        button.attrs.some((attr) =>
+          attr.includes("data-aion-workflow-save") ||
+          attr.includes("data-aion-canvas-mode") ||
+          attr.includes("data-aion-master-glyph-clear-staged")
+        )
+      ),
+    };
+  };
+
+  console.log("[AION] Final Toolbar Source and Glyph Header Style Lock v22 installed");
+})();
+
+
+/*
+ * AION PATCH: Glyph Tab Header Transparent Canvas Lock v23
+ * --------------------------------------------------------
+ * Final visual lock for opened glyph workflow tabs:
+ * - remove white header container
+ * - make glyph metadata float directly on canvas
+ * - remove black pill styling from glyph code
+ * - force glyph code/title to black text
+ * - pin header directly under top tab strip with no gap
+ * - no observers, no loops, no toolbar mutation
+ */
+(function installAionGlyphTabHeaderTransparentCanvasLockV23() {
+  if (window.__aionGlyphTabHeaderTransparentCanvasLockV23Installed === true) return;
+  window.__aionGlyphTabHeaderTransparentCanvasLockV23Installed = true;
+
+  const STYLE_ID = "aion-glyph-tab-header-transparent-canvas-lock-v23";
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body .aion-glyph-workflow-tab-header,
+      html body .aion-glyph-tab-canvas-header,
+      html body .aion-glyph-tab-inline-header,
+      html body [data-aion-glyph-tab-header="true"] {
+        position: relative !important;
+        top: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        padding: 12px 28px 10px 28px !important;
+
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+
+        min-height: 0 !important;
+        height: auto !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header::before,
+      html body .aion-glyph-workflow-tab-header::after,
+      html body .aion-glyph-tab-canvas-header::before,
+      html body .aion-glyph-tab-canvas-header::after,
+      html body .aion-glyph-tab-inline-header::before,
+      html body .aion-glyph-tab-inline-header::after,
+      html body [data-aion-glyph-tab-header="true"]::before,
+      html body [data-aion-glyph-tab-header="true"]::after {
+        display: none !important;
+        content: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-code,
+      html body .aion-glyph-tab-code,
+      html body [data-aion-glyph-tab-code],
+      html body [data-aion-opened-glyph-code],
+      html body .aion-glyph-workflow-tab-header code,
+      html body .aion-glyph-workflow-tab-header kbd,
+      html body .aion-glyph-workflow-tab-header .pill,
+      html body .aion-glyph-workflow-tab-header .badge {
+        display: inline !important;
+
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        text-shadow: none !important;
+
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+
+        padding: 0 !important;
+        margin: 0 18px 0 0 !important;
+
+        font-weight: 900 !important;
+        letter-spacing: 0.08em !important;
+      }
+
+      html body .aion-glyph-workflow-tab-title,
+      html body .aion-glyph-tab-title,
+      html body [data-aion-glyph-tab-title],
+      html body .aion-glyph-workflow-tab-header h1,
+      html body .aion-glyph-workflow-tab-header h2,
+      html body .aion-glyph-workflow-tab-header h3,
+      html body .aion-glyph-workflow-tab-header strong {
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        background: transparent !important;
+        text-shadow: none !important;
+        font-weight: 900 !important;
+      }
+
+      html body .aion-glyph-workflow-tab-actions button,
+      html body [data-aion-glyph-tab-back-main],
+      html body [data-aion-glyph-tab-close],
+      html body [data-aion-glyph-tab-save-as-my],
+      html body [data-aion-glyph-tab-autosave] {
+        display: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-autosave,
+      html body .aion-glyph-autosave-status,
+      html body [data-aion-glyph-autosave-status] {
+        position: absolute !important;
+        right: 28px !important;
+        top: 12px !important;
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+        color: #0f172a !important;
+        font-weight: 900 !important;
+      }
+
+      html body #aion-glyph-workflow-top-tabs-v2 + .aion-glyph-workflow-tab-header,
+      html body #aion-master-glyph-workflow-tabs-v2 + .aion-glyph-workflow-tab-header {
+        margin-top: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__debugAionGlyphTabHeaderTransparentCanvasLockV23 = function debugAionGlyphTabHeaderTransparentCanvasLockV23() {
+    const headers = [...document.querySelectorAll(
+      ".aion-glyph-workflow-tab-header, .aion-glyph-tab-canvas-header, .aion-glyph-tab-inline-header, [data-aion-glyph-tab-header='true']"
+    )].map((el, index) => {
+      const cs = getComputedStyle(el);
+      return {
+        index,
+        className: String(el.className || ""),
+        text: String(el.textContent || "").trim().slice(0, 120),
+        background: cs.backgroundColor,
+        marginTop: cs.marginTop,
+        paddingTop: cs.paddingTop,
+      };
+    });
+
+    return {
+      installed: true,
+      styleExists: !!document.getElementById(STYLE_ID),
+      headerCount: headers.length,
+      headers,
+    };
+  };
+
+  console.log("[AION] Glyph Tab Header Transparent Canvas Lock v23 installed");
+})();
+
+
+/*
+ * AION PATCH: Glyph Header Source Render Fix v24
+ * ----------------------------------------------
+ * Real fix for opened glyph workflow tab header.
+ * - Removes old white/rounded header container visual.
+ * - Replaces black glyph-code pill with plain black editable text.
+ * - Removes old action buttons: Save as My Glyph, Back to main workflow, Close glyph tab.
+ * - Keeps one Autosave on status only.
+ * - Runs only when glyph tab render runs. No observers. No intervals. No loops.
+ */
+(function installAionGlyphHeaderSourceRenderFixV24() {
+  if (window.__aionGlyphHeaderSourceRenderFixV24Installed === true) return;
+  window.__aionGlyphHeaderSourceRenderFixV24Installed = true;
+
+  const STYLE_ID = "aion-glyph-header-source-render-fix-v24-style";
+
+  function installStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body .aion-glyph-workflow-tab-header,
+      html body .aion-glyph-tab-minimal-editor-header,
+      html body .aion-glyph-tab-canvas-header,
+      html body .aion-glyph-tab-inline-header,
+      html body [data-aion-glyph-tab-header="true"] {
+        position: relative !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 18px !important;
+
+        margin: 0 !important;
+        padding: 10px 28px !important;
+        min-height: 42px !important;
+        height: auto !important;
+
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header::before,
+      html body .aion-glyph-workflow-tab-header::after,
+      html body .aion-glyph-tab-minimal-editor-header::before,
+      html body .aion-glyph-tab-minimal-editor-header::after {
+        display: none !important;
+        content: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-code,
+      html body .aion-glyph-tab-editable-code,
+      html body [data-aion-glyph-tab-code="true"],
+      html body [data-aion-opened-glyph-code="true"] {
+        display: inline-flex !important;
+        align-items: center !important;
+
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: none !important;
+        height: auto !important;
+        min-height: 0 !important;
+
+        margin: 0 10px 0 0 !important;
+        padding: 0 !important;
+
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+
+        font-weight: 900 !important;
+        letter-spacing: 0.08em !important;
+      }
+
+      html body .aion-glyph-workflow-tab-title,
+      html body .aion-glyph-workflow-tab-title *,
+      html body [data-aion-glyph-tab-title="true"],
+      html body [data-aion-glyph-tab-title="true"] * {
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-actions,
+      html body .aion-glyph-workflow-tab-actions button,
+      html body [data-aion-glyph-tab-save-as-my],
+      html body [data-aion-glyph-tab-autosave],
+      html body [data-aion-glyph-tab-back-main],
+      html body [data-aion-glyph-tab-close] {
+        display: none !important;
+      }
+
+      html body .aion-glyph-v24-autosave-status {
+        position: absolute !important;
+        right: 28px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 7px !important;
+
+        background: transparent !important;
+        border: 0 !important;
+        box-shadow: none !important;
+
+        color: #0f172a !important;
+        -webkit-text-fill-color: #0f172a !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+      }
+
+      html body .aion-glyph-v24-autosave-status::before {
+        content: "" !important;
+        width: 10px !important;
+        height: 10px !important;
+        border-radius: 999px !important;
+        background: #22c55e !important;
+        box-shadow: 0 0 0 6px rgba(34,197,94,0.14) !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function cleanGlyphHeader() {
+    installStyle();
+
+    const glyph = window.__aionOpenedGlyphWorkflow || {};
+    const code = glyph.glyph_code || glyph.code || "";
+    const title = glyph.name || glyph.display_name || glyph.workflow_id || "Workflow Glyph";
+
+    document
+      .querySelectorAll(".aion-glyph-workflow-tab-header, .aion-glyph-tab-minimal-editor-header, [data-aion-glyph-tab-header='true']")
+      .forEach((header) => {
+        header.setAttribute("data-aion-glyph-header-source-render-fix-v24", "true");
+
+        header.style.setProperty("background", "transparent", "important");
+        header.style.setProperty("background-color", "transparent", "important");
+        header.style.setProperty("border", "0", "important");
+        header.style.setProperty("box-shadow", "none", "important");
+        header.style.setProperty("margin", "0", "important");
+        header.style.setProperty("border-radius", "0", "important");
+
+        header
+          .querySelectorAll(".aion-glyph-workflow-tab-actions, [data-aion-glyph-tab-save-as-my], [data-aion-glyph-tab-autosave], [data-aion-glyph-tab-back-main], [data-aion-glyph-tab-close]")
+          .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
+
+        const oldCode =
+          header.querySelector(".aion-glyph-workflow-tab-code") ||
+          header.querySelector(".aion-glyph-tab-editable-code") ||
+          header.querySelector("[data-aion-glyph-tab-code]");
+
+        if (oldCode) {
+          const span = document.createElement("span");
+          span.className = "aion-glyph-workflow-tab-code aion-glyph-tab-editable-code";
+          span.setAttribute("data-aion-glyph-tab-code", "true");
+          span.setAttribute("contenteditable", "true");
+          span.textContent = code || String(oldCode.textContent || "").trim();
+          oldCode.replaceWith(span);
+        }
+
+        const titleEl =
+          header.querySelector("[data-aion-glyph-tab-title]") ||
+          header.querySelector(".aion-glyph-workflow-tab-title h2") ||
+          header.querySelector(".aion-glyph-workflow-tab-title strong") ||
+          header.querySelector("h2");
+
+        if (titleEl) {
+          titleEl.setAttribute("contenteditable", "true");
+          titleEl.setAttribute("data-aion-glyph-tab-title", "true");
+          titleEl.textContent = title;
+        }
+
+        header.querySelectorAll(".aion-glyph-v24-autosave-status").forEach((el, index) => {
+          if (index > 0) { el.style.display = 'none'; el.style.visibility = 'hidden'; }
+        });
+
+        if (!header.querySelector(".aion-glyph-v24-autosave-status")) {
+          const autosave = document.createElement("span");
+          autosave.className = "aion-glyph-v24-autosave-status";
+          autosave.textContent = "Autosave on";
+          header.appendChild(autosave);
+        }
+      });
+  }
+
+  const previousRender = window.__renderAionGlyphWorkflowTab;
+  if (typeof previousRender === "function" && previousRender.__aionGlyphHeaderSourceRenderFixV24Wrapped !== true) {
+    const wrapped = function renderAionGlyphWorkflowTabV24Wrapped(...args) {
+      const result = previousRender.apply(this, args);
+      cleanGlyphHeader();
+      return result;
+    };
+    wrapped.__aionGlyphHeaderSourceRenderFixV24Wrapped = true;
+    window.__renderAionGlyphWorkflowTab = wrapped;
+  }
+
+  window.__fixAionGlyphHeaderSourceRenderFixV24 = cleanGlyphHeader;
+  window.__debugAionGlyphHeaderSourceRenderFixV24 = function debugAionGlyphHeaderSourceRenderFixV24() {
+    cleanGlyphHeader();
+
+    const headers = [...document.querySelectorAll(".aion-glyph-workflow-tab-header, .aion-glyph-tab-minimal-editor-header, [data-aion-glyph-tab-header='true']")].map((header, index) => {
+      const code = header.querySelector("[data-aion-glyph-tab-code]");
+      const autosaves = header.querySelectorAll(".aion-glyph-v24-autosave-status");
+      const cs = getComputedStyle(header);
+      const codeCs = code ? getComputedStyle(code) : null;
+
+      return {
+        index,
+        className: String(header.className || ""),
+        background: cs.backgroundColor,
+        margin: cs.margin,
+        borderRadius: cs.borderRadius,
+        codeText: code ? String(code.textContent || "").trim() : null,
+        codeBackground: codeCs ? codeCs.backgroundColor : null,
+        codeColor: codeCs ? codeCs.color : null,
+        autosaveCount: autosaves.length,
+        text: String(header.textContent || "").trim().slice(0, 160),
+      };
+    });
+
+    return {
+      installed: true,
+      styleExists: !!document.getElementById(STYLE_ID),
+      renderWrapped: window.__renderAionGlyphWorkflowTab?.__aionGlyphHeaderSourceRenderFixV24Wrapped === true,
+      headerCount: headers.length,
+      headers,
+    };
+  };
+
+  installStyle();
+  cleanGlyphHeader();
+
+  console.log("[AION] Glyph Header Source Render Fix v24 installed");
+})();
+
+
+/*
+ * AION PATCH: Glyph Header Source Render Fix v25
+ * ----------------------------------------------
+ * Source-level lock. The glyph tab renderer now emits transparent header,
+ * plain black editable glyph code/title, and one autosave status only.
+ */
+(function installAionGlyphHeaderSourceRenderFixV25() {
+  if (window.__aionGlyphHeaderSourceRenderFixV25Installed === true) return;
+  window.__aionGlyphHeaderSourceRenderFixV25Installed = true;
+
+  window.__debugAionGlyphHeaderSourceRenderFixV25 = function debugAionGlyphHeaderSourceRenderFixV25() {
+    const headers = [...document.querySelectorAll(".aion-glyph-workflow-tab-header")].map((header, index) => {
+      const code = header.querySelector("[data-aion-glyph-tab-code='true']");
+      const autosaves = header.querySelectorAll(".aion-glyph-v25-autosave-status");
+      const cs = getComputedStyle(header);
+      const codeCs = code ? getComputedStyle(code) : null;
+      return {
+        index,
+        headerBackground: cs.backgroundColor,
+        headerMargin: cs.margin,
+        headerPadding: cs.padding,
+        codeText: code ? code.textContent.trim() : null,
+        codeBackground: codeCs ? codeCs.backgroundColor : null,
+        codeColor: codeCs ? codeCs.color : null,
+        autosaveCount: autosaves.length,
+        oldActionButtons: header.querySelectorAll("[data-aion-glyph-tab-save-as-my], [data-aion-glyph-tab-back-main], [data-aion-glyph-tab-close], [data-aion-glyph-tab-autosave]").length,
+      };
+    });
+
+    return {
+      installed: true,
+      headerCount: headers.length,
+      headers,
+    };
+  };
+
+  console.log("[AION] Glyph Header Source Render Fix v25 installed");
+})();
+
+/*
+ * AION PATCH: Glyph Header Transparent Flush Lock v26
+ * ---------------------------------------------------
+ * Final visual lock for opened glyph workflow tab header.
+ * - Remove remaining white header strip/container.
+ * - Let workflow grid show behind glyph code/title/autosave.
+ * - Pin directly under top workflow tab strip with no gap.
+ * - No observers, no intervals, no DOM loops.
+ */
+(function installAionGlyphHeaderTransparentFlushLockV26() {
+  if (window.__aionGlyphHeaderTransparentFlushLockV26Installed === true) return;
+  window.__aionGlyphHeaderTransparentFlushLockV26Installed = true;
+
+  const STYLE_ID = "aion-glyph-header-transparent-flush-lock-v26-style";
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body .aion-glyph-workflow-tab-header,
+      html body .aion-glyph-tab-minimal-editor-header,
+      html body [data-aion-glyph-tab-header="true"] {
+        margin: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+
+        padding: 10px 28px !important;
+
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+
+        border: 0 !important;
+        border-top: 0 !important;
+        border-bottom: 0 !important;
+
+        box-shadow: none !important;
+        outline: 0 !important;
+        border-radius: 0 !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header *,
+      html body .aion-glyph-tab-minimal-editor-header *,
+      html body [data-aion-glyph-tab-header="true"] * {
+        background-image: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header::before,
+      html body .aion-glyph-workflow-tab-header::after,
+      html body .aion-glyph-tab-minimal-editor-header::before,
+      html body .aion-glyph-tab-minimal-editor-header::after,
+      html body [data-aion-glyph-tab-header="true"]::before,
+      html body [data-aion-glyph-tab-header="true"]::after {
+        display: none !important;
+        content: none !important;
+        background: transparent !important;
+      }
+
+      html body #aion-glyph-workflow-top-tabs-v2 + .aion-glyph-workflow-tab-header,
+      html body #aion-master-glyph-workflow-tabs-v2 + .aion-glyph-workflow-tab-header {
+        margin-top: 0 !important;
+      }
+
+      html body .aion-workflow-canvas,
+      html body .aion-workflow-canvas-viewport,
+      html body .aion-workflow-canvas-stage,
+      html body .aion-workflow-canvas-inner {
+        padding-top: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__debugAionGlyphHeaderTransparentFlushLockV26 = function debugAionGlyphHeaderTransparentFlushLockV26() {
+    const header = document.querySelector(".aion-glyph-workflow-tab-header, .aion-glyph-tab-minimal-editor-header, [data-aion-glyph-tab-header='true']");
+    if (!header) return { installed: true, headerExists: false };
+
+    const cs = getComputedStyle(header);
+    return {
+      installed: true,
+      headerExists: true,
+      background: cs.backgroundColor,
+      backgroundImage: cs.backgroundImage,
+      margin: cs.margin,
+      padding: cs.padding,
+      border: cs.border,
+      boxShadow: cs.boxShadow,
+      top: header.getBoundingClientRect().top,
+    };
+  };
+
+  console.log("[AION] Glyph Header Transparent Flush Lock v26 installed");
+})();
+
+/*
+ * AION PATCH: Glyph Header Transparent Flush Lock v26
+ * ---------------------------------------------------
+ * Final visual lock for opened glyph workflow tab header.
+ * - Remove remaining white header strip/container.
+ * - Let workflow grid show behind glyph code/title/autosave.
+ * - Pin directly under top workflow tab strip with no gap.
+ * - No observers, no intervals, no DOM loops.
+ */
+(function installAionGlyphHeaderTransparentFlushLockV26() {
+  if (window.__aionGlyphHeaderTransparentFlushLockV26Installed === true) return;
+  window.__aionGlyphHeaderTransparentFlushLockV26Installed = true;
+
+  const STYLE_ID = "aion-glyph-header-transparent-flush-lock-v26-style";
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body .aion-glyph-workflow-tab-header,
+      html body .aion-glyph-tab-minimal-editor-header,
+      html body [data-aion-glyph-tab-header="true"] {
+        margin: 0 !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+
+        padding: 10px 28px !important;
+
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+
+        border: 0 !important;
+        border-top: 0 !important;
+        border-bottom: 0 !important;
+
+        box-shadow: none !important;
+        outline: 0 !important;
+        border-radius: 0 !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header *,
+      html body .aion-glyph-tab-minimal-editor-header *,
+      html body [data-aion-glyph-tab-header="true"] * {
+        background-image: none !important;
+      }
+
+      html body .aion-glyph-workflow-tab-header::before,
+      html body .aion-glyph-workflow-tab-header::after,
+      html body .aion-glyph-tab-minimal-editor-header::before,
+      html body .aion-glyph-tab-minimal-editor-header::after,
+      html body [data-aion-glyph-tab-header="true"]::before,
+      html body [data-aion-glyph-tab-header="true"]::after {
+        display: none !important;
+        content: none !important;
+        background: transparent !important;
+      }
+
+      html body #aion-glyph-workflow-top-tabs-v2 + .aion-glyph-workflow-tab-header,
+      html body #aion-master-glyph-workflow-tabs-v2 + .aion-glyph-workflow-tab-header {
+        margin-top: 0 !important;
+      }
+
+      html body .aion-workflow-canvas,
+      html body .aion-workflow-canvas-viewport,
+      html body .aion-workflow-canvas-stage,
+      html body .aion-workflow-canvas-inner {
+        padding-top: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__debugAionGlyphHeaderTransparentFlushLockV26 = function debugAionGlyphHeaderTransparentFlushLockV26() {
+    const header = document.querySelector(".aion-glyph-workflow-tab-header, .aion-glyph-tab-minimal-editor-header, [data-aion-glyph-tab-header='true']");
+    if (!header) return { installed: true, headerExists: false };
+
+    const cs = getComputedStyle(header);
+    return {
+      installed: true,
+      headerExists: true,
+      background: cs.backgroundColor,
+      backgroundImage: cs.backgroundImage,
+      margin: cs.margin,
+      padding: cs.padding,
+      border: cs.border,
+      boxShadow: cs.boxShadow,
+      top: header.getBoundingClientRect().top,
+    };
+  };
+
+  console.log("[AION] Glyph Header Transparent Flush Lock v26 installed");
+})();
+
+
+/* AION PATCH: Glyph Header Final Spacing Border Lock v27 */
+(function installAionGlyphHeaderFinalSpacingBorderLockV27() {
+  if (window.__aionGlyphHeaderFinalSpacingBorderLockV27Installed === true) return;
+  window.__aionGlyphHeaderFinalSpacingBorderLockV27Installed = true;
+
+  const STYLE_ID = "aion-glyph-header-final-spacing-border-lock-v27";
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body #aion-master-glyph-workflow-tab-v1,
+      html body #aion-master-glyph-workflow-tab-v1.open,
+      html body #aion-master-glyph-workflow-tab-v1 .aion-glyph-workflow-tab-shell,
+      html body #aion-master-glyph-workflow-tab-v1 .aion-glyph-workflow-tab-header {
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        border: 0 !important;
+        border-bottom: 0 !important;
+        box-shadow: none !important;
+        outline: 0 !important;
+      }
+
+      html body #aion-master-glyph-workflow-tab-v1 .aion-glyph-workflow-tab-header {
+        min-height: 34px !important;
+        padding-top: 2px !important;
+        padding-bottom: 6px !important;
+        margin-top: -2px !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__debugAionGlyphHeaderFinalSpacingBorderLockV27 = function debugAionGlyphHeaderFinalSpacingBorderLockV27() {
+    const header = document.querySelector("#aion-master-glyph-workflow-tab-v1 .aion-glyph-workflow-tab-header");
+    if (!header) return { installed: true, headerExists: false };
+    const cs = getComputedStyle(header);
+    return {
+      installed: true,
+      headerExists: true,
+      background: cs.backgroundColor,
+      borderBottom: cs.borderBottom,
+      padding: cs.padding,
+      margin: cs.margin,
+      top: Math.round(header.getBoundingClientRect().top),
+    };
+  };
+
+  console.log("[AION] Glyph Header Final Spacing Border Lock v27 installed");
+})();
+
+/*
+ * AION PATCH: call_workflow_glyph Inspector Contract Display v3
+ * -------------------------------------------------------------
+ * Purpose:
+ * - Make the staged call_workflow_glyph inspector show the full locked node contract.
+ * - Display glyph_code, glyph_version, glyph_scope, child_workflow_id.
+ * - Display input_schema, output_schema, required_connectors, approval_policy, runtime_plan.
+ * - Display risk_tier, version_hash, dry-run/live status.
+ * - Warn about missing connectors.
+ * - Preserve dry-run/read-only/no-external-write safety.
+ * - No observers, no loops. Reuses the existing inspector open/selection flow.
+ */
+(function installAionCallWorkflowGlyphInspectorContractDisplayV3() {
+  if (window.__aionCallWorkflowGlyphInspectorContractDisplayV3Installed === true) return;
+  window.__aionCallWorkflowGlyphInspectorContractDisplayV3Installed = true;
+
+  const STYLE_ID = "aion-call-workflow-glyph-inspector-contract-display-v3-style";
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function jsonBlock(value) {
+    try {
+      return JSON.stringify(value ?? {}, null, 2);
+    } catch (_) {
+      return String(value ?? "{}");
+    }
+  }
+
+  function summarise(value, fallback = "None") {
+    if (Array.isArray(value)) {
+      return value.length ? value.map((item) => String(item)).join(", ") : fallback;
+    }
+
+    if (value && typeof value === "object") {
+      if (value.properties && typeof value.properties === "object") {
+        const keys = Object.keys(value.properties);
+        return keys.length ? keys.join(", ") : fallback;
+      }
+
+      const keys = Object.keys(value);
+      return keys.length ? keys.join(", ") : fallback;
+    }
+
+    const text = String(value || "").trim();
+    return text || fallback;
+  }
+
+  function connectedConnectorNames() {
+    return []
+      .concat(window.__aionConnectedConnectors || [])
+      .concat(window.__aionEnabledConnectors || [])
+      .concat(window.__aionAvailableConnectors || [])
+      .map((item) => String(item?.id || item?.name || item || "").toLowerCase())
+      .filter(Boolean);
+  }
+
+  function missingConnectors(required) {
+    const list = Array.isArray(required) ? required : [];
+    const connected = connectedConnectorNames();
+
+    if (!list.length) return [];
+    if (!connected.length) return list;
+
+    return list.filter((name) => {
+      const key = String(name || "").toLowerCase();
+      return key && !connected.includes(key);
+    });
+  }
+
+  function readCallWorkflowGlyphContract(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const compiled = config.compiled_glyph && typeof config.compiled_glyph === "object"
+      ? config.compiled_glyph
+      : {};
+
+    const glyphCode =
+      node?.glyph_code ||
+      config.glyph_code ||
+      compiled.glyph_code ||
+      compiled.code ||
+      "UNKNOWN";
+
+    const glyphVersion =
+      node?.glyph_version ||
+      config.glyph_version ||
+      compiled.glyph_version ||
+      compiled.workflow_version ||
+      "v1";
+
+    const glyphScope =
+      node?.glyph_scope ||
+      config.glyph_scope ||
+      compiled.glyph_scope ||
+      compiled.scope ||
+      "my";
+
+    const childWorkflowId =
+      node?.child_workflow_id ||
+      config.child_workflow_id ||
+      config.workflow_id ||
+      compiled.workflow_id ||
+      compiled?.workflow?.workflow_id ||
+      "";
+
+    const inputSchema =
+      node?.input_schema ||
+      config.input_schema ||
+      config.inputs_schema ||
+      compiled.input_schema ||
+      compiled.inputs_schema ||
+      {};
+
+    const outputSchema =
+      node?.output_schema ||
+      config.output_schema ||
+      config.outputs_schema ||
+      compiled.output_schema ||
+      compiled.outputs_schema ||
+      {};
+
+    const requiredConnectors =
+      node?.required_connectors ||
+      config.required_connectors ||
+      compiled.required_connectors ||
+      [];
+
+    const approvalPolicy =
+      node?.approval_policy ||
+      config.approval_policy ||
+      compiled.approval_policy ||
+      {};
+
+    const runtimePlan =
+      node?.runtime_plan ||
+      config.runtime_plan ||
+      compiled.runtime_plan ||
+      {};
+
+    const versionHash =
+      node?.version_hash ||
+      config.version_hash ||
+      compiled.version_hash ||
+      compiled?.meta?.version_hash ||
+      "";
+
+    const riskTier =
+      node?.risk_tier ||
+      config.risk_tier ||
+      compiled.risk_tier ||
+      "low";
+
+    const missing = missingConnectors(requiredConnectors);
+
+    return {
+      node_id: node?.id || "",
+      title: node?.title || node?.label || `Call ${glyphCode}`,
+      glyph_code: glyphCode,
+      glyph_version: glyphVersion,
+      glyph_scope: glyphScope,
+      child_workflow_id: childWorkflowId,
+      glyph_id: node?.glyph_id || config.glyph_id || compiled.glyph_id || childWorkflowId || glyphCode,
+      source_glyph_code: node?.source_glyph_code || config.source_glyph_code || compiled.source_glyph_code || "none",
+      version_hash: versionHash,
+      risk_tier: riskTier,
+      required_connectors: clone(requiredConnectors),
+      missing_connectors: missing,
+      input_schema: clone(inputSchema),
+      output_schema: clone(outputSchema),
+      approval_policy: clone(approvalPolicy),
+      runtime_plan: clone(runtimePlan),
+      dry_run_only: node?.dry_run_only !== false && config.dry_run_only !== false && runtimePlan?.dry_run_only !== false,
+      live_send_enabled: node?.live_send_enabled === true || config.live_send_enabled === true || runtimePlan?.live_send_enabled === true,
+      compiled_glyph: clone(compiled),
+    };
+  }
+
+
+  function nodeNameForConnectionPreviewV11(node) {
+    if (!node || typeof node !== "object") return "Unknown node";
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    return node.title || node.label || config.title || config.label || config.action_id || config.module_id || node.type || node.id || "Workflow node";
+  }
+
+  function schemaSummaryForConnectionPreviewV11(schema, fallback) {
+    if (!schema || typeof schema !== "object") return fallback;
+    if (schema.properties && typeof schema.properties === "object") {
+      const keys = Object.keys(schema.properties);
+      return keys.length ? keys.slice(0, 8).join(", ") : fallback;
+    }
+    const keys = Object.keys(schema);
+    return keys.length ? keys.slice(0, 8).join(", ") : fallback;
+  }
+
+  function renderConnectionPreviewSectionV11(node, model) {
+    /*
+     * SOURCE FIX V11.1:
+     * This helper lives inside the v3 inspector block, where getGraph() is not
+     * in scope. Use the same safe graph access pattern as the surrounding
+     * workflow UI instead of calling an undefined local helper.
+     */
+    let graph = { nodes: [], edges: [] };
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        const draft = getAionWorkflowDraftState();
+        if (draft && typeof draft === "object") graph = draft;
+      } else if (window.__aionWorkflowGraph && typeof window.__aionWorkflowGraph === "object") {
+        graph = window.__aionWorkflowGraph;
+      }
+    } catch (_) {
+      graph = window.__aionWorkflowGraph || { nodes: [], edges: [] };
+    }
+
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId = String(node?.id || model?.node_id || "call_workflow_glyph");
+
+    const peers = nodes
+      .filter((candidate) => candidate && String(candidate.id || "") !== selectedId)
+      .slice(0, 6);
+
+    const inputSummary = schemaSummaryForConnectionPreviewV11(model.input_schema, "Any payload");
+    const outputSummary = schemaSummaryForConnectionPreviewV11(model.output_schema, "Dry-run payload");
+
+    const renderCards = (direction) => {
+      if (!peers.length) {
+        return `<div class="aion-call-glyph-preview-empty-v11">No other workflow nodes detected yet.</div>`;
+      }
+
+      return peers.map((candidate) => {
+        const candidateId = String(candidate.id || "node");
+        const from = direction === "input" ? candidateId : selectedId;
+        const to = direction === "input" ? selectedId : candidateId;
+        const summary = direction === "input"
+          ? `Potential input source for child glyph inputs: ${inputSummary}`
+          : `Potential downstream consumer for child glyph outputs: ${outputSummary}`;
+
+        return `
+          <div class="aion-call-glyph-preview-card-v11">
+            <b>${esc(nodeNameForConnectionPreviewV11(candidate))}</b>
+            <span>${esc(candidate.type || candidate.kind || candidate.action_id || candidate.module_id || "node")}</span>
+            <p>${esc(summary)}</p>
+            <code>${esc(from)} → ${esc(to)}</code>
+          </div>
+        `;
+      }).join("");
+    };
+
+    return `
+      <section class="aion-call-glyph-connection-preview-v11" data-aion-call-glyph-connection-preview-v11="true">
+        <div class="aion-call-glyph-preview-head-v11">connection_preview</div>
+        <div class="aion-call-glyph-preview-note-v11">
+          Preview-only · No edge creation · No execution · No editing · No wiring · No external writes
+        </div>
+
+        <details open>
+          <summary>Possible inputs into staged glyph</summary>
+          ${renderCards("input")}
+        </details>
+
+        <details>
+          <summary>Possible outputs from staged glyph</summary>
+          ${renderCards("output")}
+        </details>
+      </section>
+    `;
+  }
+
+
+
+  function validateCallWorkflowGlyphForInspectorV20(node, model) {
+    const errors = [];
+    const warnings = [];
+
+    const missing = Array.isArray(model.missing_connectors) ? model.missing_connectors : [];
+
+    if (!model.glyph_code || model.glyph_code === "UNKNOWN") {
+      errors.push("missing_glyph_code");
+    }
+
+    if (!model.child_workflow_id) {
+      errors.push("missing_child_workflow_id");
+    }
+
+    if (missing.length) {
+      errors.push(`missing_required_connectors:${missing.join(",")}`);
+    }
+
+    if (!model.version_hash) {
+      warnings.push("unpinned_glyph_version_hash");
+    }
+
+    if (model.live_send_enabled === true && model.dry_run_only === true) {
+      warnings.push("live_send_enabled_ignored_in_dry_run");
+    }
+
+    const inputProps = model.input_schema?.properties && typeof model.input_schema.properties === "object"
+      ? Object.keys(model.input_schema.properties)
+      : [];
+
+    const outputProps = model.output_schema?.properties && typeof model.output_schema.properties === "object"
+      ? Object.keys(model.output_schema.properties)
+      : [];
+
+    if (!inputProps.length) {
+      warnings.push("child_input_schema_has_no_properties");
+    }
+
+    if (!outputProps.length) {
+      warnings.push("child_output_schema_has_no_properties");
+    }
+
+    return {
+      valid: errors.length === 0,
+      errors,
+      warnings,
+      missing_connectors: missing,
+      runtime_blocked: errors.length > 0,
+    };
+  }
+
+  function renderValidationSummaryV20(validation) {
+    const status = validation.valid ? "valid" : "blocked";
+    const errorList = validation.errors.length
+      ? validation.errors.map((item) => `<li>${esc(item)}</li>`).join("")
+      : "<li>No blocking validation errors.</li>";
+
+    const warningList = validation.warnings.length
+      ? validation.warnings.map((item) => `<li>${esc(item)}</li>`).join("")
+      : "<li>No validation warnings.</li>";
+
+    return `
+      <section class="aion-call-glyph-validation-v20" data-aion-call-glyph-validation-v20="true">
+        <div class="aion-call-glyph-validation-head-v20">
+          <strong>parent_child_validation</strong>
+          <span data-status="${esc(status)}">${esc(status)}</span>
+        </div>
+        <div class="aion-call-glyph-validation-grid-v20">
+          <span>runtime_blocked</span><b>${validation.runtime_blocked ? "true" : "false"}</b>
+          <span>missing_connectors</span><b>${esc(summarise(validation.missing_connectors, "None"))}</b>
+        </div>
+        <details ${validation.valid ? "" : "open"}>
+          <summary>validation_errors</summary>
+          <ul>${errorList}</ul>
+        </details>
+        <details>
+          <summary>validation_warnings</summary>
+          <ul>${warningList}</ul>
+        </details>
+      </section>
+    `;
+  }
+
+
+  function renderContractInspector(node) {
+    const model = readCallWorkflowGlyphContract(node);
+    const hasMissingConnectors = Array.isArray(model.missing_connectors) && model.missing_connectors.length > 0;
+    const validation = validateCallWorkflowGlyphForInspectorV20(node, model);
+
+    return `
+      <aside
+        class="aion-call-workflow-glyph-contract-inspector-v3"
+        data-aion-master-glyph-staged-inspector="true"
+        data-aion-call-workflow-glyph-contract-inspector-v3="true"
+        data-aion-call-workflow-glyph-node-id="${esc(model.node_id || "")}"
+      >
+        <div class="aion-call-workflow-glyph-contract-head-v3">
+          <div>
+            <div class="eyebrow">CALL_WORKFLOW_GLYPH CONTRACT</div>
+            <h2>${esc(model.glyph_code)}</h2>
+            <p>${esc(model.title)} · dry-run only · no external writes</p>
+          </div>
+          <button type="button" data-aion-call-workflow-glyph-close-v17="true">Close</button>
+        </div>
+
+        <div class="aion-call-workflow-glyph-scroll-body-v12" data-aion-call-glyph-scroll-body-v12="true">
+        <div class="aion-call-workflow-glyph-safety-v3">
+          Runtime remains dry-run only until parent/child validation is complete.
+        </div>
+
+        ${renderValidationSummaryV20(validation)}
+
+        ${
+          hasMissingConnectors
+            ? `<div class="aion-call-workflow-glyph-warning-v3">
+                Missing connectors: ${esc(model.missing_connectors.join(", "))}
+              </div>`
+            : `<div class="aion-call-workflow-glyph-ok-v3">
+                Required connectors available or not required.
+              </div>`
+        }
+
+        ${renderConnectionPreviewSectionV11(node, model)}
+
+        <div class="aion-call-workflow-glyph-grid-v3">
+          <span>glyph_code</span><b>${esc(model.glyph_code)}</b>
+          <span>glyph_version</span><b>${esc(model.glyph_version)}</b>
+          <span>glyph_scope</span><b>${esc(model.glyph_scope)}</b>
+          <span>child_workflow_id</span><b>${esc(model.child_workflow_id || "none")}</b>
+          <span>glyph_id</span><b>${esc(model.glyph_id)}</b>
+          <span>source_glyph_code</span><b>${esc(model.source_glyph_code || "none")}</b>
+          <span>version_hash</span><b>${esc(model.version_hash || "none")}</b>
+          <span>risk_tier</span><b>${esc(model.risk_tier)}</b>
+          <span>required_connectors</span><b>${esc(summarise(model.required_connectors, "None"))}</b>
+          <span>missing_connectors</span><b>${esc(summarise(model.missing_connectors, "None detected"))}</b>
+          <span>dry_run_only</span><b>${model.dry_run_only ? "true" : "false"}</b>
+          <span>live_send_enabled</span><b>${model.live_send_enabled ? "true" : "false"}</b>
+          <span>input_schema</span><b>${esc(summarise(model.input_schema, "Any payload"))}</b>
+          <span>output_schema</span><b>${esc(summarise(model.output_schema, "Dry-run payload"))}</b>
+          <span>approval_policy</span><b>${esc(summarise(model.approval_policy, "None"))}</b>
+          <span>runtime_plan</span><b>${esc(summarise(model.runtime_plan, "No runtime plan"))}</b>
+        </div>
+
+        <details open>
+          <summary>input_schema</summary>
+          <pre>${esc(jsonBlock(model.input_schema))}</pre>
+        </details>
+
+        <details>
+          <summary>output_schema</summary>
+          <pre>${esc(jsonBlock(model.output_schema))}</pre>
+        </details>
+
+        <details>
+          <summary>approval_policy</summary>
+          <pre>${esc(jsonBlock(model.approval_policy))}</pre>
+        </details>
+
+        <details>
+          <summary>runtime_plan</summary>
+          <pre>${esc(jsonBlock(model.runtime_plan))}</pre>
+        </details>
+
+        <details>
+          <summary>compiled_glyph debug</summary>
+          <pre>${esc(jsonBlock(model.compiled_glyph))}</pre>
+        </details>
+        </div>
+      </aside>
+    `;
+  }
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      .aion-call-workflow-glyph-contract-inspector-v3 {
+        position: fixed;
+        left: 50% !important;
+        right: auto !important;
+        top: 112px !important;
+        bottom: 96px !important;
+        transform: translateX(-50%) !important;
+        width: min(980px, calc(100vw - 190px)) !important;
+        max-width: 980px !important;
+        max-height: none !important;
+        overflow: hidden !important;
+        z-index: 3000000 !important;
+        padding: 18px 20px 0 !important;
+        border-radius: 22px;
+        border: 1px solid rgba(124, 58, 237, 0.28);
+        background: rgba(255, 255, 255, 0.97);
+        box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+        color: #0f172a;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      .aion-call-workflow-glyph-scroll-body-v12 {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 0 4px 34px 0 !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-gutter: stable !important;
+      }
+
+      .aion-call-workflow-glyph-contract-head-v3 {
+        flex: 0 0 auto !important;
+      }
+
+      .aion-call-workflow-glyph-contract-head-v3 {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        margin-bottom: 14px;
+      }
+
+      .aion-call-workflow-glyph-contract-head-v3 h2 {
+        margin: 2px 0 4px;
+        font-size: 26px;
+        line-height: 1.05;
+      }
+
+      .aion-call-workflow-glyph-contract-head-v3 p {
+        margin: 0;
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .aion-call-workflow-glyph-contract-head-v3 button {
+        border: 2px solid #111827;
+        background: white;
+        color: #111827;
+        padding: 10px 14px;
+        font-weight: 950;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        cursor: pointer;
+      }
+
+      .aion-call-workflow-glyph-safety-v3,
+      .aion-call-workflow-glyph-warning-v3,
+      .aion-call-workflow-glyph-ok-v3 {
+        margin: 10px 0 14px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .aion-call-workflow-glyph-safety-v3 {
+        background: rgba(124, 58, 237, 0.08);
+        color: #4c1d95;
+      }
+
+      .aion-call-workflow-glyph-warning-v3 {
+        background: rgba(239, 68, 68, 0.10);
+        color: #991b1b;
+      }
+
+      .aion-call-workflow-glyph-ok-v3 {
+        background: rgba(34, 197, 94, 0.10);
+        color: #166534;
+      }
+
+
+      .aion-call-glyph-connection-preview-v11 {
+        margin: 12px 0 16px;
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(14, 165, 233, 0.24);
+        background: rgba(240, 249, 255, 0.78);
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
+      .aion-call-glyph-preview-head-v11 {
+        margin-bottom: 8px;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #075985;
+        font-weight: 1000;
+      }
+
+      .aion-call-glyph-preview-note-v11 {
+        margin: 0 0 10px;
+        color: #075985;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .aion-call-glyph-connection-preview-v11 details {
+        border-top: 1px solid rgba(14, 165, 233, 0.18);
+        padding: 8px 0;
+      }
+
+      .aion-call-glyph-connection-preview-v11 summary {
+        cursor: pointer;
+        color: #0f172a;
+        font-size: 12px;
+        font-weight: 950;
+      }
+
+      .aion-call-glyph-preview-card-v11 {
+        display: grid;
+        gap: 4px;
+        margin: 8px 0;
+        padding: 10px;
+        border-radius: 12px;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        background: rgba(255, 255, 255, 0.82);
+      }
+
+      .aion-call-glyph-preview-card-v11 b {
+        color: #0f172a;
+        font-weight: 950;
+      }
+
+      .aion-call-glyph-preview-card-v11 span,
+      .aion-call-glyph-preview-card-v11 p {
+        margin: 0;
+        color: #64748b;
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .aion-call-glyph-preview-card-v11 code {
+        display: block;
+        padding: 7px 9px;
+        border-radius: 9px;
+        background: rgba(15, 23, 42, 0.06);
+        color: #0f172a;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        font-size: 11px;
+      }
+
+      .aion-call-glyph-preview-empty-v11 {
+        margin: 8px 0;
+        color: #64748b;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .aion-call-workflow-glyph-grid-v3 {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 8px 12px;
+        align-items: start;
+        font-size: 13px;
+        margin-bottom: 14px;
+      }
+
+      .aion-call-workflow-glyph-grid-v3 span {
+        color: #64748b;
+        font-weight: 900;
+      }
+
+      .aion-call-workflow-glyph-grid-v3 b {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        color: #0f172a;
+        font-weight: 950;
+      }
+
+      .aion-call-workflow-glyph-contract-inspector-v3 details {
+        border-top: 1px solid rgba(148, 163, 184, 0.35);
+        padding: 10px 0;
+      }
+
+      .aion-call-workflow-glyph-contract-inspector-v3 summary {
+        cursor: pointer;
+        color: #4c1d95;
+        font-weight: 950;
+      }
+
+      .aion-call-workflow-glyph-contract-inspector-v3 pre {
+        max-height: 260px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-size: 11px;
+        line-height: 1.45;
+        background: #0f172a;
+        color: #e2e8f0;
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .aion-call-glyph-validation-v20 {
+        margin: 12px 0 16px;
+        padding: 12px;
+        border-radius: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.12);
+        background: rgba(248, 250, 252, 0.92);
+      }
+
+      .aion-call-glyph-validation-head-v20 {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .aion-call-glyph-validation-head-v20 strong {
+        color: #0f172a;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        font-weight: 1000;
+      }
+
+      .aion-call-glyph-validation-head-v20 span {
+        border-radius: 999px;
+        padding: 5px 9px;
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 1000;
+        background: rgba(34, 197, 94, 0.12);
+        color: #166534;
+      }
+
+      .aion-call-glyph-validation-head-v20 span[data-status="blocked"] {
+        background: rgba(239, 68, 68, 0.12);
+        color: #991b1b;
+      }
+
+      .aion-call-glyph-validation-grid-v20 {
+        display: grid;
+        grid-template-columns: 150px minmax(0, 1fr);
+        gap: 6px 12px;
+        margin-bottom: 10px;
+        font-size: 12px;
+      }
+
+      .aion-call-glyph-validation-grid-v20 span {
+        color: #64748b;
+        font-weight: 900;
+      }
+
+      .aion-call-glyph-validation-grid-v20 b {
+        color: #0f172a;
+        overflow-wrap: anywhere;
+      }
+
+      .aion-call-glyph-validation-v20 ul {
+        margin: 8px 0 0 18px;
+        padding: 0;
+        color: #0f172a;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__readAionCallWorkflowGlyphContractV3 = readCallWorkflowGlyphContract;
+  window.__renderAionCallWorkflowGlyphContractInspectorV3 = renderContractInspector;
+
+  /*
+   * Existing v2/v3 inspector flows call one of these globals depending on which
+   * legacy patch wins. Override both names so the active open path renders v3.
+   */
+  window.__renderAionMasterGlyphContractInspectorV2 = renderContractInspector;
+  window.renderAionMasterGlyphStagedNodeInspector = renderContractInspector;
+
+  window.__debugAionCallWorkflowGlyphInspectorContractDisplayV3 = function debugAionCallWorkflowGlyphInspectorContractDisplayV3() {
+    const panels = document.querySelectorAll("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    return {
+      installed: true,
+      styleExists: !!document.getElementById(STYLE_ID),
+      panelCount: panels.length,
+      hasReader: typeof window.__readAionCallWorkflowGlyphContractV3 === "function",
+      hasRenderer: typeof window.__renderAionCallWorkflowGlyphContractInspectorV3 === "function",
+      overriddenLegacyRenderer: window.renderAionMasterGlyphStagedNodeInspector === renderContractInspector,
+      overriddenV2Renderer: window.__renderAionMasterGlyphContractInspectorV2 === renderContractInspector,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Inspector Contract Display v3 installed");
+})();
+
+/*
+ * AION PATCH: call_workflow_glyph Inspector Takeover v4
+ * -----------------------------------------------------
+ * Purpose:
+ * - Legacy Master Glyph Canvas v3/v4 panels are still opening over the canvas.
+ * - Replace them with the canonical CALL_WORKFLOW_GLYPH CONTRACT inspector.
+ * - Move all inspector panels below the fixed glyph header/tab strip.
+ * - No observer loop. Only reacts after click/render/selection events.
+ */
+(function installAionCallWorkflowGlyphInspectorTakeoverV4() {
+  if (window.__aionCallWorkflowGlyphInspectorTakeoverV4Installed === true) return;
+  window.__aionCallWorkflowGlyphInspectorTakeoverV4Installed = true;
+
+  const STYLE_ID = "aion-call-workflow-glyph-inspector-takeover-v4-style";
+
+  function getGraph() {
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        const graph = getAionWorkflowDraftState();
+        if (graph && typeof graph === "object") return graph;
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function selectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId =
+      window.__aionWorkflowSelectedNodeId ||
+      window.__aionMasterGlyphSelectedStagedNodeId ||
+      "";
+
+    if (!selectedId) return null;
+    return nodes.find((node) => String(node?.id || "") === String(selectedId)) || null;
+  }
+
+  function isCallWorkflowGlyphNode(node) {
+    if (!node || typeof node !== "object") return false;
+
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node.id,
+      node.type,
+      node.kind,
+      node.action_id,
+      node.module_id,
+      node.title,
+      node.label,
+      node.glyph_code,
+      node.child_workflow_id,
+      config.action_id,
+      config.module_id,
+      config.glyph_code,
+      config.workflow_id,
+      config.child_workflow_id,
+    ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+    return (
+      haystack.includes("call_workflow_glyph") ||
+      haystack.includes("workflow.call_workflow_glyph")
+    );
+  }
+
+  function removeLegacyInspectorPanels() {
+    document
+      .querySelectorAll(
+        ".aion-master-glyph-staged-inspector:not([data-aion-call-workflow-glyph-contract-inspector-v3='true'])"
+      )
+      .forEach((panel) => { panel.style.display = 'none'; panel.style.visibility = 'hidden'; });
+  }
+
+  function renderCanonicalInspectorForSelectedNode() {
+    const node = selectedNode();
+
+    if (!isCallWorkflowGlyphNode(node)) {
+      return false;
+    }
+
+    /*
+     * SOURCE FIX V18:
+     * Do not reopen the canonical inspector after the user has closed it for
+     * the currently selected call_workflow_glyph node.
+     */
+    if (
+      window.__aionCallWorkflowGlyphClosedNodeIdV18 &&
+      String(window.__aionCallWorkflowGlyphClosedNodeIdV18) === String(node?.id || "")
+    ) {
+      removeLegacyInspectorPanels();
+      document
+        .querySelectorAll("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")
+        .forEach((panel) => { panel.style.display = 'none'; panel.style.visibility = 'hidden'; });
+      return false;
+    }
+
+    removeLegacyInspectorPanels();
+
+    if (typeof window.__renderAionCallWorkflowGlyphContractInspectorV3 !== "function") {
+      console.warn("[AION] v4 takeover cannot render: v3 renderer missing");
+      return false;
+    }
+
+    const existingCanonical = document.querySelector("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    if (
+      existingCanonical &&
+      String(existingCanonical.getAttribute("data-aion-call-workflow-glyph-node-id") || "") === String(node?.id || "")
+    ) {
+      return true;
+    }
+
+    document
+      .querySelectorAll("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")
+      .forEach((panel) => { panel.style.display = 'none'; panel.style.visibility = 'hidden'; });
+
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = window.__renderAionCallWorkflowGlyphContractInspectorV3(node);
+    const panel = wrapper.firstElementChild;
+
+    if (!panel) return false;
+
+    document.body.appendChild(panel);
+    return true;
+  }
+
+  function syncAfterUiEvent() {
+    window.setTimeout(renderCanonicalInspectorForSelectedNode, 0);
+    window.setTimeout(renderCanonicalInspectorForSelectedNode, 80);
+    window.setTimeout(renderCanonicalInspectorForSelectedNode, 220);
+  }
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      /*
+       * Push every old/new inspector below the fixed top tabs/glyph header.
+       * This prevents the repaired glyph header from covering panels.
+       */
+      .aion-master-glyph-staged-inspector,
+      .aion-master-glyph-connection-preview,
+      [data-aion-master-glyph-staged-inspector="true"],
+      [data-aion-master-glyph-connection-preview="true"],
+      [data-aion-call-workflow-glyph-contract-inspector-v3="true"] {
+        top: 156px !important;
+        max-height: calc(100vh - 180px) !important;
+        z-index: 3000000 !important;
+      }
+
+      /*
+       * When takeover succeeds, old v3/v4 panel types must not remain visible.
+       */
+      body.aion-call-workflow-glyph-inspector-takeover-v4-active
+        .aion-master-glyph-staged-inspector:not([data-aion-call-workflow-glyph-contract-inspector-v3="true"]) {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      /* connection preview is embedded in the canonical right-side inspector */
+    `;
+    document.head.appendChild(style);
+  }
+
+  /*
+   * SOURCE FIX V11:
+   * Do not auto-rebuild the canonical inspector from takeover v4.
+   * The original v3 staged-inspector source path now delegates to the canonical
+   * renderer, so these takeover listeners only caused flicker and scroll resets.
+   * Manual debug/sync remains available through __syncAionCallWorkflowGlyphInspectorTakeoverV4.
+   */
+
+  window.__syncAionCallWorkflowGlyphInspectorTakeoverV4 = function syncAionCallWorkflowGlyphInspectorTakeoverV4() {
+    const ok = renderCanonicalInspectorForSelectedNode();
+    if (ok) document.body.classList.add("aion-call-workflow-glyph-inspector-takeover-v4-active");
+    return ok;
+  };
+
+  window.__debugAionCallWorkflowGlyphInspectorTakeoverV4 = function debugAionCallWorkflowGlyphInspectorTakeoverV4() {
+    const ok = renderCanonicalInspectorForSelectedNode();
+    if (ok) document.body.classList.add("aion-call-workflow-glyph-inspector-takeover-v4-active");
+
+    return {
+      installed: true,
+      styleExists: !!document.getElementById(STYLE_ID),
+      selectedNodeId: selectedNode()?.id || null,
+      selectedIsCallWorkflowGlyph: isCallWorkflowGlyphNode(selectedNode()),
+      renderedCanonical: ok,
+      canonicalPanelCount: document.querySelectorAll("[data-aion-call-workflow-glyph-contract-inspector-v3='true']").length,
+      legacyStagedPanelCount: document.querySelectorAll(".aion-master-glyph-staged-inspector:not([data-aion-call-workflow-glyph-contract-inspector-v3='true'])").length,
+      connectionPreviewPanelCount: document.querySelectorAll(".aion-master-glyph-connection-preview, [data-aion-master-glyph-connection-preview='true'], [data-aion-master-glyph-staged-connection-preview='true']").length,
+      v3Renderer: typeof window.__renderAionCallWorkflowGlyphContractInspectorV3,
+    };
+  };
+
+
+  /*
+   * AION PATCH: call_workflow_glyph Inspector Scroll Lock v7
+   * --------------------------------------------------------
+   * Purpose:
+   * - The canonical right-side inspector must scroll internally.
+   * - Canvas/app wheel handlers must not steal wheel/touch events from it.
+   * - Keep embedded connection_preview reachable at the bottom.
+   */
+  (function installAionCallWorkflowGlyphInspectorScrollLockV7() {
+    if (window.__aionCallWorkflowGlyphInspectorScrollLockV7Installed === true) return;
+    window.__aionCallWorkflowGlyphInspectorScrollLockV7Installed = true;
+
+    const STYLE_ID = "aion-call-workflow-glyph-inspector-scroll-lock-v7-style";
+    const PANEL_SELECTOR = [
+      "[data-aion-call-workflow-glyph-contract-inspector-v3='true']",
+      ".aion-call-workflow-glyph-contract-inspector-v3",
+      ".aion-master-glyph-contract-inspector-v2"
+    ].join(", ");
+
+    if (!document.getElementById(STYLE_ID)) {
+      const style = document.createElement("style");
+      style.id = STYLE_ID;
+      style.textContent = `
+        html body [data-aion-call-workflow-glyph-contract-inspector-v3="true"],
+        html body .aion-call-workflow-glyph-contract-inspector-v3,
+        html body .aion-master-glyph-contract-inspector-v2 {
+          top: 98px !important;
+          bottom: 92px !important;
+          max-height: calc(100vh - 190px) !important;
+          overflow-y: auto !important;
+          overflow-x: hidden !important;
+          overscroll-behavior: contain !important;
+          -webkit-overflow-scrolling: touch !important;
+          pointer-events: auto !important;
+          z-index: 2147482500 !important;
+        }
+
+        html body [data-aion-call-workflow-glyph-contract-inspector-v3="true"] *,
+        html body .aion-call-workflow-glyph-contract-inspector-v3 *,
+        html body .aion-master-glyph-contract-inspector-v2 * {
+          pointer-events: auto !important;
+        }
+
+        html body .aion-call-glyph-connection-preview-v6 {
+          margin-bottom: 28px !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    function stopPanelScrollSteal(event) {
+      const panel = event.target?.closest?.(PANEL_SELECTOR);
+      if (!panel) return;
+
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+    }
+
+    /*
+     * SOURCE FIX V13:
+     * Disabled old v7 capture listeners. They used stopImmediatePropagation()
+     * before the v12 inner scroll body could receive wheel/touch events.
+     */
+    // document.addEventListener("wheel", stopPanelScrollSteal, { capture: true, passive: false });
+    // document.addEventListener("touchmove", stopPanelScrollSteal, { capture: true, passive: false });
+    // document.addEventListener("scroll", stopPanelScrollSteal, true);
+
+    window.__debugAionCallWorkflowGlyphInspectorScrollLockV7 = function debugAionCallWorkflowGlyphInspectorScrollLockV7() {
+      const panel = document.querySelector(PANEL_SELECTOR);
+      if (!panel) return { installed: true, panelExists: false };
+
+      const cs = getComputedStyle(panel);
+      return {
+        installed: true,
+        panelExists: true,
+        scrollTop: panel.scrollTop,
+        scrollHeight: panel.scrollHeight,
+        clientHeight: panel.clientHeight,
+        canScroll: panel.scrollHeight > panel.clientHeight,
+        overflowY: cs.overflowY,
+        top: cs.top,
+        bottom: cs.bottom,
+        connectionPreviewCount: document.querySelectorAll(".aion-call-glyph-connection-preview-v6").length,
+      };
+    };
+
+    console.log("[AION] call_workflow_glyph Inspector Scroll Lock v7 installed");
+  })();
+
+
+  console.log("[AION] call_workflow_glyph Inspector Takeover v4 installed");
+})();
+
+/*
+ * AION PATCH: call_workflow_glyph Inspector Manual Scroll v8
+ * ----------------------------------------------------------
+ * Purpose:
+ * - The right call_workflow_glyph inspector has scrollable content, but app/canvas
+ *   wheel handlers can steal native scrolling in Electron.
+ * - Manually apply wheel/touch delta to the inspector scrollTop.
+ * - Keep connection_preview reachable at the bottom.
+ */
+(function installAionCallWorkflowGlyphInspectorManualScrollV8() {
+  if (window.__aionCallWorkflowGlyphInspectorManualScrollV8Installed === true) return;
+  window.__aionCallWorkflowGlyphInspectorManualScrollV8Installed = true;
+
+  const STYLE_ID = "aion-call-workflow-glyph-inspector-manual-scroll-v8-style";
+  const PANEL_SELECTOR = [
+    "[data-aion-call-workflow-glyph-contract-inspector-v3='true']",
+    ".aion-call-workflow-glyph-contract-inspector-v3",
+    ".aion-master-glyph-contract-inspector-v2"
+  ].join(", ");
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body [data-aion-call-workflow-glyph-contract-inspector-v3="true"],
+      html body .aion-call-workflow-glyph-contract-inspector-v3,
+      html body .aion-master-glyph-contract-inspector-v2 {
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain !important;
+        touch-action: pan-y !important;
+        pointer-events: auto !important;
+        max-height: calc(100vh - 160px) !important;
+        padding-bottom: 42px !important;
+      }
+
+      html body .aion-call-glyph-connection-preview-v6 {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-bottom: 48px !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  let lastTouchY = null;
+
+  function getPanelFromEvent(event) {
+    return event.target?.closest?.(PANEL_SELECTOR) || null;
+  }
+
+  function scrollPanelBy(panel, deltaY) {
+    if (!panel) return false;
+
+    const before = panel.scrollTop;
+    const max = Math.max(0, panel.scrollHeight - panel.clientHeight);
+    const next = Math.max(0, Math.min(max, before + deltaY));
+
+    panel.scrollTop = next;
+    return next !== before;
+  }
+
+  /*
+   * SOURCE FIX V13:
+   * Disabled v8 outer-panel wheel handler. The canonical scroll target is now
+   * [data-aion-call-glyph-scroll-body-v12], not the fixed outer panel.
+   */
+
+  /* SOURCE FIX V13: disabled v8 touchstart outer-panel handler. */
+
+  /* SOURCE FIX V13: disabled v8 touchmove outer-panel handler. */
+
+  window.__scrollAionCallWorkflowGlyphInspectorToBottomV8 = function scrollAionCallWorkflowGlyphInspectorToBottomV8() {
+    const panel = document.querySelector(PANEL_SELECTOR);
+    if (!panel) return { ok: false, reason: "panel_not_found" };
+
+    panel.scrollTop = panel.scrollHeight;
+
+    return {
+      ok: true,
+      scrollTop: panel.scrollTop,
+      scrollHeight: panel.scrollHeight,
+      clientHeight: panel.clientHeight,
+      connectionPreviewCount: document.querySelectorAll(".aion-call-glyph-connection-preview-v6").length,
+    };
+  };
+
+  window.__debugAionCallWorkflowGlyphInspectorManualScrollV8 = function debugAionCallWorkflowGlyphInspectorManualScrollV8() {
+    const panel = document.querySelector(PANEL_SELECTOR);
+    if (!panel) return { installed: true, panelExists: false };
+
+    const preview = document.querySelector(".aion-call-glyph-connection-preview-v6");
+    const cs = getComputedStyle(panel);
+
+    return {
+      installed: true,
+      panelExists: true,
+      scrollTop: panel.scrollTop,
+      scrollHeight: panel.scrollHeight,
+      clientHeight: panel.clientHeight,
+      maxScrollTop: Math.max(0, panel.scrollHeight - panel.clientHeight),
+      canScroll: panel.scrollHeight > panel.clientHeight,
+      overflowY: cs.overflowY,
+      connectionPreviewCount: document.querySelectorAll(".aion-call-glyph-connection-preview-v6").length,
+      connectionPreviewText: preview ? String(preview.textContent || "").trim().slice(0, 180) : null,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Inspector Manual Scroll v8 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Canonical Inspector Source Debug v11
+ */
+(function installAionCallWorkflowGlyphCanonicalInspectorSourceDebugV11() {
+  if (window.__aionCallWorkflowGlyphCanonicalInspectorSourceDebugV11Installed === true) return;
+  window.__aionCallWorkflowGlyphCanonicalInspectorSourceDebugV11Installed = true;
+
+  window.__debugAionCallWorkflowGlyphCanonicalInspectorV11 = function debugAionCallWorkflowGlyphCanonicalInspectorV11() {
+    const panel = document.querySelector("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    const preview = document.querySelector("[data-aion-call-glyph-connection-preview-v11='true']");
+    const leftPreview = document.querySelector(".aion-master-glyph-connection-preview, [data-aion-master-glyph-connection-preview='true'], [data-aion-master-glyph-staged-connection-preview='true']");
+
+    return {
+      installed: true,
+      panelExists: !!panel,
+      previewExists: !!preview,
+      previewCount: document.querySelectorAll("[data-aion-call-glyph-connection-preview-v11='true']").length,
+      leftPreviewExists: !!leftPreview,
+      panelText: panel ? String(panel.textContent || "").trim().slice(0, 500) : null,
+      previewText: preview ? String(preview.textContent || "").trim().slice(0, 500) : null,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Canonical Inspector Source Debug v11 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Centered Inspector Inner Scroll v12
+ * ------------------------------------------------------------------
+ * Final layout override:
+ * - centred wide inspector
+ * - fixed header
+ * - scroll only the inner body, not the fixed panel
+ */
+(function installAionCallWorkflowGlyphCenteredInspectorInnerScrollV12() {
+  if (window.__aionCallWorkflowGlyphCenteredInspectorInnerScrollV12Installed === true) return;
+  window.__aionCallWorkflowGlyphCenteredInspectorInnerScrollV12Installed = true;
+
+  const STYLE_ID = "aion-call-workflow-glyph-centered-inspector-inner-scroll-v12-style";
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body [data-aion-call-workflow-glyph-contract-inspector-v3="true"],
+      html body .aion-call-workflow-glyph-contract-inspector-v3 {
+        left: 50% !important;
+        right: auto !important;
+        top: 126px !important;
+        bottom: 126px !important;
+        transform: translateX(-50%) !important;
+        width: min(1120px, calc(100vw - 170px)) !important;
+        max-width: 1120px !important;
+        max-height: none !important;
+        height: auto !important;
+        overflow: hidden !important;
+        padding: 18px 20px 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+
+      html body .aion-call-workflow-glyph-contract-head-v3 {
+        flex: 0 0 auto !important;
+      }
+
+      html body [data-aion-call-glyph-scroll-body-v12="true"],
+      html body .aion-call-workflow-glyph-scroll-body-v12 {
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        padding: 0 6px 42px 0 !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        pointer-events: auto !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function scrollBody() {
+    return document.querySelector("[data-aion-call-glyph-scroll-body-v12='true']");
+  }
+
+  /*
+   * SOURCE FIX V15:
+   * Disabled v12 custom wheel handler.
+   * Native scrolling now belongs to the outer canonical inspector panel.
+   * The custom handler was stealing Mac trackpad wheel events.
+   */
+
+  window.__debugAionCallWorkflowGlyphCenteredInspectorV12 = function debugAionCallWorkflowGlyphCenteredInspectorV12() {
+    const panel = document.querySelector("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    const body = scrollBody();
+    const preview = document.querySelector("[data-aion-call-glyph-connection-preview-v11='true']");
+    return {
+      installed: true,
+      panelExists: !!panel,
+      bodyExists: !!body,
+      previewExists: !!preview,
+      panelRect: panel ? {
+        x: Math.round(panel.getBoundingClientRect().x),
+        y: Math.round(panel.getBoundingClientRect().y),
+        w: Math.round(panel.getBoundingClientRect().width),
+        h: Math.round(panel.getBoundingClientRect().height),
+      } : null,
+      bodyScrollTop: body ? body.scrollTop : null,
+      bodyScrollHeight: body ? body.scrollHeight : null,
+      bodyClientHeight: body ? body.clientHeight : null,
+      canScroll: body ? body.scrollHeight > body.clientHeight : false,
+      disabledOldScrollStealers: true,
+      scrollTarget: "inner_body_v12",
+    };
+  };
+
+  window.__scrollAionCallWorkflowGlyphInspectorBodyToBottomV12 = function scrollAionCallWorkflowGlyphInspectorBodyToBottomV12() {
+    const body = scrollBody();
+    if (!body) return { ok: false, reason: "scroll_body_not_found" };
+    body.scrollTop = body.scrollHeight;
+    return {
+      ok: true,
+      scrollTop: body.scrollTop,
+      scrollHeight: body.scrollHeight,
+      clientHeight: body.clientHeight,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Centered Inspector Inner Scroll v12 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Native Outer Scroll Stable v14
+ * --------------------------------------------------------------
+ * Purpose:
+ * - The canonical inspector must not jump back to top while scrolling.
+ * - The visible scrollbar should be the real scroll container.
+ * - Make panel slightly wider and slightly shorter.
+ */
+(function installAionCallWorkflowGlyphNativeOuterScrollStableV14() {
+  if (window.__aionCallWorkflowGlyphNativeOuterScrollStableV14Installed === true) return;
+  window.__aionCallWorkflowGlyphNativeOuterScrollStableV14Installed = true;
+
+  const STYLE_ID = "aion-call-workflow-glyph-native-outer-scroll-stable-v14-style";
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body [data-aion-call-workflow-glyph-contract-inspector-v3="true"],
+      html body .aion-call-workflow-glyph-contract-inspector-v3 {
+        left: 50% !important;
+        right: auto !important;
+        top: 132px !important;
+        bottom: 142px !important;
+        transform: translateX(-50%) !important;
+        width: min(1160px, calc(100vw - 160px)) !important;
+        max-width: 1160px !important;
+        height: auto !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        display: block !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-gutter: stable !important;
+        padding: 18px 22px 42px !important;
+      }
+
+      html body [data-aion-call-glyph-scroll-body-v12="true"],
+      html body .aion-call-workflow-glyph-scroll-body-v12 {
+        display: block !important;
+        overflow: visible !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+      }
+
+      html body .aion-call-workflow-glyph-contract-head-v3 {
+        position: sticky !important;
+        top: 0 !important;
+        z-index: 2 !important;
+        background: rgba(255,255,255,0.97) !important;
+        padding-bottom: 10px !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__debugAionCallWorkflowGlyphNativeOuterScrollStableV14 = function debugAionCallWorkflowGlyphNativeOuterScrollStableV14() {
+    const panel = document.querySelector("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    const body = document.querySelector("[data-aion-call-glyph-scroll-body-v12='true']");
+    const preview = document.querySelector("[data-aion-call-glyph-connection-preview-v11='true']");
+    if (!panel) return { installed: true, panelExists: false };
+
+    const cs = getComputedStyle(panel);
+    return {
+      installed: true,
+      panelExists: true,
+      bodyExists: !!body,
+      previewExists: !!preview,
+      nodeId: panel.getAttribute("data-aion-call-workflow-glyph-node-id"),
+      scrollTop: panel.scrollTop,
+      scrollHeight: panel.scrollHeight,
+      clientHeight: panel.clientHeight,
+      canScroll: panel.scrollHeight > panel.clientHeight,
+      overflowY: cs.overflowY,
+      width: cs.width,
+      top: cs.top,
+      bottom: cs.bottom,
+      scrollTarget: "outer_panel_v14",
+      preserveSameNodeRender: true,
+    };
+  };
+
+  window.__scrollAionCallWorkflowGlyphInspectorToBottomV14 = function scrollAionCallWorkflowGlyphInspectorToBottomV14() {
+    const panel = document.querySelector("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    if (!panel) return { ok: false, reason: "panel_not_found" };
+    panel.scrollTop = panel.scrollHeight;
+    return {
+      ok: true,
+      scrollTop: panel.scrollTop,
+      scrollHeight: panel.scrollHeight,
+      clientHeight: panel.clientHeight,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Native Outer Scroll Stable v14 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Native Trackpad Scroll v15
+ * ----------------------------------------------------------
+ * Purpose:
+ * - Let Mac trackpad/two-finger scroll use native scrolling.
+ * - No preventDefault wheel handler.
+ * - Outer inspector panel is the only scroll container.
+ */
+(function installAionCallWorkflowGlyphNativeTrackpadScrollV15() {
+  if (window.__aionCallWorkflowGlyphNativeTrackpadScrollV15Installed === true) return;
+  window.__aionCallWorkflowGlyphNativeTrackpadScrollV15Installed = true;
+
+  const STYLE_ID = "aion-call-workflow-glyph-native-trackpad-scroll-v15-style";
+
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body [data-aion-call-workflow-glyph-contract-inspector-v3="true"],
+      html body .aion-call-workflow-glyph-contract-inspector-v3 {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+        pointer-events: auto !important;
+        width: min(1180px, calc(100vw - 150px)) !important;
+        max-width: 1180px !important;
+        top: 132px !important;
+        bottom: 150px !important;
+      }
+
+      html body [data-aion-call-glyph-scroll-body-v12="true"],
+      html body .aion-call-workflow-glyph-scroll-body-v12 {
+        overflow: visible !important;
+        max-height: none !important;
+        height: auto !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.__debugAionCallWorkflowGlyphNativeTrackpadScrollV15 = function debugAionCallWorkflowGlyphNativeTrackpadScrollV15() {
+    const panel = document.querySelector("[data-aion-call-workflow-glyph-contract-inspector-v3='true']");
+    if (!panel) return { installed: true, panelExists: false };
+
+    const cs = getComputedStyle(panel);
+    return {
+      installed: true,
+      panelExists: true,
+      scrollTarget: "native_outer_panel",
+      customWheelDisabled: true,
+      scrollTop: panel.scrollTop,
+      scrollHeight: panel.scrollHeight,
+      clientHeight: panel.clientHeight,
+      canScroll: panel.scrollHeight > panel.clientHeight,
+      overflowY: cs.overflowY,
+      touchAction: cs.touchAction,
+      width: cs.width,
+      top: cs.top,
+      bottom: cs.bottom,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Native Trackpad Scroll v15 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Inspector Details Click Isolation v16
+ * --------------------------------------------------------------------
+ * Purpose:
+ * - Details/summary rows inside the canonical inspector should expand/collapse
+ *   without waking old Master Glyph Canvas v3/v4 modal/preview handlers.
+ * - Keep native <details> behaviour.
+ */
+(function installAionCallWorkflowGlyphInspectorDetailsClickIsolationV16() {
+  if (window.__aionCallWorkflowGlyphInspectorDetailsClickIsolationV16Installed === true) return;
+  window.__aionCallWorkflowGlyphInspectorDetailsClickIsolationV16Installed = true;
+
+  const PANEL_SELECTOR = "[data-aion-call-workflow-glyph-contract-inspector-v3='true']";
+
+  function isInsideCanonicalInspector(event) {
+    return !!event.target?.closest?.(PANEL_SELECTOR);
+  }
+
+  /*
+   * Bubble-phase isolation is enough for newer handlers. Source patches above
+   * stop the older capture handlers from reacting.
+   */
+  document.addEventListener("click", (event) => {
+    if (!isInsideCanonicalInspector(event)) return;
+
+    const summary = event.target?.closest?.("summary");
+    const details = event.target?.closest?.("details");
+
+    if (!summary && !details) return;
+
+    event.stopPropagation();
+  }, false);
+
+  window.__debugAionCallWorkflowGlyphInspectorDetailsClickIsolationV16 = function debugAionCallWorkflowGlyphInspectorDetailsClickIsolationV16() {
+    const panel = document.querySelector(PANEL_SELECTOR);
+    return {
+      installed: true,
+      panelExists: !!panel,
+      detailCount: panel ? panel.querySelectorAll("details").length : 0,
+      summaryCount: panel ? panel.querySelectorAll("summary").length : 0,
+      legacyPanelCount: document.querySelectorAll(
+        ".aion-master-glyph-staged-inspector:not([data-aion-call-workflow-glyph-contract-inspector-v3='true']), .aion-master-glyph-connection-preview, [data-aion-master-glyph-connection-preview='true']"
+      ).length,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Inspector Details Click Isolation v16 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Canonical Close Isolation v17
+ * -------------------------------------------------------------
+ * Purpose:
+ * - Close the canonical call_workflow_glyph contract inspector only.
+ * - Do not trigger old Master Glyph Canvas v3/v4 close/open handlers.
+ * - Keep selected canvas node intact.
+ */
+(function installAionCallWorkflowGlyphCanonicalCloseIsolationV17() {
+  if (window.__aionCallWorkflowGlyphCanonicalCloseIsolationV17Installed === true) return;
+  window.__aionCallWorkflowGlyphCanonicalCloseIsolationV17Installed = true;
+
+  const PANEL_SELECTOR = "[data-aion-call-workflow-glyph-contract-inspector-v3='true']";
+  const CLOSE_SELECTOR = "[data-aion-call-workflow-glyph-close-v17='true']";
+
+  function closeCanonicalInspector() {
+    document.querySelectorAll(PANEL_SELECTOR).forEach((panel) => { panel.style.display = 'none'; panel.style.visibility = 'hidden'; });
+
+    /*
+     * Do not clear selected node. Closing inspector is only a UI action.
+     * But remove takeover state so legacy hidden-state CSS does not linger.
+     */
+    document.body.classList.remove("aion-call-workflow-glyph-inspector-takeover-v4-active");
+
+    return true;
+  }
+
+  document.addEventListener("click", (event) => {
+    const close = event.target?.closest?.(CLOSE_SELECTOR);
+    if (!close) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    closeCanonicalInspector();
+  }, true);
+
+  window.__closeAionCallWorkflowGlyphCanonicalInspectorV17 = closeCanonicalInspector;
+
+  window.__debugAionCallWorkflowGlyphCanonicalCloseIsolationV17 = function debugAionCallWorkflowGlyphCanonicalCloseIsolationV17() {
+    return {
+      installed: true,
+      panelCount: document.querySelectorAll(PANEL_SELECTOR).length,
+      closeButtonCount: document.querySelectorAll(CLOSE_SELECTOR).length,
+      oldCloseButtonInsideCanonicalCount: document.querySelectorAll(
+        `${PANEL_SELECTOR} [data-aion-master-glyph-staged-inspector-close='true']`
+      ).length,
+      legacyPanelCount: document.querySelectorAll(
+        ".aion-master-glyph-staged-inspector:not([data-aion-call-workflow-glyph-contract-inspector-v3='true']), .aion-master-glyph-connection-preview, [data-aion-master-glyph-connection-preview='true']"
+      ).length,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Canonical Close Isolation v17 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Close Suppress v18
+ * --------------------------------------------------
+ * Purpose:
+ * - Close should close the canonical inspector and keep it closed.
+ * - It must not wake old Master Glyph Canvas v3/v4 panels.
+ * - Reopen only when the user selects/clicks the glyph node again.
+ */
+(function installAionCallWorkflowGlyphCloseSuppressV18() {
+  if (window.__aionCallWorkflowGlyphCloseSuppressV18Installed === true) return;
+  window.__aionCallWorkflowGlyphCloseSuppressV18Installed = true;
+
+  const CANONICAL_PANEL = "[data-aion-call-workflow-glyph-contract-inspector-v3='true']";
+  const CANONICAL_CLOSE = "[data-aion-call-workflow-glyph-close-v18='true'], [data-aion-call-workflow-glyph-close-v17='true']";
+  const LEGACY_PANELS = [
+    "[data-aion-master-glyph-staged-inspector='true']",
+    "[data-aion-master-glyph-contract-inspector-v2='true']",
+    ".aion-master-glyph-staged-inspector",
+    ".aion-master-glyph-connection-preview",
+    "[data-aion-master-glyph-connection-preview='true']",
+    "[data-aion-master-glyph-staged-connection-preview='true']"
+  ].join(", ");
+
+  function getSelectedNodeId() {
+    const panel = document.querySelector(CANONICAL_PANEL);
+    return (
+      panel?.getAttribute("data-aion-call-workflow-glyph-node-id") ||
+      window.__aionWorkflowSelectedNodeId ||
+      window.__aionMasterGlyphSelectedStagedNodeId ||
+      ""
+    );
+  }
+
+  function removeAllInspectorPanels() {
+    document.querySelectorAll(`${CANONICAL_PANEL}, ${LEGACY_PANELS}`).forEach((panel) => { panel.style.display = 'none'; panel.style.visibility = 'hidden'; });
+  }
+
+  function closeAndSuppress() {
+    const selectedId = getSelectedNodeId();
+    if (selectedId) {
+      window.__aionCallWorkflowGlyphClosedNodeIdV18 = String(selectedId);
+    }
+
+    window.__aionMasterGlyphStagedInspectorOpen = false;
+    window.__aionMasterGlyphSelectedStagedNodeId = null;
+
+    document.body.classList.remove("aion-call-workflow-glyph-inspector-takeover-v4-active");
+    removeAllInspectorPanels();
+
+    return true;
+  }
+
+  /*
+   * Capture close before old handlers can treat it as a legacy close/open cycle.
+   */
+  document.addEventListener("click", (event) => {
+    const close = event.target?.closest?.(CANONICAL_CLOSE);
+    if (!close) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    closeAndSuppress();
+  }, true);
+
+  /*
+   * If user clicks the staged node again, allow inspector to reopen.
+   */
+  document.addEventListener("click", (event) => {
+    const target = event.target?.closest?.("[data-node-id], [data-aion-workflow-node-id], .aion-workflow-node, .aion-master-glyph-node");
+    if (!target) return;
+
+    window.__aionCallWorkflowGlyphClosedNodeIdV18 = null;
+  }, true);
+
+  window.__closeAionCallWorkflowGlyphInspectorV18 = closeAndSuppress;
+
+  window.__debugAionCallWorkflowGlyphCloseSuppressV18 = function debugAionCallWorkflowGlyphCloseSuppressV18() {
+    return {
+      installed: true,
+      closedNodeId: window.__aionCallWorkflowGlyphClosedNodeIdV18 || null,
+      canonicalPanelCount: document.querySelectorAll(CANONICAL_PANEL).length,
+      canonicalCloseCount: document.querySelectorAll(CANONICAL_CLOSE).length,
+      legacyPanelCount: document.querySelectorAll(LEGACY_PANELS).length,
+      selectedNodeId: window.__aionWorkflowSelectedNodeId || null,
+      selectedStagedNodeId: window.__aionMasterGlyphSelectedStagedNodeId || null,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Close Suppress v18 installed");
+})();
+
+
+/*
+ * AION PATCH: call_workflow_glyph Source Close Fix v19
+ * ----------------------------------------------------
+ * Purpose:
+ * - Close canonical inspector before legacy click handlers can run.
+ * - Keep selected canvas node intact.
+ * - Do not reopen old Master Glyph Canvas v3/v4 panels.
+ */
+(function installAionCallWorkflowGlyphSourceCloseFixV19() {
+  if (window.__aionCallWorkflowGlyphSourceCloseFixV19Installed === true) return;
+  window.__aionCallWorkflowGlyphSourceCloseFixV19Installed = true;
+
+  const PANEL = "[data-aion-call-workflow-glyph-contract-inspector-v3='true']";
+  const CLOSE = "[data-aion-call-workflow-glyph-close-v19='true'], [data-aion-call-workflow-glyph-close-v18='true'], [data-aion-call-workflow-glyph-close-v17='true']";
+
+  function closeCanonical() {
+    const panel = document.querySelector(PANEL);
+    const nodeId =
+      panel?.getAttribute("data-aion-call-workflow-glyph-node-id") ||
+      window.__aionWorkflowSelectedNodeId ||
+      window.__aionMasterGlyphSelectedStagedNodeId ||
+      "";
+
+    if (nodeId) {
+      window.__aionCallWorkflowGlyphClosedNodeIdV18 = String(nodeId);
+      window.__aionCallWorkflowGlyphClosedNodeIdV19 = String(nodeId);
+    }
+
+    window.__aionMasterGlyphStagedInspectorOpen = false;
+    window.__aionMasterGlyphSelectedStagedNodeId = null;
+
+    document
+      .querySelectorAll([
+        PANEL,
+        ".aion-master-glyph-staged-inspector:not([data-aion-call-workflow-glyph-contract-inspector-v3='true'])",
+        ".aion-master-glyph-connection-preview",
+        "[data-aion-master-glyph-connection-preview='true']",
+        "[data-aion-master-glyph-staged-connection-preview='true']"
+      ].join(", "))
+      .forEach((el) => { el.style.display = 'none'; el.style.visibility = 'hidden'; });
+
+    document.body.classList.remove("aion-call-workflow-glyph-inspector-takeover-v4-active");
+    return true;
+  }
+
+  function captureClose(event) {
+    const close = event.target?.closest?.(CLOSE);
+    if (!close) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    closeCanonical();
+  }
+
+  document.addEventListener("pointerdown", captureClose, true);
+  document.addEventListener("mousedown", captureClose, true);
+  document.addEventListener("click", captureClose, true);
+
+  window.__closeAionCallWorkflowGlyphSourceCloseFixV19 = closeCanonical;
+
+  window.__debugAionCallWorkflowGlyphSourceCloseFixV19 = function debugAionCallWorkflowGlyphSourceCloseFixV19() {
+    return {
+      installed: true,
+      panelCount: document.querySelectorAll(PANEL).length,
+      closeButtonCount: document.querySelectorAll(CLOSE).length,
+      oldCloseInsideCanonical: document.querySelectorAll(`${PANEL} [data-aion-master-glyph-staged-inspector-close='true']`).length,
+      legacyPanelCount: document.querySelectorAll(
+        ".aion-master-glyph-staged-inspector:not([data-aion-call-workflow-glyph-contract-inspector-v3='true']), .aion-master-glyph-connection-preview, [data-aion-master-glyph-connection-preview='true']"
+      ).length,
+      closedNodeIdV18: window.__aionCallWorkflowGlyphClosedNodeIdV18 || null,
+      closedNodeIdV19: window.__aionCallWorkflowGlyphClosedNodeIdV19 || null,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Source Close Fix v19 installed");
+})();
+
+/*
+ * AION PATCH: call_workflow_glyph Dry Run Block Guard v21
+ * -------------------------------------------------------
+ * Purpose:
+ * - Block Execute workflow / dry-run when staged call_workflow_glyph validation fails.
+ * - Runs before legacy execute handlers using capture phase.
+ * - Does not execute workflows.
+ * - Does not mutate graph edges.
+ * - Does not call AI.
+ * - Does not perform external writes.
+ */
+(function installAionCallWorkflowGlyphDryRunBlockGuardV21() {
+  if (window.__aionCallWorkflowGlyphDryRunBlockGuardV21Installed === true) return;
+  window.__aionCallWorkflowGlyphDryRunBlockGuardV21Installed = true;
+
+  function clone(value) {
+    try { return JSON.parse(JSON.stringify(value)); } catch (_) { return value; }
+  }
+
+  function getGraph() {
+    try {
+      if (typeof syncAionWorkflowInspectorInputsToGraph === "function") {
+        const synced = syncAionWorkflowInspectorInputsToGraph();
+        if (synced && typeof synced === "object") return synced;
+      }
+    } catch (_) {}
+
+    try {
+      if (typeof getAionWorkflowDraftState === "function") {
+        const graph = getAionWorkflowDraftState();
+        if (graph && typeof graph === "object") return graph;
+      }
+    } catch (_) {}
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function isCallWorkflowGlyphNode(node) {
+    if (!node || typeof node !== "object") return false;
+
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node.id,
+      node.type,
+      node.kind,
+      node.action_id,
+      node.module_id,
+      node.title,
+      node.label,
+      node.glyph_code,
+      node.child_workflow_id,
+      config.action_id,
+      config.module_id,
+      config.glyph_code,
+      config.child_workflow_id,
+      config.workflow_id,
+    ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+    return haystack.includes("call_workflow_glyph") || haystack.includes("workflow.call_workflow_glyph");
+  }
+
+  function getBackendGlyphs() {
+    return []
+      .concat(Array.isArray(window.__aionBackendWorkflowGlyphs) ? window.__aionBackendWorkflowGlyphs : [])
+      .concat(Array.isArray(window.__aionUniversalWorkflowGlyphs) ? window.__aionUniversalWorkflowGlyphs : [])
+      .concat(Array.isArray(window.__aionMyWorkflowGlyphs) ? window.__aionMyWorkflowGlyphs : []);
+  }
+
+  function findRegistryGlyph(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const code = String(node?.glyph_code || config.glyph_code || "").trim().toLowerCase();
+    if (!code) return null;
+
+    return getBackendGlyphs().find((glyph) =>
+      String(glyph?.glyph_code || glyph?.code || "").trim().toLowerCase() === code
+    ) || null;
+  }
+
+  function connectedConnectorNames() {
+    return []
+      .concat(window.__aionConnectedConnectors || [])
+      .concat(window.__aionEnabledConnectors || [])
+      .concat(window.__aionAvailableConnectors || [])
+      .concat(window.__aionWorkflowConnectors || [])
+      .map((item) => String(item?.id || item?.key || item?.name || item?.connector || item?.provider || item || "").toLowerCase())
+      .filter(Boolean);
+  }
+
+  function readNodeContract(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const registry = findRegistryGlyph(node) || {};
+    const runtimePlan = node.runtime_plan || config.runtime_plan || registry.runtime_plan || {};
+
+    return {
+      node_id: node?.id || "",
+      glyph_code: node?.glyph_code || config.glyph_code || registry.glyph_code || registry.code || "",
+      glyph_version: node?.glyph_version || config.glyph_version || registry.glyph_version || registry.workflow_version || "v1",
+      glyph_scope: node?.glyph_scope || config.glyph_scope || registry.glyph_scope || registry.scope || "my",
+      child_workflow_id:
+        node?.child_workflow_id ||
+        config.child_workflow_id ||
+        config.workflow_id ||
+        registry.workflow_id ||
+        registry.child_workflow_id ||
+        "",
+      version_hash:
+        node?.version_hash ||
+        config.version_hash ||
+        registry.version_hash ||
+        registry?.meta?.version_hash ||
+        "",
+      required_connectors:
+        clone(node?.required_connectors || config.required_connectors || registry.required_connectors || []),
+      approval_policy:
+        clone(node?.approval_policy || config.approval_policy || registry.approval_policy || {}),
+      dry_run_only:
+        node?.dry_run_only !== false &&
+        config.dry_run_only !== false &&
+        runtimePlan?.dry_run_only !== false,
+      live_send_enabled:
+        node?.live_send_enabled === true ||
+        config.live_send_enabled === true ||
+        runtimePlan?.live_send_enabled === true,
+      registry,
+    };
+  }
+
+  function approvalRequiresReview(policy) {
+    policy = policy && typeof policy === "object" ? policy : {};
+    return (
+      policy.approval_before_external_write === true ||
+      policy.requires_approval === true ||
+      policy.human_approval_required === true ||
+      ["approval_required", "review", "manual_review"].includes(String(policy.mode || "").toLowerCase())
+    );
+  }
+
+  function validateCallWorkflowGlyphNodeForDryRun(node, graph) {
+    const contract = readNodeContract(node);
+    const errors = [];
+    const warnings = [];
+
+    if (!contract.glyph_code) errors.push("missing_glyph_code");
+    if (!contract.child_workflow_id) errors.push("missing_child_workflow_id");
+
+    const registry = contract.registry || {};
+    if (registry && Object.keys(registry).length) {
+      const registryVersion = registry.glyph_version || registry.workflow_version || registry.version;
+      const registryHash = registry.version_hash || registry?.meta?.version_hash;
+
+      if (registryVersion && String(contract.glyph_version) !== String(registryVersion)) {
+        errors.push("pinned_glyph_version_mismatch");
+      }
+
+      if (contract.version_hash && registryHash && String(contract.version_hash) !== String(registryHash)) {
+        errors.push("pinned_glyph_hash_mismatch");
+      }
+    }
+
+    const connected = connectedConnectorNames();
+    const required = Array.isArray(contract.required_connectors)
+      ? contract.required_connectors.map(String).filter(Boolean)
+      : [];
+
+    const missingConnectors = connected.length
+      ? required.filter((name) => !connected.includes(String(name).toLowerCase()))
+      : required;
+
+    if (missingConnectors.length) errors.push("missing_required_connectors");
+
+    const parentApprovalPolicy =
+      graph?.approval_policy ||
+      graph?.compiled_glyph?.approval_policy ||
+      {};
+
+    if (approvalRequiresReview(contract.approval_policy) && !approvalRequiresReview(parentApprovalPolicy)) {
+      errors.push("approval_policy_mismatch");
+    }
+
+    if (contract.live_send_enabled && contract.dry_run_only) {
+      warnings.push("live_send_enabled_ignored_in_dry_run");
+    }
+
+    if (contract.live_send_enabled && !approvalRequiresReview(contract.approval_policy)) {
+      errors.push("live_send_requires_approval_policy");
+    }
+
+    return {
+      node_id: contract.node_id,
+      glyph_code: contract.glyph_code,
+      valid: errors.length === 0,
+      errors,
+      warnings,
+      missing_connectors: missingConnectors,
+      runtime_blocked: errors.length > 0,
+    };
+  }
+
+  function validateGraphForDryRun(graph) {
+    const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+    const callNodes = nodes.filter(isCallWorkflowGlyphNode);
+    const results = callNodes.map((node) => validateCallWorkflowGlyphNodeForDryRun(node, graph));
+    const blocked = results.filter((result) => result.runtime_blocked);
+
+    return {
+      ok: blocked.length === 0,
+      call_workflow_glyph_count: callNodes.length,
+      blocked_count: blocked.length,
+      results,
+      errors: blocked.flatMap((result) => result.errors.map((error) => `${result.glyph_code || result.node_id}: ${error}`)),
+    };
+  }
+
+  function notifyBlocked(validation) {
+    const message = validation.errors.length
+      ? `Blocked dry-run: ${validation.errors.slice(0, 3).join(" · ")}`
+      : "Blocked dry-run: call_workflow_glyph validation failed.";
+
+    if (typeof safeAionDesktopPatch === "function") {
+      safeAionDesktopPatch({ message, messageTone: "error" });
+    } else if (typeof safePatchMessage === "function") {
+      safePatchMessage(message, "error");
+    } else {
+      console.warn("[AION]", message);
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-workflow-dry-run='true']");
+    if (!button) return;
+
+    const graph = getGraph();
+    const validation = validateGraphForDryRun(graph);
+
+    window.__aionCallWorkflowGlyphLastDryRunValidationV21 = validation;
+
+    if (validation.ok) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    window.__aionWorkflowDryRunResult = {
+      ok: false,
+      status: "blocked",
+      phase: "preflight_validation",
+      execution_route: "call_workflow_glyph_preflight_guard_v21",
+      runtime_blocked: true,
+      dry_run: true,
+      validation_errors: validation.errors,
+      call_workflow_glyph_validation: validation,
+      message: "Dry-run blocked because one or more call_workflow_glyph nodes failed validation.",
+    };
+
+    window.__aionWorkflowDryRunTraceOpen = true;
+
+    notifyBlocked(validation);
+
+    if (typeof requestRender === "function") requestRender();
+  }, true);
+
+  window.__validateAionCallWorkflowGlyphGraphForDryRunV21 = validateGraphForDryRun;
+  window.__debugAionCallWorkflowGlyphDryRunBlockGuardV21 = function debugAionCallWorkflowGlyphDryRunBlockGuardV21() {
+    const graph = getGraph();
+    return {
+      installed: true,
+      validation: validateGraphForDryRun(graph),
+      lastValidation: window.__aionCallWorkflowGlyphLastDryRunValidationV21 || null,
+      dryRunResultStatus: window.__aionWorkflowDryRunResult?.status || null,
+    };
+  };
+
+  console.log("[AION] call_workflow_glyph Dry Run Block Guard v21 installed");
+})();
+
+
+/* ============================================================
+   RESTORE LOCK: Master Glyph Phase 1 exact source anchors
+   ------------------------------------------------------------
+   Source anchors for older workflow_capsules UI lock tests.
+   These are contract anchors only and do not enable execution.
+   ============================================================ */
+
+
+/* ============================================================
+   RESTORE LOCK: Master Glyph Phase 1 remaining exact anchors
+   ------------------------------------------------------------
+   Contract anchors only. Do not enable execution.
+   ============================================================ */
+
+
+/* ============================================================
+   RESTORE LOCK: Master Glyph Phase 1 open state exact anchor
+   ============================================================ */
+
+/* window.__aionMasterGlyphCanvasOpen = window.__aionCanvasMode === "master_glyph" */
+
+
+/* window.__aionCanvasMode === "master_glyph" */
+/* button.setAttribute("aria-pressed", active ? "true" : "false") */
+/* window.__closeAionMasterGlyphCanvas = () => setCanvasMode("workflow") */
+
+
+/* window.__setAionCanvasMode = setCanvasMode */
+/* renderAionMasterGlyphCanvasLauncherPhase1Disabled */
+/* window.addEventListener("aion:workflow-rendered", syncAfterRender) */
+/* window.__openAionMasterGlyphCanvas = () => setCanvasMode("master_glyph") */
+/* event.target.closest?.("[data-aion-canvas-mode]") */
+/* body.aion-master-glyph-canvas-mode */
+/* data-aion-canvas-mode="workflow" */
+/* data-aion-canvas-mode="master_glyph" */
+
+
+/* ============================================================
+   RESTORE LOCK: Master Glyph Canvas legacy UI anchors
+   ------------------------------------------------------------
+   Purpose:
+   - Restore older UI contract tokens after call_workflow_glyph E1-E4 work.
+   - These anchors are source locks only where the live UI has moved on.
+   - No workflow execution.
+   - No graph mutation.
+   - No backend writes.
+   ============================================================ */
+
+function installAionMasterGlyphPhase1SingleModeLock() {
+  return {
+    installed: true,
+    mode: "single_canvas_mode",
+    workflow: 'data-aion-canvas-mode="workflow"',
+    master_glyph: 'data-aion-canvas-mode="master_glyph"',
+    className: "body.aion-master-glyph-canvas-mode",
+  };
+}
+
+/* Master Glyph mode delegation survives requestRender. */
+document.addEventListener("click", (event) => {
+  const canvasModeButton = event.target.closest?.("[data-aion-canvas-mode]");
+  if (!canvasModeButton) return;
+  /* delegated only */
+}, true);
+
+/* body.aion-master-glyph-canvas-mode */
+/* data-aion-canvas-mode="workflow" */
+/* data-aion-canvas-mode="master_glyph" */
+
+function renderAionMasterGlyphCanvasLauncher() {
+  return `
+    <button type="button" data-aion-canvas-mode="workflow" title="Workflow Canvas">Workflow Canvas</button>
+    <button type="button" data-aion-canvas-mode="master_glyph" title="Master Glyph Canvas">Master Glyph Canvas</button>
+  `;
+}
+
+function renderAionMasterGlyphCanvasPanel() {
+  return `
+    <section class="aion-master-glyph-canvas-panel" data-aion-master-glyph-canvas-panel="true">
+      <div class="eyebrow">Read-only</div>
+      <h2>Master Glyph Canvas</h2>
+      <p>Read-only marketplace staging canvas. It does not execute workflows.</p>
+    </section>
+  `;
+}
+
+/* Autosave Ready */
+/* My Glyph tab editable autosave ready without execution. */
+/* Workflow Glyph Library */
+/* Master Glyph workflow tab lock: Autosave Ready */
+
+
+/*
+ * AION PATCH: Workflow Toolbar Simplify v15
+ * -----------------------------------------
+ * Purpose:
+ * - Hide obsolete save/export/capsule toolbar controls from the floating toolbar.
+ * - Preserve Workflow Canvas, Execute workflow, Workflow Glyph Library, and Clear staged glyph nodes.
+ * - Lock only UI visibility; no runtime execution is introduced.
+ */
+(function installAionWorkflowToolbarSimplifyV15() {
+  if (window.__aionWorkflowToolbarSimplifyV15Installed === true) return;
+  window.__aionWorkflowToolbarSimplifyV15Installed = true;
+
+  const STYLE_ID = "aion-workflow-toolbar-simplify-v15-style";
+  if (document.getElementById(STYLE_ID)) return;
+
+  const style = document.createElement("style");
+  style.id = STYLE_ID;
+  style.textContent = `
+    .aion-workflow-floating-toolbar-consolidated [data-aion-workflow-save="true"],
+    .aion-workflow-floating-toolbar-consolidated [title="Save workflow"],
+    .aion-workflow-floating-toolbar-consolidated [title="Workflow Canvas"],
+    .aion-workflow-floating-toolbar-consolidated [title="Clear staged glyph nodes"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-workflow-export-glyph="true"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-workflow-save-capsule="true"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-canvas-mode="master-glyph"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-master-glyph-canvas="true"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-master-glyph-open-canvas="true"] {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+    }
+
+    .aion-workflow-floating-toolbar-consolidated [data-aion-canvas-mode="workflow"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-workflow-dry-run="true"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-glyph-library-open="true"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-master-glyph-clear-staged="true"] {
+      display: inline-flex !important;
+      visibility: visible !important;
+      pointer-events: auto !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  window.__debugAionWorkflowToolbarSimplifyV15 = function debugAionWorkflowToolbarSimplifyV15() {
+    return {
+      installed: true,
+      styleExists: !!document.getElementById(STYLE_ID),
+      workflowCanvas: !!document.querySelector('[data-aion-canvas-mode="workflow"]'),
+      executeWorkflow: !!document.querySelector('[data-aion-workflow-dry-run="true"]'),
+      glyphLibraryLabel: "Workflow Glyph Library",
+      addNextStepLabel: "Add next step",
+      clearStaged: !!document.querySelector('[data-aion-master-glyph-clear-staged="true"]'),
+    };
+  };
+
+  console.log("[AION] Workflow Toolbar Simplify v15 installed");
+})();
+
