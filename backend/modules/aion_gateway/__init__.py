@@ -62,3 +62,14 @@ from backend.modules.aion_gateway.settlement_readiness import (
     build_settlement_readiness,
     stable_fiat_payment_reference_hash,
 )
+
+from backend.modules.aion_gateway.glyphchain_proof_commit import (
+    PROOF_PROTOCOL_VERSION,
+    AION_JOB_PROOF_V1,
+    AION_EVIDENCE_PROOF_V1,
+    AION_SETTLEMENT_READINESS_PROOF_V1,
+    build_aion_proof_envelope,
+    preview_glyphchain_proof_commit,
+    preview_job_proof_commit,
+    verify_aion_proof_commitment,
+)

@@ -1,0 +1,176 @@
+\section{AION Gateway GlyphChain Proof Commit Adapter v0.1 Lock}
+\label{sec:aion-gateway-glyphchain-proof-commit-lock}
+
+\subsection{Status}
+
+The AION Gateway now exposes a dry-run GlyphChain proof commit adapter for AION job, evidence, and settlement-readiness proof envelopes.
+
+\begin{quote}
+\textbf{Status: LOCKED --- dry-run proof commitment envelopes are deterministic and verifiable without submitting live ChainSim transactions.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock connects the AION Gateway proof layer to the existing GlyphChain/ChainSim canonical hashing infrastructure without mutating chain state.
+
+The adapter is intentionally not a live chain submitter yet. It creates deterministic proof envelopes and deterministic proof commitment hashes that can later be submitted through a dedicated GlyphChain transaction type or proof endpoint.
+
+\subsection{Implemented Files}
+
+\begin{itemize}
+  \item \texttt{backend/modules/aion\_gateway/glyphchain\_proof\_commit.py}
+  \item \texttt{backend/tests/workflow\_capsules/test\_aion\_gateway\_glyphchain\_proof\_commit\_lock.py}
+\end{itemize}
+
+\subsection{Proof Protocol}
+
+The canonical adapter protocol version is:
+
+\begin{verbatim}
+aion.glyphchain_proof_commit.v0.1
+\end{verbatim}
+
+The locked proof envelope types are:
+
+\begin{itemize}
+  \item \texttt{AION\_JOB\_PROOF\_V1}
+  \item \texttt{AION\_EVIDENCE\_PROOF\_V1}
+  \item \texttt{AION\_SETTLEMENT\_READINESS\_PROOF\_V1}
+\end{itemize}
+
+\subsection{Canonical ChainSim Boundary}
+
+The adapter uses the existing ChainSim canonical codec:
+
+\begin{verbatim}
+backend.modules.chain_sim.canonical_codec.canonical_hash_hex
+\end{verbatim}
+
+This is important because ChainSim already rejects nondeterministic payloads such as floats. The proof envelope therefore uses integer millisecond timestamps via:
+
+\begin{verbatim}
+created_at_ms
+\end{verbatim}
+
+The adapter MUST NOT use floating-point timestamps inside canonical proof material.
+
+\subsection{Proof Envelope}
+
+A proof envelope includes:
+
+\begin{itemize}
+  \item \texttt{proof\_protocol\_version}
+  \item \texttt{proof\_type}
+  \item \texttt{business\_id}
+  \item \texttt{job\_id}
+  \item \texttt{proof\_payload}
+  \item \texttt{proof\_payload\_hash}
+  \item \texttt{created\_at\_ms}
+  \item \texttt{dry\_run\_only = true}
+  \item \texttt{would\_submit\_chain\_tx = false}
+  \item \texttt{would\_move\_money = false}
+  \item \texttt{would\_require\_pho = false}
+  \item \texttt{would\_require\_token = false}
+  \item \texttt{would\_require\_wallet = false}
+  \item \texttt{would\_create\_payment = false}
+  \item \texttt{would\_create\_escrow = false}
+\end{itemize}
+
+\subsection{Commitment Hash}
+
+The adapter builds a deterministic proof commitment hash from:
+
+\begin{itemize}
+  \item the proof commit protocol version,
+  \item the target chain name,
+  \item dry-run preview mode,
+  \item the complete canonical proof envelope.
+\end{itemize}
+
+The resulting field is:
+
+\begin{verbatim}
+proof_commitment_hash
+\end{verbatim}
+
+Changing the proof payload MUST change the proof payload hash and MUST invalidate the original proof commitment hash.
+
+\subsection{Verification}
+
+The verifier recomputes:
+
+\begin{itemize}
+  \item \texttt{proof\_payload\_hash}
+  \item \texttt{proof\_commitment\_hash}
+\end{itemize}
+
+Verification passes only when:
+
+\begin{itemize}
+  \item the proof type is supported,
+  \item the proof payload hash matches,
+  \item the proof commitment hash matches,
+  \item \texttt{dry\_run\_only = true},
+  \item \texttt{would\_submit\_chain\_tx = false},
+  \item \texttt{would\_move\_money = false}.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+This lock MUST NOT:
+
+\begin{itemize}
+  \item submit a live ChainSim transaction,
+  \item create a new ChainSim transaction type,
+  \item mutate chain state,
+  \item move PHO or any other token,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item grant permissions,
+  \item expose a public route.
+\end{itemize}
+
+\subsection{Reason Live Chain Submit Is Deferred}
+
+Current ChainSim live transaction types are bank and staking oriented. The existing live transaction set includes bank mint/send/burn and staking delegate/undelegate operations.
+
+AION proof commits must not be forced into bank or staking transactions.
+
+The correct next chain-side step is either:
+
+\begin{itemize}
+  \item a dedicated dry-run proof commit adapter, now locked here, followed later by
+  \item a dedicated proof commit route or dedicated proof transaction type.
+\end{itemize}
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_lock.py
+\end{verbatim}
+
+Expected result:
+
+\begin{verbatim}
+9 passed
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-GLYPHCHAIN-PROOF-COMMIT-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
