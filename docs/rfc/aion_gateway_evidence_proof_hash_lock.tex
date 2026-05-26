@@ -1,0 +1,148 @@
+\section{AION Gateway Evidence and Job Proof Hash Lock}
+\label{sec:aion-gateway-evidence-proof-hash-lock}
+
+\subsection{Status}
+
+The AION Gateway evidence layer is locked as a dry-run proof contract for fulfilment jobs.
+
+\begin{quote}
+\textbf{Status: LOCKED --- evidence items are hashable, canonical, and suitable for future replay, audit, and GlyphChain proof anchoring.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock defines the first evidence and proof-hash layer for the AION Agent Gateway and A2A Orchestrator roadmap.
+
+The layer does not commit to GlyphChain yet. It does not create payments. It does not grant permissions. It only produces deterministic evidence hashes and a canonical \texttt{job\_proof\_hash} from job state, evidence state, and timeline state.
+
+\subsection{Files}
+
+\begin{verbatim}
+backend/modules/aion_gateway/evidence.py
+backend/tests/workflow_capsules/test_aion_gateway_evidence_proof_hash_lock.py
+docs/rfc/aion_gateway_evidence_proof_hash_lock.tex
+\end{verbatim}
+
+\subsection{Evidence Item Contract}
+
+Each evidence item contains:
+
+\begin{itemize}
+  \item \texttt{evidence\_id}
+  \item \texttt{evidence\_type}
+  \item \texttt{source}
+  \item \texttt{captured\_at}
+  \item \texttt{provenance}
+  \item \texttt{payload\_ref}
+  \item \texttt{confidence}
+  \item \texttt{freshness}
+  \item \texttt{metadata}
+  \item \texttt{evidence\_hash}
+\end{itemize}
+
+The evidence schema version is:
+
+\begin{verbatim}
+aion.gateway.evidence.v0.1
+\end{verbatim}
+
+\subsection{Supported Evidence Classes}
+
+The v0 contract is generic and may represent:
+
+\begin{itemize}
+  \item photos,
+  \item files,
+  \item messages,
+  \item signatures,
+  \item GPS references,
+  \item timestamps,
+  \item before/after proof,
+  \item future CRM, booking, UTM, payment, or revenue references.
+\end{itemize}
+
+\subsection{Hashing Rules}
+
+Evidence hashing MUST use deterministic canonical JSON:
+
+\begin{verbatim}
+json.dumps(..., sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+Evidence hashes MUST be stable across dictionary ordering.
+
+Changing evidence payload, provenance, confidence, freshness, source, timestamp, or metadata MUST change the evidence hash.
+
+\subsection{Job Proof Hash}
+
+The job proof hash combines:
+
+\begin{itemize}
+  \item canonical job state,
+  \item sorted evidence hashes,
+  \item timeline events,
+  \item optional settlement-readiness state.
+\end{itemize}
+
+The job proof schema version is:
+
+\begin{verbatim}
+aion.gateway.job_proof.v0.1
+\end{verbatim}
+
+The output field is:
+
+\begin{verbatim}
+job_proof_hash
+\end{verbatim}
+
+Changing evidence or timeline state MUST change the final \texttt{job\_proof\_hash}.
+
+\subsection{Safety Boundary}
+
+This lock MUST NOT:
+
+\begin{itemize}
+  \item commit to GlyphChain,
+  \item create payments,
+  \item create escrow records,
+  \item grant permissions,
+  \item execute workflows,
+  \item mutate business containers,
+  \item write externally,
+  \item expose public routes.
+\end{itemize}
+
+The output remains dry-run proof material only.
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_evidence_proof_hash_lock.py
+\end{verbatim}
+
+Focused suite validation after adding to the lock suite:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Next Boundary}
+
+The next roadmap boundary is Machine Boardroom / A2A Trace API alignment.
+
+That layer may expose compact machine-readable job trace state, but it MUST keep the Human Boardroom and Machine A2A trace aligned.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-EVIDENCE-PROOF-HASH-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

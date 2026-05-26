@@ -40,3 +40,10 @@ from backend.modules.aion_gateway.a2a_contracts import (
     build_empty_a2a_contract_bundle,
     stable_contract_hash,
 )
+
+from backend.modules.aion_gateway.evidence import (
+    EvidenceItem,
+    build_evidence_item,
+    build_job_proof_hash,
+    hash_evidence_item,
+)
