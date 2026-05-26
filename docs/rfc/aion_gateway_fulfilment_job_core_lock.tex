@@ -1,0 +1,142 @@
+\section{AION Gateway FulfilmentJob Core Lock}
+\label{sec:aion-gateway-fulfilment-job-core-lock}
+
+\subsection{Status}
+
+The AION Gateway now defines a real \texttt{FulfilmentJob} core object as the operational job model that will sit downstream of Gateway intake and upstream of A2A trace, evidence, settlement-readiness, and GlyphChain proof commits.
+
+\begin{quote}
+\textbf{Status: LOCKED --- FulfilmentJob core schema exists, but Gateway v0 still does not create real FulfilmentJob records.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Gateway v0 preview layer produces \texttt{FulfilmentJobPreview}. This lock introduces the real \texttt{FulfilmentJob} object separately.
+
+The separation is intentional:
+
+\begin{itemize}
+  \item \texttt{FulfilmentJobPreview} is preview-only and dry-run-only.
+  \item \texttt{FulfilmentJob} is the canonical operational job object.
+  \item Gateway v0 MUST NOT create real \texttt{FulfilmentJob} records.
+\end{itemize}
+
+\subsection{Implementation Files}
+
+\begin{itemize}
+  \item \texttt{backend/modules/aion\_gateway/fulfilment\_job\_core.py}
+  \item \texttt{backend/modules/aion\_gateway/\_\_init\_\_.py}
+  \item \texttt{backend/tests/workflow\_capsules/test\_aion\_gateway\_fulfilment\_job\_core\_lock.py}
+  \item \texttt{docs/rfc/aion\_gateway\_fulfilment\_job\_core\_lock.tex}
+\end{itemize}
+
+\subsection{Canonical Schema}
+
+The locked schema version is:
+
+\begin{verbatim}
+aion.fulfilment_job.v0.1
+\end{verbatim}
+
+A \texttt{FulfilmentJob} contains:
+
+\begin{itemize}
+  \item \texttt{job\_id}
+  \item \texttt{business\_id}
+  \item \texttt{service\_type}
+  \item \texttt{location}
+  \item \texttt{requested\_outcome}
+  \item \texttt{lifecycle\_state}
+  \item \texttt{workflow\_run\_id}
+  \item \texttt{goal\_id}
+  \item \texttt{job\_timeline}
+  \item \texttt{current\_stage}
+  \item \texttt{next\_expected\_event}
+  \item \texttt{blocked\_reason}
+\end{itemize}
+
+\subsection{Lifecycle States}
+
+The locked lifecycle states are:
+
+\begin{verbatim}
+requested
+quoted
+accepted
+scheduled
+in_progress
+completed
+disputed
+failed
+\end{verbatim}
+
+The terminal states are:
+
+\begin{verbatim}
+completed
+disputed
+failed
+\end{verbatim}
+
+\subsection{Timeline Contract}
+
+The job timeline is append-only style.
+
+Appending a timeline event MUST return a new job dictionary with the new event appended. Existing timeline entries MUST remain preserved.
+
+Timeline events include:
+
+\begin{itemize}
+  \item \texttt{event\_id}
+  \item \texttt{event\_type}
+  \item \texttt{stage}
+  \item \texttt{message}
+  \item \texttt{actor}
+  \item \texttt{created\_at}
+  \item \texttt{metadata}
+\end{itemize}
+
+\subsection{Gateway v0 Boundary}
+
+Gateway v0 still MUST NOT create real \texttt{FulfilmentJob} records.
+
+The Gateway preview output must continue to expose:
+
+\begin{verbatim}
+would_create_fulfilment_job = false
+\end{verbatim}
+
+This prevents inbound website or agent requests from directly creating operational records before the guarded approval path exists.
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_lock.py
+\end{verbatim}
+
+Gateway regression validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent.py \
+  backend/tests/workflow_capsules/test_aion_gateway_fulfilment_job_core_preview.py
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-FULFILMENT-JOB-CORE-v1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
