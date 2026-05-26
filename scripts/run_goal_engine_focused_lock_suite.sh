@@ -118,4 +118,6 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_goal_engine_visible_preview_bundle_ui_lock.py \
   backend/tests/workflow_capsules/test_goal_engine_remaining_tasks_handover_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_focused_suite_membership_lock.py \
+  backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent.py \
+  backend/tests/workflow_capsules/test_aion_gateway_normalized_inbound_intent_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py
