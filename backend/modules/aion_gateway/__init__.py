@@ -1,11 +1,27 @@
-"""
-AION Agent Gateway v0.
+from backend.modules.aion_gateway.contracts import (
+    GatewayPreviewResult,
+    NormalizedInboundIntent,
+    FulfilmentJobPreview,
+)
+from backend.modules.aion_gateway.inbound_gateway import (
+    preview_inbound_gateway_intent,
+    stable_intent_hash,
+)
+from backend.modules.aion_gateway.fulfilment_job import (
+    FULFILMENT_JOB_SCHEMA_VERSION,
+    FULFILMENT_JOB_STATES,
+    build_fulfilment_job_core_preview,
+    stable_job_preview_hash,
+)
 
-Backend-only, dry-run-only intake layer for normalizing inbound human/agent
-requests into canonical preview contracts.
-
-This module must not expose public routes, execute workflows, mutate business
-state, call providers, or create real FulfilmentJob records in v0.
-"""
-
-GATEWAY_PROTOCOL_VERSION = "aion.gateway.v0.1"
+__all__ = [
+    "GatewayPreviewResult",
+    "NormalizedInboundIntent",
+    "FulfilmentJobPreview",
+    "stable_intent_hash",
+    "preview_inbound_gateway_intent",
+    "FULFILMENT_JOB_SCHEMA_VERSION",
+    "FULFILMENT_JOB_STATES",
+    "build_fulfilment_job_core_preview",
+    "stable_job_preview_hash",
+]
