@@ -25,3 +25,18 @@ __all__ = [
     "build_fulfilment_job_core_preview",
     "stable_job_preview_hash",
 ]
+
+from backend.modules.aion_gateway.a2a_contracts import (
+    A2A_CONTRACT_SCHEMA_VERSION,
+    CapabilityContract,
+    AvailabilityContract,
+    QuoteContract,
+    ExecutionContract,
+    TraceContract,
+    EvidenceContract,
+    ExceptionContract,
+    SettlementReadinessContract,
+    ProofCommitmentContract,
+    build_empty_a2a_contract_bundle,
+    stable_contract_hash,
+)

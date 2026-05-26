@@ -1,0 +1,114 @@
+\section{AION Gateway A2A Contract Schemas v0.1 Lock}
+\label{sec:aion-gateway-a2a-contract-schemas-v01-lock}
+
+\subsection{Status}
+
+The AION Gateway now defines the first backend-only A2A contract schema layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- schema-first A2A contracts are defined without public routes, live execution, payment movement, GlyphChain commits, or permission grants.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock defines the machine-readable business execution contracts that sit above the Gateway intake layer and below the future public A2A API.
+
+The contracts describe what a business can do, when it can do it, what it quoted, how execution should be staged, what evidence is required, what exceptions exist, whether settlement is ready, and whether proof has been committed.
+
+\subsection{Implementation File}
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_contracts.py
+\end{verbatim}
+
+\subsection{Schema Version}
+
+The locked schema version is:
+
+\begin{verbatim}
+aion.a2a.contracts.v0.1
+\end{verbatim}
+
+\subsection{Contracts}
+
+The locked contracts are:
+
+\begin{itemize}
+  \item \texttt{CapabilityContract}
+  \item \texttt{AvailabilityContract}
+  \item \texttt{QuoteContract}
+  \item \texttt{ExecutionContract}
+  \item \texttt{TraceContract}
+  \item \texttt{EvidenceContract}
+  \item \texttt{ExceptionContract}
+  \item \texttt{SettlementReadinessContract}
+  \item \texttt{ProofCommitmentContract}
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+This lock MUST NOT expose public routes.
+
+This lock MUST NOT execute workflows.
+
+This lock MUST NOT create payments.
+
+This lock MUST NOT commit to GlyphChain.
+
+This lock MUST NOT grant permissions.
+
+This lock MUST NOT mutate business containers.
+
+The A2A contracts are schema and preview contracts only.
+
+\subsection{Deterministic Contract Hashing}
+
+Each contract exposes a deterministic hash using:
+
+\begin{verbatim}
+json.dumps(..., sort_keys=True, separators=(',', ':'))
+hashlib.sha256()
+\end{verbatim}
+
+The contract hash is for replay, trace, evidence, audit, and future GlyphChain anchoring.
+
+The contract hash MUST NOT grant permission and MUST NOT trigger execution.
+
+\subsection{Fiat-First Settlement}
+
+\texttt{SettlementReadinessContract} is fiat-first.
+
+It may track payment readiness, deposit state, dispute state, refund recommendation, and a fiat payment reference hash.
+
+It MUST NOT require PHO, token, wallet, or blockchain settlement.
+
+\subsection{Proof Is Not Payment}
+
+\texttt{ProofCommitmentContract} records proof readiness and future GlyphChain commitment state.
+
+GlyphChain is used as a proof/documentation rail, not a payment rail.
+
+\subsection{Validation}
+
+Standalone validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_gateway_a2a_contract_schemas_lock.py
+\end{verbatim}
+
+Compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GATEWAY-A2A-CONTRACT-SCHEMAS-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
