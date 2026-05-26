@@ -47,3 +47,9 @@ from backend.modules.aion_gateway.evidence import (
     build_job_proof_hash,
     hash_evidence_item,
 )
+
+from backend.modules.aion_gateway.machine_trace import (
+    A2A_TRACE_SCHEMA_VERSION,
+    MachineA2ATrace,
+    build_machine_a2a_trace,
+)
