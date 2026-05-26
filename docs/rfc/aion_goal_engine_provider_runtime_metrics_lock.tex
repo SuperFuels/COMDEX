@@ -1,0 +1,154 @@
+\section{AION Goal Engine Provider Runtime Metrics Lock}
+\label{sec:aion-goal-engine-provider-runtime-metrics-lock}
+
+\subsection{Status}
+
+The AION Goal Engine provider audit trail now exposes provider runtime metrics in a stable Boardroom-compatible contract.
+
+\begin{quote}
+\textbf{Status: LOCKED --- provider runtime metrics included in the focused Goal Engine lock suite.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+./scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+293 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock makes provider execution observable without granting extra autonomy.
+
+Each provider route result MUST emit a \texttt{provider\_audit} payload containing runtime cost, token, fallback, degradation, and safety fields.
+
+The audit payload is visibility-only. It MUST NOT authorize external writes, business state mutation, provider escalation, connector access, or permission grants.
+
+\subsection{Canonical Provider Audit Fields}
+
+The \texttt{provider\_audit} payload MUST include:
+
+\begin{itemize}
+  \item \texttt{trace\_type = provider\_audit}
+  \item \texttt{provider}
+  \item \texttt{model}
+  \item \texttt{capability}
+  \item \texttt{fallback\_used}
+  \item \texttt{latency\_ms}
+  \item \texttt{runtime\_duration\_ms}
+  \item \texttt{token\_count}
+  \item \texttt{prompt\_tokens}
+  \item \texttt{completion\_tokens}
+  \item \texttt{total\_tokens}
+  \item \texttt{cost\_estimate}
+  \item \texttt{degradation\_mode}
+  \item \texttt{degradation\_event}
+  \item \texttt{external\_writes}
+  \item \texttt{business\_state\_mutation}
+  \item \texttt{legacy\_business\_state\_mutation}
+  \item \texttt{local\_only}
+  \item \texttt{would\_grant\_permission}
+  \item \texttt{failed\_closed}
+  \item \texttt{error\_code}
+  \item \texttt{capability\_manifest\_checked}
+  \item \texttt{safe\_local\_adapter}
+\end{itemize}
+
+\subsection{Safety Invariants}
+
+The local provider MUST remain safe by default:
+
+\begin{itemize}
+  \item \texttt{external\_writes = blocked}
+  \item \texttt{business\_state\_mutation = human\_review\_guarded}
+  \item \texttt{legacy\_business\_state\_mutation = blocked}
+  \item \texttt{local\_only = true}
+  \item \texttt{would\_grant\_permission = false}
+\end{itemize}
+
+The legacy mirror field is retained only as a compatibility shim for older audit expectations. New code SHOULD read \texttt{business\_state\_mutation}.
+
+\subsection{Runtime Metrics}
+
+Token and cost fields MUST be numeric and safe by default.
+
+If a provider does not return usage, AION MUST emit numeric defaults rather than omitting the fields:
+
+\begin{itemize}
+  \item missing token counts default to \texttt{0}
+  \item missing cost estimates default to \texttt{0.0}
+  \item missing runtime duration defaults to provider latency
+\end{itemize}
+
+\subsection{Fallback and Degradation}
+
+Provider fallback and degradation MUST be visible in the audit payload.
+
+If fallback is used, \texttt{degradation\_event} SHOULD indicate provider fallback.
+
+If provider routing fails closed, \texttt{failed\_closed} MUST be true and \texttt{error\_code} MUST describe the blocked route.
+
+\subsection{Boardroom Contract}
+
+Boardroom views MAY render provider metrics, fallback events, and degradation states.
+
+Boardroom views MUST treat the payload as read-only telemetry. They MUST NOT use provider audit fields to perform writes, mutate goals, escalate permissions, or mark work complete.
+
+\subsection{Validation Coverage}
+
+This lock is covered by:
+
+\begin{itemize}
+  \item \texttt{backend/tests/workflow\_capsules/test\_goal\_engine\_provider\_runtime\_metrics\_lock.py}
+  \item \texttt{backend/tests/workflow\_capsules/test\_goal\_engine\_provider\_audit\_trail.py}
+  \item \texttt{scripts/run\_goal\_engine\_focused\_lock\_suite.sh}
+\end{itemize}
+
+
+\subsection{Regression Test Anchors}
+
+The following literal anchors are intentionally included for lock tests and
+MUST remain stable:
+
+\begin{verbatim}
+provider_audit
+token_count
+prompt_tokens
+completion_tokens
+total_tokens
+cost_estimate
+runtime_duration_ms
+degradation_mode
+degradation_event
+external_writes
+business_state_mutation
+legacy_business_state_mutation
+would_grant_permission
+
+external_writes = blocked
+business_state_mutation = human_review_guarded
+legacy_business_state_mutation = blocked
+would_grant_permission = false
+
+numeric defaults
+0
+0.0
+
+read-only telemetry
+MUST NOT use provider audit fields to perform writes
+\end{verbatim}
+
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-PROVIDER-RUNTIME-METRICS-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

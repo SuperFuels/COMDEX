@@ -13,6 +13,8 @@ This is the first runnable layer after:
 
 from __future__ import annotations
 
+from backend.modules.workflow_capsules.execution.goal_engine_dry_run_bridge import attach_goal_engine_manifest_to_dry_result
+
 from dataclasses import dataclass, asdict, field
 from typing import Any, Dict, List, Optional
 import time
@@ -274,7 +276,7 @@ class WorkflowCapsuleDryRunExecutor:
             }
         )
 
-        return WorkflowDryRunResult(
+        result = WorkflowDryRunResult(
             ok=not errors and policy_decision.ok,
             run_id=run_id,
             canonical_key=capsule.canonical_key,
@@ -287,6 +289,17 @@ class WorkflowCapsuleDryRunExecutor:
             warnings=warnings,
             trace=trace,
         )
+
+        # GOAL ENGINE DRY-RUN BRIDGE V2
+        # Attach Goal Engine manifest, step trace, and Boardroom trace to the
+        # final WorkflowDryRunResult, not to per-step permission dictionaries.
+        result = attach_goal_engine_manifest_to_dry_result(
+            result,
+            capsule,
+            run_id=run_id,
+        )
+
+        return result
 
     def _evaluate_step_permission(
         self,

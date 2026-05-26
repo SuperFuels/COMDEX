@@ -1,0 +1,59 @@
+\section{AION Goal Engine Versioning and Reproducibility Lock}
+\label{sec:aion-goal-engine-versioning-reproducibility-lock}
+
+\subsection{Status}
+
+The AION Goal Engine now emits a canonical reproducibility block for dry-run preview output.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Goal Engine versioning and reproducibility v1.}
+\end{quote}
+
+\subsection{Purpose}
+
+The reproducibility lock makes Goal Engine dry-run output stable, replayable, and auditable.
+
+The canonical trace block is:
+
+\begin{verbatim}
+goal_engine_reproducibility
+\end{verbatim}
+
+It MUST include:
+
+\begin{verbatim}
+trace_type = goal_engine_reproducibility
+goal_version
+experiment_version
+loop_version
+outcome_schema_version
+memory_schema_version
+checkpoint_schema_version
+source_capsule_checksum
+goal_contract_checksum
+versions_pinned = true
+preserve_old_versions = true
+rollback_supported = false
+dry_run_only = true
+\end{verbatim}
+
+\subsection{Safety Invariants}
+
+The reproducibility block MUST NOT mutate business containers or external systems.
+
+The reproducibility block MUST remain dry-run visibility metadata only.
+
+Version pins MUST be explicit.
+
+Old versions MUST be preserved.
+
+Rollback support MUST remain disabled until a guarded rollback runtime exists.
+
+\subsection{Lock Footer}
+
+\begin{quote}
+Lock ID: AION-GOAL-ENGINE-VERSIONING-REPRODUCIBILITY-V1\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson
+\end{quote}

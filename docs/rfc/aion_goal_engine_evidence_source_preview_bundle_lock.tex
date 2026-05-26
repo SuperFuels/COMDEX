@@ -1,0 +1,159 @@
+\section{Goal Engine Evidence Source Preview Bundle Lock}
+\label{sec:aion-goal-engine-evidence-source-preview-bundle-lock}
+
+\subsection{Status}
+
+The AION Goal Engine now exposes typed evidence source previews through the canonical preview bundle and Boardroom visibility surface.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine suite passing with 283 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+./scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+283 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock makes real evidence sources visible before any outcome, memory, or parent goal mutation can occur.
+
+The evidence source layer is preview-only. It allows AION to show whether a goal has supporting evidence from external systems, without reading, writing, mutating, sending, granting permission, or marking success automatically.
+
+Supported evidence pointer types include:
+
+\begin{itemize}
+  \item \texttt{gmail\_reply}
+  \item \texttt{crm\_lead}
+  \item \texttt{utm\_click}
+  \item \texttt{booking}
+  \item \texttt{payment}
+  \item \texttt{file}
+  \item \texttt{screenshot}
+\end{itemize}
+
+\subsection{Canonical Runtime Summary}
+
+The canonical evidence source summary is:
+
+\begin{verbatim}
+evidence_source_runtime_summary
+\end{verbatim}
+
+It uses:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.evidence_source_runtime_summary.v1
+trace_type     = evidence_source_runtime_summary
+\end{verbatim}
+
+The summary exposes:
+
+\begin{itemize}
+  \item \texttt{evidence\_source\_count}
+  \item \texttt{valid\_evidence\_source\_count}
+  \item \texttt{blocked\_evidence\_source\_count}
+  \item \texttt{blocked\_reasons}
+  \item \texttt{evidence\_source\_previews}
+  \item \texttt{evidence\_pointer\_previews}
+  \item \texttt{dry\_run\_only}
+  \item \texttt{would\_read\_external}
+  \item \texttt{would\_write\_external}
+  \item \texttt{would\_grant\_permission}
+\end{itemize}
+
+\subsection{Preview Bundle Attachment}
+
+The canonical owner is \texttt{GoalEnginePreviewBundle}.
+
+The bundle exposes evidence source fields at top level:
+
+\begin{verbatim}
+bundle["evidence_source_runtime_summary"]
+bundle["evidence_source_previews"]
+bundle["evidence_pointer_previews"]
+\end{verbatim}
+
+It also mirrors them into \texttt{machine\_trace}:
+
+\begin{verbatim}
+machine_trace["evidence_source_runtime_summary"]
+machine_trace["goal_engine_evidence_source_runtime_summary"]
+machine_trace["evidence_source_previews"]
+machine_trace["evidence_pointer_previews"]
+machine_trace["goal_engine_evidence_source_previews"]
+machine_trace["goal_engine_evidence_pointer_previews"]
+\end{verbatim}
+
+Legacy mirror fields are compatibility shims only. They MUST NOT become a second source of truth.
+
+\subsection{Boardroom Visibility}
+
+The Boardroom UI now mounts an \texttt{Evidence Sources} panel that reads from live preview bundle payloads.
+
+The panel resolves evidence rows from:
+
+\begin{itemize}
+  \item \texttt{snapshot.evidence\_source\_runtime\_summary}
+  \item \texttt{snapshot.goal\_engine\_evidence\_source\_runtime\_summary}
+  \item \texttt{machineTrace.evidence\_source\_runtime\_summary}
+  \item \texttt{machineTrace.goal\_engine\_evidence\_source\_runtime\_summary}
+  \item \texttt{snapshot.evidence\_source\_previews}
+  \item \texttt{snapshot.evidence\_pointer\_previews}
+  \item \texttt{snapshot.goal\_engine\_evidence\_source\_previews}
+  \item \texttt{snapshot.goal\_engine\_evidence\_pointer\_previews}
+  \item \texttt{machineTrace.evidence\_source\_previews}
+  \item \texttt{machineTrace.evidence\_pointer\_previews}
+\end{itemize}
+
+The panel is visibility-only. It MUST NOT read external systems live, write external systems, grant connector permissions, create approvals, or mark goal outcomes complete.
+
+\subsection{Safety Invariants}
+
+Evidence source previews MUST preserve these flags:
+
+\begin{verbatim}
+dry_run_only = true
+would_read_external = false
+would_write_external = false
+would_grant_permission = false
+\end{verbatim}
+
+AION MAY display evidence pointer metadata.
+
+AION MUST NOT infer goal success from a pointer alone unless the outcome scoring layer validates the evidence source summary.
+
+AION MUST NOT perform live Gmail, CRM, analytics, booking, payment, file, or screenshot access from this preview layer.
+
+\subsection{Regression Tests}
+
+This lock is protected by:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_goal_engine_evidence_source_preview_bundle_attachment.py
+backend/tests/workflow_capsules/test_goal_engine_boardroom_evidence_source_visibility.py
+backend/tests/workflow_capsules/test_goal_engine_evidence_pointers.py
+backend/tests/workflow_capsules/test_goal_engine_evidence_pointers_lock_doc.py
+\end{verbatim}
+
+The canonical focused gate is:
+
+\begin{verbatim}
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-EVIDENCE-SOURCE-PREVIEW-BUNDLE-LOCK-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

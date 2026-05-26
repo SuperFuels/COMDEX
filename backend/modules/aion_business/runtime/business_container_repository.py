@@ -21,6 +21,12 @@ _CONTAINER_FILE_MAP: dict[BusinessContainerKind, str] = {
     "brand_foundation": "brand_foundation.json",
     "boardroom_snapshot": "boardroom_snapshot.json",
     "operational_runtime_summary": "operational_runtime_summary.json",
+    "goal_engine_outcomes": "goal_engine_outcomes.json",
+    "goal_engine_loops": "goal_engine_loops.json",
+    "goal_engine_experiments": "goal_engine_experiments.json",
+    "goal_engine_evidence": "goal_engine_evidence.json",
+    "goal_engine_memory": "goal_engine_memory.json",
+    "goal_engine_state": "goal_engine_state.json",
 }
 
 

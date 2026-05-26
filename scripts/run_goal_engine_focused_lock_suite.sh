@@ -1,0 +1,118 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo "=== syntax sweep: Goal Engine provider/container/boardroom files ==="
+python -m py_compile \
+  backend/modules/aion_business/providers/router.py \
+  backend/modules/aion_business/providers/local_adapter.py \
+  backend/modules/aion_business/providers/capability_manifest.py \
+  backend/modules/aion_business/runtime/business_container_service.py \
+  backend/modules/aion_business/runtime/business_container_repository.py \
+  backend/modules/aion_business/contracts/business_containers.py \
+  backend/modules/workflow_capsules/execution/workflow_capsule_dry_run.py \
+  backend/modules/workflow_capsules/execution/goal_engine_dry_run_bridge.py
+
+echo
+echo "=== focused Goal Engine lock suite ==="
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_goal_engine_sprint1_gate_lock.py \
+  backend/tests/workflow_capsules/test_aion_goal_engine_sprint1_completion_lock.py \
+  backend/tests/workflow_capsules/test_aion_goal_engine_sprint2_outcome_evidence_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_evidence_pointers.py \
+  backend/tests/workflow_capsules/test_goal_engine_evidence_pointers_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_evidence_source_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_evidence_source_preview_bundle_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_evidence_pointer_viewer_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_evidence_source_visibility.py \
+  backend/tests/workflow_capsules/test_goal_engine_outcome_metrics_layer.py \
+  backend/tests/workflow_capsules/test_goal_engine_outcome_metrics_layer_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_variant_comparison_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_goal_engine_sprint3_checkpoint_resume_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_checkpoint_maintenance.py \
+  backend/tests/workflow_capsules/test_goal_engine_checkpoint_maintenance_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_goal_engine_sprint4_experiment_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_goal_engine_sprint5_orchestrator_runtime_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_orchestrator_parent_child_aggregation.py \
+  backend/tests/workflow_capsules/test_goal_engine_orchestrator_parent_child_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_decomposition_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_memory_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_preview_bundle_cleanup_no_duplicate_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_preview_bundle_attachment_consolidation_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_orchestrator_parent_child_aggregation_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_contracts.py \
+  backend/tests/workflow_capsules/test_goal_engine_registry.py \
+  backend/tests/workflow_capsules/test_goal_engine_preview_builder_registry.py \
+  backend/tests/workflow_capsules/test_goal_engine_preview_bundle_canonical_contract.py \
+  backend/tests/workflow_capsules/test_goal_engine_versioning_reproducibility.py \
+  backend/tests/workflow_capsules/test_goal_engine_versioning_reproducibility_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_workflow_dry_run_bridge.py \
+  backend/tests/workflow_capsules/test_goal_engine_dry_run_bridge_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_dry_run_bridge_attachment_location.py \
+  backend/tests/workflow_capsules/test_goal_engine_step_trace_rows.py \
+  backend/tests/workflow_capsules/test_goal_engine_step_trace_single_attachment_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_audit_trail.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_runtime_metrics_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_runtime_metrics_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_runtime_metrics_boardroom_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_degradation_feed_boardroom_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_audit_trail_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_local_adapter.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_capability_manifest.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_manifest_router_wiring.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_capability_routing_guard.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_capability_boardroom_payload.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_capability_boardroom_ui.py \
+  backend/tests/workflow_capsules/test_goal_engine_provider_capability_manifest_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_business_container_persistence_layer.py \
+  backend/tests/workflow_capsules/test_goal_engine_business_container_projection_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_business_container_guarded_mutations.py \
+  backend/tests/workflow_capsules/test_goal_engine_business_container_projection_from_records.py \
+  backend/tests/workflow_capsules/test_goal_engine_business_container_projection_boardroom_ui.py \
+  backend/tests/workflow_capsules/test_goal_engine_business_container_persistence_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_live_payload_end_to_end_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_backend_payload_includes_runtime_preview.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_real_payload_source_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_visible_runtime_preview_style_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_visibility_mount_audit_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_live_preview_bundle_visibility_polish.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_live_kpi_panel_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_learning_panel_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_exploration_exploitation_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_decomposition_tree_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_parent_child_orchestration_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_orchestrated_glyphs_workflow_tabs_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_parent_goal_update_proposal.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_agent_conflict_preview.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_parent_goal_proposal_conflict_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_parent_goal_proposal_conflict_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_parent_goal_proposal_conflict_preview_bundle.py \
+  backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_history_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_history_backend.py \
+  backend/tests/workflow_capsules/test_goal_engine_multi_agent_execution_replay_history_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_guarded_child_agent_execution_handoff.py \
+  backend/tests/workflow_capsules/test_goal_engine_guarded_child_run_creation_request.py \
+  backend/tests/workflow_capsules/test_goal_engine_guarded_child_run_creation_request_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_child_run_creation_action.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_child_run_creation_action_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_preview_bundle_attachment_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_creation_end_to_end_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_creation_end_to_end_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_guarded_child_agent_execution_handoff_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution_end_to_end_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution_end_to_end_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_guarded_multi_agent_orchestration_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_recent_guarded_orchestration_panels_auto_mount_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_boardroom_parent_goal_proposal_conflict_payload_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_visible_boardroom_preview_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_visible_preview_bundle_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_remaining_tasks_handover_lock_doc.py \
+  backend/tests/workflow_capsules/test_goal_engine_focused_suite_membership_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py

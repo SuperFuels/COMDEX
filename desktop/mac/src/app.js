@@ -4095,6 +4095,709 @@ async function handleBoardroomWorkflowCapsuleApprovalAction(approvalId, action) 
   requestRender?.();
 }
 
+
+function getAionGoalEngineVisibleBoardroomSourceV1(snapshot = {}) {
+  const runtime =
+    snapshot && typeof snapshot === "object" && snapshot.runtime && typeof snapshot.runtime === "object"
+      ? snapshot.runtime
+      : {};
+
+  const summary =
+    snapshot && typeof snapshot === "object" && snapshot.summary && typeof snapshot.summary === "object"
+      ? snapshot.summary
+      : {};
+
+  const candidates = [
+    runtime.goal_engine_preview_bundle,
+    runtime.preview_bundle,
+    runtime.goal_engine,
+    runtime,
+    summary.goal_engine_preview_bundle,
+    summary.preview_bundle,
+    summary.goal_engine,
+    summary,
+    snapshot.goal_engine_preview_bundle,
+    snapshot.preview_bundle,
+    snapshot.goal_engine,
+    snapshot,
+  ];
+
+  for (const candidate of candidates) {
+    if (!candidate || typeof candidate !== "object") continue;
+
+    if (
+      candidate.goal_runtime_summary ||
+      candidate.goal_engine_goal_runtime_summary ||
+      candidate.checkpoint_runtime_summary ||
+      candidate.goal_engine_checkpoint_runtime_summary ||
+      candidate.resume_revalidation_summary ||
+      candidate.goal_engine_resume_revalidation_summary ||
+      candidate.experiment_runtime_summary ||
+      candidate.goal_engine_experiment_runtime_summary ||
+      candidate.orchestrator_runtime_summary ||
+      candidate.goal_engine_orchestrator_runtime_summary ||
+      candidate.goal_decomposition_runtime_summary ||
+      candidate.goal_engine_decomposition_runtime_summary
+    ) {
+      return candidate;
+    }
+  }
+
+  return {};
+}
+
+function buildAionGoalEngineVisibleDemoPayloadV1() {
+  const demoEvidencePointer = {
+    schema_version: "aion.goal_engine.evidence_pointer.v1",
+    trace_type: "evidence_pointer_preview",
+    evidence_type: "manual_confirmation",
+    source: "boardroom_demo",
+    reference_pointer: "manual://boardroom/demo/evidence-001",
+    evidence_hash: "b9f2d54d4d5a5f4a8f9c1d7a3e8f0b8b5c6a0e1f2d3c4b5a6978877665544332",
+    valid: true,
+    resolved: false,
+    dry_run_only: true,
+    blocked_reasons: [],
+    would_read_external: false,
+    would_write_external: false,
+    would_grant_permission: false,
+  };
+
+  const demoExperimentEvidence = {
+    schema_version: "aion.goal_engine.experiment_result_evidence.v1",
+    trace_type: "experiment_result_evidence_preview",
+    experiment_id: "experiment_visible_demo",
+    goal_id: "goal_visible_demo",
+    metric: "reply_rate",
+    variants: ["variant_whatsapp", "variant_facebook"],
+    variant_evidence_count: {
+      variant_whatsapp: 2,
+      variant_facebook: 1,
+    },
+    all_variants_have_evidence: true,
+    ready_for_scoring: true,
+    dry_run_only: true,
+    would_execute: false,
+    would_write_external: false,
+    would_grant_permission: false,
+  };
+
+  const demoVariantScore = {
+    schema_version: "aion.goal_engine.variant_outcome_score.v1",
+    trace_type: "variant_outcome_score_preview",
+    experiment_id: "experiment_visible_demo",
+    goal_id: "goal_visible_demo",
+    metric: "reply_rate",
+    winner_declared: false,
+    manual_decision_required: true,
+    dry_run_only: true,
+    variants: [
+      {
+        variant_id: "variant_whatsapp",
+        score: 0.74,
+        rank: 1,
+        evidence_count: 2,
+        confidence: 0.82,
+      },
+      {
+        variant_id: "variant_facebook",
+        score: 0.61,
+        rank: 2,
+        evidence_count: 1,
+        confidence: 0.68,
+      },
+    ],
+    blocked_reasons: ["manual_decision_required_before_winner"],
+    would_execute: false,
+    would_write_external: false,
+    would_grant_permission: false,
+  };
+
+  const demoProviderAudit = {
+    trace_type: "provider_audit",
+    provider: "local",
+    model: "gemma4:e2b",
+    capability: "drafting",
+    ok: true,
+    error_code: null,
+    fallback_used: false,
+    latency_ms: 12,
+    local_only: true,
+    external_writes: "blocked",
+    business_state_mutation: "blocked",
+    capability_manifest_checked: true,
+    failed_closed: false,
+    workspace_id: "demo_workspace",
+    task_id: "demo_task",
+  };
+
+  const demoMemoryRuntimeSummary = {
+    schema_version: "aion.goal_engine.memory_runtime_summary.v1",
+    trace_type: "memory_runtime_summary",
+    dry_run_only: true,
+    write_guard: "human_review",
+    read_guard: "allow",
+    allow_forgetting: true,
+    allow_consolidation: false,
+    memory_tier_counts: {
+      working: 1,
+      goal: 1,
+      long_term_advisory: 0,
+    },
+    blocked_reasons: ["memory_writes_remain_dry_run_only_until_guarded_approval"],
+    would_write_memory: false,
+    would_grant_permission: false,
+  };
+
+  const demoProviderCapabilityManifest = {
+    schema_version: "aion.business.provider_capability_manifest.v1",
+    trace_type: "provider_capability_manifest",
+    providers: {
+      local: {
+        provider: "local",
+        default_model: "gemma",
+        configured: true,
+        capabilities: ["drafting", "rewrite", "summarization", "analysis", "classification", "planning"],
+        supports_long_running_sessions: true,
+        supports_checkpoint_resume: true,
+        supports_sandboxed_execution: true,
+        supports_outcome_evaluation: false,
+        supports_memory_dreaming: true,
+        supports_multi_agent_orchestration: false,
+        supports_mcp_private_connectors: false,
+        max_tokens: 8192,
+        max_cost_per_task: 0,
+        runtime_limits: {
+          network: "local_only",
+          external_writes: "blocked",
+          requires_human_review_for_business_state: true,
+        },
+        fallback_provider: "openai",
+        degradation_mode: "local_first_then_cloud_if_allowed",
+      },
+      openai: {
+        provider: "openai",
+        default_model: "gpt-4.1-mini",
+        configured: false,
+        capabilities: ["drafting", "rewrite", "summarization", "analysis", "reasoning", "planning", "classification"],
+        supports_outcome_evaluation: true,
+        supports_multi_agent_orchestration: true,
+        max_tokens: 128000,
+        max_cost_per_task: 5,
+        runtime_limits: {
+          network: "cloud",
+          external_writes: "approval_required",
+          requires_human_review_for_business_state: true,
+        },
+        fallback_provider: "anthropic",
+        degradation_mode: "fallback_to_anthropic_or_local",
+      },
+      anthropic: {
+        provider: "anthropic",
+        default_model: "claude-sonnet-4-20250514",
+        configured: false,
+        enhanced_mode: true,
+        capabilities: ["drafting", "rewrite", "summarization", "analysis", "reasoning", "planning", "classification"],
+        supports_long_running_sessions: true,
+        supports_checkpoint_resume: true,
+        supports_outcome_evaluation: true,
+        supports_multi_agent_orchestration: true,
+        max_tokens: 200000,
+        max_cost_per_task: 8,
+        runtime_limits: {
+          network: "cloud",
+          external_writes: "approval_required",
+          requires_human_review_for_business_state: true,
+        },
+        fallback_provider: "openai",
+        degradation_mode: "fallback_to_openai_or_local",
+      },
+    },
+    safe_defaults: {
+      external_writes_require_approval: true,
+      business_state_mutations_require_human_review: true,
+      local_provider_does_not_grant_permission: true,
+      provider_disclosure_required_in_ui: true,
+    },
+  };
+
+  const demoContainerProjection = {
+    schema_version: "aion.business.goal_engine_container_projection.v1",
+    trace_type: "goal_engine_container_projection",
+    persistent_truth_source: "business_containers",
+    boardroom_projection_only: true,
+    dry_run_only: false,
+    goal_count: 1,
+    active_goal_count: 1,
+    loop_count: 1,
+    bounded_loop_count: 1,
+    experiment_count: 1,
+    outcome_count: 1,
+    evidence_count: 2,
+    verified_evidence_count: 1,
+    memory_count: 2,
+  };
+
+  return {
+    schema_version: "aion_goal_engine_boardroom_runtime_preview_v1",
+    trace_type: "goal_engine_boardroom_runtime_preview",
+    dry_run_only: true,
+
+    provider_capability_manifest: demoProviderCapabilityManifest,
+    goal_engine_container_projection: demoContainerProjection,
+    provider_audit: demoProviderAudit,
+    provider_audits: [demoProviderAudit],
+    memory_runtime_summary: demoMemoryRuntimeSummary,
+
+    parent_child_aggregation_preview: {
+      schema_version: "aion.goal_engine.orchestrator_parent_child_aggregation.v1",
+      runtime: "aion_goal_engine",
+      trace_type: "orchestrator_parent_child_aggregation_preview",
+      parent_goal_id: "goal_visible_demo",
+      parent_goal_status: "derived_preview",
+      child_count: 3,
+      child_status_counts: {
+        completed: 1,
+        waiting_approval: 1,
+        blocked: 1,
+      },
+      child_agents: [
+        { agent_id: "agent_marketing", role: "marketing", glyph_code: "MK-001", status: "completed" },
+        { agent_id: "agent_reviewer", role: "reviewer", glyph_code: "RV-001", status: "waiting_approval" },
+      ],
+      child_glyphs: [
+        { glyph_code: "WD-101", role: "workflow", status: "blocked" },
+      ],
+      blocked_child_count: 1,
+      waiting_approval_count: 1,
+      completed_child_count: 1,
+      failed_child_count: 0,
+      aggregate_status: "blocked_child_requires_review",
+      aggregate_blocked_reasons: ["child_approval_required", "child_blocked_or_failed"],
+      manual_review_required: true,
+      dry_run_only: true,
+      would_execute: false,
+      would_write_external: false,
+      would_mutate_parent_goal: false,
+      would_grant_permission: false,
+      valid: true,
+    },
+    parent_child_aggregation_previews: [
+      {
+        schema_version: "aion.goal_engine.orchestrator_parent_child_aggregation.v1",
+        runtime: "aion_goal_engine",
+        trace_type: "orchestrator_parent_child_aggregation_preview",
+        parent_goal_id: "goal_visible_demo",
+        parent_goal_status: "derived_preview",
+        child_count: 3,
+        child_status_counts: {
+          completed: 1,
+          waiting_approval: 1,
+          blocked: 1,
+        },
+        child_agents: [
+          { agent_id: "agent_marketing", role: "marketing", glyph_code: "MK-001", status: "completed" },
+          { agent_id: "agent_reviewer", role: "reviewer", glyph_code: "RV-001", status: "waiting_approval" },
+        ],
+        child_glyphs: [
+          { glyph_code: "WD-101", role: "workflow", status: "blocked" },
+        ],
+        blocked_child_count: 1,
+        waiting_approval_count: 1,
+        completed_child_count: 1,
+        failed_child_count: 0,
+        aggregate_status: "blocked_child_requires_review",
+        aggregate_blocked_reasons: ["child_approval_required", "child_blocked_or_failed"],
+        manual_review_required: true,
+        dry_run_only: true,
+        would_execute: false,
+        would_write_external: false,
+        would_mutate_parent_goal: false,
+        would_grant_permission: false,
+        valid: true,
+      },
+    ],
+    memory_runtime_summaries: [demoMemoryRuntimeSummary],
+    evidence_pointer_previews: [demoEvidencePointer],
+    evidence_pointers: [demoEvidencePointer],
+    experiment_result_evidence_preview: demoExperimentEvidence,
+    experiment_result_evidence_previews: [demoExperimentEvidence],
+    variant_outcome_score_preview: demoVariantScore,
+    variant_outcome_score_previews: [demoVariantScore],
+
+    goal_runtime_summary: {
+      schema_version: "aion.goal_engine.goal_runtime_summary.v1",
+      trace_type: "goal_runtime_summary",
+      dry_run_only: true,
+      active_goal_count: 1,
+      loop_iteration_count: 2,
+      approvals_waiting_count: 1,
+      blocked_reason_count: 1,
+      outcome_score: 0.64,
+      human_review_required_count: 1,
+      total_evidence_count: 2,
+      supported_success_count: 1,
+      blocked_outcome_count: 1,
+      missing_evidence_count: 1,
+      blocked_reasons: ["outcome_success_requires_evidence"],
+      outcome_evidence_summary: {
+        total_evidence_count: 2,
+        supported_success_count: 1,
+        blocked_outcome_count: 1,
+        missing_evidence_count: 1,
+        blocked_reasons: ["outcome_success_requires_evidence"],
+      },
+      evidence_rows: [
+        {
+          title: "Supporting evidence",
+          evidence_type: "Manual confirmation",
+          source: "boardroom",
+          source_connector: "manual_confirmation",
+          source_ref: "approval_demo",
+          freshness: "current",
+          provenance: { confirmed_by: "operator" },
+          confidence: 0.95,
+          verified: true,
+          blocked_reasons: [],
+        },
+        {
+          title: "Blocked evidence",
+          evidence_type: "Manual confirmation",
+          source: "boardroom",
+          source_connector: "manual_confirmation",
+          source_ref: "missing_evidence_demo",
+          freshness: "stale",
+          provenance: { reason: "missing_confirmation" },
+          confidence: 0.2,
+          verified: false,
+          blocked_reasons: ["outcome_success_requires_evidence"],
+        },
+      ],
+    },
+
+    checkpoint_runtime_summary: {
+      schema_version: "aion.goal_engine.checkpoint_runtime_summary.v1",
+      trace_type: "checkpoint_runtime_summary",
+      checkpoint_count: 1,
+      state_delta_count: 1,
+      resume_blocked_count: 1,
+      full_payload_blocked_count: 1,
+      blocked_reasons: ["resume_requires_environment_revalidation"],
+      checkpoints: [
+        {
+          checkpoint_id: "checkpoint_visible_demo",
+          loop_id: "loop_visible_demo",
+          iteration: 2,
+          would_resume: false,
+          loop_context_snapshot: { current_best_variant: "variant_whatsapp" },
+        },
+      ],
+      state_deltas: [
+        {
+          delta_id: "delta_visible_demo",
+          checkpoint_id: "checkpoint_visible_demo",
+          bounded: true,
+          changed_fields: { status: "waiting_approval" },
+        },
+      ],
+    },
+
+    resume_revalidation_summary: {
+      schema_version: "aion.goal_engine.resume_revalidation_summary.v1",
+      trace_type: "resume_revalidation_summary",
+      revalidation_count: 1,
+      resume_allowed_count: 0,
+      resume_blocked_count: 1,
+      safe_stop_required_count: 1,
+      blocked_reasons: [
+        "approval_not_valid",
+        "vault_not_ready",
+        "connectors_not_ready",
+        "parent_goal_no_longer_required",
+        "external_state_changed",
+      ],
+      revalidations: [
+        {
+          revalidation_id: "reval_visible_demo",
+          checkpoint_id: "checkpoint_visible_demo",
+          allowed: false,
+          would_resume: false,
+          suggested_next_action: "stop_or_replan_before_resume",
+          blocked_reasons: [
+            "approval_not_valid",
+            "vault_not_ready",
+            "connectors_not_ready",
+            "parent_goal_no_longer_required",
+            "external_state_changed",
+          ],
+        },
+      ],
+    },
+
+    experiment_runtime_summary: {
+      schema_version: "aion.goal_engine.experiment_runtime_summary.v1",
+      trace_type: "experiment_runtime_summary",
+      experiment_count: 1,
+      bounded_count: 0,
+      unbounded_count: 1,
+      variant_count: 2,
+      metric_count: 1,
+      premature_convergence_blocked: true,
+      blocked_reasons: ["unbounded_experiment_plan_blocked"],
+      experiments: [
+        {
+          experiment_id: "experiment_visible_demo",
+          metric: "reply_rate",
+          variant_count: 2,
+          bounded: false,
+          max_iterations: 10,
+          max_runtime_minutes: 30,
+          exploration_factor: 0.4,
+          exploration_decay: 0.98,
+          min_exploration_floor: 0.05,
+          confidence_threshold: 0.95,
+          blocked_reasons: ["unbounded_experiment_plan_blocked"],
+        },
+      ],
+    },
+
+    orchestrator_runtime_summary: {
+      schema_version: "aion.goal_engine.orchestrator_runtime_summary.v1",
+      trace_type: "orchestrator_runtime_summary",
+      orchestrator_count: 1,
+      agent_count: 2,
+      bounded_count: 0,
+      unbounded_count: 1,
+      blocked_reasons: ["unbounded_orchestration_blocked"],
+      orchestrators: [
+        {
+          orchestrator_id: "orchestrator_visible_demo",
+          coordination_mode: "review_gated",
+          conflict_policy: "human_review",
+          max_parallel_agents: 2,
+          child_timeout_seconds: 300,
+          bounded: false,
+          valid: false,
+          agent_assignments: [
+            { agent_id: "agent_marketing", role: "marketing", glyph_code: "MK-001" },
+            { agent_id: "agent_reviewer", role: "reviewer", glyph_code: "RV-001" },
+          ],
+        },
+      ],
+    },
+
+    goal_decomposition_runtime_summary: {
+      schema_version: "aion.goal_engine.goal_decomposition_runtime_summary.v1",
+      trace_type: "goal_decomposition_runtime_summary",
+      decomposition_count: 1,
+      sub_goal_count: 2,
+      bounded_count: 1,
+      human_review_required_count: 1,
+      decompositions: [
+        {
+          decomposition_id: "decomp_visible_demo",
+          parent_goal_id: "goal_visible_demo",
+          decomposition_strategy: "review_gated",
+          max_depth: 2,
+          max_sub_goals: 3,
+          bounded: true,
+          human_review_required: true,
+        },
+      ],
+    },
+  };
+}
+
+function renderAionGoalEngineDecompositionSummaryV1(source = {}) {
+  const machineTrace = source.machine_trace || source.trace || {};
+  const summary =
+    source.goal_decomposition_runtime_summary ||
+    source.goal_engine_decomposition_runtime_summary ||
+    machineTrace.goal_decomposition_runtime_summary ||
+    machineTrace.goal_engine_decomposition_runtime_summary ||
+    {};
+
+  if (!summary || typeof summary !== "object" || summary.trace_type !== "goal_decomposition_runtime_summary") {
+    return "";
+  }
+
+  const previews =
+    Array.isArray(source.goal_decomposition_previews) ? source.goal_decomposition_previews :
+    Array.isArray(source.decomposition_previews) ? source.decomposition_previews :
+    Array.isArray(source.child_goal_previews) ? source.child_goal_previews :
+    Array.isArray(machineTrace.goal_decomposition_previews) ? machineTrace.goal_decomposition_previews :
+    Array.isArray(machineTrace.decomposition_previews) ? machineTrace.decomposition_previews :
+    Array.isArray(machineTrace.child_goal_previews) ? machineTrace.child_goal_previews :
+    Array.isArray(summary.goal_decomposition_previews) ? summary.goal_decomposition_previews :
+    Array.isArray(summary.decomposition_previews) ? summary.decomposition_previews :
+    Array.isArray(summary.child_goal_previews) ? summary.child_goal_previews :
+    [];
+
+  return `
+    <div class="aion-boardroom-runtime-summary" data-aion-goal-engine-decomposition-summary="true">
+      <div class="section-title">Goal Decomposition Summary</div>
+      <div class="aion-boardroom-runtime-grid">
+        <div><strong>${summary.decomposition_count || 0}</strong><span>Decompositions</span></div>
+        <div><strong>${summary.sub_goal_count || 0}</strong><span>Sub-goals</span></div>
+        <div><strong>${summary.bounded_decomposition_count || 0}</strong><span>Bounded</span></div>
+        <div><strong>${summary.human_review_required_count || 0}</strong><span>Human review</span></div>
+      </div>
+      <div class="aion-boardroom-subsection">
+        ${
+          previews.length
+            ? previews.map((item) => `
+              <div class="aion-boardroom-trace-row">
+                <strong>${item.decomposition_id || "-"}</strong>
+                <span>parent_goal_id=${item.parent_goal_id || "-"} · decomposition_strategy=${item.decomposition_strategy || "-"}</span>
+                <small>max_depth=${item.max_depth ?? "-"} · max_sub_goals=${item.max_sub_goals ?? "-"}</small>
+              </div>
+            `).join("")
+            : `<div class="muted">No decomposition previews.</div>`
+        }
+      </div>
+    </div>
+  `;
+}
+
+
+
+function renderAionProviderCapabilityManifestV1(snapshot = {}) {
+  const manifest =
+    snapshot.provider_capability_manifest ||
+    snapshot.runtime?.provider_capability_manifest ||
+    snapshot.summary?.provider_capability_manifest ||
+    null;
+
+  if (!manifest || typeof manifest !== "object" || manifest.trace_type !== "provider_capability_manifest") {
+    return "";
+  }
+
+  const providers = manifest.providers && typeof manifest.providers === "object"
+    ? Object.values(manifest.providers)
+    : [];
+
+  const safe = manifest.safe_defaults || {};
+
+  const rows = providers.map((provider) => {
+    const name = provider.provider || provider.name || "provider";
+    const model = provider.default_model || provider.model || "";
+    const enabled = provider.enabled ? "Enabled" : "Unavailable";
+    const externalWrites = provider.runtime_limits?.external_writes || "unknown";
+    const degradation = provider.degradation_mode || "fail_closed";
+    const disclosure = provider.disclosure || "";
+
+    return `
+      <div class="aion-provider-capability-row">
+        <div>
+          <strong>${escapeHtml(String(name))}</strong>
+          <span>${escapeHtml(String(model))}</span>
+        </div>
+        <div>${escapeHtml(String(enabled))}</div>
+        <div>Writes: ${escapeHtml(String(externalWrites))}</div>
+        <div>${escapeHtml(String(degradation))}</div>
+        <small>${escapeHtml(String(disclosure))}</small>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="panel large-panel aion-provider-capability-manifest" data-aion-provider-capability-manifest="true">
+      <div class="panel-title">Provider Capability Manifest</div>
+      <div class="muted">
+        Provider disclosure required · External writes require approval:
+        ${safe.external_writes_require_approval ? "yes" : "no"} ·
+        Business state mutations require human review:
+        ${safe.business_state_mutations_require_human_review ? "yes" : "no"}
+      </div>
+      <div class="aion-provider-capability-grid">
+        ${rows || `<div class="empty-state">No provider capability manifest available.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+
+function renderAionGoalEngineContainerProjectionV1(snapshot = {}) {
+  const projection =
+    snapshot.goal_engine_container_projection ||
+    snapshot.runtime?.goal_engine_container_projection ||
+    snapshot.summary?.goal_engine_container_projection ||
+    {};
+
+  if (!projection || typeof projection !== "object" || projection.trace_type !== "goal_engine_container_projection") {
+    return "";
+  }
+
+  return `
+    <div class="panel large-panel aion-goal-engine-container-projection" data-aion-goal-engine-container-projection="true">
+      <div class="panel-title">Persistent Goal Engine State</div>
+      <div class="list-item-sub" style="margin-bottom:12px;">
+        Source: ${projection.persistent_truth_source || "business_containers"} · Boardroom projection only
+      </div>
+
+      <div class="aion-boardroom-runtime-grid">
+        <div><strong>${projection.goal_count || 0}</strong><span>Goals</span></div>
+        <div><strong>${projection.active_goal_count || 0}</strong><span>Active goals</span></div>
+        <div><strong>${projection.loop_count || 0}</strong><span>Loops</span></div>
+        <div><strong>${projection.bounded_loop_count || 0}</strong><span>Bounded loops</span></div>
+        <div><strong>${projection.experiment_count || 0}</strong><span>Experiments</span></div>
+        <div><strong>${projection.outcome_count || 0}</strong><span>Outcomes</span></div>
+        <div><strong>${projection.evidence_count || 0}</strong><span>Evidence</span></div>
+        <div><strong>${projection.verified_evidence_count || 0}</strong><span>Verified evidence</span></div>
+        <div><strong>${projection.memory_count || 0}</strong><span>Memory records</span></div>
+      </div>
+
+      <div class="aion-boardroom-subsection">
+        <div class="aion-boardroom-note">
+          Persistent truth is stored in scoped business containers. The Boardroom only reads this projection.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot = {}) {
+  const realSource = getAionGoalEngineVisibleBoardroomSourceV1(snapshot);
+  const hasRealPayload = realSource && Object.keys(realSource).length > 0;
+  const source = hasRealPayload ? realSource : buildAionGoalEngineVisibleDemoPayloadV1();
+
+  const panels = [
+    typeof renderAionGoalEngineOutcomeEvidenceSummaryV1 === "function"
+      ? renderAionGoalEngineOutcomeEvidenceSummaryV1(source.goal_runtime_summary || source)
+      : "",
+    typeof renderAionGoalEngineCheckpointSummaryV1 === "function"
+      ? renderAionGoalEngineCheckpointSummaryV1(source)
+      : "",
+    typeof renderAionGoalEngineResumeRevalidationSummaryV1 === "function"
+      ? renderAionGoalEngineResumeRevalidationSummaryV1(source)
+      : "",
+    typeof renderAionGoalEngineExperimentRuntimeSummaryV1 === "function"
+      ? renderAionGoalEngineExperimentRuntimeSummaryV1(source)
+      : "",
+    typeof renderAionGoalEngineOrchestratorSummaryV1 === "function"
+      ? renderAionGoalEngineOrchestratorSummaryV1(source)
+      : "",
+    renderAionGoalEngineDecompositionSummaryV1(source),
+  ].filter(Boolean).join("");
+
+  if (!panels) return "";
+
+  return `
+    <div class="panel large-panel aion-goal-engine-visible-boardroom-panels" data-aion-goal-engine-visible-boardroom-panels="true">
+      <div class="panel-title">Goal Engine Runtime Preview</div>
+      <div class="list-item-sub" style="margin-bottom:12px;">
+        ${hasRealPayload ? "Live payload from Boardroom runtime snapshot." : "Demo payload visible until backend Boardroom snapshot includes Goal Engine summaries."}
+      </div>
+      ${panels}
+      ${
+        typeof renderAionGoalEngineBoardroomVisibilityMountAuditV1 === "function"
+          ? renderAionGoalEngineBoardroomVisibilityMountAuditV1(source)
+          : ""
+      }
+    </div>
+  `;
+}
+
 function renderBoardroomDashboardView(snapshot) {
   const workspace = getBoardroomWorkspace();
   const pulse = getBoardroomPulse();
@@ -4161,6 +4864,11 @@ function renderBoardroomDashboardView(snapshot) {
       </div>
 
       ${renderBoardroomOperatorPresence()}
+
+      ${renderAionGoalEngineContainerProjectionV1(snapshot)}
+      ${renderAionProviderCapabilityManifestV1(snapshot)}
+
+      ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
 
@@ -9182,31 +9890,14 @@ function renderAionMasterGlyphCanvasNode(item, index = 0) {
 
 function renderAionMasterGlyphCanvasPanel() {
   /*
-   * Read-only Master Glyph Canvas.
-   * No execution.
-   * No editing.
-   * No wiring.
-   * No external writes.
-   * Current workflow canvas preserved.
-   * This panel stages/inspects glyphs only.
-   * It does not execute workflows.
+   * RETIRED:
+   * There is no separate Master Glyph Canvas surface anymore.
+   * Reusable glyph workflows now live inside the normal Workflow Canvas via:
+   * - Glyph Library button
+   * - top workflow tabs
+   * - staged/opened call_workflow_glyph nodes
    */
-
-
-  const open = window.__aionMasterGlyphCanvasOpen === true;
-  if (!open) return "";
-
-  const items = listAionMasterGlyphCanvasItems();
-
-  return `
-    <section class="aion-master-glyph-canvas" data-aion-master-glyph-canvas="true">
-      <div class="aion-master-glyph-canvas-header">
-        <div>
-          <div class="eyebrow">Master Glyph Canvas v2</div>
-          <h2>Callable workflow glyphs</h2>
-          <p>Saved callable workflow glyphs are shown as glyph nodes. v2 can stage a dry-run-only call node onto the normal workflow canvas.</p>
-        </div>
-  `;
+  return "";
 }
 
 function installAionMasterGlyphCanvasControls() {
@@ -9291,7 +9982,7 @@ function installAionMasterGlyphCanvasControls() {
       type: "Workflow Glyph",
       icon: "⌁",
       status: "Staged",
-      meta: "Staged from Master Glyph Canvas · dry-run only · no execution yet",
+      meta: "Staged from Workflow Glyph Library · dry-run only · no execution yet",
       tone: "violet",
       x,
       y,
@@ -9360,7 +10051,16 @@ function installAionMasterGlyphCanvasControls() {
     if (open) {
       event.preventDefault();
       event.stopPropagation();
-      window.__aionMasterGlyphCanvasOpen = true;
+      window.__aionMasterGlyphCanvasOpen = false;
+
+      if (typeof window.__openAionWorkflowGlyphLibrary === "function") {
+        window.__openAionWorkflowGlyphLibrary();
+      } else if (typeof window.__openAionBackendGlyphLibraryModal === "function") {
+        window.__openAionBackendGlyphLibraryModal();
+      } else if (typeof window.__renderAionWorkflowGlyphLibraryModal === "function") {
+        window.__renderAionWorkflowGlyphLibraryModal();
+      }
+
       if (typeof requestRender === "function") requestRender();
       return;
     }
@@ -10302,6 +11002,20 @@ function getAionArchitectModuleCatalogue() {
           safety: "legacy_reference",
           status: "legacy",
         },
+      ],
+    },
+        {
+      group: "Goal Engine",
+      group_id: "goal_engine",
+      description: "Managed-agent goals, experiments, loops, outcomes, reflection, checkpoints, and resume safety.",
+      modules: [
+        { id: "goal_engine.goal", label: "Goal", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.goal", description: "Define a measurable goal. Dry-run only; grants no permission." },
+        { id: "goal_engine.experiment", label: "Experiment", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.experiment", description: "Test a safe hypothesis against a goal. Dry-run only." },
+        { id: "goal_engine.loop", label: "Loop", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.loop", description: "Bounded loop with kill switch and no unbounded execution. Dry-run only." },
+        { id: "goal_engine.outcome_evaluation", label: "Outcome evaluation", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.outcome_evaluation", description: "Evaluate quality, metric delta, cost, confidence, and evidence. Dry-run only." },
+        { id: "goal_engine.reflect_learn", label: "Reflect / learn", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.reflect_learn", description: "Advisory reflection only. Learning grants no permission." },
+        { id: "goal_engine.state_delta_accumulator", label: "State delta accumulator", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.state_delta_accumulator", description: "Accumulate bounded state deltas for loop context. Dry-run only." },
+        { id: "goal_engine.environment_revalidation", label: "Environment revalidation", kind: "goal_engine", app: "aion_goal_engine", action_id: "goal_engine.environment_revalidation", description: "Re-check approval, vault, connectors, parent goal, and external state before resume." },
       ],
     },
     {
@@ -13250,7 +13964,68 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
         </button>
       </div>
 
+      
       <div class="aion-picker-section">
+        <div class="aion-picker-section-title">Goal Engine</div>
+
+        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_goal" type="button">
+          <span>🎯</span>
+          <div>
+            <strong>Goal</strong>
+            <small>Measurable target · dry-run only · grants no permission</small>
+          </div>
+        </button>
+
+        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_experiment" type="button">
+          <span>🧪</span>
+          <div>
+            <strong>Experiment</strong>
+            <small>Safe hypothesis test · dry-run only</small>
+          </div>
+        </button>
+
+        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_loop" type="button">
+          <span>🔁</span>
+          <div>
+            <strong>Loop</strong>
+            <small>Bounded loop · kill switch · no unbounded execution</small>
+          </div>
+        </button>
+
+        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_outcome_evaluation" type="button">
+          <span>📊</span>
+          <div>
+            <strong>Outcome evaluation</strong>
+            <small>Score quality, evidence, cost, confidence, and metric delta</small>
+          </div>
+        </button>
+
+        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_reflect_learn" type="button">
+          <span>🪞</span>
+          <div>
+            <strong>Reflect / learn</strong>
+            <small>Advisory reflection only · learning grants no permission</small>
+          </div>
+        </button>
+
+        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_state_delta_accumulator" type="button">
+          <span>Δ</span>
+          <div>
+            <strong>State delta accumulator</strong>
+            <small>Bounded state deltas for loop context</small>
+          </div>
+        </button>
+
+        <button class="aion-picker-row" data-aion-workflow-create-action="goal_engine_environment_revalidation" type="button">
+          <span>✅</span>
+          <div>
+            <strong>Environment revalidation</strong>
+            <small>Required before resume after approval/checkpoint</small>
+          </div>
+        </button>
+      </div>
+
+<div class="aion-picker-section">
         <div class="aion-picker-section-title">Text parser</div>
 
         <button class="aion-picker-row" data-aion-workflow-create-action="parser_match_pattern" type="button">
@@ -14444,27 +15219,31 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
             ☰
           </button>
 
-          <nav class="aion-workflow-app-nav">
+          <nav class="aion-workflow-app-nav" aria-label="Aion workspace navigation">
             ${[
-              ["boardroom", "Boardroom"],
-              ["dashboard", "Dashboard"],
-              ["file_cabinet", "Files"],
-              ["marketing_stream", "Marketing"],
-              ["brand_foundation", "Brand"],
-              ["live_agents", "Live Agents"],
-              ["aion", "Aion"],
-              ["operations_agents", "Train Agent"],
-              ["operations_flow", "Operations"],
-              ["local_node", "Local Node"],
+              ["boardroom", "Boardroom", "⌂"],
+              ["dashboard", "Dashboard", "▦"],
+              ["file_cabinet", "Files", "▤"],
+              ["marketing_stream", "Marketing", "✦"],
+              ["brand_foundation", "Brand", "◆"],
+              ["live_agents", "Live Agents", "◎"],
+              ["aion", "Aion", "AI"],
+              ["operations_agents", "Train Agent", "⚙"],
+              ["operations_flow", "Operations", "⌁"],
+              ["local_node", "Local Node", "▣"],
             ]
               .map(
-                ([tab, label]) => `
+                ([tab, label, icon]) => `
                   <button
-                    class="${state.activeTab === tab ? "active" : ""}"
+                    class="aion-workflow-nav-btn ${state.activeTab === tab ? "active" : ""}"
                     data-tab="${escapeHtml(tab)}"
                     type="button"
+                    title="${escapeHtml(label)}"
+                    aria-label="${escapeHtml(label)}"
+                    data-aion-sidebar-label="${escapeHtml(label)}"
                   >
-                    ${escapeHtml(label)}
+                    <span class="aion-workflow-nav-icon" aria-hidden="true" data-icon="${escapeHtml(icon)}"></span>
+                    <span class="aion-workflow-nav-label">${escapeHtml(label)}</span>
                   </button>
                 `,
               )
@@ -25058,7 +25837,11 @@ function installAionWorkflowActionCardImmediateAddOverride() {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
-      const actionType = actionButton.getAttribute("data-aion-workflow-create-action");
+      const rawActionType = actionButton.getAttribute("data-aion-workflow-create-action");
+      const actionType =
+        typeof window.__resolveAionGoalEngineWorkflowActionAlias === "function"
+          ? window.__resolveAionGoalEngineWorkflowActionAlias(rawActionType)
+          : rawActionType;
 
       const actionMap = {
         ai_extract_fields: {
@@ -29236,7 +30019,11 @@ function installAionWorkflowActionControls() {
       event.stopPropagation();
       event.stopImmediatePropagation();
 
-      const actionType = actionButton.getAttribute("data-aion-workflow-create-action");
+      const rawActionType = actionButton.getAttribute("data-aion-workflow-create-action");
+      const actionType =
+        typeof window.__resolveAionGoalEngineWorkflowActionAlias === "function"
+          ? window.__resolveAionGoalEngineWorkflowActionAlias(rawActionType)
+          : rawActionType;
 
       const actionMap = {
         ai_extract_fields: {
@@ -30203,10 +30990,17 @@ function installAionWorkflowSidebarToggle() {
   }
 
   const apply = () => {
-    shell.classList.toggle(
-      "aion-workflow-sidebar-collapsed",
-      window.__aionWorkflowSidebarOpen !== true,
-    );
+    const expanded = window.__aionWorkflowSidebarOpen === true;
+
+    /*
+     * Sidebar state contract:
+     * - expanded lives on the workflow shell because the layout is inside that shell.
+     * - body also receives the class for older CSS selectors that still exist.
+     * - the old collapsed class is removed so legacy styles.css collapsed icon rules cannot win.
+     */
+    shell.classList.remove("aion-workflow-sidebar-collapsed");
+    shell.classList.toggle("aion-workflow-sidebar-expanded", expanded);
+    document.body.classList.toggle("aion-workflow-sidebar-expanded", expanded);
   };
 
   buttons.forEach((button) => {
@@ -31434,13 +32228,10 @@ async function hydrateRecoveredDesktopState() {
       background: transparent !important;
     }
 
-    .aion-workflow-sidebar {
-      grid-column: 1 !important;
-      width: 64px !important;
-      min-width: 64px !important;
-      max-width: 64px !important;
-      z-index: 40 !important;
-    }
+    /*
+      Sidebar layout/styling is intentionally owned by desktop/mac/src/styles.css.
+      app.js keeps only renderer markup and behaviour.
+    */
 
     .aion-workflow-canvas {
       grid-column: 2 !important;
@@ -36249,7 +37040,342 @@ function safeAionDesktopPatch(payload) {
     );
   }
 
-  window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflowDryRunResultPanelFallback() {
+  
+
+/* AION PATCH: Goal Engine dry-run Manifest UI v1 */
+function getAionGoalEngineManifestFromDryRunResultV1(result) {
+  if (!result || typeof result !== "object") return null;
+
+  const direct =
+    result.goal_engine_manifest ||
+    result.goalEngineManifest ||
+    null;
+
+  if (direct && typeof direct === "object" && !Array.isArray(direct)) {
+    return direct;
+  }
+
+  const payload =
+    (result.payload && typeof result.payload === "object" ? result.payload : null) ||
+    (result.result_payload && typeof result.result_payload === "object" ? result.result_payload : null) ||
+    null;
+
+  const nested =
+    payload?.goal_engine_manifest ||
+    payload?.goalEngineManifest ||
+    null;
+
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested;
+  }
+
+  return null;
+}
+
+function renderAionGoalEngineManifestPanelV1(result) {
+  const manifest = getAionGoalEngineManifestFromDryRunResultV1(result);
+  if (!manifest) return "";
+
+  const esc =
+    typeof escapeHtml === "function"
+      ? escapeHtml
+      : (value) => String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+
+  const asList = (value) => Array.isArray(value) ? value : [];
+  const goalNodes = asList(manifest.goal_nodes || manifest.goals);
+  const experimentNodes = asList(manifest.experiment_nodes || manifest.experiments);
+  const loopNodes = asList(manifest.loop_nodes || manifest.loops);
+  const outcomeNodes = asList(manifest.outcome_evaluation_nodes || manifest.outcomes);
+  const checkpointNodes = asList(manifest.checkpoint_nodes || manifest.checkpoints);
+  const safety = manifest.safety_contract && typeof manifest.safety_contract === "object"
+    ? manifest.safety_contract
+    : {};
+
+  return `
+    <section
+      class="aion-goal-engine-manifest-panel"
+      data-aion-goal-engine-manifest-panel="true"
+      style="
+        border:1px solid rgba(20,184,166,0.24);
+        background:linear-gradient(180deg, rgba(20,184,166,0.10), rgba(15,23,42,0.03));
+        border-radius:18px;
+        padding:16px;
+        margin:14px 0;
+        display:grid;
+        gap:14px;
+      "
+    >
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div>
+          <div class="eyebrow">Goal Engine</div>
+          <h3 style="margin:4px 0 0;">Dry-run Manifest</h3>
+          <p class="muted" style="margin:6px 0 0;">
+            Canonical dry-run contract attached by the workflow capsule runner.
+          </p>
+        </div>
+        <span class="badge">Manifest</span>
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(4, minmax(0, 1fr));
+        gap:10px;
+      ">
+        <div class="metric-card">
+          <div class="metric-label">Runtime</div>
+          <div class="metric-value">${esc(manifest.runtime || "aion_goal_engine")}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Mode</div>
+          <div class="metric-value">${esc(manifest.mode || manifest.execution_mode || "dry_run_only")}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Goals</div>
+          <div class="metric-value">${esc(goalNodes.length)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Experiments</div>
+          <div class="metric-value">${esc(experimentNodes.length)}</div>
+        </div>
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(4, minmax(0, 1fr));
+        gap:10px;
+      ">
+        <div class="metric-card">
+          <div class="metric-label">Loops</div>
+          <div class="metric-value">${esc(loopNodes.length)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Outcomes</div>
+          <div class="metric-value">${esc(outcomeNodes.length)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Checkpoints</div>
+          <div class="metric-value">${esc(checkpointNodes.length)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Goals grant permission</div>
+          <div class="metric-value">${esc(safety.goals_grant_permission === true ? "true" : "false")}</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="metric-label">Safety contract</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+          <span class="badge">dry-run only</span>
+          <span class="badge">grants no permission</span>
+          <span class="badge">approval before external writes</span>
+          <span class="badge">no unbounded execution</span>
+        </div>
+      </div>
+
+      <details>
+        <summary>Advanced Goal Engine manifest payload</summary>
+        <pre class="json-preview">${esc(JSON.stringify(manifest, null, 2))}</pre>
+      </details>
+    </section>
+  `;
+}
+
+
+/* AION PATCH: Goal Engine dry-run Boardroom Trace UI v1 */
+function getAionGoalEngineBoardroomTraceFromDryRunResultV1(result) {
+  if (!result || typeof result !== "object") return null;
+
+  const direct =
+    result.goal_engine_boardroom_trace ||
+    result.goalEngineBoardroomTrace ||
+    null;
+
+  if (direct && typeof direct === "object" && !Array.isArray(direct)) {
+    return direct;
+  }
+
+  const payload =
+    (result.payload && typeof result.payload === "object" ? result.payload : null) ||
+    (result.result_payload && typeof result.result_payload === "object" ? result.result_payload : null) ||
+    null;
+
+  const nested =
+    payload?.goal_engine_boardroom_trace ||
+    payload?.goalEngineBoardroomTrace ||
+    null;
+
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested;
+  }
+
+  return null;
+}
+
+function renderAionGoalEngineBoardroomTracePanelV1(result) {
+  const trace = getAionGoalEngineBoardroomTraceFromDryRunResultV1(result);
+  if (!trace) return "";
+
+  const esc =
+    typeof escapeHtml === "function"
+      ? escapeHtml
+      : (value) => String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+
+  const asList = (value) => Array.isArray(value) ? value : [];
+  const asBoolLabel = (value) => value === true ? "true" : value === false ? "false" : "—";
+
+  const activeGoals =
+    asList(trace.active_goals || trace.goals || trace.goal_nodes || trace.goal_ids);
+
+  const blockedReasons =
+    asList(trace.blocked_reasons || trace.blockedReasons || trace.safety_blocks || trace.warnings);
+
+  const evidenceRefs =
+    asList(trace.evidence_refs || trace.evidenceRefs || trace.evidence || trace.evidence_sources);
+
+  const experimentCount =
+    trace.experiment_count ??
+    trace.experiments_count ??
+    asList(trace.experiments || trace.experiment_nodes).length ??
+    0;
+
+  const loopCount =
+    trace.loop_count ??
+    trace.loops_count ??
+    asList(trace.loops || trace.loop_nodes).length ??
+    0;
+
+  const outcomeScore =
+    trace.outcome_score ??
+    trace.outcomeScore ??
+    trace.score ??
+    "—";
+
+  return `
+    <section
+      class="aion-goal-engine-boardroom-trace-panel"
+      data-aion-goal-engine-boardroom-trace-panel="true"
+      style="
+        border:1px solid rgba(99,102,241,0.22);
+        background:linear-gradient(180deg, rgba(99,102,241,0.10), rgba(15,23,42,0.03));
+        border-radius:18px;
+        padding:16px;
+        margin:14px 0;
+        display:grid;
+        gap:14px;
+      "
+    >
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+        <div>
+          <div class="eyebrow">Goal Engine</div>
+          <h3 style="margin:4px 0 0;">Boardroom Trace</h3>
+          <p class="muted" style="margin:6px 0 0;">
+            Dry-run trace for goals, experiments, loops, outcomes, safety, and evidence.
+          </p>
+        </div>
+        <span class="badge">Dry-run only</span>
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(4, minmax(0, 1fr));
+        gap:10px;
+      ">
+        <div class="metric-card">
+          <div class="metric-label">Runtime</div>
+          <div class="metric-value">${esc(trace.runtime || "aion_goal_engine")}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Dry-run only</div>
+          <div class="metric-value">${esc(asBoolLabel(trace.dry_run_only !== false))}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Grants permission</div>
+          <div class="metric-value">${esc(asBoolLabel(trace.grants_permission === true || trace.would_grant_permission === true))}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Outcome score</div>
+          <div class="metric-value">${esc(outcomeScore)}</div>
+        </div>
+      </div>
+
+      <div style="
+        display:grid;
+        grid-template-columns:repeat(3, minmax(0, 1fr));
+        gap:10px;
+      ">
+        <div class="metric-card">
+          <div class="metric-label">Active goals</div>
+          <div class="metric-value">${esc(activeGoals.length)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Experiments</div>
+          <div class="metric-value">${esc(experimentCount)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Loops</div>
+          <div class="metric-value">${esc(loopCount)}</div>
+        </div>
+      </div>
+
+      ${
+        activeGoals.length
+          ? `
+            <div>
+              <div class="metric-label">Active goal refs</div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                ${activeGoals.slice(0, 12).map((item) => `<span class="badge">${esc(item?.id || item?.goal_id || item?.title || item)}</span>`).join("")}
+              </div>
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        blockedReasons.length
+          ? `
+            <div>
+              <div class="metric-label">Blocked reasons / warnings</div>
+              <ul style="margin:8px 0 0; padding-left:18px;">
+                ${blockedReasons.slice(0, 8).map((item) => `<li>${esc(item?.reason || item?.code || item)}</li>`).join("")}
+              </ul>
+            </div>
+          `
+          : ""
+      }
+
+      ${
+        evidenceRefs.length
+          ? `
+            <div>
+              <div class="metric-label">Evidence refs</div>
+              <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;">
+                ${evidenceRefs.slice(0, 12).map((item) => `<span class="badge">${esc(item?.id || item?.source || item?.type || item)}</span>`).join("")}
+              </div>
+            </div>
+          `
+          : ""
+      }
+
+      <details>
+        <summary>Advanced Goal Engine trace payload</summary>
+        <pre class="json-preview">${esc(JSON.stringify(trace, null, 2))}</pre>
+      </details>
+    </section>
+  `;
+}
+
+
+window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflowDryRunResultPanelFallback() {
     const result = getLatestAionDryRunResult();
 
     if (window.__aionWorkflowDryRunTraceOpen !== true || !result) {
@@ -52177,190 +53303,11 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 }
 
 
-/* AION PATCH: Master Glyph Canvas v1 read-only foundation */
-(function installAionMasterGlyphCanvasReadOnlyStylesV1() {
-  const STYLE_ID = "aion-master-glyph-canvas-readonly-v1";
-  if (document.getElementById(STYLE_ID)) return;
-
-  const style = document.createElement("style");
-  style.id = STYLE_ID;
-  style.textContent = `
-    .aion-master-glyph-canvas {
-      position: fixed;
-      inset: 72px 28px 28px 92px;
-      z-index: 950;
-      border: 1px solid rgba(14, 165, 185, 0.28);
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at 20% 18%, rgba(14,165,185,0.16), transparent 28%),
-        radial-gradient(circle at 82% 70%, rgba(124,58,237,0.12), transparent 32%),
-        rgba(248, 250, 252, 0.96);
-      box-shadow: 0 30px 90px rgba(15, 23, 42, 0.25);
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: auto auto minmax(0, 1fr);
-      color: #0f172a;
-    }
-
-    .aion-master-glyph-canvas-header {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      align-items: flex-start;
-      padding: 24px 28px 14px;
-      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
-    }
-
-    .aion-master-glyph-canvas-header h2 {
-      margin: 4px 0 6px;
-      font-size: 24px;
-      letter-spacing: -0.04em;
-    }
-
-    .aion-master-glyph-canvas-header p {
-      margin: 0;
-      color: #64748b;
-      max-width: 720px;
-    }
-
-    .aion-master-glyph-canvas-contract {
-      margin: 14px 28px 0;
-      padding: 10px 14px;
-      border-radius: 14px;
-      background: rgba(15, 23, 42, 0.06);
-      color: #334155;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .aion-master-glyph-canvas-stage {
-      position: relative;
-      overflow: auto;
-      min-height: 520px;
-      padding: 28px;
-      background-image:
-        linear-gradient(rgba(15,23,42,0.055) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(15,23,42,0.055) 1px, transparent 1px);
-      background-size: 36px 36px;
-    }
-
-    .aion-master-glyph-node {
-      position: absolute;
-      left: var(--glyph-x);
-      top: var(--glyph-y);
-      width: 300px;
-      min-height: 220px;
-      border-radius: 24px;
-      border: 1px solid rgba(14, 165, 185, 0.32);
-      background: rgba(255, 255, 255, 0.92);
-      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.14);
-      padding: 16px;
-      pointer-events: auto;
-    }
-
-    .aion-master-glyph-node-top {
-      display: grid;
-      grid-template-columns: 42px minmax(0, 1fr);
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 14px;
-    }
-
-    .aion-master-glyph-orb {
-      width: 42px;
-      height: 42px;
-      border-radius: 16px;
-      display: grid;
-      place-items: center;
-      background: rgba(14, 165, 185, 0.12);
-      color: #0f766e;
-      font-size: 22px;
-    }
-
-    .aion-master-glyph-node strong {
-      display: block;
-      font-size: 15px;
-      color: #0f172a;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .aion-master-glyph-node small {
-      display: block;
-      margin-top: 3px;
-      color: #64748b;
-      font-size: 11px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .aion-master-glyph-meta-grid {
-      display: grid;
-      grid-template-columns: 82px minmax(0, 1fr);
-      gap: 7px 10px;
-      font-size: 12px;
-    }
-
-    .aion-master-glyph-meta-grid span {
-      color: #64748b;
-      font-weight: 700;
-    }
-
-    .aion-master-glyph-meta-grid b {
-      color: #0f172a;
-      font-weight: 800;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .aion-master-glyph-readonly-note {
-      margin-top: 14px;
-      border-top: 1px solid rgba(15, 23, 42, 0.08);
-      padding-top: 10px;
-      color: #64748b;
-      font-size: 11px;
-      font-weight: 800;
-    }
-
-    body.aion-workflow-dark-mode .aion-master-glyph-canvas {
-      background:
-        radial-gradient(circle at 20% 18%, rgba(14,165,185,0.18), transparent 28%),
-        radial-gradient(circle at 82% 70%, rgba(124,58,237,0.16), transparent 32%),
-        rgba(2, 6, 23, 0.96);
-      color: #e5e7eb;
-      border-color: rgba(45, 212, 191, 0.28);
-    }
-
-    body.aion-workflow-dark-mode .aion-master-glyph-node {
-      background: rgba(15, 23, 42, 0.94);
-      border-color: rgba(45, 212, 191, 0.28);
-    }
-
-    body.aion-workflow-dark-mode .aion-master-glyph-node strong,
-    body.aion-workflow-dark-mode .aion-master-glyph-meta-grid b,
-    body.aion-workflow-dark-mode .aion-master-glyph-canvas-header h2 {
-      color: #f8fafc;
-    }
-
-    body.aion-workflow-dark-mode .aion-master-glyph-node small,
-    body.aion-workflow-dark-mode .aion-master-glyph-meta-grid span,
-    body.aion-workflow-dark-mode .aion-master-glyph-canvas-header p,
-    body.aion-workflow-dark-mode .aion-master-glyph-readonly-note {
-      color: #94a3b8;
-    }
-  `;
-
-  document.head.appendChild(style);
-})();
+/* RETIRED: separate Master Glyph Canvas overlay styles removed. Glyphs now live in Workflow Canvas tabs/library. */
 
 })();
 
-/* AION PATCH: Master Glyph Canvas v3 staged glyph node inspector
+/* AION PATCH: Workflow Glyph staged glyph node inspector
    Purpose:
    - Show a read-only inspector for staged call_workflow_glyph nodes.
    - Do not execute child workflows.
@@ -52509,7 +53456,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       >
         <div class="aion-master-glyph-staged-inspector-head">
           <div>
-            <div class="eyebrow">Master Glyph Canvas v3</div>
+            <div class="eyebrow">Workflow Glyph</div>
             <h2>Staged workflow glyph</h2>
             <p>Read-only inspector. No execution, no editing, no wiring, No external writes.</p>
           </div>
@@ -52614,7 +53561,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     removeInspector();
 
     /*
-     * SOURCE FIX: Master Glyph Canvas v3 legacy inspector must no longer render
+     * SOURCE FIX: Workflow Glyph legacy inspector must no longer render
      * the old "MASTER GLYPH CANVAS V3 / Staged workflow glyph" panel for
      * call_workflow_glyph nodes. Once the canonical contract renderer is loaded,
      * delegate to it directly from the original source path.
@@ -52794,10 +53741,10 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
   window.setTimeout(syncInspector, 250);
 
-  console.log("[AION] Master Glyph Canvas v3 staged node inspector installed");
+  console.log("[AION] Workflow Glyph staged node inspector installed");
 
-/* AION PATCH: Master Glyph Canvas v4 staged glyph connection preview
-   SOURCE DISABLE: legacy Master Glyph Canvas v4 connection preview is retired
+/* AION PATCH: Workflow Glyph staged glyph connection preview
+   SOURCE DISABLE: legacy Workflow Glyph connection preview is retired
    Purpose:
    - Preview compatible upstream/downstream canvas nodes for a staged workflow glyph.
    - Do not create edges.
@@ -52984,7 +53931,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       >
         <div class="aion-master-glyph-connection-preview-head">
           <div>
-            <div class="eyebrow">Master Glyph Canvas v4</div>
+            <div class="eyebrow">Workflow Glyph</div>
             <h2>Connection preview</h2>
             <p>Preview-only. No execution, no editing, no wiring, no external writes.</p>
           </div>
@@ -53236,13 +54183,13 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   window.__aionMasterGlyphConnectionPreviewOpen =
     window.__aionMasterGlyphConnectionPreviewOpen || false;
 
-  console.log("[AION] Master Glyph Canvas v4 connection preview installed");
+  console.log("[AION] Workflow Glyph connection preview installed");
 })();
 
 
 })();
 
-/* AION PATCH: Master Glyph Canvas v5 staged connection confirm
+/* AION PATCH: Workflow Glyph staged connection confirm
    Purpose:
    - Allow explicit user confirmation of a previewed glyph connection.
    - Create draft-only canvas edges.
@@ -53349,7 +54296,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       status: "staged",
       mode: "draft_only",
       staged: true,
-      staged_by: "master_glyph_canvas_v5",
+      staged_by: "workflow_glyph_library_v5",
       created_at: new Date().toISOString(),
       dry_run_only: true,
       live_send_enabled: false,
@@ -53491,7 +54438,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
   window.setTimeout(patchConnectionPreviewRows, 250);
 
-  console.log("[AION] Master Glyph Canvas v5 staged connection confirm installed");
+  console.log("[AION] Workflow Glyph staged connection confirm installed");
 })();
 
 
@@ -53554,10 +54501,10 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       type === "call_workflow_glyph" ||
       type === "workflow_glyph_call" ||
       type === "master_glyph_call" ||
-      meta.staged_from === "master_glyph_canvas" ||
-      meta.source === "master_glyph_canvas" ||
-      data.staged_from === "master_glyph_canvas" ||
-      data.source === "master_glyph_canvas" ||
+      meta.staged_from === "workflow_glyph_library" ||
+      meta.source === "workflow_glyph_library" ||
+      data.staged_from === "workflow_glyph_library" ||
+      data.source === "workflow_glyph_library" ||
       String(node.id || "").includes("master_glyph") ||
       String(node.id || "").includes("call_workflow_glyph")
     );
@@ -53749,7 +54696,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       label.includes("workflow glyph") ||
       label.includes("master glyph") ||
       blob.includes("staged from master glyph canvas") ||
-      blob.includes("master_glyph_canvas") ||
+      blob.includes("workflow_glyph_library") ||
       blob.includes("call_workflow_glyph") ||
       blob.includes("glyph_code") ||
       blob.includes("workflow_glyph")
@@ -53937,7 +54884,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     window.__aionMasterGlyphLibraryOpen = true;
 
     // Keep Master Glyph mode active, but close old inline overlay state.
-    window.__aionCanvasMode = window.__aionCanvasMode || "master_glyph";
+    window.__aionCanvasMode = "workflow";
 
     if (typeof requestRender === "function") requestRender();
     else if (typeof window["requestRender"] === "function") window["requestRender"]();
@@ -54145,7 +55092,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
      * Keep the user in Master Glyph mode if already there.
      * The drawer is a utility overlay/source panel, not a mode switch.
      */
-    if (window.__aionCanvasMode !== "master_glyph") {
+    if (true) {
       window.__aionCanvasMode = "workflow";
       window.__aionMasterGlyphCanvasOpen = false;
     }
@@ -57557,7 +58504,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
  * -------------------------------------------------------
  * Purpose:
  * - Fix old staged call_workflow_glyph inspector overlays that do not close.
- * - Applies to the Master Glyph Canvas v3/v4 staged glyph inspector/card overlays.
+ * - Applies to the Workflow Glyph/v4 staged glyph inspector/card overlays.
  * - Does not delete staged glyph nodes.
  * - Does not close the backend marketplace modal.
  * - Does not close the glyph workflow tab.
@@ -62130,7 +63077,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
  * AION PATCH: call_workflow_glyph Inspector Takeover v4
  * -----------------------------------------------------
  * Purpose:
- * - Legacy Master Glyph Canvas v3/v4 panels are still opening over the canvas.
+ * - Legacy Workflow Glyph/v4 panels are still opening over the canvas.
  * - Replace them with the canonical CALL_WORKFLOW_GLYPH CONTRACT inspector.
  * - Move all inspector panels below the fixed glyph header/tab strip.
  * - No observer loop. Only reacts after click/render/selection events.
@@ -62834,7 +63781,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
  * --------------------------------------------------------------------
  * Purpose:
  * - Details/summary rows inside the canonical inspector should expand/collapse
- *   without waking old Master Glyph Canvas v3/v4 modal/preview handlers.
+ *   without waking old Workflow Glyph/v4 modal/preview handlers.
  * - Keep native <details> behaviour.
  */
 (function installAionCallWorkflowGlyphInspectorDetailsClickIsolationV16() {
@@ -62884,7 +63831,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
  * -------------------------------------------------------------
  * Purpose:
  * - Close the canonical call_workflow_glyph contract inspector only.
- * - Do not trigger old Master Glyph Canvas v3/v4 close/open handlers.
+ * - Do not trigger old Workflow Glyph/v4 close/open handlers.
  * - Keep selected canvas node intact.
  */
 (function installAionCallWorkflowGlyphCanonicalCloseIsolationV17() {
@@ -62942,7 +63889,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
  * --------------------------------------------------
  * Purpose:
  * - Close should close the canonical inspector and keep it closed.
- * - It must not wake old Master Glyph Canvas v3/v4 panels.
+ * - It must not wake old Workflow Glyph/v4 panels.
  * - Reopen only when the user selects/clicks the glyph node again.
  */
 (function installAionCallWorkflowGlyphCloseSuppressV18() {
@@ -63037,7 +63984,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
  * Purpose:
  * - Close canonical inspector before legacy click handlers can run.
  * - Keep selected canvas node intact.
- * - Do not reopen old Master Glyph Canvas v3/v4 panels.
+ * - Do not reopen old Workflow Glyph/v4 panels.
  */
 (function installAionCallWorkflowGlyphSourceCloseFixV19() {
   if (window.__aionCallWorkflowGlyphSourceCloseFixV19Installed === true) return;
@@ -63405,22 +64352,13 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
    RESTORE LOCK: Master Glyph Phase 1 open state exact anchor
    ============================================================ */
 
-/* window.__aionMasterGlyphCanvasOpen = window.__aionCanvasMode === "master_glyph" */
 
 
-/* window.__aionCanvasMode === "master_glyph" */
 /* button.setAttribute("aria-pressed", active ? "true" : "false") */
-/* window.__closeAionMasterGlyphCanvas = () => setCanvasMode("workflow") */
 
 
-/* window.__setAionCanvasMode = setCanvasMode */
 /* renderAionMasterGlyphCanvasLauncherPhase1Disabled */
 /* window.addEventListener("aion:workflow-rendered", syncAfterRender) */
-/* window.__openAionMasterGlyphCanvas = () => setCanvasMode("master_glyph") */
-/* event.target.closest?.("[data-aion-canvas-mode]") */
-/* body.aion-master-glyph-canvas-mode */
-/* data-aion-canvas-mode="workflow" */
-/* data-aion-canvas-mode="master_glyph" */
 
 
 /* ============================================================
@@ -63439,8 +64377,6 @@ function installAionMasterGlyphPhase1SingleModeLock() {
     installed: true,
     mode: "single_canvas_mode",
     workflow: 'data-aion-canvas-mode="workflow"',
-    master_glyph: 'data-aion-canvas-mode="master_glyph"',
-    className: "body.aion-master-glyph-canvas-mode",
   };
 }
 
@@ -63451,14 +64387,11 @@ document.addEventListener("click", (event) => {
   /* delegated only */
 }, true);
 
-/* body.aion-master-glyph-canvas-mode */
-/* data-aion-canvas-mode="workflow" */
-/* data-aion-canvas-mode="master_glyph" */
 
 function renderAionMasterGlyphCanvasLauncher() {
   return `
     <button type="button" data-aion-canvas-mode="workflow" title="Workflow Canvas">Workflow Canvas</button>
-    <button type="button" data-aion-canvas-mode="master_glyph" title="Master Glyph Canvas">Master Glyph Canvas</button>
+    
   `;
 }
 
@@ -63502,7 +64435,7 @@ function renderAionMasterGlyphCanvasPanel() {
     .aion-workflow-floating-toolbar-consolidated [title="Clear staged glyph nodes"],
     .aion-workflow-floating-toolbar-consolidated [data-aion-workflow-export-glyph="true"],
     .aion-workflow-floating-toolbar-consolidated [data-aion-workflow-save-capsule="true"],
-    .aion-workflow-floating-toolbar-consolidated [data-aion-canvas-mode="master-glyph"],
+    .aion-workflow-floating-toolbar-consolidated [data-aion-retired-canvas-mode="master-glyph"],
     .aion-workflow-floating-toolbar-consolidated [data-aion-master-glyph-canvas="true"],
     .aion-workflow-floating-toolbar-consolidated [data-aion-master-glyph-open-canvas="true"] {
       display: none !important;
@@ -64577,3 +65510,4864 @@ function renderAionMasterGlyphCanvasPanel() {
 
   console.log("[AION] Glyph Library Button Hard Bind E12 installed");
 })();
+
+/*
+ * AION PATCH: Workflow Left Sidebar Icons + Tooltips v1
+ * -----------------------------------------------------
+ * Purpose:
+ * - Replace rough text/symbol sidebar buttons with clean inline SVG icons.
+ * - Add visible hover labels.
+ * - Preserve existing data-tab navigation handlers.
+ * - Survive requestRender().
+ * - Do not touch glyph workflow tabs/runtime.
+ */
+
+
+
+
+/* AION PATCH: Goal Engine workflow picker action aliases v1 */
+(function installAionGoalEngineWorkflowPickerAliasesV1() {
+  const PATCH_ID = "aion-goal-engine-workflow-picker-aliases-v1";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  window.__aionGoalEngineWorkflowActionAliases = {
+    goal_engine_goal: "goal_engine.goal",
+    goal_engine_experiment: "goal_engine.experiment",
+    goal_engine_loop: "goal_engine.loop",
+    goal_engine_outcome_evaluation: "goal_engine.outcome_evaluation",
+    goal_engine_reflect_learn: "goal_engine.reflect_learn",
+    goal_engine_state_delta_accumulator: "goal_engine.state_delta_accumulator",
+    goal_engine_environment_revalidation: "goal_engine.environment_revalidation",
+  };
+
+  window.__resolveAionGoalEngineWorkflowActionAlias = function resolveAionGoalEngineWorkflowActionAlias(actionType) {
+    const key = String(actionType || "").trim();
+    return window.__aionGoalEngineWorkflowActionAliases[key] || key;
+  };
+})();
+
+
+/* AION PATCH: Goal Engine node inspector contract fields v1
+   Purpose:
+   - When a Goal Engine node is selected, expose the safety/runtime contract clearly.
+   - Dry-run only.
+   - Grants no permission.
+   - Shows budget/loop/checkpoint/evidence/revalidation fields.
+   - Does not execute anything.
+*/
+(function installAionGoalEngineNodeInspectorFieldsV1() {
+  const PATCH_ID = "aion-goal-engine-node-inspector-fields-v1";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function isGoalEngineNode(node) {
+    if (!node || typeof node !== "object") return false;
+
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node.type,
+      node.kind,
+      node.app,
+      node.action_id,
+      node.module_id,
+      node.title,
+      node.label,
+      config.action_id,
+      config.module_id,
+      config.app,
+      config.kind,
+    ]
+      .map((value) => String(value || "").toLowerCase())
+      .join(" ");
+
+    return (
+      haystack.includes("goal_engine.") ||
+      haystack.includes("aion_goal_engine") ||
+      haystack.includes("goal engine")
+    );
+  }
+
+  function getGoalEngineActionId(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    return String(
+      node?.action_id ||
+      node?.module_id ||
+      config.action_id ||
+      config.module_id ||
+      "",
+    );
+  }
+
+  function goalEngineKindLabel(actionId) {
+    const id = String(actionId || "").toLowerCase();
+
+    if (id.includes("environment_revalidation")) return "Environment Revalidation";
+    if (id.includes("state_delta_accumulator")) return "State Delta Accumulator";
+    if (id.includes("outcome_evaluation")) return "Outcome Evaluation";
+    if (id.includes("reflect_learn")) return "Reflect / Learn";
+    if (id.includes("experiment")) return "Experiment";
+    if (id.includes("loop")) return "Loop";
+    if (id.includes("goal")) return "Goal";
+
+    return "Goal Engine Node";
+  }
+
+  function getGoalEngineContractModel(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const actionId = getGoalEngineActionId(node);
+    const label = goalEngineKindLabel(actionId);
+
+    return {
+      node_id: node?.id || "",
+      title: node?.title || node?.label || label,
+      action_id: actionId,
+      kind_label: label,
+      dry_run_only: config.dry_run_only !== false && node?.dry_run_only !== false,
+      grants_permission: false,
+      external_writes_require_approval: true,
+      unbounded_execution_allowed: false,
+      max_iterations: config.max_iterations ?? node?.max_iterations ?? "bounded",
+      max_runtime_minutes: config.max_runtime_minutes ?? node?.max_runtime_minutes ?? "bounded",
+      max_spend: config.max_spend ?? node?.max_spend ?? "blocked unless budgeted",
+      checkpoint_required:
+        actionId.includes("loop") ||
+        actionId.includes("state_delta") ||
+        actionId.includes("environment_revalidation"),
+      environment_revalidation_required:
+        actionId.includes("environment_revalidation") ||
+        actionId.includes("loop") ||
+        actionId.includes("state_delta"),
+      evidence_required:
+        actionId.includes("outcome_evaluation") ||
+        actionId.includes("reflect_learn"),
+      learning_blocked_when_adr_active:
+        actionId.includes("reflect_learn"),
+      notes:
+        "Goal Engine nodes describe goals, experiments, loops, outcomes, reflection, state deltas, and revalidation. They do not grant execution permission.",
+    };
+  }
+
+  function renderGoalEngineInspectorBlock(node) {
+    const model = getGoalEngineContractModel(node);
+
+    return `
+      <section
+        class="aion-goal-engine-inspector"
+        data-aion-goal-engine-inspector-fields="true"
+        data-aion-goal-engine-node-id="${esc(model.node_id)}"
+      >
+        <div class="aion-goal-engine-inspector-head">
+          <div>
+            <div class="eyebrow">AION Goal Engine</div>
+            <h3>${esc(model.kind_label)}</h3>
+            <p>${esc(model.notes)}</p>
+          </div>
+        </div>
+
+        <div class="aion-goal-engine-contract-strip">
+          Dry-run only · Grants no permission · Approval required before external writes · No unbounded execution
+        </div>
+
+        <div class="aion-goal-engine-contract-grid">
+          <span>Action ID</span>
+          <b>${esc(model.action_id || "goal_engine.unknown")}</b>
+
+          <span>Dry-run only</span>
+          <b>${model.dry_run_only ? "true" : "false"}</b>
+
+          <span>Grants permission</span>
+          <b>${model.grants_permission ? "true" : "false"}</b>
+
+          <span>External writes</span>
+          <b>${model.external_writes_require_approval ? "approval required" : "not allowed"}</b>
+
+          <span>Unbounded execution</span>
+          <b>${model.unbounded_execution_allowed ? "allowed" : "blocked"}</b>
+
+          <span>Max iterations</span>
+          <b>${esc(model.max_iterations)}</b>
+
+          <span>Max runtime</span>
+          <b>${esc(model.max_runtime_minutes)}</b>
+
+          <span>Max spend</span>
+          <b>${esc(model.max_spend)}</b>
+
+          <span>Checkpoint</span>
+          <b>${model.checkpoint_required ? "required / visible" : "not required"}</b>
+
+          <span>Resume revalidation</span>
+          <b>${model.environment_revalidation_required ? "required" : "not required"}</b>
+
+          <span>Evidence</span>
+          <b>${model.evidence_required ? "required before success" : "manual/optional"}</b>
+
+          <span>Learning guard</span>
+          <b>${model.learning_blocked_when_adr_active ? "blocked while adr_active=true" : "standard policy"}</b>
+        </div>
+      </section>
+    `;
+  }
+
+  window.__isAionGoalEngineNode = isGoalEngineNode;
+  window.__renderAionGoalEngineInspectorBlockV1 = renderGoalEngineInspectorBlock;
+
+  const style = document.createElement("style");
+  style.id = PATCH_ID;
+  style.textContent = `
+    .aion-goal-engine-inspector {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(124,58,237,0.22);
+      background:
+        radial-gradient(circle at 10% 0%, rgba(124,58,237,0.10), transparent 30%),
+        rgba(255,255,255,0.94);
+      box-shadow: 0 12px 30px rgba(15,23,42,0.08);
+    }
+
+    .aion-goal-engine-inspector-head h3 {
+      margin: 4px 0 6px;
+      font-size: 16px;
+      font-weight: 950;
+      color: #0f172a;
+    }
+
+    .aion-goal-engine-inspector-head p {
+      margin: 0;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .aion-goal-engine-contract-strip {
+      margin-top: 12px;
+      padding: 9px 11px;
+      border-radius: 13px;
+      background: rgba(15,23,42,0.06);
+      color: #334155;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.035em;
+      text-transform: uppercase;
+    }
+
+    .aion-goal-engine-contract-grid {
+      display: grid;
+      grid-template-columns: 126px minmax(0, 1fr);
+      gap: 8px 10px;
+      margin-top: 12px;
+      font-size: 12px;
+    }
+
+    .aion-goal-engine-contract-grid span {
+      color: #64748b;
+      font-weight: 800;
+    }
+
+    .aion-goal-engine-contract-grid b {
+      color: #0f172a;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    body.aion-workflow-dark-mode .aion-goal-engine-inspector,
+    body.aion-workflow-dark-glass .aion-goal-engine-inspector {
+      background: rgba(15,23,42,0.94);
+      border-color: rgba(167,139,250,0.28);
+    }
+
+    body.aion-workflow-dark-mode .aion-goal-engine-inspector-head h3,
+    body.aion-workflow-dark-mode .aion-goal-engine-contract-grid b,
+    body.aion-workflow-dark-glass .aion-goal-engine-inspector-head h3,
+    body.aion-workflow-dark-glass .aion-goal-engine-contract-grid b {
+      color: #f8fafc;
+    }
+
+    body.aion-workflow-dark-mode .aion-goal-engine-inspector-head p,
+    body.aion-workflow-dark-mode .aion-goal-engine-contract-grid span,
+    body.aion-workflow-dark-glass .aion-goal-engine-inspector-head p,
+    body.aion-workflow-dark-glass .aion-goal-engine-contract-grid span {
+      color: #94a3b8;
+    }
+
+    body.aion-workflow-dark-mode .aion-goal-engine-contract-strip,
+    body.aion-workflow-dark-glass .aion-goal-engine-contract-strip {
+      background: rgba(255,255,255,0.07);
+      color: #cbd5e1;
+    }
+  `;
+  document.head.appendChild(style);
+
+  console.log("[AION] Goal Engine node inspector fields v1 installed");
+})();
+
+
+
+
+/* AION PATCH: Goal Engine inspector DOM injector v2
+   Purpose:
+   - Attach the existing Goal Engine inspector block to the active selected-node inspector.
+   - Does not replace existing inspector.
+   - Does not execute anything.
+   - Only appends read-only contract fields for goal_engine.* nodes.
+*/
+(function installAionGoalEngineInspectorDomInjectorV2() {
+  const PATCH_ID = "aion-goal-engine-inspector-dom-injector-v2";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  function getGraph() {
+    if (typeof getAionWorkflowDraftState === "function") {
+      try {
+        const graph = getAionWorkflowDraftState();
+        if (graph && typeof graph === "object") return graph;
+      } catch (_) {}
+    }
+
+    return window.__aionWorkflowGraph || { nodes: [], edges: [] };
+  }
+
+  function getSelectedNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    const selectedId =
+      window.__aionWorkflowSelectedNodeId ||
+      window.__aionSelectedWorkflowNodeId ||
+      window.__aionMainWorkflowSelectedNodeId ||
+      "";
+
+    if (!selectedId) return null;
+
+    return nodes.find((node) => String(node?.id || "") === String(selectedId)) || null;
+  }
+
+  function isGoalEngineNode(node) {
+    if (typeof window.__isAionGoalEngineNode === "function") {
+      return window.__isAionGoalEngineNode(node);
+    }
+
+    const value = [
+      node?.action_id,
+      node?.module_id,
+      node?.config?.action_id,
+      node?.config?.module_id,
+      node?.type,
+      node?.kind,
+      node?.app,
+    ].map((item) => String(item || "").toLowerCase()).join(" ");
+
+    return value.includes("goal_engine.") || value.includes("aion_goal_engine");
+  }
+
+  function findInspectorMount() {
+    return (
+      document.querySelector("[data-aion-main-node-inspector='true']") ||
+      document.querySelector("[data-aion-workflow-node-inspector='true']") ||
+      document.querySelector("[data-aion-main-node-edit-v6]")?.closest?.("aside,section,div") ||
+      document.querySelector("[data-aion-main-node-edit-v5]")?.closest?.("aside,section,div") ||
+      document.querySelector("[data-aion-main-node-field='action_id']")?.closest?.("aside,section,div") ||
+      document.querySelector(".aion-workflow-inspector") ||
+      document.querySelector(".aion-workflow-node-inspector") ||
+      document.querySelector(".workflow-node-inspector")
+    );
+  }
+
+  function removeInjected() {
+    document
+      .querySelectorAll("[data-aion-goal-engine-inspector-injected='true']")
+      .forEach((node) => node.remove());
+  }
+
+  function syncGoalEngineInspector() {
+    const selectedNode = getSelectedNode();
+
+    if (!selectedNode || !isGoalEngineNode(selectedNode)) {
+      removeInjected();
+      return;
+    }
+
+    if (typeof window.__renderAionGoalEngineInspectorBlockV1 !== "function") {
+      return;
+    }
+
+    const mount = findInspectorMount();
+    if (!mount) return;
+
+    const existing = mount.querySelector("[data-aion-goal-engine-inspector-injected='true']");
+    if (
+      existing &&
+      String(existing.getAttribute("data-aion-goal-engine-node-id") || "") === String(selectedNode.id || "")
+    ) {
+      return;
+    }
+
+    removeInjected();
+
+    const wrapper = document.createElement("div");
+    wrapper.setAttribute("data-aion-goal-engine-inspector-injected", "true");
+    wrapper.setAttribute("data-aion-goal-engine-node-id", String(selectedNode.id || ""));
+    wrapper.innerHTML = window.__renderAionGoalEngineInspectorBlockV1(selectedNode);
+
+    mount.appendChild(wrapper);
+  }
+
+  window.__syncAionGoalEngineInspectorDomV2 = syncGoalEngineInspector;
+
+  window.addEventListener("aion:workflow-rendered", syncGoalEngineInspector);
+  window.addEventListener("aion:workflow-selection-changed", syncGoalEngineInspector);
+  window.addEventListener("click", () => {
+    window.clearTimeout(window.__aionGoalEngineInspectorDomSyncTimerV2);
+    window.__aionGoalEngineInspectorDomSyncTimerV2 = window.setTimeout(syncGoalEngineInspector, 80);
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionGoalEngineInspectorDomMutationTimerV2);
+    window.__aionGoalEngineInspectorDomMutationTimerV2 = window.setTimeout(syncGoalEngineInspector, 120);
+  });
+
+  observer.observe(document.documentElement, {
+    childList: true,
+    subtree: true,
+  });
+
+  window.setTimeout(syncGoalEngineInspector, 250);
+
+  console.log("[AION] Goal Engine inspector DOM injector v2 installed");
+})();
+
+
+/* AION PATCH: visible Goal Engine architect inspector block v1 */
+function isAionGoalEngineArchitectStepV1(step) {
+  const actionId = String(step?.action_id || step?.id || "");
+  const app = String(step?.app || step?.connector || "");
+  const kind = String(step?.step_kind || step?.kind || "");
+  return (
+    actionId.startsWith("goal_engine.") ||
+    app === "aion_goal_engine" ||
+    kind === "goal_engine"
+  );
+}
+
+function renderAionGoalEngineArchitectInspectorBlockV1(step = {}) {
+  if (!isAionGoalEngineArchitectStepV1(step)) return "";
+
+  const esc = typeof escapeHtml === "function" ? escapeHtml : (value) => String(value ?? "");
+  const actionId = String(step.action_id || "");
+  const nodeKind = actionId.replace("goal_engine.", "") || "goal";
+
+  const defaults = {
+    goal: {
+      title: "Goal node",
+      target: "Define measurable business outcome",
+      metric: "outcome_score",
+      maxIterations: "1",
+      evidence: "manual:pending",
+      learning: "false",
+    },
+    experiment: {
+      title: "Experiment / A-B test node",
+      target: "Compare variants safely",
+      metric: "reply_rate",
+      maxIterations: "1",
+      evidence: "manual:pending",
+      learning: "false",
+    },
+    loop: {
+      title: "Bounded loop node",
+      target: "Improve result within limits",
+      metric: "loop_progress",
+      maxIterations: "3",
+      evidence: "loop_trace",
+      learning: "false",
+    },
+    outcome_evaluation: {
+      title: "Outcome evaluation node",
+      target: "Score result using evidence",
+      metric: "enquiries",
+      maxIterations: "1",
+      evidence: "manual:pending",
+      learning: "false",
+    },
+    reflect_learn: {
+      title: "Reflect / learn node",
+      target: "Extract advisory learning only",
+      metric: "reflection_quality",
+      maxIterations: "1",
+      evidence: "run_summary",
+      learning: "guarded",
+    },
+    state_delta_accumulator: {
+      title: "Checkpoint / state-delta node",
+      target: "Store bounded resume state",
+      metric: "state_delta_size",
+      maxIterations: "1",
+      evidence: "checkpoint_preview",
+      learning: "false",
+    },
+    environment_revalidation: {
+      title: "Environment revalidation node",
+      target: "Recheck approvals, vault, connectors, and parent goal",
+      metric: "revalidation_passed",
+      maxIterations: "1",
+      evidence: "revalidation_trace",
+      learning: "false",
+    },
+  };
+
+  const cfg = defaults[nodeKind] || defaults.goal;
+
+  return `
+    <section
+      class="aion-goal-engine-inspector-block"
+      data-aion-goal-engine-architect-inspector="true"
+      style="
+        margin-top:18px;
+        padding:16px;
+        border:1px solid rgba(14,165,233,0.28);
+        background:linear-gradient(180deg, rgba(240,249,255,0.95), rgba(255,255,255,0.95));
+        border-radius:14px;
+        display:grid;
+        gap:14px;
+      "
+    >
+      <div>
+        <div class="eyebrow">Goal Engine</div>
+        <h3 style="margin:4px 0 4px;">${esc(cfg.title)}</h3>
+        <p style="margin:0;color:#64748b;font-size:13px;line-height:1.45;">
+          Managed-agent dry-run contract. This node previews behaviour only and does not grant execution permission.
+        </p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;">
+        <div class="metric-card">
+          <div class="metric-label">Dry-run only</div>
+          <div class="metric-value">true</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Grants permission</div>
+          <div class="metric-value">false</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">External writes</div>
+          <div class="metric-value">approval gated</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
+        <label>
+          <span>Goal / target</span>
+          <input data-aion-goal-engine-field="metric_target" value="${esc(step.metric_target || cfg.target)}" />
+        </label>
+        <label>
+          <span>Outcome metric</span>
+          <input data-aion-goal-engine-field="metric_name" value="${esc(step.metric_name || cfg.metric)}" />
+        </label>
+        <label>
+          <span>Max iterations</span>
+          <input data-aion-goal-engine-field="max_iterations" value="${esc(step.max_iterations || cfg.maxIterations)}" />
+        </label>
+        <label>
+          <span>Evidence refs</span>
+          <input data-aion-goal-engine-field="evidence_refs" value="${esc(step.evidence_refs || cfg.evidence)}" />
+        </label>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;">
+        <div class="list-item">
+          <div class="list-item-title">Bounded execution</div>
+          <div class="list-item-sub">Unbounded goals, loops, and experiments are blocked.</div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-title">Learning guard</div>
+          <div class="list-item-sub">Learning is advisory only and cannot bypass policy.</div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+(function installAionGoalEngineArchitectInspectorInjectionV1() {
+  if (window.__aionGoalEngineArchitectInspectorInjectionV1 === true) return;
+  window.__aionGoalEngineArchitectInspectorInjectionV1 = true;
+
+  const previous = window.renderAionArchitectStepSettingsModal || renderAionArchitectStepSettingsModal;
+
+  if (typeof previous !== "function") return;
+
+  window.renderAionArchitectStepSettingsModal = function patchedRenderAionArchitectStepSettingsModal() {
+    const html = previous.apply(this, arguments);
+    const steps = Array.isArray(window.__aionArchitectSteps) ? window.__aionArchitectSteps : [];
+    const selectedId = window.__aionArchitectSelectedStepId;
+    const step = steps.find((item) => String(item.id) === String(selectedId)) || steps[0];
+
+    if (!isAionGoalEngineArchitectStepV1(step)) return html;
+    if (String(html || "").includes('data-aion-goal-engine-architect-inspector="true"')) return html;
+
+    const block = renderAionGoalEngineArchitectInspectorBlockV1(step);
+
+    if (String(html || "").includes("APPROVAL / SAFETY")) {
+      return String(html).replace(/(<[^>]*>\s*APPROVAL \/ SAFETY\s*<\/[^>]*>)/, `${block}$1`);
+    }
+
+    return String(html).replace("</section>", `${block}</section>`);
+  };
+
+  try {
+    renderAionArchitectStepSettingsModal = window.renderAionArchitectStepSettingsModal;
+  } catch (_) {}
+})();
+
+/* AION PATCH: Goal Engine architect inspector field persistence v1 */
+(function installAionGoalEngineArchitectInspectorFieldPersistenceV1() {
+  if (window.__aionGoalEngineArchitectInspectorFieldPersistenceV1 === true) return;
+  window.__aionGoalEngineArchitectInspectorFieldPersistenceV1 = true;
+
+  function normaliseGoalEngineFieldValue(field, value) {
+    const raw = String(value ?? "").trim();
+
+    if (field === "max_iterations") {
+      const n = Number.parseInt(raw || "1", 10);
+      return Number.isFinite(n) ? Math.max(0, Math.min(n, 100)) : 1;
+    }
+
+    if (field === "evidence_refs") {
+      return raw
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean);
+    }
+
+    return raw;
+  }
+
+  function syncGoalEngineConfigForStep(step) {
+    if (!step || typeof step !== "object") return step;
+
+    const config = {
+      ...(step.config && typeof step.config === "object" ? step.config : {}),
+    };
+
+    for (const key of [
+      "metric_target",
+      "metric_name",
+      "max_iterations",
+      "evidence_refs",
+      "feedback_required",
+      "allow_learning",
+      "do_not_learn_from_this",
+      "goal_budget",
+      "estimated_cost",
+      "estimated_runtime_minutes",
+      "risk_score",
+    ]) {
+      if (step[key] !== undefined) {
+        config[key] = step[key];
+      }
+    }
+
+    return {
+      ...step,
+      config,
+    };
+  }
+
+  window.__syncAionGoalEngineConfigForStepV1 = syncGoalEngineConfigForStep;
+
+  document.addEventListener("input", (event) => {
+    const field = event.target?.closest?.("[data-aion-goal-engine-field]");
+    if (!field) return;
+
+    const key = field.getAttribute("data-aion-goal-engine-field");
+    if (!key) return;
+
+    const selectedId = window.__aionArchitectSelectedStepId;
+    const steps = Array.isArray(window.__aionArchitectSteps) ? window.__aionArchitectSteps : [];
+
+    window.__aionArchitectSteps = steps.map((step) => {
+      if (String(step.id) !== String(selectedId)) return step;
+
+      const next = {
+        ...step,
+        [key]: normaliseGoalEngineFieldValue(key, field.value),
+      };
+
+      return syncGoalEngineConfigForStep(next);
+    });
+
+    if (typeof persistAionWorkflowDraftState === "function") {
+      persistAionWorkflowDraftState();
+    }
+  }, true);
+
+  document.addEventListener("change", (event) => {
+    const field = event.target?.closest?.("[data-aion-goal-engine-field]");
+    if (!field) return;
+
+    field.dispatchEvent(new Event("input", { bubbles: true }));
+  }, true);
+})();
+
+/* AION PATCH: visible Goal Engine dry-run step trace panel v1 */
+function getAionGoalEngineStepTraceFromDryRunResultV1(result) {
+  if (!result || typeof result !== "object") return [];
+
+  const direct = result.goal_engine_step_trace;
+  if (Array.isArray(direct)) return direct;
+
+  const payload = typeof result.to_dict === "function"
+    ? result.to_dict()
+    : result.payload || result.result || result;
+
+  if (payload && typeof payload === "object") {
+    if (Array.isArray(payload.goal_engine_step_trace)) return payload.goal_engine_step_trace;
+
+    const trace = Array.isArray(payload.trace) ? payload.trace : [];
+    return trace.filter((row) =>
+      row &&
+      typeof row === "object" &&
+      (
+        row.runtime === "aion_goal_engine" ||
+        String(row.action_id || "").startsWith("goal_engine.") ||
+        String(row.node_kind || "").includes("goal") ||
+        row.loop_iteration_preview ||
+        row.experiment_variant_preview ||
+        row.outcome_score_preview ||
+        row.checkpoint_resume_preview ||
+        row.state_delta_preview ||
+        row.simulation_what_if_preview ||
+        row.resource_cost_governance_preview ||
+        row.human_feedback_preview
+      )
+    );
+  }
+
+  return [];
+}
+
+function renderAionGoalEngineStepTracePanelV1(result) {
+  const rows = getAionGoalEngineStepTraceFromDryRunResultV1(result);
+  if (!Array.isArray(rows) || rows.length < 1) return "";
+
+  const esc = typeof escapeHtml === "function"
+    ? escapeHtml
+    : (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      }[ch]));
+
+  const previewSummary = (row) => {
+    const bits = [];
+
+    if (row.loop_iteration_preview) {
+      bits.push(`Loop ${row.loop_iteration_preview.would_run_iterations ?? row.loop_iteration_preview.max_iterations ?? "—"} iteration(s)`);
+    }
+
+    if (row.experiment_variant_preview) {
+      const variants = Array.isArray(row.experiment_variant_preview.variants)
+        ? row.experiment_variant_preview.variants.map((item) =>
+            typeof item === "object" ? item.label || item.variant_id || "variant" : item
+          )
+        : [];
+      bits.push(`Variants ${variants.join(", ") || "—"}`);
+    }
+
+    if (row.outcome_score_preview) {
+      bits.push(`Outcome ${row.outcome_score_preview.metric_name || row.outcome_score_preview.metric || "metric"}: ${row.outcome_score_preview.outcome_score ?? "pending"}`);
+    }
+
+    if (row.checkpoint_resume_preview) {
+      bits.push(`Checkpoint ${row.checkpoint_resume_preview.checkpoint_summary || "ready"}`);
+    }
+
+    if (row.state_delta_preview) {
+      bits.push(`State delta bounded`);
+    }
+
+    if (row.simulation_what_if_preview) {
+      bits.push(`Risk ${row.simulation_what_if_preview.risk_score ?? "—"}`);
+    }
+
+    if (row.resource_cost_governance_preview) {
+      bits.push(`Cost ${row.resource_cost_governance_preview.estimated_cost ?? 0} / budget ${row.resource_cost_governance_preview.goal_budget ?? "—"}`);
+    }
+
+    if (row.human_feedback_preview) {
+      bits.push(row.human_feedback_preview.feedback_required ? "Human feedback required" : "Human feedback optional");
+    }
+
+    return bits.length ? bits.join(" · ") : "Dry-run simulated. No external write performed.";
+  };
+
+  return `
+    <section class="panel" data-aion-goal-engine-step-trace-panel="true" style="margin-top:16px;">
+      <div class="panel-header">
+        <div>
+          <div class="eyebrow">Goal Engine</div>
+          <h3 style="margin:4px 0 0;">Step Trace Preview</h3>
+          <p class="muted" style="margin:6px 0 0;">Per-node dry-run preview. No live execution, no permission grant, no external write.</p>
+        </div>
+        <span class="badge">Dry-run only</span>
+      </div>
+
+      <div class="list-wrap">
+        ${rows.map((row, index) => `
+          <div class="list-item" data-aion-goal-engine-step-trace-row="true">
+            <div class="list-item-title">
+              ${esc(row.node_title || row.title || row.node_id || `Goal Engine step ${index + 1}`)}
+            </div>
+            <div class="list-item-sub">
+              ${esc(row.node_kind || row.kind || row.step_type || "goal_engine")} ·
+              ${esc(row.status || "dry_run_simulated")}
+            </div>
+            <div class="list-item-sub" style="margin-top:6px;">
+              ${esc(previewSummary(row))}
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+              <span class="badge">Dry-run ${esc(row.dry_run_only === false ? "false" : "true")}</span>
+              <span class="badge">Grants permission ${esc(row.grants_permission === true ? "true" : "false")}</span>
+              <span class="badge">External write ${esc(row.external_write_performed === true ? "performed" : "blocked")}</span>
+              ${row.unbounded_execution_blocked === true ? `<span class="badge">Unbounded blocked</span>` : ""}
+            </div>
+          </div>
+        `).join("")}
+      </div>
+
+      <details style="margin-top:12px;">
+        <summary>Advanced Goal Engine step trace payload</summary>
+        <pre style="white-space:pre-wrap;max-height:320px;overflow:auto;">${esc(JSON.stringify(rows, null, 2))}</pre>
+      </details>
+    </section>
+  `;
+}
+
+(function installAionGoalEngineStepTraceDryRunPanelV1() {
+  if (window.__aionGoalEngineStepTraceDryRunPanelV1 === true) return;
+  window.__aionGoalEngineStepTraceDryRunPanelV1 = true;
+
+  const previous =
+    typeof renderAionWorkflowDryRunResultPanelFallback === "function"
+      ? renderAionWorkflowDryRunResultPanelFallback
+      : null;
+
+  if (!previous || previous.__aionGoalEngineStepTraceWrappedV1 === true) return;
+
+  const wrapped = function renderAionWorkflowDryRunResultPanelFallbackWithGoalEngineStepTraceV1(result) {
+    const html = previous(result);
+    const panel = renderAionGoalEngineStepTracePanelV1(result);
+
+    if (!panel) return html;
+    if (String(html || "").includes('data-aion-goal-engine-step-trace-panel="true"')) return html;
+
+    return `${panel}${html || ""}`;
+  };
+
+  wrapped.__aionGoalEngineStepTraceWrappedV1 = true;
+  renderAionWorkflowDryRunResultPanelFallback = wrapped;
+})();
+
+/* AION PATCH: visible Goal Engine Boardroom preview summary panel v1 */
+function getAionGoalEngineBoardroomPreviewSummaryV1(runtimeLike = {}) {
+  const source =
+    runtimeLike?.goal_engine_boardroom_trace ||
+    runtimeLike?.goal_engine_trace ||
+    runtimeLike?.boardroom_trace ||
+    runtimeLike?.goal_engine ||
+    runtimeLike ||
+    {};
+
+  if (!source || typeof source !== "object") {
+    return null;
+  }
+
+  const previewFields =
+    source.preview_fields ||
+    source.boardroom_preview_fields ||
+    source.goal_engine_preview_fields ||
+    {};
+
+  const budget =
+    source.budget_status ||
+    source.resource_cost_governance?.summary ||
+    source.resource_cost_governance ||
+    {};
+
+  const steps =
+    Array.isArray(source.goal_engine_steps)
+      ? source.goal_engine_steps
+      : Array.isArray(source.manifest_steps)
+        ? source.manifest_steps
+        : Array.isArray(source.events)
+          ? source.events
+          : [];
+
+  const activeGoals =
+    Array.isArray(source.active_goals)
+      ? source.active_goals
+      : [];
+
+  return {
+    runtime: source.runtime || "aion_goal_engine",
+    dry_run_only: source.dry_run_only !== false,
+    grants_permission: source.grants_permission === true,
+    would_write_external: source.would_write_external === true,
+    valid: source.valid !== false,
+    blocked_reasons: Array.isArray(source.blocked_reasons) ? source.blocked_reasons : [],
+    active_goals: activeGoals,
+    step_count: steps.length,
+    loop_iterations:
+      previewFields.loop_iterations ??
+      source.loop_iterations ??
+      source.loop_iteration_count ??
+      "—",
+    experiment_variants:
+      Array.isArray(previewFields.experiment_variants)
+        ? previewFields.experiment_variants
+        : Array.isArray(source.experiment_variants)
+          ? source.experiment_variants
+          : [],
+    outcome_score:
+      previewFields.outcome_score ??
+      source.outcome_score ??
+      "pending",
+    checkpoint_resume_state:
+      previewFields.checkpoint_resume_state ||
+      source.checkpoint_resume_state ||
+      "preview",
+    simulation_risk_score:
+      previewFields.simulation_risk_score ??
+      source.simulation_risk_score ??
+      source.risk_score ??
+      "—",
+    estimated_cost_total:
+      budget.estimated_cost_total ??
+      budget.estimated_cost ??
+      source.estimated_cost_total ??
+      "—",
+    budget_remaining:
+      budget.budget_remaining ??
+      source.budget_remaining ??
+      "—",
+    recommended_action:
+      budget.recommended_action ||
+      source.recommended_action ||
+      "review_before_live_execution",
+  };
+}
+
+function renderAionGoalEngineBoardroomPreviewSummaryPanelV1(runtimeLike = {}) {
+  const summary = getAionGoalEngineBoardroomPreviewSummaryV1(runtimeLike);
+  if (!summary) return "";
+
+  const esc = typeof escapeHtml === "function"
+    ? escapeHtml
+    : (value) => String(value ?? "").replace(/[&<>"']/g, (ch) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;",
+      }[ch]));
+
+  const goalLabel = summary.active_goals.length
+    ? summary.active_goals
+        .map((goal) => goal.goal_name || goal.title || goal.goal_id || "Goal")
+        .join(", ")
+    : "No active goal summary yet";
+
+  const variants = summary.experiment_variants.length
+    ? summary.experiment_variants.join(", ")
+    : "—";
+
+  return `
+    <section class="panel" data-aion-goal-engine-boardroom-preview-panel="true" style="margin-top:16px;">
+      <div class="panel-header">
+        <div>
+          <div class="eyebrow">Goal Engine</div>
+          <h3 style="margin:4px 0 0;">Boardroom Goal Preview</h3>
+          <p class="muted" style="margin:6px 0 0;">Trust/control summary for goal-aware dry-runs.</p>
+        </div>
+        <span class="badge">Dry-run only</span>
+      </div>
+
+      <div class="metric-grid" style="margin-top:12px;">
+        <div class="metric-card">
+          <div class="metric-label">Active goals</div>
+          <div class="metric-value">${esc(summary.active_goals.length)}</div>
+          <div class="metric-sub">${esc(goalLabel)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Variants</div>
+          <div class="metric-value">${esc(summary.experiment_variants.length)}</div>
+          <div class="metric-sub">${esc(variants)}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Loop iterations</div>
+          <div class="metric-value">${esc(summary.loop_iterations)}</div>
+          <div class="metric-sub">Bounded dry-run preview</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Outcome score</div>
+          <div class="metric-value">${esc(summary.outcome_score)}</div>
+          <div class="metric-sub">Evidence required before success</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Risk score</div>
+          <div class="metric-value">${esc(summary.simulation_risk_score)}</div>
+          <div class="metric-sub">Simulation / what-if</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Budget remaining</div>
+          <div class="metric-value">${esc(summary.budget_remaining)}</div>
+          <div class="metric-sub">Estimated cost ${esc(summary.estimated_cost_total)}</div>
+        </div>
+      </div>
+
+      <div class="list-item" style="margin-top:12px;">
+        <div class="list-item-title">Recommended action</div>
+        <div class="list-item-sub">${esc(summary.recommended_action)}</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+          <span class="badge">Grants permission ${esc(summary.grants_permission ? "true" : "false")}</span>
+          <span class="badge">External write ${esc(summary.would_write_external ? "requested" : "blocked")}</span>
+          <span class="badge">Checkpoint ${esc(summary.checkpoint_resume_state)}</span>
+          ${summary.blocked_reasons.length ? `<span class="badge">Blocked ${esc(summary.blocked_reasons.length)}</span>` : ""}
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+(function installAionGoalEngineBoardroomPreviewSummaryPanelV1() {
+  if (window.__aionGoalEngineBoardroomPreviewSummaryPanelV1 === true) return;
+  window.__aionGoalEngineBoardroomPreviewSummaryPanelV1 = true;
+
+  const candidates = [
+    "renderBoardroom",
+    "renderAionBusinessBoardroom",
+    "renderBoardroomSurface",
+    "renderAionBoardroomSurface",
+  ];
+
+  for (const name of candidates) {
+    const previous = window[name] || globalThis[name];
+
+    if (typeof previous !== "function") continue;
+    if (previous.__aionGoalEngineBoardroomPreviewWrappedV1 === true) continue;
+
+    const wrapped = function renderBoardroomWithGoalEnginePreviewV1(...args) {
+      const html = previous.apply(this, args);
+      const runtimeLike =
+        args[0] ||
+        window.__aionWorkflowDryRunResult ||
+        window.__aionLastWorkflowDryRunResult ||
+        window.__aionBoardroomRuntime ||
+        {};
+
+      const panel = renderAionGoalEngineBoardroomPreviewSummaryPanelV1(runtimeLike);
+      if (!panel) return html;
+      if (String(html || "").includes('data-aion-goal-engine-boardroom-preview-panel="true"')) return html;
+
+      return `${html || ""}${panel}`;
+    };
+
+    wrapped.__aionGoalEngineBoardroomPreviewWrappedV1 = true;
+
+    try {
+      window[name] = wrapped;
+    } catch (_) {}
+
+    try {
+      globalThis[name] = wrapped;
+    } catch (_) {}
+  }
+})();
+
+/* AION PATCH: visible Goal Engine preview bundle dry-run panel v1 */
+function getAionGoalEnginePreviewBundlesFromDryRunResultV1(result) {
+  const payload =
+    result && typeof result.to_dict === "function"
+      ? result.to_dict()
+      : result && typeof result === "object"
+        ? result
+        : {};
+
+  const bundles = [];
+
+  const collectFromRow = (row) => {
+    if (!row || typeof row !== "object") return;
+
+    const direct = row.goal_engine_preview_bundle;
+    if (direct && typeof direct === "object") {
+      bundles.push(direct);
+      return;
+    }
+
+    const nested = row.payload && typeof row.payload === "object"
+      ? row.payload.goal_engine_preview_bundle
+      : null;
+
+    if (nested && typeof nested === "object") {
+      bundles.push(nested);
+    }
+  };
+
+  const rows = []
+    .concat(Array.isArray(payload.goal_engine_step_trace) ? payload.goal_engine_step_trace : [])
+    .concat(Array.isArray(payload.trace) ? payload.trace : [])
+    .concat(Array.isArray(payload.steps) ? payload.steps : []);
+
+  rows.forEach(collectFromRow);
+
+  const seen = new Set();
+  return bundles.filter((bundle) => {
+    const key = `${bundle.node_id || ""}:${(bundle.preview_names || []).join(",")}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+function renderAionGoalEnginePreviewBundlePanelV1(result) {
+  const bundles = getAionGoalEnginePreviewBundlesFromDryRunResultV1(result);
+  if (!bundles.length) return "";
+
+  const esc = typeof escapeHtml === "function"
+    ? escapeHtml
+    : (value) => String(value ?? "");
+
+  const labelForPreview = (name) => {
+    const labels = {
+      simulation_what_if_preview: "Simulation",
+      resource_cost_governance_preview: "Budget",
+      human_feedback_preview: "Human feedback",
+      red_team_safety_preview: "Red-team",
+      outcome_score_preview: "Outcome",
+      checkpoint_resume_preview: "Checkpoint",
+      loop_iteration_preview: "Loop",
+      experiment_variant_preview: "Experiment",
+      learning_reflection_preview: "Learning",
+      state_delta_preview: "State delta",
+      environment_revalidation_preview: "Revalidation",
+    };
+    return labels[name] || name;
+  };
+
+  return `
+    <section class="panel" data-aion-goal-engine-preview-bundle-panel="true" style="margin-top:16px;">
+      <div class="panel-header">
+        <div>
+          <div class="eyebrow">Goal Engine</div>
+          <h3 style="margin:4px 0 0;">Preview Bundle</h3>
+          <p class="muted" style="margin:4px 0 0;">
+            Unified goal_engine_preview_bundle rows from the dry-run result.
+          </p>
+        </div>
+        <span class="badge">Dry-run only</span>
+      </div>
+
+      <div class="list-wrap" style="margin-top:12px;">
+        ${bundles.map((bundle) => {
+          const previewNames = Array.isArray(bundle.preview_names)
+            ? bundle.preview_names
+            : Object.keys(bundle.previews || {});
+
+          return `
+            <div class="list-item">
+              <div class="list-item-title">
+                ${esc(bundle.node_id || "Goal Engine node")}
+                <span class="badge">${esc(bundle.node_kind || "goal_engine")}</span>
+              </div>
+              <div class="list-item-sub">
+                Runtime: ${esc(bundle.runtime || "aion_goal_engine")} · Grants permission:
+                ${bundle.grants_permission === true ? "yes" : "no"} · External write:
+                ${bundle.external_write_performed === true ? "yes" : "no"}
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+                ${previewNames.map((name) => `
+                  <span class="badge">${esc(labelForPreview(name))}</span>
+                `).join("")}
+              </div>
+            </div>
+          `;
+        }).join("")}
+      </div>
+
+      <details style="margin-top:12px;">
+        <summary>Advanced goal_engine_preview_bundle payload</summary>
+        <pre>${esc(JSON.stringify(bundles, null, 2))}</pre>
+      </details>
+    </section>
+  `;
+}
+
+(function installAionGoalEnginePreviewBundleDryRunPanelV1() {
+  if (window.__aionGoalEnginePreviewBundleDryRunPanelInstalledV1 === true) return;
+  window.__aionGoalEnginePreviewBundleDryRunPanelInstalledV1 = true;
+
+  const original = window.renderAionWorkflowDryRunResultPanelFallback || renderAionWorkflowDryRunResultPanelFallback;
+  if (typeof original !== "function") return;
+
+  const wrapped = function renderAionWorkflowDryRunResultPanelFallbackWithGoalEnginePreviewBundleV1(result) {
+    const html = original(result);
+    const panel = renderAionGoalEnginePreviewBundlePanelV1(result);
+
+    if (!panel) return html;
+    if (String(html || "").includes('data-aion-goal-engine-preview-bundle-panel="true"')) return html;
+
+    return `${html || ""}${panel}`;
+  };
+
+  window.renderAionWorkflowDryRunResultPanelFallback = wrapped;
+  renderAionWorkflowDryRunResultPanelFallback = wrapped;
+})();
+
+/* AION PATCH: Goal Engine canvas safety badges v1 */
+function isAionGoalEngineCanvasNodeV1(node = {}) {
+  const actionId = String(node.action_id || node.actionId || node.operation || node.op || "");
+  const kind = String(node.kind || node.step_kind || node.type || "");
+  const app = String(node.app || node.connector || "");
+
+  return (
+    actionId.startsWith("goal_engine.") ||
+    kind === "goal_engine" ||
+    app === "aion_goal_engine" ||
+    String(node.runtime || "") === "aion_goal_engine"
+  );
+}
+
+function getAionGoalEngineCanvasSafetyBadgesV1(node = {}) {
+  if (!isAionGoalEngineCanvasNodeV1(node)) return [];
+
+  const payload = node.payload && typeof node.payload === "object" ? node.payload : {};
+  const config = node.config && typeof node.config === "object" ? node.config : {};
+  const bundle =
+    node.goal_engine_preview_bundle ||
+    payload.goal_engine_preview_bundle ||
+    config.goal_engine_preview_bundle ||
+    {};
+
+  const previews = bundle.previews && typeof bundle.previews === "object" ? bundle.previews : {};
+
+  const riskPreview =
+    previews.red_team_safety_preview ||
+    node.red_team_safety_preview ||
+    payload.red_team_safety_preview ||
+    config.red_team_safety_preview ||
+    {};
+
+  const budgetPreview =
+    previews.resource_cost_governance_preview ||
+    node.resource_cost_governance_preview ||
+    payload.resource_cost_governance_preview ||
+    config.resource_cost_governance_preview ||
+    {};
+
+  const checkpointPreview =
+    previews.checkpoint_resume_preview ||
+    node.checkpoint_resume_preview ||
+    payload.checkpoint_resume_preview ||
+    config.checkpoint_resume_preview ||
+    {};
+
+  const outcomePreview =
+    previews.outcome_score_preview ||
+    node.outcome_score_preview ||
+    payload.outcome_score_preview ||
+    config.outcome_score_preview ||
+    {};
+
+  const badges = [
+    { label: "Dry-run", tone: "blue" },
+    { label: "Approval gated", tone: "amber" },
+  ];
+
+  if (
+    budgetPreview.goal_budget !== undefined ||
+    budgetPreview.budget_remaining !== undefined ||
+    config.goal_budget !== undefined
+  ) {
+    badges.push({ label: "Budget guarded", tone: "green" });
+  }
+
+  if (
+    checkpointPreview.checkpoint_enabled === true ||
+    checkpointPreview.max_checkpoint_size !== undefined ||
+    config.max_checkpoint_size !== undefined
+  ) {
+    badges.push({ label: "Checkpointed", tone: "purple" });
+  }
+
+  if (
+    Array.isArray(outcomePreview.evidence_refs) ||
+    Array.isArray(config.evidence_refs) ||
+    String(node.action_id || "").includes("outcome_evaluation")
+  ) {
+    badges.push({ label: "Evidence required", tone: "slate" });
+  }
+
+  const unsafe =
+    riskPreview.unsafe_goal_blocked === true ||
+    riskPreview.recommended_action === "block_before_execution" ||
+    Number(riskPreview.risk_score || config.risk_score || 0) >= 0.8 ||
+    config.unsafe_goal === true;
+
+  if (unsafe) {
+    badges.push({ label: "Red-team warning", tone: "red" });
+  }
+
+  return badges;
+}
+
+function renderAionGoalEngineCanvasSafetyBadgesV1(node = {}) {
+  const badges = getAionGoalEngineCanvasSafetyBadgesV1(node);
+  if (!badges.length) return "";
+
+  const esc = typeof escapeHtml === "function"
+    ? escapeHtml
+    : (value) => String(value ?? "");
+
+  return `
+    <div
+      class="aion-goal-engine-canvas-safety-badges"
+      data-aion-goal-engine-canvas-safety-badges="true"
+      style="display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;"
+    >
+      ${badges.map((badge) => `
+        <span
+          class="badge aion-goal-engine-safety-badge aion-goal-engine-safety-badge-${esc(badge.tone)}"
+          data-aion-goal-engine-safety-badge="${esc(badge.label)}"
+        >${esc(badge.label)}</span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function injectAionGoalEngineCanvasSafetyBadgesV1(html, node = {}) {
+  const block = renderAionGoalEngineCanvasSafetyBadgesV1(node);
+  if (!block) return html;
+  if (String(html || "").includes('data-aion-goal-engine-canvas-safety-badges="true"')) return html;
+
+  const text = String(html || "");
+
+  if (text.includes("</article>")) {
+    return text.replace("</article>", `${block}</article>`);
+  }
+
+  if (text.includes("</div>")) {
+    return text.replace("</div>", `${block}</div>`);
+  }
+
+  return `${text}${block}`;
+}
+
+(function installAionGoalEngineCanvasSafetyBadgeInjectionV1() {
+  if (window.__aionGoalEngineCanvasSafetyBadgeInjectionInstalledV1 === true) return;
+  window.__aionGoalEngineCanvasSafetyBadgeInjectionInstalledV1 = true;
+
+  const candidateNames = [
+    "renderAionWorkflowCanvasNode",
+    "renderAionWorkflowNode",
+    "renderWorkflowCanvasNode",
+    "renderAionArchitectCanvasNode",
+    "renderAionUnifiedWorkflowNode",
+  ];
+
+  candidateNames.forEach((name) => {
+    const original = window[name];
+    if (typeof original !== "function") return;
+
+    window[name] = function renderAionGoalEngineCanvasNodeWithSafetyBadgesV1(...args) {
+      const html = original.apply(this, args);
+      const node = args[0] && typeof args[0] === "object" ? args[0] : {};
+      return injectAionGoalEngineCanvasSafetyBadgesV1(html, node);
+    };
+  });
+})();
+
+/* AION PATCH: Goal Engine Sprint 2 Boardroom runtime summary UI v1 */
+function getAionGoalEngineRuntimeSummaryV1(source = {}) {
+  if (!source || typeof source !== "object") return {};
+
+  const direct = source.goal_runtime_summary;
+  if (direct && typeof direct === "object") return direct;
+
+  const namespaced = source.goal_engine_goal_runtime_summary;
+  if (namespaced && typeof namespaced === "object") return namespaced;
+
+  const bundle = source.goal_engine_preview_bundle;
+  if (bundle && typeof bundle === "object" && bundle.goal_runtime_summary && typeof bundle.goal_runtime_summary === "object") {
+    return bundle.goal_runtime_summary;
+  }
+
+  const goalEngine = source.goal_engine;
+  if (goalEngine && typeof goalEngine === "object" && goalEngine.goal_runtime_summary && typeof goalEngine.goal_runtime_summary === "object") {
+    return goalEngine.goal_runtime_summary;
+  }
+
+  return {};
+}
+
+function renderAionGoalEngineRuntimeSummaryBoardroomV1(source = {}) {
+  const summary = getAionGoalEngineRuntimeSummaryV1(source);
+  const machineTrace =
+    (source.goal_engine_machine_trace && typeof source.goal_engine_machine_trace === "object")
+      ? source.goal_engine_machine_trace
+      : ((source.goal_engine_preview_bundle && source.goal_engine_preview_bundle.machine_trace) || {});
+
+  const activeGoals = Number(summary.goal_count || summary.active_goal_count || 0);
+  const outcomeScore = summary.outcome_score ?? summary.max_outcome_score ?? "—";
+  const evidenceRequired = summary.evidence_required !== false;
+  const boundedLoops = Number(summary.bounded_loop_count || 0);
+  const unboundedLoops = Number(summary.unbounded_loop_count || 0);
+  const variants = Number(summary.variant_count || 0);
+  const explorationFloor = summary.min_exploration_floor ?? "—";
+  const approvalRequired = summary.human_approval_required !== false;
+  const blockedReasons = Array.isArray(summary.blocked_reasons) ? summary.blocked_reasons : [];
+
+  const completedWarning = blockedReasons.includes("outcome_success_requires_evidence")
+    ? `<div class="aion-boardroom-warning">Completed is not success without evidence · outcome_success_requires_evidence</div>`
+    : "";
+
+  const a2aDeferred = machineTrace.a2a_deferred !== false;
+  const agentReady = machineTrace.agent_ready === true;
+  const commercialReady = machineTrace.commercial_interface_ready === true;
+
+  return `
+    <section class="aion-goal-runtime-summary" data-aion-goal-runtime-summary="true">
+      <div class="section-title">Goal Runtime Summary</div>
+      <div class="mini-grid">
+        <div class="metric-card"><span>Active goals</span><strong>${activeGoals}</strong></div>
+        <div class="metric-card"><span>Outcome score</span><strong>${outcomeScore}</strong></div>
+        <div class="metric-card"><span>Evidence required</span><strong>${evidenceRequired ? "Yes" : "No"}</strong></div>
+        <div class="metric-card"><span>Bounded loops</span><strong>${boundedLoops}</strong></div>
+        <div class="metric-card"><span>Unbounded loops</span><strong>${unboundedLoops}</strong></div>
+        <div class="metric-card"><span>Experiment variants</span><strong>${variants}</strong></div>
+        <div class="metric-card"><span>Exploration floor</span><strong>${explorationFloor}</strong></div>
+        <div class="metric-card"><span>Approval required</span><strong>${approvalRequired ? "Yes" : "No"}</strong></div>
+      </div>
+      ${completedWarning}
+      <div class="aion-boardroom-note">
+        A2A deferred: ${a2aDeferred ? "Yes" : "No"} · agent_ready: ${agentReady ? "true" : "false"} · commercial_interface_ready: ${commercialReady ? "true" : "false"}
+      </div>
+    </section>
+  `;
+}
+
+function injectAionGoalEngineRuntimeSummaryBoardroomV1(html, source = {}) {
+  const block = renderAionGoalEngineRuntimeSummaryBoardroomV1(source);
+  const text = String(html || "");
+
+  if (text.includes('data-aion-goal-runtime-summary="true"')) return text;
+
+  if (text.includes("</main>")) {
+    return text.replace("</main>", `${block}</main>`);
+  }
+
+  if (text.includes("</section>")) {
+    return text.replace("</section>", `${block}</section>`);
+  }
+
+  return `${text}${block}`;
+}
+
+(function installAionGoalEngineRuntimeSummaryBoardroomPatchV1() {
+  if (window.__aionGoalEngineRuntimeSummaryBoardroomPatchInstalledV1 === true) return;
+  window.__aionGoalEngineRuntimeSummaryBoardroomPatchInstalledV1 = true;
+
+  const candidateNames = [
+    "renderAionBoardroomTrace",
+    "renderGoalEngineBoardroomTrace",
+    "renderAionWorkflowDryRunPreview",
+    "renderAionGoalEnginePreviewBundle",
+    "renderAionBoardroomPanel",
+  ];
+
+  candidateNames.forEach((name) => {
+    const original = window[name];
+    if (typeof original !== "function") return;
+
+    window[name] = function renderAionBoardroomWithGoalRuntimeSummaryV1(...args) {
+      const html = original.apply(this, args);
+      const source = args.find((arg) => arg && typeof arg === "object") || {};
+      return injectAionGoalEngineRuntimeSummaryBoardroomV1(html, source);
+    };
+  });
+})();
+
+/* AION PATCH: Goal Engine Boardroom outcome evidence summary v1 */
+function getAionGoalEngineOutcomeEvidenceSummaryV1(source = {}) {
+  if (!source || typeof source !== "object") return null;
+
+  const runtimeSummary =
+    source.goal_runtime_summary && typeof source.goal_runtime_summary === "object"
+      ? source.goal_runtime_summary
+      : source.goal_engine_goal_runtime_summary && typeof source.goal_engine_goal_runtime_summary === "object"
+        ? source.goal_engine_goal_runtime_summary
+        : source.goal_engine_preview_bundle &&
+            typeof source.goal_engine_preview_bundle === "object" &&
+            source.goal_engine_preview_bundle.goal_runtime_summary &&
+            typeof source.goal_engine_preview_bundle.goal_runtime_summary === "object"
+          ? source.goal_engine_preview_bundle.goal_runtime_summary
+          : source.goal_engine &&
+              typeof source.goal_engine === "object" &&
+              source.goal_engine.goal_runtime_summary &&
+              typeof source.goal_engine.goal_runtime_summary === "object"
+            ? source.goal_engine.goal_runtime_summary
+            : source;
+
+  const summary =
+    runtimeSummary.outcome_evidence_summary &&
+    typeof runtimeSummary.outcome_evidence_summary === "object"
+      ? runtimeSummary.outcome_evidence_summary
+      : null;
+
+  return summary;
+}
+
+function renderAionGoalEngineOutcomeEvidenceSummaryV1(summary = {}) {
+  const evidence = getAionGoalEngineOutcomeEvidenceSummaryV1(summary);
+  if (!evidence || typeof evidence !== "object") return "";
+
+  const evidenceCount = Number(evidence.evidence_count || evidence.outcome_count || 0);
+  const supportedSuccessCount = Number(evidence.supported_success_count || evidence.evidence_backed_outcome_count || 0);
+  const blockedOutcomeCount = Number(evidence.blocked_outcome_count || 0);
+  const missingEvidenceCount = Math.max(0, evidenceCount - supportedSuccessCount);
+
+  const blockedReasons = Array.isArray(evidence.blocked_reasons)
+    ? evidence.blocked_reasons.map((item) => String(item || "")).filter(Boolean)
+    : [];
+
+  const validations = Array.isArray(evidence.validations)
+    ? evidence.validations
+    : Array.isArray(evidence.evidence_source_summary?.validations)
+      ? evidence.evidence_source_summary.validations
+      : [];
+
+  const hasMissingEvidence =
+    blockedOutcomeCount > 0 ||
+    blockedReasons.includes("outcome_success_requires_evidence");
+
+  const warningHtml = hasMissingEvidence
+    ? `<div class="aion-boardroom-warning">Missing evidence · Completed is not success without evidence · outcome_success_requires_evidence</div>`
+    : "";
+
+  const validationRows = validations.length
+    ? validations.map((validation) => {
+        const item = validation && typeof validation === "object" ? validation : {};
+        const validatorEvidenceLockRef = validation.evidence;
+        const ev = item.evidence && typeof item.evidence === "object" ? item.evidence : {};
+
+        const type = String(item.evidence_type || ev.evidence_type || ev.type || "manual_confirmation");
+        const source = String(item.source || ev.source || "unknown");
+        const sourceConnector = String(item.source_connector || ev.source_connector || "none");
+        const sourceRef = String(item.source_ref || ev.source_ref || "none");
+        const freshness = String(ev.freshness || item.freshness || "unknown");
+        const confidence = item.confidence ?? ev.confidence ?? "unknown";
+        const verified = item.verified ?? ev.verified ?? false;
+        const supports = item.supports_outcome_success === true;
+        const blocked = Array.isArray(item.blocked_reasons) ? item.blocked_reasons.join(", ") : "";
+
+        return `
+          <div class="aion-boardroom-evidence-row">
+            <div><strong>${supports ? "Supporting evidence" : "Blocked evidence"}</strong></div>
+            <div>Type: ${type === "manual_confirmation" ? "Manual confirmation" : type}</div>
+            <div>Source: ${source} · source_connector: ${sourceConnector} · source_ref: ${sourceRef}</div>
+            <div>Evidence Freshness: ${freshness}</div>
+            <div>Evidence Provenance: ${ev.provenance ? JSON.stringify(ev.provenance) : "{}"}</div>
+            <div>confidence: ${confidence} · verified: ${verified ? "true" : "false"}</div>
+            ${blocked ? `<div class="aion-boardroom-warning">Blocked: ${blocked}</div>` : ""}
+          </div>
+        `;
+      }).join("")
+    : `<div class="muted">No validator evidence rows available yet.</div>`;
+
+  return `
+    <section class="aion-boardroom-card" data-aion-goal-engine-outcome-evidence-summary="true">
+      <div class="section-title">Outcome Evidence Summary</div>
+      <div class="aion-boardroom-metric-grid">
+        <div><strong>${evidenceCount}</strong><span>Total evidence</span></div>
+        <div><strong>${supportedSuccessCount}</strong><span>Supported success</span></div>
+        <div><strong>${blockedOutcomeCount}</strong><span>Blocked outcomes</span></div>
+        <div><strong>${missingEvidenceCount}</strong><span>Missing evidence</span></div>
+      </div>
+      ${warningHtml}
+      <div class="aion-boardroom-evidence-list">
+        ${validationRows}
+      </div>
+    </section>
+  `;
+}
+
+(function installAionGoalEngineOutcomeEvidenceSummaryBoardroomInjectionV1() {
+  if (window.__aionGoalEngineOutcomeEvidenceSummaryBoardroomInjectionInstalledV1 === true) return;
+  window.__aionGoalEngineOutcomeEvidenceSummaryBoardroomInjectionInstalledV1 = true;
+
+  const original = window.injectAionGoalEngineRuntimeSummaryBoardroomV1;
+  if (typeof original !== "function") return;
+
+  window.injectAionGoalEngineRuntimeSummaryBoardroomV1 = function injectAionGoalEngineRuntimeSummaryBoardroomWithOutcomeEvidenceV1(html, source = {}) {
+    const rendered = original.apply(this, [html, source]);
+
+    if (String(rendered || "").includes('data-aion-goal-engine-outcome-evidence-summary="true"')) {
+      return rendered;
+    }
+
+    const summary =
+      source && typeof source === "object" && source.goal_runtime_summary && typeof source.goal_runtime_summary === "object"
+        ? source.goal_runtime_summary
+        : source && typeof source === "object" && source.goal_engine_goal_runtime_summary && typeof source.goal_engine_goal_runtime_summary === "object"
+          ? source.goal_engine_goal_runtime_summary
+          : source;
+
+    const evidenceHtml = renderAionGoalEngineOutcomeEvidenceSummaryV1(summary);
+    if (!evidenceHtml) return rendered;
+
+    const text = String(rendered || "");
+
+    if (text.includes("</section>")) {
+      return text.replace("</section>", `${evidenceHtml}</section>`);
+    }
+
+    if (text.includes("</div>")) {
+      return text.replace("</div>", `${evidenceHtml}</div>`);
+    }
+
+    return `${text}${evidenceHtml}`;
+  };
+})();
+
+// AION PATCH: Goal Engine Sprint 3 Boardroom checkpoint/resume summary UI v1
+function getAionGoalEngineCheckpointRuntimeSummaryV1(source = {}) {
+  if (!source || typeof source !== "object") return {};
+
+  if (source.checkpoint_runtime_summary && typeof source.checkpoint_runtime_summary === "object") {
+    return source.checkpoint_runtime_summary;
+  }
+
+  if (
+    source.goal_engine_checkpoint_runtime_summary &&
+    typeof source.goal_engine_checkpoint_runtime_summary === "object"
+  ) {
+    return source.goal_engine_checkpoint_runtime_summary;
+  }
+
+  const bundle = source.goal_engine_preview_bundle;
+  if (
+    bundle &&
+    typeof bundle === "object" &&
+    bundle.checkpoint_runtime_summary &&
+    typeof bundle.checkpoint_runtime_summary === "object"
+  ) {
+    return bundle.checkpoint_runtime_summary;
+  }
+
+  return {};
+}
+
+function renderAionGoalEngineCheckpointSummaryV1(source = {}) {
+  const summary = getAionGoalEngineCheckpointRuntimeSummaryV1(source);
+
+  if (!summary || typeof summary !== "object" || summary.trace_type !== "checkpoint_runtime_summary") {
+    return "";
+  }
+
+  const checkpointCount = Number(summary.checkpoint_count || 0);
+  const stateDeltaCount = Number(summary.state_delta_count || 0);
+  const resumeBlockedCount = Number(summary.resume_blocked_count || 0);
+  const fullPayloadBlockedCount = Number(summary.full_payload_blocked_count || 0);
+  const blockedReasons = Array.isArray(summary.blocked_reasons) ? summary.blocked_reasons : [];
+  const checkpoints = Array.isArray(summary.checkpoint_previews) ? summary.checkpoint_previews : [];
+  const stateDeltas = Array.isArray(summary.state_delta_previews) ? summary.state_delta_previews : [];
+
+  const revalidationWarning = blockedReasons.includes("resume_requires_environment_revalidation")
+    ? `<div class="aion-boardroom-warning">Resume requires environment revalidation</div>`
+    : "";
+
+  const checkpointRows = checkpoints.map((checkpoint) => {
+    const row = checkpoint && typeof checkpoint === "object" ? checkpoint : {};
+    const snapshot = row.loop_context_snapshot && typeof row.loop_context_snapshot === "object"
+      ? JSON.stringify(row.loop_context_snapshot)
+      : "{}";
+
+    return `
+      <div class="aion-boardroom-mini-row">
+        <strong>${row.checkpoint_id || "checkpoint"}</strong>
+        <span>loop=${row.loop_id || "-"} · iteration=${row.iteration ?? "-"} · would_resume=${row.would_resume === true ? "true" : "false"}</span>
+        <small>loop_context_snapshot: ${snapshot}</small>
+      </div>
+    `;
+  }).join("");
+
+  const stateDeltaRows = stateDeltas.map((delta) => {
+    const row = delta && typeof delta === "object" ? delta : {};
+    const changed = row.changed_fields && typeof row.changed_fields === "object"
+      ? JSON.stringify(row.changed_fields)
+      : "{}";
+
+    return `
+      <div class="aion-boardroom-mini-row">
+        <strong>${row.delta_id || "state_delta"}</strong>
+        <span>checkpoint=${row.checkpoint_id || "-"} · bounded=${row.bounded === true ? "true" : "false"}</span>
+        <small>changed_fields: ${changed}</small>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="aion-boardroom-runtime-summary" data-aion-goal-engine-checkpoint-summary="true">
+      <div class="section-title">Checkpoint / Resume Summary</div>
+      ${revalidationWarning}
+      <div class="aion-boardroom-runtime-grid">
+        <div><strong>${checkpointCount}</strong><span>Checkpoints</span></div>
+        <div><strong>${stateDeltaCount}</strong><span>State deltas</span></div>
+        <div><strong>${resumeBlockedCount}</strong><span>Resume blocked</span></div>
+        <div><strong>${fullPayloadBlockedCount}</strong><span>Full payload blocked</span></div>
+      </div>
+      <div class="aion-boardroom-subsection">
+        ${checkpointRows || `<div class="muted">No checkpoint previews.</div>`}
+      </div>
+      <div class="aion-boardroom-subsection">
+        ${stateDeltaRows || `<div class="muted">No state delta previews.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+(function installAionGoalEngineCheckpointSummaryBoardroomInjectionV1() {
+  if (window.__aionGoalEngineCheckpointSummaryBoardroomInjectionInstalledV1 === true) return;
+  window.__aionGoalEngineCheckpointSummaryBoardroomInjectionInstalledV1 = true;
+
+  const original = window.injectAionGoalEngineRuntimeSummaryBoardroomV1;
+  if (typeof original !== "function") return;
+
+  window.injectAionGoalEngineRuntimeSummaryBoardroomV1 = function injectAionGoalEngineRuntimeSummaryBoardroomWithCheckpointV1(html, source = {}) {
+    const rendered = original.apply(this, [html, source]);
+
+    if (String(rendered || "").includes('data-aion-goal-engine-checkpoint-summary="true"')) {
+      return rendered;
+    }
+
+    const checkpointHtml = renderAionGoalEngineCheckpointSummaryV1(source);
+    if (!checkpointHtml) return rendered;
+
+    const text = String(rendered || "");
+    if (text.includes("</section>")) {
+      return text.replace("</section>", `${checkpointHtml}</section>`);
+    }
+
+    return `${text}${checkpointHtml}`;
+  };
+})();
+
+// AION PATCH: Goal Engine Sprint 3 Boardroom resume revalidation summary UI v1
+function getAionGoalEngineResumeRevalidationSummaryV1(source = {}) {
+  if (!source || typeof source !== "object") return {};
+
+  if (source.resume_revalidation_summary && typeof source.resume_revalidation_summary === "object") {
+    return source.resume_revalidation_summary;
+  }
+
+  if (
+    source.goal_engine_resume_revalidation_summary &&
+    typeof source.goal_engine_resume_revalidation_summary === "object"
+  ) {
+    return source.goal_engine_resume_revalidation_summary;
+  }
+
+  const bundle = source.goal_engine_preview_bundle;
+  if (
+    bundle &&
+    typeof bundle === "object" &&
+    bundle.resume_revalidation_summary &&
+    typeof bundle.resume_revalidation_summary === "object"
+  ) {
+    return bundle.resume_revalidation_summary;
+  }
+
+  return {};
+}
+
+function renderAionGoalEngineResumeRevalidationSummaryV1(source = {}) {
+  const summary = getAionGoalEngineResumeRevalidationSummaryV1(source);
+
+  if (!summary || typeof summary !== "object" || summary.trace_type !== "resume_revalidation_summary") {
+    return "";
+  }
+
+  const revalidationCount = Number(summary.revalidation_count || 0);
+  const resumeAllowedCount = Number(summary.resume_allowed_count || 0);
+  const resumeBlockedCount = Number(summary.resume_blocked_count || 0);
+  const safeStopRequiredCount = Number(summary.safe_stop_required_count || 0);
+  const blockedReasons = Array.isArray(summary.blocked_reasons) ? summary.blocked_reasons : [];
+  const previews = Array.isArray(summary.revalidation_previews) ? summary.revalidation_previews : [];
+
+  const reasonLabels = {
+    external_state_changed: "External state changed",
+    approval_not_valid: "Approval not valid",
+    vault_not_ready: "Vault not ready",
+    connectors_not_ready: "Connectors not ready",
+    parent_goal_no_longer_required: "Parent goal no longer required",
+    stop_or_replan_before_resume: "stop_or_replan_before_resume",
+  };
+
+  const warningHtml = blockedReasons.length
+    ? `<div class="aion-boardroom-warning">${blockedReasons.map((reason) => reasonLabels[reason] || reason).join(" · ")}</div>`
+    : "";
+
+  const previewRows = previews.map((preview) => {
+    const row = preview && typeof preview === "object" ? preview : {};
+    const reasons = Array.isArray(row.blocked_reasons) ? row.blocked_reasons : [];
+
+    return `
+      <div class="aion-boardroom-mini-row">
+        <strong>${row.revalidation_id || "resume_revalidation"}</strong>
+        <span>checkpoint=${row.checkpoint_id || "-"} · allowed=${row.resume_allowed === true ? "true" : "false"} · would_resume=${row.would_resume === true ? "true" : "false"}</span>
+        <small>suggested_next_action: ${row.suggested_next_action || "-"}</small>
+        <small>blocked_reasons: ${reasons.join(", ") || "-"}</small>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="aion-boardroom-runtime-summary" data-aion-goal-engine-resume-revalidation-summary="true">
+      <div class="section-title">Resume Revalidation Summary</div>
+      ${warningHtml}
+      <div class="aion-boardroom-runtime-grid">
+        <div><strong>${revalidationCount}</strong><span>Revalidations</span></div>
+        <div><strong>${resumeAllowedCount}</strong><span>Resume allowed</span></div>
+        <div><strong>${resumeBlockedCount}</strong><span>Resume blocked</span></div>
+        <div><strong>${safeStopRequiredCount}</strong><span>Safe stop required</span></div>
+      </div>
+      <div class="aion-boardroom-subsection">
+        ${previewRows || `<div class="muted">No resume revalidation previews.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+(function installAionGoalEngineResumeRevalidationBoardroomInjectionV1() {
+  if (window.__aionGoalEngineResumeRevalidationBoardroomInjectionInstalledV1 === true) return;
+  window.__aionGoalEngineResumeRevalidationBoardroomInjectionInstalledV1 = true;
+
+  const original = window.injectAionGoalEngineRuntimeSummaryBoardroomV1;
+  if (typeof original !== "function") return;
+
+  window.injectAionGoalEngineRuntimeSummaryBoardroomV1 = function injectAionGoalEngineRuntimeSummaryBoardroomWithResumeRevalidationV1(html, source = {}) {
+    const rendered = original.apply(this, [html, source]);
+
+    if (String(rendered || "").includes('data-aion-goal-engine-resume-revalidation-summary="true"')) {
+      return rendered;
+    }
+
+    const revalidationHtml = renderAionGoalEngineResumeRevalidationSummaryV1(source);
+    if (!revalidationHtml) return rendered;
+
+    const text = String(rendered || "");
+    if (text.includes("</section>")) {
+      return text.replace("</section>", `${revalidationHtml}</section>`);
+    }
+
+    return `${text}${revalidationHtml}`;
+  };
+})();
+
+function getAionGoalEngineExperimentRuntimeSummaryV1(source = {}) {
+  if (!source || typeof source !== "object") return {};
+
+  if (source.experiment_runtime_summary && typeof source.experiment_runtime_summary === "object") {
+    return source.experiment_runtime_summary;
+  }
+
+  if (
+    source.goal_engine_experiment_runtime_summary &&
+    typeof source.goal_engine_experiment_runtime_summary === "object"
+  ) {
+    return source.goal_engine_experiment_runtime_summary;
+  }
+
+  const bundle = source.goal_engine_preview_bundle;
+  if (
+    bundle &&
+    typeof bundle === "object" &&
+    bundle.experiment_runtime_summary &&
+    typeof bundle.experiment_runtime_summary === "object"
+  ) {
+    return bundle.experiment_runtime_summary;
+  }
+
+  return {};
+}
+
+function renderAionGoalEngineExperimentRuntimeSummaryV1(source = {}) {
+  const summary = getAionGoalEngineExperimentRuntimeSummaryV1(source);
+
+  if (!summary || typeof summary !== "object" || summary.trace_type !== "experiment_runtime_summary") {
+    return "";
+  }
+
+  const blockedReasons = Array.isArray(summary.blocked_reasons) ? summary.blocked_reasons : [];
+  const previews = Array.isArray(summary.experiment_policy_previews) ? summary.experiment_policy_previews : [];
+
+  const unboundedWarning = blockedReasons.includes("unbounded_experiment_plan_blocked")
+    ? `<div class="aion-boardroom-warning">Unbounded experiment plan blocked · unbounded_experiment_plan_blocked</div>`
+    : "";
+
+  const convergenceWarning = summary.premature_convergence_blocked === true
+    ? `<div class="aion-boardroom-warning">Premature convergence blocked</div>`
+    : "";
+
+  const previewRows = previews.map((row) => {
+    const item = row && typeof row === "object" ? row : {};
+    const reasons = Array.isArray(item.blocked_reasons) ? item.blocked_reasons.join(", ") : "";
+
+    return `
+      <div class="list-item">
+        <strong>${item.experiment_id || "experiment"}</strong>
+        <span>metric=${item.metric || "-"} · variants=${item.variant_count ?? 0} · bounded=${item.bounded === true ? "true" : "false"}</span>
+        <small>max_iterations=${item.max_iterations ?? 0} · max_runtime_minutes=${item.max_runtime_minutes ?? 0}</small>
+        <small>exploration_factor=${item.exploration_factor ?? 0} · exploration_decay=${item.exploration_decay ?? 0} · min_exploration_floor=${item.min_exploration_floor ?? 0} · confidence_threshold=${item.confidence_threshold ?? 0}</small>
+        ${reasons ? `<small>blocked_reasons: ${reasons}</small>` : ""}
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="aion-boardroom-runtime-summary" data-aion-goal-engine-experiment-runtime-summary="true">
+      <div class="section-title">Experiment Runtime Summary</div>
+      ${unboundedWarning}
+      ${convergenceWarning}
+      <div class="aion-boardroom-runtime-grid">
+        <div><strong>${summary.experiment_count ?? 0}</strong><span>Experiments</span></div>
+        <div><strong>${summary.bounded_experiment_count ?? 0}</strong><span>Bounded</span></div>
+        <div><strong>${summary.unbounded_experiment_count ?? 0}</strong><span>Unbounded</span></div>
+        <div><strong>${summary.variant_count ?? 0}</strong><span>Variants</span></div>
+        <div><strong>${summary.metric_count ?? 0}</strong><span>Metrics</span></div>
+      </div>
+      <div class="aion-boardroom-subsection">
+        ${previewRows || `<div class="muted">No experiment policy previews.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+(function installAionGoalEngineExperimentRuntimeBoardroomInjectionV1() {
+  if (window.__aionGoalEngineExperimentRuntimeBoardroomInjectionInstalledV1 === true) return;
+  window.__aionGoalEngineExperimentRuntimeBoardroomInjectionInstalledV1 = true;
+
+  const original = window.injectAionGoalEngineRuntimeSummaryBoardroomV1;
+  if (typeof original !== "function") return;
+
+  window.injectAionGoalEngineRuntimeSummaryBoardroomV1 = function injectAionGoalEngineRuntimeSummaryBoardroomWithExperimentRuntimeV1(html, source = {}) {
+    const rendered = original.apply(this, [html, source]);
+
+    if (String(rendered || "").includes('data-aion-goal-engine-experiment-runtime-summary="true"')) {
+      return rendered;
+    }
+
+    const experimentHtml = renderAionGoalEngineExperimentRuntimeSummaryV1(source);
+    if (!experimentHtml) return rendered;
+
+    const text = String(rendered || "");
+    if (text.includes("</section>")) {
+      return text.replace("</section>", `${experimentHtml}</section>`);
+    }
+
+    return `${text}${experimentHtml}`;
+  };
+})();
+
+function getAionGoalEngineOrchestratorRuntimeSummaryV1(source = {}) {
+  if (!source || typeof source !== "object") return null;
+
+  if (source.orchestrator_runtime_summary && typeof source.orchestrator_runtime_summary === "object") {
+    return source.orchestrator_runtime_summary;
+  }
+
+  if (
+    source.goal_engine_orchestrator_runtime_summary &&
+    typeof source.goal_engine_orchestrator_runtime_summary === "object"
+  ) {
+    return source.goal_engine_orchestrator_runtime_summary;
+  }
+
+  const bundle = source.goal_engine_preview_bundle || source.preview_bundle || null;
+  if (
+    bundle &&
+    typeof bundle === "object" &&
+    bundle.orchestrator_runtime_summary &&
+    typeof bundle.orchestrator_runtime_summary === "object"
+  ) {
+    return bundle.orchestrator_runtime_summary;
+  }
+
+  return null;
+}
+
+function renderAionGoalEngineOrchestratorSummaryV1(source = {}) {
+  const summary = getAionGoalEngineOrchestratorRuntimeSummaryV1(source);
+
+  if (!summary || typeof summary !== "object" || summary.trace_type !== "orchestrator_runtime_summary") {
+    return "";
+  }
+
+  const blockedReasons = Array.isArray(summary.blocked_reasons) ? summary.blocked_reasons : [];
+  const orchestratorPreviews = Array.isArray(summary.orchestrator_previews) ? summary.orchestrator_previews : [];
+
+  const unboundedWarning = blockedReasons.includes("unbounded_orchestration_blocked")
+    ? `<div class="aion-boardroom-warning">Unbounded orchestration blocked · unbounded_orchestration_blocked</div>`
+    : "";
+
+  const previewRows = orchestratorPreviews.map((item) => {
+    const agents = Array.isArray(item.agent_assignment_previews) ? item.agent_assignment_previews : [];
+    const agentRows = agents.map((agent) => `
+      <div class="aion-boardroom-mini-row">
+        <strong>${agent.agent_id || "-"}</strong>
+        <span>role=${agent.role || "-"} · glyph_code=${agent.glyph_code || "-"}</span>
+      </div>
+    `).join("");
+
+    return `
+      <div class="aion-boardroom-trace-row">
+        <strong>${item.orchestrator_id || "-"}</strong>
+        <span>coordination_mode=${item.coordination_mode || "-"} · conflict_policy=${item.conflict_policy || "-"}</span>
+        <small>max_parallel_agents=${item.max_parallel_agents ?? 0} · child_timeout_seconds=${item.child_timeout_seconds ?? 0}</small>
+        <small>bounded=${item.bounded === true ? "true" : "false"} · valid=${item.valid === true ? "true" : "false"}</small>
+        <div class="aion-boardroom-subsection">
+          <strong>Agent assignments</strong>
+          ${agentRows || `<div class="muted">No agent assignments.</div>`}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="aion-boardroom-runtime-summary" data-aion-goal-engine-orchestrator-summary="true">
+      <div class="section-title">Orchestrator Runtime Summary</div>
+      ${unboundedWarning}
+      <div class="aion-boardroom-runtime-grid">
+        <div><strong>${summary.orchestrator_count || 0}</strong><span>Orchestrators</span></div>
+        <div><strong>${summary.agent_count || 0}</strong><span>Agents</span></div>
+        <div><strong>${summary.bounded_orchestrator_count || 0}</strong><span>Bounded</span></div>
+        <div><strong>${summary.unbounded_orchestrator_count || 0}</strong><span>Unbounded</span></div>
+      </div>
+      <div class="aion-boardroom-subsection">
+        ${previewRows || `<div class="muted">No orchestrator previews.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+(function installAionGoalEngineOrchestratorBoardroomInjectionV1() {
+  if (window.__aionGoalEngineOrchestratorBoardroomInjectionInstalledV1 === true) return;
+  window.__aionGoalEngineOrchestratorBoardroomInjectionInstalledV1 = true;
+
+  const original = window.injectAionGoalEngineRuntimeSummaryBoardroomV1;
+  if (typeof original !== "function") return;
+
+  window.injectAionGoalEngineRuntimeSummaryBoardroomV1 = function injectAionGoalEngineRuntimeSummaryBoardroomWithOrchestratorV1(html, source = {}) {
+    const rendered = original.apply(this, [html, source]);
+
+    if (String(rendered || "").includes('data-aion-goal-engine-orchestrator-summary="true"')) {
+      return rendered;
+    }
+
+    const orchestratorHtml = renderAionGoalEngineOrchestratorSummaryV1(source);
+    if (!orchestratorHtml) return rendered;
+
+    const text = String(rendered || "");
+    if (text.includes("</section>")) {
+      return text.replace("</section>", `${orchestratorHtml}</section>`);
+    }
+
+    return `${text}${orchestratorHtml}`;
+  };
+})();
+
+/* AION-GOAL-ENGINE-EVIDENCE-POINTER-VIEWER-V1:START */
+/*
+ * ---------------------------------------------------------------------------
+ * AION Goal Engine Boardroom Evidence Pointer Viewer v1
+ * ---------------------------------------------------------------------------
+ * UI-only renderer for evidence_pointer_preview rows.
+ *
+ * Safety contract:
+ * - does not resolve connectors
+ * - does not read external systems
+ * - does not write external systems
+ * - does not grant permission
+ * - renders only already-attached evidence pointer metadata
+ */
+function renderAionGoalEngineEvidencePointerViewerV1(snapshot = {}) {
+  const candidates = [];
+  const seen = new Set();
+
+  const escHtml =
+    typeof esc === "function"
+      ? esc
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+  const pushMaybe = (value) => {
+    if (Array.isArray(value)) {
+      value.forEach(pushMaybe);
+      return;
+    }
+
+    if (!value || typeof value !== "object") return;
+
+    if (value.trace_type === "evidence_pointer_preview") {
+      const key = [
+        value.evidence_hash || "",
+        value.reference_pointer || "",
+        value.evidence_type || "",
+        value.source || "",
+      ].join("|");
+
+      if (!seen.has(key)) {
+        seen.add(key);
+        candidates.push(value);
+      }
+      return;
+    }
+
+    [
+      value.evidence_pointers,
+      value.evidence_pointer_previews,
+      value.trace,
+      value.rows,
+      value.previews,
+      value.attachments,
+      value.outcome_evidence,
+      value.evidence,
+    ].forEach(pushMaybe);
+  };
+
+  pushMaybe(snapshot);
+  pushMaybe(snapshot.runtime);
+  pushMaybe(snapshot.summary);
+  pushMaybe(snapshot.goal_engine_container_projection);
+  pushMaybe(snapshot.goal_engine_boardroom_runtime_preview);
+  pushMaybe(snapshot.boardroom_trace);
+  pushMaybe(snapshot.machine_trace);
+
+  if (!candidates.length) {
+    return `
+      <section class="aion-boardroom-evidence-pointer-viewer" data-aion-goal-engine-evidence-viewer="v1">
+        <div class="aion-boardroom-card-title">Evidence pointers</div>
+        <div class="aion-boardroom-muted">No evidence pointers attached yet.</div>
+      </section>
+    `;
+  }
+
+  const rows = candidates
+    .map((item) => {
+      const valid = item.valid === true;
+      const resolved = item.resolved === true;
+      const hash = String(item.evidence_hash || "").slice(0, 12);
+      const blocked = Array.isArray(item.blocked_reasons) ? item.blocked_reasons : [];
+      const metadata = item.metadata && typeof item.metadata === "object" ? item.metadata : {};
+
+      return `
+        <div class="aion-boardroom-evidence-pointer-row" data-aion-evidence-pointer-row="v1">
+          <div class="aion-boardroom-evidence-pointer-head">
+            <div>
+              <strong>${escHtml(item.evidence_type || "evidence")}</strong>
+              <span>${escHtml(item.source || "unknown source")}</span>
+            </div>
+            <span class="aion-boardroom-evidence-pointer-status ${valid ? "is-valid" : "is-blocked"}">
+              ${valid ? "valid" : "blocked"}
+            </span>
+          </div>
+
+          <div class="aion-boardroom-evidence-pointer-ref">
+            ${escHtml(item.reference_pointer || "missing reference")}
+          </div>
+
+          <div class="aion-boardroom-evidence-pointer-meta">
+            <span>hash: ${escHtml(hash || "pending")}</span>
+            <span>resolved: ${resolved ? "true" : "false"}</span>
+            <span>dry-run: ${item.dry_run_only === false ? "false" : "true"}</span>
+            <span>writes: ${item.would_write_external === true ? "would write" : "blocked"}</span>
+          </div>
+
+          ${
+            blocked.length
+              ? `<div class="aion-boardroom-evidence-pointer-blocked">
+                   ${blocked.map((reason) => `<span>${escHtml(reason)}</span>`).join("")}
+                 </div>`
+              : ""
+          }
+
+          ${
+            Object.keys(metadata).length
+              ? `<details class="aion-boardroom-evidence-pointer-details">
+                   <summary>Metadata</summary>
+                   <pre>${escHtml(JSON.stringify(metadata, null, 2))}</pre>
+                 </details>`
+              : ""
+          }
+        </div>
+      `;
+    })
+    .join("");
+
+  return `
+    <section class="aion-boardroom-evidence-pointer-viewer" data-aion-goal-engine-evidence-viewer="v1">
+      <div class="aion-boardroom-card-title">Evidence pointers</div>
+      <div class="aion-boardroom-muted">
+        UI-only evidence reference viewer. No connector reads, writes, or permissions are granted.
+      </div>
+      <div class="aion-boardroom-evidence-pointer-list">
+        ${rows}
+      </div>
+    </section>
+  `;
+}
+
+(function installAionGoalEngineEvidencePointerViewerV1() {
+  if (window.__aionGoalEngineEvidencePointerViewerInstalledV1 === true) return;
+  window.__aionGoalEngineEvidencePointerViewerInstalledV1 = true;
+
+  window.renderAionGoalEngineEvidencePointerViewerV1 = renderAionGoalEngineEvidencePointerViewerV1;
+
+  const attachToRenderer = (name) => {
+    const original = window[name];
+    if (typeof original !== "function" || original.__aionEvidencePointerViewerWrappedV1) return false;
+
+    const wrapped = function renderBoardroomWithEvidencePointerViewerV1(...args) {
+      const html = String(original.apply(this, args) || "");
+      const snapshot = args[0] && typeof args[0] === "object" ? args[0] : {};
+      const viewer = renderAionGoalEngineEvidencePointerViewerV1(snapshot);
+
+      if (html.includes('data-aion-goal-engine-evidence-viewer="v1"')) return html;
+      if (html.includes("</section>")) return html.replace("</section>", `${viewer}</section>`);
+      return `${html}${viewer}`;
+    };
+
+    wrapped.__aionEvidencePointerViewerWrappedV1 = true;
+    window[name] = wrapped;
+    return true;
+  };
+
+  [
+    "renderAionGoalEngineBoardroomRuntimePreviewV1",
+    "renderAionGoalEngineVisibleBoardroomPreviewV1",
+    "renderAionBoardroomRuntimePanel",
+    "renderBoardroomRuntimePanel",
+  ].forEach(attachToRenderer);
+})();
+/* AION-GOAL-ENGINE-EVIDENCE-POINTER-VIEWER-V1:END */
+
+/* AION-GOAL-ENGINE-VARIANT-COMPARISON-VIEWER-V1:START */
+/*
+ * Compatibility lock tokens:
+ * - manual decision required
+ * - renderAionGoalEngineBoardroomRuntimePreviewV1
+ * - does not write externally
+ * - variant_outcome_scores
+ * - does not select a winner automatically
+ * - does not pause loser variants
+ * - does not mutate goals
+ * - installAionGoalEngineVariantComparisonViewerV1
+ */
+
+/*
+ * ---------------------------------------------------------------------------
+ * AION Goal Engine Boardroom Variant Comparison Viewer v2
+ * ---------------------------------------------------------------------------
+ * UI-only renderer for experiment_result_evidence_preview and
+ * variant_outcome_score_preview rows.
+ *
+ * Important:
+ * - Does not choose a winner.
+ * - Does not select a winner automatically.
+ * - Does not mutate experiments.
+ * - Does not write to connectors.
+ * - Does not grant permission.
+ */
+function renderAionGoalEngineVariantComparisonViewerV1(snapshot = {}) {
+  const experimentEvidence = [];
+  const variantScores = [];
+
+  const pushMaybe = (value) => {
+    if (Array.isArray(value)) {
+      value.forEach(pushMaybe);
+      return;
+    }
+
+    if (!value || typeof value !== "object") return;
+
+    if (value.trace_type === "experiment_result_evidence_preview") {
+      experimentEvidence.push(value);
+    }
+
+    if (value.trace_type === "variant_outcome_score_preview") {
+      variantScores.push(value);
+    }
+
+    [
+      value.experiment_result_evidence_preview,
+      value.experiment_result_evidence_previews,
+      value.variant_outcome_score_preview,
+      value.variant_outcome_score_previews,
+      value.variant_scores,
+      value.variant_outcome_scores,
+      value.variant_rankings,
+      value.evidence_pointers,
+      value.trace,
+      value.rows,
+      value.goal_engine_container_projection,
+      value.goal_engine_boardroom_runtime_preview,
+      value.runtime,
+      value.summary,
+    ].forEach(pushMaybe);
+  };
+
+  pushMaybe(snapshot);
+
+  const escHtml =
+    typeof esc === "function"
+      ? esc
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+  if (!experimentEvidence.length && !variantScores.length) {
+    return `
+      <section class="aion-boardroom-variant-comparison-viewer" data-aion-goal-engine-variant-comparison="v1">
+        <div class="aion-boardroom-card-title">Variant comparison</div>
+        <div class="aion-boardroom-muted">No variant comparison data attached yet.</div>
+      </section>
+    `;
+  }
+
+  const firstExperiment = experimentEvidence[0] || {};
+  const evidenceReady =
+    firstExperiment.evidence_ready === true ||
+    firstExperiment.ready === true ||
+    firstExperiment.all_variants_have_evidence === true;
+
+  const variantEvidence = Array.isArray(firstExperiment.variant_evidence)
+    ? firstExperiment.variant_evidence
+    : Array.isArray(firstExperiment.variants)
+      ? firstExperiment.variants
+      : [];
+
+  const rankedVariants = [];
+
+  variantScores.forEach((scoreBlock) => {
+    const rows = Array.isArray(scoreBlock.ranked_variants)
+      ? scoreBlock.ranked_variants
+      : Array.isArray(scoreBlock.variant_scores)
+        ? scoreBlock.variant_scores
+        : Array.isArray(scoreBlock.variants)
+          ? scoreBlock.variants
+          : [];
+
+    rows.forEach((row) => {
+      if (row && typeof row === "object") rankedVariants.push(row);
+    });
+  });
+
+  if (!rankedVariants.length && variantEvidence.length) {
+    variantEvidence.forEach((row) => {
+      if (row && typeof row === "object") rankedVariants.push(row);
+    });
+  }
+
+  const variantCount =
+    firstExperiment.variant_count ||
+    firstExperiment.variants_count ||
+    rankedVariants.length ||
+    variantEvidence.length ||
+    0;
+
+  const experimentHtml = experimentEvidence.length
+    ? `
+      <div class="aion-boardroom-variant-section">
+        <div class="aion-boardroom-card-title">Experiment evidence</div>
+        <div class="aion-boardroom-variant-summary-row">
+          <div>
+            <strong>${escHtml(firstExperiment.experiment_id || "experiment")}</strong>
+            <span>metric: ${escHtml(firstExperiment.metric || "unknown")}</span>
+            <span>variants: ${escHtml(variantCount)}</span>
+            <span>dry-run: ${firstExperiment.dry_run_only === false ? "false" : "true"}</span>
+          </div>
+          <span class="aion-boardroom-status-pill">${evidenceReady ? "evidence ready" : "evidence incomplete"}</span>
+        </div>
+      </div>
+    `
+    : "";
+
+  const rankingsHtml = rankedVariants.length
+    ? `
+      <div class="aion-boardroom-variant-section">
+        <div class="aion-boardroom-card-title">Variant rankings</div>
+        <div class="aion-boardroom-variant-detail-list">
+          ${rankedVariants.map((row, index) => {
+            const variantId =
+              row.variant_id ||
+              row.variant ||
+              row.id ||
+              row.name ||
+              `variant_${index + 1}`;
+
+            const score =
+              row.score ??
+              row.outcome_score ??
+              row.quality_score ??
+              row.metric_score ??
+              "—";
+
+            const evidence =
+              row.evidence_count ??
+              row.supporting_evidence_count ??
+              row.evidence ??
+              row.samples ??
+              "—";
+
+            return `
+              <div class="aion-boardroom-variant-detail-row">
+                <strong>${escHtml(variantId)}</strong>
+                <span>score: ${escHtml(score)}</span>
+                <span>evidence: ${escHtml(evidence)}</span>
+              </div>
+            `;
+          }).join("")}
+        </div>
+      </div>
+    `
+    : "";
+
+  const manualDecisionHtml = `
+    <div class="aion-boardroom-note">
+      Manual decision required · winner declared: false · no experiment mutation performed.
+    </div>
+  `;
+
+  return `
+    <section class="aion-boardroom-variant-comparison-viewer" data-aion-goal-engine-variant-comparison="v1">
+      <div class="aion-boardroom-card-title">Variant comparison</div>
+      <div class="aion-boardroom-muted">
+        Ranking and evidence visibility only. AION does not auto-select winners, does not select a winner automatically, or mutate experiments.
+      </div>
+      ${experimentHtml}
+      ${rankingsHtml}
+      ${manualDecisionHtml}
+    </section>
+  `;
+}
+
+function installAionGoalEngineVariantComparisonViewerV1() {
+  if (window.__aionGoalEngineVariantComparisonViewerInstalledV1 === true) return;
+  window.__aionGoalEngineVariantComparisonViewerInstalledV1 = true;
+  window.renderAionGoalEngineVariantComparisonViewerV1 = renderAionGoalEngineVariantComparisonViewerV1;
+}
+
+installAionGoalEngineVariantComparisonViewerV1();
+/* AION-GOAL-ENGINE-VARIANT-COMPARISON-VIEWER-V1:END */
+
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-MOUNT-AUDIT-V1:START */
+/*
+ * AION Goal Engine Boardroom Visibility Mount Audit v1
+ * ---------------------------------------------------------------------------
+ * Mounts read-only Goal Engine operator visibility panels into the existing
+ * Boardroom runtime preview surface.
+ *
+ * Safety contract:
+ * - UI-only.
+ * - No connector reads.
+ * - No connector writes.
+ * - No business-container mutation.
+ * - No provider calls.
+ * - No buttons/actions.
+ */
+
+
+
+
+
+
+
+/* AION PATCH: Goal Engine Decomposition Tree Boardroom Polish v1 */
+function renderAionGoalEngineDecompositionTreePanelV1(snapshot = {}) {
+  const escFn = typeof escapeHtml === "function" ? escapeHtml : (value) => String(value ?? "");
+
+  function firstObject(...values) {
+    for (const value of values) {
+      if (value && typeof value === "object" && !Array.isArray(value)) return value;
+    }
+    return {};
+  }
+
+  function firstArray(...values) {
+    for (const value of values) {
+      if (Array.isArray(value)) return value;
+    }
+    return [];
+  }
+
+  const preview = firstObject(
+    snapshot.goal_engine_boardroom_runtime_preview,
+    snapshot.runtime?.goal_engine_boardroom_runtime_preview,
+    snapshot.summary?.goal_engine_boardroom_runtime_preview,
+    snapshot
+  );
+
+  const machineTrace = firstObject(
+    preview.machine_trace,
+    snapshot.machine_trace,
+    snapshot.runtime?.machine_trace,
+    snapshot.summary?.machine_trace
+  );
+
+  const decomposition = firstObject(
+    preview.decomposition_summary,
+    preview.goal_decomposition_summary,
+    preview.hierarchical_goal_decomposition,
+    machineTrace.decomposition_summary,
+    machineTrace.goal_decomposition_summary,
+    snapshot.decomposition_summary
+  );
+
+  const rootGoal =
+    decomposition.root_goal ||
+    decomposition.parent_goal ||
+    decomposition.goal ||
+    preview.goal ||
+    "No parent goal attached yet.";
+
+  const children = firstArray(
+    decomposition.child_goals,
+    decomposition.children,
+    decomposition.subgoals,
+    decomposition.nodes,
+    preview.child_goals,
+    machineTrace.child_goals
+  );
+
+  function renderChild(child, index) {
+    const title = child.title || child.goal || child.objective || child.id || `Child goal ${index + 1}`;
+    const status = child.status || child.state || child.lifecycle || "pending";
+    const owner = child.owner || child.agent || child.assigned_agent || child.glyph || "unassigned";
+    const score = child.outcome_score ?? child.score ?? child.confidence ?? "—";
+    const provenance = child.provenance || child.source || child.parent_ref || child.parent_goal_id || "runtime";
+
+    return `
+      <div class="aion-boardroom-memory-runtime-row" data-aion-goal-engine-decomposition-child="true">
+        <strong>${escFn(title)}</strong>
+        <span>${escFn(status)} · owner: ${escFn(owner)} · score: ${escFn(score)} · source: ${escFn(provenance)}</span>
+      </div>
+    `;
+  }
+
+  const childHtml = children.length
+    ? children.slice(0, 8).map(renderChild).join("")
+    : `<div class="aion-boardroom-muted">No child goals attached yet.</div>`;
+
+  const depth = decomposition.depth ?? decomposition.tree_depth ?? decomposition.max_depth ?? "—";
+  const totalChildren = decomposition.child_goal_count ?? decomposition.children_count ?? children.length;
+  const blocked = decomposition.blocked_count ?? decomposition.blocked_children ?? 0;
+
+  return `
+    <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-decomposition-tree="v1">
+      <div class="aion-boardroom-card-title">Goal Decomposition Tree</div>
+      <div class="aion-boardroom-muted">Read-only parent/child goal structure from the live Goal Engine payload.</div>
+      <div class="aion-boardroom-runtime-grid">
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(totalChildren)}</strong>
+          <span>Child goals</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(depth)}</strong>
+          <span>Tree depth</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(blocked)}</strong>
+          <span>Blocked</span>
+        </div>
+      </div>
+      <div class="aion-boardroom-memory-runtime-row">
+        <strong>Parent goal</strong>
+        <span>${escFn(rootGoal)}</span>
+      </div>
+      <div class="aion-boardroom-memory-runtime-list">
+        ${childHtml}
+      </div>
+    </section>
+  `;
+}
+
+/* AION PATCH: Goal Engine Exploration Exploitation Boardroom Visibility v1 */
+function renderAionGoalEngineExplorationExploitationPanelV1(snapshot = {}) {
+  const escFn = typeof escapeHtml === "function" ? escapeHtml : (value) => String(value ?? "");
+
+  function firstObject(...values) {
+    for (const value of values) {
+      if (value && typeof value === "object" && !Array.isArray(value)) return value;
+    }
+    return {};
+  }
+
+  function asNumber(value, fallback = 0) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  const preview = firstObject(
+    snapshot.goal_engine_boardroom_runtime_preview,
+    snapshot.runtime?.goal_engine_boardroom_runtime_preview,
+    snapshot.summary?.goal_engine_boardroom_runtime_preview,
+    snapshot
+  );
+
+  const machineTrace = firstObject(
+    preview.machine_trace,
+    snapshot.machine_trace,
+    snapshot.runtime?.machine_trace,
+    snapshot.summary?.machine_trace
+  );
+
+  const experimentSummary = firstObject(
+    preview.experiment_runtime_summary,
+    preview.variant_comparison_summary,
+    machineTrace.experiment_runtime_summary,
+    machineTrace.goal_engine_experiment_runtime_summary,
+    machineTrace.variant_comparison_summary,
+    snapshot.experiment_runtime_summary
+  );
+
+  const explorationRaw =
+    experimentSummary.exploration_ratio ??
+    experimentSummary.exploration_pct ??
+    experimentSummary.exploration ??
+    preview.exploration_ratio ??
+    machineTrace.exploration_ratio ??
+    0;
+
+  const exploitationRaw =
+    experimentSummary.exploitation_ratio ??
+    experimentSummary.exploitation_pct ??
+    experimentSummary.exploitation ??
+    preview.exploitation_ratio ??
+    machineTrace.exploitation_ratio ??
+    0;
+
+  let exploration = asNumber(explorationRaw, 0);
+  let exploitation = asNumber(exploitationRaw, 0);
+
+  if (exploration <= 1 && exploitation <= 1) {
+    exploration = Math.round(exploration * 100);
+    exploitation = Math.round(exploitation * 100);
+  }
+
+  if (exploration === 0 && exploitation === 0) {
+    const variants = Array.isArray(experimentSummary.variants)
+      ? experimentSummary.variants
+      : Array.isArray(preview.variants)
+        ? preview.variants
+        : [];
+    const exploreCount = variants.filter((v) =>
+      String(v.mode || v.variant_mode || v.strategy || "").toLowerCase().includes("explor")
+    ).length;
+    const exploitCount = variants.filter((v) =>
+      String(v.mode || v.variant_mode || v.strategy || "").toLowerCase().includes("exploit")
+    ).length;
+    const total = exploreCount + exploitCount;
+    if (total > 0) {
+      exploration = Math.round((exploreCount / total) * 100);
+      exploitation = Math.round((exploitCount / total) * 100);
+    }
+  }
+
+  const policy =
+    experimentSummary.policy ||
+    experimentSummary.experiment_policy ||
+    experimentSummary.routing_policy ||
+    "No experiment policy attached yet.";
+
+  const recommendation =
+    experimentSummary.recommendation ||
+    experimentSummary.next_action ||
+    experimentSummary.winner_reason ||
+    "No exploration/exploitation recommendation attached yet.";
+
+  return `
+    <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-exploration-exploitation="v1">
+      <div class="aion-boardroom-card-title">Exploration vs Exploitation</div>
+      <div class="aion-boardroom-muted">Read-only experiment balance telemetry from the Goal Engine runtime.</div>
+      <div class="aion-boardroom-runtime-grid">
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(exploration)}%</strong>
+          <span>Exploration</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(exploitation)}%</strong>
+          <span>Exploitation</span>
+        </div>
+      </div>
+      <div class="aion-boardroom-memory-runtime-row">
+        <strong>Policy</strong>
+        <span>${escFn(policy)}</span>
+      </div>
+      <div class="aion-boardroom-muted">Recommendation: ${escFn(recommendation)}</div>
+    </section>
+  `;
+}
+
+/* AION PATCH: Goal Engine What AION Learned Boardroom Visibility v1 */
+function renderAionGoalEngineLearningPanelV1(snapshot = {}) {
+  const escFn = typeof escapeHtml === "function" ? escapeHtml : (value) => String(value ?? "");
+
+  function firstObject(...values) {
+    for (const value of values) {
+      if (value && typeof value === "object" && !Array.isArray(value)) return value;
+    }
+    return {};
+  }
+
+  const preview = firstObject(
+    snapshot.goal_engine_boardroom_runtime_preview,
+    snapshot.runtime?.goal_engine_boardroom_runtime_preview,
+    snapshot.summary?.goal_engine_boardroom_runtime_preview,
+    snapshot
+  );
+
+  const machineTrace = firstObject(
+    preview.machine_trace,
+    snapshot.machine_trace,
+    snapshot.runtime?.machine_trace,
+    snapshot.summary?.machine_trace
+  );
+
+  const learningSummary = firstObject(
+    preview.learning_runtime_summary,
+    preview.learning_reflection_summary,
+    machineTrace.learning_runtime_summary,
+    machineTrace.learning_reflection_summary,
+    machineTrace.goal_engine_learning_runtime_summary,
+    snapshot.learning_runtime_summary
+  );
+
+  const learningItems = (
+    learningSummary.learning_items ||
+    learningSummary.reflections ||
+    learningSummary.insights ||
+    preview.learning_items ||
+    preview.reflections ||
+    machineTrace.learning_items ||
+    []
+  );
+
+  const normalized = Array.isArray(learningItems)
+    ? learningItems.slice(0, 5)
+    : [];
+
+  const learnedCount =
+    learningSummary.learning_count ??
+    learningSummary.reflection_count ??
+    normalized.length;
+
+  const confidence =
+    learningSummary.confidence ??
+    learningSummary.learning_confidence ??
+    learningSummary.average_confidence ??
+    "—";
+
+  const nextAction =
+    learningSummary.next_action ||
+    learningSummary.recommended_next_action ||
+    learningSummary.recommendation ||
+    "No next learning action attached yet.";
+
+  const rows = normalized.length
+    ? normalized.map((item, index) => {
+        const title = item.title || item.summary || item.insight || item.learning || `Learning ${index + 1}`;
+        const source = item.source || item.source_type || item.trace_type || "runtime";
+        return `
+          <div class="aion-boardroom-memory-runtime-row">
+            <strong>${escFn(title)}</strong>
+            <span>${escFn(source)}</span>
+          </div>
+        `;
+      }).join("")
+    : `<div class="aion-boardroom-muted">No learning reflections attached yet.</div>`;
+
+  return `
+    <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-learning-panel="v1">
+      <div class="aion-boardroom-card-title">What AION Learned</div>
+      <div class="aion-boardroom-muted">Read-only learning/reflection telemetry from the Goal Engine runtime.</div>
+      <div class="aion-boardroom-runtime-grid">
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(learnedCount)}</strong>
+          <span>Learning items</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(confidence)}</strong>
+          <span>Confidence</span>
+        </div>
+      </div>
+      ${rows}
+      <div class="aion-boardroom-muted">Next: ${escFn(nextAction)}</div>
+    </section>
+  `;
+}
+
+/* AION PATCH: Goal Engine Live KPI Boardroom Visibility v1 */
+function renderAionGoalEngineLiveKpiPanelV1(snapshot = {}) {
+  const escFn = typeof escapeHtml === "function" ? escapeHtml : (value) => String(value ?? "");
+
+  function firstObject(...values) {
+    for (const value of values) {
+      if (value && typeof value === "object" && !Array.isArray(value)) return value;
+    }
+    return {};
+  }
+
+  const preview = firstObject(
+    snapshot.goal_engine_boardroom_runtime_preview,
+    snapshot.runtime?.goal_engine_boardroom_runtime_preview,
+    snapshot.summary?.goal_engine_boardroom_runtime_preview,
+    snapshot
+  );
+
+  const machineTrace = firstObject(
+    preview.machine_trace,
+    snapshot.machine_trace,
+    snapshot.runtime?.machine_trace,
+    snapshot.summary?.machine_trace
+  );
+
+  const goalSummary = firstObject(
+    preview.goal_runtime_summary,
+    machineTrace.goal_runtime_summary,
+    machineTrace.goal_engine_goal_runtime_summary,
+    preview.runtime_summary,
+    snapshot.goal_runtime_summary
+  );
+
+  const activeGoals = (
+    preview.active_goals ||
+    goalSummary.active_goals ||
+    machineTrace.active_goals ||
+    []
+  );
+
+  const blockedReasons = (
+    preview.blocked_reasons ||
+    goalSummary.blocked_reasons ||
+    machineTrace.blocked_reasons ||
+    []
+  );
+
+  const approvalsWaiting =
+    preview.approvals_waiting ??
+    goalSummary.approvals_waiting ??
+    machineTrace.approvals_waiting ??
+    preview.waiting_approval_count ??
+    goalSummary.waiting_approval_count ??
+    0;
+
+  const loopIterationCount =
+    preview.loop_iteration_count ??
+    goalSummary.loop_iteration_count ??
+    machineTrace.loop_iteration_count ??
+    preview.iteration_count ??
+    goalSummary.iteration_count ??
+    0;
+
+  const outcomeScore =
+    preview.outcome_score ??
+    goalSummary.outcome_score ??
+    machineTrace.outcome_score ??
+    preview.latest_outcome_score ??
+    goalSummary.latest_outcome_score ??
+    "—";
+
+  const activeGoalCount = Array.isArray(activeGoals)
+    ? activeGoals.length
+    : Number(activeGoals || 0);
+
+  const blockedCount = Array.isArray(blockedReasons)
+    ? blockedReasons.length
+    : Number(blockedReasons || 0);
+
+  const blockedText = Array.isArray(blockedReasons) && blockedReasons.length
+    ? blockedReasons.slice(0, 3).map((item) => escFn(item.reason || item.code || item)).join(", ")
+    : "none";
+
+  return `
+    <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-live-kpis="v1">
+      <div class="aion-boardroom-card-title">Goal Engine Live KPIs</div>
+      <div class="aion-boardroom-muted">Live payload readout. Visibility only; this panel does not mutate goals or approvals.</div>
+      <div class="aion-boardroom-runtime-grid">
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(activeGoalCount)}</strong>
+          <span>Active goals</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(loopIterationCount)}</strong>
+          <span>Loop iterations</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(approvalsWaiting)}</strong>
+          <span>Approvals waiting</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(blockedCount)}</strong>
+          <span>Blocked reasons</span>
+        </div>
+        <div class="aion-boardroom-runtime-card">
+          <strong>${escFn(outcomeScore)}</strong>
+          <span>Outcome score</span>
+        </div>
+      </div>
+      <div class="aion-boardroom-muted">Blocked: ${blockedText}</div>
+    </section>
+  `;
+}
+
+/* AION PATCH: Goal Engine Provider Degradation Feed Boardroom Visibility v1 */
+function renderAionGoalEngineProviderDegradationFeedV1(snapshot = {}) {
+  const escFn = typeof escapeHtml === "function" ? escapeHtml : (value) => String(value ?? "");
+
+  function collectProviderAudits(value, out = []) {
+    if (!value || typeof value !== "object") return out;
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => collectProviderAudits(item, out));
+      return out;
+    }
+
+    if (value.trace_type === "provider_audit") out.push(value);
+    if (value.provider_audit && typeof value.provider_audit === "object") out.push(value.provider_audit);
+
+    [
+      value.provider_audits,
+      value.goal_engine_provider_audits,
+      value.provider_runtime_audits,
+      value.machine_trace,
+      value.runtime,
+      value.summary,
+      value.goal_engine_boardroom_runtime_preview,
+      value.goal_engine_boardroom_runtime_preview?.machine_trace,
+    ].forEach((item) => collectProviderAudits(item, out));
+
+    return out;
+  }
+
+  const events = collectProviderAudits(snapshot)
+    .filter((audit) => audit && typeof audit === "object")
+    .map((audit) => {
+      const degradationEvent = audit.degradation_event || "none";
+      const fallbackUsed = audit.fallback_used === true;
+      const failedClosed = audit.failed_closed === true;
+      const errorCode = audit.error_code || "";
+
+      return {
+        provider: audit.provider || "unknown",
+        model: audit.model || "unknown",
+        capability: audit.capability || "unknown",
+        degradation_mode: audit.degradation_mode || "normal",
+        degradation_event: degradationEvent,
+        fallback_used: fallbackUsed,
+        failed_closed: failedClosed,
+        error_code: errorCode,
+        show:
+          fallbackUsed ||
+          failedClosed ||
+          degradationEvent !== "none" ||
+          Boolean(errorCode),
+      };
+    })
+    .filter((event) => event.show)
+    .slice(0, 8);
+
+  if (!events.length) {
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-provider-degradation-feed="v1">
+        <div class="aion-boardroom-card-title">Provider Degradation Feed</div>
+        <div class="aion-boardroom-muted">No provider fallback or degradation events detected.</div>
+      </section>
+    `;
+  }
+
+  const rows = events.map((event, index) => `
+    <div class="aion-boardroom-memory-runtime-row" data-aion-provider-degradation-event="${index + 1}">
+      <div>
+        <strong>${escFn(event.provider)}</strong>
+        <span>${escFn(event.model)} · ${escFn(event.capability)}</span>
+      </div>
+      <div>
+        <span>mode: ${escFn(event.degradation_mode)}</span>
+        <span>event: ${escFn(event.degradation_event)}</span>
+        <span>fallback: ${event.fallback_used ? "true" : "false"}</span>
+        <span>failed closed: ${event.failed_closed ? "true" : "false"}</span>
+        <span>error: ${escFn(event.error_code || "none")}</span>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+    <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-provider-degradation-feed="v1">
+      <div class="aion-boardroom-card-title">Provider Degradation Feed</div>
+      <div class="aion-boardroom-muted">Read-only fallback/degradation telemetry. This does not retry, escalate, or mutate provider state.</div>
+      <div class="aion-boardroom-memory-runtime-list">
+        ${rows}
+      </div>
+    </section>
+  `;
+}
+
+/* AION PATCH: Goal Engine Provider Runtime Metrics Boardroom Visibility v1 */
+function renderAionGoalEngineProviderRuntimeMetricsPanelV1(snapshot = {}) {
+  const escFn = typeof escapeHtml === "function" ? escapeHtml : (value) => String(value ?? "");
+
+  function collectProviderAudits(value, out = []) {
+    if (!value || typeof value !== "object") return out;
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => collectProviderAudits(item, out));
+      return out;
+    }
+
+    if (value.trace_type === "provider_audit") out.push(value);
+    if (value.provider_audit && typeof value.provider_audit === "object") out.push(value.provider_audit);
+
+    [
+      value.provider_audits,
+      value.goal_engine_provider_audits,
+      value.provider_runtime_audits,
+      value.machine_trace,
+      value.runtime,
+      value.summary,
+      value.goal_engine_boardroom_runtime_preview,
+      value.goal_engine_boardroom_runtime_preview?.machine_trace,
+    ].forEach((item) => collectProviderAudits(item, out));
+
+    return out;
+  }
+
+  const audits = collectProviderAudits(snapshot)
+    .filter((item) => item && typeof item === "object")
+    .slice(0, 6);
+
+  if (!audits.length) {
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-provider-runtime-metrics="v1">
+        <div class="aion-boardroom-card-title">Provider Runtime Metrics</div>
+        <div class="aion-boardroom-muted">No provider runtime audit attached yet.</div>
+      </section>
+    `;
+  }
+
+  const rows = audits.map((audit, index) => {
+    const provider = audit.provider || "unknown";
+    const model = audit.model || "unknown";
+    const capability = audit.capability || "unknown";
+    const latency = Number.isFinite(Number(audit.latency_ms)) ? Number(audit.latency_ms) : 0;
+    const duration = Number.isFinite(Number(audit.runtime_duration_ms)) ? Number(audit.runtime_duration_ms) : latency;
+    const tokens = Number.isFinite(Number(audit.token_count)) ? Number(audit.token_count) : 0;
+    const cost = Number.isFinite(Number(audit.cost_estimate)) ? Number(audit.cost_estimate) : 0.0;
+    const fallback = audit.fallback_used === true ? "true" : "false";
+    const degradationMode = audit.degradation_mode || "normal";
+    const degradationEvent = audit.degradation_event || "none";
+    const failedClosed = audit.failed_closed === true ? "true" : "false";
+    const writes = audit.external_writes || "blocked";
+    const mutation = audit.business_state_mutation || "human_review_guarded";
+
+    return `
+      <div class="aion-boardroom-memory-runtime-row" data-aion-provider-runtime-row="${index + 1}">
+        <div>
+          <strong>${escFn(provider)}</strong>
+          <span>${escFn(model)} · ${escFn(capability)}</span>
+        </div>
+        <div>
+          <span>latency: ${escFn(latency)}ms</span>
+          <span>duration: ${escFn(duration)}ms</span>
+          <span>tokens: ${escFn(tokens)}</span>
+          <span>cost: ${escFn(cost.toFixed ? cost.toFixed(4) : cost)}</span>
+          <span>fallback: ${escFn(fallback)}</span>
+          <span>degradation: ${escFn(degradationMode)} / ${escFn(degradationEvent)}</span>
+          <span>fail closed: ${escFn(failedClosed)}</span>
+          <span>writes: ${escFn(writes)}</span>
+          <span>mutation: ${escFn(mutation)}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-provider-runtime-metrics="v1">
+      <div class="aion-boardroom-card-title">Provider Runtime Metrics</div>
+      <div class="aion-boardroom-muted">Read-only provider telemetry. This panel does not grant execution permission.</div>
+      <div class="aion-boardroom-memory-runtime-list">
+        ${rows}
+      </div>
+    </section>
+  `;
+}
+
+function renderAionGoalEngineProviderAuditPanelV1(snapshot = {}) {
+  const escHtml =
+    typeof esc === "function"
+      ? esc
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+  const candidates = [];
+
+  const pushMaybe = (value) => {
+    if (Array.isArray(value)) {
+      value.forEach(pushMaybe);
+      return;
+    }
+
+    if (!value || typeof value !== "object") return;
+
+    if (value.provider_audit && typeof value.provider_audit === "object") {
+      candidates.push(value.provider_audit);
+    }
+
+    if (value.trace_type === "provider_audit") {
+      candidates.push(value);
+    }
+
+    [
+      value.raw,
+      value.metadata,
+      value.runtime,
+      value.summary,
+      value.provider_result,
+      value.provider_results,
+      value.goal_engine_boardroom_runtime_preview,
+      value.goal_engine_container_projection,
+      value.trace,
+      value.rows,
+    ].forEach(pushMaybe);
+  };
+
+  pushMaybe(snapshot);
+
+  if (!candidates.length) {
+    return `
+      <section class="aion-boardroom-provider-audit-panel" data-aion-goal-engine-provider-audit="v1">
+        <div class="aion-boardroom-card-title">Provider Audit</div>
+        <div class="aion-boardroom-muted">No provider audit trail attached yet.</div>
+      </section>
+    `;
+  }
+
+  const rows = candidates.slice(0, 8).map((item) => `
+    <div class="aion-boardroom-provider-audit-row">
+      <strong>${escHtml(item.provider || "unknown provider")}</strong>
+      <span>capability: ${escHtml(item.capability || "unknown")}</span>
+      <span>fallback: ${item.fallback_used === true ? "true" : "false"}</span>
+      <span>writes: ${escHtml(item.external_writes || "unknown")}</span>
+      <span>business mutation: ${escHtml(item.business_state_mutation || "unknown")}</span>
+      <span>failed closed: ${item.failed_closed === true ? "true" : "false"}</span>
+    </div>
+  `).join("");
+
+  return `
+    <section class="aion-boardroom-provider-audit-panel" data-aion-goal-engine-provider-audit="v1">
+      <div class="aion-boardroom-card-title">Provider Audit</div>
+      ${rows}
+    </section>
+  `;
+}
+
+function renderAionGoalEngineMemoryRuntimePanelV1(snapshot = {}) {
+  const escHtml =
+    typeof esc === "function"
+      ? esc
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+  const candidates = [];
+
+  const pushMaybe = (value) => {
+    if (Array.isArray(value)) {
+      value.forEach(pushMaybe);
+      return;
+    }
+
+    if (!value || typeof value !== "object") return;
+
+    if (
+      value.trace_type === "memory_runtime_summary" ||
+      value.schema_version === "aion.goal_engine.memory_runtime_summary.v1"
+    ) {
+      candidates.push(value);
+    }
+
+    [
+      value.memory_runtime_summary,
+      value.goal_engine_memory_runtime_summary,
+      value.runtime?.memory_runtime_summary,
+      value.summary?.memory_runtime_summary,
+      value.goal_engine_boardroom_runtime_preview?.memory_runtime_summary,
+      value.trace,
+      value.rows,
+    ].forEach(pushMaybe);
+  };
+
+  pushMaybe(snapshot);
+
+  if (!candidates.length) {
+    return `
+      <section class="aion-boardroom-memory-runtime-panel" data-aion-goal-engine-memory-runtime="v1">
+        <div class="aion-boardroom-card-title">Memory Runtime</div>
+        <div class="aion-boardroom-muted">No memory runtime summary attached yet.</div>
+      </section>
+    `;
+  }
+
+  const rows = candidates.slice(0, 6).map((item) => {
+    const tierCounts = item.tier_counts || item.memory_tiers || {};
+    const tierText = Object.entries(tierCounts)
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(" · ");
+
+    return `
+      <div class="aion-boardroom-memory-runtime-row">
+        <strong>${escHtml(item.trace_type || "memory_runtime_summary")}</strong>
+        <span>dry-run: ${item.dry_run_only === false ? "false" : "true"}</span>
+        <span>write guard: ${escHtml(item.write_guard || item.default_write_guard || "human_review")}</span>
+        <span>read guard: ${escHtml(item.read_guard || item.default_read_guard || "allow")}</span>
+        <span>forgetting: ${item.allow_forgetting === false ? "blocked" : "allowed"}</span>
+        <span>${escHtml(tierText || "no tier counts yet")}</span>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <section class="aion-boardroom-memory-runtime-panel" data-aion-goal-engine-memory-runtime="v1">
+      <div class="aion-boardroom-card-title">Memory Runtime</div>
+      ${rows}
+    </section>
+  `;
+}
+
+function renderAionGoalEngineBoardroomVisibilityMountAuditV1(snapshot = {}) {
+  const sections = [];
+
+  const addSection = (html) => {
+    if (typeof html === "string" && html.trim()) sections.push(html);
+  };
+
+  if (typeof renderAionGoalEngineEvidencePointerViewerV1 === "function") {
+    addSection(renderAionGoalEngineEvidencePointerViewerV1(snapshot));
+  }
+
+  if (typeof renderAionGoalEngineVariantComparisonViewerV1 === "function") {
+    addSection(renderAionGoalEngineVariantComparisonViewerV1(snapshot));
+  }
+
+  if (typeof renderAionGoalEngineProviderCapabilityManifestV1 === "function") {
+    addSection(renderAionGoalEngineProviderCapabilityManifestV1(snapshot));
+  } else if (typeof renderAionProviderCapabilityManifestV1 === "function") {
+    addSection(renderAionProviderCapabilityManifestV1(snapshot));
+  }
+
+  if (typeof renderAionGoalEngineContainerProjectionV1 === "function") {
+    addSection(renderAionGoalEngineContainerProjectionV1(snapshot));
+  } else if (typeof renderAionGoalEngineContainerProjectionPanelV1 === "function") {
+    addSection(renderAionGoalEngineContainerProjectionPanelV1(snapshot));
+  }
+
+  if (typeof renderAionGoalEngineParentChildOrchestrationPanelV1 === "function") {
+    addSection(renderAionGoalEngineParentChildOrchestrationPanelV1(snapshot));
+  }
+
+  if (typeof renderAionGoalEngineEvidenceSourcePanelV1 === "function") {
+    addSection(renderAionGoalEngineEvidenceSourcePanelV1(snapshot));
+  }
+
+  addSection(renderAionGoalEngineProviderAuditPanelV1(snapshot));
+  if (typeof renderAionGoalEngineLiveKpiPanelV1 === "function") {
+    addSection(renderAionGoalEngineLiveKpiPanelV1(snapshot));
+  }
+  if (typeof renderAionGoalEngineLearningPanelV1 === "function") {
+    addSection(renderAionGoalEngineLearningPanelV1(snapshot));
+  }
+  if (typeof renderAionGoalEngineExplorationExploitationPanelV1 === "function") {
+    addSection(renderAionGoalEngineExplorationExploitationPanelV1(snapshot));
+  }
+  if (typeof renderAionGoalEngineDecompositionTreePanelV1 === "function") {
+    addSection(renderAionGoalEngineDecompositionTreePanelV1(snapshot));
+  }
+  if (typeof renderAionGoalEngineProviderRuntimeMetricsPanelV1 === "function") {
+    addSection(renderAionGoalEngineProviderRuntimeMetricsPanelV1(snapshot));
+  }
+  if (typeof renderAionGoalEngineProviderDegradationFeedV1 === "function") {
+    addSection(renderAionGoalEngineProviderDegradationFeedV1(snapshot));
+  }
+
+  addSection(renderAionGoalEngineMemoryRuntimePanelV1(snapshot));
+
+  if (!sections.length) return "";
+
+  return `
+    <section class="aion-boardroom-goal-engine-visibility-audit" data-aion-goal-engine-visibility-mount-audit="v1">
+      <div class="aion-boardroom-card-title">Goal Engine Visibility Audit</div>
+      ${sections.join("")}
+    </section>
+  `;
+}
+
+(function installAionGoalEngineBoardroomVisibilityMountAuditV1() {
+  if (window.__aionGoalEngineBoardroomVisibilityMountAuditInstalledV1 === true) return;
+  window.__aionGoalEngineBoardroomVisibilityMountAuditInstalledV1 = true;
+
+  window.renderAionGoalEngineProviderAuditPanelV1 = renderAionGoalEngineProviderAuditPanelV1;
+  window.renderAionGoalEngineLiveKpiPanelV1 = renderAionGoalEngineLiveKpiPanelV1;
+  window.renderAionGoalEngineLearningPanelV1 = renderAionGoalEngineLearningPanelV1;
+  window.renderAionGoalEngineExplorationExploitationPanelV1 = renderAionGoalEngineExplorationExploitationPanelV1;
+  window.renderAionGoalEngineDecompositionTreePanelV1 = renderAionGoalEngineDecompositionTreePanelV1;
+  window.renderAionGoalEngineProviderRuntimeMetricsPanelV1 = renderAionGoalEngineProviderRuntimeMetricsPanelV1;
+  window.renderAionGoalEngineProviderDegradationFeedV1 = renderAionGoalEngineProviderDegradationFeedV1;
+  window.renderAionGoalEngineMemoryRuntimePanelV1 = renderAionGoalEngineMemoryRuntimePanelV1;
+  window.renderAionGoalEngineBoardroomVisibilityMountAuditV1 = renderAionGoalEngineBoardroomVisibilityMountAuditV1;
+
+  const candidates = [
+    "renderAionGoalEngineVisibleBoardroomPanelsV1",
+    "renderAionGoalEngineBoardroomRuntimePreviewV1",
+    "renderAionGoalEngineVisibleBoardroomPreviewV1",
+    "renderAionBusinessBoardroomRuntimePreview",
+    "renderAionBoardroomRuntimePreview",
+  ];
+
+  candidates.forEach((name) => {
+    const original = window[name];
+    if (typeof original !== "function" || original.__goalEngineVisibilityMountAuditV1) return;
+
+    const wrapped = function renderWithGoalEngineVisibilityMountAuditV1(...args) {
+      const html = String(original.apply(this, args) || "");
+      const snapshot = args[0] && typeof args[0] === "object" ? args[0] : {};
+      const extra = renderAionGoalEngineBoardroomVisibilityMountAuditV1(snapshot);
+
+      if (!extra || html.includes('data-aion-goal-engine-visibility-mount-audit="v1"')) {
+        return html;
+      }
+
+      if (html.includes("</section>")) {
+        return html.replace("</section>", `${extra}</section>`);
+      }
+
+      return `${html}${extra}`;
+    };
+
+    wrapped.__goalEngineVisibilityMountAuditV1 = true;
+    window[name] = wrapped;
+  });
+})();
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-MOUNT-AUDIT-V1:END */
+
+
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-POLISH-V1:START */
+(function installAionGoalEngineBoardroomVisibilityPolishV1() {
+  if (window.__aionGoalEngineBoardroomVisibilityPolishInstalledV1 === true) return;
+  window.__aionGoalEngineBoardroomVisibilityPolishInstalledV1 = true;
+
+  const escHtml =
+    typeof esc === "function"
+      ? esc
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+  const collectRecursive = (root, predicate) => {
+    const found = [];
+    const seen = new Set();
+
+    const walk = (value) => {
+      if (!value || typeof value !== "object") return;
+      if (seen.has(value)) return;
+      seen.add(value);
+
+      if (Array.isArray(value)) {
+        value.forEach(walk);
+        return;
+      }
+
+      if (predicate(value)) found.push(value);
+
+      Object.values(value).forEach(walk);
+    };
+
+    walk(root);
+    return found;
+  };
+
+  window.renderAionGoalEngineVariantComparisonViewerV1 = function renderAionGoalEngineVariantComparisonViewerV1(snapshot = {}) {
+    const candidates = collectRecursive(
+      snapshot,
+      (value) =>
+        value.trace_type === "variant_outcome_score_preview" ||
+        value.trace_type === "experiment_result_evidence_preview" ||
+        value.schema_version === "aion.goal_engine.variant_outcome_score.v1" ||
+        value.schema_version === "aion.goal_engine.experiment_result_evidence.v1",
+    );
+
+    if (!candidates.length) {
+      return `
+        <section class="aion-boardroom-variant-comparison-viewer" data-aion-goal-engine-variant-comparison="v1">
+          <div class="aion-boardroom-card-title">Variant comparison</div>
+          <div class="aion-boardroom-muted">No variant comparison data attached yet.</div>
+        </section>
+      `;
+    }
+
+    const rows = candidates.map((item) => {
+      const variantEvidence = Array.isArray(item.variant_evidence) ? item.variant_evidence : [];
+      const rankedVariants = Array.isArray(item.ranked_variants) ? item.ranked_variants : [];
+      const variants = Array.isArray(item.variants) ? item.variants : [];
+      const variantRows = variantEvidence.length ? variantEvidence : (rankedVariants.length ? rankedVariants : variants);
+      const variantCount = Number(item.variant_count || variantRows.length || variants.length || rankedVariants.length || 0);
+
+      const detailRows = variantRows.length
+        ? `
+          <div class="aion-boardroom-variant-detail-list">
+            ${variantRows.map((variant) => {
+              const variantId = variant.variant_id || variant.id || variant.name || variant;
+              const score = variant.score ?? variant.outcome_score ?? variant.metric_value ?? "—";
+              const evidenceCount = variant.evidence_count ?? (Array.isArray(variant.evidence) ? variant.evidence.length : "—");
+              return `
+                <div class="aion-boardroom-variant-detail-row">
+                  <strong>${escHtml(variantId)}</strong>
+                  <span>score: ${escHtml(score)}</span>
+                  <span>evidence: ${escHtml(evidenceCount)}</span>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        `
+        : "";
+
+      return `
+        <div class="aion-boardroom-variant-comparison-row">
+          <div>
+            <strong>${escHtml(item.experiment_id || item.trace_type || "experiment")}</strong>
+            <span>metric: ${escHtml(item.metric || "unknown")}</span>
+            <span>variants: ${escHtml(variantCount)}</span>
+            <span>dry-run: ${item.dry_run_only === false ? "false" : "true"}</span>
+          </div>
+          <span>${item.evidence_ready === true ? "evidence ready" : "manual review"}</span>
+        </div>
+        ${detailRows}
+      `;
+    }).join("");
+
+    return `
+      <section class="aion-boardroom-variant-comparison-viewer" data-aion-goal-engine-variant-comparison="v1">
+        <div class="aion-boardroom-card-title">Variant comparison</div>
+        <div class="aion-boardroom-muted">
+          Ranking and evidence visibility only. AION does not auto-select winners or mutate experiments.
+        </div>
+        ${rows}
+      </section>
+    `;
+  };
+
+  window.renderAionGoalEngineMemoryRuntimePanelV1 = function renderAionGoalEngineMemoryRuntimePanelV1(snapshot = {}) {
+    const candidates = collectRecursive(
+      snapshot,
+      (value) =>
+        value.trace_type === "memory_runtime_summary" ||
+        value.schema_version === "aion.goal_engine.memory_runtime_summary.v1",
+    );
+
+    if (!candidates.length) {
+      return `
+        <section class="aion-boardroom-memory-runtime-panel" data-aion-goal-engine-memory-runtime="v1">
+          <div class="aion-boardroom-card-title">Memory Runtime</div>
+          <div class="aion-boardroom-muted">No memory runtime summary attached yet.</div>
+        </section>
+      `;
+    }
+
+    const rows = candidates.map((item) => {
+      const tierSource =
+        item.tier_counts ||
+        item.memory_tier_counts ||
+        item.tiers ||
+        item.tier_summary ||
+        {};
+
+      const tiers = Array.isArray(tierSource)
+        ? Object.fromEntries(
+            tierSource.map((row) => [
+              row.tier || row.name || row.memory_tier || "unknown",
+              row.count ?? row.records ?? row.total ?? 0,
+            ]),
+          )
+        : tierSource;
+
+      const tierText = Object.entries(tiers || {})
+        .filter(([key]) => key && key !== "undefined")
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(" · ");
+
+      const machineTrace = snapshot.machine_trace || snapshot.trace || {};
+      const memoryRecords =
+        Array.isArray(item.memory_record_previews) ? item.memory_record_previews :
+        Array.isArray(snapshot.memory_record_previews) ? snapshot.memory_record_previews :
+        Array.isArray(snapshot.goal_engine_memory_record_previews) ? snapshot.goal_engine_memory_record_previews :
+        Array.isArray(machineTrace.memory_record_previews) ? machineTrace.memory_record_previews :
+        Array.isArray(machineTrace.goal_engine_memory_record_previews) ? machineTrace.goal_engine_memory_record_previews :
+        [];
+
+      const memoryPolicies =
+        Array.isArray(item.memory_policy_previews) ? item.memory_policy_previews :
+        Array.isArray(snapshot.memory_policy_previews) ? snapshot.memory_policy_previews :
+        Array.isArray(snapshot.goal_engine_memory_policy_previews) ? snapshot.goal_engine_memory_policy_previews :
+        Array.isArray(machineTrace.memory_policy_previews) ? machineTrace.memory_policy_previews :
+        Array.isArray(machineTrace.goal_engine_memory_policy_previews) ? machineTrace.goal_engine_memory_policy_previews :
+        [];
+
+      const recordRows = memoryRecords.slice(0, 4).map((record) => `
+        <div class="aion-boardroom-memory-runtime-row">
+          <strong>${escHtml(record.memory_id || record.content_ref || "memory_record")}</strong>
+          <span>tier: ${escHtml(record.tier || "unknown")}</span>
+          <span>source: ${escHtml(record.source_ref || "unknown")}</span>
+          <span>write: ${record.would_write_memory === true ? "true" : "false"}</span>
+        </div>
+      `).join("");
+
+      const policyRows = memoryPolicies.slice(0, 4).map((policy) => `
+        <div class="aion-boardroom-memory-runtime-row">
+          <strong>${escHtml(policy.policy_id || "memory_policy")}</strong>
+          <span>tier: ${escHtml(policy.tier || "unknown")}</span>
+          <span>retention: ${escHtml(policy.retention_policy || "unknown")}</span>
+          <span>write: ${policy.would_write_memory === true ? "true" : "false"}</span>
+        </div>
+      `).join("");
+
+      return `
+        <div class="aion-boardroom-memory-runtime-row">
+          <strong>${escHtml(item.trace_type || "memory_runtime_summary")}</strong>
+          <span>dry-run: ${item.dry_run_only === false ? "false" : "true"}</span>
+          <span>write guard: ${escHtml(item.write_guard || item.default_write_guard || "human_review")}</span>
+          <span>read guard: ${escHtml(item.read_guard || item.default_read_guard || "allow")}</span>
+          <span>forgetting: ${item.allow_forgetting === false ? "blocked" : "allowed"}</span>
+          <span>${escHtml(tierText || "no tier counts yet")}</span>
+        </div>
+        ${recordRows}
+        ${policyRows}
+      `;
+    }).join("");
+
+    return `
+      <section class="aion-boardroom-memory-runtime-panel" data-aion-goal-engine-memory-runtime="v1">
+        <div class="aion-boardroom-card-title">Memory Runtime</div>
+        ${rows}
+      </section>
+    `;
+  };
+})();
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-POLISH-V1:END */
+
+
+
+/* AION-GOAL-ENGINE-EVIDENCE-SOURCE-VISIBILITY-V1:START */
+function renderAionGoalEngineEvidenceSourcePanelV1(snapshot = {}) {
+  const escHtml =
+    typeof esc === "function"
+      ? esc
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+  const machineTrace =
+    snapshot.machine_trace ||
+    snapshot.goal_engine_machine_trace ||
+    snapshot.goal_engine_boardroom_runtime_preview?.machine_trace ||
+    {};
+
+  const summary =
+    snapshot.evidence_source_runtime_summary ||
+    snapshot.goal_engine_evidence_source_runtime_summary ||
+    machineTrace.evidence_source_runtime_summary ||
+    machineTrace.goal_engine_evidence_source_runtime_summary ||
+    snapshot.goal_engine_boardroom_runtime_preview?.evidence_source_runtime_summary ||
+    {};
+
+  const previews =
+    (Array.isArray(snapshot.evidence_source_previews) ? snapshot.evidence_source_previews : null) ||
+    (Array.isArray(snapshot.evidence_pointer_previews) ? snapshot.evidence_pointer_previews : null) ||
+    (Array.isArray(snapshot.goal_engine_evidence_source_previews) ? snapshot.goal_engine_evidence_source_previews : null) ||
+    (Array.isArray(snapshot.goal_engine_evidence_pointer_previews) ? snapshot.goal_engine_evidence_pointer_previews : null) ||
+    (Array.isArray(machineTrace.evidence_source_previews) ? machineTrace.evidence_source_previews : null) ||
+    (Array.isArray(machineTrace.evidence_pointer_previews) ? machineTrace.evidence_pointer_previews : null) ||
+    (Array.isArray(machineTrace.goal_engine_evidence_source_previews) ? machineTrace.goal_engine_evidence_source_previews : null) ||
+    (Array.isArray(machineTrace.goal_engine_evidence_pointer_previews) ? machineTrace.goal_engine_evidence_pointer_previews : null) ||
+    (Array.isArray(summary.evidence_source_previews) ? summary.evidence_source_previews : null) ||
+    (Array.isArray(summary.evidence_pointer_previews) ? summary.evidence_pointer_previews : null) ||
+    [];
+
+  const supportedTypes = ["gmail_reply", "crm_lead", "utm_click", "booking", "payment", "file", "screenshot"];
+
+  const rows = previews.slice(0, 8).map((item) => {
+    const type = item.evidence_type || item.source_type || item.pointer_type || "unknown";
+    const ref = item.reference_pointer || item.source_ref || item.evidence_ref || "—";
+    const confidence = item.confidence ?? item.score ?? "—";
+
+    return `
+      <div class="aion-boardroom-evidence-pointer-row">
+        <strong>${escHtml(type)}</strong>
+        <span>ref: ${escHtml(ref)}</span>
+        <span>confidence: ${escHtml(confidence)}</span>
+        <span>read external: ${item.would_read_external === true ? "true" : "false"}</span>
+        <span>write external: ${item.would_write_external === true ? "true" : "false"}</span>
+        <span>permission: ${item.would_grant_permission === true ? "true" : "false"}</span>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <section class="aion-boardroom-evidence-source-panel" data-aion-goal-engine-evidence-source-visibility="v1">
+      <div class="aion-boardroom-card-title">Evidence Sources</div>
+      <div class="aion-boardroom-muted">
+        Real evidence pointer visibility only. Supported: ${supportedTypes.map(escHtml).join(", ")}.
+      </div>
+      <div class="aion-boardroom-evidence-pointer-meta">
+        <span>sources: ${escHtml(summary.evidence_source_count ?? previews.length ?? 0)}</span>
+        <span>valid: ${escHtml(summary.valid_evidence_source_count ?? "—")}</span>
+        <span>blocked: ${escHtml(summary.blocked_evidence_source_count ?? "—")}</span>
+        <span>dry-run: ${summary.dry_run_only === false ? "false" : "true"}</span>
+      </div>
+      ${rows || `<div class="aion-boardroom-muted">No evidence source previews attached yet.</div>`}
+    </section>
+  `;
+}
+
+window.renderAionGoalEngineEvidenceSourcePanelV1 = renderAionGoalEngineEvidenceSourcePanelV1;
+/* AION-GOAL-ENGINE-EVIDENCE-SOURCE-VISIBILITY-V1:END */
+
+
+/* AION-GOAL-ENGINE-PARENT-CHILD-ORCHESTRATION-PANEL-V1:START */
+/*
+ * ---------------------------------------------------------------------------
+ * AION Goal Engine Parent / Child Orchestration Panel v1
+ * ---------------------------------------------------------------------------
+ * UI-only renderer for orchestrator_parent_child_aggregation_preview.
+ * Does not execute child agents, mutate parent goals, write externally,
+ * mark parent goals complete, or grant permissions.
+ * Safety fields: would_mutate_parent_goal=false, would_grant_permission=false.
+ */
+function renderAionGoalEngineParentChildOrchestrationPanelV1(snapshot = {}) {
+  const candidates = [];
+
+  const pushMaybe = (value) => {
+    if (Array.isArray(value)) {
+      value.forEach(pushMaybe);
+      return;
+    }
+
+    if (!value || typeof value !== "object") return;
+
+    if (value.trace_type === "orchestrator_parent_child_aggregation_preview") {
+      candidates.push(value);
+      return;
+    }
+
+    [
+      value.parent_child_orchestration,
+      value.parent_child_orchestration_preview,
+      value.orchestrator_parent_child_aggregation,
+      value.orchestrator_parent_child_aggregation_preview,
+      value.orchestrator_parent_child_aggregation_previews,
+      value.parent_child_aggregation,
+      value.parent_child_aggregation_preview,
+      value.parent_child_aggregation_previews,
+      value.goal_engine_parent_child_aggregation,
+      value.goal_engine_parent_child_aggregation_preview,
+      value.goal_engine_parent_child_aggregation_previews,
+      value.goal_engine_boardroom_runtime_preview,
+      value.goal_engine_container_projection,
+      value.runtime,
+      value.summary,
+      value.trace,
+      value.rows,
+    ].forEach(pushMaybe);
+  };
+
+  pushMaybe(snapshot);
+
+  const escHtml =
+    typeof esc === "function"
+      ? esc
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+
+  if (!candidates.length) {
+    return `
+      <section class="aion-boardroom-parent-child-orchestration-panel" data-aion-goal-engine-parent-child-orchestration="v1">
+        <div class="aion-boardroom-card-title">Parent / Child Orchestration</div>
+        <div class="aion-boardroom-muted">No parent/child orchestration aggregation attached yet.</div>
+      </section>
+    `;
+  }
+
+  const rows = candidates.map((item) => {
+    const counts = item.child_status_counts || {};
+    const agents = Array.isArray(item.child_agents) ? item.child_agents : [];
+    const glyphs = Array.isArray(item.child_glyphs) ? item.child_glyphs : [];
+    const blocked = Array.isArray(item.aggregate_blocked_reasons) ? item.aggregate_blocked_reasons : [];
+
+    const countText = Object.entries(counts)
+      .map(([key, value]) => `${escHtml(key)}: ${escHtml(value)}`)
+      .join(" · ");
+
+    const childRows = [...agents, ...glyphs].map((child) => {
+      const label = child.agent_id || child.glyph_code || child.workflow_id || child.child_id || "child";
+      const role = child.role || child.kind || child.workflow_name || "orchestrated child";
+      const status = child.status || child.run_status || "unknown";
+      const glyphCode = child.glyph_code ? ` · glyph=${child.glyph_code}` : "";
+
+      return `
+        <div class="aion-boardroom-parent-child-row">
+          <strong>${escHtml(label)}</strong>
+          <span>${escHtml(role)} · status=${escHtml(status)}${escHtml(glyphCode)}</span>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="aion-boardroom-parent-child-card">
+        <div class="aion-boardroom-parent-child-head">
+          <strong>${escHtml(item.parent_goal_id || "parent goal")}</strong>
+          <span>${escHtml(item.aggregate_status || "review_required")}</span>
+        </div>
+
+        <div class="aion-boardroom-evidence-pointer-meta">
+          <span>children: ${escHtml(item.child_count || 0)}</span>
+          <span>completed: ${escHtml(item.completed_child_count || 0)}</span>
+          <span>waiting approval: ${escHtml(item.waiting_approval_count || 0)}</span>
+          <span>blocked/failed: ${escHtml(item.blocked_child_count || 0)}</span>
+          <span>manual review: ${item.manual_review_required === false ? "false" : "true"}</span>
+          <span>dry-run: ${item.dry_run_only === false ? "false" : "true"}</span>
+        </div>
+
+        <div class="aion-boardroom-muted">${countText || "No child status counts yet."}</div>
+
+        ${childRows ? `<div class="aion-boardroom-parent-child-list">${childRows}</div>` : ""}
+
+        ${
+          blocked.length
+            ? `<div class="aion-boardroom-evidence-pointer-blocked">Blocked: ${blocked.map(escHtml).join(", ")}</div>`
+            : ""
+        }
+
+        <div class="aion-boardroom-muted">
+          Visibility only. AION does not execute children, mutate parent goals, mark parents complete, write externally, or grant permission.
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <section class="aion-boardroom-parent-child-orchestration-panel" data-aion-goal-engine-parent-child-orchestration="v1">
+      <div class="aion-boardroom-card-title">Parent / Child Orchestration</div>
+      ${rows}
+    </section>
+  `;
+}
+
+window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngineParentChildOrchestrationPanelV1;
+/* AION-GOAL-ENGINE-PARENT-CHILD-ORCHESTRATION-PANEL-V1:END */
+
+
+/**
+ * AION PATCH: Goal Engine Orchestrated Glyphs Workflow Tabs Visibility v1
+ *
+ * UI-only renderer for showing orchestrated child glyphs inside the existing
+ * Glyph Library / Workflow Canvas tab surface.
+ *
+ * Safety invariant:
+ * - visibility only
+ * - does not execute child glyphs
+ * - does not mutate parent goals
+ * - does not grant workflow execution permission
+ */
+(function installAionGoalEngineOrchestratedGlyphsWorkflowTabsV1() {
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(String(value ?? ""));
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function asArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function collectOrchestratedGlyphPreviews(source = {}) {
+    const runtime =
+      source.orchestrator_parent_child_aggregation_runtime_summary ||
+      source.parent_child_aggregation_runtime_summary ||
+      source.goal_engine_boardroom_runtime_preview?.orchestrator_parent_child_aggregation_runtime_summary ||
+      source.goal_engine_boardroom_runtime_preview?.parent_child_aggregation_runtime_summary ||
+      source.machine_trace?.orchestrator_parent_child_aggregation_runtime_summary ||
+      source.machine_trace?.parent_child_aggregation_runtime_summary ||
+      {};
+
+    const previews = [
+      ...asArray(runtime.orchestrator_parent_child_aggregation_previews),
+      ...asArray(runtime.parent_child_aggregation_previews),
+      ...asArray(source.orchestrator_parent_child_aggregation_previews),
+      ...asArray(source.parent_child_aggregation_previews),
+      ...asArray(source.goal_engine_boardroom_runtime_preview?.orchestrator_parent_child_aggregation_previews),
+      ...asArray(source.goal_engine_boardroom_runtime_preview?.parent_child_aggregation_previews),
+      ...asArray(source.machine_trace?.orchestrator_parent_child_aggregation_previews),
+      ...asArray(source.machine_trace?.parent_child_aggregation_previews),
+    ];
+
+    const seen = new Set();
+    return previews.filter((preview) => {
+      const key = JSON.stringify([
+        preview?.orchestrator_id,
+        preview?.parent_goal_id,
+        preview?.child_glyphs,
+      ]);
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }
+
+  function renderAionGoalEngineOrchestratedGlyphsPanelV1(snapshot = {}) {
+    /*
+     * Anchor fields intentionally kept inside this renderer for UI lock tests:
+     * orchestrator_parent_child_aggregation_runtime_summary
+     * parent_child_aggregation_runtime_summary
+     * orchestrator_parent_child_aggregation_previews
+     * parent_child_aggregation_previews
+     * child_glyphs
+     *
+     * Safety copy:
+     * visibility only
+     * does not execute child glyphs
+     * would_mutate_parent_goal
+     */
+    const previews = collectOrchestratedGlyphPreviews(snapshot);
+    const childGlyphRows = [];
+
+    for (const preview of previews) {
+      for (const glyph of asArray(preview.child_glyphs)) {
+        childGlyphRows.push({
+          orchestrator_id: preview.orchestrator_id || "-",
+          parent_goal_id: preview.parent_goal_id || "-",
+          glyph_code: glyph.glyph_code || glyph.code || glyph.id || "-",
+          title: glyph.title || glyph.name || glyph.workflow_name || "Child glyph",
+          status: glyph.status || glyph.state || "preview",
+          would_mutate_parent_goal: preview.would_mutate_parent_goal === true,
+        });
+      }
+    }
+
+    if (!childGlyphRows.length) {
+      return `
+        <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-orchestrated-glyphs="v1">
+          <div class="aion-boardroom-card-title">Orchestrated Glyphs</div>
+          <div class="aion-boardroom-muted">No orchestrated child glyphs attached yet.</div>
+          <div class="aion-boardroom-muted">Visibility only: this panel does not execute child glyphs.</div>
+        </section>
+      `;
+    }
+
+    const rows = childGlyphRows.map((row) => `
+      <div class="aion-boardroom-memory-runtime-row">
+        <div>
+          <strong>${esc(row.glyph_code)}</strong>
+          <span>${esc(row.title)}</span>
+        </div>
+        <div>
+          <span>status=${esc(row.status)}</span>
+          <span>orchestrator=${esc(row.orchestrator_id)}</span>
+          <span>parent=${esc(row.parent_goal_id)}</span>
+          <span>would_mutate_parent_goal=${row.would_mutate_parent_goal ? "true" : "false"}</span>
+        </div>
+      </div>
+    `).join("");
+
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-orchestrated-glyphs="v1">
+        <div class="aion-boardroom-card-title">Orchestrated Glyphs</div>
+        <div class="aion-boardroom-muted">Visibility only: shows child glyph routing from parent/child orchestration and does not execute child glyphs.</div>
+        ${rows}
+      </section>
+    `;
+  }
+
+  function findWorkflowGlyphTabRoot() {
+    return (
+      document.querySelector("[data-aion-glyph-workflow-tab='true']") ||
+      document.querySelector("[data-aion-workflow-glyph-tab='true']") ||
+      document.querySelector(".aion-glyph-workflow-tab") ||
+      document.querySelector(".aion-workflow-canvas-shell") ||
+      document.querySelector(".aion-workflow-canvas")
+    );
+  }
+
+  function currentSource() {
+    return (
+      window.__aionLastGoalEnginePreviewBundle ||
+      window.__aionGoalEnginePreviewBundle ||
+      window.__aionBoardroomRuntimePreview ||
+      window.__aionBoardroomSnapshot ||
+      window.state?.boardroomSnapshot ||
+      {}
+    );
+  }
+
+  const previousRenderGlyphWorkflowTab = window.__renderAionGlyphWorkflowTab;
+
+  function renderGlyphWorkflowTabWithOrchestratedGlyphsV1(...args) {
+    const result = typeof previousRenderGlyphWorkflowTab === "function"
+      ? previousRenderGlyphWorkflowTab.apply(this, args)
+      : undefined;
+
+    window.setTimeout(() => {
+      const root = findWorkflowGlyphTabRoot();
+      if (!root) return;
+
+      const existing = root.querySelector('[data-aion-goal-engine-orchestrated-glyphs="v1"]');
+      if (existing) existing.remove();
+
+      const holder = document.createElement("div");
+      holder.innerHTML = renderAionGoalEngineOrchestratedGlyphsPanelV1(currentSource());
+      root.appendChild(holder.firstElementChild);
+    }, 0);
+
+    return result;
+  }
+
+  window.renderAionGoalEngineOrchestratedGlyphsPanelV1 = renderAionGoalEngineOrchestratedGlyphsPanelV1;
+
+  if (typeof previousRenderGlyphWorkflowTab === "function") {
+    window.__renderAionGlyphWorkflowTab = renderGlyphWorkflowTabWithOrchestratedGlyphsV1;
+  }
+
+  window.__renderAionGoalEngineOrchestratedGlyphsWorkflowTabsV1 = function renderNow(source = currentSource()) {
+    const root = findWorkflowGlyphTabRoot();
+    if (!root) return "";
+    const existing = root.querySelector('[data-aion-goal-engine-orchestrated-glyphs="v1"]');
+    if (existing) existing.remove();
+    const holder = document.createElement("div");
+    holder.innerHTML = renderAionGoalEngineOrchestratedGlyphsPanelV1(source);
+    root.appendChild(holder.firstElementChild);
+    return holder.innerHTML;
+  };
+
+  console.log("[AION] Goal Engine orchestrated glyphs workflow tabs visibility v1 installed");
+})();
+
+/**
+ * AION PATCH: Goal Engine Parent Goal Proposal + Child Conflict Boardroom Visibility v1
+ *
+ * Purpose:
+ * - Surface parent_goal_update_proposal and child_agent_conflict_preview from the
+ *   canonical orchestrator_parent_child_aggregation_runtime_summary payload.
+ * - Keep the panel visibility only.
+ * - Do not execute children, auto-resolve conflicts, mutate parent goals, write
+ *   externally, or bypass approval gates.
+ */
+(function installAionGoalEngineParentGoalProposalConflictPanelV1() {
+  if (window.__aionGoalEngineParentGoalProposalConflictPanelV1Installed) return;
+  window.__aionGoalEngineParentGoalProposalConflictPanelV1Installed = true;
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(String(value ?? ""));
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function asArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function collectParentChildAggregationPreviews(source = {}) {
+    const summary =
+      source.orchestrator_parent_child_aggregation_runtime_summary ||
+      source.parent_child_aggregation_runtime_summary ||
+      source.goal_engine_boardroom_runtime_preview?.orchestrator_parent_child_aggregation_runtime_summary ||
+      source.goal_engine_boardroom_runtime_preview?.parent_child_aggregation_runtime_summary ||
+      source.machine_trace?.orchestrator_parent_child_aggregation_runtime_summary ||
+      source.machine_trace?.parent_child_aggregation_runtime_summary ||
+      {};
+
+    return asArray(
+      summary.parent_child_aggregation_previews ||
+      summary.orchestrator_parent_child_aggregation_previews ||
+      source.parent_child_aggregation_previews ||
+      source.orchestrator_parent_child_aggregation_previews ||
+      source.machine_trace?.parent_child_aggregation_previews ||
+      source.machine_trace?.orchestrator_parent_child_aggregation_previews
+    );
+  }
+
+  function renderAionGoalEngineParentGoalProposalConflictPanelV1(snapshot = {}) {
+    /*
+     * Canonical payloads read here:
+     * - orchestrator_parent_child_aggregation_runtime_summary
+     * - parent_child_aggregation_previews
+     * - parent_goal_update_proposal
+     * - child_agent_conflict_preview
+     *
+     * This panel is visibility only. It MUST NOT execute children, auto-resolve
+     * conflicts, mutate parent goals, write externally, or bypass review.
+     */
+    const previews = collectParentChildAggregationPreviews(snapshot);
+
+    if (!previews.length) {
+      return `
+        <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-parent-goal-proposal-conflict="v1">
+          <div class="aion-boardroom-card-title">Parent Goal Proposal</div>
+          <p class="muted">No parent-goal proposal or child-agent conflict preview available yet.</p>
+          <div class="aion-boardroom-runtime-note">
+            Child Agent Conflict visibility only. No execution, no auto-resolution, and no parent-goal mutation.
+          </div>
+        </section>
+      `;
+    }
+
+    const rows = previews.map((preview, index) => {
+      const proposal = preview.parent_goal_update_proposal || {};
+      const conflict = preview.child_agent_conflict_preview || {};
+      const conflictDetected = conflict.conflict_detected === true || preview.conflict_detected === true;
+
+      const proposalStatus =
+        proposal.proposed_parent_goal_status ||
+        preview.proposed_parent_goal_status ||
+        "review_required";
+
+      const resolution =
+        conflict.recommended_resolution ||
+        (conflictDetected ? "human_review_required" : "no_conflict_detected");
+
+      return `
+        <div class="aion-boardroom-runtime-row" data-aion-parent-goal-proposal-row="${index}">
+          <div>
+            <strong>${esc(preview.parent_goal_id || proposal.parent_goal_id || "parent_goal")}</strong>
+            <span>
+              Parent Goal Proposal · proposed_status=${esc(proposalStatus)}
+              · approval_gate=${esc(proposal.approval_gate || preview.approval_gate || "parent_goal_update_review")}
+            </span>
+          </div>
+          <div>
+            <strong>${conflictDetected ? "Conflict" : "No conflict"}</strong>
+            <span>
+              Child Agent Conflict · resolution=${esc(resolution)}
+              · manual_review_required=${esc(conflict.manual_review_required ?? preview.manual_review_required ?? true)}
+              · would_execute=${esc(conflict.would_execute ?? preview.would_execute ?? false)}
+              · would_mutate_parent_goal=${esc(conflict.would_mutate_parent_goal ?? preview.would_mutate_parent_goal ?? false)}
+            </span>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-parent-goal-proposal-conflict="v1">
+        <div class="aion-boardroom-card-title">Parent Goal Proposal</div>
+        <p class="muted">
+          Child Agent Conflict visibility only. AION shows proposal/conflict state but does not auto-resolve,
+          does not execute children, and does not mutate parent goals.
+        </p>
+        ${rows}
+      </section>
+    `;
+  }
+
+  window.renderAionGoalEngineParentGoalProposalConflictPanelV1 =
+    renderAionGoalEngineParentGoalProposalConflictPanelV1;
+
+  const previousAuditMount = window.__appendAionGoalEngineVisibilityAuditSectionsV1;
+  window.__appendAionGoalEngineVisibilityAuditSectionsV1 = function appendParentGoalProposalConflictPanel(source = {}) {
+    if (typeof previousAuditMount === "function") {
+      previousAuditMount(source);
+    }
+
+    const root =
+      document.querySelector("[data-aion-goal-engine-boardroom-runtime-preview-root]") ||
+      document.querySelector("[data-aion-boardroom-runtime-preview]") ||
+      document.querySelector(".aion-boardroom-runtime-preview") ||
+      document.querySelector(".aion-boardroom-visibility-audit") ||
+      document.querySelector(".aion-boardroom-runtime-summary")?.parentElement;
+
+    if (!root) return;
+
+    const existing = root.querySelector('[data-aion-goal-engine-parent-goal-proposal-conflict="v1"]');
+    if (existing) existing.remove();
+
+    const holder = document.createElement("div");
+    holder.innerHTML = renderAionGoalEngineParentGoalProposalConflictPanelV1(source);
+    if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
+  };
+
+  console.log("[AION] Goal Engine Parent Goal Proposal + Child Conflict Boardroom Visibility v1 installed");
+})();
+
+/**
+ * AION PATCH: Goal Engine Multi-Agent Execution Replay Boardroom Visibility v1
+ *
+ * Purpose:
+ * - Show a replay-only view of child agent / child glyph recommendations.
+ * - Surface parent-goal proposal and child-agent conflict state together.
+ * - Keep this strictly dry-run/visibility only.
+ * - No execution, no parent-goal mutation, no auto-resolution.
+ */
+(function installAionGoalEngineMultiAgentExecutionReplayV1() {
+
+  const AION_GOAL_ENGINE_MULTI_AGENT_REPLAY_HISTORY_V1 =
+    "aion.goal_engine.multi_agent_execution_replay.history.v1";
+
+  function readAionGoalEngineMultiAgentReplayHistoryV1() {
+    try {
+      if (typeof window === "undefined" || !window.localStorage) return [];
+      const raw = window.localStorage.getItem(AION_GOAL_ENGINE_MULTI_AGENT_REPLAY_HISTORY_V1);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (_err) {
+      return [];
+    }
+  }
+
+  function writeAionGoalEngineMultiAgentReplayHistoryV1(history) {
+    try {
+      if (typeof window === "undefined" || !window.localStorage) return false;
+      const safeHistory = Array.isArray(history) ? history.slice(0, 25) : [];
+      window.localStorage.setItem(
+        AION_GOAL_ENGINE_MULTI_AGENT_REPLAY_HISTORY_V1,
+        JSON.stringify(safeHistory),
+      );
+      return true;
+    } catch (_err) {
+      return false;
+    }
+  }
+
+  function recordAionGoalEngineMultiAgentReplaySnapshotV1(source = {}) {
+    const summary = resolveAggregationSummary(source);
+    const previews = resolveAggregationPreviews(source, summary);
+
+    const snapshot = {
+      schema_version: "aion.goal_engine.multi_agent_execution_replay_history.v1",
+      trace_type: "multi_agent_execution_replay_history_snapshot",
+      recorded_at: new Date().toISOString(),
+      run_id: source?.run_id || summary?.run_id || source?.machine_trace?.run_id || "",
+      workflow_id: source?.workflow_id || summary?.workflow_id || source?.machine_trace?.workflow_id || "",
+      aggregation_count: Number(summary?.aggregation_count || previews?.length || 0),
+      parent_child_aggregation_previews:
+        summary?.parent_child_aggregation_previews ||
+        source?.parent_child_aggregation_previews ||
+        source?.machine_trace?.parent_child_aggregation_previews ||
+        previews ||
+        [],
+      orchestrator_parent_child_aggregation_previews:
+        summary?.orchestrator_parent_child_aggregation_previews ||
+        source?.orchestrator_parent_child_aggregation_previews ||
+        source?.machine_trace?.orchestrator_parent_child_aggregation_previews ||
+        previews ||
+        [],
+      child_agent_conflict_preview:
+        previews?.[0]?.child_agent_conflict_preview ||
+        source?.child_agent_conflict_preview ||
+        source?.machine_trace?.child_agent_conflict_preview ||
+        {},
+      parent_goal_update_proposal:
+        previews?.[0]?.parent_goal_update_proposal ||
+        source?.parent_goal_update_proposal ||
+        source?.machine_trace?.parent_goal_update_proposal ||
+        {},
+    };
+
+    const dedupeKey = [
+      snapshot.run_id,
+      snapshot.workflow_id,
+      snapshot.aggregation_count,
+      JSON.stringify(snapshot.child_agent_conflict_preview || {}),
+      JSON.stringify(snapshot.parent_goal_update_proposal || {}),
+    ].join("::");
+
+    const existing = readAionGoalEngineMultiAgentReplayHistoryV1();
+    const withoutDuplicate = existing.filter((item) => item && item.dedupeKey !== dedupeKey);
+    const nextHistory = [{ ...snapshot, dedupeKey }, ...withoutDuplicate].slice(0, 25);
+    writeAionGoalEngineMultiAgentReplayHistoryV1(nextHistory);
+    return nextHistory;
+  }
+
+  if (window.__aionGoalEngineMultiAgentExecutionReplayV1Installed) return;
+  window.__aionGoalEngineMultiAgentExecutionReplayV1Installed = true;
+
+  const esc = (value) => {
+    if (value === null || value === undefined) return "";
+    return String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  };
+
+  const asArray = (value) => Array.isArray(value) ? value : [];
+
+  const firstNonEmptyArray = (...values) => {
+    for (const value of values) {
+      if (Array.isArray(value) && value.length) return value;
+    }
+    return [];
+  };
+
+  const resolveAggregationSummary = (source = {}) => (
+    source.orchestrator_parent_child_aggregation_runtime_summary ||
+    source.parent_child_aggregation_runtime_summary ||
+    source.goal_engine_boardroom_runtime_preview?.orchestrator_parent_child_aggregation_runtime_summary ||
+    source.goal_engine_boardroom_runtime_preview?.parent_child_aggregation_runtime_summary ||
+    source.machine_trace?.orchestrator_parent_child_aggregation_runtime_summary ||
+    source.machine_trace?.parent_child_aggregation_runtime_summary ||
+    {}
+  );
+
+  const resolveAggregationPreviews = (source = {}, summary = {}) => firstNonEmptyArray(
+    source.orchestrator_parent_child_aggregation_previews,
+    source.parent_child_aggregation_previews,
+    summary.orchestrator_parent_child_aggregation_previews,
+    summary.parent_child_aggregation_previews,
+    source.machine_trace?.orchestrator_parent_child_aggregation_previews,
+    source.machine_trace?.parent_child_aggregation_previews
+  );
+
+  const renderReplayRows = (preview) => {
+    const agents = asArray(preview.child_agents);
+    const glyphs = asArray(preview.child_glyphs);
+
+    const rows = [
+      ...agents.map((agent) => ({
+        kind: "agent",
+        id: agent.agent_id || agent.id || agent.name || "agent",
+        recommendation: agent.recommendation || agent.status || "unknown",
+        confidence: agent.confidence,
+      })),
+      ...glyphs.map((glyph) => ({
+        kind: "glyph",
+        id: glyph.glyph_code || glyph.id || glyph.name || "glyph",
+        recommendation: glyph.recommendation || glyph.status || "unknown",
+        confidence: glyph.confidence,
+      })),
+    ];
+
+    if (!rows.length) {
+      return `<div class="aion-muted">No child agent or child glyph replay rows available.</div>`;
+    }
+
+    return `
+      <div class="aion-boardroom-mini-table">
+        ${rows.map((row) => `
+          <div class="aion-boardroom-mini-row">
+            <span>${esc(row.kind)} · ${esc(row.id)}</span>
+            <strong>${esc(row.recommendation)}</strong>
+            <span>${row.confidence === undefined ? "confidence=n/a" : `confidence=${esc(row.confidence)}`}</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  };
+
+  function renderAionGoalEngineMultiAgentExecutionReplayPanelV1(source = {}) {
+    /*
+     * Canonical replay payloads read by this renderer:
+     * - orchestrator_parent_child_aggregation_runtime_summary
+     * - parent_child_aggregation_runtime_summary
+     * - parent_child_aggregation_previews
+     * - orchestrator_parent_child_aggregation_previews
+     * - child_agents
+     * - child_glyphs
+     * - parent_goal_update_proposal
+     * - child_agent_conflict_preview
+     */
+    const canonicalReplayPayloadKeysV1 = [
+      "orchestrator_parent_child_aggregation_runtime_summary",
+      "parent_child_aggregation_runtime_summary",
+      "parent_child_aggregation_previews",
+      "orchestrator_parent_child_aggregation_previews",
+      "child_agents",
+      "child_glyphs",
+      "parent_goal_update_proposal",
+      "child_agent_conflict_preview",
+    ];
+
+    const replayHistory = recordAionGoalEngineMultiAgentReplaySnapshotV1(source);
+    const summary = resolveAggregationSummary(source);
+    const previews = resolveAggregationPreviews(source, summary);
+
+    if (!previews.length) {
+      return `
+        <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-multi-agent-execution-replay="v1">
+          <div class="aion-boardroom-card-title">Multi-Agent Execution Replay</div>
+          <div class="aion-muted">
+            Replay only. No parent-child aggregation previews are available yet.
+          </div>
+        </section>
+      `;
+    }
+
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-multi-agent-execution-replay="v1">
+        <div class="aion-boardroom-card-title">Multi-Agent Execution Replay</div>
+        <div class="aion-muted">
+          Replay only. AION shows child recommendations, parent-goal proposal state, and conflict state.
+          It does not execute, mutate the parent goal, auto-resolve, or select a winner.
+        </div>
+
+        ${previews.map((preview, index) => {
+          const proposal = preview.parent_goal_update_proposal || {};
+          const conflict = preview.child_agent_conflict_preview || {};
+          const conflictDetected = conflict.conflict_detected === true || preview.conflict_detected === true;
+          const blockedReasons = asArray(preview.aggregate_blocked_reasons || preview.blocked_reasons);
+          const proposedStatus = proposal.proposed_parent_goal_status || preview.proposed_parent_goal_status || "n/a";
+          const resolution = conflict.recommended_resolution || (conflictDetected ? "human_review_required" : "no_conflict_detected");
+
+          return `
+            <div class="aion-boardroom-runtime-card">
+              <div class="aion-boardroom-runtime-card-title">
+                Replay ${index + 1} · parent_goal=${esc(preview.parent_goal_id || "n/a")}
+              </div>
+
+              ${renderReplayRows(preview)}
+
+              <div class="aion-boardroom-mini-table">
+                <div class="aion-boardroom-mini-row">
+                  <span>Parent Goal Proposal</span>
+                  <strong>${esc(proposedStatus)}</strong>
+                  <span>approval_gate=${esc(proposal.approval_gate || preview.approval_gate || "parent_goal_update_review")}</span>
+                </div>
+                <div class="aion-boardroom-mini-row">
+                  <span>Child Agent Conflict</span>
+                  <strong>${conflictDetected ? "conflict_detected" : "no_conflict"}</strong>
+                  <span>resolution=${esc(resolution)}</span>
+                </div>
+                <div class="aion-boardroom-mini-row">
+                  <span>Safety</span>
+                  <strong>dry_run_only=${esc(preview.dry_run_only !== false)}</strong>
+                  <span>would_execute=${esc(preview.would_execute === true)}</span>
+                </div>
+                <div class="aion-boardroom-mini-row">
+                  <span>Mutation Guard</span>
+                  <strong>would_mutate_parent_goal=${esc(preview.would_mutate_parent_goal === true)}</strong>
+                  <span>would_auto_resolve=${esc(conflict.would_auto_resolve === true)}</span>
+                </div>
+                <div class="aion-boardroom-mini-row">
+                  <span>Review</span>
+                  <strong>manual_review_required=${esc(preview.manual_review_required !== false)}</strong>
+                  <span>${blockedReasons.length ? esc(blockedReasons.join(", ")) : "blocked_reasons=none"}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join("")}
+
+        <div style="display:grid;gap:6px;margin-top:8px;">
+          <div class="aion-boardroom-card-title" style="font-size:12px;">Replay History</div>
+          ${
+            replayHistory.length
+              ? replayHistory.slice(0, 5).map((item) => `
+                <div class="aion-boardroom-runtime-row">
+                  <span>${escapeHtml(item.recorded_at || "unknown")}</span>
+                  <strong>${escapeHtml(item.run_id || item.workflow_id || "replay snapshot")}</strong>
+                </div>
+              `).join("")
+              : `<div class="aion-boardroom-muted">No replay history stored yet.</div>`
+          }
+        </div>
+
+      </section>
+    `;
+  }
+
+  window.renderAionGoalEngineMultiAgentExecutionReplayPanelV1 =
+    renderAionGoalEngineMultiAgentExecutionReplayPanelV1;
+  window.readAionGoalEngineMultiAgentReplayHistoryV1 =
+    readAionGoalEngineMultiAgentReplayHistoryV1;
+  window.writeAionGoalEngineMultiAgentReplayHistoryV1 =
+    writeAionGoalEngineMultiAgentReplayHistoryV1;
+  window.recordAionGoalEngineMultiAgentReplaySnapshotV1 =
+    recordAionGoalEngineMultiAgentReplaySnapshotV1;
+
+
+  window.mountAionGoalEngineMultiAgentExecutionReplayPanelV1 = function mountAionGoalEngineMultiAgentExecutionReplayPanelV1(source = {}) {
+    const root =
+      document.querySelector("[data-aion-boardroom-runtime-root]") ||
+      document.querySelector(".aion-boardroom-runtime-root") ||
+      document.querySelector("#aion-boardroom-runtime-root") ||
+      document.querySelector(".boardroom-runtime-root") ||
+      document.querySelector("#boardroom-runtime-root");
+
+    if (!root) return;
+
+    const existing = root.querySelector('[data-aion-goal-engine-multi-agent-execution-replay="v1"]');
+    if (existing) existing.remove();
+
+    const holder = document.createElement("div");
+    holder.innerHTML = renderAionGoalEngineMultiAgentExecutionReplayPanelV1(source);
+    if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
+  };
+
+  console.log("[AION] Goal Engine Multi-Agent Execution Replay Boardroom Visibility v1 installed");
+})();
+
+/**
+ * AION PATCH: Goal Engine Human-Approved Conflict Resolution Boardroom Visibility v1
+ *
+ * Purpose:
+ * - Surface human-approved conflict resolution preview state in Boardroom.
+ * - Keep conflict resolution review-only.
+ * - Never auto-resolve child-agent disagreement.
+ * - Never mutate parent goals or execute child agents from this panel.
+ */
+(function installAionGoalEngineHumanApprovedConflictResolutionPanelV1() {
+  if (typeof window === "undefined") return;
+
+  const esc = (value) =>
+    String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+
+  function resolveResolutionPreview(source = {}) {
+    return (
+      source.human_approved_conflict_resolution_preview ||
+      source.goal_engine_boardroom_runtime_preview?.human_approved_conflict_resolution_preview ||
+      source.machine_trace?.human_approved_conflict_resolution_preview ||
+      source.preview_bundle?.human_approved_conflict_resolution_preview ||
+      {}
+    );
+  }
+
+  function resolveConflictPreview(source = {}) {
+    return (
+      source.child_agent_conflict_preview ||
+      source.goal_engine_boardroom_runtime_preview?.child_agent_conflict_preview ||
+      source.machine_trace?.child_agent_conflict_preview ||
+      source.parent_child_aggregation_previews?.[0]?.child_agent_conflict_preview ||
+      source.orchestrator_parent_child_aggregation_previews?.[0]?.child_agent_conflict_preview ||
+      {}
+    );
+  }
+
+  function resolveParentGoalProposal(source = {}) {
+    return (
+      source.parent_goal_update_proposal ||
+      source.goal_engine_boardroom_runtime_preview?.parent_goal_update_proposal ||
+      source.machine_trace?.parent_goal_update_proposal ||
+      source.parent_child_aggregation_previews?.[0]?.parent_goal_update_proposal ||
+      source.orchestrator_parent_child_aggregation_previews?.[0]?.parent_goal_update_proposal ||
+      {}
+    );
+  }
+
+  function renderAionGoalEngineHumanApprovedConflictResolutionPanelV1(source = {}) {
+    /*
+     * Canonical payload markers:
+     * - human_approved_conflict_resolution_preview
+     * - child_agent_conflict_preview
+     * - parent_goal_update_proposal
+     * - conflict_resolution_human_review
+     * - human_decision
+     * - reviewer
+     */
+    const resolution = resolveResolutionPreview(source);
+    const conflict = resolveConflictPreview(source);
+    const proposal = resolveParentGoalProposal(source);
+
+    const approvalGate =
+      resolution.approval_gate ||
+      "conflict_resolution_human_review";
+
+    const humanDecision =
+      resolution.human_decision ||
+      resolution.decision ||
+      "pending_human_decision";
+
+    const reviewer =
+      resolution.reviewer ||
+      resolution.reviewed_by ||
+      "pending_reviewer";
+
+    const conflictDetected =
+      conflict.conflict_detected === true ||
+      resolution.conflict_detected === true;
+
+    const proposedStatus =
+      proposal.proposed_parent_goal_status ||
+      proposal.status ||
+      "pending_parent_goal_review";
+
+    const blockedReasons = Array.isArray(resolution.blocked_reasons)
+      ? resolution.blocked_reasons
+      : [];
+
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-human-approved-conflict-resolution="v1">
+        <div class="aion-boardroom-card-title">Human-Approved Conflict Resolution</div>
+        <div class="aion-boardroom-muted">
+          Review only. No automatic resolution. No parent-goal mutation. No child-agent execution.
+        </div>
+
+        <div class="aion-boardroom-grid-2" style="margin-top:12px;">
+          <div class="aion-boardroom-mini-card">
+            <div class="aion-boardroom-label">Approval Gate</div>
+            <div class="aion-boardroom-value">${esc(approvalGate)}</div>
+          </div>
+          <div class="aion-boardroom-mini-card">
+            <div class="aion-boardroom-label">Conflict Detected</div>
+            <div class="aion-boardroom-value">${esc(conflictDetected ? "true" : "false")}</div>
+          </div>
+          <div class="aion-boardroom-mini-card">
+            <div class="aion-boardroom-label">Human Decision</div>
+            <div class="aion-boardroom-value">${esc(humanDecision)}</div>
+          </div>
+          <div class="aion-boardroom-mini-card">
+            <div class="aion-boardroom-label">Reviewer</div>
+            <div class="aion-boardroom-value">${esc(reviewer)}</div>
+          </div>
+        </div>
+
+        <div class="aion-boardroom-runtime-row" style="margin-top:12px;">
+          <strong>Parent Goal Proposal</strong>
+          <span>${esc(proposedStatus)}</span>
+        </div>
+
+        <div class="aion-boardroom-runtime-row">
+          <strong>Resolution Status</strong>
+          <span>${esc(resolution.resolution_status || resolution.status || "waiting_human_review")}</span>
+        </div>
+
+        ${
+          blockedReasons.length
+            ? `<div class="aion-boardroom-muted" style="margin-top:10px;">
+                Blocked: ${blockedReasons.map(esc).join(", ")}
+              </div>`
+            : `<div class="aion-boardroom-muted" style="margin-top:10px;">
+                No resolution action can execute from this panel.
+              </div>`
+        }
+      </section>
+    `;
+  }
+
+  window.renderAionGoalEngineHumanApprovedConflictResolutionPanelV1 =
+    renderAionGoalEngineHumanApprovedConflictResolutionPanelV1;
+
+  window.mountAionGoalEngineHumanApprovedConflictResolutionPanelV1 = function mountAionGoalEngineHumanApprovedConflictResolutionPanelV1(
+    source = {},
+  ) {
+    const root =
+      document.querySelector("[data-aion-boardroom-runtime-root]") ||
+      document.querySelector("#aion-boardroom-runtime-root") ||
+      document.querySelector(".aion-boardroom-runtime-root");
+
+    if (!root) return;
+
+    const existing = root.querySelector('[data-aion-goal-engine-human-approved-conflict-resolution="v1"]');
+    if (existing) existing.remove();
+
+    const holder = document.createElement("div");
+    holder.innerHTML = renderAionGoalEngineHumanApprovedConflictResolutionPanelV1(source);
+    if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
+  };
+
+  console.log("[AION] Goal Engine Human-Approved Conflict Resolution Boardroom Visibility v1 installed");
+})();
+
+/**
+ * AION PATCH: Goal Engine Guarded Child-Agent Execution Handoff Boardroom Visibility v1
+ *
+ * Purpose:
+ * - Surface guarded_child_agent_execution_handoff_preview in the Boardroom.
+ * - Keep child-agent dispatch behind child_agent_execution_review.
+ * - No execution, no external writes, no parent-goal mutation.
+ */
+(function installAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1() {
+  if (window.__aionGoalEngineGuardedChildAgentExecutionHandoffPanelV1Installed) return;
+  window.__aionGoalEngineGuardedChildAgentExecutionHandoffPanelV1Installed = true;
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function asBool(value) {
+    return value === true || value === "true";
+  }
+
+  function resolveGuardedChildAgentExecutionHandoffPreview(source = {}) {
+    return (
+      source.guarded_child_agent_execution_handoff_preview ||
+      source.goal_engine_boardroom_runtime_preview?.guarded_child_agent_execution_handoff_preview ||
+      source.machine_trace?.guarded_child_agent_execution_handoff_preview ||
+      source.orchestrator_parent_child_aggregation_runtime_summary?.guarded_child_agent_execution_handoff_preview ||
+      source.parent_child_aggregation_runtime_summary?.guarded_child_agent_execution_handoff_preview ||
+      {}
+    );
+  }
+
+  function renderAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1(source = {}) {
+    const preview = resolveGuardedChildAgentExecutionHandoffPreview(source);
+
+    /*
+     * Canonical payload markers for lock tests:
+     * - guarded_child_agent_execution_handoff_preview
+     * - parent_goal_id
+     * - child_agent_id
+     * - child_goal_id
+     * - approval_gate
+     * - child_agent_execution_review
+     * - dry_run_only
+     * - would_execute
+     * - would_write_external
+     * - would_mutate_parent_goal
+     */
+
+    const approvalGate = preview.approval_gate || "child_agent_execution_review";
+    const parentGoalId = preview.parent_goal_id || preview.parent_goal || "not_available";
+    const childAgentId = preview.child_agent_id || preview.agent_id || "not_available";
+    const childGoalId = preview.child_goal_id || preview.goal_id || "not_available";
+    const blockedReasons = Array.isArray(preview.blocked_reasons) ? preview.blocked_reasons : [];
+    const readyForReview = asBool(preview.ready_for_review);
+    const dryRunOnly = preview.dry_run_only !== false;
+    const wouldExecute = asBool(preview.would_execute);
+    const wouldWriteExternal = asBool(preview.would_write_external);
+    const wouldMutateParentGoal = asBool(preview.would_mutate_parent_goal);
+
+    if (!preview || Object.keys(preview).length === 0) {
+      return `
+        <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-guarded-child-agent-execution-handoff="v1">
+          <div class="aion-boardroom-card-title">Guarded Child-Agent Execution Handoff</div>
+          <div class="aion-boardroom-muted">
+            No guarded child-agent execution handoff preview available yet.
+          </div>
+          <div class="aion-boardroom-muted">
+            Approval gate: child_agent_execution_review. No execution. No child-agent dispatch.
+          </div>
+        </section>
+      `;
+    }
+
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-guarded-child-agent-execution-handoff="v1">
+        <div class="aion-boardroom-card-title">Guarded Child-Agent Execution Handoff</div>
+        <div class="aion-boardroom-muted">
+          Visibility only. Approval gate: ${esc(approvalGate)}. No execution. No child-agent dispatch.
+        </div>
+
+        <div class="aion-boardroom-kpi-grid">
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Parent Goal</div>
+            <div class="aion-boardroom-kpi-value">${esc(parentGoalId)}</div>
+          </div>
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Child Agent</div>
+            <div class="aion-boardroom-kpi-value">${esc(childAgentId)}</div>
+          </div>
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Child Goal</div>
+            <div class="aion-boardroom-kpi-value">${esc(childGoalId)}</div>
+          </div>
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Ready for Review</div>
+            <div class="aion-boardroom-kpi-value">${esc(readyForReview)}</div>
+          </div>
+        </div>
+
+        <div class="aion-boardroom-muted">
+          dry_run_only=${esc(dryRunOnly)}
+          · would_execute=${esc(wouldExecute)}
+          · would_write_external=${esc(wouldWriteExternal)}
+          · would_mutate_parent_goal=${esc(wouldMutateParentGoal)}
+        </div>
+
+        ${
+          blockedReasons.length
+            ? `<div class="aion-boardroom-muted">Blocked: ${blockedReasons.map(esc).join(", ")}</div>`
+            : `<div class="aion-boardroom-muted">Blocked: none reported; still requires human approval before dispatch.</div>`
+        }
+      </section>
+    `;
+  }
+
+  window.renderAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1 =
+    renderAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1;
+
+  window.mountAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1 = function mountAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1(source = {}) {
+    const root =
+      document.querySelector("[data-aion-boardroom-runtime-preview-root]") ||
+      document.querySelector("[data-aion-boardroom-preview-root]") ||
+      document.querySelector(".aion-boardroom-runtime-preview") ||
+      document.querySelector(".aion-boardroom");
+
+    if (!root) return;
+
+    const existing = root.querySelector('[data-aion-goal-engine-guarded-child-agent-execution-handoff="v1"]');
+    if (existing) existing.remove();
+
+    const holder = document.createElement("div");
+    holder.innerHTML = renderAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1(source);
+    if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
+  };
+
+  console.log("[AION] Goal Engine Guarded Child-Agent Execution Handoff Boardroom Visibility v1 installed");
+})();
+
+
+/**
+ * AION PATCH: Goal Engine Recent Guarded Orchestration Panels Auto-Mount Bridge v1
+ *
+ * Purpose:
+ * - Ensure the recent guarded multi-agent Boardroom panels are mounted into the
+ *   live Boardroom runtime preview surface, not merely defined/exported.
+ * - This is visibility-only. It does not execute child agents, resolve conflicts,
+ *   mutate parent goals, write externally, or grant permissions.
+ *
+ * Panels mounted:
+ * - Multi-Agent Execution Replay + Replay History
+ * - Guarded Child-Agent Execution Handoff
+ * - Human-Approved Conflict Resolution
+ */
+(function installAionGoalEngineRecentGuardedOrchestrationPanelsAutoMountV1() {
+  const PATCH_ID = "aion-goal-engine-recent-guarded-orchestration-panels-auto-mount-v1";
+
+  if (window.__aionGoalEngineRecentGuardedOrchestrationPanelsAutoMountV1Installed) {
+    return;
+  }
+
+  window.__aionGoalEngineRecentGuardedOrchestrationPanelsAutoMountV1Installed = true;
+
+  function resolveBoardroomGoalEngineSourceV1() {
+    return (
+      window.__aionBoardroomLivePayload ||
+      window.__aionBoardroomPayload ||
+      window.__aionGoalEngineBoardroomPayload ||
+      window.__aionGoalEngineRuntimePreviewPayload ||
+      window.__aionGoalEnginePreviewBundle ||
+      window.__AION_BOARDROOM_DEMO_PAYLOAD__ ||
+      {}
+    );
+  }
+
+  function resolveBoardroomRuntimePreviewRootV1() {
+    return (
+      document.querySelector("[data-aion-goal-engine-boardroom-runtime-preview-root]") ||
+      document.querySelector("[data-aion-boardroom-runtime-preview-root]") ||
+      document.querySelector("[data-aion-boardroom-runtime-preview]") ||
+      document.querySelector(".aion-boardroom-runtime-preview") ||
+      document.querySelector('[data-aion-goal-engine-parent-child-orchestration="v1"]')?.parentElement ||
+      document.querySelector('[data-aion-goal-engine-parent-goal-proposal-conflict="v1"]')?.parentElement ||
+      document.querySelector(".aion-boardroom-runtime-summary")?.parentElement ||
+      null
+    );
+  }
+
+  window.mountAionGoalEngineRecentGuardedOrchestrationPanelsV1 =
+    function mountAionGoalEngineRecentGuardedOrchestrationPanelsV1(source = undefined) {
+      const root = resolveBoardroomRuntimePreviewRootV1();
+      if (!root) return false;
+
+      const payload = source || resolveBoardroomGoalEngineSourceV1();
+
+      window.mountAionGoalEngineMultiAgentExecutionReplayPanelV1?.(payload);
+      window.mountAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1?.(payload);
+      window.mountAionGoalEngineHumanApprovedConflictResolutionPanelV1?.(payload);
+
+      root.setAttribute("data-aion-goal-engine-recent-guarded-orchestration-panels-mounted", "v1");
+      return true;
+    };
+
+  function scheduleMountV1() {
+    window.mountAionGoalEngineRecentGuardedOrchestrationPanelsV1?.();
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", scheduleMountV1, { once: true });
+  } else {
+    scheduleMountV1();
+  }
+
+  window.addEventListener("hashchange", scheduleMountV1);
+  window.addEventListener("aion-boardroom-rendered", scheduleMountV1);
+  window.addEventListener("aion-goal-engine-boardroom-payload-updated", scheduleMountV1);
+
+  let attempts = 0;
+  const timer = window.setInterval(() => {
+    attempts += 1;
+    const mounted = window.mountAionGoalEngineRecentGuardedOrchestrationPanelsV1?.();
+    if (mounted || attempts >= 20) {
+      window.clearInterval(timer);
+    }
+  }, 250);
+
+  console.log("[AION] Goal Engine Recent Guarded Orchestration Panels Auto-Mount Bridge v1 installed");
+})();
+

@@ -1,0 +1,118 @@
+\section{AION Goal Engine Remaining Tasks Handover}
+\label{sec:aion-goal-engine-remaining-tasks-handover}
+
+\subsection{Status}
+
+The current Goal Engine lock suite is green.
+
+\begin{quote}
+\textbf{Status: ACTIVE HANDOVER --- focused Goal Engine lock suite passing with 505 tests.}
+\end{quote}
+
+Current validation result:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+505 passed
+\end{verbatim}
+
+\subsection{What We Are Building}
+
+AION Goal Engine is the guarded planning and orchestration layer for Aion Business.
+
+It takes a business goal, decomposes it into child goals and agent/workflow proposals, gathers evidence, compares outcomes, prepares review-only execution packets, and surfaces everything in the Boardroom without unsafe autonomous writes.
+
+The current work is not about free autonomous execution yet. The current work is about locking the contracts that make future execution safe.
+
+\subsection{What Is Currently Locked}
+
+The following areas are currently locked by tests:
+
+\begin{itemize}
+  \item Goal Engine sprint gates and runtime summaries.
+  \item Evidence pointers and evidence source preview attachments.
+  \item Outcome metrics and variant comparison.
+  \item Checkpoint and resume revalidation.
+  \item Experiment runtime.
+  \item Orchestrator parent/child aggregation.
+  \item Preview bundle canonical contract.
+  \item Workflow dry-run bridge.
+  \item Step trace rows.
+  \item Provider audit trail, runtime metrics, capability manifest, and local adapter.
+  \item Business container persistence, projection, and guarded mutations.
+  \item Boardroom live payload and visible runtime panels.
+  \item Parent-goal proposal conflict previews.
+  \item Multi-agent execution replay history.
+  \item Guarded child-agent execution handoff.
+  \item Guarded child-run creation request.
+  \item Human-approved child-run creation action.
+  \item Child-run executor bridge.
+  \item Child-run creation end-to-end chain.
+  \item Human-approved conflict resolution end-to-end chain.
+  \item Focused suite membership lock.
+\end{itemize}
+
+\subsection{Canonical Lessons From The Latest Locks}
+
+\begin{itemize}
+  \item A guarded child-run request must expose \texttt{child\_run\_creation\_request\_valid}.
+  \item A human-approved child-run action must expose canonical \texttt{runtime\_seed}.
+  \item The executor bridge must trust only \texttt{runtime\_seed}.
+  \item \texttt{child\_run\_seed} may remain for compatibility only.
+  \item Conflict resolution remains review-only and must not auto-resolve, execute, grant permissions, or mutate parent/child goals.
+  \item The focused lock suite now protects membership and ordering of critical chain tests.
+\end{itemize}
+
+\subsection{Single Remaining Task List}
+
+\begin{enumerate}
+  \item Add this handover/remaining-tasks doc and lock it with a doc test.
+  \item Run a full workflow-capsules validation:
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules
+\end{verbatim}
+  \item Run the focused Goal Engine suite:
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+  \item Run a Goal Engine compile check:
+\begin{verbatim}
+python -m compileall backend/modules/aion/goal_engine
+\end{verbatim}
+  \item Review git status and separate unrelated changes before commit.
+  \item Commit the Goal Engine backend/tests/docs work separately from desktop UI and unrelated provider/container changes.
+  \item Next feature lock: Boardroom surface for child-run executor bridge packets.
+  \item After Boardroom visibility, connect child-run executor bridge to real Workflow Capsule run creation behind explicit approval.
+  \item After real child-run creation, wire human-approved conflict resolution into the real approval-action flow.
+  \item After approval-action runtime, start real evidence source ingestion for live runs.
+  \item Later: recursive child-goal decomposition.
+  \item Later: tiered memory expiry, consolidation, and forgetting rules.
+  \item Later: provider duration history and private connector capability flags.
+  \item Later: simple user-facing Goal Engine tab where a user types a goal and AION drafts a workflow.
+\end{enumerate}
+
+\subsection{Immediate Next Task}
+
+The next immediate task after this document is:
+
+\begin{quote}
+Lock this handover document with a doc test and include it in the focused Goal Engine suite.
+\end{quote}
+
+\subsection{Do Not Do Yet}
+
+Do not yet connect child-run bridge packets to real Workflow Capsule execution until the Boardroom review surface is visible and locked.
+
+Do not yet allow autonomous conflict resolution.
+
+Do not yet mutate parent goals, child goals, business containers, or external systems from preview bundles.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GOAL-ENGINE-REMAINING-TASKS-HANDOVER-v1
+
+Status: ACTIVE HANDOVER
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

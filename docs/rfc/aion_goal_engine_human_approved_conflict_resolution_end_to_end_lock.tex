@@ -1,0 +1,140 @@
+\section{AION Goal Engine Human-Approved Conflict Resolution End-to-End Lock}
+\label{sec:aion-goal-engine-human-approved-conflict-resolution-end-to-end-lock}
+
+\subsection{Status}
+
+The human-approved conflict-resolution chain is locked end-to-end.
+
+\begin{quote}
+\textbf{Status: LOCKED --- conflict preview to human-approved resolution preview passing.}
+\end{quote}
+
+Validation commands:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution_end_to_end_lock.py
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_goal_engine_child_agent_conflict_preview.py \
+  backend/tests/workflow_capsules/test_goal_engine_parent_goal_proposal_conflict_preview_bundle.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution_end_to_end_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_human_approved_conflict_resolution_ui_lock.py \
+  backend/tests/workflow_capsules/test_goal_engine_guarded_multi_agent_orchestration_lock_doc.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Current locked results:
+
+\begin{verbatim}
+5 passed
+31 passed
+494 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock proves that AION can surface a child-agent conflict, capture a human decision, and expose the approved resolution path in the Goal Engine preview bundle without automatically resolving the conflict or mutating live state.
+
+The locked chain is:
+
+\begin{verbatim}
+child_agent_conflict_preview
+  -> human decision
+  -> human_approved_conflict_resolution_preview
+  -> GoalEnginePreviewBundle
+  -> Boardroom visibility surface
+\end{verbatim}
+
+\subsection{Canonical Contracts}
+
+The child-agent conflict preview is identified by:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.child_agent_conflict.v1
+trace_type     = child_agent_conflict_preview
+conflict_policy = human_review
+\end{verbatim}
+
+The human-approved conflict-resolution preview is identified by:
+
+\begin{verbatim}
+schema_version = aion.goal_engine.human_approved_conflict_resolution.v1
+trace_type     = human_approved_conflict_resolution_preview
+approval_gate  = conflict_resolution_human_review
+resolution_status = approved_for_guarded_application
+\end{verbatim}
+
+\subsection{Safety Invariants}
+
+The conflict-resolution preview MUST remain review-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item auto-resolve child-agent conflicts;
+  \item execute child agents;
+  \item mutate parent goals;
+  \item mutate child goals;
+  \item write to external systems;
+  \item mutate business containers;
+  \item grant permissions;
+  \item bypass human review.
+\end{itemize}
+
+Canonical safety fields include:
+
+\begin{verbatim}
+dry_run_only = true
+would_auto_resolve = false
+would_execute = false
+would_write_external = false
+would_grant_permission = false
+would_mutate_parent_goal = false
+would_mutate_child_goal = false
+\end{verbatim}
+
+\subsection{Human Review Boundary}
+
+A valid human-approved conflict-resolution preview requires:
+
+\begin{itemize}
+  \item a parent goal identifier;
+  \item a conflict preview;
+  \item conflict_detected = true;
+  \item a human decision;
+  \item a reviewer identifier.
+\end{itemize}
+
+If any of these are missing, the preview MUST remain blocked.
+
+\subsection{Preview Bundle Visibility}
+
+The Goal Engine preview bundle MUST preserve both the original conflict preview and the human-approved conflict-resolution preview.
+
+The bundle MUST expose enough text and machine-readable payload for Boardroom surfaces to show:
+
+\begin{itemize}
+  \item the child-agent conflict;
+  \item the recommended human-review path;
+  \item the human decision;
+  \item the reviewer;
+  \item the approval gate;
+  \item the safety flags;
+  \item the fact that no automatic resolution occurred.
+\end{itemize}
+
+\subsection{Implementation Notes}
+
+This lock does not create a live conflict resolver. It only locks the safe preview and review boundary.
+
+The next runtime step, if needed, is a guarded approval-action flow that consumes this preview and creates a separately reviewed mutation proposal. That future step MUST remain distinct from this preview lock.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GOAL-ENGINE-HUMAN-APPROVED-CONFLICT-RESOLUTION-E2E-v1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

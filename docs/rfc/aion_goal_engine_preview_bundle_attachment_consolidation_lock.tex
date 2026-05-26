@@ -1,0 +1,203 @@
+\section{Goal Engine Preview Bundle Attachment Consolidation Lock}
+\label{sec:aion-goal-engine-preview-bundle-attachment-consolidation-lock}
+
+\subsection{Status}
+
+The Goal Engine preview bundle now acts as the canonical dry-run carrier for the core visibility attachments required by the Boardroom and dry-run bridge.
+
+\begin{quote}
+\textbf{Status: LOCKED --- focused Goal Engine lock suite passing with 264 tests.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+./scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+264 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock prevents Goal Engine runtime previews from drifting into separate standalone/demo-only paths.
+
+The following runtime summaries now travel through the normal preview bundle path:
+
+\begin{itemize}
+  \item parent-child orchestrator aggregation;
+  \item goal decomposition;
+  \item tiered memory.
+\end{itemize}
+
+The canonical path is:
+
+\begin{verbatim}
+Goal contracts / manifest
+  -> dry-run manifest
+  -> GoalEnginePreviewBundle
+  -> machine_trace
+  -> dry-run bridge payload
+  -> Boardroom live payload
+\end{verbatim}
+
+\subsection{Canonical Carrier}
+
+The canonical carrier is:
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/preview_bundle.py
+\end{verbatim}
+
+The canonical object is:
+
+\begin{verbatim}
+GoalEnginePreviewBundle
+\end{verbatim}
+
+The canonical builder is:
+
+\begin{verbatim}
+build_goal_engine_preview_bundle(...)
+\end{verbatim}
+
+There MUST be exactly one preview bundle dataclass and exactly one preview bundle builder.
+
+\subsection{Parent-Child Aggregation Attachment}
+
+Parent-child aggregation is exposed through:
+
+\begin{verbatim}
+parent_child_aggregation_runtime_summary
+orchestrator_parent_child_aggregation_runtime_summary
+parent_child_aggregation_previews
+orchestrator_parent_child_aggregation_previews
+\end{verbatim}
+
+The runtime summary MUST remain dry-run only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item execute child runs;
+  \item mutate a parent goal;
+  \item choose a winning child agent;
+  \item grant permission;
+  \item write externally.
+\end{itemize}
+
+Required safety fields:
+
+\begin{verbatim}
+dry_run_only = true
+would_mutate_parent_goal = false
+would_grant_permission = false
+would_write_external = false
+\end{verbatim}
+
+\subsection{Goal Decomposition Attachment}
+
+Goal decomposition is exposed through:
+
+\begin{verbatim}
+goal_decomposition_runtime_summary
+goal_engine_decomposition_runtime_summary
+goal_decomposition_previews
+decomposition_previews
+child_goal_previews
+\end{verbatim}
+
+The runtime summary MUST preserve child/sub-goal rows as preview-only records.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create real child goals;
+  \item mutate the parent goal;
+  \item expand the workflow automatically;
+  \item grant permission.
+\end{itemize}
+
+Required safety fields:
+
+\begin{verbatim}
+dry_run_only = true
+would_create_child_goals = false
+would_mutate_parent_goal = false
+would_grant_permission = false
+\end{verbatim}
+
+\subsection{Tiered Memory Attachment}
+
+Tiered memory is exposed through:
+
+\begin{verbatim}
+memory_runtime_summary
+goal_engine_memory_runtime_summary
+memory_record_previews
+memory_policy_previews
+goal_engine_memory_record_previews
+goal_engine_memory_policy_previews
+\end{verbatim}
+
+The memory runtime summary MUST preserve record and policy previews.
+
+It MUST NOT write memory during dry-run.
+
+Required safety fields:
+
+\begin{verbatim}
+dry_run_only = true
+would_write_memory = false
+would_grant_permission = false
+would_write_external = false
+\end{verbatim}
+
+\subsection{Compatibility Mirrors}
+
+Legacy mirror fields are allowed only as compatibility shims.
+
+They exist to prevent Boardroom and dry-run bridge consumers from breaking while the runtime converges onto canonical field names.
+
+Compatibility mirrors MUST NOT become separate sources of truth.
+
+\subsection{No-Duplicate Contract}
+
+The following duplicate risks are now locked:
+
+\begin{itemize}
+  \item duplicate \texttt{GoalEnginePreviewBundle} definitions;
+  \item duplicate \texttt{build\_goal\_engine\_preview\_bundle} builders;
+  \item duplicate runtime summary builders;
+  \item repeated \texttt{machine\_trace} attachment assignment blocks;
+  \item repeated appended UI renderer blocks.
+\end{itemize}
+
+The no-duplicate regression test is:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_goal_engine_preview_bundle_cleanup_no_duplicate_lock.py
+\end{verbatim}
+
+\subsection{Validation Tests}
+
+The focused lock suite includes:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_goal_engine_orchestrator_parent_child_preview_bundle_attachment.py
+backend/tests/workflow_capsules/test_goal_engine_decomposition_preview_bundle_attachment.py
+backend/tests/workflow_capsules/test_goal_engine_memory_preview_bundle_attachment.py
+backend/tests/workflow_capsules/test_goal_engine_preview_bundle_cleanup_no_duplicate_lock.py
+\end{verbatim}
+
+These tests prove that preview attachments are available at both top level and inside \texttt{machine\_trace}.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GOAL-ENGINE-PREVIEW-BUNDLE-ATTACHMENT-CONSOLIDATION-V1\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson

@@ -29,6 +29,7 @@ from backend.modules.aion_business.contracts.workspace import (
     BusinessProfile,
     WorkspaceSpec,
 )
+from backend.modules.aion_business.providers.router import ProviderRouter
 from backend.modules.aion_business.runtime.business_container_repository import (
     BusinessContainerRepository,
 )
@@ -106,6 +107,16 @@ def _set_model_attr_if_possible(model: Any, name: str, value: Any) -> None:
 def _get_model_attr(model: Any, name: str, default: Any = None) -> Any:
     return getattr(model, name, default)
 
+GOAL_ENGINE_CONTAINER_KINDS = {
+    "goal_engine_state",
+    "goal_engine_memory",
+    "goal_engine_evidence",
+    "goal_engine_experiments",
+    "goal_engine_loops",
+    "goal_engine_outcomes",
+}
+
+
 class BusinessContainerService:
     def __init__(
         self,
@@ -116,8 +127,10 @@ class BusinessContainerService:
         topology_repository: Optional[TopologyRepository] = None,
         topology_generator: Optional[ServiceBusinessTopologyGenerator] = None,
         boardroom_mapper: Optional[TopologyToBoardroomMapper] = None,
+        provider_router: Optional[ProviderRouter] = None,
     ) -> None:
         self.repository = repository or BusinessContainerRepository()
+        self.provider_router = provider_router or ProviderRouter()
         self.binding_repository = binding_repository or ContainerBindingRepository()
         self.workspace_repository = workspace_repository or WorkspaceRepository()
         self.topology_repository = topology_repository or TopologyRepository()
@@ -224,8 +237,65 @@ class BusinessContainerService:
             "source": "existing_state",
         }
 
+
+    def _default_goal_engine_business_container_payload(
+        self,
+        workspace_id: str,
+        *,
+        kind: str,
+        topic: str,
+    ) -> Dict[str, Any]:
+        return {
+            "id": f"{workspace_id}.{kind}",
+            "workspace_id": workspace_id,
+            "kind": kind,
+            "schema_version": f"aion.business.{kind}.v1",
+            "meta": {
+                "workspace_id": workspace_id,
+                "container_key": kind,
+                "kg_topic_wa": topic,
+                "updated_at": _utc_now_iso(),
+                "source_refs": ["business_container_service.ensure_goal_engine_business_containers"],
+            },
+            "governance": {
+                "read_guard": "allow",
+                "write_guard": "human_review",
+                "dry_run_preview_is_not_persistent_truth": True,
+                "boardroom_is_projection_only": True,
+            },
+            "state": {},
+            "records": [],
+            "events": [],
+            "projections": {},
+        }
+
+    def _ensure_goal_engine_business_containers(self, workspace_id: str) -> None:
+        specs = [
+            ("goal_engine_state", "business.goal_engine.state"),
+            ("goal_engine_memory", "business.goal_engine.memory"),
+            ("goal_engine_evidence", "business.goal_engine.evidence"),
+            ("goal_engine_experiments", "business.goal_engine.experiments"),
+            ("goal_engine_loops", "business.goal_engine.loops"),
+            ("goal_engine_outcomes", "business.goal_engine.outcomes"),
+        ]
+
+        for kind, topic in specs:
+            if self.repository.exists(workspace_id, kind):
+                continue
+
+            self.repository.save_dict(
+                workspace_id,
+                kind,
+                self._default_goal_engine_business_container_payload(
+                    workspace_id,
+                    kind=kind,
+                    topic=topic,
+                ),
+            )
+
     def _ensure_projection_containers_exist(self, workspace_id: str) -> None:
         self._ensure_operational_runtime_summary_container(workspace_id)
+        self._ensure_goal_engine_business_containers(workspace_id)
 
         try:
             self.repository.load_boardroom_snapshot(workspace_id)
@@ -341,6 +411,98 @@ class BusinessContainerService:
                 tags=["business", "boardroom", "topology"],
                 description="Generated boardroom-ready projection container",
             ),
+
+            ContainerBindingSpec(
+                id="binding-goal-engine-state",
+                workspace_id=workspace_id,
+                name="Goal Engine State",
+                category="custom",
+                runtime_backend="generated",
+                runtime_container_id=f"{workspace_id}.goal_engine_state",
+                kg_container_id=f"{workspace_id}.goal_engine_state",
+                kg_topic_wa="business.goal_engine.state",
+                kg_graph="work",
+                writable=True,
+                semantic_writes_enabled=True,
+                tags=["business", "goal_engine", "state"],
+                description="Canonical persistent Goal Engine state container",
+            ),
+            ContainerBindingSpec(
+                id="binding-goal-engine-memory",
+                workspace_id=workspace_id,
+                name="Goal Engine Memory",
+                category="custom",
+                runtime_backend="generated",
+                runtime_container_id=f"{workspace_id}.goal_engine_memory",
+                kg_container_id=f"{workspace_id}.goal_engine_memory",
+                kg_topic_wa="business.goal_engine.memory",
+                kg_graph="work",
+                writable=True,
+                semantic_writes_enabled=True,
+                tags=["business", "goal_engine", "memory"],
+                description="Canonical persistent Goal Engine memory container",
+            ),
+            ContainerBindingSpec(
+                id="binding-goal-engine-evidence",
+                workspace_id=workspace_id,
+                name="Goal Engine Evidence",
+                category="custom",
+                runtime_backend="generated",
+                runtime_container_id=f"{workspace_id}.goal_engine_evidence",
+                kg_container_id=f"{workspace_id}.goal_engine_evidence",
+                kg_topic_wa="business.goal_engine.evidence",
+                kg_graph="work",
+                writable=True,
+                semantic_writes_enabled=True,
+                tags=["business", "goal_engine", "evidence"],
+                description="Canonical persistent Goal Engine outcome evidence container",
+            ),
+            ContainerBindingSpec(
+                id="binding-goal-engine-experiments",
+                workspace_id=workspace_id,
+                name="Goal Engine Experiments",
+                category="custom",
+                runtime_backend="generated",
+                runtime_container_id=f"{workspace_id}.goal_engine_experiments",
+                kg_container_id=f"{workspace_id}.goal_engine_experiments",
+                kg_topic_wa="business.goal_engine.experiments",
+                kg_graph="work",
+                writable=True,
+                semantic_writes_enabled=True,
+                tags=["business", "goal_engine", "experiments"],
+                description="Canonical persistent Goal Engine experiment history container",
+            ),
+            ContainerBindingSpec(
+                id="binding-goal-engine-loops",
+                workspace_id=workspace_id,
+                name="Goal Engine Loops",
+                category="custom",
+                runtime_backend="generated",
+                runtime_container_id=f"{workspace_id}.goal_engine_loops",
+                kg_container_id=f"{workspace_id}.goal_engine_loops",
+                kg_topic_wa="business.goal_engine.loops",
+                kg_graph="work",
+                writable=True,
+                semantic_writes_enabled=True,
+                tags=["business", "goal_engine", "loops"],
+                description="Canonical persistent Goal Engine loop/checkpoint history container",
+            ),
+            ContainerBindingSpec(
+                id="binding-goal-engine-outcomes",
+                workspace_id=workspace_id,
+                name="Goal Engine Outcomes",
+                category="custom",
+                runtime_backend="generated",
+                runtime_container_id=f"{workspace_id}.goal_engine_outcomes",
+                kg_container_id=f"{workspace_id}.goal_engine_outcomes",
+                kg_topic_wa="business.goal_engine.outcomes",
+                kg_graph="work",
+                writable=True,
+                semantic_writes_enabled=True,
+                tags=["business", "goal_engine", "outcomes"],
+                description="Canonical persistent Goal Engine outcomes and score history container",
+            ),
+
             ContainerBindingSpec(
                 id="binding-operational-runtime-summary",
                 workspace_id=workspace_id,
@@ -1594,9 +1756,412 @@ class BusinessContainerService:
             self.repository.save_model(model)
             return model
 
+
+    def _goal_engine_approval_allows_write(self, approval_token: Optional[Dict[str, Any]]) -> bool:
+        if not isinstance(approval_token, dict):
+            return False
+        return str(approval_token.get("status") or "").lower() == "approved"
+
+    def write_goal_engine_container_record(
+        self,
+        workspace_id: str,
+        *,
+        container_kind: str,
+        record_type: str,
+        record: Dict[str, Any],
+        approval_token: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
+        """Guarded canonical write path for Goal Engine business containers.
+
+        PreviewBundle remains dry-run only. Boardroom remains a projection.
+        Persistent Goal Engine truth must enter through these scoped containers.
+        """
+
+        self.ensure_canonical_containers(workspace_id)
+
+        if container_kind not in GOAL_ENGINE_CONTAINER_KINDS:
+            return {
+                "ok": False,
+                "blocked": True,
+                "container_kind": container_kind,
+                "record_type": record_type,
+                "blocked_reasons": ["unsupported_goal_engine_container"],
+            }
+
+        if not self._goal_engine_approval_allows_write(approval_token):
+            return {
+                "ok": False,
+                "blocked": True,
+                "container_kind": container_kind,
+                "record_type": record_type,
+                "blocked_reasons": ["human_review_required"],
+            }
+
+        payload = self.repository.load_dict(workspace_id, container_kind)
+        records = payload.get("records")
+        if not isinstance(records, list):
+            records = []
+
+        now = _utc_now_iso()
+        entry = {
+            "record_type": record_type,
+            "record": dict(record or {}),
+            "approval": dict(approval_token or {}),
+            "created_at": now,
+            "updated_at": now,
+            "dry_run_only": False,
+            "would_write_container": True,
+            "source": "goal_engine_guarded_write",
+        }
+
+        records.append(entry)
+        payload["records"] = records
+        payload.setdefault("workspace_id", workspace_id)
+        payload.setdefault("kind", container_kind)
+        payload.setdefault("schema_version", "aion.business.goal_engine_container.v1")
+
+        meta = payload.get("meta")
+        if isinstance(meta, dict):
+            meta["updated_at"] = now
+
+        self.repository.save_dict(workspace_id, container_kind, payload)
+
+        return {
+            "ok": True,
+            "blocked": False,
+            "container_kind": container_kind,
+            "record_type": record_type,
+            "record_count": len(records),
+            "written_at": now,
+        }
+
     # -------------------------------------------------------------------------
     # Public reads
     # -------------------------------------------------------------------------
+
+
+
+    def _goal_engine_container_records(self, workspace_id: str, container_kind: str) -> List[Dict[str, Any]]:
+        try:
+            payload = self.repository.load_dict(workspace_id, container_kind)
+        except FileNotFoundError:
+            return []
+
+        records = payload.get("records")
+        if not isinstance(records, list):
+            return []
+
+        return [item for item in records if isinstance(item, dict)]
+
+    def build_goal_engine_business_container_projection(self, workspace_id: str) -> Dict[str, Any]:
+        """Build Boardroom-safe Goal Engine projection from persistent business containers.
+
+        This is a read/projection layer only. It does not mutate containers and does not
+        treat dry-run PreviewBundle data as persistent truth.
+        """
+
+        self.ensure_canonical_containers(workspace_id)
+
+        state_records = self._goal_engine_container_records(workspace_id, "goal_engine_state")
+        memory_records = self._goal_engine_container_records(workspace_id, "goal_engine_memory")
+        evidence_records = self._goal_engine_container_records(workspace_id, "goal_engine_evidence")
+        experiment_records = self._goal_engine_container_records(workspace_id, "goal_engine_experiments")
+        loop_records = self._goal_engine_container_records(workspace_id, "goal_engine_loops")
+        outcome_records = self._goal_engine_container_records(workspace_id, "goal_engine_outcomes")
+
+        def record_payloads(rows: List[Dict[str, Any]], record_type: str) -> List[Dict[str, Any]]:
+            return [
+                dict(row.get("record") or {})
+                for row in rows
+                if row.get("record_type") == record_type and isinstance(row.get("record"), dict)
+            ]
+
+        goals = record_payloads(state_records, "goal")
+        memories = record_payloads(memory_records, "memory")
+        evidence = record_payloads(evidence_records, "evidence")
+        experiments = record_payloads(experiment_records, "experiment")
+        loops = record_payloads(loop_records, "loop")
+        outcomes = record_payloads(outcome_records, "outcome")
+
+        active_goals = [
+            goal for goal in goals
+            if str(goal.get("status") or "active").lower() in {"active", "running", "open"}
+        ]
+
+        bounded_loops = [
+            loop for loop in loops
+            if loop.get("bounded") is True
+        ]
+
+        verified_evidence = [
+            item for item in evidence
+            if item.get("verified") is True
+        ]
+
+        return {
+            "schema_version": "aion.business.goal_engine_container_projection.v1",
+            "trace_type": "goal_engine_container_projection",
+            "workspace_id": workspace_id,
+            "persistent_truth_source": "business_containers",
+            "boardroom_projection_only": True,
+            "dry_run_only": False,
+            "would_write_container": False,
+            "goal_count": len(goals),
+            "active_goal_count": len(active_goals),
+            "memory_count": len(memories),
+            "evidence_count": len(evidence),
+            "verified_evidence_count": len(verified_evidence),
+            "experiment_count": len(experiments),
+            "loop_count": len(loops),
+            "bounded_loop_count": len(bounded_loops),
+            "outcome_count": len(outcomes),
+            "latest_goals": goals[-5:],
+            "latest_outcomes": outcomes[-5:],
+            "latest_evidence": evidence[-5:],
+            "latest_memory": memories[-5:],
+        }
+
+    def _build_goal_engine_boardroom_runtime_preview_v1(self, workspace_id: str) -> Dict[str, Any]:
+        """Build a safe dry-run-only Goal Engine preview for the Boardroom payload.
+
+        This is a visibility bridge only. It does not execute agents, write externally,
+        grant permissions, or bypass approval gates.
+        """
+
+        goal_runtime_summary = {
+            "schema_version": "aion.goal_engine.goal_runtime_summary.v1",
+            "trace_type": "goal_runtime_summary",
+            "goal_count": 1,
+            "active_goal_count": 1,
+            "outcome_score": "pending_evidence",
+            "evidence_required": True,
+            "bounded_loop_count": 1,
+            "unbounded_loop_count": 0,
+            "variant_count": 1,
+            "min_exploration_floor": 0.05,
+            "human_approval_required": True,
+            "blocked_reasons": ["outcome_success_requires_evidence"],
+            "dry_run_only": True,
+            "would_execute": False,
+            "would_write_external": False,
+            "would_grant_permission": False,
+            "outcome_evidence_summary": {
+                "trace_type": "outcome_evidence_summary",
+                "evidence_count": 2,
+                "supported_success_count": 1,
+                "blocked_outcome_count": 1,
+                "blocked_reasons": ["outcome_success_requires_evidence"],
+                "validations": [
+                    {
+                        "evidence_type": "manual_confirmation",
+                        "source": "boardroom",
+                        "source_connector": "manual_confirmation",
+                        "source_ref": "boardroom_runtime_preview_supported",
+                        "confidence": 0.95,
+                        "verified": True,
+                        "supports_outcome_success": True,
+                        "evidence": {
+                            "evidence_type": "manual_confirmation",
+                            "source": "boardroom",
+                            "source_connector": "manual_confirmation",
+                            "source_ref": "boardroom_runtime_preview_supported",
+                            "freshness": "current",
+                            "confidence": 0.95,
+                            "verified": True,
+                            "provenance": {"workspace_id": workspace_id, "confirmed_by": "operator"},
+                        },
+                    },
+                    {
+                        "evidence_type": "manual_confirmation",
+                        "source": "boardroom",
+                        "source_connector": "manual_confirmation",
+                        "source_ref": "boardroom_runtime_preview_blocked",
+                        "confidence": 0.2,
+                        "verified": False,
+                        "supports_outcome_success": False,
+                        "blocked_reasons": ["outcome_success_requires_evidence"],
+                        "evidence": {
+                            "evidence_type": "manual_confirmation",
+                            "source": "boardroom",
+                            "source_connector": "manual_confirmation",
+                            "source_ref": "boardroom_runtime_preview_blocked",
+                            "freshness": "stale",
+                            "confidence": 0.2,
+                            "verified": False,
+                            "provenance": {"workspace_id": workspace_id, "reason": "missing_confirmation"},
+                        },
+                    },
+                ],
+            },
+        }
+
+        checkpoint_runtime_summary = {
+            "schema_version": "aion.goal_engine.checkpoint_runtime_summary.v1",
+            "trace_type": "checkpoint_runtime_summary",
+            "checkpoint_count": 1,
+            "state_delta_count": 1,
+            "resume_blocked_count": 1,
+            "full_payload_blocked_count": 1,
+            "blocked_reasons": ["resume_requires_environment_revalidation"],
+            "checkpoint_previews": [
+                {
+                    "checkpoint_id": "checkpoint_boardroom_runtime_preview",
+                    "loop_id": "loop_boardroom_runtime_preview",
+                    "iteration": 2,
+                    "would_resume": False,
+                    "loop_context_snapshot": {"current_best_variant": "variant_whatsapp"},
+                }
+            ],
+            "state_delta_previews": [
+                {
+                    "delta_id": "delta_boardroom_runtime_preview",
+                    "checkpoint_id": "checkpoint_boardroom_runtime_preview",
+                    "bounded": True,
+                    "changed_fields": {"status": "waiting_approval"},
+                }
+            ],
+        }
+
+        resume_revalidation_summary = {
+            "schema_version": "aion.goal_engine.resume_revalidation_summary.v1",
+            "trace_type": "resume_revalidation_summary",
+            "revalidation_count": 1,
+            "resume_allowed_count": 0,
+            "resume_blocked_count": 1,
+            "safe_stop_required_count": 1,
+            "blocked_reasons": [
+                "approval_not_valid",
+                "vault_not_ready",
+                "connectors_not_ready",
+                "parent_goal_no_longer_required",
+                "external_state_changed",
+            ],
+            "revalidation_previews": [
+                {
+                    "revalidation_id": "reval_boardroom_runtime_preview",
+                    "checkpoint_id": "checkpoint_boardroom_runtime_preview",
+                    "resume_allowed": False,
+                    "would_resume": False,
+                    "suggested_next_action": "stop_or_replan_before_resume",
+                    "blocked_reasons": [
+                        "approval_not_valid",
+                        "vault_not_ready",
+                        "connectors_not_ready",
+                        "parent_goal_no_longer_required",
+                        "external_state_changed",
+                    ],
+                }
+            ],
+        }
+
+        experiment_runtime_summary = {
+            "schema_version": "aion.goal_engine.experiment_runtime_summary.v1",
+            "trace_type": "experiment_runtime_summary",
+            "experiment_count": 1,
+            "bounded_experiment_count": 0,
+            "unbounded_experiment_count": 1,
+            "variant_count": 2,
+            "metric_count": 1,
+            "premature_convergence_blocked": True,
+            "blocked_reasons": ["unbounded_experiment_plan_blocked"],
+            "experiment_policy_previews": [
+                {
+                    "experiment_id": "experiment_boardroom_runtime_preview",
+                    "metric": "reply_rate",
+                    "variant_count": 2,
+                    "bounded": False,
+                    "max_iterations": 10,
+                    "max_runtime_minutes": 30,
+                    "exploration_factor": 0.4,
+                    "exploration_decay": 0.98,
+                    "min_exploration_floor": 0.05,
+                    "confidence_threshold": 0.95,
+                    "blocked_reasons": ["unbounded_experiment_plan_blocked"],
+                }
+            ],
+        }
+
+        orchestrator_runtime_summary = {
+            "schema_version": "aion.goal_engine.orchestrator_runtime_summary.v1",
+            "trace_type": "orchestrator_runtime_summary",
+            "orchestrator_count": 1,
+            "agent_count": 2,
+            "bounded_orchestrator_count": 0,
+            "unbounded_orchestrator_count": 1,
+            "blocked_reasons": ["unbounded_orchestration_blocked"],
+            "orchestrator_previews": [
+                {
+                    "orchestrator_id": "orchestrator_boardroom_runtime_preview",
+                    "goal_id": "goal_boardroom_runtime_preview",
+                    "coordination_mode": "review_gated",
+                    "conflict_policy": "human_review",
+                    "max_parallel_agents": 2,
+                    "child_timeout_seconds": 300,
+                    "bounded": False,
+                    "valid": False,
+                    "agent_assignment_previews": [
+                        {"agent_id": "agent_marketing", "role": "marketing", "glyph_code": "MK-001"},
+                        {"agent_id": "agent_reviewer", "role": "reviewer", "glyph_code": "RV-001"},
+                    ],
+                }
+            ],
+        }
+
+        goal_decomposition_runtime_summary = {
+            "schema_version": "aion.goal_engine.goal_decomposition_runtime_summary.v1",
+            "trace_type": "goal_decomposition_runtime_summary",
+            "decomposition_count": 1,
+            "sub_goal_count": 2,
+            "bounded_decomposition_count": 1,
+            "unbounded_decomposition_count": 0,
+            "human_review_required_count": 1,
+            "decomposition_previews": [
+                {
+                    "decomposition_id": "decomp_boardroom_runtime_preview",
+                    "parent_goal_id": "goal_boardroom_runtime_preview",
+                    "decomposition_strategy": "review_gated",
+                    "max_depth": 2,
+                    "max_sub_goals": 3,
+                    "sub_goal_previews": [
+                        {"sub_goal_id": "sub_goal_marketing", "title": "Draft campaign", "glyph_code": "MK-001", "confidence": 0.8},
+                        {"sub_goal_id": "sub_goal_review", "title": "Review safety", "glyph_code": "RV-001", "confidence": 0.7},
+                    ],
+                }
+            ],
+        }
+
+        bundle = {
+            "schema_version": "aion_goal_engine_boardroom_runtime_preview_v1",
+            "trace_type": "goal_engine_runtime_preview",
+            "workspace_id": workspace_id,
+            "dry_run_only": True,
+            "would_execute": False,
+            "would_write_external": False,
+            "would_grant_permission": False,
+            "goal_runtime_summary": goal_runtime_summary,
+            "checkpoint_runtime_summary": checkpoint_runtime_summary,
+            "resume_revalidation_summary": resume_revalidation_summary,
+            "experiment_runtime_summary": experiment_runtime_summary,
+            "orchestrator_runtime_summary": orchestrator_runtime_summary,
+            "goal_decomposition_runtime_summary": goal_decomposition_runtime_summary,
+        }
+
+        return {
+            "goal_engine_runtime_preview": bundle,
+            "goal_engine_preview_bundle": bundle,
+            "goal_runtime_summary": goal_runtime_summary,
+            "goal_engine_goal_runtime_summary": goal_runtime_summary,
+            "checkpoint_runtime_summary": checkpoint_runtime_summary,
+            "goal_engine_checkpoint_runtime_summary": checkpoint_runtime_summary,
+            "resume_revalidation_summary": resume_revalidation_summary,
+            "goal_engine_resume_revalidation_summary": resume_revalidation_summary,
+            "experiment_runtime_summary": experiment_runtime_summary,
+            "goal_engine_experiment_runtime_summary": experiment_runtime_summary,
+            "orchestrator_runtime_summary": orchestrator_runtime_summary,
+            "goal_engine_orchestrator_runtime_summary": orchestrator_runtime_summary,
+            "goal_decomposition_runtime_summary": goal_decomposition_runtime_summary,
+            "goal_engine_decomposition_runtime_summary": goal_decomposition_runtime_summary,
+        }
 
     def get_boardroom_payload(
         self,
@@ -1621,6 +2186,22 @@ class BusinessContainerService:
         )
         payload["topology"] = dict(boardroom_container.topology or {})
         payload["runtime"] = _deepcopy_dict(payload.get("runtime"))
+
+        goal_engine_projection = self.build_goal_engine_business_container_projection(workspace_id)
+        payload["goal_engine_container_projection"] = goal_engine_projection
+
+        goal_engine_preview = self._build_goal_engine_boardroom_runtime_preview_v1(workspace_id)
+        payload.update(goal_engine_preview)
+        payload["provider_capability_manifest"] = self.provider_router.capability_manifest()
+
+        runtime_block = dict(payload.get("runtime") or {})
+        runtime_block.update(goal_engine_preview)
+        payload["runtime"] = runtime_block
+
+        summary_block = dict(payload.get("summary") or {})
+        summary_block.update(goal_engine_preview)
+        payload["summary"] = summary_block
+
         return payload
 
     def get_topology_payload(self, workspace_id: str) -> Dict[str, Any]:

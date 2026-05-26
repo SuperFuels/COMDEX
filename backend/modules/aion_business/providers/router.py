@@ -9,6 +9,11 @@ from backend.modules.aion_business.providers.anthropic_adapter import (
     AnthropicAdapterResult,
 )
 from backend.modules.aion_business.providers.byok import BYOKManager
+from backend.modules.aion_business.providers.capability_manifest import provider_manifest_for_ui
+from backend.modules.aion_business.providers.local_adapter import (
+    LocalAdapter,
+    LocalAdapterResult,
+)
 from backend.modules.aion_business.providers.contracts import (
     ProviderRequest,
     ProviderResult,
@@ -46,6 +51,7 @@ ProviderAdapterResult = Union[
     OpenAIAdapterResult,
     AnthropicAdapterResult,
     ResendAdapterResult,
+    LocalAdapterResult,
 ]
 
 
@@ -56,11 +62,13 @@ class ProviderRouter:
         openai_adapter: Optional[OpenAIAdapter] = None,
         anthropic_adapter: Optional[AnthropicAdapter] = None,
         resend_adapter: Optional[ResendAdapter] = None,
+        local_adapter: Optional[LocalAdapter] = None,
         byok_manager: Optional[BYOKManager] = None,
     ):
         self.openai_adapter = openai_adapter or OpenAIAdapter()
         self.anthropic_adapter = anthropic_adapter or AnthropicAdapter()
         self.resend_adapter = resend_adapter or ResendAdapter()
+        self.local_adapter = local_adapter or LocalAdapter()
         self.byok_manager = byok_manager or BYOKManager()
 
     def generate(
@@ -92,7 +100,13 @@ class ProviderRouter:
                 policy_id=resolved_policy.id,
                 fallback_used=False,
                 error_code=f"role_not_allowed_by_policy:{role_type}",
-                raw={"metadata": metadata},
+                raw=ProviderRouter._build_blocked_raw(
+                    provider=preferred_provider or resolved_policy.default_provider,
+                    model=preferred_model or "",
+                    metadata={**metadata, "capability": capability},
+                    capability=capability,
+                    error_code=f"role_not_allowed_by_policy:{role_type}",
+                ),
             )
 
         if capability and not resolved_policy.allows_capability(capability):
@@ -106,7 +120,13 @@ class ProviderRouter:
                 policy_id=resolved_policy.id,
                 fallback_used=False,
                 error_code=f"capability_not_allowed_by_policy:{capability}",
-                raw={"metadata": metadata},
+                raw=ProviderRouter._build_blocked_raw(
+                    provider=preferred_provider or resolved_policy.default_provider,
+                    model=preferred_model or "",
+                    metadata={**metadata, "capability": capability},
+                    capability=capability,
+                    error_code=f"capability_not_allowed_by_policy:{capability}",
+                ),
             )
 
         if skill_id and resolved_policy.blocks_skill(skill_id):
@@ -120,7 +140,13 @@ class ProviderRouter:
                 policy_id=resolved_policy.id,
                 fallback_used=False,
                 error_code=f"skill_blocked_by_policy:{skill_id}",
-                raw={"metadata": metadata},
+                raw=ProviderRouter._build_blocked_raw(
+                    provider=preferred_provider or resolved_policy.default_provider,
+                    model=preferred_model or "",
+                    metadata={**metadata, "capability": capability},
+                    capability=capability,
+                    error_code=f"skill_blocked_by_policy:{skill_id}",
+                ),
             )
 
         primary_provider = preferred_provider or resolved_policy.default_provider
@@ -133,13 +159,27 @@ class ProviderRouter:
         first_error_result: Optional[ProviderAdapterResult] = None
 
         for index, provider_name in enumerate(provider_chain):
+            if capability and not self._provider_supports_capability(provider_name, capability):
+                if first_error_result is None:
+                    first_error_result = OpenAIAdapterResult(
+                        ok=False,
+                        provider=provider_name,
+                        model=preferred_model or "",
+                        content="",
+                        usage={},
+                        latency_ms=0,
+                        error_code=f"provider_capability_not_supported:{provider_name}:{capability}",
+                        raw={"metadata": {**metadata, "capability": capability}, "capability_manifest_checked": True},
+                    )
+                continue
+
             result = self._call_provider(
                 provider=provider_name,
                 prompt=prompt,
                 system_prompt=system_prompt,
                 policy=resolved_policy,
                 preferred_model=preferred_model if provider_name == primary_provider else None,
-                metadata=metadata,
+                metadata={**metadata, "capability": capability},
                 max_tokens=max_tokens,
             )
 
@@ -191,6 +231,16 @@ class ProviderRouter:
         )
         return self._to_provider_result(router_result)
 
+    def capability_manifest(self) -> Dict[str, Any]:
+        return provider_manifest_for_ui(
+            provider_status={
+                "local": True,
+                "openai": self.byok_manager.is_configured("openai"),
+                "anthropic": self.byok_manager.is_configured("anthropic"),
+                "resend": self.byok_manager.is_configured("resend"),
+            }
+        )
+
     def resolve_policy(self, policy_ref: Optional[str]) -> ModelPolicy:
         if policy_ref == "anthropic_reasoning":
             return default_anthropic_reasoning_policy()
@@ -231,6 +281,34 @@ class ProviderRouter:
 
         return chain
 
+    def _provider_supports_capability(self, provider: str, capability: str) -> bool:
+        manifest = self.capability_manifest()
+        providers = manifest.get("providers", {})
+        provider_info = providers.get(str(provider or "").strip().lower(), {})
+
+        if not isinstance(provider_info, dict):
+            return False
+
+        capabilities = provider_info.get("capabilities", [])
+        if capabilities == "*":
+            return True
+
+        if isinstance(capabilities, list) and capability in capabilities:
+            return True
+
+        aliases = {
+            "drafting": "draft",
+            "summarization": "summarize",
+            "classification": "classify",
+            "planning": "plan",
+            "reasoning": "reason",
+            "analysis": "analyze",
+            "rewrite": "rewrite",
+        }
+
+        alias = aliases.get(str(capability or "").strip().lower())
+        return isinstance(capabilities, list) and alias in capabilities
+
     def _call_provider(
         self,
         *,
@@ -246,15 +324,13 @@ class ProviderRouter:
         normalized_provider = str(provider or "").strip().lower()
 
         if normalized_provider == "local":
-            return OpenAIAdapterResult(
-                ok=False,
-                provider="local",
-                model=preferred_model or "gemma",
-                content="",
-                usage={},
-                latency_ms=0,
-                error_code="local_provider_not_implemented",
-                raw={"metadata": metadata},
+            return self.local_adapter.generate(
+                prompt=prompt,
+                system_prompt=system_prompt,
+                capability=str(metadata.get("capability") or metadata.get("requested_capability") or "drafting"),
+                metadata=metadata,
+                preferred_model=preferred_model,
+                max_tokens=max_tokens,
             )
 
         if not self.byok_manager.is_configured(normalized_provider):
@@ -338,7 +414,170 @@ class ProviderRouter:
             policy_id=policy_id,
             fallback_used=fallback_used,
             error_code=result.error_code,
-            raw=result.raw,
+            raw=ProviderRouter._raw_with_provider_audit(
+                raw=result.raw or {},
+                result=result,
+                fallback_used=fallback_used,
+            ),
+        )
+
+
+    @staticmethod
+    def _raw_with_provider_audit(
+        *,
+        raw: Dict[str, Any] | None,
+        result: ProviderAdapterResult,
+        fallback_used: bool,
+    ) -> Dict[str, Any]:
+        enriched = dict(raw or {})
+        enriched["provider_audit"] = ProviderRouter._build_provider_audit(
+            result=result,
+            fallback_used=fallback_used,
+        )
+        return enriched
+
+    @staticmethod
+    def _build_provider_audit(
+        *,
+        result: ProviderAdapterResult,
+        fallback_used: bool,
+    ) -> Dict[str, Any]:
+        raw = dict(result.raw or {})
+        metadata = dict(raw.get("metadata") or {})
+        usage = dict(result.usage or {})
+
+        capability = str(
+            metadata.get("capability")
+            or metadata.get("requested_capability")
+            or raw.get("capability")
+            or usage.get("capability")
+            or ""
+        )
+
+        def as_int(value: Any, default: int = 0) -> int:
+            try:
+                if value is None:
+                    return default
+                return int(value)
+            except (TypeError, ValueError):
+                return default
+
+        def as_float(value: Any, default: float = 0.0) -> float:
+            try:
+                if value is None:
+                    return default
+                return float(value)
+            except (TypeError, ValueError):
+                return default
+
+        prompt_tokens = as_int(
+            usage.get("prompt_tokens")
+            or usage.get("input_tokens")
+            or raw.get("prompt_tokens")
+            or raw.get("input_tokens")
+        )
+        completion_tokens = as_int(
+            usage.get("completion_tokens")
+            or usage.get("output_tokens")
+            or raw.get("completion_tokens")
+            or raw.get("output_tokens")
+        )
+        total_tokens = as_int(
+            usage.get("total_tokens")
+            or raw.get("total_tokens")
+            or (prompt_tokens + completion_tokens)
+        )
+
+        token_count = total_tokens
+        if token_count <= 0:
+            token_count = as_int(usage.get("max_tokens_requested") or metadata.get("max_tokens_requested"))
+
+        cost_estimate = as_float(
+            usage.get("cost_estimate")
+            or raw.get("cost_estimate")
+            or metadata.get("cost_estimate")
+        )
+
+        error_code = result.error_code
+        degradation_event = "none"
+        if error_code:
+            degradation_event = str(error_code)
+        elif fallback_used:
+            degradation_event = "provider_fallback_used"
+
+        provider = str(result.provider or usage.get("provider") or "unknown")
+        is_local = provider == "local" or bool(usage.get("local_only"))
+
+        external_writes = str(
+            usage.get("external_writes")
+            or raw.get("external_writes")
+            or metadata.get("external_writes")
+            or ("blocked" if is_local else "approval_required")
+        )
+
+        business_state_mutation = str(
+            metadata.get("business_state_mutation")
+            or raw.get("business_state_mutation")
+            or "human_review_guarded"
+        )
+
+        return {
+            "trace_type": "provider_audit",
+            "provider": provider,
+            "model": str(result.model or usage.get("model") or ""),
+            "capability": capability,
+            "policy_checked": True,
+            "fallback_used": bool(fallback_used),
+            "latency_ms": as_int(result.latency_ms),
+            "runtime_duration_ms": as_int(result.latency_ms),
+            "token_count": as_int(token_count),
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": total_tokens,
+            "cost_estimate": cost_estimate,
+            "degradation_mode": str(
+                raw.get("degradation_mode")
+                or metadata.get("degradation_mode")
+                or ("fail_closed" if error_code else "normal")
+            ),
+            "degradation_event": degradation_event,
+            "external_writes": external_writes,
+            "business_state_mutation": business_state_mutation,
+            "legacy_business_state_mutation": "blocked" if provider == "local" else business_state_mutation,
+            "local_only": bool(usage.get("local_only") is True or provider == "local"),
+            "would_grant_permission": False,
+            "failed_closed": bool(error_code and not fallback_used),
+            "error_code": error_code,
+            "capability_manifest_checked": bool(raw.get("capability_manifest_checked")),
+            "safe_local_adapter": bool(raw.get("safe_local_adapter")),
+        }
+
+    @staticmethod
+    def _build_blocked_raw(
+        *,
+        provider: str,
+        model: str,
+        metadata: Dict[str, Any],
+        capability: str,
+        error_code: str,
+    ) -> Dict[str, Any]:
+        blocked = OpenAIAdapterResult(
+            ok=False,
+            provider=provider,
+            model=model,
+            content="",
+            usage={},
+            latency_ms=0,
+            error_code=error_code,
+            raw={
+                "metadata": {**dict(metadata or {}), "capability": capability},
+                "capability_manifest_checked": True,
+            },
+        )
+        return ProviderRouter._raw_with_provider_audit(
+            raw=blocked.raw or {},
+            result=blocked,
+            fallback_used=False,
         )
 
     @staticmethod

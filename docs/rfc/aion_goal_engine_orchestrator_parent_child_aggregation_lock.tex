@@ -1,0 +1,63 @@
+\section{AION Goal Engine Orchestrator Parent/Child Aggregation Lock}
+\label{sec:aion-goal-engine-orchestrator-parent-child-aggregation-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED}
+
+The Goal Engine now exposes a preview-only parent/child orchestration aggregation contract.
+
+\subsection{Canonical Trace}
+
+\begin{verbatim}
+trace_type = orchestrator_parent_child_aggregation_preview
+schema_version = aion.goal_engine.orchestrator_parent_child_aggregation.v1
+\end{verbatim}
+
+\subsection{Required Fields}
+
+The aggregation preview MUST expose:
+
+\begin{verbatim}
+parent_goal_id
+parent_goal_status
+child_count
+child_status_counts
+child_agents
+child_glyphs
+blocked_child_count
+waiting_approval_count
+completed_child_count
+failed_child_count
+aggregate_status
+aggregate_blocked_reasons
+manual_review_required = true
+dry_run_only = true
+would_execute = false
+would_write_external = false
+would_mutate_parent_goal = false
+would_grant_permission = false
+\end{verbatim}
+
+\subsection{Safety Invariants}
+
+The aggregation preview is visibility only.
+
+It MUST NOT:
+\begin{itemize}
+  \item mutate parent goals;
+  \item mark a parent goal complete automatically;
+  \item execute child agents;
+  \item write to external systems;
+  \item grant permissions;
+  \item bypass human review.
+\end{itemize}
+
+A fully completed child set still requires manual review before parent completion.
+
+\subsection{Lock Footer}
+
+Lock ID: AION-GOAL-ENGINE-ORCHESTRATOR-PARENT-CHILD-AGGREGATION-V1\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson

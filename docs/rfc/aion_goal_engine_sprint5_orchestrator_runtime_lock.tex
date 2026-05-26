@@ -1,0 +1,93 @@
+\section{AION Goal Engine Sprint 5 Orchestrator Runtime Lock}
+\label{sec:aion-goal-engine-sprint5-orchestrator-runtime-lock}
+
+\subsection{Status}
+
+The Goal Engine now exposes a first-class multi-agent orchestration contract and dry-run runtime summary.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Sprint 5 orchestrator contract, preview bundle, bridge mirror, and Boardroom UI are passing.}
+\end{quote}
+
+\subsection{Canonical Contracts}
+
+\begin{verbatim}
+AGENT_ASSIGNMENT_SCHEMA_VERSION = "aion.goal_engine.agent_assignment.v1"
+ORCHESTRATOR_SCHEMA_VERSION = "aion.goal_engine.orchestrator.v1"
+
+AgentAssignmentContract
+OrchestratorContract
+\end{verbatim}
+
+The canonical module is:
+
+\begin{verbatim}
+backend/modules/aion/goal_engine/orchestrator.py
+\end{verbatim}
+
+\subsection{Bounded Orchestration Rule}
+
+Orchestration MUST be bounded before execution.
+
+A bounded orchestrator MUST define:
+
+\begin{itemize}
+  \item at least one valid agent assignment;
+  \item a supported \texttt{coordination_mode};
+  \item a supported \texttt{conflict_policy};
+  \item \texttt{max_parallel_agents > 0};
+  \item bounded child timeout semantics.
+\end{itemize}
+
+Unbounded orchestration MUST emit:
+
+\begin{verbatim}
+unbounded_orchestration_blocked
+\end{verbatim}
+
+\subsection{Preview Bundle and Bridge Contract}
+
+The \texttt{GoalEnginePreviewBundle} MUST expose:
+
+\begin{verbatim}
+orchestrator_runtime_summary
+\end{verbatim}
+
+The dry-run bridge MUST expose both:
+
+\begin{verbatim}
+orchestrator_runtime_summary
+goal_engine_orchestrator_runtime_summary
+\end{verbatim}
+
+The bridge MUST NOT rebuild the orchestrator summary.
+
+\subsection{Boardroom Visibility}
+
+The Boardroom UI now renders:
+
+\begin{verbatim}
+Orchestrator Runtime Summary
+\end{verbatim}
+
+The panel MUST show agent assignments, coordination mode, conflict policy, glyph code, bounded count, unbounded count, and the unbounded orchestration warning.
+
+\subsection{Safety Rules}
+
+All orchestrator previews remain dry-run only:
+
+\begin{verbatim}
+dry_run_only = true
+would_execute = false
+would_write_external = false
+would_grant_permission = false
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-SPRINT-5-ORCHESTRATOR-RUNTIME-LOCK-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

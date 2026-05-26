@@ -11,6 +11,12 @@ BusinessContainerKind = Literal[
     "brand_foundation",
     "boardroom_snapshot",
     "operational_runtime_summary",
+    "goal_engine_outcomes",
+    "goal_engine_loops",
+    "goal_engine_experiments",
+    "goal_engine_evidence",
+    "goal_engine_memory",
+    "goal_engine_state",
 ]
 
 

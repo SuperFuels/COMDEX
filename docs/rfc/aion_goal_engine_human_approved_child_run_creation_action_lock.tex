@@ -1,0 +1,123 @@
+\section{AION Goal Engine Human-Approved Child-Run Creation Action Lock}
+\label{sec:aion-goal-engine-human-approved-child-run-creation-action-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- focused Goal Engine suite passing with 447 tests.}
+
+Validation command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+Validation result:
+
+\begin{verbatim}
+447 passed
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock defines the approved action seed that follows a guarded child-run creation request.
+
+The previous guarded request object proves that a child-agent handoff is ready for review. This lock adds the next explicit step: after a human reviewer approves the request, AION may emit a bounded runtime-executor seed for child workflow-run creation.
+
+This is still not autonomous execution.
+
+\subsection{Canonical Schema}
+
+The canonical schema version is:
+
+\begin{verbatim}
+aion.goal_engine.human_approved_child_run_creation_action.v1
+\end{verbatim}
+
+The canonical trace type is:
+
+\begin{verbatim}
+human_approved_child_run_creation_action
+\end{verbatim}
+
+The builder entrypoint is:
+
+\begin{verbatim}
+build_human_approved_child_run_creation_action(...)
+\end{verbatim}
+
+\subsection{Runtime Contract}
+
+The action packet MUST preserve:
+
+\begin{itemize}
+  \item parent goal identifier;
+  \item child goal identifier;
+  \item child agent identifier;
+  \item child glyph identifier;
+  \item target workflow identifier;
+  \item target child run identifier;
+  \item reviewer identifier;
+  \item approval decision;
+  \item bounded runtime seed metadata.
+\end{itemize}
+
+The packet MAY set:
+
+\begin{verbatim}
+child_run_creation_allowed = true
+\end{verbatim}
+
+only when the request is valid, the reviewer is present, and the decision is approved.
+
+\subsection{Safety Invariants}
+
+The action packet MUST NOT directly create a child run.
+
+It MUST keep:
+
+\begin{verbatim}
+requires_runtime_executor = true
+autonomous_execution = false
+external_writes_allowed = false
+business_mutation_allowed = false
+\end{verbatim}
+
+This means the packet is a reviewed executor seed, not execution itself.
+
+The runtime executor remains responsible for turning the seed into an actual workflow run under normal Workflow Capsule safety rules.
+
+\subsection{Failure Behaviour}
+
+The action packet MUST fail closed when:
+
+\begin{itemize}
+  \item the approval decision is rejected;
+  \item the reviewer identifier is missing;
+  \item the guarded child-run request is invalid;
+  \item the request is missing required workflow/run identifiers.
+\end{itemize}
+
+In all blocked cases, \texttt{child\_run\_creation\_allowed} MUST be false.
+
+\subsection{Validation Coverage}
+
+Locked by:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_goal_engine_human_approved_child_run_creation_action.py
+\end{verbatim}
+
+Included in:
+
+\begin{verbatim}
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-GOAL-ENGINE-HUMAN-APPROVED-CHILD-RUN-CREATION-ACTION-v1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

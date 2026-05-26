@@ -1,0 +1,48 @@
+Business Container Persistence Lock
+
+Status: LOCKED
+
+Canonical Goal Engine business containers:
+
+goal\_engine\_state
+goal\_engine\_memory
+goal\_engine\_evidence
+goal\_engine\_experiments
+goal\_engine\_loops
+goal\_engine\_outcomes
+
+Canonical KG topics:
+
+business.goal_engine.state
+business.goal_engine.memory
+business.goal_engine.evidence
+business.goal_engine.experiments
+business.goal_engine.loops
+business.goal_engine.outcomes
+
+Governance:
+
+write_guard = human_review
+
+All Goal Engine state mutations must go through guarded container writes.
+
+Boardroom rule:
+
+Boardroom MUST read from projections, not act as storage.
+
+persistent_truth_source = business_containers
+
+boardroom_projection_only = true
+
+Preview separation:
+
+GoalEnginePreviewBundle remains dry-run visibility only.
+
+dry_run_only = true
+would_write_memory = false
+would_grant_permission = false
+
+Lock ID: AION-GOAL-ENGINE-BUSINESS-CONTAINER-PERSISTENCE-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson

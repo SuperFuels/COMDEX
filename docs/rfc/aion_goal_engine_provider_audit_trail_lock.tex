@@ -1,0 +1,51 @@
+Aion Goal Engine Provider Audit Trail Lock
+
+Status: LOCKED
+
+Purpose:
+
+Provider calls now emit a normalized provider_audit block through ProviderRouter result raw metadata.
+
+Canonical audit block:
+
+provider_audit
+
+Required fields:
+
+provider
+model
+capability
+ok
+error_code
+fallback_used
+latency_ms
+local_only
+external_writes
+business_state_mutation
+capability_manifest_checked
+failed_closed
+workspace_id
+task_id
+
+Safety invariants:
+
+Local provider calls MUST report local_only = true.
+Local provider calls MUST report external_writes = blocked.
+Local provider calls MUST report business_state_mutation = blocked.
+
+Cloud provider calls MUST require approval for external writes.
+Business state mutations MUST remain human-review guarded.
+
+Unsupported provider capabilities MUST fail closed.
+Unsupported provider capability rejections MUST include capability_manifest_checked = true.
+Provider audit rows MUST preserve fallback_used.
+
+Boardroom/provider relation:
+
+Provider capability manifest exposes what providers can do.
+Provider audit trail records what providers actually did or attempted.
+
+Lock ID: AION-GOAL-ENGINE-PROVIDER-AUDIT-TRAIL-V1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson

@@ -8612,3 +8612,1017 @@ pre {
   opacity: 1;
 }
 
+
+/* -------------------------------------------------------------------------- */
+/* Workflow sidebar state compatibility lock                                  */
+/* -------------------------------------------------------------------------- */
+/* The runtime now uses .aion-workflow-sidebar-expanded. The old collapsed
+   class is deliberately neutralised so legacy pseudo-icon rules cannot override
+   the real sidebar renderer in app.js. */
+.operations-agents-surface .aion-workflow-sidebar-collapsed .aion-workflow-app-nav button::before,
+.operations-agents-surface .aion-workflow-sidebar-collapsed .aion-workflow-app-nav button::after {
+  content: none !important;
+  display: none !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar-collapsed .aion-workflow-app-nav button {
+  font-size: inherit !important;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* AION Workflow Left Sidebar — source of truth                               */
+/* -------------------------------------------------------------------------- */
+/*
+  app.js owns markup + click handling only.
+  This block owns the sidebar layout, collapsed/expanded states, hover labels,
+  active state, and toggle visibility.
+*/
+
+.operations-agents-surface .aion-workflow-canvas-shell .aion-workflow-layout {
+  display: grid !important;
+  grid-template-columns: 72px minmax(0, 1fr) !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-layout {
+  grid-template-columns: 220px minmax(0, 1fr) !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar {
+  grid-column: 1 !important;
+  width: 72px !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+  padding: 12px 8px !important;
+  background: #f7efe3 !important;
+  border-right: 1px solid rgba(31, 31, 31, 0.12) !important;
+  overflow: visible !important;
+  z-index: 60 !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-sidebar {
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+  overflow: hidden !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar-toggle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 46px !important;
+  height: 46px !important;
+  margin: 0 auto 14px !important;
+  padding: 0 !important;
+  border: 1px solid rgba(31, 31, 31, 0.16) !important;
+  background: rgba(255, 255, 255, 0.55) !important;
+  color: #475569 !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar-toggle::before {
+  content: "☰" !important;
+  display: block !important;
+  color: currentColor !important;
+  font-size: 22px !important;
+  font-weight: 900 !important;
+  line-height: 1 !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar-toggle:hover,
+.operations-agents-surface .aion-workflow-sidebar-toggle:focus-visible {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-sidebar-toggle {
+  margin-left: 8px !important;
+  margin-right: auto !important;
+}
+
+.operations-agents-surface .aion-workflow-app-nav {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  overflow: visible !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-app-nav {
+  align-items: stretch !important;
+}
+
+.operations-agents-surface .aion-workflow-nav-btn,
+.operations-agents-surface .aion-workflow-app-nav button[data-tab] {
+  position: relative !important;
+  display: grid !important;
+  grid-template-columns: 52px minmax(0, 1fr) !important;
+  align-items: center !important;
+  width: 52px !important;
+  height: 48px !important;
+  min-width: 52px !important;
+  min-height: 48px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  border: 1px solid transparent !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #475569 !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+  cursor: pointer !important;
+  overflow: visible !important;
+  box-shadow: none !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-nav-btn,
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-app-nav button[data-tab] {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding-right: 12px !important;
+}
+
+.operations-agents-surface .aion-workflow-nav-icon {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 52px !important;
+  height: 48px !important;
+  color: currentColor !important;
+  font-size: 0 !important;
+  line-height: 1 !important;
+}
+
+.operations-agents-surface .aion-workflow-nav-icon::before {
+  content: attr(data-icon) !important;
+  display: block !important;
+  color: currentColor !important;
+  font-size: 18px !important;
+  font-weight: 950 !important;
+  line-height: 1 !important;
+}
+
+.operations-agents-surface .aion-workflow-nav-label {
+  position: absolute !important;
+  left: 62px !important;
+  top: 50% !important;
+  z-index: 9999 !important;
+  transform: translateY(-50%) translateX(-4px) !important;
+  width: max-content !important;
+  max-width: 190px !important;
+  padding: 8px 11px !important;
+  background: #0f172a !important;
+  color: #ffffff !important;
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.22) !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+  letter-spacing: -0.02em !important;
+  white-space: nowrap !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: opacity 120ms ease, transform 120ms ease !important;
+}
+
+.operations-agents-surface .aion-workflow-nav-btn:hover .aion-workflow-nav-label,
+.operations-agents-surface .aion-workflow-nav-btn:focus-visible .aion-workflow-nav-label,
+.operations-agents-surface .aion-workflow-app-nav button[data-tab]:hover .aion-workflow-nav-label,
+.operations-agents-surface .aion-workflow-app-nav button[data-tab]:focus-visible .aion-workflow-nav-label {
+  opacity: 1 !important;
+  transform: translateY(-50%) translateX(0) !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-nav-label {
+  position: static !important;
+  transform: none !important;
+  width: auto !important;
+  max-width: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: currentColor !important;
+  box-shadow: none !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  line-height: 1.05 !important;
+  white-space: normal !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.operations-agents-surface .aion-workflow-nav-btn:hover,
+.operations-agents-surface .aion-workflow-nav-btn:focus-visible,
+.operations-agents-surface .aion-workflow-nav-btn.active,
+.operations-agents-surface .aion-workflow-app-nav button[data-tab]:hover,
+.operations-agents-surface .aion-workflow-app-nav button[data-tab]:focus-visible,
+.operations-agents-surface .aion-workflow-app-nav button[data-tab].active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
+.operations-agents-surface .aion-workflow-side-status,
+.operations-agents-surface .aion-workflow-side-advanced {
+  display: none !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-side-status,
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-side-advanced {
+  display: block !important;
+  margin: 14px 0 0 !important;
+}
+
+/* Kill the old file-cabinet pseudo icon override; renderer now owns icon slot. */
+.operations-agents-surface .aion-workflow-sidebar [data-tab="file_cabinet"]::before,
+.operations-agents-surface .aion-workflow-sidebar [data-tab="file_cabinet"]::after {
+  display: none !important;
+  content: none !important;
+}
+
+
+/* -------------------------------------------------------------------------- */
+/* AION Workflow Sidebar Position Lock — below workflow header/tabs            */
+/* -------------------------------------------------------------------------- */
+/*
+  Keeps the left sidebar below the business header + workflow tab strip so
+  expanded navigation does not overlap the business name or top tabs.
+*/
+
+.operations-agents-surface .aion-workflow-canvas-shell .aion-workflow-layout {
+  position: relative !important;
+  height: calc(100vh - 154px) !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar {
+  align-self: stretch !important;
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas {
+  height: 100% !important;
+  max-height: 100% !important;
+}
+
+/* Defensive: make sure expanded sidebar stays inside the workflow layout only. */
+.operations-agents-surface .aion-workflow-canvas-shell.aion-workflow-sidebar-expanded .aion-workflow-sidebar {
+  top: auto !important;
+  bottom: auto !important;
+}
+
+
+/* AION SOURCE LOCK: workflow sidebar below header strip v1 */
+.operations-agents-surface {
+  --aion-workflow-shell-top-offset: 176px;
+}
+
+.operations-agents-surface .aion-workflow-layout {
+  margin-top: 0 !important;
+  height: calc(100vh - var(--aion-workflow-shell-top-offset)) !important;
+  min-height: calc(100vh - var(--aion-workflow-shell-top-offset)) !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar,
+.operations-agents-canvas-mode .aion-workflow-sidebar {
+  position: relative !important;
+  top: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  height: 100% !important;
+  min-height: 100% !important;
+  max-height: 100% !important;
+  align-self: stretch !important;
+}
+
+.operations-agents-surface .aion-workflow-canvas,
+.operations-agents-canvas-mode .aion-workflow-canvas {
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+.operations-agents-surface .aion-workflow-sidebar-toggle {
+  margin-top: 14px !important;
+}
+/* END AION SOURCE LOCK: workflow sidebar below header strip v1 */
+
+
+/* AION LOCK: Goal Engine visible Boardroom runtime panels styling v1 */
+
+.aion-goal-engine-visible-boardroom-panels {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.aion-goal-engine-visible-boardroom-panels > .panel-title {
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: #6f6a63;
+}
+
+.aion-goal-engine-visible-boardroom-panels .list-item-sub {
+  color: #6f6a63;
+  font-size: 14px;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-card,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-runtime-summary {
+  border: 1px solid rgba(20, 20, 20, 0.12);
+  background: rgba(255, 255, 255, 0.58);
+  padding: 18px;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.aion-goal-engine-visible-boardroom-panels .section-title {
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-metric-grid,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-runtime-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-metric-grid > div,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-runtime-grid > div {
+  border: 1px solid rgba(20, 20, 20, 0.11);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 12px;
+  min-height: 74px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-metric-grid strong,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-runtime-grid strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-metric-grid span,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-runtime-grid span {
+  display: block;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6f6a63;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-warning {
+  border: 1px solid rgba(185, 28, 28, 0.28);
+  background: rgba(254, 226, 226, 0.72);
+  color: #7f1d1d;
+  font-weight: 800;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-note {
+  border: 1px solid rgba(20, 20, 20, 0.1);
+  background: rgba(255, 255, 255, 0.55);
+  padding: 10px 12px;
+  color: #4b5563;
+  font-size: 13px;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-subsection,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-evidence-list {
+  display: grid;
+  gap: 10px;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-evidence-row,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-mini-row,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-trace-row,
+.aion-goal-engine-visible-boardroom-panels .list-item {
+  border: 1px solid rgba(20, 20, 20, 0.1);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-evidence-row strong,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-mini-row strong,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-trace-row strong,
+.aion-goal-engine-visible-boardroom-panels .list-item strong {
+  font-size: 14px;
+  font-weight: 900;
+  color: #111827;
+}
+
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-mini-row span,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-trace-row span,
+.aion-goal-engine-visible-boardroom-panels .list-item span,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-mini-row small,
+.aion-goal-engine-visible-boardroom-panels .aion-boardroom-trace-row small,
+.aion-goal-engine-visible-boardroom-panels .list-item small {
+  display: block;
+  color: #4b5563;
+  font-size: 12px;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.aion-goal-engine-visible-boardroom-panels .muted {
+  color: #6f6a63;
+  font-size: 13px;
+}
+
+@media (max-width: 1100px) {
+  .aion-goal-engine-visible-boardroom-panels .aion-boardroom-metric-grid,
+  .aion-goal-engine-visible-boardroom-panels .aion-boardroom-runtime-grid {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .aion-goal-engine-visible-boardroom-panels .aion-boardroom-metric-grid,
+  .aion-goal-engine-visible-boardroom-panels .aion-boardroom-runtime-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* AION LOCK: Goal Engine Boardroom Runtime Preview visual polish v1 */
+.aion-goal-engine-visible-boardroom-panels {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--border, #ded8cf);
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.aion-goal-engine-visible-boardroom-panels > .panel-title {
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #6f675d;
+}
+
+.aion-boardroom-card,
+.aion-boardroom-runtime-summary {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--border, #ded8cf);
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.aion-boardroom-card .section-title,
+.aion-boardroom-runtime-summary .section-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #151515;
+}
+
+.aion-boardroom-metric-grid,
+.aion-boardroom-runtime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.aion-boardroom-metric-grid > div,
+.aion-boardroom-runtime-grid > div {
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid var(--border, #ded8cf);
+  background: rgba(250, 247, 241, 0.9);
+}
+
+.aion-boardroom-metric-grid strong,
+.aion-boardroom-runtime-grid strong {
+  display: block;
+  font-size: 28px;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #111;
+}
+
+.aion-boardroom-metric-grid span,
+.aion-boardroom-runtime-grid span {
+  display: block;
+  margin-top: 7px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #746c62;
+}
+
+.aion-boardroom-warning {
+  padding: 10px 12px;
+  border: 1px solid #d8a35f;
+  background: rgba(255, 224, 178, 0.38);
+  color: #5f3510;
+  font-weight: 800;
+}
+
+.aion-boardroom-evidence-list,
+.aion-boardroom-subsection {
+  display: grid;
+  gap: 10px;
+}
+
+.aion-boardroom-evidence-row,
+.aion-boardroom-mini-row,
+.aion-boardroom-trace-row {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border: 1px solid var(--border, #ded8cf);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.aion-boardroom-evidence-row strong,
+.aion-boardroom-mini-row strong,
+.aion-boardroom-trace-row strong {
+  font-weight: 900;
+  color: #151515;
+}
+
+.aion-boardroom-evidence-row small,
+.aion-boardroom-mini-row small,
+.aion-boardroom-trace-row small {
+  color: #625c54;
+  line-height: 1.45;
+}
+
+
+/* Goal Engine persistent business-container projection */
+.aion-goal-engine-container-projection {
+  border: 1px solid rgba(82, 210, 170, 0.22);
+  background:
+    radial-gradient(circle at top left, rgba(82, 210, 170, 0.12), transparent 34%),
+    rgba(8, 13, 24, 0.72);
+}
+
+.aion-goal-engine-container-projection > .panel-title {
+  color: #dffdf3;
+}
+
+.aion-goal-engine-container-projection .aion-boardroom-note {
+  border: 1px solid rgba(82, 210, 170, 0.18);
+  background: rgba(82, 210, 170, 0.08);
+  color: rgba(230, 255, 248, 0.84);
+}
+
+/* AION-GOAL-ENGINE-EVIDENCE-POINTER-VIEWER-CSS-V1:START */
+.aion-boardroom-evidence-pointer-viewer {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.42);
+  display: grid;
+  gap: 10px;
+}
+
+.aion-boardroom-evidence-pointer-list {
+  display: grid;
+  gap: 10px;
+}
+
+.aion-boardroom-evidence-pointer-row {
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.34);
+  display: grid;
+  gap: 8px;
+}
+
+.aion-boardroom-evidence-pointer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aion-boardroom-evidence-pointer-head strong {
+  display: block;
+  font-size: 13px;
+}
+
+.aion-boardroom-evidence-pointer-head span {
+  display: block;
+  opacity: 0.72;
+  font-size: 12px;
+}
+
+.aion-boardroom-evidence-pointer-status {
+  border-radius: 999px;
+  padding: 3px 8px;
+  font-size: 11px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  white-space: nowrap;
+}
+
+.aion-boardroom-evidence-pointer-status.is-valid {
+  background: rgba(34, 197, 94, 0.12);
+}
+
+.aion-boardroom-evidence-pointer-status.is-blocked {
+  background: rgba(248, 113, 113, 0.12);
+}
+
+.aion-boardroom-evidence-pointer-ref {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  word-break: break-word;
+  opacity: 0.88;
+}
+
+.aion-boardroom-evidence-pointer-meta,
+.aion-boardroom-evidence-pointer-blocked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.aion-boardroom-evidence-pointer-meta span,
+.aion-boardroom-evidence-pointer-blocked span {
+  font-size: 11px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  padding: 3px 7px;
+  opacity: 0.8;
+}
+
+.aion-boardroom-evidence-pointer-details summary {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.78;
+}
+
+.aion-boardroom-evidence-pointer-details pre {
+  margin: 8px 0 0;
+  padding: 10px;
+  border-radius: 10px;
+  overflow: auto;
+  max-height: 180px;
+  background: rgba(2, 6, 23, 0.5);
+  font-size: 11px;
+}
+/* AION-GOAL-ENGINE-EVIDENCE-POINTER-VIEWER-CSS-V1:END */
+
+/* AION-GOAL-ENGINE-VARIANT-COMPARISON-CSS-V1:START */
+.aion-boardroom-variant-comparison-viewer {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.42);
+  display: grid;
+  gap: 10px;
+}
+
+.aion-boardroom-variant-evidence-row,
+.aion-boardroom-variant-score-card {
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 14px;
+  background: rgba(2, 6, 23, 0.34);
+  display: grid;
+  gap: 8px;
+}
+
+.aion-boardroom-variant-row-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.aion-boardroom-variant-row-head strong {
+  font-size: 13px;
+}
+
+.aion-boardroom-variant-row-head span {
+  font-size: 12px;
+  opacity: 0.72;
+}
+
+.aion-boardroom-variant-meta,
+.aion-boardroom-variant-blocked {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.aion-boardroom-variant-meta span,
+.aion-boardroom-variant-blocked span {
+  font-size: 11px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+  padding: 3px 7px;
+  opacity: 0.8;
+}
+
+.aion-boardroom-variant-score-list {
+  display: grid;
+  gap: 6px;
+}
+
+.aion-boardroom-variant-score-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  font-size: 12px;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(15, 23, 42, 0.42);
+}
+
+.aion-boardroom-variant-rank {
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+/* AION-GOAL-ENGINE-VARIANT-COMPARISON-CSS-V1:END */
+
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-MOUNT-AUDIT-CSS-V1:START */
+.aion-boardroom-goal-engine-visibility-audit,
+.aion-boardroom-provider-audit-panel,
+.aion-boardroom-memory-runtime-panel {
+  border: 1px solid rgba(17, 24, 39, 0.12);
+  background: rgba(255, 255, 255, 0.82);
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.aion-boardroom-provider-audit-row,
+.aion-boardroom-memory-runtime-row {
+  border: 1px solid rgba(17, 24, 39, 0.1);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 12px;
+  margin-top: 10px;
+  display: grid;
+  gap: 6px;
+}
+
+.aion-boardroom-provider-audit-row strong,
+.aion-boardroom-memory-runtime-row strong {
+  color: #111827;
+}
+
+.aion-boardroom-provider-audit-row span,
+.aion-boardroom-memory-runtime-row span {
+  color: #4b5563;
+}
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-MOUNT-AUDIT-CSS-V1:END */
+
+/* AION-GOAL-ENGINE-VISIBILITY-AUDIT-SOFTEN-V1:START */
+.aion-boardroom-goal-engine-visibility-audit {
+  background: #ffffff;
+}
+
+.aion-boardroom-goal-engine-visibility-audit section,
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-evidence-pointer-viewer,
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-variant-comparison-viewer,
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-provider-audit-panel,
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-memory-runtime-panel {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 14px;
+  color: #111827;
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-muted {
+  color: #64748b;
+}
+
+.aion-boardroom-goal-engine-visibility-audit strong,
+.aion-boardroom-goal-engine-visibility-audit b {
+  color: #0f172a;
+}
+/* AION-GOAL-ENGINE-VISIBILITY-AUDIT-SOFTEN-V1:END */
+
+
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-POLISH-V1:START */
+.aion-boardroom-goal-engine-visibility-audit {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 0;
+  padding: 18px;
+  margin-top: 18px;
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-card-title {
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 14px;
+}
+
+.aion-boardroom-evidence-pointer-viewer,
+.aion-boardroom-variant-comparison-viewer,
+.aion-boardroom-provider-audit-panel,
+.aion-boardroom-memory-runtime-panel {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 12px 0;
+  color: #111827;
+}
+
+.aion-boardroom-evidence-pointer-row,
+.aion-boardroom-variant-comparison-row,
+.aion-boardroom-provider-audit-row,
+.aion-boardroom-memory-runtime-row,
+.aion-boardroom-variant-detail-row {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  color: #111827;
+}
+
+.aion-boardroom-variant-detail-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.aion-boardroom-variant-detail-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 13px;
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-goal-engine-container-projection {
+  background: #fff;
+  color: #111827;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-goal-engine-container-projection .panel-title,
+.aion-boardroom-goal-engine-visibility-audit .aion-goal-engine-container-projection .list-item-sub {
+  color: #111827;
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-runtime-grid > div {
+  background: #f8fafc;
+  color: #111827;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-POLISH-V1:END */
+
+
+
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-POLISH-CSS-V1:START */
+.aion-boardroom-goal-engine-visibility-audit {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 0;
+  padding: 18px;
+  margin-top: 18px;
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-card-title {
+  font-size: 18px;
+  font-weight: 750;
+  letter-spacing: 0;
+  text-transform: none;
+  margin-bottom: 14px;
+}
+
+.aion-boardroom-evidence-pointer-viewer,
+.aion-boardroom-variant-comparison-viewer,
+.aion-boardroom-provider-audit-panel,
+.aion-boardroom-memory-runtime-panel {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 14px;
+  padding: 16px;
+  margin: 12px 0;
+  color: #111827;
+}
+
+.aion-boardroom-evidence-pointer-row,
+.aion-boardroom-variant-comparison-row,
+.aion-boardroom-provider-audit-row,
+.aion-boardroom-memory-runtime-row,
+.aion-boardroom-variant-detail-row {
+  background: #f8fafc;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  color: #111827;
+}
+
+.aion-boardroom-variant-detail-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.aion-boardroom-variant-detail-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  font-size: 13px;
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-goal-engine-container-projection {
+  background: #fff;
+  color: #111827;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-goal-engine-container-projection .panel-title,
+.aion-boardroom-goal-engine-visibility-audit .aion-goal-engine-container-projection .list-item-sub {
+  color: #111827;
+}
+
+.aion-boardroom-goal-engine-visibility-audit .aion-boardroom-runtime-grid > div {
+  background: #f8fafc;
+  color: #111827;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+/* AION-GOAL-ENGINE-BOARDROOM-VISIBILITY-POLISH-CSS-V1:END */
+
+
+/* AION-GOAL-ENGINE-PARENT-CHILD-ORCHESTRATION-CSS-V1:START */
+.aion-boardroom-parent-child-orchestration-panel {
+  display: grid;
+  gap: 12px;
+}
+
+.aion-boardroom-parent-child-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.aion-boardroom-parent-child-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.aion-boardroom-parent-child-head strong {
+  font-size: 13px;
+}
+
+.aion-boardroom-parent-child-head span {
+  font-size: 11px;
+  opacity: 0.82;
+}
+
+.aion-boardroom-parent-child-list {
+  display: grid;
+  gap: 8px;
+}
+
+.aion-boardroom-parent-child-row {
+  display: grid;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.aion-boardroom-parent-child-row strong {
+  font-size: 12px;
+}
+
+.aion-boardroom-parent-child-row span {
+  font-size: 11px;
+  opacity: 0.78;
+}
+/* AION-GOAL-ENGINE-PARENT-CHILD-ORCHESTRATION-CSS-V1:END */
