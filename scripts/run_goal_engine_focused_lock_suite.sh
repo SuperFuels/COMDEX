@@ -134,4 +134,6 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_gateway_settlement_readiness_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_lock.py \
   backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_store_lock.py \
+  backend/tests/workflow_capsules/test_aion_gateway_glyphchain_proof_commit_store_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py
