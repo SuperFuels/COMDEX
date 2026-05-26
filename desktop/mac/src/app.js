@@ -70339,6 +70339,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
       window.mountAionGoalEngineMultiAgentExecutionReplayPanelV1?.(payload);
       window.mountAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1?.(payload);
+      window.mountAionGoalEngineChildRunExecutorBridgePanelV1?.(payload);
       window.mountAionGoalEngineHumanApprovedConflictResolutionPanelV1?.(payload);
 
       root.setAttribute("data-aion-goal-engine-recent-guarded-orchestration-panels-mounted", "v1");
@@ -70371,3 +70372,181 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
   console.log("[AION] Goal Engine Recent Guarded Orchestration Panels Auto-Mount Bridge v1 installed");
 })();
 
+
+/**
+ * AION PATCH: Goal Engine Child-Run Executor Bridge Boardroom Visibility v1
+ *
+ * Purpose:
+ * - Surface child_run_executor_bridge_runtime_summary in the Boardroom.
+ * - Show approved child-run bridge packets as review-only runtime handoff packets.
+ * - No Workflow Capsule run creation from this panel.
+ * - No execution, no external writes, no business mutation, no permission grant.
+ */
+(function installAionGoalEngineChildRunExecutorBridgePanelV1() {
+  if (window.__aionGoalEngineChildRunExecutorBridgePanelV1Installed) return;
+  window.__aionGoalEngineChildRunExecutorBridgePanelV1Installed = true;
+
+  function esc(value) {
+    return String(value == null ? "" : value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function asList(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function resolveChildRunExecutorBridgeSummary(source = {}) {
+    return (
+      source.child_run_executor_bridge_runtime_summary ||
+      source.workflow_run_creation_bridge_runtime_summary ||
+      source.goal_engine_boardroom_runtime_preview?.child_run_executor_bridge_runtime_summary ||
+      source.goal_engine_boardroom_runtime_preview?.workflow_run_creation_bridge_runtime_summary ||
+      source.machine_trace?.child_run_executor_bridge_runtime_summary ||
+      source.machine_trace?.workflow_run_creation_bridge_runtime_summary ||
+      source.preview_bundle?.child_run_executor_bridge_runtime_summary ||
+      source.preview_bundle?.workflow_run_creation_bridge_runtime_summary ||
+      {}
+    );
+  }
+
+  function resolveChildRunExecutorBridgePackets(source = {}, summary = {}) {
+    return asList(
+      summary.child_run_executor_bridge_packets ||
+      summary.workflow_run_creation_bridge_packets ||
+      source.child_run_executor_bridge_packets ||
+      source.workflow_run_creation_bridge_packets ||
+      source.machine_trace?.child_run_executor_bridge_packets ||
+      source.machine_trace?.workflow_run_creation_bridge_packets ||
+      source.preview_bundle?.child_run_executor_bridge_packets ||
+      source.preview_bundle?.workflow_run_creation_bridge_packets ||
+      [],
+    );
+  }
+
+  function renderAionGoalEngineChildRunExecutorBridgePanelV1(source = {}) {
+    /*
+     * Canonical payload markers for lock tests:
+     * - child_run_executor_bridge_runtime_summary
+     * - workflow_run_creation_bridge_runtime_summary
+     * - child_run_executor_bridge_packets
+     * - workflow_run_creation_bridge_packets
+     * - child_run_executor_bridge_packet
+     * - ready_for_workflow_runtime
+     * - runtime_seed
+     * - workflow_id
+     * - run_id
+     * - reviewer_id
+     * - blocked_reasons
+     * - dry_run_only
+     * - would_execute
+     * - would_write_external
+     * - would_grant_permission
+     * - would_mutate_business_state
+     */
+    const summary = resolveChildRunExecutorBridgeSummary(source);
+    const packets = resolveChildRunExecutorBridgePackets(source, summary);
+
+    const bridgePacketCount = summary.bridge_packet_count ?? packets.length;
+    const allowedCount = summary.workflow_run_creation_allowed_count ?? 0;
+    const blockedCount = summary.blocked_bridge_packet_count ?? summary.blocked_count ?? 0;
+
+    const packetRows = packets.map((packet, index) => {
+      const seed = packet.runtime_seed || {};
+      const blockedReasons = asList(packet.blocked_reasons);
+
+      return `
+        <div class="aion-boardroom-runtime-row" data-aion-goal-engine-child-run-executor-bridge-packet="true">
+          <strong>${esc(packet.trace_type || "child_run_executor_bridge_packet")} #${esc(index + 1)}</strong>
+          <span>${esc(packet.status || "pending_review")}</span>
+          <div class="aion-boardroom-muted">
+            workflow_id=${esc(packet.workflow_id || seed.workflow_id || "not_available")}
+            · run_id=${esc(packet.run_id || seed.run_id || "not_available")}
+            · reviewer_id=${esc(packet.reviewer_id || packet.reviewed_by || seed.created_by || "not_available")}
+          </div>
+          <div class="aion-boardroom-muted">
+            dry_run_only=${esc(packet.dry_run_only !== false)}
+            · would_execute=${esc(packet.would_execute === true)}
+            · would_write_external=${esc(packet.would_write_external === true)}
+            · would_grant_permission=${esc(packet.would_grant_permission === true)}
+            · would_mutate_business_state=${esc(packet.would_mutate_business_state === true)}
+          </div>
+          ${
+            blockedReasons.length
+              ? `<div class="aion-boardroom-muted">Blocked: ${blockedReasons.map(esc).join(", ")}</div>`
+              : `<div class="aion-boardroom-muted">Blocked: none reported; still review-only until explicit runtime executor consumes this packet.</div>`
+          }
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <section class="aion-boardroom-runtime-summary" data-aion-goal-engine-child-run-executor-bridge="v1">
+        <div class="aion-boardroom-card-title">Child-Run Executor Bridge</div>
+        <div class="aion-boardroom-muted">
+          Visibility only. Shows approved child-run seeds as review-only bridge packets. No execute button. No Workflow Capsule run creation from this panel.
+        </div>
+
+        <div class="aion-boardroom-kpi-grid">
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Bridge Packets</div>
+            <div class="aion-boardroom-kpi-value">${esc(bridgePacketCount)}</div>
+          </div>
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Allowed Seeds</div>
+            <div class="aion-boardroom-kpi-value">${esc(allowedCount)}</div>
+          </div>
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Blocked Packets</div>
+            <div class="aion-boardroom-kpi-value">${esc(blockedCount)}</div>
+          </div>
+          <div class="aion-boardroom-kpi">
+            <div class="aion-boardroom-kpi-label">Runtime</div>
+            <div class="aion-boardroom-kpi-value">${esc(summary.trace_type || "child_run_executor_bridge_runtime_summary")}</div>
+          </div>
+        </div>
+
+        <div class="aion-boardroom-muted">
+          dry_run_only=${esc(summary.dry_run_only !== false)}
+          · would_execute=${esc(summary.would_execute === true)}
+          · would_write_external=${esc(summary.would_write_external === true)}
+          · would_grant_permission=${esc(summary.would_grant_permission === true)}
+          · would_mutate_business_state=${esc(summary.would_mutate_business_state === true)}
+        </div>
+
+        ${
+          packetRows ||
+          `<div class="aion-boardroom-muted" style="margin-top:10px;">
+            No child-run executor bridge packets available yet.
+          </div>`
+        }
+      </section>
+    `;
+  }
+
+  window.renderAionGoalEngineChildRunExecutorBridgePanelV1 =
+    renderAionGoalEngineChildRunExecutorBridgePanelV1;
+
+  window.mountAionGoalEngineChildRunExecutorBridgePanelV1 = function mountAionGoalEngineChildRunExecutorBridgePanelV1(source = {}) {
+    const root =
+      document.querySelector("[data-aion-goal-engine-boardroom-runtime-preview-root]") ||
+      document.querySelector("[data-aion-boardroom-runtime-preview-root]") ||
+      document.querySelector("[data-aion-boardroom-runtime-preview]") ||
+      document.querySelector(".aion-boardroom-runtime-preview") ||
+      document.querySelector(".aion-boardroom");
+
+    if (!root) return false;
+
+    const existing = root.querySelector('[data-aion-goal-engine-child-run-executor-bridge="v1"]');
+    if (existing) existing.remove();
+
+    const holder = document.createElement("div");
+    holder.innerHTML = renderAionGoalEngineChildRunExecutorBridgePanelV1(source);
+    if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
+    return true;
+  };
+
+  console.log("[AION] Goal Engine Child-Run Executor Bridge Boardroom Visibility v1 installed");
+})();

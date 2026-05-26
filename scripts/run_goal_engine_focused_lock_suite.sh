@@ -100,6 +100,7 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge.py \
   backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_preview_bundle_attachment.py \
+  backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_boardroom_ui_lock.py \
   backend/tests/workflow_capsules/test_goal_engine_child_run_executor_bridge_preview_bundle_attachment_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_child_run_creation_end_to_end_lock.py \
   backend/tests/workflow_capsules/test_goal_engine_child_run_creation_end_to_end_lock_doc.py \

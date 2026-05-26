@@ -19,6 +19,7 @@ def test_recent_guarded_orchestration_auto_mount_calls_recent_panels():
     text = _text()
     assert "mountAionGoalEngineMultiAgentExecutionReplayPanelV1?.(payload)" in text
     assert "mountAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1?.(payload)" in text
+    assert "mountAionGoalEngineChildRunExecutorBridgePanelV1?.(payload)" in text
     assert "mountAionGoalEngineHumanApprovedConflictResolutionPanelV1?.(payload)" in text
 
 
