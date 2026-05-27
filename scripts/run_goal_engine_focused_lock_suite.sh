@@ -156,4 +156,6 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_live_payload_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_mount_ui_lock.py \
   backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_mount_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_bridge_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_bridge_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py

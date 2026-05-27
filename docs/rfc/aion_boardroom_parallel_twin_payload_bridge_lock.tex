@@ -1,0 +1,128 @@
+\section{Phase 9D --- Boardroom Parallel Twin Live Payload Bridge v0}
+\label{sec:aion-boardroom-parallel-twin-payload-bridge-v0}
+
+\subsection{Status}
+
+Phase 9D locks the safe frontend bridge for mounting the Boardroom Parallel Twin live payload object.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Boardroom Parallel Twin live payload bridge is read-only and frontend-visible as a bridge renderer.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 9B created the backend live payload. Phase 9C created the frontend payload mount renderer.
+
+Phase 9D adds a bridge object that lets the Boardroom receive a payload object and render it through \texttt{renderBoardroomParallelTwinPayloadMountV0}.
+
+The bridge is still visibility-only. It does not fetch a public API, expose a public route, execute workflows, create bookings, create payments, create escrow, or send external messages.
+
+\subsection{Implemented Surface}
+
+The bridge is installed in:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The bridge installer is:
+
+\begin{verbatim}
+installBoardroomParallelTwinPayloadBridgeV0
+\end{verbatim}
+
+The renderer is:
+
+\begin{verbatim}
+renderBoardroomParallelTwinPayloadBridgeV0
+\end{verbatim}
+
+The browser export is:
+
+\begin{verbatim}
+window.renderBoardroomParallelTwinPayloadBridgeV0
+\end{verbatim}
+
+The in-browser payload slot is:
+
+\begin{verbatim}
+window.__aionBoardroomParallelTwinPayloadV0
+\end{verbatim}
+
+The safe setter is:
+
+\begin{verbatim}
+window.__aionSetBoardroomParallelTwinPayloadV0
+\end{verbatim}
+
+\subsection{Fallback Behaviour}
+
+If no backend payload has been mounted, the bridge emits a safe Home Fixed fallback payload.
+
+The fallback uses:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+status = preview_unavailable
+payload_hash = preview_unavailable
+\end{verbatim}
+
+The fallback still includes the locked payload sections:
+
+\begin{itemize}
+  \item \texttt{machine\_catalog}
+  \item \texttt{machine\_cart}
+  \item \texttt{quote\_preview}
+  \item \texttt{fulfilment\_job\_preview}
+  \item \texttt{settlement\_readiness}
+  \item \texttt{proof\_receipt}
+  \item \texttt{exception\_recovery}
+  \item \texttt{machine\_trace\_preview}
+  \item \texttt{safety}
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The bridge MUST remain read-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route.
+\end{itemize}
+
+The bridge MUST NOT expose a live execute button.
+
+\subsection{Frontend Visibility Note}
+
+Phase 9D makes the bridge function available to the frontend runtime.
+
+It does not yet guarantee that the bridge is mounted into the primary visible Boardroom render path. That is the next step if the panel is not already visible in the running app.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_payload_bridge_ui_lock.py
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-PARALLEL-TWIN-PAYLOAD-BRIDGE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

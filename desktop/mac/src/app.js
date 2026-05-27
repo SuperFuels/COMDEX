@@ -70726,3 +70726,136 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
   console.log("[AION] Boardroom Parallel Twin UI Payload Mount v0 installed");
 })();
+
+
+/* AION LOCK: Boardroom Parallel Twin Live Payload Bridge v0 */
+(function installBoardroomParallelTwinPayloadBridgeV0() {
+  if (window.__aionBoardroomParallelTwinPayloadBridgeV0Installed) {
+    return;
+  }
+  window.__aionBoardroomParallelTwinPayloadBridgeV0Installed = true;
+
+  function buildBoardroomParallelTwinFallbackPayloadV0() {
+    return {
+      ok: true,
+      status: "preview_unavailable",
+      payload: {
+        contract_version: "aion.boardroom_parallel_twin_payload.v0.1",
+        payload_version: "aion.boardroom_parallel_twin_payload.v0.1",
+        status: "preview_unavailable",
+        business_id: "home_fixed",
+        business_name: "Home Fixed",
+        vertical_key: "home_repair",
+        job_id: "home_fixed_job_preview_unavailable",
+        visibility_only: true,
+        human_review_required: true,
+        autonomous_execution_allowed: false,
+        public_a2a_route_exposed: false,
+        dry_run_status: "preview_unavailable",
+        machine_catalog: { status: "Static fallback: backend payload not mounted yet" },
+        machine_cart: { status: "Static fallback: backend payload not mounted yet" },
+        quote_preview: { status: "Static fallback: backend payload not mounted yet" },
+        fulfilment_job_preview: { status: "Static fallback: backend payload not mounted yet" },
+        settlement_readiness: { status: "Static fallback: backend payload not mounted yet" },
+        proof_receipt: { status: "Static fallback: backend payload not mounted yet" },
+        exception_recovery: {
+          ok: true,
+          status: "no_active_exception",
+          human_review_required: true,
+          autonomous_execution_allowed: false
+        },
+        machine_trace_preview: { status: "Static fallback: backend payload not mounted yet" },
+        safety: {
+          visibility_only: true,
+          human_review_required: true,
+          autonomous_execution_allowed: false,
+          would_execute_workflow: false,
+          would_create_booking: false,
+          would_move_money: false,
+          would_move_pho: false,
+          would_require_wallet: false,
+          would_create_payment: false,
+          would_create_escrow: false,
+          would_send_external_message: false,
+          public_a2a_route_exposed: false
+        },
+        payload_hash: "preview_unavailable"
+      },
+      payload_hash: "preview_unavailable"
+    };
+  }
+
+  window.__aionBoardroomParallelTwinPayloadV0 =
+    window.__aionBoardroomParallelTwinPayloadV0 || buildBoardroomParallelTwinFallbackPayloadV0();
+
+  window.__aionSetBoardroomParallelTwinPayloadV0 = function setBoardroomParallelTwinPayloadV0(payload) {
+    if (!payload || typeof payload !== "object") {
+      window.__aionBoardroomParallelTwinPayloadV0 = buildBoardroomParallelTwinFallbackPayloadV0();
+      return window.__aionBoardroomParallelTwinPayloadV0;
+    }
+
+    const wrapped = payload.payload ? payload : { ok: true, status: "preview_ready", payload };
+    const inner = wrapped.payload || {};
+
+    inner.safety = {
+      visibility_only: true,
+      human_review_required: true,
+      autonomous_execution_allowed: false,
+      would_execute_workflow: false,
+      would_create_booking: false,
+      would_move_money: false,
+      would_move_pho: false,
+      would_require_wallet: false,
+      would_create_payment: false,
+      would_create_escrow: false,
+      would_send_external_message: false,
+      public_a2a_route_exposed: false,
+      ...(inner.safety || {})
+    };
+
+    inner.visibility_only = true;
+    inner.human_review_required = true;
+    inner.autonomous_execution_allowed = false;
+    inner.public_a2a_route_exposed = false;
+
+    window.__aionBoardroomParallelTwinPayloadV0 = {
+      ...wrapped,
+      payload: inner
+    };
+
+    return window.__aionBoardroomParallelTwinPayloadV0;
+  };
+
+  function renderBoardroomParallelTwinPayloadBridgeV0(payload) {
+    const source = payload || window.__aionBoardroomParallelTwinPayloadV0 || buildBoardroomParallelTwinFallbackPayloadV0();
+
+    if (typeof window.renderBoardroomParallelTwinPayloadMountV0 === "function") {
+      return window.renderBoardroomParallelTwinPayloadMountV0(source);
+    }
+
+    const inner = source.payload || source || {};
+    return `
+      <section class="panel boardroom-parallel-twin-payload-bridge-v0" data-aion-lock="boardroom-parallel-twin-payload-bridge-v0">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow">AION Parallel Business Infrastructure</div>
+            <h3>Home Fixed Parallel Twin Bridge</h3>
+          </div>
+          <span class="status-pill">Visibility only</span>
+        </div>
+        <div class="list-item">
+          <strong>Static fallback</strong>
+          <p>${inner.business_name || "Home Fixed"} · ${inner.business_id || "home_fixed"} · ${inner.vertical_key || "home_repair"}</p>
+          <p>Payload Hash: ${inner.payload_hash || "preview_unavailable"}</p>
+        </div>
+        <div class="notice warning">
+          Bridge is read-only. No live execute control is exposed. Human review remains required.
+        </div>
+      </section>
+    `;
+  }
+
+  window.renderBoardroomParallelTwinPayloadBridgeV0 = renderBoardroomParallelTwinPayloadBridgeV0;
+
+  console.log("[AION] Boardroom Parallel Twin Live Payload Bridge v0 installed");
+})();
