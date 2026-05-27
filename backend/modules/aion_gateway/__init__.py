@@ -101,3 +101,20 @@ from backend.modules.aion_gateway.exceptions import (
     build_exception_state_for_machine_trace,
     example_home_fixed_exception_preview,
 )
+
+
+from backend.modules.aion_gateway.home_fixed_vertical import (
+    HOME_FIXED_VERTICAL_VERSION,
+    build_home_fixed_parallel_profile,
+    build_home_fixed_machine_catalog,
+    build_home_fixed_machine_cart_request,
+    build_home_fixed_quote_preview,
+    build_home_fixed_fulfilment_job_preview,
+    build_home_fixed_provider_assignment_preview,
+    build_home_fixed_job_timeline_preview,
+    build_home_fixed_evidence_completion_preview,
+    build_home_fixed_settlement_readiness_preview,
+    build_home_fixed_job_proof_hash,
+    build_home_fixed_machine_trace_preview,
+    run_home_fixed_vertical_dry_run,
+)
