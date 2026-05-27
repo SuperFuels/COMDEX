@@ -131,3 +131,12 @@ from backend.modules.aion_gateway.trust_reputation import (
     build_business_trust_summary,
     build_home_fixed_trust_summary_fixture,
 )
+
+from backend.modules.aion_gateway.a2a_api import (
+    A2A_API_VERSION,
+    A2A_ALLOWED_PREVIEW_ENDPOINTS,
+    A2AEndpointPreview,
+    build_a2a_endpoint_preview,
+    build_guarded_a2a_namespace_preview,
+    build_a2a_namespace_summary,
+)
