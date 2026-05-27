@@ -71252,3 +71252,192 @@ ${safeJson(safety)}
 
   console.log("[AION] Boardroom Founder Override Preview Controls v0 installed");
 })();
+
+
+/* AION LOCK: Boardroom Trust Summary Visibility v0 */
+(function installBoardroomTrustSummaryVisibilityV0() {
+  if (window.__aionBoardroomTrustSummaryVisibilityV0Installed) {
+    return;
+  }
+  window.__aionBoardroomTrustSummaryVisibilityV0Installed = true;
+
+  function escapeTrustSummaryV0(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function defaultBoardroomTrustSummaryPayloadV0() {
+    return {
+      ok: true,
+      status: "trust_summary_ready",
+      contract_version: "aion.trust_reputation.v0.1",
+      trust_summary: {
+        contract_version: "aion.trust_reputation.v0.1",
+        business_id: "home_fixed",
+        business_name: "Home Fixed",
+        vertical_key: "home_repair",
+        verified_completed_jobs: 2,
+        disputed_jobs: 1,
+        cancelled_jobs: 1,
+        failed_jobs: 1,
+        average_response_minutes: 44.33,
+        average_completion_hours: 7.5,
+        evidence_backed_completion_rate: 1.0,
+        proof_commitment_rate: 1.0,
+        proof_verification_success_rate: 0.6667,
+        quote_reliability_rate: 0.6667,
+        recovery_success_rate: 0.5,
+        trust_summary_hash: "preview_unavailable",
+        explainability_notes: [
+          "Trust summary is explainable and derived from job-level preview records.",
+          "Verified completions require evidence-backed completion and proof verification.",
+          "GlyphChain proves what happened; fiat remains the default settlement rail.",
+          "Visibility only. No public ranking is exposed."
+        ],
+        visibility_only: true,
+        human_review_required: true,
+        public_a2a_exposed: false,
+        no_public_ranking: true,
+        safety: {
+          visibility_only: true,
+          human_review_required: true,
+          public_a2a_exposed: false,
+          no_public_ranking: true,
+          would_create_booking: false,
+          would_move_money: false,
+          would_move_pho: false,
+          would_create_payment: false,
+          would_create_escrow: false,
+          would_send_external_message: false
+        }
+      },
+      trust_summary_hash: "preview_unavailable"
+    };
+  }
+
+  window.__aionBoardroomTrustSummaryV0 =
+    window.__aionBoardroomTrustSummaryV0 || defaultBoardroomTrustSummaryPayloadV0();
+
+  window.__aionSetBoardroomTrustSummaryV0 = function setBoardroomTrustSummaryV0(payload) {
+    const fallback = defaultBoardroomTrustSummaryPayloadV0();
+    const wrapped = payload && typeof payload === "object" ? payload : fallback;
+    const summary = wrapped.trust_summary || wrapped.summary || wrapped;
+
+    summary.visibility_only = true;
+    summary.human_review_required = true;
+    summary.public_a2a_exposed = false;
+    summary.no_public_ranking = true;
+    summary.safety = {
+      visibility_only: true,
+      human_review_required: true,
+      public_a2a_exposed: false,
+      no_public_ranking: true,
+      would_create_booking: false,
+      would_move_money: false,
+      would_move_pho: false,
+      would_create_payment: false,
+      would_create_escrow: false,
+      would_send_external_message: false,
+      ...(summary.safety || {})
+    };
+
+    window.__aionBoardroomTrustSummaryV0 = {
+      ok: wrapped.ok !== false,
+      status: wrapped.status || "trust_summary_ready",
+      contract_version: wrapped.contract_version || summary.contract_version || "aion.trust_reputation.v0.1",
+      trust_summary: summary,
+      trust_summary_hash: wrapped.trust_summary_hash || summary.trust_summary_hash || "preview_unavailable"
+    };
+
+    return window.__aionBoardroomTrustSummaryV0;
+  };
+
+  function ratePercent(value) {
+    const n = Number(value || 0);
+    return `${Math.round(n * 1000) / 10}%`;
+  }
+
+  function metricCard(label, value) {
+    return `
+      <div class="list-item">
+        <strong>${escapeTrustSummaryV0(label)}</strong>
+        <p>${escapeTrustSummaryV0(value)}</p>
+      </div>
+    `;
+  }
+
+  function renderBoardroomTrustSummaryVisibilityV0(input) {
+    const wrapped = input || window.__aionBoardroomTrustSummaryV0 || defaultBoardroomTrustSummaryPayloadV0();
+    const summary = wrapped.trust_summary || wrapped.summary || wrapped || {};
+    const notes = Array.isArray(summary.explainability_notes) ? summary.explainability_notes : [];
+
+    return `
+      <section class="panel boardroom-trust-summary-visibility-v0" data-aion-lock="boardroom-trust-summary-visibility-v0">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow">AION Trust + Reputation</div>
+            <h3>Home Fixed Trust Summary</h3>
+          </div>
+          <span class="status-pill">Visibility only</span>
+        </div>
+
+        <div class="grid two-col">
+          ${metricCard("Business ID", summary.business_id || "home_fixed")}
+          ${metricCard("Business Name", summary.business_name || "Home Fixed")}
+          ${metricCard("Vertical", summary.vertical_key || "home_repair")}
+          ${metricCard("Trust Summary Hash", summary.trust_summary_hash || wrapped.trust_summary_hash || "preview_unavailable")}
+        </div>
+
+        <div class="grid three-col">
+          ${metricCard("Verified Completed Jobs", summary.verified_completed_jobs ?? 0)}
+          ${metricCard("Disputed Jobs", summary.disputed_jobs ?? 0)}
+          ${metricCard("Cancelled Jobs", summary.cancelled_jobs ?? 0)}
+          ${metricCard("Failed Jobs", summary.failed_jobs ?? 0)}
+          ${metricCard("Average Response", `${summary.average_response_minutes ?? "n/a"} min`)}
+          ${metricCard("Average Completion", `${summary.average_completion_hours ?? "n/a"} hrs`)}
+          ${metricCard("Evidence-backed Completion", ratePercent(summary.evidence_backed_completion_rate))}
+          ${metricCard("Proof Commitment", ratePercent(summary.proof_commitment_rate))}
+          ${metricCard("Proof Verification", ratePercent(summary.proof_verification_success_rate))}
+          ${metricCard("Quote Reliability", ratePercent(summary.quote_reliability_rate))}
+          ${metricCard("Recovery Success", ratePercent(summary.recovery_success_rate))}
+          ${metricCard("Human Review", summary.human_review_required === false ? "Not required" : "Required")}
+        </div>
+
+        <div class="list-item">
+          <strong>Explainability Notes</strong>
+          <ul>
+            ${notes.map((note) => `<li>${escapeTrustSummaryV0(note)}</li>`).join("") || "<li>Trust summary is explainable and visibility-only.</li>"}
+          </ul>
+        </div>
+
+        <div class="notice warning">
+          No public ranking is exposed. This panel is read-only and does not create bookings, move money,
+          move PHO, create payment, create escrow, send external messages, or expose public A2A access.
+        </div>
+
+        <script type="application/json" data-aion-safety="boardroom-trust-summary-visibility-v0">
+          ${JSON.stringify({
+            visibility_only: true,
+            human_review_required: true,
+            public_a2a_exposed: false,
+            no_public_ranking: true,
+            would_create_booking: false,
+            would_move_money: false,
+            would_move_pho: false,
+            would_create_payment: false,
+            would_create_escrow: false,
+            would_send_external_message: false
+          })}
+        </script>
+      </section>
+    `;
+  }
+
+  window.renderBoardroomTrustSummaryVisibilityV0 = renderBoardroomTrustSummaryVisibilityV0;
+
+  console.log("[AION] Boardroom Trust Summary Visibility v0 installed");
+})();
