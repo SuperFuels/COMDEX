@@ -70859,3 +70859,124 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
   console.log("[AION] Boardroom Parallel Twin Live Payload Bridge v0 installed");
 })();
+
+
+/* AION LOCK: Boardroom Parallel Twin Visible Render Path v0 */
+(function installBoardroomParallelTwinVisibleRenderPathV0() {
+  if (window.__aionBoardroomParallelTwinVisibleRenderPathV0Installed) {
+    return;
+  }
+  window.__aionBoardroomParallelTwinVisibleRenderPathV0Installed = true;
+
+  const VISIBLE_RENDER_PATH_SAFETY_V0 = {
+    visibility_only: true,
+    human_review_required: true,
+    autonomous_execution_allowed: false,
+    would_execute_workflow: false,
+    would_create_booking: false,
+    would_move_money: false,
+    would_move_pho: false,
+    would_require_wallet: false,
+    would_create_payment: false,
+    would_create_escrow: false,
+    would_send_external_message: false,
+    public_a2a_route_exposed: false
+  };
+
+  function renderBoardroomParallelTwinVisibleRenderPathV0(payload) {
+    const source = payload || window.__aionBoardroomParallelTwinPayloadV0 || null;
+
+    const bridgeHtml =
+      typeof window.renderBoardroomParallelTwinPayloadBridgeV0 === "function"
+        ? window.renderBoardroomParallelTwinPayloadBridgeV0(source)
+        : `
+          <section class="panel boardroom-parallel-twin-visible-render-path-v0" data-aion-lock="boardroom-parallel-twin-visible-render-path-v0">
+            <div class="panel-header">
+              <div>
+                <div class="eyebrow">AION Parallel Business Infrastructure</div>
+                <h3>Home Fixed Parallel Twin</h3>
+              </div>
+              <span class="status-pill">Visibility only</span>
+            </div>
+            <div class="list-item">
+              <strong>Parallel Twin</strong>
+              <p>Home Fixed · home_fixed · home_repair</p>
+              <p>Machine Trace and payload bridge are waiting for the Phase 9D bridge renderer.</p>
+            </div>
+            <div class="notice warning">
+              Read-only visible render path. Human review remains required.
+            </div>
+          </section>
+        `;
+
+    return `
+      <div class="boardroom-parallel-twin-visible-render-path-v0" data-aion-lock="boardroom-parallel-twin-visible-render-path-v0">
+        ${bridgeHtml}
+        <script type="application/json" data-aion-safety="boardroom-parallel-twin-visible-render-path-v0">
+          ${JSON.stringify(VISIBLE_RENDER_PATH_SAFETY_V0)}
+        </script>
+      </div>
+    `;
+  }
+
+  function findBoardroomParallelTwinMountTargetV0(root) {
+    const scope = root || document;
+
+    const selectors = [
+      "[data-aion-boardroom]",
+      "[data-boardroom-root]",
+      "#boardroom",
+      "#boardroom-root",
+      ".boardroom",
+      ".boardroom-root",
+      ".boardroom-content",
+      ".app-main",
+      "main"
+    ];
+
+    for (const selector of selectors) {
+      const target = scope.querySelector ? scope.querySelector(selector) : null;
+      if (target) {
+        return target;
+      }
+    }
+
+    return document.body || null;
+  }
+
+  function mountBoardroomParallelTwinVisibleRenderPathV0(payload, root) {
+    const target = findBoardroomParallelTwinMountTargetV0(root);
+    if (!target) {
+      return false;
+    }
+
+    let slot = target.querySelector
+      ? target.querySelector('[data-aion-lock="boardroom-parallel-twin-visible-mount-v0"]')
+      : null;
+
+    if (!slot) {
+      slot = document.createElement("div");
+      slot.setAttribute("data-aion-lock", "boardroom-parallel-twin-visible-mount-v0");
+      slot.className = "boardroom-parallel-twin-visible-mount-v0";
+      target.appendChild(slot);
+    }
+
+    slot.innerHTML = renderBoardroomParallelTwinVisibleRenderPathV0(payload);
+    return true;
+  }
+
+  window.renderBoardroomParallelTwinVisibleRenderPathV0 = renderBoardroomParallelTwinVisibleRenderPathV0;
+  window.mountBoardroomParallelTwinVisibleRenderPathV0 = mountBoardroomParallelTwinVisibleRenderPathV0;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function onBoardroomParallelTwinVisibleReady() {
+      window.mountBoardroomParallelTwinVisibleRenderPathV0();
+    });
+  } else {
+    setTimeout(function mountBoardroomParallelTwinVisibleSoon() {
+      window.mountBoardroomParallelTwinVisibleRenderPathV0();
+    }, 0);
+  }
+
+  console.log("[AION] Boardroom Parallel Twin Visible Render Path v0 installed");
+})();
