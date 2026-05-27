@@ -70633,3 +70633,96 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
   console.log("[AION] Boardroom Parallel Twin Visibility v0 installed");
 })();
+
+/* AION LOCK: Boardroom Parallel Twin UI Payload Mount v0 */
+(function installBoardroomParallelTwinPayloadMountV0() {
+  if (window.__aionBoardroomParallelTwinPayloadMountV0Installed) {
+    return;
+  }
+  window.__aionBoardroomParallelTwinPayloadMountV0Installed = true;
+
+  function safeJsonPreview(value) {
+    try {
+      if (value === undefined || value === null) return "Not available";
+      if (typeof value === "string") return value;
+      return JSON.stringify(value, null, 2);
+    } catch (_err) {
+      return "Preview unavailable";
+    }
+  }
+
+  function sectionCard(title, value) {
+    return `
+      <div class="list-item">
+        <strong>${title}</strong>
+        <pre style="white-space:pre-wrap; overflow:auto; max-height:180px; margin-top:8px;">${safeJsonPreview(value)}</pre>
+      </div>
+    `;
+  }
+
+  function renderBoardroomParallelTwinPayloadMountV0(input) {
+    const payload = input && input.payload ? input.payload : (input || {});
+    const safety = payload.safety || {};
+
+    return `
+      <section class="panel boardroom-parallel-twin-payload-mount-v0" data-aion-lock="boardroom-parallel-twin-payload-mount-v0">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow">AION Parallel Business Infrastructure</div>
+            <h3>Home Fixed Parallel Twin Live Payload</h3>
+          </div>
+          <span class="status-pill">Visibility only</span>
+        </div>
+
+        <div class="grid two-col">
+          <div class="list-item">
+            <strong>Business</strong>
+            <p>${payload.business_name || "Home Fixed"} · ${payload.business_id || "home_fixed"} · ${payload.vertical_key || "home_repair"}</p>
+          </div>
+          <div class="list-item">
+            <strong>Payload Hash</strong>
+            <p>${payload.payload_hash || "pending"}</p>
+          </div>
+        </div>
+
+        <div class="grid two-col">
+          ${sectionCard("Machine Catalog", payload.machine_catalog)}
+          ${sectionCard("Machine Cart", payload.machine_cart)}
+          ${sectionCard("Quote Preview", payload.quote_preview)}
+          ${sectionCard("FulfilmentJob", payload.fulfilment_job_preview)}
+          ${sectionCard("Settlement Readiness", payload.settlement_readiness)}
+          ${sectionCard("Proof Receipt", payload.proof_receipt)}
+          ${sectionCard("Exception Recovery", payload.exception_recovery)}
+          ${sectionCard("Machine Trace", payload.machine_trace_preview)}
+        </div>
+
+        <div class="list-item">
+          <strong>Safety Boundary</strong>
+          <pre style="white-space:pre-wrap; overflow:auto; max-height:180px; margin-top:8px;">${safeJsonPreview({
+            visibility_only: safety.visibility_only !== false,
+            human_review_required: safety.human_review_required !== false,
+            autonomous_execution_allowed: safety.autonomous_execution_allowed === true,
+            would_execute_workflow: safety.would_execute_workflow === true,
+            would_create_booking: safety.would_create_booking === true,
+            would_move_money: safety.would_move_money === true,
+            would_move_pho: safety.would_move_pho === true,
+            would_require_wallet: safety.would_require_wallet === true,
+            would_create_payment: safety.would_create_payment === true,
+            would_create_escrow: safety.would_create_escrow === true,
+            would_send_external_message: safety.would_send_external_message === true,
+            public_a2a_route_exposed: safety.public_a2a_route_exposed === true
+          })}</pre>
+        </div>
+
+        <div class="notice warning">
+          No live execute control is exposed. This mount is read-only and must not create bookings, execute workflows,
+          move money, move PHO, require a wallet, create payment, create escrow, send external messages, or expose a public A2A route.
+        </div>
+      </section>
+    `;
+  }
+
+  window.renderBoardroomParallelTwinPayloadMountV0 = renderBoardroomParallelTwinPayloadMountV0;
+
+  console.log("[AION] Boardroom Parallel Twin UI Payload Mount v0 installed");
+})();
