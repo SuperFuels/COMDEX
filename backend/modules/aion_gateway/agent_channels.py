@@ -22,7 +22,6 @@ RESERVED_ONLY_CHANNELS = {
     "agent_phone",
     "whatsapp",
     "embedded_chat",
-    "supplier_email",
     "booking_inbox",
 }
 
