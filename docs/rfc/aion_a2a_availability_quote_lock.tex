@@ -1,0 +1,206 @@
+\section{Phase 11C --- A2A Availability and Quote Request Preview v0}
+\label{sec:aion-a2a-availability-quote-preview-v0}
+
+\subsection{Status}
+
+Phase 11C locks the guarded A2A availability and machine cart quote request preview responses.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A availability and quote request preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 11C defines the next two machine-facing preview responses inside the guarded A2A namespace:
+
+\begin{itemize}
+  \item \texttt{business\_availability}
+  \item \texttt{machine\_cart\_quote\_request\_preview}
+\end{itemize}
+
+These responses remain universal Gateway contracts.
+
+Home Fixed is the default validation fixture only. Future verticals, including legal services, accounting services, healthcare, hospitality, property, restaurants, education, and consultancy, should use the same envelope with vertical-specific adapter rules.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_availability_quote.py
+\end{verbatim}
+
+The module defines:
+
+\begin{itemize}
+  \item \texttt{build\_business\_availability\_preview}
+  \item \texttt{validate\_machine\_cart\_quote\_request\_preview}
+  \item \texttt{build\_machine\_cart\_quote\_request\_preview}
+  \item \texttt{build\_a2a\_availability\_quote\_bundle}
+\end{itemize}
+
+The exported contract version is:
+
+\begin{verbatim}
+aion.a2a_availability_quote.v0.1
+\end{verbatim}
+
+\subsection{Default Fixture}
+
+The default fixture remains:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+This is not a trade-only contract.
+
+\subsection{Business Availability Preview}
+
+The \texttt{business\_availability} response advertises availability in preview-only form.
+
+The response includes:
+
+\begin{itemize}
+  \item business identity,
+  \item vertical identity,
+  \item industry identity,
+  \item timezone,
+  \item availability windows,
+  \item availability state,
+  \item vertical mapping notes,
+  \item safety flags,
+  \item \texttt{availability\_hash}.
+\end{itemize}
+
+Availability windows MUST NOT create bookings.
+
+Each window keeps:
+
+\begin{verbatim}
+booking_allowed = false
+human_review_required = true
+\end{verbatim}
+
+\subsection{Machine Cart Quote Request Preview}
+
+The \texttt{machine\_cart\_quote\_request\_preview} response accepts a machine-readable quote request shape and returns a quote preview only.
+
+Required request fields are:
+
+\begin{itemize}
+  \item \texttt{business\_id}
+  \item \texttt{vertical\_key}
+  \item \texttt{service\_id}
+  \item \texttt{requested\_outcome}
+\end{itemize}
+
+Missing required fields block the preview response.
+
+\subsection{Quote Preview Boundary}
+
+The quote preview MUST NOT create a final quote.
+
+The locked quote preview state is:
+
+\begin{verbatim}
+status = quote_preview_only
+final_quote_created = false
+quote_negotiation_enabled = false
+human_review_required = true
+pricing_mode = requires_human_review
+\end{verbatim}
+
+The next step is a future guarded approval path:
+
+\begin{verbatim}
+future_guarded_approval_path
+\end{verbatim}
+
+\subsection{Determinism}
+
+The availability response includes:
+
+\begin{verbatim}
+availability_hash
+\end{verbatim}
+
+The quote request preview response includes:
+
+\begin{verbatim}
+quote_request_hash
+\end{verbatim}
+
+The bundle response includes:
+
+\begin{verbatim}
+bundle_hash
+\end{verbatim}
+
+The hashes are deterministic for identical input and change when vertical identity changes.
+
+\subsection{Safety Boundary}
+
+The availability and quote preview responses MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item negotiate a live quote.
+\end{itemize}
+
+\subsection{Locked Safety Flags}
+
+The locked safety flags are:
+
+\begin{verbatim}
+guarded = true
+preview_only = true
+public_route_exposed = false
+requires_auth = true
+human_review_required = true
+would_execute_workflow = false
+would_create_booking = false
+would_move_money = false
+would_move_pho = false
+would_create_payment = false
+would_create_escrow = false
+would_send_external_message = false
+quote_negotiation_enabled = false
+live_booking_supported = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_a2a_availability_quote_lock.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-AVAILABILITY-QUOTE-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

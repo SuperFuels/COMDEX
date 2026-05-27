@@ -147,3 +147,11 @@ from backend.modules.aion_gateway.a2a_capabilities import (
     build_business_capabilities_preview,
     build_business_machine_catalog_preview,
 )
+
+from backend.modules.aion_gateway.a2a_availability_quote import (
+    A2A_AVAILABILITY_QUOTE_VERSION,
+    build_a2a_availability_quote_bundle,
+    build_business_availability_preview,
+    build_machine_cart_quote_request_preview,
+    validate_machine_cart_quote_request_preview,
+)
