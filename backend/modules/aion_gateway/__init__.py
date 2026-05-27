@@ -118,3 +118,9 @@ from backend.modules.aion_gateway.home_fixed_vertical import (
     build_home_fixed_machine_trace_preview,
     run_home_fixed_vertical_dry_run,
 )
+
+from backend.modules.aion_gateway.boardroom_parallel_twin_payload import (
+    BOARDROOM_PARALLEL_TWIN_PAYLOAD_VERSION,
+    build_boardroom_parallel_twin_payload,
+    build_boardroom_parallel_twin_summary,
+)
