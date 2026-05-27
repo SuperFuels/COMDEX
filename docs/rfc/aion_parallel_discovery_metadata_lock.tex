@@ -1,0 +1,150 @@
+\section{AION Parallel Discovery Metadata v0.1 Lock}
+\label{sec:aion-parallel-discovery-metadata-lock}
+
+\subsection{Status}
+
+The AION Gateway now defines an internal preview contract for the future machine-readable discovery layer of a Parallel Business Twin.
+
+\begin{quote}
+\textbf{Status: LOCKED --- internal discovery metadata only. No public route is exposed.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock defines the metadata document that future external agents will use to discover a business's machine-readable AION interface.
+
+The document is the future basis for:
+
+\begin{itemize}
+  \item \texttt{/.well-known/aion-agent},
+  \item \texttt{/.well-known/ai-agent},
+  \item machine catalog discovery,
+  \item capability discovery,
+  \item machine cart quote handshake discovery,
+  \item job trace discovery,
+  \item proof receipt discovery,
+  \item authentication and rate-limit policy discovery.
+\end{itemize}
+
+In v0.1 this remains an internal preview contract. It MUST NOT expose a public API.
+
+\subsection{Primary Module}
+
+\begin{verbatim}
+backend/modules/aion_gateway/parallel_discovery.py
+\end{verbatim}
+
+\subsection{Primary Contract}
+
+The locked builder is:
+
+\begin{verbatim}
+build_parallel_discovery_document(...)
+\end{verbatim}
+
+It returns an internal preview object containing:
+
+\begin{itemize}
+  \item \texttt{protocol\_version},
+  \item \texttt{business\_id},
+  \item \texttt{business\_name},
+  \item \texttt{vertical\_key},
+  \item \texttt{accepted\_protocol\_versions},
+  \item \texttt{endpoints},
+  \item \texttt{auth\_policy},
+  \item \texttt{rate\_limit\_policy},
+  \item \texttt{public\_route\_exposed = false},
+  \item \texttt{human\_review\_required = true},
+  \item \texttt{discovery\_hash}.
+\end{itemize}
+
+\subsection{Home Fixed Binding}
+
+The first locked discovery preview is for the Home Fixed test vertical:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+\end{verbatim}
+
+\subsection{Endpoint Placeholders}
+
+The locked discovery document includes placeholders for:
+
+\begin{itemize}
+  \item \texttt{discovery},
+  \item \texttt{ai\_agent\_discovery},
+  \item \texttt{catalog},
+  \item \texttt{capabilities},
+  \item \texttt{quote},
+  \item \texttt{trace},
+  \item \texttt{proof}.
+\end{itemize}
+
+Each endpoint placeholder MUST include:
+
+\begin{itemize}
+  \item \texttt{name},
+  \item \texttt{uri},
+  \item \texttt{method},
+  \item \texttt{public\_route\_exposed = false},
+  \item \texttt{requires\_auth = true},
+  \item \texttt{description}.
+\end{itemize}
+
+\subsection{Hashing Rule}
+
+The \texttt{discovery\_hash} is computed from deterministic JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+The hash MUST be stable for identical discovery payloads.
+
+Changing the business identity or endpoint metadata MUST change the \texttt{discovery\_hash}.
+
+\subsection{Safety Boundary}
+
+This lock is internal and preview-only.
+
+The discovery layer MUST NOT:
+
+\begin{itemize}
+  \item expose \texttt{/.well-known/aion-agent},
+  \item expose \texttt{/.well-known/ai-agent},
+  \item create a public A2A API,
+  \item create a booking,
+  \item create a payment,
+  \item create escrow,
+  \item execute the Goal Engine,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item grant permissions.
+\end{itemize}
+
+\subsection{Strategic Role}
+
+This module is the discovery skin of the AION Parallel Business Infrastructure.
+
+The human website remains for humans. The AION discovery document becomes the future machine-readable entry point for consumer agents, supplier agents, and other business agents.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_parallel_discovery_metadata_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PARALLEL-DISCOVERY-METADATA-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
