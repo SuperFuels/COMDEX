@@ -162,4 +162,6 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_visible_render_path_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_panel_polish_ui_lock.py \
   backend/tests/workflow_capsules/test_aion_boardroom_parallel_twin_panel_polish_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_boardroom_founder_override_preview_controls_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_boardroom_founder_override_preview_controls_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py

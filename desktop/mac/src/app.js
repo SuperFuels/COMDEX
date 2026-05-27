@@ -71116,3 +71116,139 @@ ${safeJson(safety)}
 
   console.log("[AION] Boardroom Parallel Twin Panel Polish v0 installed");
 })();
+
+
+/* AION LOCK: Boardroom Founder Override Preview Controls v0 */
+(function installBoardroomFounderOverridePreviewControlsV0() {
+  if (window.__aionBoardroomFounderOverridePreviewControlsV0Installed) {
+    return;
+  }
+  window.__aionBoardroomFounderOverridePreviewControlsV0Installed = true;
+
+  const FOUNDER_OVERRIDE_PREVIEW_ACTIONS_V0 = [
+    {
+      action_type: "approve",
+      label: "Approve",
+      route_hint: "future_guarded_approval_path",
+      disabled: true
+    },
+    {
+      action_type: "reject",
+      label: "Reject",
+      route_hint: "future_guarded_approval_path",
+      disabled: true
+    },
+    {
+      action_type: "request_evidence",
+      label: "Request Evidence",
+      route_hint: "future_guarded_approval_path",
+      disabled: true
+    },
+    {
+      action_type: "escalate",
+      label: "Escalate",
+      route_hint: "future_guarded_approval_path",
+      disabled: true
+    },
+    {
+      action_type: "pause",
+      label: "Pause",
+      route_hint: "future_guarded_approval_path",
+      disabled: true
+    }
+  ];
+
+  function escapeFounderOverridePreviewV0(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function renderFounderOverridePreviewButtonV0(action) {
+    return `
+      <button
+        class="secondary-button"
+        type="button"
+        disabled
+        aria-disabled="true"
+        data-aion-preview-action="${escapeFounderOverridePreviewV0(action.action_type)}"
+        data-aion-route-hint="${escapeFounderOverridePreviewV0(action.route_hint)}"
+        title="Preview only — routes to future guarded approval path"
+      >
+        ${escapeFounderOverridePreviewV0(action.label)}
+      </button>
+    `;
+  }
+
+  function renderBoardroomFounderOverridePreviewControlsV0(input) {
+    const source = input || window.__aionBoardroomParallelTwinPayloadV0 || {};
+    const payload = source.payload || source || {};
+    const safety = {
+      visibility_only: true,
+      human_review_required: true,
+      autonomous_execution_allowed: false,
+      would_execute_workflow: false,
+      would_create_booking: false,
+      would_move_money: false,
+      would_move_pho: false,
+      would_require_wallet: false,
+      would_create_payment: false,
+      would_create_escrow: false,
+      would_send_external_message: false,
+      public_a2a_route_exposed: false,
+      ...(payload.safety || {})
+    };
+
+    return `
+      <section class="panel boardroom-founder-override-preview-controls-v0" data-aion-lock="boardroom-founder-override-preview-controls-v0">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow">Founder Override</div>
+            <h3>Preview Controls</h3>
+          </div>
+          <span class="status-pill">Preview only</span>
+        </div>
+
+        <div class="notice warning">
+          These controls are disabled. They do not execute workflows, create bookings, move money,
+          move PHO, require a wallet, create payment, create escrow, send external messages, or expose a public A2A route.
+          Future actions must route through <code>future_guarded_approval_path</code>.
+        </div>
+
+        <div class="button-row" data-aion-founder-preview-actions="true">
+          ${FOUNDER_OVERRIDE_PREVIEW_ACTIONS_V0.map(renderFounderOverridePreviewButtonV0).join("")}
+        </div>
+
+        <div class="grid two-col">
+          <div class="list-item">
+            <strong>Business</strong>
+            <p>${escapeFounderOverridePreviewV0(payload.business_id || "home_fixed")}</p>
+          </div>
+          <div class="list-item">
+            <strong>Job</strong>
+            <p>${escapeFounderOverridePreviewV0(payload.job_id || "home_fixed_job_preview_unavailable")}</p>
+          </div>
+          <div class="list-item">
+            <strong>Human Review</strong>
+            <p>${safety.human_review_required === false ? "not required" : "required"}</p>
+          </div>
+          <div class="list-item">
+            <strong>Route</strong>
+            <p>future_guarded_approval_path</p>
+          </div>
+        </div>
+
+        <script type="application/json" data-aion-safety="boardroom-founder-override-preview-controls-v0">
+          ${escapeFounderOverridePreviewV0(JSON.stringify(safety))}
+        </script>
+      </section>
+    `;
+  }
+
+  window.renderBoardroomFounderOverridePreviewControlsV0 = renderBoardroomFounderOverridePreviewControlsV0;
+
+  console.log("[AION] Boardroom Founder Override Preview Controls v0 installed");
+})();

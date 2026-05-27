@@ -1,0 +1,126 @@
+\section{Phase 9F --- Founder Override Preview Controls v0}
+\label{sec:aion-boardroom-founder-override-preview-controls-v0}
+
+\subsection{Status}
+
+Phase 9F adds disabled founder override preview controls to the Boardroom.
+
+\begin{quote}
+\textbf{Status: LOCKED --- pending validation, focused suite membership, commit, and push.}
+\end{quote}
+
+\subsection{Purpose}
+
+The purpose of this lock is to show the future founder control path without allowing live execution.
+
+The controls provide a preview of the approval actions that will later route through a guarded approval path.
+
+\subsection{Implemented Surface}
+
+The implementation lives in:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The installer is:
+
+\begin{verbatim}
+installBoardroomFounderOverridePreviewControlsV0
+\end{verbatim}
+
+The renderer is:
+
+\begin{verbatim}
+renderBoardroomFounderOverridePreviewControlsV0
+\end{verbatim}
+
+The browser export is:
+
+\begin{verbatim}
+window.renderBoardroomFounderOverridePreviewControlsV0
+\end{verbatim}
+
+\subsection{Preview Actions}
+
+The locked preview action vocabulary is:
+
+\begin{itemize}
+  \item \texttt{approve},
+  \item \texttt{reject},
+  \item \texttt{request\_evidence},
+  \item \texttt{escalate},
+  \item \texttt{pause}.
+\end{itemize}
+
+All controls are disabled and marked preview-only.
+
+\subsection{Future Route}
+
+Each preview action points to:
+
+\begin{verbatim}
+future_guarded_approval_path
+\end{verbatim}
+
+No action is allowed to execute until the guarded approval path is implemented and locked.
+
+\subsection{Safety Boundary}
+
+The founder override preview controls MUST NOT:
+
+\begin{itemize}
+  \item execute workflows,
+  \item create bookings,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item expose a public A2A route.
+\end{itemize}
+
+\subsection{Safety Flags}
+
+The render path preserves:
+
+\begin{verbatim}
+visibility_only = true
+human_review_required = true
+autonomous_execution_allowed = false
+would_execute_workflow = false
+would_create_booking = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_send_external_message = false
+public_a2a_route_exposed = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_boardroom_founder_override_preview_controls_ui_lock.py
+\end{verbatim}
+
+Desktop JavaScript syntax validation:
+
+\begin{verbatim}
+node -c desktop/mac/src/app.js
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-BOARDROOM-FOUNDER-OVERRIDE-PREVIEW-CONTROLS-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
