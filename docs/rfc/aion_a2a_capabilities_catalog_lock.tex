@@ -1,0 +1,182 @@
+\section{Phase 11B --- A2A Business Capabilities and Machine Catalog Preview v0}
+\label{sec:aion-a2a-capabilities-catalog-preview-v0}
+
+\subsection{Status}
+
+Phase 11B locks the first business capabilities and machine catalog preview responses for the guarded A2A API layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A business capabilities and machine catalog preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 11A reserved the guarded A2A namespace.
+
+Phase 11B defines the first two machine-facing preview responses inside that namespace:
+
+\begin{itemize}
+  \item \texttt{business\_capabilities}
+  \item \texttt{business\_machine\_catalog}
+\end{itemize}
+
+These responses are universal Gateway contracts.
+
+Home Fixed is used only as the default validation fixture. The contract MUST NOT be hardcoded as a trade-only system.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_capabilities.py
+\end{verbatim}
+
+The module defines:
+
+\begin{itemize}
+  \item \texttt{build\_business\_capabilities\_preview}
+  \item \texttt{build\_business\_machine\_catalog\_preview}
+  \item \texttt{build\_a2a\_capabilities\_catalog\_bundle}
+\end{itemize}
+
+The exported contract version is:
+
+\begin{verbatim}
+aion.a2a_capabilities.v0.1
+\end{verbatim}
+
+\subsection{Universal Gateway Boundary}
+
+The A2A Gateway remains universal.
+
+The default fixture is:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+Future verticals, such as legal services or accounting services, should replace the vertical adapter and catalog items while preserving the same universal response envelope.
+
+\subsection{Business Capabilities Preview}
+
+The \texttt{business\_capabilities} response advertises:
+
+\begin{itemize}
+  \item business identity,
+  \item vertical identity,
+  \item industry identity,
+  \item capability profile,
+  \item service categories,
+  \item accepted protocols,
+  \item authentication requirements,
+  \item request schema,
+  \item quote schema,
+  \item evidence schema,
+  \item settlement schema,
+  \item trust schema.
+\end{itemize}
+
+The preview advertises accepted protocols:
+
+\begin{verbatim}
+aion.a2a.preview.v0
+aion.machine_cart.preview.v0
+aion.proof_receipt.preview.v0
+\end{verbatim}
+
+\subsection{Machine Catalog Preview}
+
+The \texttt{business\_machine\_catalog} response advertises a machine-readable service catalog.
+
+The Home Fixed fixture includes example catalog items for:
+
+\begin{itemize}
+  \item general home repair,
+  \item inspection and quote,
+  \item completion evidence.
+\end{itemize}
+
+These are validation fixtures only.
+
+The catalog envelope is universal and can later be filled by legal, accounting, healthcare, hospitality, property, or any other vertical adapter.
+
+\subsection{Authentication Boundary}
+
+The preview records:
+
+\begin{verbatim}
+requires_auth = true
+mode = api_key_or_signed_agent_preview
+production_auth_enforced = false
+\end{verbatim}
+
+This phase does not implement production authentication.
+
+\subsection{Determinism}
+
+The capabilities response includes:
+
+\begin{verbatim}
+capabilities_hash
+\end{verbatim}
+
+The machine catalog response includes:
+
+\begin{verbatim}
+catalog_hash
+\end{verbatim}
+
+The bundle response includes:
+
+\begin{verbatim}
+bundle_hash
+\end{verbatim}
+
+The hashes are deterministic for identical input and change when vertical identity changes.
+
+\subsection{Safety Boundary}
+
+The capabilities and catalog previews MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item create a booking,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages.
+\end{itemize}
+
+The previews are guarded and preview-only.
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_a2a_capabilities_catalog_lock.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-CAPABILITIES-CATALOG-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson

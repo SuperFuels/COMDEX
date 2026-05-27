@@ -140,3 +140,10 @@ from backend.modules.aion_gateway.a2a_api import (
     build_guarded_a2a_namespace_preview,
     build_a2a_namespace_summary,
 )
+
+from backend.modules.aion_gateway.a2a_capabilities import (
+    A2A_CAPABILITIES_VERSION,
+    build_a2a_capabilities_catalog_bundle,
+    build_business_capabilities_preview,
+    build_business_machine_catalog_preview,
+)
