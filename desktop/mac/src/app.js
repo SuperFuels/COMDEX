@@ -70980,3 +70980,139 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
   console.log("[AION] Boardroom Parallel Twin Visible Render Path v0 installed");
 })();
+
+
+/* AION LOCK: Boardroom Parallel Twin Panel Polish v0 */
+(function installBoardroomParallelTwinPanelPolishV0() {
+  if (window.__aionBoardroomParallelTwinPanelPolishV0Installed) {
+    return;
+  }
+  window.__aionBoardroomParallelTwinPanelPolishV0Installed = true;
+
+  function safeJson(value) {
+    try {
+      return JSON.stringify(value || {}, null, 2);
+    } catch (_err) {
+      return "{}";
+    }
+  }
+
+  function valueOrFallback(value, fallback) {
+    return value === undefined || value === null || value === "" ? fallback : value;
+  }
+
+  function proofStatus(payload) {
+    const proof = payload.proof_receipt || {};
+    if (proof.verified === true) return "verified";
+    if (proof.ok === true && proof.status) return proof.status;
+    if (proof.status) return proof.status;
+    return "not verified";
+  }
+
+  function exceptionStatus(payload) {
+    const exception = payload.exception_recovery || {};
+    return exception.status || "no_active_exception";
+  }
+
+  function renderSummaryCard(label, value) {
+    return `
+      <div class="list-item boardroom-parallel-twin-summary-card">
+        <strong>${label}</strong>
+        <p>${valueOrFallback(value, "—")}</p>
+      </div>
+    `;
+  }
+
+  function renderSection(title, value) {
+    return `
+      <details class="list-item boardroom-parallel-twin-polish-section" open>
+        <summary><strong>${title}</strong></summary>
+        <pre style="white-space:pre-wrap;overflow:auto;max-height:260px;">${safeJson(value)}</pre>
+      </details>
+    `;
+  }
+
+  function renderBoardroomParallelTwinPanelPolishV0(input) {
+    const wrapped = input || window.__aionBoardroomParallelTwinPayloadV0 || {};
+    const payload = wrapped.payload || wrapped || {};
+    const safety = {
+      visibility_only: true,
+      human_review_required: true,
+      autonomous_execution_allowed: false,
+      would_execute_workflow: false,
+      would_create_booking: false,
+      would_move_money: false,
+      would_move_pho: false,
+      would_require_wallet: false,
+      would_create_payment: false,
+      would_create_escrow: false,
+      would_send_external_message: false,
+      public_a2a_route_exposed: false,
+      ...(payload.safety || {})
+    };
+
+    return `
+      <section class="panel boardroom-parallel-twin-panel-polish-v0" data-aion-lock="boardroom-parallel-twin-panel-polish-v0">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow">AION Parallel Business Infrastructure</div>
+            <h3>Home Fixed Parallel Twin</h3>
+          </div>
+          <span class="status-pill">Visibility only</span>
+        </div>
+
+        <div class="eyebrow">Summary Cards</div>
+        <div class="grid four-col">
+          ${renderSummaryCard("Business ID", payload.business_id || "home_fixed")}
+          ${renderSummaryCard("Job ID", payload.job_id)}
+          ${renderSummaryCard("Vertical", payload.vertical_key || "home_repair")}
+          ${renderSummaryCard("Payload Hash", payload.payload_hash)}
+          ${renderSummaryCard("Human Review", String(payload.human_review_required !== false))}
+          ${renderSummaryCard("Proof Status", proofStatus(payload))}
+          ${renderSummaryCard("Exception State", exceptionStatus(payload))}
+          ${renderSummaryCard("Status", payload.status || wrapped.status || "preview_ready")}
+        </div>
+
+        <div class="grid two-col">
+          ${renderSection("Machine Catalog", payload.machine_catalog)}
+          ${renderSection("Machine Cart", payload.machine_cart)}
+          ${renderSection("Quote Preview", payload.quote_preview)}
+          ${renderSection("Fulfilment Job", payload.fulfilment_job_preview)}
+          ${renderSection("Settlement Readiness", payload.settlement_readiness)}
+          ${renderSection("Proof Receipt", payload.proof_receipt)}
+          ${renderSection("Exception Recovery", payload.exception_recovery)}
+          ${renderSection("Machine Trace", payload.machine_trace_preview)}
+        </div>
+
+        <div class="notice warning">
+          This panel is read-only. No live execute button is exposed. It does not create bookings,
+          move money, move PHO, require a wallet, create payment, create escrow, send external messages,
+          or expose a public A2A route.
+        </div>
+
+        <script type="application/json" data-aion-safety="boardroom-parallel-twin-panel-polish-v0">
+${safeJson(safety)}
+        </script>
+      </section>
+    `;
+  }
+
+  window.renderBoardroomParallelTwinPanelPolishV0 = renderBoardroomParallelTwinPanelPolishV0;
+
+  const previousVisibleRenderer = window.renderBoardroomParallelTwinVisibleRenderPathV0;
+  window.renderBoardroomParallelTwinVisibleRenderPathV0 = function renderBoardroomParallelTwinVisibleRenderPathWithPolishV0(payload) {
+    if (typeof window.renderBoardroomParallelTwinPanelPolishV0 === "function") {
+      return window.renderBoardroomParallelTwinPanelPolishV0(
+        payload || window.__aionBoardroomParallelTwinPayloadV0
+      );
+    }
+
+    if (typeof previousVisibleRenderer === "function") {
+      return previousVisibleRenderer(payload);
+    }
+
+    return "";
+  };
+
+  console.log("[AION] Boardroom Parallel Twin Panel Polish v0 installed");
+})();
