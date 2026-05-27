@@ -70550,3 +70550,86 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
   console.log("[AION] Goal Engine Child-Run Executor Bridge Boardroom Visibility v1 installed");
 })();
+
+/* AION LOCK: Boardroom Parallel Twin Visibility v0
+   Safe placeholder panel for AION Parallel Business Infrastructure.
+   Visibility only. No live execution, no booking, no payment, no escrow.
+*/
+(function installBoardroomParallelTwinVisibilityV0() {
+  if (window.__aionBoardroomParallelTwinVisibilityV0Installed) return;
+  window.__aionBoardroomParallelTwinVisibilityV0Installed = true;
+
+  window.__aionBoardroomParallelTwinVisibilityV0 = {
+    title: "Parallel Twin",
+    business: "Home Fixed",
+    verticalTestbed: "Home Fixed Vertical Testbed",
+    panels: [
+      "Machine Catalog",
+      "Machine Cart",
+      "Quote Preview",
+      "Fulfilment Job Preview",
+      "Evidence Preview",
+      "Settlement Readiness",
+      "Proof Receipt",
+      "Proof Verification",
+      "Exception Recovery",
+      "Machine Trace"
+    ],
+    safety: {
+      visibilityOnly: true,
+      humanReviewRequired: true,
+      wouldCreateBooking: false,
+      wouldExecuteGoalEngine: false,
+      wouldMoveMoney: false,
+      wouldMovePHO: false,
+      wouldRequireWallet: false,
+      wouldCreatePayment: false,
+      wouldCreateEscrow: false,
+      wouldSendExternalMessage: false,
+      publicA2ARouteExposed: false
+    }
+  };
+
+  function renderBoardroomParallelTwinVisibilityV0() {
+    return `
+      <section class="panel boardroom-parallel-twin-panel" data-aion-lock="boardroom-parallel-twin-v0">
+        <div class="panel-header">
+          <div>
+            <div class="eyebrow">AION Parallel Business Infrastructure</div>
+            <h3>Parallel Twin</h3>
+          </div>
+          <span class="status-pill">Visibility only</span>
+        </div>
+
+        <div class="grid two-col">
+          <div class="list-item">
+            <strong>Home Fixed</strong>
+            <p>Home Fixed Vertical Testbed for machine-readable service flow validation.</p>
+          </div>
+          <div class="list-item">
+            <strong>Machine Trace</strong>
+            <p>Compact internal A2A trace preview showing what external agents will eventually inspect.</p>
+          </div>
+        </div>
+
+        <div class="grid two-col">
+          <div class="list-item"><strong>Machine Catalog</strong><p>Service catalog summary and supported repair categories.</p></div>
+          <div class="list-item"><strong>Machine Cart</strong><p>Agent-readable quote handshake preview.</p></div>
+          <div class="list-item"><strong>Quote Preview</strong><p>Deterministic fiat-first quote preview.</p></div>
+          <div class="list-item"><strong>Settlement Readiness</strong><p>Fiat-first payment readiness state, not money movement.</p></div>
+          <div class="list-item"><strong>Proof Receipt</strong><p>GlyphChain proof receipt lookup and verification status.</p></div>
+          <div class="list-item"><strong>Exception Recovery</strong><p>Human-reviewed recovery options for operational failures.</p></div>
+        </div>
+
+        <div class="notice warning">
+          No live execute button is exposed. Human review remains required. This panel does not create bookings,
+          move money, create payment, create escrow, send messages, or expose a public A2A route.
+        </div>
+      </section>
+    `;
+  }
+
+  window.renderBoardroomParallelTwinVisibilityV0 = renderBoardroomParallelTwinVisibilityV0;
+
+  console.log("[AION] Boardroom Parallel Twin Visibility v0 installed");
+})();
