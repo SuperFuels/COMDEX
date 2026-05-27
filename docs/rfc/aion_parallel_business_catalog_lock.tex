@@ -1,0 +1,120 @@
+\section{AION Parallel Business Catalog v0.1 Lock}
+\label{sec:aion-parallel-business-catalog-lock}
+
+\subsection{Status}
+
+The AION Gateway now defines the first internal Parallel Business Twin catalog contract for Home Fixed.
+
+\begin{quote}
+\textbf{Status: LOCKED --- internal catalog preview only. No public route, no booking, no payment, no escrow, and no live Goal Engine execution.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Parallel Business Catalog is the machine-readable twin of a real business.
+
+For humans, the normal website remains the primary surface. For agents, the catalog becomes the structured operational surface that describes what the business can do, where it operates, what evidence is required, and what safety boundaries apply.
+
+The first live testbed business is:
+
+\begin{quote}
+\textbf{Home Fixed} --- home repair and building work across Almeria / Murcia.
+\end{quote}
+
+\subsection{Implementation Files}
+
+\begin{itemize}
+  \item \texttt{backend/modules/aion\_gateway/parallel\_catalog.py}
+  \item \texttt{backend/tests/workflow\_capsules/test\_aion\_parallel\_business\_catalog\_lock.py}
+  \item \texttt{docs/rfc/aion\_parallel\_business\_catalog\_lock.tex}
+\end{itemize}
+
+\subsection{Core Contract}
+
+The catalog protocol version is:
+
+\begin{verbatim}
+aion.parallel_business.v0.1
+\end{verbatim}
+
+The locked catalog fields include:
+
+\begin{itemize}
+  \item \texttt{protocol\_version}
+  \item \texttt{business\_id}
+  \item \texttt{business\_name}
+  \item \texttt{vertical\_key}
+  \item \texttt{service\_areas}
+  \item \texttt{services}
+  \item \texttt{accepted\_channels}
+  \item \texttt{availability\_summary}
+  \item \texttt{proof\_required}
+  \item \texttt{settlement\_mode}
+  \item \texttt{human\_review\_required}
+  \item \texttt{catalog\_hash}
+\end{itemize}
+
+\subsection{Home Fixed Initial Service Catalog}
+
+The first catalog preview includes the following service keys:
+
+\begin{itemize}
+  \item \texttt{general\_home\_repair}
+  \item \texttt{roof\_leak\_repair}
+  \item \texttt{painting\_decorating}
+  \item \texttt{pergola\_canopy\_repair}
+\end{itemize}
+
+These are not final marketplace categories. They are the first stable machine-readable service keys for testing the Home Fixed operational twin.
+
+\subsection{Hashing Rule}
+
+The catalog hash is computed from deterministic JSON:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"))
+hashlib.sha256(...)
+\end{verbatim}
+
+The hash is order-independent for service dictionary output.
+
+Changing service data MUST change the \texttt{catalog\_hash}.
+
+\subsection{Safety Boundary}
+
+This lock is internal and preview-only.
+
+The catalog MUST NOT:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a payment,
+  \item create escrow,
+  \item expose a public route,
+  \item execute the Goal Engine,
+  \item grant permission,
+  \item move PHO, token, wallet value, or fiat.
+\end{itemize}
+
+\subsection{Strategic Role}
+
+This module establishes the first concrete layer of the AION Parallel Business Infrastructure.
+
+AION is positioned as the machine-readable operating twin provider for real-world businesses. The human website remains intact, while the AION-hosted twin provides structured machine access for future agent-to-agent commerce.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_parallel_business_catalog_lock.py
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PARALLEL-BUSINESS-CATALOG-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
