@@ -73,3 +73,18 @@ from backend.modules.aion_gateway.glyphchain_proof_commit import (
     preview_job_proof_commit,
     verify_aion_proof_commitment,
 )
+
+try:
+    from .agent_channels import (
+        AGENT_CHANNEL_PROTOCOL_VERSION,
+        SUPPORTED_AGENT_CHANNELS,
+        AgentChannel,
+        AgentInboxMessage,
+        AgentChannelRoutingResult,
+        list_agent_channels,
+        build_agent_inbox_message,
+        preview_agent_channel_message,
+    )
+except Exception:
+    pass
+
