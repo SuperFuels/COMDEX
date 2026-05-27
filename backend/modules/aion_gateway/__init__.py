@@ -15,6 +15,11 @@ from backend.modules.aion_gateway.fulfilment_job import (
 )
 
 __all__ = [
+    "validate_a2a_job_request_preview",
+    "build_a2a_job_request_trace_bundle",
+    "build_a2a_job_trace_preview",
+    "build_a2a_job_request_preview",
+    "A2A_JOB_TRACE_VERSION",
     "GatewayPreviewResult",
     "NormalizedInboundIntent",
     "FulfilmentJobPreview",
@@ -154,4 +159,12 @@ from backend.modules.aion_gateway.a2a_availability_quote import (
     build_business_availability_preview,
     build_machine_cart_quote_request_preview,
     validate_machine_cart_quote_request_preview,
+)
+
+from .a2a_job_trace import (
+    A2A_JOB_TRACE_VERSION,
+    build_a2a_job_request_preview,
+    build_a2a_job_trace_preview,
+    build_a2a_job_request_trace_bundle,
+    validate_a2a_job_request_preview,
 )

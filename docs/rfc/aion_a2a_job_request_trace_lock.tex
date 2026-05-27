@@ -1,0 +1,233 @@
+\section{Phase 11D --- A2A Job Request and Trace Preview v0}
+\label{sec:aion-a2a-job-request-trace-preview-v0}
+
+\subsection{Status}
+
+Phase 11D locks the guarded A2A job request preview and job trace preview contracts.
+
+\begin{quote}
+\textbf{Status: LOCKED --- A2A job request and trace preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 11D adds the next machine-facing preview layer inside the guarded A2A Gateway.
+
+It covers:
+
+\begin{itemize}
+  \item \texttt{job\_request\_preview}
+  \item \texttt{job\_trace}
+\end{itemize}
+
+The job request preview allows an external agent to submit a structured job request for preview validation.
+
+The job trace preview allows an external agent to inspect the non-live trace state of that request.
+
+This is not live execution. It does not create a final job, workflow run, booking, payment, escrow, or external message.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/a2a_job_trace.py
+\end{verbatim}
+
+The module defines:
+
+\begin{itemize}
+  \item \texttt{A2A\_JOB\_TRACE\_VERSION}
+  \item \texttt{validate\_a2a\_job\_request\_preview}
+  \item \texttt{build\_a2a\_job\_request\_preview}
+  \item \texttt{build\_a2a\_job\_trace\_preview}
+  \item \texttt{build\_a2a\_job\_request\_trace\_bundle}
+\end{itemize}
+
+The exported contract version is:
+
+\begin{verbatim}
+aion.a2a_job_trace.v0.1
+\end{verbatim}
+
+\subsection{Universal Boundary}
+
+The contract is universal Gateway infrastructure.
+
+Home Fixed remains the default validation fixture:
+
+\begin{verbatim}
+business_id = home_fixed
+business_name = Home Fixed
+vertical_key = home_repair
+industry_key = trades
+\end{verbatim}
+
+The same contract must later support legal, ecommerce, healthcare, hospitality, property, accounting, consultancy, and other verticals through vertical adapters.
+
+\subsection{Job Request Preview}
+
+The job request preview endpoint is reserved as:
+
+\begin{verbatim}
+POST /api/aion/a2a/{business_id}/job_request_preview
+\end{verbatim}
+
+Required request fields are:
+
+\begin{itemize}
+  \item \texttt{business\_id}
+  \item \texttt{vertical\_key}
+  \item \texttt{requested\_outcome}
+\end{itemize}
+
+The request preview includes:
+
+\begin{itemize}
+  \item business identity,
+  \item vertical identity,
+  \item requested outcome,
+  \item source channel,
+  \item customer location,
+  \item preferred time window,
+  \item budget hint,
+  \item evidence requirements,
+  \item risk flags,
+  \item validation result,
+  \item job request hash,
+  \item safety flags.
+\end{itemize}
+
+\subsection{Job Request Boundary}
+
+The job request preview is explicitly non-live.
+
+The locked fields are:
+
+\begin{verbatim}
+final_job_created = false
+workflow_run_created = false
+booking_created = false
+human_review_required = true
+next_step = future_guarded_approval_path
+\end{verbatim}
+
+\subsection{Job Trace Preview}
+
+The job trace preview endpoint is reserved as:
+
+\begin{verbatim}
+GET /api/aion/a2a/{business_id}/job_trace
+\end{verbatim}
+
+The trace preview includes:
+
+\begin{itemize}
+  \item job identifier,
+  \item current stage,
+  \item trace events,
+  \item human review state,
+  \item blocked reasons,
+  \item trace hash,
+  \item safety flags.
+\end{itemize}
+
+The locked trace stage is:
+
+\begin{verbatim}
+current_stage = waiting_human_review
+live_status_polling_enabled = false
+human_review_required = true
+\end{verbatim}
+
+\subsection{Determinism}
+
+The job request preview includes:
+
+\begin{verbatim}
+job_request_hash
+\end{verbatim}
+
+The job trace preview includes:
+
+\begin{verbatim}
+trace_hash
+\end{verbatim}
+
+The combined bundle includes:
+
+\begin{verbatim}
+bundle_hash
+\end{verbatim}
+
+Hashes MUST remain deterministic for identical input and MUST change when the requested outcome changes.
+
+\subsection{Safety Boundary}
+
+The job request and trace preview contracts MUST NOT:
+
+\begin{itemize}
+  \item expose a public route,
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item send external messages,
+  \item enable live status polling.
+\end{itemize}
+
+\subsection{Locked Safety Flags}
+
+The locked safety flags are:
+
+\begin{verbatim}
+guarded = true
+preview_only = true
+public_route_exposed = false
+requires_auth = true
+auth_mode = api_key_or_signed_agent_preview
+schema_versioned = true
+deterministic_response = true
+human_review_required = true
+would_execute_workflow = false
+would_create_booking = false
+would_create_live_job = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_send_external_message = false
+live_status_polling_enabled = false
+\end{verbatim}
+
+\subsection{Validation}
+
+Targeted validation:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_a2a_job_request_trace_lock.py \
+  backend/tests/workflow_capsules/test_aion_a2a_job_request_trace_lock_doc.py
+\end{verbatim}
+
+Gateway compile validation:
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-A2A-JOB-REQUEST-TRACE-v0.1
+
+Status: DRAFT
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
