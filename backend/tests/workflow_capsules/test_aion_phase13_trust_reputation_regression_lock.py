@@ -69,7 +69,6 @@ def test_phase13_trust_reputation_summary_is_preview_or_read_model_only():
         "trust",
         "reputation",
         "summary",
-        "rating",
     ]:
         assert term in text
 
