@@ -199,3 +199,11 @@ from .a2a_trust_summary import (
     build_a2a_trust_summary_endpoint_summary,
 )
 
+from .a2a_well_known_discovery import (
+    A2A_WELL_KNOWN_DISCOVERY_VERSION,
+    A2A_WELL_KNOWN_PATHS,
+    ACCEPTED_PROTOCOLS,
+    A2AWellKnownDiscoveryPreview,
+    build_well_known_discovery_preview,
+    build_well_known_discovery_summary,
+)
