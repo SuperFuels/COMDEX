@@ -74,8 +74,7 @@ def test_phase13_home_fixed_vertical_uses_real_service_language():
 
 
 def test_phase13_home_fixed_vertical_does_not_revert_to_costa_testbed():
-    combined = "
-".join(_text(path) for path in HOME_FIXED_FILES)
+    combined = "\n".join(_text(path) for path in HOME_FIXED_FILES)
 
     assert "home_fixed" in combined
     assert "home repair" in combined or "home_repair" in combined
