@@ -15,6 +15,11 @@ from backend.modules.aion_gateway.fulfilment_job import (
 )
 
 __all__ = [
+    "build_public_intent_gateway_summary",
+    "build_public_intent_gateway_preview",
+    "PublicIntentGatewayRequest",
+    "PublicIntentGatewayPreview",
+    "PUBLIC_INTENT_GATEWAY_VERSION",
     "build_a2a_proof_bundle_summary",
     "build_a2a_proof_bundle_preview",
     "build_a2a_proof_receipt_preview",
@@ -215,4 +220,13 @@ from .a2a_handshake_preview import (
     build_a2a_live_status_polling_preview,
     build_a2a_handshake_preview_bundle,
     build_a2a_handshake_preview_summary,
+)
+
+
+from .public_intent_gateway import (
+    PUBLIC_INTENT_GATEWAY_VERSION,
+    PublicIntentGatewayPreview,
+    PublicIntentGatewayRequest,
+    build_public_intent_gateway_preview,
+    build_public_intent_gateway_summary,
 )
