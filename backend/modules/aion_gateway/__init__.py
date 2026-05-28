@@ -15,6 +15,11 @@ from backend.modules.aion_gateway.fulfilment_job import (
 )
 
 __all__ = [
+    "build_a2a_proof_bundle_summary",
+    "build_a2a_proof_bundle_preview",
+    "build_a2a_proof_receipt_preview",
+    "build_a2a_proof_commitment_preview",
+    "A2A_PROOF_RECEIPT_VERSION",
     "build_a2a_job_evidence_settlement_bundle",
     "build_a2a_settlement_readiness_preview",
     "build_a2a_job_evidence_preview",
@@ -179,3 +184,12 @@ from .a2a_job_evidence_settlement import (
     build_a2a_settlement_readiness_preview,
     build_a2a_job_evidence_settlement_bundle,
 )
+
+from backend.modules.aion_gateway.a2a_proof_receipt import (
+    A2A_PROOF_RECEIPT_VERSION,
+    build_a2a_proof_commitment_preview,
+    build_a2a_proof_receipt_preview,
+    build_a2a_proof_bundle_preview,
+    build_a2a_proof_bundle_summary,
+)
+
