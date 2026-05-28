@@ -83,7 +83,7 @@ class AgentInboxMessage:
 
     def to_dict(self) -> Dict[str, Any]:
         payload = self.to_payload()
-        payload["message_hash"] = _stable_hash(payload)
+        payload["message_hash"] = _stable_hash(_message_hash_payload(payload))
         return payload
 
 
