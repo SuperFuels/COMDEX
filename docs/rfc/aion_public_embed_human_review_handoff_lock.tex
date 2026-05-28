@@ -1,0 +1,182 @@
+\section{Phase 12F --- Public Embed Human Review Handoff Preview v0}
+\label{sec:aion-public-embed-human-review-handoff-v0}
+
+\subsection{Status}
+
+Phase 12F locks the preview-only human review handoff for public website embed and widget requests.
+
+\begin{quote}
+\textbf{Status: LOCKED --- public embed human review handoff preview tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 12F sits after the public widget request mapping and guard envelope layers.
+
+It converts a guarded public embed/widget request into an internal human review package. This allows AION to preserve request context, mapping hashes, guard hashes, approval boundaries, and safety flags before any future live job path exists.
+
+This phase is backend-only and preview-only. It does not add a frontend visual, does not mount a public route, and does not create live side effects.
+
+\subsection{Implemented Module}
+
+The implementation lives in:
+
+\begin{verbatim}
+backend/modules/aion_gateway/public_embed_human_review_handoff.py
+\end{verbatim}
+
+The module exports:
+
+\begin{itemize}
+  \item \texttt{PUBLIC\_EMBED\_HUMAN\_REVIEW\_HANDOFF\_VERSION},
+  \item \texttt{SUPPORTED\_REVIEW\_DECISIONS},
+  \item \texttt{build\_public\_embed\_human\_review\_handoff\_preview},
+  \item \texttt{build\_public\_embed\_human\_review\_handoff\_summary}.
+\end{itemize}
+
+The locked contract version is:
+
+\begin{verbatim}
+aion.public_embed_human_review_handoff.v0.1
+\end{verbatim}
+
+\subsection{Review Package}
+
+The review package preserves public request context for future operator approval surfaces.
+
+It includes:
+
+\begin{itemize}
+  \item business identity,
+  \item vertical key,
+  \item widget source,
+  \item request identifier,
+  \item customer message,
+  \item requested outcome,
+  \item service key,
+  \item location,
+  \item currency,
+  \item guard status,
+  \item normalized intent hash,
+  \item machine cart request hash,
+  \item guard hash,
+  \item review queue,
+  \item review priority.
+\end{itemize}
+
+The review queue is locked as:
+
+\begin{verbatim}
+aion_public_embed_human_review
+\end{verbatim}
+
+\subsection{Supported Review Decisions}
+
+The supported review decisions are preview-only:
+
+\begin{verbatim}
+approve_preview_only
+reject_preview_only
+request_more_info_preview_only
+escalate_preview_only
+\end{verbatim}
+
+These are not live approval actions. They are placeholders for a future guarded approval path.
+
+\subsection{Approval Boundary}
+
+The approval boundary is locked as:
+
+\begin{verbatim}
+human_review_required = true
+human_review_completed = false
+approval_decision_recorded = false
+approval_can_create_live_job = false
+approval_can_execute_goal_engine = false
+approval_can_move_money = false
+approval_can_send_external_messages = false
+next_step = future_guarded_approval_path
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+Phase 12F does not:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item expose an unauthenticated public write route.
+\end{itemize}
+
+The locked safety flags are:
+
+\begin{verbatim}
+preview_only = true
+public_route_mounted = false
+unauthenticated_public_write_route_exposed = false
+would_create_booking = false
+would_create_live_job = false
+would_execute_goal_engine = false
+would_bypass_human_review = false
+would_move_money = false
+would_move_pho = false
+would_require_wallet = false
+would_create_payment = false
+would_create_escrow = false
+would_release_funds = false
+would_send_external_messages = false
+\end{verbatim}
+
+\subsection{Deterministic Hashes}
+
+The handoff preview emits deterministic hashes for drift detection and replay:
+
+\begin{itemize}
+  \item \texttt{review\_package\_hash},
+  \item \texttt{approval\_boundary\_hash},
+  \item \texttt{safety\_hash},
+  \item \texttt{response\_hash},
+  \item \texttt{summary\_hash}.
+\end{itemize}
+
+Equivalent input ordering MUST produce equivalent hashes. Meaningful request changes MUST alter the review package hash and response hash.
+
+\subsection{Frontend Smoke Test}
+
+Phase 12F does not create a new frontend visual surface.
+
+No new manual frontend smoke test is required for this phase.
+
+\subsection{Validation}
+
+Focused validation commands:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_public_embed_human_review_handoff_lock.py \
+  backend/tests/workflow_capsules/test_aion_public_embed_human_review_handoff_lock_doc.py
+\end{verbatim}
+
+The phase MUST also be added to:
+
+\begin{verbatim}
+scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PUBLIC-EMBED-HUMAN-REVIEW-HANDOFF-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
