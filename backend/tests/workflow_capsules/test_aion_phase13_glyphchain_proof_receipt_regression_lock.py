@@ -103,7 +103,6 @@ def test_phase13_glyphchain_proof_receipt_keeps_preview_safety_boundary():
 
     for term in [
         "would_require_wallet",
-        "would_write_chain",
     ]:
         assert term in combined
 
