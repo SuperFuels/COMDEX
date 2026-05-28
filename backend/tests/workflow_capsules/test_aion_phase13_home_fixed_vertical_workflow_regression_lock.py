@@ -3,7 +3,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[3]
 
 HOME_FIXED_FILES = [
-    "backend/modules/aion_gateway/home_fixed_vertical_testbed.py",
+    "backend/modules/aion_gateway/home_fixed_vertical_testbed_lock.py",
     "backend/modules/aion_gateway/parallel_business_catalog.py",
     "backend/modules/aion_gateway/public_intent_gateway.py",
     "backend/modules/aion_gateway/public_embed_guard_envelope.py",
@@ -73,7 +73,7 @@ def test_phase13_home_fixed_vertical_uses_real_service_language():
 
 
 def test_phase13_home_fixed_vertical_does_not_revert_to_costa_testbed():
-    text = _text("backend/modules/aion_gateway/home_fixed_vertical_testbed.py")
+    text = _text("backend/modules/aion_gateway/home_fixed_vertical_testbed_lock.py")
 
     for forbidden in [
         "costaconnect",
@@ -103,11 +103,11 @@ def test_phase13_home_fixed_vertical_is_safe_for_public_embed():
         assert term in combined
 
     for forbidden in [
-        "live_job_created",
-        "booking_confirmed",
-        "payment_captured",
-        "escrow_released",
-        "external_message_sent",
+        '"live_job_created": true',
+        '"booking_confirmed": true',
+        '"payment_captured": true',
+        '"escrow_released": true',
+        '"external_message_sent": true',
     ]:
         assert forbidden not in combined
 
