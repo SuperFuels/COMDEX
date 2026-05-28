@@ -71441,3 +71441,175 @@ ${safeJson(safety)}
 
   console.log("[AION] Boardroom Trust Summary Visibility v0 installed");
 })();
+
+
+/* AION LOCK: Public Website Embed Widget Shell v0 */
+(function installAionPublicEmbedWidgetShellV0() {
+  if (window.__aionPublicEmbedWidgetShellV0Installed) return;
+  window.__aionPublicEmbedWidgetShellV0Installed = true;
+
+  function esc(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function safeJson(value) {
+    try {
+      return esc(JSON.stringify(value ?? {}, null, 2));
+    } catch (_) {
+      return "{}";
+    }
+  }
+
+  function defaultWidgetState(input) {
+    const src = input && typeof input === "object" ? input : {};
+    return {
+      widget_version: "aion.public_embed_widget_shell.v0.1",
+      status: "preview_only",
+      business_id: src.business_id || "home_fixed",
+      business_name: src.business_name || "Home Fixed",
+      vertical_key: src.vertical_key || "home_repair",
+      tenant_key_required: true,
+      signed_request_required: true,
+      rate_limiting_required: true,
+      abuse_protection_required: true,
+      human_review_required: true,
+      supported_surfaces: [
+        "embed_script_preview",
+        "website_form_widget_preview",
+        "website_button_widget_preview",
+        "embedded_chat_widget_preview"
+      ],
+      maps_to: {
+        human_form: "NormalizedInboundIntent",
+        widget_request: "MachineCartRequest",
+        gateway_preview: "public_intent_gateway"
+      },
+      safety: {
+        preview_only: true,
+        would_create_booking: false,
+        would_create_live_job: false,
+        would_execute_goal_engine: false,
+        would_bypass_human_review: false,
+        would_move_money: false,
+        would_move_pho: false,
+        would_require_wallet: false,
+        would_create_payment: false,
+        would_create_escrow: false,
+        would_release_funds: false,
+        would_send_external_messages: false,
+        unauthenticated_public_write_route_exposed: false
+      }
+    };
+  }
+
+  function renderAionPublicEmbedWidgetShellV0(input) {
+    const state = defaultWidgetState(input);
+
+    return `
+      <section class="panel aion-public-embed-widget-shell-v0"
+        data-aion-lock="public-embed-widget-shell-v0"
+        style="
+          display:grid;
+          gap:14px;
+          padding:18px;
+          border:1px solid rgba(148,163,184,.22);
+          border-radius:18px;
+          background:rgba(15,23,42,.72);
+          box-shadow:0 18px 48px rgba(0,0,0,.24);
+        ">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#93c5fd;">
+              Public Website Gateway
+            </div>
+            <h3 style="margin:6px 0 4px;font-size:20px;">AION Embed Widget Shell</h3>
+            <div style="color:#cbd5e1;font-size:13px;">
+              ${esc(state.business_name)} · ${esc(state.business_id)} · ${esc(state.vertical_key)}
+            </div>
+          </div>
+          <div style="
+            padding:7px 10px;
+            border-radius:999px;
+            background:rgba(251,191,36,.12);
+            border:1px solid rgba(251,191,36,.28);
+            color:#fde68a;
+            font-size:12px;
+            font-weight:700;
+          ">Preview only</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;">
+          ${state.supported_surfaces.map((surface) => `
+            <div style="
+              padding:12px;
+              border-radius:14px;
+              background:rgba(15,23,42,.58);
+              border:1px solid rgba(148,163,184,.18);
+            ">
+              <div style="font-size:12px;color:#94a3b8;">Surface</div>
+              <div style="font-size:14px;font-weight:700;color:#e5e7eb;">${esc(surface)}</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+          <div style="padding:12px;border-radius:14px;background:rgba(2,6,23,.42);border:1px solid rgba(148,163,184,.16);">
+            <div style="font-size:12px;color:#94a3b8;">Human form maps to</div>
+            <div style="font-size:14px;font-weight:700;color:#e5e7eb;">${esc(state.maps_to.human_form)}</div>
+          </div>
+          <div style="padding:12px;border-radius:14px;background:rgba(2,6,23,.42);border:1px solid rgba(148,163,184,.16);">
+            <div style="font-size:12px;color:#94a3b8;">Widget request maps to</div>
+            <div style="font-size:14px;font-weight:700;color:#e5e7eb;">${esc(state.maps_to.widget_request)}</div>
+          </div>
+          <div style="padding:12px;border-radius:14px;background:rgba(2,6,23,.42);border:1px solid rgba(148,163,184,.16);">
+            <div style="font-size:12px;color:#94a3b8;">Gateway</div>
+            <div style="font-size:14px;font-weight:700;color:#e5e7eb;">${esc(state.maps_to.gateway_preview)}</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+          <div style="padding:12px;border-radius:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);">
+            <div style="font-size:12px;color:#86efac;">Tenant key</div>
+            <div style="font-size:14px;font-weight:700;color:#dcfce7;">Required</div>
+          </div>
+          <div style="padding:12px;border-radius:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);">
+            <div style="font-size:12px;color:#86efac;">Signed request</div>
+            <div style="font-size:14px;font-weight:700;color:#dcfce7;">Required</div>
+          </div>
+          <div style="padding:12px;border-radius:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);">
+            <div style="font-size:12px;color:#86efac;">Rate limiting</div>
+            <div style="font-size:14px;font-weight:700;color:#dcfce7;">Required</div>
+          </div>
+          <div style="padding:12px;border-radius:14px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);">
+            <div style="font-size:12px;color:#86efac;">Human review</div>
+            <div style="font-size:14px;font-weight:700;color:#dcfce7;">Required</div>
+          </div>
+        </div>
+
+        <details style="border-radius:14px;border:1px solid rgba(148,163,184,.16);background:rgba(2,6,23,.36);padding:12px;">
+          <summary style="cursor:pointer;color:#e5e7eb;font-weight:700;">Safety boundary JSON</summary>
+          <pre style="white-space:pre-wrap;font-size:12px;color:#cbd5e1;margin-top:10px;">${safeJson(state.safety)}</pre>
+        </details>
+
+        <div style="
+          padding:10px 12px;
+          border-radius:14px;
+          background:rgba(239,68,68,.08);
+          border:1px solid rgba(239,68,68,.22);
+          color:#fecaca;
+          font-size:13px;
+        ">
+          No live booking, job creation, Goal Engine execution, payment, escrow, fund release, wallet requirement, PHO movement, or external message sending is exposed by this shell.
+        </div>
+      </section>
+    `;
+  }
+
+  window.renderAionPublicEmbedWidgetShellV0 = renderAionPublicEmbedWidgetShellV0;
+
+  console.log("[AION] Public Website Embed Widget Shell v0 installed");
+})();
