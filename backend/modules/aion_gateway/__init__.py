@@ -193,3 +193,9 @@ from backend.modules.aion_gateway.a2a_proof_receipt import (
     build_a2a_proof_bundle_summary,
 )
 
+from .a2a_trust_summary import (
+    A2A_TRUST_SUMMARY_CONTRACT_VERSION,
+    build_a2a_trust_summary_endpoint_preview,
+    build_a2a_trust_summary_endpoint_summary,
+)
+
