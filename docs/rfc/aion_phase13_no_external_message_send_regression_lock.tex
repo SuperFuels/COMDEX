@@ -1,0 +1,108 @@
+\section{Phase 13E --- No-External-Message-Send Regression v0}
+\label{sec:aion-phase13e-no-external-message-send-regression-v0}
+
+\subsection{Status}
+
+Phase 13E locks the no-external-message-send regression boundary for the AION
+public gateway and A2A preview surfaces.
+
+\begin{quote}
+\textbf{Status: LOCKED --- no-external-message-send regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 13E proves that public gateway, public embed, widget mapping, agent
+channel, fulfilment preview, and A2A preview modules do not send external
+messages.
+
+The locked boundary is:
+
+\begin{quote}
+AION may normalize, preview, classify, route, and package inbound/outbound
+message intent, but it MUST NOT send email, WhatsApp, SMS, supplier messages,
+customer messages, or provider messages without a future guarded approval path.
+\end{quote}
+
+\subsection{Locked Safety Boundary}
+
+The preview system MUST keep the following conditions true:
+
+\begin{itemize}
+  \item \texttt{would\_send\_external\_messages = false}
+  \item \texttt{approval\_can\_send\_external\_messages = false}
+  \item \texttt{preview\_only = true}
+  \item \texttt{human\_review\_required = true}
+  \item no live email send,
+  \item no live WhatsApp send,
+  \item no live SMS send,
+  \item no live supplier message send,
+  \item no live customer message send,
+  \item no live provider message send.
+\end{itemize}
+
+\subsection{Forbidden Live Couplings}
+
+The regression lock checks that preview gateway modules do not introduce live
+message-provider coupling terms such as:
+
+\begin{itemize}
+  \item \texttt{send\_email},
+  \item \texttt{send\_message},
+  \item \texttt{send\_whatsapp},
+  \item \texttt{send\_sms},
+  \item \texttt{smtplib},
+  \item \texttt{twilio},
+  \item \texttt{sendgrid},
+  \item \texttt{mailgun},
+  \item \texttt{postmark},
+  \item \texttt{external\_message\_provider},
+  \item \texttt{live\_message\_send}.
+\end{itemize}
+
+\subsection{Regression Scope}
+
+Phase 13E covers:
+
+\begin{itemize}
+  \item public intent gateway preview,
+  \item public widget request mapping,
+  \item public embed guard envelope,
+  \item public embed human review handoff,
+  \item agent channel preview routing,
+  \item fulfilment job preview paths,
+  \item A2A job trace preview paths,
+  \item A2A evidence and settlement preview paths,
+  \item A2A handshake preview paths.
+\end{itemize}
+
+\subsection{No Frontend Smoke Test Required}
+
+Phase 13E does not create a new frontend visual surface.
+
+No new manual frontend smoke test is required.
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_no_external_message_send_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_no_external_message_send_regression_lock_doc.py
+\end{verbatim}
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\begin{verbatim}
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13E-NO-EXTERNAL-MESSAGE-SEND-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
