@@ -100,10 +100,14 @@ def test_phase13_public_intent_gateway_is_preview_only():
     ]:
         assert term in text
 
+    # This module may contain preview/safety flags such as
+    # "would_send_external_message": false. The route regression only blocks
+    # live route mounting and live side-effect execution calls.
     for forbidden in [
         "@router.post",
         "@app.post",
-        "send_external",
+        "send_external(",
+        "send_external_message(",
         "create_live_job(",
         "execute_goal_engine(",
     ]:
