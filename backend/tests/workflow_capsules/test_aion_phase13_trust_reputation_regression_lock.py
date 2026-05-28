@@ -101,7 +101,7 @@ def test_phase13_a2a_trust_summary_endpoint_is_read_only():
         "capture_payment",
         "release_escrow",
         "create_booking(",
-        "live_status_polling_enabled": true",
+        '"live_status_polling_enabled": true',
     ]:
         assert forbidden not in text
 
