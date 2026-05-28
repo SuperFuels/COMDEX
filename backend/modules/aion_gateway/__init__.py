@@ -230,3 +230,10 @@ from .public_intent_gateway import (
     build_public_intent_gateway_preview,
     build_public_intent_gateway_summary,
 )
+
+
+from .public_widget_request_mapping import (
+    PUBLIC_WIDGET_REQUEST_MAPPING_VERSION,
+    build_public_widget_request_mapping_preview,
+    build_public_widget_request_mapping_summary,
+)
