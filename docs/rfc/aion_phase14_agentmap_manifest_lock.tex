@@ -65,3 +65,10 @@ Status: LOCKED
 Maintainer: Tessaris AI
 
 Author: Kevin Robinson
+
+
+\subsection{Deterministic Metadata Hash}
+
+The AgentMap manifest MUST expose a stable \texttt{metadata\_hash} / \texttt{metadata_hash} value for deterministic discovery and replay.
+
+The hash is computed from the canonical machine metadata payload and MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, or mutable UI state.
