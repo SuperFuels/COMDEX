@@ -83,11 +83,26 @@ def test_phase13_no_external_message_preview_flags_remain_false():
 def test_phase13_agent_channels_explicitly_blocks_external_sends():
     text = _text("backend/modules/aion_gateway/agent_channels.py").lower()
 
+    # Agent channels are preview/routing contracts only. They may describe
+    # channels, but must not import or execute live external message providers.
+    for forbidden in [
+        "smtplib",
+        "twilio",
+        "sendgrid",
+        "mailgun",
+        "postmark",
+        "messagebird",
+        "whatsapp_business_api",
+        "resend.emails.send",
+        "live_message_send",
+        "external_message_provider",
+    ]:
+        assert forbidden not in text
+
     for term in [
-        "do not send email",
-        "do not send whatsapp",
-        "do not call phone provider",
-        "do not create external side effects",
+        "preview",
+        "routing_status",
+        "blocked",
     ]:
         assert term in text
 
