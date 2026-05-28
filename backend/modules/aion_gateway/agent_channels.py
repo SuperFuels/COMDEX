@@ -36,6 +36,26 @@ def _stable_hash(payload: Dict[str, Any]) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+
+def _message_hash_payload(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Stable payload used for inbound message identity.
+
+    Runtime envelope fields must not change message_hash.
+    """
+    excluded = {
+        "message_hash",
+        "received_at_ms",
+        "created_at_ms",
+        "received_at",
+        "created_at",
+        "timestamp",
+        "timestamp_ms",
+        "trace_id",
+        "runtime_trace_id",
+    }
+    return {key: value for key, value in payload.items() if key not in excluded}
+
+
 def _now_ms() -> int:
     return int(time.time() * 1000)
 
