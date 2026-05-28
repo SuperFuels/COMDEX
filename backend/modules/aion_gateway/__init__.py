@@ -237,3 +237,16 @@ from .public_widget_request_mapping import (
     build_public_widget_request_mapping_preview,
     build_public_widget_request_mapping_summary,
 )
+
+from .public_embed_guard_envelope import (
+
+    PUBLIC_EMBED_GUARD_ENVELOPE_VERSION,
+
+    SUPPORTED_WIDGET_SOURCES,
+
+    build_public_embed_guard_envelope_preview,
+
+    build_public_embed_guard_envelope_summary,
+
+)
+
