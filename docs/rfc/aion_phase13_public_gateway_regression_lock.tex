@@ -1,0 +1,87 @@
+\section{Phase 13A --- Public Gateway Regression and Lock Integrity v0}
+\label{sec:aion-phase13-public-gateway-regression-lock-v0}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- public gateway regression and lock integrity tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 13A begins the continuous lock and regression layer for the public website gateway surface.
+
+The purpose of this phase is not to add a new public feature. The purpose is to verify that the Phase 12 public embed and gateway chain remains locked, preview-only, deterministic, and guarded.
+
+This phase covers the completed Phase 12 chain:
+
+\begin{itemize}
+  \item Phase 12A --- Public Website Intent Gateway Preview v0,
+  \item Phase 12B --- Public Website Embed Widget Shell v0,
+  \item Phase 12C --- Public Website Form/Button/Chat Widget Request Mapping v0,
+  \item Phase 12D --- Public Embed Widget Mapping Bridge v0,
+  \item Phase 12E --- Public Embed Widget Guard Envelope v0,
+  \item Phase 12F --- Public Embed Human Review Handoff Preview v0.
+\end{itemize}
+
+\subsection{Implemented Regression Test}
+
+The regression test lives in:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_phase13_public_gateway_regression_lock.py
+\end{verbatim}
+
+The test verifies that the Phase 12 backend modules still exist, that the frontend preview renderers still exist, that the Phase 12 lock documents still exist, and that all Phase 12 tests remain present in the focused lock suite.
+
+\subsection{Locked Public Gateway Boundary}
+
+Phase 13A reasserts that the public website gateway remains preview-only.
+
+The following operations remain forbidden:
+
+\begin{itemize}
+  \item create a booking,
+  \item create a live job,
+  \item execute the Goal Engine,
+  \item bypass human review,
+  \item move money,
+  \item move PHO,
+  \item require a wallet,
+  \item create a payment,
+  \item create escrow,
+  \item release funds,
+  \item send external messages,
+  \item expose an unauthenticated public write route.
+\end{itemize}
+
+\subsection{Frontend Impact}
+
+Phase 13A does not create a new frontend visual surface.
+
+No new manual frontend smoke test is required.
+
+The existing frontend-visible Phase 12B and Phase 12D preview renderers remain covered by UI lock tests.
+
+\subsection{Focused Suite Membership}
+
+Phase 13A adds the regression test itself to the focused suite.
+
+It also confirms that all Phase 12 public gateway tests remain present in the focused suite.
+
+\subsection{Repository Hygiene}
+
+The unrelated DNA switch index file must remain outside this phase unless intentionally changed:
+
+\begin{verbatim}
+backend/modules/dna_chain/dna_switch_index.json
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13-PUBLIC-GATEWAY-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
