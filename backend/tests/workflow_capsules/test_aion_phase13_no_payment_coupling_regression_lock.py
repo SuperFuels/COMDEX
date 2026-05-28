@@ -4,7 +4,7 @@ from pathlib import Path
 ROOT = Path(".")
 
 GATEWAY_MODULES = [
-    "backend/modules/aion_gateway/normalized_inbound_intent.py",
+    "backend/modules/aion_gateway/public_intent_gateway.py",
     "backend/modules/aion_gateway/fulfilment_job.py",
     "backend/modules/aion_gateway/a2a_contracts.py",
     "backend/modules/aion_gateway/evidence_proof.py",
