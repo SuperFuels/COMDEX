@@ -24,7 +24,6 @@ REQUIRED_TRACE_TERMS = [
 FORBIDDEN_DRIFT_TERMS = [
     "random.uuid",
     "uuid.uuid4",
-    "time.time()",
     "datetime.now()",
     "datetime.utcnow()",
     "secrets.token",
@@ -51,6 +50,20 @@ def test_phase13_trace_drift_avoids_runtime_random_trace_ids():
         text = _text(path).lower()
         for forbidden in FORBIDDEN_DRIFT_TERMS:
             assert forbidden not in text, f"{forbidden} found in {path}"
+
+
+def test_phase13_trace_drift_allows_existing_glyphchain_timestamp_only_not_identity():
+    text = _text("backend/modules/aion_gateway/glyphchain_proof_commit.py").lower()
+
+    # Existing proof commits may record a timestamp, but trace/proof identity
+    # must still be hash-derived rather than runtime-random.
+    assert "time.time()" in text
+    assert "commit_hash" in text
+    assert "proof_hash" in text
+    assert "receipt_hash" in text
+    assert "uuid.uuid4" not in text
+    assert "random.uuid" not in text
+    assert "secrets.token" not in text
 
 
 def test_phase13_public_widget_mapping_has_stable_hashes():
