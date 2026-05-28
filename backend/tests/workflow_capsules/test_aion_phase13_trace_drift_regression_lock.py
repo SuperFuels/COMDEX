@@ -56,9 +56,11 @@ def test_phase13_trace_drift_allows_existing_glyphchain_timestamp_only_not_ident
     text = _text("backend/modules/aion_gateway/glyphchain_proof_commit.py").lower()
 
     # Existing proof commits may record a timestamp, but trace/proof identity
-    # must still be hash-derived rather than runtime-random.
+    # must still be deterministic/hash-derived rather than runtime-random.
     assert "time.time()" in text
-    assert "commit_hash" in text
+    assert "hashlib" in text
+    assert "sha256" in text
+    assert "_stable_hash" in text
     assert "proof_hash" in text
     assert "receipt_hash" in text
     assert "uuid.uuid4" not in text
