@@ -35,7 +35,20 @@ def _candidate_files():
     files = []
     for pattern in CANDIDATE_GLOBS:
         files.extend(ROOT.glob(pattern))
-    return sorted({p for p in files if p.is_file() and "__pycache__" not in str(p)})
+
+    excluded_names = {
+        Path(__file__).name,
+        Path(__file__).name.replace("_lock.py", "_lock_doc.py"),
+    }
+
+    return sorted({
+        p
+        for p in files
+        if p.is_file()
+        and "__pycache__" not in str(p)
+        and p.name not in excluded_names
+        and "aion_phase13_" not in p.name
+    })
 
 
 def _combined_text():
