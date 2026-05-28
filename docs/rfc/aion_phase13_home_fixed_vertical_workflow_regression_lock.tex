@@ -1,0 +1,74 @@
+\section{Phase 13I --- Home Fixed Vertical Workflow Regression v0}
+\label{sec:aion-phase13i-home-fixed-vertical-workflow-regression-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- Home Fixed vertical workflow regression tests passing with focused suite membership.}
+
+This lock protects the Home Fixed vertical testbed as the live/default
+AION Parallel Business Twin and public-intent workflow regression target.
+
+\subsection{Purpose}
+
+Phase 13I verifies that the Home Fixed vertical remains the active home repair
+testbed and that public/embed/customer-facing flows remain preview-only.
+
+The regression prevents accidental drift back to older CostaConnect or generic
+directory assumptions and prevents Home Fixed workflow previews from becoming
+live booking, payment, escrow, dispatch, or external-message execution paths.
+
+\subsection{Locked Contract}
+
+The Home Fixed vertical workflow MUST:
+
+\begin{itemize}
+  \item Preserve the \texttt{home\_fixed} and \texttt{home\_repair} vertical identity.
+  \item Use real home repair/service vocabulary such as repair, quote, customer, and job.
+  \item Remain safe for public embed and public-intent preview flows.
+  \item Surface \texttt{human\_review\_required} before operational execution.
+  \item Keep booking, payment, escrow, job dispatch, and external messaging as blocked preview flags.
+  \item Avoid live provider imports for messaging, payment, booking, calendar, or dispatch systems.
+\end{itemize}
+
+\subsection{Forbidden Regression}
+
+The Home Fixed regression MUST NOT introduce:
+
+\begin{itemize}
+  \item \texttt{would\_create\_payment = true}
+  \item \texttt{would\_create\_booking = true}
+  \item \texttt{would\_create\_escrow = true}
+  \item \texttt{would\_send\_external\_message = true}
+  \item \texttt{auto\_confirm\_booking}
+  \item \texttt{auto\_dispatch\_job}
+  \item \texttt{capture\_payment}
+  \item \texttt{release\_escrow}
+  \item \texttt{send\_email}
+  \item \texttt{send\_sms}
+  \item \texttt{live\_job\_created}
+  \item \texttt{booking\_confirmed}
+  \item \texttt{payment\_captured}
+  \item \texttt{escrow\_released}
+  \item \texttt{external\_message\_sent}
+\end{itemize}
+
+\subsection{Validation Commands}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_home_fixed_vertical_workflow_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_home_fixed_vertical_workflow_regression_lock_doc.py
+
+bash scripts/run_goal_engine_focused_lock_suite.sh
+
+python -m compileall backend/modules/aion_gateway
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13I-HOME-FIXED-VERTICAL-WORKFLOW-REGRESSION-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

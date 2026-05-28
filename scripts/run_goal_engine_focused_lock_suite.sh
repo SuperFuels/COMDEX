@@ -215,4 +215,6 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase13_trace_drift_regression_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase13_trust_reputation_regression_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase13_trust_reputation_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_home_fixed_vertical_workflow_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_home_fixed_vertical_workflow_regression_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py
