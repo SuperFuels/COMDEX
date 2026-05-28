@@ -221,4 +221,12 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase13_glyphchain_proof_receipt_regression_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase13_boardroom_ui_regression_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase13_boardroom_ui_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_dynamic_pricing_hash_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_dynamic_pricing_hash_regression_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_phase13_negotiation_boundary_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_negotiation_boundary_regression_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_phase13_universal_vertical_adapter_compatibility_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_universal_vertical_adapter_compatibility_regression_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock_doc.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py
