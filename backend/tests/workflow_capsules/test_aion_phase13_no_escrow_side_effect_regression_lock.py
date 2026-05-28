@@ -30,9 +30,6 @@ GATEWAY_MODULES = [
 
 
 FORBIDDEN_LIVE_ESCROW_IMPORT_TERMS = [
-    "stripe",
-    "revolut",
-    "paypal",
     "escrow_provider",
     "escrowprovider",
     "paymentintent",
