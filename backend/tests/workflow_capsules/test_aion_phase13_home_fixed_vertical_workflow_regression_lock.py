@@ -100,11 +100,11 @@ def test_phase13_home_fixed_vertical_is_safe_for_public_embed():
         assert term in combined
 
     for forbidden in [
-        ''\"live_job_created\": true'',
-        ''\"booking_confirmed\": true'',
-        ''\"payment_captured\": true'',
-        ''\"escrow_released\": true'',
-        ''\"external_message_sent\": true'',
+        '"live_job_created": true',
+        '"booking_confirmed": true',
+        '"payment_captured": true',
+        '"escrow_released": true',
+        '"external_message_sent": true',
     ]:
         assert forbidden not in combined
 
