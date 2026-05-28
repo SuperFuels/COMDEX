@@ -71613,3 +71613,153 @@ ${safeJson(safety)}
 
   console.log("[AION] Public Website Embed Widget Shell v0 installed");
 })();
+
+
+/* AION LOCK: Public Embed Widget Mapping Bridge v0 */
+(function installAionPublicEmbedWidgetMappingBridgeV0() {
+  if (typeof window === "undefined") return;
+
+  if (window.__aionPublicEmbedWidgetMappingBridgeV0Installed) return;
+  window.__aionPublicEmbedWidgetMappingBridgeV0Installed = true;
+
+  function safeJson(value) {
+    try {
+      return JSON.stringify(value, null, 2);
+    } catch (err) {
+      return JSON.stringify({ error: "unserializable_preview" }, null, 2);
+    }
+  }
+
+  function normalizeWidgetSource(source) {
+    const raw = String(source || "").trim().toLowerCase();
+    if (raw === "form" || raw === "website_form" || raw === "website_form_widget") {
+      return "website_form_widget";
+    }
+    if (raw === "button" || raw === "website_button" || raw === "website_button_widget") {
+      return "website_button_widget";
+    }
+    if (raw === "chat" || raw === "embedded_chat" || raw === "embedded_chat_widget") {
+      return "embedded_chat_widget";
+    }
+    return "unsupported_widget_source";
+  }
+
+  function buildPublicWidgetMappingPreviewV0(input) {
+    const request = input && typeof input === "object" ? input : {};
+    const widgetSource = normalizeWidgetSource(request.widget_source || request.source || "website_form_widget");
+
+    const businessId = request.business_id || "home_fixed";
+    const businessName = request.business_name || "Home Fixed";
+    const verticalKey = request.vertical_key || "home_repair";
+
+    const normalizedIntentPreview = {
+      preview_only: true,
+      source: widgetSource,
+      business_id: businessId,
+      vertical_key: verticalKey,
+      customer_message: request.customer_message || request.message || "Preview customer request",
+      requested_outcome: request.requested_outcome || "request_quote",
+      human_review_required: true,
+    };
+
+    const machineCartRequestPreview = {
+      preview_only: true,
+      business_id: businessId,
+      vertical_key: verticalKey,
+      service_key: request.service_key || "home_repair_preview",
+      location: request.location || "preview_location",
+      requested_window: request.requested_window || "human_review_required",
+      max_fiat_price: request.max_fiat_price || null,
+      currency: request.currency || "EUR",
+      human_review_required: true,
+    };
+
+    return {
+      ok: widgetSource !== "unsupported_widget_source",
+      status: widgetSource === "unsupported_widget_source"
+        ? "unsupported_widget_source"
+        : "widget_request_mapping_preview_ready",
+      contract_version: "aion.public_embed_widget_mapping_bridge.v0.1",
+      preview_only: true,
+      widget_source: widgetSource,
+      business_id: businessId,
+      business_name: businessName,
+      vertical_key: verticalKey,
+      normalized_intent_preview: normalizedIntentPreview,
+      machine_cart_request_preview: machineCartRequestPreview,
+      safety: {
+        preview_only: true,
+        human_review_required: true,
+        would_create_booking: false,
+        would_create_live_job: false,
+        would_execute_goal_engine: false,
+        would_bypass_human_review: false,
+        would_move_money: false,
+        would_move_pho: false,
+        would_require_wallet: false,
+        would_create_payment: false,
+        would_create_escrow: false,
+        would_release_funds: false,
+        would_send_external_messages: false,
+        unauthenticated_public_write_route_exposed: false,
+      },
+    };
+  }
+
+  function renderAionPublicEmbedWidgetMappingBridgeV0(input) {
+    const preview = buildPublicWidgetMappingPreviewV0(input);
+
+    return `
+      <section class="panel aion-public-embed-widget-mapping-bridge-v0"
+        data-aion-lock="public-embed-widget-mapping-bridge-v0"
+        style="padding:16px;border-radius:18px;border:1px solid rgba(148,163,184,.35);background:#050816;color:#f8fafc;display:grid;gap:12px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <div>
+            <div style="font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd;">Public Website Gateway</div>
+            <h3 style="margin:4px 0 0;font-size:18px;">AION Embed Widget Mapping Bridge</h3>
+          </div>
+          <span style="font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(59,130,246,.16);border:1px solid rgba(96,165,250,.35);color:#bfdbfe;">Preview only</span>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+          <div style="padding:10px;border-radius:14px;background:rgba(15,23,42,.88);border:1px solid rgba(148,163,184,.2);">
+            <div style="font-size:11px;color:#94a3b8;">Business</div>
+            <div>${preview.business_name}</div>
+          </div>
+          <div style="padding:10px;border-radius:14px;background:rgba(15,23,42,.88);border:1px solid rgba(148,163,184,.2);">
+            <div style="font-size:11px;color:#94a3b8;">Widget Source</div>
+            <div>${preview.widget_source}</div>
+          </div>
+          <div style="padding:10px;border-radius:14px;background:rgba(15,23,42,.88);border:1px solid rgba(148,163,184,.2);">
+            <div style="font-size:11px;color:#94a3b8;">Status</div>
+            <div>${preview.status}</div>
+          </div>
+        </div>
+
+        <details open style="padding:10px;border-radius:14px;background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.2);">
+          <summary>NormalizedInboundIntent preview</summary>
+          <pre style="white-space:pre-wrap;font-size:12px;overflow:auto;">${safeJson(preview.normalized_intent_preview)}</pre>
+        </details>
+
+        <details open style="padding:10px;border-radius:14px;background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.2);">
+          <summary>MachineCartRequest preview</summary>
+          <pre style="white-space:pre-wrap;font-size:12px;overflow:auto;">${safeJson(preview.machine_cart_request_preview)}</pre>
+        </details>
+
+        <details style="padding:10px;border-radius:14px;background:rgba(15,23,42,.72);border:1px solid rgba(148,163,184,.2);">
+          <summary>Safety boundary</summary>
+          <pre style="white-space:pre-wrap;font-size:12px;overflow:auto;">${safeJson(preview.safety)}</pre>
+        </details>
+
+        <div style="font-size:12px;color:#cbd5e1;">
+          No live action button is exposed. Human review remains required before live job creation.
+        </div>
+      </section>
+    `;
+  }
+
+  window.buildPublicWidgetMappingPreviewV0 = buildPublicWidgetMappingPreviewV0;
+  window.renderAionPublicEmbedWidgetMappingBridgeV0 = renderAionPublicEmbedWidgetMappingBridgeV0;
+
+  console.log("[AION] Public Embed Widget Mapping Bridge v0 installed");
+})();
