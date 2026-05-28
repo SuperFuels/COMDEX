@@ -55,16 +55,16 @@ def test_phase13_trace_drift_avoids_runtime_random_trace_ids():
 def test_phase13_trace_drift_allows_existing_glyphchain_timestamp_only_not_identity():
     text = _text("backend/modules/aion_gateway/glyphchain_proof_commit.py").lower()
 
-    # Existing proof commits may record a timestamp, but trace/proof identity
-    # must still be deterministic/hash-derived rather than runtime-random.
+    # Existing proof commits may record a runtime-created timestamp field,
+    # but trace/proof identity must remain deterministic/hash-derived.
     assert "time.time()" in text
-    assert "timestamp" in text
+    assert "created_at_ms" in text
     assert "proof_hash" in text
     assert "receipt_hash" in text
     assert "hash" in text
 
-    # The timestamp is allowed only as event metadata, not as a trace/proof ID
-    # generator. Runtime-random identity sources remain forbidden.
+    # Runtime timestamp is allowed only as event metadata.
+    # Runtime-random identity sources remain forbidden.
     assert "uuid.uuid4" not in text
     assert "random.uuid" not in text
     assert "secrets.token" not in text
