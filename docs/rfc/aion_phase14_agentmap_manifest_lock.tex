@@ -1,0 +1,67 @@
+\section{Phase 14A --- AgentMap Machine Metadata Manifest Lock}
+\label{sec:phase14-agentmap-manifest-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- AgentMap machine metadata manifest v0 is implemented with deterministic hashing and preview-only safety boundaries.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 14 introduces the machine-readable discovery layer for AION business twins.
+
+The AgentMap is the machine-facing equivalent of a website sitemap. A sitemap exposes human website structure to crawlers. An AgentMap exposes safe business capabilities, metadata, adapters, and discovery endpoints to external agents.
+
+\subsection{Locked Contract}
+
+The Phase 14A manifest MUST expose:
+
+\begin{itemize}
+  \item \texttt{agentmap\_version}
+  \item \texttt{business\_id}
+  \item \texttt{business\_name}
+  \item \texttt{vertical\_key}
+  \item \texttt{human\_seo\_metadata}
+  \item \texttt{machine\_a2a\_metadata}
+  \item \texttt{capabilities}
+  \item \texttt{availability}
+  \item \texttt{accepted\_protocols}
+  \item \texttt{authentication}
+  \item \texttt{metadata\_hash}
+  \item \texttt{agentmap\_hash}
+\end{itemize}
+
+Human SEO metadata and machine A2A metadata MUST remain separate.
+
+\subsection{Safety Boundary}
+
+AgentMap generation is discovery-only.
+
+It MUST NOT:
+
+\begin{itemize}
+  \item create bookings;
+  \item capture payments;
+  \item release escrow;
+  \item send email, SMS, WhatsApp, or social posts;
+  \item dispatch jobs;
+  \item perform live chain writes.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE14-AGENTMAP-MANIFEST-v0.1
+
+Status: LOCKED
+
+Maintainer: Tessaris AI
+
+Author: Kevin Robinson
