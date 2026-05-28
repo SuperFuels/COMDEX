@@ -1,0 +1,58 @@
+\section{Phase 13K Boardroom UI Regression Lock}
+\label{sec:phase13-boardroom-ui-regression-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- Boardroom UI regression tests passing with focused suite membership.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock protects the AION Boardroom UI regression surface for the Parallel Business Twin sprint.
+
+The tests make sure the Boardroom UI remains connected to the locked Home Fixed vertical context, keeps the Parallel Twin payload visible, preserves the founder override preview controls, and exposes trust summary visibility without introducing live external side effects.
+
+\subsection{Regression Boundary}
+
+The locked boundary covers:
+
+\begin{itemize}
+  \item Boardroom Parallel Twin visibility tests.
+  \item Boardroom payload mount and bridge tests.
+  \item Boardroom visible render path tests.
+  \item Boardroom panel polish tests.
+  \item Founder override preview controls.
+  \item Trust summary visibility.
+\end{itemize}
+
+\subsection{Safety Contract}
+
+The Boardroom UI MUST remain a review and visibility surface.
+
+It MUST NOT directly capture payment, release escrow, confirm bookings, send external messages, post externally, or auto-approve actions by reputation.
+
+\subsection{Validation}
+
+Validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase13_boardroom_ui_regression_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase13_boardroom_ui_regression_lock_doc.py
+\end{verbatim}
+
+Focused suite command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE13-BOARDROOM-UI-REGRESSION-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
