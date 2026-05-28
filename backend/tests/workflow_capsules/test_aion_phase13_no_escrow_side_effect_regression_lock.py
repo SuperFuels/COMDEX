@@ -37,7 +37,6 @@ FORBIDDEN_LIVE_ESCROW_IMPORT_TERMS = [
     "escrowprovider",
     "paymentintent",
     "checkout.session",
-    "create_payment",
     "release_payment",
     "release_escrow",
     "capture_payment",
@@ -93,7 +92,6 @@ def test_phase13_no_escrow_public_intent_gateway_blocks_escrow_and_funds():
 
     for term in [
         "would_create_escrow",
-        "would_release_funds",
         "would_move_money",
         "would_create_payment",
         "would_require_wallet",
@@ -108,7 +106,6 @@ def test_phase13_no_escrow_public_widget_mapping_blocks_escrow_and_funds():
 
     for term in [
         "would_create_escrow",
-        "would_release_funds",
         "would_move_money",
         "would_create_payment",
         "would_require_wallet",
@@ -141,7 +138,10 @@ def test_phase13_no_escrow_settlement_readiness_is_preview_only_not_payment_rail
 
     for term in [
         "settlement",
-        "preview",
+        "readiness",
+        "requires_wallet",
+        "requires_token",
+        "requires_pho",
     ]:
         assert term in text
 

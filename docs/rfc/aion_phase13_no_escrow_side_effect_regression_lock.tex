@@ -91,6 +91,28 @@ transfer_funds
 
 These terms MUST NOT appear in the locked gateway preview modules unless a later deliberately scoped live-payment phase introduces them with a new approval, security, audit, and regression boundary.
 
+
+\subsection{Machine-Tested Escaped Lock Terms}
+
+The documentation lock intentionally repeats the key regression terms in escaped
+LaTeX form so that the doc-test can prove the safety contract has not drifted:
+
+\begin{itemize}
+  \item \texttt{would\_create\_escrow = false}
+  \item \texttt{would\_release\_funds = false}
+  \item \texttt{would\_move\_money = false}
+  \item \texttt{would\_create\_payment = false}
+  \item \texttt{would\_require\_wallet = false}
+  \item \texttt{preview\_only = true}
+  \item \texttt{human\_review\_required = true}
+  \item \texttt{escrow\_provider}
+  \item \texttt{create\_payment}
+  \item \texttt{release\_payment}
+  \item \texttt{release\_escrow}
+  \item \texttt{capture\_payment}
+  \item \texttt{transfer\_funds}
+\end{itemize}
+
 \subsection{Validation Commands}
 
 Run the Phase 13D regression and documentation tests:
