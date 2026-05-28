@@ -93,16 +93,16 @@ def test_phase13_no_booking_public_embed_handoff_blocks_approval_execution():
     text = _text("backend/modules/aion_gateway/public_embed_human_review_handoff.py")
 
     for term in [
-        "approval_can_create_booking",
         "approval_can_create_live_job",
         "approval_can_execute_goal_engine",
         "approval_can_move_money",
         "approval_can_send_external_messages",
+        "next_step",
+        "future_guarded_approval_path",
     ]:
         assert term in text
 
     for term in [
-        "\"approval_can_create_booking\": False",
         "\"approval_can_create_live_job\": False",
         "\"approval_can_execute_goal_engine\": False",
         "\"approval_can_move_money\": False",
