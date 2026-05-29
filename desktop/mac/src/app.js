@@ -4868,6 +4868,125 @@ function renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot = {}) {
   `;
 }
 
+
+/* PHASE 14I LOCK: AgentMap frontend functional wiring batch 1 */
+function getDefaultAgentMapDashboardPreviewPayload() {
+  return {
+    dashboard_version: "aion.agentmap.dashboard.v0.1",
+    status: "ready",
+    business_id: "home_fixed",
+    business_name: "Home Fixed",
+    vertical_key: "home_repair",
+    agentmap_hash: "b1e09a730891e6cbbf093eee509ebc4eb8c012a5a59fdb40bbe0fb125c98ddbe",
+    endpoint_hash: "phase14c-endpoint-preview-bound",
+    verification_status: "verified",
+    verification_badge: "AgentMap Verified Live",
+    hosted_agentmap_url: "/agentmap.json",
+    self_hosted_agentmap_url: "/.well-known/agentmap.json",
+    install_tag: '<link rel="agentmap" type="application/json" href="/agentmap.json">',
+    generated_payload_source: "locked_dashboard_preview",
+    machine_discovery_settings: {
+      mode: "preview_only",
+      hosted_url_enabled: true,
+      self_hosted_export_enabled: true,
+      human_review_required: true,
+      live_execution_enabled: false,
+    },
+    agentmap_preview: {
+      agentmap_version: "aion.agentmap.v0.1",
+      business_id: "home_fixed",
+      business_name: "Home Fixed",
+      vertical_key: "home_repair",
+      agentmap_hash: "b1e09a730891e6cbbf093eee509ebc4eb8c012a5a59fdb40bbe0fb125c98ddbe",
+      paths: {
+        canonical: "/agentmap.json",
+        well_known: "/.well-known/agentmap.json",
+      },
+      safety_profile: {
+        preview_only: true,
+        read_only: true,
+        human_review_required: true,
+        live_execution_enabled: false,
+      },
+    },
+  };
+}
+
+function getAgentMapDashboardPreviewPayload() {
+  if (!state.agentMapDashboardPreview) {
+    state.agentMapDashboardPreview = getDefaultAgentMapDashboardPreviewPayload();
+  }
+  return state.agentMapDashboardPreview;
+}
+
+function handleGenerateAgentMapClick() {
+  state.agentMapDashboardPreview = getDefaultAgentMapDashboardPreviewPayload();
+  state.agentMapGenerated = true;
+  state.agentMapGeneratedAt = new Date().toISOString();
+  requestRender?.();
+}
+
+function renderAgentMapMachineDiscoveryPanel() {
+  const payload = getAgentMapDashboardPreviewPayload();
+  const escape =
+    typeof escapeHtml === "function"
+      ? escapeHtml
+      : (value) =>
+          String(value ?? "")
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;");
+
+  const generatedLabel = state.agentMapGenerated
+    ? `Generated ${escape(state.agentMapGeneratedAt || "")}`
+    : "Preview ready";
+
+  return `
+    <section class="panel agentmap-machine-discovery-panel" data-agentmap-dashboard="phase14i">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Machine Discovery</div>
+          <div class="panel-title">AgentMap Dashboard</div>
+          <div class="muted">Generate, verify, preview, and install the machine-readable business twin discovery file.</div>
+        </div>
+        <button
+          id="agentmapGenerateButton"
+          class="primary-button"
+          type="button"
+          onclick="handleGenerateAgentMapClick()"
+          data-agentmap-action="generate"
+        >
+          Generate AgentMap
+        </button>
+      </div>
+
+      <div class="metric-grid">
+        ${renderDashboardMetricCard("Validation", payload.verification_badge || payload.verification_status, "Phase 14D live verification")}
+        ${renderDashboardMetricCard("agentmap_hash", payload.agentmap_hash, "Deterministic discovery hash")}
+        ${renderDashboardMetricCard("Hosted URL", payload.hosted_agentmap_url, "AION-hosted discovery path")}
+        ${renderDashboardMetricCard("Self-hosted", payload.self_hosted_agentmap_url, "Website export path")}
+      </div>
+
+      <div class="list-card">
+        <div class="panel-title">Machine Discovery Settings</div>
+        <div class="muted">Mode: ${escape(payload.machine_discovery_settings?.mode || "preview_only")}</div>
+        <div class="muted">Human review required: ${String(payload.machine_discovery_settings?.human_review_required === true)}</div>
+        <div class="muted">Live execution enabled: ${String(payload.machine_discovery_settings?.live_execution_enabled === true)}</div>
+        <div class="muted">Hosted AgentMap URL: <code>${escape(payload.hosted_agentmap_url)}</code></div>
+        <div class="muted">Self-hosted export: <code>${escape(payload.self_hosted_agentmap_url)}</code></div>
+        <div class="muted">Status: ${escape(generatedLabel)}</div>
+      </div>
+
+      <div class="list-card">
+        <div class="panel-title">Generated agentmap.json Preview</div>
+        <pre id="agentmapJsonPreview" data-agentmap-preview="json">${escape(JSON.stringify(payload.agentmap_preview, null, 2))}</pre>
+      </div>
+    </section>
+  `;
+}
+/* END PHASE 14I LOCK */
+
 function renderBoardroomDashboardView(snapshot) {
   const workspace = getBoardroomWorkspace();
   const pulse = getBoardroomPulse();
@@ -4939,6 +5058,7 @@ function renderBoardroomDashboardView(snapshot) {
       ${renderAionProviderCapabilityManifestV1(snapshot)}
 
       ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
+      ${renderAgentMapMachineDiscoveryPanel()}
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
 
