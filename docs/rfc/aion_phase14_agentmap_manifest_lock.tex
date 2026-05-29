@@ -56,6 +56,14 @@ python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock.py
 \end{verbatim}
 
+
+
+\subsection{AgentMap Hash Contract}
+
+The generated machine manifest MUST expose an \texttt{agentmap\_hash} field.
+
+The \texttt{agentmap\_hash} is the deterministic integrity checksum for the public AgentMap read model. It MUST be derived only from canonical machine metadata, capability declarations, adapter declarations, safety flags, schema references, and routing identifiers. It MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, or mutable UI state.
+
 \subsection{Lock Footer}
 
 Lock ID: AION-PHASE14-AGENTMAP-MANIFEST-v0.1
