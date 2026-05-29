@@ -5059,10 +5059,73 @@ function getDefaultAgentMapDashboardPreviewPayload() {
   };
 }
 
+function normaliseAgentMapDashboardPreviewPayload(payload) {
+  const fallback = getDefaultAgentMapDashboardPreviewPayload();
+  const source = payload && typeof payload === "object" ? payload : fallback;
+
+  const agentmapJson =
+    source.agentmap_json ||
+    source.agentmap_preview ||
+    fallback.agentmap_json ||
+    fallback.agentmap_preview ||
+    {};
+
+  const safetyProfile =
+    source.safety_profile ||
+    agentmapJson.safety_profile ||
+    fallback.safety_profile ||
+    fallback.agentmap_preview?.safety_profile ||
+    {
+      preview_only: true,
+      read_only: true,
+      human_review_required: true,
+      live_execution_enabled: false,
+    };
+
+  return {
+    ...fallback,
+    ...source,
+    agentmap_json: agentmapJson,
+    agentmap_preview: agentmapJson,
+    safety_profile: safetyProfile,
+    agentmap_hash:
+      source.agentmap_hash ||
+      agentmapJson.agentmap_hash ||
+      fallback.agentmap_hash ||
+      fallback.agentmap_preview?.agentmap_hash ||
+      "preview_unavailable",
+    validation_status:
+      source.validation_status ||
+      source.verification_badge ||
+      fallback.validation_status ||
+      "AgentMap Verified Live",
+    live_verification_status:
+      source.live_verification_status ||
+      source.verification_status ||
+      fallback.live_verification_status ||
+      "Phase 14D result",
+    hosted_agentmap_url:
+      source.hosted_agentmap_url ||
+      source.paths?.canonical ||
+      agentmapJson.paths?.canonical ||
+      fallback.hosted_agentmap_url ||
+      "/agentmap.json",
+    self_hosted_agentmap_url:
+      source.self_hosted_agentmap_url ||
+      source.paths?.well_known ||
+      agentmapJson.paths?.well_known ||
+      fallback.self_hosted_agentmap_url ||
+      "/.well-known/agentmap.json",
+    install_tag:
+      source.install_tag ||
+      `<link rel="agentmap" type="application/json" href="${source.hosted_agentmap_url || agentmapJson.paths?.canonical || "/agentmap.json"}">`,
+  };
+}
+
 function getAgentMapDashboardPreviewPayload() {
-  if (!state.agentMapDashboardPreview) {
-    state.agentMapDashboardPreview = getDefaultAgentMapDashboardPreviewPayload();
-  }
+  state.agentMapDashboardPreview = normaliseAgentMapDashboardPreviewPayload(
+    state.agentMapDashboardPreview || getDefaultAgentMapDashboardPreviewPayload(),
+  );
   return state.agentMapDashboardPreview;
 }
 
