@@ -102,6 +102,16 @@ The manifest MUST expose \texttt{agentmap_hash}, \texttt{preview_only}, and \tex
 
 The \texttt{agentmap_hash} is a replay, audit, discovery, and future verification anchor only. It MUST NOT grant permission, create bookings, move money, send messages, execute workflows, or publish a public route.
 
+
+
+\subsection{Accepted Protocol Metadata}
+
+The AgentMap manifest MUST expose \texttt{accepted_protocols} as part of the machine-readable discovery contract.
+
+The \texttt{accepted_protocols} field tells external agents which preview protocol families the business supports, such as AION A2A preview, machine cart preview, proof receipt preview, and future AgentMap discovery preview.
+
+The \texttt{accepted_protocols} field is metadata only. It MUST NOT enable live negotiation, live booking, payment execution, escrow creation, external messaging, or public status polling.
+
 \subsection{Lock Footer}
 
 Lock ID: AION-PHASE14-AGENTMAP-MANIFEST-v0.1
