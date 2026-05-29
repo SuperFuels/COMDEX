@@ -186,6 +186,19 @@ Gateway compile validation:
 python -m compileall backend/modules/aion_gateway
 \end{verbatim}
 
+
+
+\subsection{Raw Contract Field Names}
+
+For documentation lock tests and machine-readable contract clarity, the raw deterministic field names are:
+
+\begin{verbatim}
+adapter_hash
+summary_hash
+\end{verbatim}
+
+These fields are deterministic replay and audit anchors only. They MUST NOT grant permissions, create bookings, create jobs, move money, create payments, create escrow, release funds, dispatch work, send external messages, or write live chain data.
+
 \subsection{Lock Footer}
 
 \bigskip
