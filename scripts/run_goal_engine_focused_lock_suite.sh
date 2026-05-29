@@ -240,5 +240,7 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase14_agentmap_synthetic_agent_simulation_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase14_agentmap_human_review_simulation_bridge_lock.py \
   backend/tests/workflow_capsules/test_aion_phase14_agentmap_human_review_simulation_bridge_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_visibility_lock.py \
   backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py
+
