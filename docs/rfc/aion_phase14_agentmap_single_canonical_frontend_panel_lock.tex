@@ -1,0 +1,54 @@
+\section{Phase 14M --- Single Canonical AgentMap Frontend Panel Lock}
+\label{sec:phase14-agentmap-single-canonical-panel-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- the stale duplicate AgentMap visibility panel is no longer mounted in the active desktop dashboard or Boardroom render paths.}
+
+\subsection{Purpose}
+
+This lock ensures that the desktop frontend shows only one AgentMap dashboard panel.
+
+The canonical panel is the newer functional AgentMap dashboard surface. It displays the generated AgentMap hash, validation state, hosted URL, self-hosted export path, machine discovery settings, install tag, and generated \texttt{agentmap.json} preview.
+
+\subsection{Removed Active Duplicate}
+
+The older visibility-only AgentMap panel may remain as a legacy renderer for historical lock visibility, but it MUST NOT be mounted in active dashboard or Boardroom render paths.
+
+The UI MUST NOT show stale undefined safety fields such as:
+
+\begin{verbatim}
+Preview only: undefined
+Human review: undefined
+\end{verbatim}
+
+\subsection{Canonical Frontend Requirements}
+
+The visible AgentMap panel MUST show:
+
+\begin{itemize}
+  \item Generate AgentMap.
+  \item Regenerate.
+  \item Copy AgentMap URL.
+  \item Download \texttt{agentmap.json}.
+  \item Copy website install tag.
+  \item Deterministic \texttt{agentmap\_hash}.
+  \item Hosted \texttt{/agentmap.json} path.
+  \item Self-hosted \texttt{/.well-known/agentmap.json} export path.
+  \item Generated \texttt{agentmap.json} preview.
+  \item Human review and live execution safety state.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_single_canonical_frontend_panel_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\textbf{Lock ID:} AION-PHASE14-AGENTMAP-SINGLE-CANONICAL-FRONTEND-PANEL-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson
