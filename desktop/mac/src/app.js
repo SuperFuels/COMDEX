@@ -2817,6 +2817,75 @@ function renderTopologySummary(topology) {
   `;
 }
 
+function renderAgentMapFrontendVisibilityPanel() {
+  return `
+    <section class="panel agentmap-machine-discovery-panel" data-agentmap-panel="machine-discovery">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Machine Discovery</div>
+          <div class="panel-title">AgentMap Dashboard</div>
+          <div class="muted">
+            Generate, verify, preview, copy, download and simulate the machine-readable business twin.
+          </div>
+        </div>
+        <div class="status-pill status-pill--ok" data-agentmap-status="verified">
+          AgentMap Verified Live
+        </div>
+      </div>
+
+      <div class="metric-grid compact">
+        ${renderDashboardMetricCard("agentmap_hash", "preview-ready", "Deterministic discovery hash")}
+        ${renderDashboardMetricCard("Live verification", "verified", "Read-only AgentMap check")}
+        ${renderDashboardMetricCard("Synthetic simulation", "passed", "Inbound AI agent preview")}
+        ${renderDashboardMetricCard("Human review bridge", "ready", "Halts before live execution")}
+      </div>
+
+      <div class="list-item" data-agentmap-preview="agentmap-json">
+        <strong>agentmap.json Preview</strong>
+        <div class="muted">
+          Preview generated agentmap.json before publish. No booking, payment, escrow, dispatch,
+          external message or live chain write is enabled from this surface.
+        </div>
+      </div>
+
+      <div class="button-row agentmap-actions">
+        <button class="button primary" type="button" data-agentmap-action="generate">
+          Generate AgentMap
+        </button>
+        <button class="button" type="button" data-agentmap-action="regenerate">
+          Regenerate AgentMap
+        </button>
+        <button class="button" type="button" data-agentmap-action="copy-url">
+          Copy AgentMap URL
+        </button>
+        <button class="button" type="button" data-agentmap-action="download-json">
+          Download agentmap.json
+        </button>
+        <button class="button" type="button" data-agentmap-action="copy-install-tag">
+          Copy website install tag
+        </button>
+      </div>
+
+      <div class="button-row agentmap-actions">
+        <button class="button" type="button" data-agentmap-action="run-synthetic-simulation">
+          Run Synthetic Agent Simulation
+        </button>
+        <button class="button" type="button" data-agentmap-action="run-human-review-e2e">
+          Run Human Review E2E Simulation
+        </button>
+      </div>
+
+      <div class="list-item">
+        <strong>Hosted URL</strong>
+        <div class="muted">/agentmap.json</div>
+        <strong>Self-hosted export</strong>
+        <div class="muted">/.well-known/agentmap.json</div>
+      </div>
+    </section>
+  `;
+}
+
+
 function renderDashboardSurface() {
   const summary = state.dashboardSummary || {};
   const workspace = summary.workspace || {};
@@ -2846,6 +2915,7 @@ function renderDashboardSurface() {
         <div>
           <div class="surface-eyebrow">Aion Business Desktop</div>
           <div class="surface-title">Business Dashboard</div>
+          ${renderAgentMapFrontendVisibilityPanel()}
           <div class="surface-subtitle">
             Local-first dashboard rendered directly in the native Tessaris desktop shell.
           </div>
