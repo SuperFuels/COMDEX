@@ -15,6 +15,9 @@ from backend.modules.aion_gateway.fulfilment_job import (
 )
 
 __all__ = [
+    "build_agentmap_dashboard_summary",
+    "build_agentmap_dashboard_preview",
+    "DASHBOARD_VERSION",
     "build_public_intent_gateway_summary",
     "build_public_intent_gateway_preview",
     "PublicIntentGatewayRequest",
@@ -286,4 +289,10 @@ from .agentmap_human_review_simulation_bridge import (
     BRIDGE_VERSION,
     build_agentmap_human_review_simulation_bridge_preview,
     build_agentmap_human_review_simulation_bridge_summary,
+)
+
+from .agentmap_dashboard import (
+    DASHBOARD_VERSION,
+    build_agentmap_dashboard_preview,
+    build_agentmap_dashboard_summary,
 )
