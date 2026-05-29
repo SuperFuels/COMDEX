@@ -72159,3 +72159,88 @@ ${safeJson(safety)}
 
   console.log("[AION] Public Embed Widget Mapping Bridge v0 installed");
 })();
+
+
+/* AION PHASE 14K LOCK: AgentMap hosted/self-hosted export readiness */
+function buildAgentMapHostedExportOptions(payload = {}) {
+  const paths = payload.paths || {};
+  const hostedUrl =
+    payload.hosted_agentmap_url ||
+    payload.agentmap_url ||
+    paths.hosted ||
+    paths.canonical ||
+    "/agentmap.json";
+
+  const selfHostedPath =
+    payload.self_hosted_agentmap_path ||
+    paths.well_known ||
+    "/.well-known/agentmap.json";
+
+  return {
+    hosted_url: hostedUrl,
+    self_hosted_path: selfHostedPath,
+    canonical_path: paths.canonical || "/agentmap.json",
+    well_known_path: paths.well_known || "/.well-known/agentmap.json",
+    export_mode: payload.export_mode || "preview_only",
+    hosted_enabled: true,
+    self_hosted_enabled: true,
+    preview_only: true,
+    live_publish_enabled: false,
+  };
+}
+
+function renderAgentMapHostedSelfHostedOptions(payload = {}) {
+  const options = buildAgentMapHostedExportOptions(payload);
+
+  return `
+    <section class="panel-card agentmap-export-options" data-agentmap-export-options-panel>
+      <div class="panel-title">AgentMap Export Options</div>
+      <div class="muted">Choose how this business exposes its machine-readable AgentMap.</div>
+
+      <div class="agentmap-option" data-agentmap-hosted-url-option>
+        <strong>Hosted AgentMap URL</strong>
+        <code data-agentmap-hosted-url-value>${options.hosted_url}</code>
+      </div>
+
+      <div class="agentmap-option" data-agentmap-self-hosted-export-option>
+        <strong>Self-hosted well-known export</strong>
+        <code data-agentmap-self-hosted-path-value>${options.self_hosted_path}</code>
+      </div>
+
+      <div class="agentmap-option" data-agentmap-canonical-path-option>
+        <strong>Canonical path</strong>
+        <code>${options.canonical_path}</code>
+      </div>
+
+      <div class="agentmap-option" data-agentmap-well-known-path-option>
+        <strong>Well-known path</strong>
+        <code>${options.well_known_path}</code>
+      </div>
+
+      <div class="agentmap-status-pill" data-agentmap-export-preview-only>
+        Preview only · live publish disabled
+      </div>
+    </section>
+  `;
+}
+
+function getAgentMapSelfHostedExportPayload(payload = {}) {
+  const options = buildAgentMapHostedExportOptions(payload);
+  const agentmapJson =
+    payload.agentmap_json ||
+    payload.agentmap_manifest ||
+    payload.agentmap ||
+    payload;
+
+  return {
+    export_path: options.self_hosted_path,
+    filename: "agentmap.json",
+    content_type: "application/json",
+    preview_only: true,
+    live_publish_enabled: false,
+    agentmap_json: agentmapJson,
+  };
+}
+/* END AION PHASE 14K LOCK */
+
+/* Phase 14K render hook: ${renderAgentMapHostedSelfHostedOptions(payload)} */
