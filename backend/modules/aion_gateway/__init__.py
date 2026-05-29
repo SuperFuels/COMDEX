@@ -269,3 +269,9 @@ from .agentmap_discovery_endpoint import (
     build_agentmap_discovery_endpoint_summary,
 )
 
+
+from .agentmap_live_verification import (
+    VERIFICATION_VERSION,
+    build_agentmap_live_verification_preview,
+    build_agentmap_live_verification_summary,
+)
