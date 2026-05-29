@@ -220,9 +220,10 @@ def _build_safe_capability_routes(manifest: Mapping[str, Any]) -> Dict[str, Any]
 
 def build_agentmap_discovery_endpoint_preview(
     request: Optional[Mapping[str, Any]] = None,
-    request = dict(request or {})
 ) -> Dict[str, Any]:
     """Build the read-only AgentMap discovery endpoint preview bundle."""
+
+    request = dict(request or {})
 
     manifest = _load_agentmap_manifest(request)
     safety_profile = _build_safety_profile()
