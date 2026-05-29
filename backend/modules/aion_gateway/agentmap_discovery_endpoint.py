@@ -272,6 +272,15 @@ def build_agentmap_discovery_endpoint_preview(
     }
     response["summary_hash"] = _stable_hash(summary_payload)
 
+    
+    response["endpoint_hash"] = _stable_hash({
+        "request_identity": {
+            "business_id": request.get("business_id"),
+            "business_name": request.get("business_name"),
+            "vertical_key": request.get("vertical_key"),
+        },
+        "endpoint_payload": response,
+    })
     return response
 
 
