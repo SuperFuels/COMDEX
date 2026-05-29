@@ -230,5 +230,7 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock.py \
   backend/tests/workflow_capsules/test_aion_phase13_machine_metadata_deterministic_hash_regression_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock_doc.py \
+  backend/tests/workflow_capsules/test_aion_phase14_universal_vertical_adapter_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase14_universal_vertical_adapter_contract_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase14_agentmap_manifest_lock.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py

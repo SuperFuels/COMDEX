@@ -257,3 +257,5 @@ from .public_embed_human_review_handoff import (
     build_public_embed_human_review_handoff_preview,
     build_public_embed_human_review_handoff_summary,
 )
+
+from .universal_vertical_adapter import UNIVERSAL_VERTICAL_ADAPTER_VERSION, build_home_fixed_universal_vertical_adapter, build_universal_vertical_adapter_contract, build_universal_vertical_adapter_summary
