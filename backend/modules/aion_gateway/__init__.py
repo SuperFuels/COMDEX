@@ -275,3 +275,9 @@ from .agentmap_live_verification import (
     build_agentmap_live_verification_preview,
     build_agentmap_live_verification_summary,
 )
+
+from .agentmap_synthetic_agent_simulation import (
+    SIMULATION_VERSION,
+    build_synthetic_inbound_agent_simulation_preview,
+    build_synthetic_inbound_agent_simulation_summary,
+)
