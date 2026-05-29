@@ -51,6 +51,7 @@ def _candidate_files():
         and "__pycache__" not in str(p)
         and p.name not in excluded_names
         and "aion_phase13_" not in p.name
+        and "aion_phase14_" not in p.name
     })
 
 

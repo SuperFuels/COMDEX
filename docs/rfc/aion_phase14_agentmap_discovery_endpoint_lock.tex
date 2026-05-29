@@ -229,6 +229,30 @@ The next implementation step should be:
 
 Phase 14D should verify that a website has installed or hosted its AgentMap at the expected path and that the response is valid, deterministic, read-only, and safe.
 
+
+
+\subsection{Raw Contract Field Names}
+
+For documentation lock tests and machine-readable contract clarity, the raw deterministic field names are:
+
+\begin{verbatim}
+agentmap_hash
+endpoint_hash
+summary_hash
+input_schema_ref
+output_schema_ref
+preview_only
+read_only
+human_review_required
+public_route_mounted
+would_create_booking
+would_create_payment
+would_create_escrow
+would_send_external_messages
+\end{verbatim}
+
+These fields are replay, audit, discovery, and future verification anchors only. They MUST NOT grant permissions, create bookings, create live jobs, move money, create payments, create escrow, release funds, dispatch work, send external messages, or write live chain data.
+
 \subsection{Lock Footer}
 
 \bigskip

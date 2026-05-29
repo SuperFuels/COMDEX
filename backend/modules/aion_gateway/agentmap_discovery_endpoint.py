@@ -67,7 +67,21 @@ def _load_agentmap_manifest(request: Optional[Mapping[str, Any]] = None) -> Dict
         builder = getattr(module, name, None)
         if callable(builder):
             try:
-                result = builder(**request)
+                # Phase 14A builder accepts explicit business identity kwargs.
+                result = builder(
+                    business_id=request.get("business_id", "home_fixed"),
+                    business_name=request.get("business_name", "Home Fixed"),
+                    vertical_key=request.get("vertical_key", "home_repair"),
+                    human_seo_metadata=request.get("human_seo_metadata"),
+                    machine_a2a_metadata=request.get("machine_a2a_metadata"),
+                    capabilities=request.get("capabilities"),
+                    availability=request.get("availability"),
+                    accepted_protocols=request.get("accepted_protocols"),
+                    auth_requirements=request.get("auth_requirements"),
+                    safety_profile=request.get("safety_profile"),
+                    schema_refs=request.get("schema_refs"),
+                    adapter=request.get("adapter"),
+                )
             except TypeError:
                 try:
                     result = builder(request)
