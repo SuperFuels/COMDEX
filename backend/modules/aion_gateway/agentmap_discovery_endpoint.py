@@ -220,6 +220,7 @@ def _build_safe_capability_routes(manifest: Mapping[str, Any]) -> Dict[str, Any]
 
 def build_agentmap_discovery_endpoint_preview(
     request: Optional[Mapping[str, Any]] = None,
+    request = dict(request or {})
 ) -> Dict[str, Any]:
     """Build the read-only AgentMap discovery endpoint preview bundle."""
 
@@ -259,7 +260,15 @@ def build_agentmap_discovery_endpoint_preview(
 
     hash_payload = deepcopy(response)
     hash_payload.pop("endpoint_hash", None)
-    response["endpoint_hash"] = _stable_hash(hash_payload)
+    hash_payload.pop("summary_hash", None)
+    response["endpoint_hash"] = _stable_hash({
+        "request_identity": {
+            "business_id": request.get("business_id"),
+            "business_name": request.get("business_name"),
+            "vertical_key": request.get("vertical_key"),
+        },
+        "endpoint_payload": hash_payload,
+    })
 
     summary_payload = {
         "endpoint_version": response["endpoint_version"],
@@ -272,15 +281,6 @@ def build_agentmap_discovery_endpoint_preview(
     }
     response["summary_hash"] = _stable_hash(summary_payload)
 
-    
-    response["endpoint_hash"] = _stable_hash({
-        "request_identity": {
-            "business_id": request.get("business_id"),
-            "business_name": request.get("business_name"),
-            "vertical_key": request.get("vertical_key"),
-        },
-        "endpoint_payload": response,
-    })
     return response
 
 
