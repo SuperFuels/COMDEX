@@ -71364,17 +71364,13 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
   window.renderBoardroomParallelTwinVisibleRenderPathV0 = renderBoardroomParallelTwinVisibleRenderPathV0;
   window.mountBoardroomParallelTwinVisibleRenderPathV0 = mountBoardroomParallelTwinVisibleRenderPathV0;
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", function onBoardroomParallelTwinVisibleReady() {
-      window.mountBoardroomParallelTwinVisibleRenderPathV0();
-    });
-  } else {
-    setTimeout(function mountBoardroomParallelTwinVisibleSoon() {
-      window.mountBoardroomParallelTwinVisibleRenderPathV0();
-    }, 0);
-  }
+  // Shell safety lock:
+  // Do NOT auto-mount this panel on page load.
+  // The main desktop shell owns navigation and decides when Boardroom panels render.
+  // Auto-mounting here can hijack the whole app surface and hide the top nav/tabs.
+  window.__aionBoardroomParallelTwinAutoMountDisabledV0 = true;
 
-  console.log("[AION] Boardroom Parallel Twin Visible Render Path v0 installed");
+  console.log("[AION] Boardroom Parallel Twin Visible Render Path v0 installed; auto-mount disabled");
 })();
 
 
