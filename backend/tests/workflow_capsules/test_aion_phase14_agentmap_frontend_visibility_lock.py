@@ -13,10 +13,22 @@ def test_phase14h_agentmap_frontend_panel_function_exists():
     assert "data-agentmap-panel=\"machine-discovery\"" in text
 
 
-def test_phase14h_agentmap_frontend_panel_is_mounted_in_dashboard_surface():
+def test_phase14h_agentmap_frontend_panel_is_mounted_once_in_boardroom_surface():
     text = _text()
-    assert "function renderDashboardSurface()" in text
-    assert "${renderAgentMapFrontendVisibilityPanel()}" in text
+
+    # Phase 14L keeps the legacy visibility renderer available,
+    # but the Boardroom now mounts only the newer verified dashboard panel.
+    assert "function renderAgentMapFrontendVisibilityPanel()" in text
+    assert "function renderAgentMapDashboardPanel()" in text
+
+    boardroom_start = text.find("function renderBoardroomDashboardView")
+    boardroom_end = text.find("function renderBoardroomSpatialView")
+    assert boardroom_start != -1
+    assert boardroom_end != -1
+
+    boardroom = text[boardroom_start:boardroom_end]
+    assert "renderAgentMapDashboardPanel()" in boardroom
+    assert "renderAgentMapFrontendVisibilityPanel()" not in boardroom
 
 
 def test_phase14h_agentmap_frontend_exposes_required_visible_labels():

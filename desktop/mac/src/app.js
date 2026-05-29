@@ -2963,6 +2963,7 @@ function renderTopologySummary(topology) {
   `;
 }
 
+// Phase 14L: deprecated duplicate AgentMap panel. Keep function for legacy lock tests only; do not mount in Boardroom.
 function renderAgentMapFrontendVisibilityPanel() {
   return `
     <section class="panel agentmap-machine-discovery-panel" data-agentmap-panel="machine-discovery">
@@ -3061,7 +3062,7 @@ function renderDashboardSurface() {
         <div>
           <div class="surface-eyebrow">Aion Business Desktop</div>
           <div class="surface-title">Business Dashboard</div>
-          ${renderAgentMapFrontendVisibilityPanel()}
+          
           <div class="surface-subtitle">
             Local-first dashboard rendered directly in the native Tessaris desktop shell.
           </div>
