@@ -7,60 +7,76 @@ def _text() -> str:
     return APP.read_text()
 
 
-def test_phase14m_legacy_agentmap_renderer_may_exist_but_is_not_mounted():
+def _boardroom_dashboard_block() -> str:
     text = _text()
-
-    assert "function renderAgentMapFrontendVisibilityPanel()" in text
-    assert "function renderAgentMapDashboardPanel()" in text
-
-    assert "${renderAgentMapFrontendVisibilityPanel()}" not in text
-
-
-def test_phase14m_boardroom_mounts_only_canonical_agentmap_dashboard_panel():
-    text = _text()
-
     start = text.find("function renderBoardroomDashboardView")
     end = text.find("function renderBoardroomSpatialView")
     assert start != -1
     assert end != -1
+    return text[start:end]
 
-    boardroom = text[start:end]
-    assert "renderAgentMapDashboardPanel()" in boardroom
+
+def test_phase14m_keeps_single_active_agentmap_panel_in_boardroom():
+    boardroom = _boardroom_dashboard_block()
+
+    assert boardroom.count("renderAgentMapDashboardPanel()") == 1
+    assert "renderAgentMapMachineDiscoveryPanel()" not in boardroom
     assert "renderAgentMapFrontendVisibilityPanel()" not in boardroom
 
 
-def test_phase14m_dashboard_surface_does_not_mount_stale_agentmap_panel():
+def test_phase14m_canonical_panel_contains_full_frontend_actions():
     text = _text()
-
-    start = text.find("function renderDashboardSurface")
-    end = text.find("function renderMarketingRunCard")
+    start = text.find("function renderAgentMapDashboardPanel")
+    end = text.find("function renderBoardroomDashboardView")
     assert start != -1
     assert end != -1
 
-    dashboard = text[start:end]
-    assert "renderAgentMapFrontendVisibilityPanel()" not in dashboard
+    panel = text[start:end]
 
-
-def test_phase14m_no_undefined_agentmap_safety_text_in_canonical_panel():
-    text = _text()
-
-    assert "Preview only: undefined" not in text
-    assert "Human review: undefined" not in text
-    assert "Human review required" in text
-    assert "Live execution enabled" in text
-    assert "Generated agentmap.json Preview" in text
-
-
-def test_phase14m_canonical_agentmap_controls_remain_visible():
-    text = _text()
-
-    for phrase in [
-        "Generate AgentMap",
-        "Regenerate",
-        "Copy AgentMap URL",
-        "Download agentmap.json",
-        "Copy website install tag",
-        "/agentmap.json",
-        "/.well-known/agentmap.json",
+    for required in [
+        "data-agentmap-generate-button",
+        "data-agentmap-regenerate-button",
+        "data-agentmap-copy-url-button",
+        "data-agentmap-download-json-button",
+        "data-agentmap-copy-install-tag-button",
+        "agentmap_hash",
+        "Live verification",
+        "Hosted URL",
+        "Self-hosted URL",
+        "Machine Discovery settings",
+        "Generated agentmap.json preview",
     ]:
-        assert phrase in text
+        assert required in panel
+
+
+def test_phase14m_legacy_renderers_are_not_boardroom_mounted():
+    text = _text()
+    boardroom = _boardroom_dashboard_block()
+
+    # Legacy functions may remain for old lock/test visibility, but must not be mounted.
+    assert "function renderAgentMapFrontendVisibilityPanel()" in text
+    assert "function renderAgentMapMachineDiscoveryPanel()" in text
+    assert "renderAgentMapFrontendVisibilityPanel()" not in boardroom
+    assert "renderAgentMapMachineDiscoveryPanel()" not in boardroom
+
+
+def test_phase14m_boardroom_agentmap_order_is_before_approvals():
+    boardroom = _boardroom_dashboard_block()
+
+    agentmap_idx = boardroom.find("renderAgentMapDashboardPanel()")
+    approvals_idx = boardroom.find("renderBoardroomWorkflowCapsuleApprovalQueue")
+
+    assert agentmap_idx != -1
+    assert approvals_idx != -1
+    assert agentmap_idx < approvals_idx
+
+
+def test_phase14m_no_undefined_safety_values_in_canonical_panel():
+    text = _text()
+    start = text.find("function renderAgentMapDashboardPanel")
+    end = text.find("function renderBoardroomDashboardView")
+    panel = text[start:end]
+
+    assert "agentMapSafeFallback" in panel
+    assert "preview.safety_profile || {}" in panel
+    assert "Cannot read properties of undefined" not in panel

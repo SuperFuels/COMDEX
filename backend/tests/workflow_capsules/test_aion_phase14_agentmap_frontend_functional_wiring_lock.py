@@ -9,10 +9,13 @@ def _text():
 
 def test_phase14i_agentmap_frontend_functional_panel_is_mounted():
     text = _text()
-    assert "function renderAgentMapMachineDiscoveryPanel()" in text
-    assert "${renderAgentMapMachineDiscoveryPanel()}" in text
-    assert 'data-agentmap-dashboard="phase14i"' in text
 
+    # Phase 14M removed the duplicate machine discovery panel from Boardroom.
+    # The legacy renderer may remain for compatibility, but it must not be actively mounted.
+    assert "function renderAgentMapMachineDiscoveryPanel()" in text
+    assert "function renderAgentMapDashboardPanel()" in text
+    assert "${renderAgentMapDashboardPanel()}" in text
+    assert "${renderAgentMapMachineDiscoveryPanel()}" not in text
 
 def test_phase14i_generate_button_is_real_and_wired_to_state():
     text = _text()

@@ -5271,7 +5271,6 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
       ${renderAgentMapDashboardPanel()}
-      ${renderAgentMapMachineDiscoveryPanel()}
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
 
