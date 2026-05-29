@@ -74,6 +74,34 @@ The \texttt{agentmap_hash} MUST be computed from canonical AgentMap payload cont
 
 The \texttt{agentmap_hash} is a replay, audit, discovery, and future verification anchor only. It MUST NOT grant permission, create bookings, move money, send messages, execute workflows, or publish a public route.
 
+
+
+\subsection{Required Machine Metadata Terms}
+
+The Phase 14 AgentMap manifest MUST keep \texttt{human_seo_metadata} separate from \texttt{machine_metadata}.
+
+The \texttt{human_seo_metadata} block is for human-facing website metadata such as title and meta description.
+
+The \texttt{machine_metadata} block is for agent-facing capability, protocol, authentication, availability, safety, proof, and route metadata.
+
+The manifest MUST expose \texttt{agentmap_hash}, \texttt{preview_only}, and \texttt{human_review_required} as explicit contract fields.
+
+
+
+\subsection{Human SEO and Machine A2A Metadata Boundary}
+
+The AgentMap manifest MUST keep \texttt{human_seo_metadata} separate from \texttt{machine_a2a_metadata}.
+
+The \texttt{human_seo_metadata} block is for human-facing website metadata such as title, meta description, and website display context.
+
+The \texttt{machine_a2a_metadata} block is for agent-facing capability, protocol, authentication, availability, safety, proof, route, and adapter metadata.
+
+The manifest MUST also expose \texttt{machine_metadata} where needed as a compatibility alias or summary for machine-readable discovery.
+
+The manifest MUST expose \texttt{agentmap_hash}, \texttt{preview_only}, and \texttt{human_review_required} as explicit contract fields.
+
+The \texttt{agentmap_hash} is a replay, audit, discovery, and future verification anchor only. It MUST NOT grant permission, create bookings, move money, send messages, execute workflows, or publish a public route.
+
 \subsection{Lock Footer}
 
 Lock ID: AION-PHASE14-AGENTMAP-MANIFEST-v0.1

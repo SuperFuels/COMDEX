@@ -53,7 +53,7 @@ def build_agentmap_manifest(
                 "capability_key": "proof_receipt_lookup",
                 "description": "Read proof receipt metadata and hashes without live chain writes.",
                 "preview_only": True,
-                "human_review_required": False,
+                "human_review_required": True,
             },
         ]),
         "availability": dict(availability or {
