@@ -259,3 +259,13 @@ from .public_embed_human_review_handoff import (
 )
 
 from .universal_vertical_adapter import UNIVERSAL_VERTICAL_ADAPTER_VERSION, build_home_fixed_universal_vertical_adapter, build_universal_vertical_adapter_contract, build_universal_vertical_adapter_summary
+
+
+from .agentmap_discovery_endpoint import (
+    AGENTMAP_DISCOVERY_ENDPOINT_VERSION,
+    CANONICAL_AGENTMAP_PATH,
+    WELL_KNOWN_AGENTMAP_PATH,
+    build_agentmap_discovery_endpoint_preview,
+    build_agentmap_discovery_endpoint_summary,
+)
+
