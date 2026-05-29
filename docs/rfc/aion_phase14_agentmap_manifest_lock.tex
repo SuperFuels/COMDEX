@@ -64,6 +64,16 @@ The generated machine manifest MUST expose an \texttt{agentmap\_hash} field.
 
 The \texttt{agentmap\_hash} is the deterministic integrity checksum for the public AgentMap read model. It MUST be derived only from canonical machine metadata, capability declarations, adapter declarations, safety flags, schema references, and routing identifiers. It MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, or mutable UI state.
 
+
+
+\subsection{AgentMap Hash Contract}
+
+The AgentMap manifest MUST expose a deterministic \texttt{agentmap_hash}.
+
+The \texttt{agentmap_hash} MUST be computed from canonical AgentMap payload content and MUST NOT depend on runtime randomness, wall-clock timestamps, live provider state, payment state, booking state, external message state, or mutable UI state.
+
+The \texttt{agentmap_hash} is a replay, audit, discovery, and future verification anchor only. It MUST NOT grant permission, create bookings, move money, send messages, execute workflows, or publish a public route.
+
 \subsection{Lock Footer}
 
 Lock ID: AION-PHASE14-AGENTMAP-MANIFEST-v0.1
