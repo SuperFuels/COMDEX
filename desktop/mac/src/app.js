@@ -5135,6 +5135,12 @@ function renderAgentMapMachineDiscoveryPanel() {
 
 
 function renderAgentMapDashboardPanel() {
+  const agentMapSafeFallback = {
+    preview_only: true,
+    human_review_required: true,
+    live_side_effects_enabled: false,
+  };
+
   const agentMapState = getAgentMapFrontendState();
   const preview = getAgentMapDashboardPreviewPayload();
   const agentmapJson = JSON.stringify(preview.agentmap_json, null, 2);
@@ -5171,7 +5177,7 @@ function renderAgentMapDashboardPanel() {
         <div class="list-item" data-machine-discovery-settings-panel="true">
           <strong>Machine Discovery settings</strong>
           <div class="muted">Business: ${escapeHtml(preview.business_name)} · Vertical: ${escapeHtml(preview.vertical_key)}</div>
-          <div class="muted">Preview only: ${String(preview.safety_profile.preview_only)} · Human review: ${String(preview.safety_profile.human_review_required)}</div>
+          <div class="muted">Preview only: ${String((preview.safety_profile || {}).preview_only)} · Human review: ${String((preview.safety_profile || {}).human_review_required)}</div>
         </div>
 
         <div class="list-item" data-agentmap-install-tag-panel="true">
