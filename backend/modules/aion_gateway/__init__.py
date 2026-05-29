@@ -281,3 +281,9 @@ from .agentmap_synthetic_agent_simulation import (
     build_synthetic_inbound_agent_simulation_preview,
     build_synthetic_inbound_agent_simulation_summary,
 )
+
+from .agentmap_human_review_simulation_bridge import (
+    BRIDGE_VERSION,
+    build_agentmap_human_review_simulation_bridge_preview,
+    build_agentmap_human_review_simulation_bridge_summary,
+)

@@ -1,0 +1,102 @@
+\section{Phase 14F --- AgentMap Human Review E2E Simulation Bridge Lock}
+\label{sec:phase14f-agentmap-human-review-simulation-bridge-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- AgentMap human review E2E simulation bridge preview v0.}
+
+Phase 14F connects the synthetic inbound-agent simulation preview to a deterministic human-review handoff preview.
+
+\subsection{Purpose}
+
+The bridge proves that a synthetic external agent flow can reach a safe operator review state without creating live side effects.
+
+The flow is:
+
+\begin{enumerate}
+  \item Build AgentMap discovery preview.
+  \item Verify AgentMap live verification preview.
+  \item Run synthetic inbound-agent simulation.
+  \item Create a preview-only human review request.
+  \item Halt at \texttt{waiting\_human\_review}.
+\end{enumerate}
+
+\subsection{Contract Terms}
+
+The bridge exposes:
+
+\begin{verbatim}
+bridge_version
+agentmap_hash
+endpoint_hash
+verification_hash
+simulation_hash
+bridge_hash
+summary_hash
+review_request_id
+waiting_human_review
+preview-only
+human review
+synthetic
+\end{verbatim}
+
+\subsection{Human Review Boundary}
+
+The generated review request is preview-only and synthetic-only.
+
+It MUST set:
+
+\begin{verbatim}
+status = waiting_human_review
+preview_only = true
+synthetic_only = true
+human_review_required = true
+live_execution_authorized = false
+\end{verbatim}
+
+Allowed preview actions are limited to:
+
+\begin{verbatim}
+approve_preview_only
+reject_preview_only
+request_more_information_preview_only
+\end{verbatim}
+
+These actions MUST NOT execute live work.
+
+\subsection{Blocked Live Actions}
+
+Phase 14F MUST NOT create live operational side effects.
+
+The following are explicitly blocked:
+
+\begin{verbatim}
+no booking
+no payment
+no escrow
+no dispatch
+no external message
+no live chain
+\end{verbatim}
+
+The bridge side-effect state MUST remain false for booking creation, payment creation, escrow creation, job dispatch, external messaging, live chain writing, public route mutation, and approval auto-execution.
+
+\subsection{Validation}
+
+Targeted tests:
+
+\begin{verbatim}
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_human_review_simulation_bridge_lock.py
+backend/tests/workflow_capsules/test_aion_phase14_agentmap_human_review_simulation_bridge_lock_doc.py
+\end{verbatim}
+
+The focused suite MUST include both tests.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE14F-AGENTMAP-HUMAN-REVIEW-SIMULATION-BRIDGE-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
