@@ -1,0 +1,70 @@
+\section{Phase 14J --- AgentMap Frontend Copy, Download, and Regenerate Actions Lock}
+\label{sec:phase14j-agentmap-frontend-actions-lock}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED --- AgentMap frontend copy, download, install-tag, and regenerate actions are wired and guarded by frontend lock tests.}
+
+\subsection{Purpose}
+
+Phase 14J closes the remaining AgentMap frontend action/control pass.
+
+The AgentMap dashboard exposes concrete user actions for preparing machine discovery:
+
+\begin{itemize}
+  \item copy AgentMap URL;
+  \item download \texttt{agentmap.json};
+  \item copy website install tag;
+  \item regenerate the deterministic AgentMap preview;
+  \item show the latest frontend action state.
+\end{itemize}
+
+\subsection{Frontend Contract}
+
+The frontend MUST expose stable UI markers for:
+
+\begin{verbatim}
+data-agentmap-generate-button
+data-agentmap-regenerate-button
+data-agentmap-copy-url-button
+data-agentmap-download-json-button
+data-agentmap-copy-install-tag-button
+data-agentmap-json-preview
+data-machine-discovery-settings-panel
+data-agentmap-validation-status
+\end{verbatim}
+
+\subsection{Safety Boundary}
+
+Phase 14J remains preview-only and human review gated. It MUST NOT publish live routes, create bookings, capture payments, release escrow, dispatch jobs, send external messages, or write live chain receipts.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_visibility_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_functional_wiring_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase14_agentmap_frontend_actions_lock.py
+\end{verbatim}
+
+\subsection{Raw Lock Footer Terms}
+
+\begin{verbatim}
+phase 14j
+copy agentmap url
+download agentmap.json
+copy website install tag
+regenerate
+preview-only
+human review
+lock id:
+maintainer: tessaris ai
+author: kevin robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\textbf{Lock ID:} AION-PHASE14J-AGENTMAP-FRONTEND-ACTIONS-v0.1\\
+\textbf{Status:} LOCKED\\
+\textbf{Maintainer:} Tessaris AI\\
+\textbf{Author:} Kevin Robinson

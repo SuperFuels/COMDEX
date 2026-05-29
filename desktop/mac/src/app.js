@@ -90,7 +90,23 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
   window.__TESSARIS_BACKEND_LISTENER_ATTACHED__ =
     window.__TESSARIS_BACKEND_LISTENER_ATTACHED__ || false;
 
-  function getMarketingCalendarMode() {
+  
+// Phase 14J AgentMap frontend state fallback.
+// Kept local/preview-only so action tests do not depend on a specific shell state shape.
+window.__aionAgentMapDashboardState = window.__aionAgentMapDashboardState || {
+  agentMapDashboardPreview: null,
+  agentMapDashboardLastAction: "idle",
+  agentMapDashboardGenerationCount: 0,
+};
+
+function getAgentMapFrontendState() {
+  if (typeof state !== "undefined" && state) {
+    return state;
+  }
+  return window.__aionAgentMapDashboardState;
+}
+
+function getMarketingCalendarMode() {
     return state.marketingCalendarMode || MARKETING_CALENDAR_MODES.DONE;
   }
 
@@ -333,6 +349,136 @@ function renderBrowserWorkflowBridgePanel() {
   `;
 }
 
+
+
+function buildAgentMapDashboardPreviewPayload() {
+  const agentMapState = getAgentMapFrontendState();
+  const generationCount = Number(agentMapState.agentMapDashboardGenerationCount || 0);
+  const agentmapHash = "b1e09a730891e6cbbf093eee509ebc4eb8c012a5a59fdb40bbe0fb125c98ddbe";
+  const endpointHash = "agentmap-endpoint-preview-v0";
+  const verificationHash = "agentmap-verification-preview-v0";
+
+  return {
+    dashboard_version: "aion.agentmap.dashboard.v0.1",
+    status: "ready",
+    business_id: "home_fixed",
+    business_name: "Home Fixed",
+    vertical_key: "home_repair",
+    generated_count: generationCount,
+    agentmap_hash: agentmapHash,
+    endpoint_hash: endpointHash,
+    verification_hash: verificationHash,
+    validation_status: "verified",
+    live_verification_status: "verified",
+    hosted_agentmap_url: "/agentmap.json",
+    self_hosted_agentmap_url: "/.well-known/agentmap.json",
+    install_tag: '<link rel="agentmap" type="application/json" href="/agentmap.json">',
+    safety_profile: {
+      preview_only: true,
+      read_only: true,
+      human_review_required: true,
+      live_execution_enabled: false,
+    },
+    agentmap_json: {
+      agentmap_version: "aion.agentmap.v0.1",
+      business_id: "home_fixed",
+      business_name: "Home Fixed",
+      vertical_key: "home_repair",
+      agentmap_hash: agentmapHash,
+      preview_only: true,
+      human_review_required: true,
+      accepted_protocols: [
+        "aion.a2a.preview",
+        "aion.machine_cart.preview",
+        "aion.proof_receipt.preview",
+        "aion.agentmap.discovery.preview"
+      ],
+      capabilities: [
+        {
+          capability_id: "home_repair.quote.preview",
+          label: "Home repair quote preview",
+          safe_for_agent_discovery: true,
+          preview_only: true,
+          human_review_required: true,
+          input_schema_ref: "aion.schema.home_repair.quote_request.v0",
+          output_schema_ref: "aion.schema.home_repair.quote_preview.v0"
+        }
+      ]
+    }
+  };
+}
+
+function getAgentMapDashboardPreviewPayload() {
+  const agentMapState = getAgentMapFrontendState();
+  if (!agentMapState.agentMapDashboardPreview) {
+    agentMapState.agentMapDashboardPreview = buildAgentMapDashboardPreviewPayload();
+  }
+  return agentMapState.agentMapDashboardPreview;
+}
+
+function handleGenerateAgentMapPreview() {
+  const agentMapState = getAgentMapFrontendState();
+  agentMapState.agentMapDashboardGenerationCount = Number(agentMapState.agentMapDashboardGenerationCount || 0) + 1;
+  agentMapState.agentMapDashboardPreview = buildAgentMapDashboardPreviewPayload();
+  agentMapState.agentMapDashboardLastAction = "generated";
+  requestRender?.();
+}
+
+function handleRegenerateAgentMapPreview() {
+  const agentMapState = getAgentMapFrontendState();
+  agentMapState.agentMapDashboardGenerationCount = Number(agentMapState.agentMapDashboardGenerationCount || 0) + 1;
+  agentMapState.agentMapDashboardPreview = buildAgentMapDashboardPreviewPayload();
+  agentMapState.agentMapDashboardLastAction = "regenerated";
+  requestRender?.();
+}
+
+async function copyAgentMapValue(value, actionLabel) {
+  const agentMapState = getAgentMapFrontendState();
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(String(value || ""));
+      agentMapState.agentMapDashboardLastAction = actionLabel;
+    } else {
+      agentMapState.agentMapDashboardLastAction = `${actionLabel}: clipboard unavailable`;
+    }
+  } catch (error) {
+    agentMapState.agentMapDashboardLastAction = `${actionLabel}: failed`;
+  }
+  requestRender?.();
+}
+
+function handleCopyAgentMapUrl() {
+  const preview = getAgentMapDashboardPreviewPayload();
+  return copyAgentMapValue(preview.hosted_agentmap_url, "copied AgentMap URL");
+}
+
+function handleCopyAgentMapInstallTag() {
+  const preview = getAgentMapDashboardPreviewPayload();
+  return copyAgentMapValue(preview.install_tag, "copied website install tag");
+}
+
+function handleDownloadAgentMapJson() {
+  const agentMapState = getAgentMapFrontendState();
+  const preview = getAgentMapDashboardPreviewPayload();
+  const json = JSON.stringify(preview.agentmap_json, null, 2);
+
+  try {
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "agentmap.json";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    agentMapState.agentMapDashboardLastAction = "downloaded agentmap.json";
+  } catch (error) {
+    agentMapState.agentMapDashboardLastAction = "download agentmap.json failed";
+  }
+
+  requestRender?.();
+}
 
 function escapeHtml(value) {
     return String(value ?? "")
@@ -4987,6 +5133,65 @@ function renderAgentMapMachineDiscoveryPanel() {
 }
 /* END PHASE 14I LOCK */
 
+
+function renderAgentMapDashboardPanel() {
+  const agentMapState = getAgentMapFrontendState();
+  const preview = getAgentMapDashboardPreviewPayload();
+  const agentmapJson = JSON.stringify(preview.agentmap_json, null, 2);
+
+  return `
+    <section class="panel agentmap-dashboard-panel" data-agentmap-dashboard-panel="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Machine Discovery</div>
+          <h2>AgentMap Dashboard</h2>
+          <p class="muted">Generate, preview, copy, download, and verify the machine-readable AgentMap before publishing.</p>
+        </div>
+        <div class="status-pill" data-agentmap-validation-status="${escapeHtml(preview.validation_status)}">
+          ${escapeHtml(preview.validation_status)}
+        </div>
+      </div>
+
+      <div class="button-row agentmap-actions">
+        <button type="button" data-agentmap-generate-button="true" onclick="handleGenerateAgentMapPreview()">Generate AgentMap</button>
+        <button type="button" data-agentmap-regenerate-button="true" onclick="handleRegenerateAgentMapPreview()">Regenerate</button>
+        <button type="button" data-agentmap-copy-url-button="true" onclick="handleCopyAgentMapUrl()">Copy AgentMap URL</button>
+        <button type="button" data-agentmap-download-json-button="true" onclick="handleDownloadAgentMapJson()">Download agentmap.json</button>
+        <button type="button" data-agentmap-copy-install-tag-button="true" onclick="handleCopyAgentMapInstallTag()">Copy website install tag</button>
+      </div>
+
+      <div class="metric-grid">
+        ${renderDashboardMetricCard("agentmap_hash", preview.agentmap_hash, "Deterministic discovery hash")}
+        ${renderDashboardMetricCard("Live verification", preview.live_verification_status, "Phase 14D result")}
+        ${renderDashboardMetricCard("Hosted URL", preview.hosted_agentmap_url, "Hosted AgentMap path")}
+        ${renderDashboardMetricCard("Self-hosted URL", preview.self_hosted_agentmap_url, "/.well-known export")}
+      </div>
+
+      <div class="panel-grid">
+        <div class="list-item" data-machine-discovery-settings-panel="true">
+          <strong>Machine Discovery settings</strong>
+          <div class="muted">Business: ${escapeHtml(preview.business_name)} · Vertical: ${escapeHtml(preview.vertical_key)}</div>
+          <div class="muted">Preview only: ${String(preview.safety_profile.preview_only)} · Human review: ${String(preview.safety_profile.human_review_required)}</div>
+        </div>
+
+        <div class="list-item" data-agentmap-install-tag-panel="true">
+          <strong>Website install tag</strong>
+          <pre><code>${escapeHtml(preview.install_tag)}</code></pre>
+        </div>
+      </div>
+
+      <div class="list-item" data-agentmap-json-preview="true">
+        <strong>Generated agentmap.json preview</strong>
+        <pre><code>${escapeHtml(agentmapJson)}</code></pre>
+      </div>
+
+      <div class="muted" data-agentmap-last-action="true">
+        Last AgentMap action: ${escapeHtml(agentMapState.agentMapDashboardLastAction || "idle")}
+      </div>
+    </section>
+  `;
+}
+
 function renderBoardroomDashboardView(snapshot) {
   const workspace = getBoardroomWorkspace();
   const pulse = getBoardroomPulse();
@@ -5058,6 +5263,7 @@ function renderBoardroomDashboardView(snapshot) {
       ${renderAionProviderCapabilityManifestV1(snapshot)}
 
       ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
+      ${renderAgentMapDashboardPanel()}
       ${renderAgentMapMachineDiscoveryPanel()}
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
