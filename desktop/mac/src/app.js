@@ -5591,6 +5591,124 @@ function renderTrustedFeedbackAcceptancePanel() {
 /* END PHASE 15E LOCK */
 
 
+
+/* PHASE 15F LOCK: AXO/ETS human review decision preview frontend */
+function getDefaultAxoHumanReviewDecisionPreviewPayload() {
+  return {
+    decision_preview_version: "aion.axo_human_review_decision_preview.v0.1",
+    preview_only: true,
+    status: "decision_preview_ready",
+    requested_decision: "request_more_evidence",
+    decision: "request_more_evidence",
+    eligible_for_human_review: true,
+    human_review_required: true,
+    automated_decision_allowed: false,
+    packet: {
+      ets_feedback_hash: "preview_feedback_hash",
+      business_id: "home_fixed",
+      trace_links: {
+        job_trace_id: "job_trace_preview",
+        proof_receipt_id: "proof_receipt_preview",
+        evidence_ids: ["evidence_preview"],
+      },
+      scores: {
+        customer_outcome_score: 0,
+        system_execution_score: 0,
+        agent_reliability_score: 0,
+        evidence_quality_score: 0,
+      },
+      score_separation: {
+        customer_outcome_score_is_customer_signal: true,
+        system_execution_score_is_machine_execution_signal: true,
+        must_not_merge_customer_and_system_scores: true,
+      },
+    },
+    decision_states: {
+      accept_supported: true,
+      reject_supported: true,
+      request_more_evidence_supported: true,
+      eligible_state_required: true,
+    },
+    side_effect_guards: {
+      reputation_mutation_allowed: false,
+      public_trust_update_allowed: false,
+      booking_side_effect_allowed: false,
+      payment_side_effect_allowed: false,
+      escrow_side_effect_allowed: false,
+      external_message_side_effect_allowed: false,
+      live_execution_allowed: false,
+    },
+  };
+}
+
+function renderAxoHumanReviewDecisionPreviewPanel() {
+  const payload = getDefaultAxoHumanReviewDecisionPreviewPayload();
+  const states = payload.decision_states || {};
+  const guards = payload.side_effect_guards || {};
+  const scores = payload.packet?.scores || {};
+  const separation = payload.packet?.score_separation || {};
+
+  return `
+    <section class="panel axo-human-review-decision-preview-panel" data-axo-human-review-decision-preview="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">AXO / ETS</div>
+          <h2>Human Review Decision Preview</h2>
+          <p class="muted">
+            Preview accept, reject, or request-more-evidence decisions for trusted feedback.
+            This surface is read-only and cannot mutate reputation, public trust, bookings, payments, escrow, or external messages.
+          </p>
+        </div>
+        <div class="status-pill" data-axo-decision-status="${escapeHtml(payload.status)}">
+          ${escapeHtml(payload.status)}
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        ${renderDashboardMetricCard("Requested decision", payload.requested_decision, "accept / reject / request-more-evidence")}
+        ${renderDashboardMetricCard("Eligible for review", String(payload.eligible_for_human_review === true), "Required before decision preview")}
+        ${renderDashboardMetricCard("Preview only", String(payload.preview_only === true), "No live mutation")}
+        ${renderDashboardMetricCard("Human review", String(payload.human_review_required === true), "Required")}
+      </div>
+
+      <div class="panel-grid">
+        <div class="list-item" data-axo-decision-states="true">
+          <strong>Decision states</strong>
+          <div class="muted">Accept preview: ${String(states.accept_supported === true)}</div>
+          <div class="muted">Reject preview: ${String(states.reject_supported === true)}</div>
+          <div class="muted">Request more evidence: ${String(states.request_more_evidence_supported === true)}</div>
+          <div class="muted">Eligible state required: ${String(states.eligible_state_required === true)}</div>
+        </div>
+
+        <div class="list-item" data-axo-score-separation="true">
+          <strong>Score separation</strong>
+          <div class="muted">Customer outcome score: ${escapeHtml(scores.customer_outcome_score ?? "—")}</div>
+          <div class="muted">System execution score: ${escapeHtml(scores.system_execution_score ?? "—")}</div>
+          <div class="muted">Must not merge: ${String(separation.must_not_merge_customer_and_system_scores === true)}</div>
+        </div>
+      </div>
+
+      <div class="list-item" data-axo-decision-side-effect-guards="true">
+        <strong>Side-effect guards</strong>
+        <div class="muted">Reputation mutation allowed: ${String(guards.reputation_mutation_allowed === true)}</div>
+        <div class="muted">Public trust update allowed: ${String(guards.public_trust_update_allowed === true)}</div>
+        <div class="muted">Booking side effect allowed: ${String(guards.booking_side_effect_allowed === true)}</div>
+        <div class="muted">Payment side effect allowed: ${String(guards.payment_side_effect_allowed === true)}</div>
+        <div class="muted">Escrow side effect allowed: ${String(guards.escrow_side_effect_allowed === true)}</div>
+        <div class="muted">External message side effect allowed: ${String(guards.external_message_side_effect_allowed === true)}</div>
+        <div class="muted">Live execution allowed: ${String(guards.live_execution_allowed === true)}</div>
+      </div>
+
+      <div class="list-item" data-axo-decision-packet-preview="true">
+        <strong>Decision packet preview</strong>
+        <pre><code>${escapeHtml(JSON.stringify(payload, null, 2))}</code></pre>
+      </div>
+    </section>
+  `;
+}
+/* END PHASE 15F LOCK */
+
+
 function renderAgentMapDashboardPanel() {
   const agentMapSafeFallback = {
     preview_only: true,
@@ -5745,6 +5863,7 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
       ${renderAxoReadinessDashboardPanel()}
+      ${renderAxoHumanReviewDecisionPreviewPanel()}
       ${renderTrustedFeedbackAcceptancePanel()}
       ${renderAgentMapDashboardPanel()}
 

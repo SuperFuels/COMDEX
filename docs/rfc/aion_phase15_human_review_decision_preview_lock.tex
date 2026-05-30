@@ -1,0 +1,96 @@
+\section{Phase 15F --- AXO/ETS Human Review Decision Preview Lock}
+\label{sec:phase15f-axo-ets-human-review-decision-preview-lock}
+
+\subsection{Status}
+
+Phase 15F is locked.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AXO/ETS trusted feedback can now enter a human-review decision preview without mutating reputation or live trust state.}
+\end{quote}
+
+Validation command:
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase15_human_review_decision_preview_lock.py
+\end{verbatim}
+
+Focused-suite validation:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Purpose}
+
+This lock adds a guarded human-review decision preview for AXO/ETS trusted feedback.
+
+The preview supports three bounded decision states:
+
+\begin{itemize}
+  \item accept;
+  \item reject;
+  \item request more evidence.
+\end{itemize}
+
+The decision preview is only a review surface. It MUST NOT mutate reputation, public trust state, bookings, payments, escrow, external messages, or live execution state.
+
+\subsection{Contract}
+
+The locked preview contract is:
+
+\begin{verbatim}
+aion.axo_human_review_decision_preview.v0.1
+\end{verbatim}
+
+The contract requires:
+
+\begin{itemize}
+  \item \texttt{preview\_only = true};
+  \item \texttt{human\_review\_required = true};
+  \item \texttt{automated\_decision\_allowed = false};
+  \item a valid trusted-feedback acceptance preview;
+  \item \texttt{eligible\_for\_human\_review = true} before a decision can be treated as reviewable;
+  \item customer outcome score and system execution score separation;
+  \item all live side effects blocked.
+\end{itemize}
+
+\subsection{Frontend Surface}
+
+The Boardroom now exposes:
+
+\begin{verbatim}
+renderAxoHumanReviewDecisionPreviewPanel()
+\end{verbatim}
+
+This panel displays:
+
+\begin{itemize}
+  \item requested decision;
+  \item eligibility for review;
+  \item preview-only state;
+  \item human-review requirement;
+  \item accept, reject, and request-more-evidence preview states;
+  \item customer/system score separation;
+  \item side-effect guard status.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The following remain explicitly blocked:
+
+\begin{itemize}
+  \item reputation mutation;
+  \item public trust update;
+  \item booking side effects;
+  \item payment side effects;
+  \item escrow side effects;
+  \item external message side effects;
+  \item live execution.
+\end{itemize}
+
+Lock ID: AION-PHASE15F-AXO-ETS-HUMAN-REVIEW-DECISION-PREVIEW-LOCK \\
+Status: LOCKED \\
+Maintainer: Tessaris AI \\
+Author: Kevin Robinson

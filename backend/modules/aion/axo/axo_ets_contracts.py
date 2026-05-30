@@ -345,6 +345,7 @@ def build_axo_readiness_dashboard_preview(
 
 AXO_ANTI_GAMING_RULESET_VERSION = "aion.axo_anti_gaming_ruleset.v0.1"
 AXO_TRUST_RULE_LOCK_VERSION = "aion.axo_trust_rule_lock.v0.1"
+AXO_HUMAN_REVIEW_DECISION_PREVIEW_VERSION = "aion.axo_human_review_decision_preview.v0.1"
 
 
 AXO_ANTI_GAMING_RULES: dict[str, Any] = {
@@ -574,4 +575,87 @@ def build_trusted_feedback_acceptance_preview(
     )
 
     return preview
+
+def build_axo_human_review_decision_preview(
+    packet: dict[str, Any] | None = None,
+    *,
+    requested_decision: str = "request_more_evidence",
+) -> dict[str, Any]:
+    """Build a preview-only human-review decision envelope for AXO/ETS feedback.
+
+    This function intentionally does not mutate reputation, public trust state,
+    booking state, payment state, escrow state, external messaging, or live
+    execution state.
+    """
+
+    allowed_decisions = {"accept", "reject", "request_more_evidence"}
+    if requested_decision not in allowed_decisions:
+        requested_decision = "request_more_evidence"
+
+    packet = packet or build_ets_feedback_packet_preview()
+    acceptance = build_trusted_feedback_acceptance_preview(packet)
+
+    eligible_for_human_review = bool(
+        acceptance.get("eligible_for_human_review")
+        or acceptance.get("eligible")
+        or acceptance.get("review_gate", {}).get("eligible_for_human_review")
+    )
+
+    blocking_reasons = list(
+        acceptance.get("blocking_reasons")
+        or acceptance.get("blockers")
+        or acceptance.get("review_gate", {}).get("blocking_reasons")
+        or []
+    )
+
+    if not eligible_for_human_review and "not_eligible_for_human_review" not in blocking_reasons:
+        blocking_reasons.append("not_eligible_for_human_review")
+
+    score_separation = packet.get("score_separation") or {
+        "customer_outcome_score_is_customer_signal": True,
+        "system_execution_score_is_machine_execution_signal": True,
+        "must_not_merge_customer_and_system_scores": True,
+    }
+
+    side_effect_guards = {
+        "reputation_mutation_allowed": False,
+        "public_trust_update_allowed": False,
+        "booking_side_effect_allowed": False,
+        "payment_side_effect_allowed": False,
+        "escrow_side_effect_allowed": False,
+        "external_message_side_effect_allowed": False,
+        "live_execution_allowed": False,
+    }
+
+    return {
+        "decision_preview_version": "aion.axo_human_review_decision_preview.v0.1",
+        "preview_only": True,
+        "human_review_required": True,
+        "automated_decision_allowed": False,
+        "requested_decision": requested_decision,
+        "decision": requested_decision,
+        "allowed_decisions": sorted(allowed_decisions),
+        "eligible_for_human_review": eligible_for_human_review,
+        "blocking_reasons": blocking_reasons,
+        "packet": {
+            **packet,
+            "score_separation": score_separation,
+        },
+        "trusted_feedback_acceptance_preview": acceptance,
+        "score_separation": score_separation,
+        "side_effect_guards": side_effect_guards,
+        "safety": {
+            "preview_only": True,
+            "human_review_required": True,
+            "automated_decision_allowed": False,
+            "no_reputation_mutation": True,
+            "no_public_trust_update": True,
+            "no_booking_side_effect": True,
+            "no_payment_side_effect": True,
+            "no_escrow_side_effect": True,
+            "no_external_message_side_effect": True,
+            "no_live_execution": True,
+        },
+    }
+
 
