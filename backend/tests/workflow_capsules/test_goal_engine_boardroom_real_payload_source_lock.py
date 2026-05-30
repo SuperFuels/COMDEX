@@ -4,6 +4,19 @@ from pathlib import Path
 APP = Path("desktop/mac/src/app.js")
 
 
+
+def _extract_function(text: str, name: str) -> str:
+    start_marker = f"function {name}"
+    start = text.find(start_marker)
+    if start == -1:
+        raise AssertionError(f"Could not find {name}")
+
+    next_function = text.find("\nfunction ", start + len(start_marker))
+    if next_function == -1:
+        next_function = len(text)
+
+    return text[start:next_function]
+
 def test_boardroom_visible_panels_have_real_source_resolver():
     text = APP.read_text()
 
