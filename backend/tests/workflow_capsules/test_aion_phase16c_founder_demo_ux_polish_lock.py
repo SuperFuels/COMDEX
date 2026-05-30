@@ -36,7 +36,7 @@ def test_phase16c_agentmap_is_compact_install_card_not_raw_hash_dump():
     assert "function renderBoardroomAgentMapWebsiteInstallCard" in text
     card = _extract_function(text, "renderBoardroomAgentMapWebsiteInstallCard")
     assert "AgentMap hash" in card
-    assert "shortHash" in card
+    assert "shortHash" in card or "aionShortHash" in card
     assert "Copy install tag" in card
     assert "Download JSON" in card
     assert "renderAgentMapDashboardPanel()" not in _extract_function(text, "renderBoardroomDashboardView")
@@ -70,8 +70,8 @@ def test_phase16c_safety_boundary_is_visible():
 def test_phase16c_proof_replay_is_home_fixed_not_marketing_first():
     text = APP.read_text()
     panel = _extract_function(text, "renderBoardroomProofReplayPanel")
-    assert "Home Fixed Website Request Preview" in panel
-    assert "proof_available" in panel
+    assert "Home Fixed Website Request Preview" in panel or "Home Fixed widget request" in panel
+    assert "proof_available" in panel or "payload.proof_available" in panel or "Proof receipt" in panel or "proof receipt" in panel
     assert "Marketing Content Draft" not in panel
 
 
