@@ -5386,6 +5386,211 @@ function renderAxoReadinessDashboardPanel() {
 /* END PHASE 15C LOCK */
 
 
+
+/* PHASE 15E LOCK: AXO/ETS trusted feedback acceptance preview frontend */
+function getDefaultTrustedFeedbackAcceptancePreview() {
+  return {
+    acceptance_version: "aion.trusted_feedback_acceptance.v0.1",
+    preview_only: true,
+    acceptance_status: "blocked_pending_review",
+    operator_decision: "pending_human_review",
+    eligible_for_human_review: false,
+    human_review_required: true,
+    trusted_feedback_acceptance_hash: "trusted-feedback-preview-hash",
+    blocking_reasons: [
+      "signature_not_verified",
+      "human_review_required",
+    ],
+    accepted_packet: {
+      ets_feedback_hash: "ets-feedback-preview-hash",
+      business_id: "home_fixed",
+      external_agent_id: "external_agent_preview",
+      signature_verified: false,
+      trace_links: {
+        job_trace_id: "job_trace_preview",
+        proof_receipt_id: "proof_receipt_preview",
+        evidence_ids: ["evidence_preview"],
+      },
+      scores: {
+        customer_outcome_score: 0,
+        system_execution_score: 0,
+        agent_reliability_score: 0,
+        evidence_quality_score: 0,
+      },
+      score_separation: {
+        customer_outcome_score_is_customer_signal: true,
+        system_execution_score_is_machine_execution_signal: true,
+        must_not_merge_customer_and_system_scores: true,
+      },
+    },
+    side_effects: {
+      reputation_mutation: false,
+      trust_score_mutation: false,
+      public_trust_state_mutation: false,
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+    },
+    safety: {
+      preview_only: true,
+      no_live_reputation_write: true,
+      no_live_trust_score_write: true,
+      no_public_trust_state_write: true,
+      no_autonomous_acceptance: true,
+      no_booking_side_effect: true,
+      no_payment_side_effect: true,
+      no_escrow_side_effect: true,
+      human_review_required: true,
+    },
+  };
+}
+
+function getTrustedFeedbackAcceptancePreview() {
+  if (!state.trustedFeedbackAcceptancePreview) {
+    state.trustedFeedbackAcceptancePreview = getDefaultTrustedFeedbackAcceptancePreview();
+  }
+  return state.trustedFeedbackAcceptancePreview;
+}
+
+function handleTrustedFeedbackPreviewDecision(decision) {
+  const current = getTrustedFeedbackAcceptancePreview();
+  const allowed = [
+    "pending_human_review",
+    "eligible_for_human_review",
+    "rejected_preview",
+  ];
+
+  const operatorDecision = allowed.includes(decision)
+    ? decision
+    : "pending_human_review";
+
+  const signatureVerified = current.accepted_packet?.signature_verified === true;
+  const hasBlockingReasons = Array.isArray(current.blocking_reasons)
+    && current.blocking_reasons.length > 0;
+
+  let nextStatus = "blocked_pending_review";
+  if (operatorDecision === "rejected_preview") {
+    nextStatus = "rejected_preview";
+  } else if (operatorDecision === "eligible_for_human_review" && signatureVerified && !hasBlockingReasons) {
+    nextStatus = "eligible_for_human_review";
+  } else if (operatorDecision === "eligible_for_human_review") {
+    nextStatus = "rejected_preview";
+  }
+
+  state.trustedFeedbackAcceptancePreview = {
+    ...current,
+    operator_decision: operatorDecision,
+    acceptance_status: nextStatus,
+    eligible_for_human_review: nextStatus === "eligible_for_human_review",
+    human_review_required: true,
+    preview_only: true,
+    side_effects: {
+      ...(current.side_effects || {}),
+      reputation_mutation: false,
+      trust_score_mutation: false,
+      public_trust_state_mutation: false,
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+    },
+  };
+
+  requestRender?.();
+}
+
+function renderTrustedFeedbackAcceptancePanel() {
+  const preview = getTrustedFeedbackAcceptancePreview();
+  const sideEffects = preview.side_effects || {};
+  const packet = preview.accepted_packet || {};
+  const scores = packet.scores || {};
+  const blockingReasons = Array.isArray(preview.blocking_reasons)
+    ? preview.blocking_reasons
+    : [];
+
+  return `
+    <section class="panel axo-trusted-feedback-acceptance-panel" data-axo-trusted-feedback-acceptance-panel="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">AXO / ETS</div>
+          <h2>Trusted Feedback Acceptance Preview</h2>
+          <p class="muted">
+            Guarded accept/reject preview for signed external-agent feedback. Eligible packets can only move to human review.
+          </p>
+        </div>
+        <div class="status-pill" data-axo-feedback-acceptance-status="${escapeHtml(preview.acceptance_status)}">
+          ${escapeHtml(preview.acceptance_status)}
+        </div>
+      </div>
+
+      <div class="button-row axo-feedback-actions">
+        <button type="button" data-axo-feedback-action="mark-review" onclick="handleTrustedFeedbackPreviewDecision('eligible_for_human_review')">
+          Mark eligible for human review
+        </button>
+        <button type="button" data-axo-feedback-action="reject-preview" onclick="handleTrustedFeedbackPreviewDecision('rejected_preview')">
+          Reject preview
+        </button>
+        <button type="button" data-axo-feedback-action="reset-pending" onclick="handleTrustedFeedbackPreviewDecision('pending_human_review')">
+          Reset pending
+        </button>
+      </div>
+
+      <div class="metric-grid">
+        ${renderDashboardMetricCard("Acceptance", preview.acceptance_status, "Preview only")}
+        ${renderDashboardMetricCard("Human review", String(preview.human_review_required === true), "Required")}
+        ${renderDashboardMetricCard("Signature", String(packet.signature_verified === true), "External-agent feedback")}
+        ${renderDashboardMetricCard("Acceptance hash", preview.trusted_feedback_acceptance_hash, "Deterministic preview hash")}
+      </div>
+
+      <div class="panel-grid">
+        <div class="list-item" data-axo-feedback-packet-summary="true">
+          <strong>Accepted packet preview</strong>
+          <div class="muted">Business: ${escapeHtml(packet.business_id || "—")}</div>
+          <div class="muted">External agent: ${escapeHtml(packet.external_agent_id || "—")}</div>
+          <div class="muted">ETS feedback hash: ${escapeHtml(packet.ets_feedback_hash || "—")}</div>
+          <div class="muted">Proof receipt: ${escapeHtml(packet.trace_links?.proof_receipt_id || "—")}</div>
+          <div class="muted">Job trace: ${escapeHtml(packet.trace_links?.job_trace_id || "—")}</div>
+          <div class="muted">Evidence: ${escapeHtml((packet.trace_links?.evidence_ids || []).join(", ") || "—")}</div>
+        </div>
+
+        <div class="list-item" data-axo-feedback-score-separation="true">
+          <strong>Score separation</strong>
+          <div class="muted">Customer outcome score: ${escapeHtml(scores.customer_outcome_score ?? "—")}</div>
+          <div class="muted">System execution score: ${escapeHtml(scores.system_execution_score ?? "—")}</div>
+          <div class="muted">Agent reliability score: ${escapeHtml(scores.agent_reliability_score ?? "—")}</div>
+          <div class="muted">Evidence quality score: ${escapeHtml(scores.evidence_quality_score ?? "—")}</div>
+          <div class="muted">Customer and system scores remain separate.</div>
+        </div>
+      </div>
+
+      <div class="list-item" data-axo-feedback-blocking-reasons="true">
+        <strong>Blocking reasons</strong>
+        <div class="badge-row">
+          ${
+            blockingReasons.length
+              ? blockingReasons.map((reason) => `<span class="badge">${escapeHtml(reason)}</span>`).join("")
+              : `<span class="badge">none</span>`
+          }
+        </div>
+      </div>
+
+      <div class="list-item" data-axo-feedback-side-effects="true">
+        <strong>Side-effect boundary</strong>
+        <div class="muted">Reputation mutation: ${String(sideEffects.reputation_mutation === true)}</div>
+        <div class="muted">Trust score mutation: ${String(sideEffects.trust_score_mutation === true)}</div>
+        <div class="muted">Public trust state mutation: ${String(sideEffects.public_trust_state_mutation === true)}</div>
+        <div class="muted">Booking created: ${String(sideEffects.booking_created === true)}</div>
+        <div class="muted">Payment created: ${String(sideEffects.payment_created === true)}</div>
+        <div class="muted">Escrow created: ${String(sideEffects.escrow_created === true)}</div>
+        <div class="muted">External message sent: ${String(sideEffects.external_message_sent === true)}</div>
+      </div>
+    </section>
+  `;
+}
+/* END PHASE 15E LOCK */
+
+
 function renderAgentMapDashboardPanel() {
   const agentMapSafeFallback = {
     preview_only: true,
@@ -5540,6 +5745,7 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
       ${renderAxoReadinessDashboardPanel()}
+      ${renderTrustedFeedbackAcceptancePanel()}
       ${renderAgentMapDashboardPanel()}
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}

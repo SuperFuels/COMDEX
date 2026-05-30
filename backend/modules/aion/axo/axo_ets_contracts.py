@@ -7,6 +7,7 @@ from typing import Any
 
 
 ETS_FEEDBACK_PACKET_VERSION = "aion.ets_feedback_packet.v0.1"
+TRUSTED_FEEDBACK_ACCEPTANCE_VERSION = "aion.trusted_feedback_acceptance.v0.1"
 
 
 AXO_SCORING_VOCABULARY: dict[str, Any] = {
@@ -465,3 +466,112 @@ def build_axo_anti_gaming_agentmap_extension(
         "checks": lock["checks"],
         "safety": lock["safety"],
     }
+
+
+def build_trusted_feedback_acceptance_preview(
+    packet: dict[str, Any] | None = None,
+    *,
+    operator_decision: str = "pending_human_review",
+) -> dict[str, Any]:
+    """Build a guarded trusted-feedback acceptance preview.
+
+    This preview can mark a signed/external feedback packet as eligible for
+    human review, rejected for explicit lock reasons, or still pending. It
+    never mutates reputation, trust scores, booking state, payment state, or
+    public trust state.
+    """
+    packet = packet or build_ets_feedback_packet_preview()
+    validation = validate_ets_feedback_packet_preview(packet)
+
+    trust_rule = build_axo_trust_rule_lock_preview(packet)
+    blocking_reasons = list(trust_rule.get("blocking_reasons") or [])
+
+    external_agent = packet.get("external_agent") or {}
+    signature_verified = external_agent.get("signature_verified") is True
+
+    allowed_decisions = {
+        "pending_human_review",
+        "eligible_for_human_review",
+        "rejected_preview",
+    }
+
+    if operator_decision not in allowed_decisions:
+        operator_decision = "pending_human_review"
+        blocking_reasons.append("invalid_operator_decision_normalised")
+
+    eligible_for_human_review = (
+        validation.get("ok") is True
+        and signature_verified is True
+        and not blocking_reasons
+    )
+
+    if operator_decision == "eligible_for_human_review" and not eligible_for_human_review:
+        operator_decision = "rejected_preview"
+        if "not_eligible_for_human_review" not in blocking_reasons:
+            blocking_reasons.append("not_eligible_for_human_review")
+
+    if operator_decision == "eligible_for_human_review":
+        acceptance_status = "eligible_for_human_review"
+    elif operator_decision == "rejected_preview":
+        acceptance_status = "rejected_preview"
+    elif eligible_for_human_review:
+        acceptance_status = "ready_for_human_review"
+    else:
+        acceptance_status = "blocked_pending_review"
+
+    preview = {
+        "acceptance_version": TRUSTED_FEEDBACK_ACCEPTANCE_VERSION,
+        "preview_only": True,
+        "acceptance_status": acceptance_status,
+        "operator_decision": operator_decision,
+        "eligible_for_human_review": eligible_for_human_review,
+        "human_review_required": True,
+        "packet_validation": validation,
+        "trust_rule_preview": trust_rule,
+        "blocking_reasons": blocking_reasons,
+        "accepted_packet": {
+            "ets_feedback_hash": packet.get("ets_feedback_hash"),
+            "business_id": packet.get("business_id"),
+            "external_agent_id": external_agent.get("agent_id"),
+            "signature_verified": signature_verified,
+            "trace_links": packet.get("trace_links"),
+            "scores": packet.get("scores"),
+            "score_separation": packet.get("score_separation"),
+        },
+        "side_effects": {
+            "reputation_mutation": False,
+            "trust_score_mutation": False,
+            "public_trust_state_mutation": False,
+            "booking_created": False,
+            "payment_created": False,
+            "escrow_created": False,
+            "external_message_sent": False,
+        },
+        "safety": {
+            "preview_only": True,
+            "no_live_reputation_write": True,
+            "no_live_trust_score_write": True,
+            "no_public_trust_state_write": True,
+            "no_autonomous_acceptance": True,
+            "no_booking_side_effect": True,
+            "no_payment_side_effect": True,
+            "no_escrow_side_effect": True,
+            "human_review_required": True,
+        },
+    }
+
+    preview["trusted_feedback_acceptance_hash"] = _sha256(
+        {
+            "acceptance_version": preview["acceptance_version"],
+            "acceptance_status": preview["acceptance_status"],
+            "operator_decision": preview["operator_decision"],
+            "eligible_for_human_review": preview["eligible_for_human_review"],
+            "accepted_packet": preview["accepted_packet"],
+            "side_effects": preview["side_effects"],
+            "safety": preview["safety"],
+            "blocking_reasons": preview["blocking_reasons"],
+        }
+    )
+
+    return preview
+
