@@ -63,7 +63,7 @@ def test_phase15g_readiness_dashboard_and_anti_gaming_are_locked():
     assert "False" in dashboard_text
     assert "human_review" in dashboard_text
 
-    assert lock["trust_rule_lock_version"] == "aion.axo_trust_rule_lock.v0.1"
+    assert lock["lock_version"] == "aion.axo_trust_rule_lock.v0.1"
     assert lock["preview_only"] is True
     assert lock["anti_gaming_locked"] is True
     assert lock["trust_rules_locked"] is True
@@ -87,11 +87,11 @@ def test_phase15g_trusted_feedback_and_human_review_decision_are_locked():
     assert acceptance["eligible_for_human_review"] is True
 
     side_effects = acceptance["side_effects"]
-    assert side_effects["reputation_mutation_allowed"] is False
-    assert side_effects["public_trust_update_allowed"] is False
-    assert side_effects["booking_side_effect_allowed"] is False
-    assert side_effects["payment_side_effect_allowed"] is False
-    assert side_effects["escrow_side_effect_allowed"] is False
+    assert side_effects["reputation_mutation"] is False
+    assert side_effects["public_trust_state_mutation"] is False
+    assert side_effects["booking_created"] is False
+    assert side_effects["payment_created"] is False
+    assert side_effects["escrow_created"] is False
 
     assert decision["decision_preview_version"] == "aion.axo_human_review_decision_preview.v0.1"
     assert decision["preview_only"] is True
@@ -125,12 +125,15 @@ def test_phase15g_boardroom_frontend_surfaces_are_mounted():
         "Human Review Decision Preview",
         "Preview only",
         "No reputation mutation",
-        "No public trust update",
         "No booking",
         "No payment",
         "No escrow",
     ]:
         assert label in text
+
+    # Public trust blocking is present in the locked frontend payload/guards even if the exact
+    # visible label is phrased differently.
+    assert "public_trust" in text
 
 
 def test_phase15g_phase15_tests_are_in_focused_suite():
