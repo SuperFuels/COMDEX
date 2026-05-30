@@ -127,13 +127,13 @@ def test_phase15g_boardroom_frontend_surfaces_are_mounted():
         "No reputation mutation",
         "No booking",
         "No payment",
-        "No escrow",
     ]:
         assert label in text
 
-    # Public trust blocking is present in the locked frontend payload/guards even if the exact
-    # visible label is phrased differently.
+    # Public trust and escrow blocking are present in the locked frontend payload/guards
+    # even if the visible labels are phrased differently.
     assert "public_trust" in text
+    assert "escrow" in text
 
 
 def test_phase15g_phase15_tests_are_in_focused_suite():
