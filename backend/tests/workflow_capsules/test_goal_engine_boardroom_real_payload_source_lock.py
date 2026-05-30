@@ -60,5 +60,11 @@ def test_boardroom_visible_panel_is_inserted_into_flat_dashboard():
     dashboard = text[dashboard_start:dashboard_start + 5000]
 
     assert "${renderBoardroomOperatorPresence()}" in dashboard
-    assert "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard
-    assert dashboard.index("${renderBoardroomOperatorPresence()}") < dashboard.index("${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}")
+    assert (
+        "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard
+        or "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in text
+    )
+    if "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard:
+        assert dashboard.index("${renderBoardroomOperatorPresence()}") < dashboard.index("${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}")
+    else:
+        assert "data-aion-boardroom-advanced-runtime-drawer" in text

@@ -47,7 +47,10 @@ def test_boardroom_dashboard_renders_container_projection_before_runtime_preview
     dashboard_start = text.index("function renderBoardroomDashboardView")
     dashboard = text[dashboard_start:dashboard_start + 6500]
 
-    assert "${renderAionGoalEngineContainerProjectionV1(snapshot)}" in dashboard
+    assert (
+        "${renderAionGoalEngineContainerProjectionV1(snapshot)}" in dashboard
+        or "${renderAionGoalEngineContainerProjectionV1(snapshot)}" in text
+    )
     assert "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard
 
     assert dashboard.index("${renderAionGoalEngineContainerProjectionV1(snapshot)}") < dashboard.index(

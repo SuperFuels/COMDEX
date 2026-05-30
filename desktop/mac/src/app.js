@@ -5818,15 +5818,6 @@ function renderAgentMapDashboardPanel() {
 }
 
 function renderBoardroomDashboardView(snapshot) {
-  /*
-   * PHASE 16A COMPATIBILITY MARKERS:
-   * These legacy Goal Engine panels now render inside the Advanced Runtime Drawer,
-   * but prior boardroom lock tests assert that the dashboard still preserves their
-   * canonical mount contract.
-   *
-   * ${renderAionGoalEngineContainerProjectionV1(snapshot)}
-   * ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
-   */
 
   const workspace = getBoardroomWorkspace();
   const pulse = getBoardroomPulse();
