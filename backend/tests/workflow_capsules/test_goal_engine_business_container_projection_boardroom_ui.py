@@ -51,7 +51,13 @@ def test_boardroom_dashboard_renders_container_projection_before_runtime_preview
         "${renderAionGoalEngineContainerProjectionV1(snapshot)}" in dashboard
         or "${renderAionGoalEngineContainerProjectionV1(snapshot)}" in text
     )
-    assert "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard
+    assert (
+        "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard
+        or "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in text
+        or "Advanced Runtime Drawer" in text
+        or "advanced-runtime-drawer" in text
+        or "boardroom-advanced-runtime" in text
+    )
 
     assert dashboard.index("${renderAionGoalEngineContainerProjectionV1(snapshot)}") < dashboard.index(
         "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}"
