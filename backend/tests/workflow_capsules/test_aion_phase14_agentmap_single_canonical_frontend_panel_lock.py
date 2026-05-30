@@ -84,21 +84,20 @@ def test_phase14m_boardroom_agentmap_order_is_before_approvals():
         "renderAgentMapDashboardPanel()",
         "renderBoardroomA2ASetupPanel(snapshot)",
         "renderBoardroomAgentMapWebsiteInstallCard(snapshot)",
-        "renderBoardroomWorkflowToWidgetCard(snapshot)",
-        "AgentMap / website install",
-        "AgentMap",
+    ]
+    approval_markers = [
+        "renderBoardroomHumanReviewQueuePanel(runtimeApprovals)",
+        "renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)",
     ]
 
-    agentmap_idx = -1
-    for marker in agentmap_markers:
-        idx = boardroom.find(marker)
-        if idx != -1:
-            agentmap_idx = idx
-            break
-
-    approvals_idx = boardroom.find("renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)")
-    if approvals_idx == -1:
-        approvals_idx = boardroom.find("renderBoardroomHumanReviewQueuePanel(snapshot)")
+    agentmap_idx = min(
+        [boardroom.find(marker) for marker in agentmap_markers if boardroom.find(marker) != -1],
+        default=-1,
+    )
+    approvals_idx = min(
+        [boardroom.find(marker) for marker in approval_markers if boardroom.find(marker) != -1],
+        default=-1,
+    )
 
     assert agentmap_idx != -1
     assert approvals_idx != -1

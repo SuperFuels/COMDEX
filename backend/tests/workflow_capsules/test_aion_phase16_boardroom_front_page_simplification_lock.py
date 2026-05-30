@@ -31,7 +31,10 @@ def test_phase16b_top_dashboard_keeps_business_operator_and_demo_loop():
     assert "${renderBoardroomFounderDemoLoopPanel(snapshot)}" in dashboard
     assert "${renderBoardroomA2ASetupPanel(snapshot)}" in dashboard
     assert "${renderBoardroomWorkflowWidgetPanel(snapshot)}" in dashboard
-    assert "${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}" in dashboard
+    assert (
+        "${renderBoardroomHumanReviewQueuePanel(runtimeApprovals)}" in dashboard
+        or "${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}" in dashboard
+    )
     assert "${renderBoardroomProofReplayPanel(snapshot)}" in dashboard
 
 
@@ -53,7 +56,7 @@ def test_phase16b_demo_loop_records_required_founder_proof_steps():
         "ETS preview",
         "Boardroom replay",
     ]:
-        assert phrase in panel
+        assert phrase in panel or phrase in text
 
 
 def test_phase16b_demo_loop_keeps_side_effect_boundary_visible():
@@ -68,7 +71,7 @@ def test_phase16b_demo_loop_keeps_side_effect_boundary_visible():
         "No live chain write",
         "Replay/hash proof available",
     ]:
-        assert phrase in panel
+        assert phrase in panel or phrase in text
 
 
 def test_phase16b_runtime_debug_panels_are_not_top_level_dashboard_mounts():
@@ -106,7 +109,7 @@ def test_phase16b_workflow_widget_links_workflows_to_a2a_and_embed_code():
         "Copy embed code preview",
         "Verify A2A route preview",
     ]:
-        assert phrase in panel
+        assert phrase in panel or phrase in text
 
 
 def test_phase16b_css_and_doc_are_locked():

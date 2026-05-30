@@ -5735,6 +5735,320 @@ function renderBoardroomAdvancedRuntimeDrawer(snapshot = {}) {
 /* END PHASE 16A LOCK */
 
 
+
+
+/* PHASE 16C LOCK: Founder demo UX polish + workflow/A2A preview bridge */
+function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
+  const proofHash =
+    snapshot?.proof_receipt?.proof_hash ||
+    snapshot?.proofReceipt?.proof_hash ||
+    "preview-proof-hash-home-fixed";
+
+  return {
+    business_id: "home_fixed",
+    business_name: "Home Fixed",
+    vertical_key: "home_repair",
+    workflow_id: "home_fixed_repair_intake",
+    workflow_name: "Home Fixed Repair Enquiry",
+    route_status: "preview_ready",
+    human_review_required: true,
+    preview_only: true,
+    proof_hash: proofHash,
+    steps: [
+      "Website/widget request",
+      "Public Intent Gateway",
+      "Guard Envelope",
+      "AgentMap route",
+      "Machine Cart quote preview",
+      "Human Review handoff",
+      "Founder decision preview",
+      "FulfilmentJob preview",
+      "Evidence preview",
+      "Proof receipt",
+      "ETS preview",
+      "Boardroom replay",
+    ],
+    side_effects: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+    },
+  };
+}
+
+function getBoardroomWorkflowWidgetPreviewPayload(snapshot = {}) {
+  return {
+    workflow_id: "home_fixed_repair_intake",
+    workflow_name: "Home Fixed Repair Enquiry",
+    selected_vertical: "home_repair",
+    public_gateway_route: "/api/public-intent/home-fixed",
+    agentmap_route: "/agentmap.json",
+    a2a_capability: "home_repair.quote_preview",
+    fields: [
+      "Customer name",
+      "Phone / WhatsApp",
+      "Location",
+      "Service needed",
+      "Problem description",
+      "Photo upload",
+      "Preferred contact time",
+    ],
+    embed_code:
+      '<script src="/aion-widget.js" data-agentmap="/agentmap.json" data-workflow="home_fixed_repair_intake" data-mode="preview"></script>',
+    safety: {
+      preview_only: true,
+      no_booking_created: true,
+      no_payment_created: true,
+      no_escrow_created: true,
+      no_external_message_sent: true,
+      no_live_chain_write: true,
+      human_review_required: true,
+    },
+  };
+}
+
+function renderBoardroomSafetyStrip(payload = {}) {
+  const sideEffects = payload.side_effects || payload.safety || {};
+  const items = [
+    ["No booking", sideEffects.booking_created === false || sideEffects.no_booking_created === true],
+    ["No payment", sideEffects.payment_created === false || sideEffects.no_payment_created === true],
+    ["No escrow", sideEffects.escrow_created === false || sideEffects.no_escrow_created === true],
+    ["No external message", sideEffects.external_message_sent === false || sideEffects.no_external_message_sent === true],
+    ["No live chain write", sideEffects.live_chain_write === false || sideEffects.no_live_chain_write === true],
+    ["Human review required", payload.human_review_required === true || sideEffects.human_review_required === true],
+  ];
+
+  return `
+    <div class="aion-founder-safety-strip" data-aion-founder-demo-safety-strip="true">
+      ${items.map(([label, ok]) => `
+        <span class="aion-founder-safety-pill ${ok ? "is-safe" : "is-warning"}">${escapeHtml(label)}</span>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+  const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
+
+  return `
+    <section class="panel large-panel aion-founder-demo-loop-panel" data-aion-founder-demo-loop-panel="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Founder Demo Loop</div>
+          <h2>Home Fixed Website → A2A → Proof Replay</h2>
+          <p class="muted">
+            One repeatable proof path from website request to guarded quote preview, human review,
+            fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
+          </p>
+        </div>
+        <div class="status-pill">${escapeHtml(payload.route_status)}</div>
+      </div>
+
+      <div class="aion-founder-demo-route" data-aion-founder-demo-route="true">
+        ${payload.steps.map((step, index) => `
+          <span class="aion-founder-route-step">
+            <b>${index + 1}</b>
+            ${escapeHtml(step)}
+          </span>
+        `).join("")}
+      </div>
+
+      ${renderBoardroomSafetyStrip(payload)}
+
+      <div class="button-row aion-founder-demo-actions">
+        <button type="button" data-founder-demo-run-preview="true" onclick="handleBoardroomFounderDemoPreviewAction('run_preview')">Run Home Fixed preview</button>
+        <button type="button" data-founder-demo-human-review="true" onclick="handleBoardroomFounderDemoPreviewAction('open_human_review')">Open human review</button>
+        <button type="button" data-founder-demo-proof-receipt="true" onclick="handleBoardroomFounderDemoPreviewAction('view_proof_receipt')">View proof receipt</button>
+        <button type="button" data-founder-demo-replay="true" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay boardroom trace</button>
+      </div>
+
+      <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
+        <strong>Proof hash:</strong>
+        <code>${escapeHtml(payload.proof_hash)}</code>
+      </div>
+    </section>
+  `;
+}
+
+function handleBoardroomFounderDemoPreviewAction(action) {
+  state.boardroomFounderDemoLastAction = String(action || "idle");
+  requestRender?.();
+}
+
+function renderBoardroomAgentMapWebsiteInstallCard(snapshot = {}) {
+  const preview = getAgentMapDashboardPreviewPayload();
+  const hash = String(preview.agentmap_hash || "preview-agentmap-hash");
+  const shortHash = hash.length > 18 ? `${hash.slice(0, 12)}…${hash.slice(-8)}` : hash;
+
+  return `
+    <section class="panel aion-agentmap-install-card" data-aion-agentmap-install-card="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Website + AgentMap</div>
+          <h2>Connect Website + AgentMap</h2>
+          <p class="muted">
+            Generate discovery metadata, copy the install tag, and verify the website can expose the A2A route.
+          </p>
+        </div>
+        <div class="status-pill">${escapeHtml(preview.live_verification_status || "preview")}</div>
+      </div>
+
+      <div class="aion-compact-install-grid">
+        <div class="aion-compact-install-row">
+          <span>AgentMap hash</span>
+          <code title="${escapeHtml(hash)}">${escapeHtml(shortHash)}</code>
+        </div>
+        <div class="aion-compact-install-row">
+          <span>Hosted URL</span>
+          <code>${escapeHtml(preview.hosted_agentmap_url || "/agentmap.json")}</code>
+        </div>
+        <div class="aion-compact-install-row">
+          <span>Well-known URL</span>
+          <code>${escapeHtml(preview.self_hosted_agentmap_url || "/.well-known/agentmap.json")}</code>
+        </div>
+        <div class="aion-compact-install-row">
+          <span>Install tag</span>
+          <code>${escapeHtml(preview.install_tag || '<link rel="agentmap" type="application/json" href="/agentmap.json">')}</code>
+        </div>
+      </div>
+
+      <div class="button-row aion-agentmap-install-actions">
+        <button type="button" onclick="handleGenerateAgentMapPreview()">Generate AgentMap</button>
+        <button type="button" onclick="handleCopyAgentMapInstallTag()">Copy install tag</button>
+        <button type="button" onclick="handleCopyAgentMapUrl()">Copy URL</button>
+        <button type="button" onclick="handleDownloadAgentMapJson()">Download JSON</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomWorkflowWebsiteFormCard(snapshot = {}) {
+  const payload = getBoardroomWorkflowWidgetPreviewPayload(snapshot);
+
+  return `
+    <section class="panel aion-workflow-widget-card" data-aion-workflow-widget-card="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Workflow → Website Form</div>
+          <h2>Generate Customer Intake Flow</h2>
+          <p class="muted">
+            Pick a workflow, generate a website form/widget, connect it to the Public Intent Gateway,
+            and keep quote/job decisions behind operator approval.
+          </p>
+        </div>
+        <div class="status-pill">preview_only</div>
+      </div>
+
+      <div class="aion-workflow-widget-summary">
+        <div>
+          <strong>${escapeHtml(payload.workflow_name)}</strong>
+          <span>${escapeHtml(payload.workflow_id)}</span>
+        </div>
+        <div>
+          <strong>A2A capability</strong>
+          <span>${escapeHtml(payload.a2a_capability)}</span>
+        </div>
+        <div>
+          <strong>Gateway route</strong>
+          <span>${escapeHtml(payload.public_gateway_route)}</span>
+        </div>
+      </div>
+
+      <div class="aion-widget-field-list" data-aion-widget-field-list="true">
+        ${payload.fields.map((field) => `<span>${escapeHtml(field)}</span>`).join("")}
+      </div>
+
+      <div class="aion-embed-preview" data-aion-widget-embed-preview="true">
+        <strong>Embed code preview</strong>
+        <pre><code>${escapeHtml(payload.embed_code)}</code></pre>
+      </div>
+
+      ${renderBoardroomSafetyStrip(payload)}
+
+      <div class="button-row aion-workflow-widget-actions">
+        <button type="button" data-workflow-form-generate-preview="true" onclick="handleBoardroomWorkflowWidgetPreviewAction('generate_form')">Generate workflow form preview</button>
+        <button type="button" data-workflow-form-copy-embed="true" onclick="handleBoardroomWorkflowWidgetPreviewAction('copy_embed')">Copy embed code preview</button>
+        <button type="button" data-workflow-form-verify-route="true" onclick="handleBoardroomWorkflowWidgetPreviewAction('verify_route')">Verify A2A route preview</button>
+      </div>
+    </section>
+  `;
+}
+
+function handleBoardroomWorkflowWidgetPreviewAction(action) {
+  state.boardroomWorkflowWidgetLastAction = String(action || "idle");
+  requestRender?.();
+}
+
+function renderBoardroomHumanReviewQueuePanel(runtimeApprovals = []) {
+  const pending = safeArray(runtimeApprovals).filter((item) => item?.status === "pending");
+
+  return `
+    <section class="panel large-panel aion-human-review-queue-panel" data-aion-human-review-queue-panel="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Human Review Queue</div>
+          <h2>Operator Decisions</h2>
+          <p class="muted">Quote, job, evidence, and settlement-readiness decisions stay behind human approval.</p>
+        </div>
+        <div class="status-pill">${pending.length} pending</div>
+      </div>
+
+      ${
+        pending.length
+          ? pending.map((item) => `
+              <div class="list-item">
+                <strong>${escapeHtml(item.title || item.workflow_id || "Pending approval")}</strong>
+                <div class="muted">${escapeHtml(item.status || "pending")}</div>
+              </div>
+            `).join("")
+          : `<div class="notice" data-aion-human-review-empty="true">No pending human review decisions.</div>`
+      }
+    </section>
+  `;
+}
+
+function renderBoardroomProofReplayPanel(snapshot = {}) {
+  const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
+
+  return `
+    <section class="panel large-panel aion-proof-replay-panel" data-aion-proof-replay-panel="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Replay + Proof</div>
+          <h2>Recent Replay / Proof Receipts</h2>
+          <p class="muted">Show the founder proof trail without exposing all runtime internals on the front page.</p>
+        </div>
+        <div class="status-pill">1 preview</div>
+      </div>
+
+      <div class="aion-proof-replay-row" data-aion-proof-replay-row="true">
+        <div>
+          <strong>Home Fixed Website Request Preview</strong>
+          <span>guarded_preview · human_review_required · proof_available</span>
+        </div>
+        <code>${escapeHtml(payload.proof_hash)}</code>
+        <div class="button-row">
+          <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('inspect_proof')">Inspect proof</button>
+          <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomA2ASetupPanel(snapshot = {}) {
+  return `
+    <div class="two-col aion-a2a-setup-grid" data-aion-boardroom-a2a-setup-panel="true">
+      ${renderBoardroomAgentMapWebsiteInstallCard(snapshot)}
+      ${renderBoardroomWorkflowWebsiteFormCard(snapshot)}
+    </div>
+  `;
+}
+/* END PHASE 16C LOCK */
+
+
 function renderAgentMapDashboardPanel() {
   const agentMapSafeFallback = {
     preview_only: true,
@@ -6095,7 +6409,7 @@ function renderBoardroomDashboardView(snapshot) {
         ${renderBoardroomWorkflowWidgetPanel(snapshot)}
       </div>
 
-      ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
+      ${renderBoardroomHumanReviewQueuePanel(runtimeApprovals)}
 
       ${renderBoardroomProofReplayPanel(snapshot)}
 
