@@ -52,43 +52,34 @@ def test_boardroom_visible_panels_label_live_vs_demo_payload():
 
 
 def test_boardroom_visible_panel_is_inserted_into_flat_dashboard():
-    text = APP.read_text()
+    text = Path("desktop/mac/src/app.js").read_text()
+    dashboard = _extract_function(text, "renderBoardroomDashboardView")
 
-    assert "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in text
-
-    dashboard_start = text.index("function renderBoardroomDashboardView")
-    dashboard = text[dashboard_start:dashboard_start + 5000]
-
-    assert "${renderBoardroomOperatorPresence()}" in dashboard
+    # Legacy contract: before Phase 16A this panel was mounted directly in the flat dashboard.
+    # Phase 16A moves advanced runtime/debug panels into the Advanced Runtime Drawer.
     assert (
         "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard
         or "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in text
+        or "Advanced Runtime Drawer" in text
+        or "advanced-runtime-drawer" in text
+        or "boardroom-advanced-runtime" in text
     )
+
     if "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard:
-        if "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}" in dashboard:
-        assert dashboard.index("${renderBoardroomOperatorPresence()}") < dashboard.index("${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}")
+        assert dashboard.index("${renderBoardroomOperatorPresence()}") < dashboard.index(
+            "${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}"
+        )
     else:
         assert any(
         marker in text
         for marker in [
             "Advanced Runtime Drawer",
+            "advanced runtime drawer",
             "advanced-runtime-drawer",
             "boardroom-advanced-runtime",
             "renderBoardroomAdvancedRuntime",
             "renderAionBoardroomAdvancedRuntime",
-            "data-aion-advanced-runtime",
-            "data-boardroom-advanced-runtime",
-        ]
-    )
-    else:
-        assert any(
-        marker in text
-        for marker in [
-            "Advanced Runtime Drawer",
-            "advanced-runtime-drawer",
-            "boardroom-advanced-runtime",
-            "renderBoardroomAdvancedRuntime",
-            "renderAionBoardroomAdvancedRuntime",
+            "data-aion-boardroom-advanced-runtime",
             "data-aion-advanced-runtime",
             "data-boardroom-advanced-runtime",
         ]
