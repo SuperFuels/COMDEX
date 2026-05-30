@@ -70,7 +70,8 @@ def build_ets_feedback_packet_preview(
     evidence_quality_score: int = 0,
     signature_preview: str = "signature_preview_unverified",
 ) -> dict[str, Any]:
-    evidence_ids = evidence_ids or ["evidence_preview"]
+    if evidence_ids is None:
+        evidence_ids = ["evidence_preview"]
 
     packet: dict[str, Any] = {
         "packet_version": ETS_FEEDBACK_PACKET_VERSION,
@@ -336,3 +337,131 @@ def build_axo_readiness_dashboard_preview(
         },
     }
 
+
+# ---------------------------------------------------------------------------
+# Phase 15D — Anti-gaming + Trust Rule Lock Foundation
+# ---------------------------------------------------------------------------
+
+AXO_ANTI_GAMING_RULESET_VERSION = "aion.axo_anti_gaming_ruleset.v0.1"
+AXO_TRUST_RULE_LOCK_VERSION = "aion.axo_trust_rule_lock.v0.1"
+
+
+AXO_ANTI_GAMING_RULES: dict[str, Any] = {
+    "version": AXO_ANTI_GAMING_RULESET_VERSION,
+    "preview_only": True,
+    "rules": {
+        "signed_feedback_required": {
+            "description": "External-agent feedback must be signed before it can contribute to trusted scoring.",
+            "required": True,
+        },
+        "proof_receipt_required": {
+            "description": "ETS feedback must link to a verifiable proof receipt.",
+            "required": True,
+        },
+        "evidence_required": {
+            "description": "ETS feedback must link to at least one evidence item.",
+            "required": True,
+        },
+        "job_trace_required": {
+            "description": "ETS feedback must link to the job trace being scored.",
+            "required": True,
+        },
+        "customer_system_score_separation_required": {
+            "description": "Customer outcome score and system execution score must remain separate.",
+            "required": True,
+        },
+        "self_scoring_blocked": {
+            "description": "A business or agent must not directly approve its own trust mutation.",
+            "required": True,
+        },
+        "human_review_required_for_trust_mutation": {
+            "description": "Any future trust/reputation mutation requires human review.",
+            "required": True,
+        },
+    },
+    "live_reputation_mutation_allowed": False,
+}
+
+
+def build_axo_trust_rule_lock_preview(
+    packet: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    packet = packet or build_ets_feedback_packet_preview()
+    validation = validate_ets_feedback_packet_preview(packet)
+
+    trace_links = packet.get("trace_links") or {}
+    external_agent = packet.get("external_agent") or {}
+    score_separation = packet.get("score_separation") or {}
+
+    checks = {
+        "signed_feedback_present": bool(external_agent.get("signature_preview")),
+        "signature_verified": external_agent.get("signature_verified") is True,
+        "proof_receipt_linked": bool(trace_links.get("proof_receipt_id")),
+        "job_trace_linked": bool(trace_links.get("job_trace_id")),
+        "evidence_linked": bool(trace_links.get("evidence_ids")),
+        "customer_system_scores_separated": (
+            score_separation.get("must_not_merge_customer_and_system_scores") is True
+        ),
+        "packet_valid_preview": validation.get("ok") is True,
+        "human_review_required": packet.get("human_review_required") is True,
+        "live_reputation_mutation_allowed": packet.get("live_reputation_mutation_allowed") is True,
+    }
+
+    blocking_reasons: list[str] = []
+
+    if not checks["signed_feedback_present"]:
+        blocking_reasons.append("signed_feedback_required")
+    if not checks["signature_verified"]:
+        blocking_reasons.append("signature_not_verified")
+    if not checks["proof_receipt_linked"]:
+        blocking_reasons.append("proof_receipt_required")
+    if not checks["job_trace_linked"]:
+        blocking_reasons.append("job_trace_required")
+    if not checks["evidence_linked"]:
+        blocking_reasons.append("evidence_required")
+    if not checks["customer_system_scores_separated"]:
+        blocking_reasons.append("customer_system_score_separation_required")
+    if checks["live_reputation_mutation_allowed"]:
+        blocking_reasons.append("live_reputation_mutation_forbidden_in_preview")
+
+    trusted_score_allowed = False
+
+    return {
+        "lock_version": AXO_TRUST_RULE_LOCK_VERSION,
+        "ruleset_version": AXO_ANTI_GAMING_RULESET_VERSION,
+        "preview_only": True,
+        "anti_gaming_locked": True,
+        "trust_rules_locked": True,
+        "trusted_score_allowed": trusted_score_allowed,
+        "human_review_required": True,
+        "live_reputation_mutation_allowed": False,
+        "checks": checks,
+        "blocking_reasons": blocking_reasons,
+        "status": "blocked_preview" if blocking_reasons else "review_required_preview",
+        "safety": {
+            "no_live_reputation_write": True,
+            "no_autonomous_score_acceptance": True,
+            "no_customer_system_score_merge": True,
+            "no_booking_side_effect": True,
+            "no_payment_side_effect": True,
+            "no_escrow_side_effect": True,
+        },
+    }
+
+
+def build_axo_anti_gaming_agentmap_extension(
+    packet: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    lock = build_axo_trust_rule_lock_preview(packet)
+
+    return {
+        "agentmap_extension": "aion.axo_anti_gaming_preview.v0.1",
+        "preview_only": True,
+        "anti_gaming_locked": lock["anti_gaming_locked"],
+        "trust_rules_locked": lock["trust_rules_locked"],
+        "trusted_score_allowed": lock["trusted_score_allowed"],
+        "human_review_required": lock["human_review_required"],
+        "blocking_reasons": lock["blocking_reasons"],
+        "checks": lock["checks"],
+        "safety": lock["safety"],
+    }

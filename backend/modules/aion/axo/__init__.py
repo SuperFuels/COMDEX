@@ -6,6 +6,11 @@ from .axo_ets_contracts import (
     build_axo_readiness_dashboard_preview,
     attach_ets_preview_to_agentmap,
     validate_ets_feedback_packet_preview,
+    build_axo_anti_gaming_agentmap_extension,
+    build_axo_trust_rule_lock_preview,
+    AXO_TRUST_RULE_LOCK_VERSION,
+    AXO_ANTI_GAMING_RULESET_VERSION,
+    AXO_ANTI_GAMING_RULES,
 )
 
 __all__ = [
@@ -16,4 +21,9 @@ __all__ = [
     "build_axo_readiness_dashboard_preview",
     "attach_ets_preview_to_agentmap",
     "validate_ets_feedback_packet_preview",
+    "build_axo_anti_gaming_agentmap_extension",
+    "build_axo_trust_rule_lock_preview",
+    "AXO_TRUST_RULE_LOCK_VERSION",
+    "AXO_ANTI_GAMING_RULESET_VERSION",
+    "AXO_ANTI_GAMING_RULES",
 ]
