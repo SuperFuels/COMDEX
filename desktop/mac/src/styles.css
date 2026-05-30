@@ -9662,3 +9662,68 @@ pre {
   margin-top: 16px;
 }
 /* END PHASE 16A LOCK */
+
+
+/* PHASE 16B LOCK: Boardroom front page simplification */
+.aion-boardroom-frontpage-simplified {
+  gap: 18px;
+}
+
+.aion-boardroom-main-action-grid {
+  align-items: stretch;
+}
+
+.aion-boardroom-founder-demo-loop {
+  border: 1px solid rgba(80, 120, 255, 0.24);
+}
+
+.aion-founder-demo-steps,
+.aion-founder-safety-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.aion-founder-demo-steps span,
+.aion-founder-safety-strip span {
+  border: 1px solid rgba(120, 130, 160, 0.22);
+  border-radius: 999px;
+  padding: 7px 10px;
+  font-size: 12px;
+  line-height: 1.2;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.aion-founder-safety-strip span {
+  font-weight: 700;
+}
+
+.aion-boardroom-a2a-setup .agentmap-dashboard-panel {
+  margin-top: 12px;
+  box-shadow: none;
+}
+
+.aion-boardroom-a2a-setup .agentmap-dashboard-panel > .panel-header,
+.aion-boardroom-a2a-setup .agentmap-dashboard-panel > .panel-grid,
+.aion-boardroom-a2a-setup .agentmap-dashboard-panel > .list-item[data-agentmap-json-preview],
+.aion-boardroom-a2a-setup .agentmap-dashboard-panel > .muted[data-agentmap-last-action] {
+  display: none;
+}
+
+.aion-boardroom-proof-replay .large-panel,
+.aion-boardroom-proof-replay .panel {
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .aion-boardroom-main-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aion-founder-demo-steps span,
+  .aion-founder-safety-strip span {
+    width: 100%;
+  }
+}
+/* END PHASE 16B LOCK */

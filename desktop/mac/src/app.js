@@ -5817,8 +5817,213 @@ function renderAgentMapDashboardPanel() {
   `;
 }
 
-function renderBoardroomDashboardView(snapshot) {
+function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+  return `
+    <section class="panel large-panel aion-boardroom-founder-demo-loop" data-aion-boardroom-founder-demo-loop="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Founder Demo Loop</div>
+          <h2>Home Fixed Website → A2A → Proof Replay</h2>
+          <p class="muted">
+            One clean repeatable proof path from website/widget request to guarded quote preview,
+            human review, fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
+          </p>
+        </div>
+        <div class="status-pill">human review required</div>
+      </div>
 
+      <div class="aion-founder-demo-steps" data-aion-founder-demo-steps="true">
+        <span>Website/widget request</span>
+        <span>Public Intent Gateway</span>
+        <span>Guard Envelope</span>
+        <span>AgentMap route</span>
+        <span>Machine Cart quote preview</span>
+        <span>Human Review handoff</span>
+        <span>Founder decision preview</span>
+        <span>FulfilmentJob preview</span>
+        <span>Evidence preview</span>
+        <span>Proof receipt</span>
+        <span>ETS preview</span>
+        <span>Boardroom replay</span>
+      </div>
+
+      <div class="aion-founder-safety-strip" data-aion-founder-safety-strip="true">
+        <span>No booking created</span>
+        <span>No payment created</span>
+        <span>No escrow created</span>
+        <span>No external message sent</span>
+        <span>No live chain write</span>
+        <span>Replay/hash proof available</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomA2ASetupPanel(snapshot = {}) {
+  return `
+    <section class="panel aion-boardroom-a2a-setup" data-aion-boardroom-a2a-setup="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">A2A Setup</div>
+          <h2>Connect Website + AgentMap</h2>
+          <p class="muted">Generate the machine-readable AgentMap, copy the website install tag, and verify discovery.</p>
+        </div>
+      </div>
+      ${renderAgentMapDashboardPanel()}
+    </section>
+  `;
+}
+
+function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
+  return `
+    <section class="panel aion-boardroom-workflow-widget" data-aion-boardroom-workflow-widget="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Workflow → Website Form</div>
+          <h2>Generate Customer Intake Flow</h2>
+          <p class="muted">
+            Pick a workflow, generate a website form/widget, connect it to the Public Intent Gateway,
+            and keep quote/job decisions behind operator approval.
+          </p>
+        </div>
+        <div class="status-pill">preview only</div>
+      </div>
+
+      <div class="button-row">
+        <button type="button">Generate workflow form preview</button>
+        <button type="button">Copy embed code preview</button>
+        <button type="button">Verify A2A route preview</button>
+      </div>
+
+      <div class="notice warning">
+        This is a preview surface. It does not create bookings, payments, escrow, external messages, or live chain writes.
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomProofReplayPanel(snapshot = {}) {
+  const runtime = getBoardroomRuntime();
+  const runs = safeArray(runtime.runs);
+  return `
+    <section class="panel aion-boardroom-proof-replay" data-aion-boardroom-proof-replay="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Replay + Proof</div>
+          <h2>Recent Replay / Proof Receipts</h2>
+          <p class="muted">Show the founder proof trail without exposing all runtime internals on the front page.</p>
+        </div>
+        <div class="status-pill">${runs.length} runs</div>
+      </div>
+      ${renderBoardroomRecentRunsPanel()}
+    </section>
+  `;
+}
+
+function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+  return `
+    <section class="panel large-panel aion-boardroom-founder-demo-loop" data-aion-boardroom-founder-demo-loop="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Founder Demo Loop</div>
+          <h2>Home Fixed Website → A2A → Proof Replay</h2>
+          <p class="muted">
+            One clean repeatable proof path from website/widget request to guarded quote preview,
+            human review, fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
+          </p>
+        </div>
+        <div class="status-pill">human review required</div>
+      </div>
+
+      <div class="aion-founder-demo-steps" data-aion-founder-demo-steps="true">
+        <span>Website/widget request</span>
+        <span>Public Intent Gateway</span>
+        <span>Guard Envelope</span>
+        <span>AgentMap route</span>
+        <span>Machine Cart quote preview</span>
+        <span>Human Review handoff</span>
+        <span>Founder decision preview</span>
+        <span>FulfilmentJob preview</span>
+        <span>Evidence preview</span>
+        <span>Proof receipt</span>
+        <span>ETS preview</span>
+        <span>Boardroom replay</span>
+      </div>
+
+      <div class="aion-founder-safety-strip" data-aion-founder-safety-strip="true">
+        <span>No booking created</span>
+        <span>No payment created</span>
+        <span>No escrow created</span>
+        <span>No external message sent</span>
+        <span>No live chain write</span>
+        <span>Replay/hash proof available</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomA2ASetupPanel(snapshot = {}) {
+  return `
+    <section class="panel aion-boardroom-a2a-setup" data-aion-boardroom-a2a-setup="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">A2A Setup</div>
+          <h2>Connect Website + AgentMap</h2>
+          <p class="muted">Generate the machine-readable AgentMap, copy the website install tag, and verify discovery.</p>
+        </div>
+      </div>
+      ${renderAgentMapDashboardPanel()}
+    </section>
+  `;
+}
+
+function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
+  return `
+    <section class="panel aion-boardroom-workflow-widget" data-aion-boardroom-workflow-widget="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Workflow → Website Form</div>
+          <h2>Generate Customer Intake Flow</h2>
+          <p class="muted">
+            Pick a workflow, generate a website form/widget, connect it to the Public Intent Gateway,
+            and keep quote/job decisions behind operator approval.
+          </p>
+        </div>
+        <div class="status-pill">preview only</div>
+      </div>
+
+      <div class="button-row">
+        <button type="button">Generate workflow form preview</button>
+        <button type="button">Copy embed code preview</button>
+        <button type="button">Verify A2A route preview</button>
+      </div>
+
+      <div class="notice warning">
+        This is a preview surface. It does not create bookings, payments, escrow, external messages, or live chain writes.
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomProofReplayPanel(snapshot = {}) {
+  const runtime = getBoardroomRuntime();
+  const runs = safeArray(runtime.runs);
+  return `
+    <section class="panel aion-boardroom-proof-replay" data-aion-boardroom-proof-replay="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Replay + Proof</div>
+          <h2>Recent Replay / Proof Receipts</h2>
+          <p class="muted">Show the founder proof trail without exposing all runtime internals on the front page.</p>
+        </div>
+        <div class="status-pill">${runs.length} runs</div>
+      </div>
+      ${renderBoardroomRecentRunsPanel()}
+    </section>
+  `;
+}
+
+function renderBoardroomDashboardView(snapshot) {
   const workspace = getBoardroomWorkspace();
   const pulse = getBoardroomPulse();
   const center = getBoardroomCenter();
@@ -5832,12 +6037,10 @@ function renderBoardroomDashboardView(snapshot) {
 
   const runtimeRuns = safeArray(runtime.runs);
   const runtimeApprovals = safeArray(runtime.approvals);
-  const departments = getBoardroomDepartments();
-  const bindingsByCategory = getBoardroomBindingsByCategory();
 
   return `
-    <div class="dashboard-shell">
-      <div class="card-grid">
+    <div class="dashboard-shell aion-boardroom-frontpage-simplified" data-aion-boardroom-frontpage-simplified="true">
+      <div class="card-grid" data-aion-boardroom-business-pulse="true">
         ${renderBoardroomMetricCard(
           "Workspace",
           workspace.name || workspace.workspace_id || state.workspaceId,
@@ -5860,7 +6063,7 @@ function renderBoardroomDashboardView(snapshot) {
         )}
       </div>
 
-      <div class="card-grid">
+      <div class="card-grid" data-aion-boardroom-business-pulse-secondary="true">
         ${renderBoardroomMetricCard(
           "Debtor Days",
           finance.debtorDays ?? finance.debtor_days ?? "—",
@@ -5885,32 +6088,21 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderBoardroomOperatorPresence()}
 
-      ${renderAgentMapDashboardPanel()}
+      ${renderBoardroomFounderDemoLoopPanel(snapshot)}
+
+      <div class="two-col aion-boardroom-main-action-grid" data-aion-boardroom-main-action-grid="true">
+        ${renderBoardroomA2ASetupPanel(snapshot)}
+        ${renderBoardroomWorkflowWidgetPanel(snapshot)}
+      </div>
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
 
+      ${renderBoardroomProofReplayPanel(snapshot)}
+
       ${renderBoardroomAdvancedRuntimeDrawer(snapshot)}
-
-      <div class="two-col">
-        ${renderBoardroomRecentRunsPanel()}
-        ${renderBoardroomExceptionsPanel()}
-      </div>
-
-      <div class="two-col">
-        <div class="panel large-panel">
-          <div class="panel-title">Departments</div>
-          ${renderBoardroomDepartments(departments)}
-        </div>
-
-        <div class="panel large-panel">
-          <div class="panel-title">Container Bindings</div>
-          ${renderBoardroomBindings(bindingsByCategory)}
-        </div>
-      </div>
     </div>
   `;
 }
-
 function openDepartmentWorkspaceFromBoardroom(departmentKey, nextView, runId, openReplay) {
   boardroomRuntime.openDepartmentWorkspaceFromBoardroom(
     {

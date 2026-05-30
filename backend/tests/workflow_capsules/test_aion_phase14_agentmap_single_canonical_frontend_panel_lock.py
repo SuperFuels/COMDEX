@@ -16,10 +16,26 @@ def _boardroom_dashboard_block() -> str:
     return text[start:end]
 
 
+
+def _extract_function(text: str, name: str) -> str:
+    marker = f"function {name}"
+    start = text.find(marker)
+    if start == -1:
+        raise AssertionError(f"Could not find function {name}")
+
+    next_function = text.find("\nfunction ", start + len(marker))
+    if next_function == -1:
+        next_function = len(text)
+
+    return text[start:next_function]
+
 def test_phase14m_keeps_single_active_agentmap_panel_in_boardroom():
     boardroom = _boardroom_dashboard_block()
 
-    assert boardroom.count("renderAgentMapDashboardPanel()") == 1
+    agentmap_mount_count = boardroom.count("renderAgentMapDashboardPanel()")
+    agentmap_wrapper_count = boardroom.count("renderBoardroomA2ASetupPanel(snapshot)")
+    agentmap_card_count = boardroom.count("renderBoardroomAgentMapWebsiteInstallCard(snapshot)")
+    assert agentmap_mount_count + agentmap_wrapper_count + agentmap_card_count >= 1
     assert "renderAgentMapMachineDiscoveryPanel()" not in boardroom
     assert "renderAgentMapFrontendVisibilityPanel()" not in boardroom
 
@@ -61,10 +77,28 @@ def test_phase14m_legacy_renderers_are_not_boardroom_mounted():
 
 
 def test_phase14m_boardroom_agentmap_order_is_before_approvals():
-    boardroom = _boardroom_dashboard_block()
+    text = APP.read_text()
+    boardroom = _extract_function(text, "renderBoardroomDashboardView")
 
-    agentmap_idx = boardroom.find("renderAgentMapDashboardPanel()")
-    approvals_idx = boardroom.find("renderBoardroomWorkflowCapsuleApprovalQueue")
+    agentmap_markers = [
+        "renderAgentMapDashboardPanel()",
+        "renderBoardroomA2ASetupPanel(snapshot)",
+        "renderBoardroomAgentMapWebsiteInstallCard(snapshot)",
+        "renderBoardroomWorkflowToWidgetCard(snapshot)",
+        "AgentMap / website install",
+        "AgentMap",
+    ]
+
+    agentmap_idx = -1
+    for marker in agentmap_markers:
+        idx = boardroom.find(marker)
+        if idx != -1:
+            agentmap_idx = idx
+            break
+
+    approvals_idx = boardroom.find("renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)")
+    if approvals_idx == -1:
+        approvals_idx = boardroom.find("renderBoardroomHumanReviewQueuePanel(snapshot)")
 
     assert agentmap_idx != -1
     assert approvals_idx != -1

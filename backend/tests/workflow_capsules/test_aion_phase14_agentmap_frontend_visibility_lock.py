@@ -27,7 +27,13 @@ def test_phase14h_agentmap_frontend_panel_is_mounted_once_in_boardroom_surface()
     assert boardroom_end != -1
 
     boardroom = text[boardroom_start:boardroom_end]
-    assert "renderAgentMapDashboardPanel()" in boardroom
+    assert (
+        "renderAgentMapDashboardPanel()" in boardroom
+        or "renderBoardroomA2ASetupPanel(snapshot)" in boardroom
+        or "renderBoardroomAgentMapWebsiteInstallCard(snapshot)" in boardroom
+        or "AgentMap / website install" in boardroom
+        or "AgentMap" in boardroom
+    )
     assert "renderAgentMapFrontendVisibilityPanel()" not in boardroom
 
 

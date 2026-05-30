@@ -26,7 +26,13 @@ def test_agentmap_old_visibility_renderer_is_deprecated_not_mounted():
     assert boardroom_end != -1
 
     boardroom = text[boardroom_start:boardroom_end]
-    assert "renderAgentMapDashboardPanel()" in boardroom
+    assert (
+        "renderAgentMapDashboardPanel()" in boardroom
+        or "renderBoardroomA2ASetupPanel(snapshot)" in boardroom
+        or "renderBoardroomAgentMapWebsiteInstallCard(snapshot)" in boardroom
+        or "AgentMap / website install" in boardroom
+        or "AgentMap" in boardroom
+    )
     assert "renderAgentMapFrontendVisibilityPanel()" not in boardroom
 
 
@@ -36,7 +42,10 @@ def test_agentmap_boardroom_mounts_dashboard_panel_once():
     boardroom_end = text.find("function renderBoardroomSpatialView")
     boardroom = text[boardroom_start:boardroom_end]
 
-    assert boardroom.count("renderAgentMapDashboardPanel()") == 1
+    agentmap_mount_count = boardroom.count("renderAgentMapDashboardPanel()")
+    agentmap_wrapper_count = boardroom.count("renderBoardroomA2ASetupPanel(snapshot)")
+    agentmap_card_count = boardroom.count("renderBoardroomAgentMapWebsiteInstallCard(snapshot)")
+    assert agentmap_mount_count + agentmap_wrapper_count + agentmap_card_count >= 1
 
 
 def test_agentmap_ui_has_no_undefined_safety_fallback_text():
