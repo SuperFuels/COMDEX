@@ -9626,3 +9626,39 @@ pre {
   opacity: 0.78;
 }
 /* AION-GOAL-ENGINE-PARENT-CHILD-ORCHESTRATION-CSS-V1:END */
+
+/* PHASE 16A LOCK: Boardroom advanced runtime drawer shell */
+.boardroom-advanced-runtime-drawer {
+  margin-top: 18px;
+}
+
+.boardroom-advanced-runtime-drawer summary {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  list-style: none;
+}
+
+.boardroom-advanced-runtime-drawer summary::-webkit-details-marker {
+  display: none;
+}
+
+.boardroom-advanced-runtime-drawer summary::after {
+  content: "Open";
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.65;
+}
+
+.boardroom-advanced-runtime-drawer[open] summary::after {
+  content: "Close";
+}
+
+.boardroom-advanced-runtime-drawer-body {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+/* END PHASE 16A LOCK */

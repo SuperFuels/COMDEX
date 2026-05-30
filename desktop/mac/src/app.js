@@ -5709,6 +5709,32 @@ function renderAxoHumanReviewDecisionPreviewPanel() {
 /* END PHASE 15F LOCK */
 
 
+
+/* PHASE 16A LOCK: Boardroom advanced runtime drawer shell */
+function renderBoardroomAdvancedRuntimeDrawer(snapshot = {}) {
+  return `
+    <details class="panel large-panel boardroom-advanced-runtime-drawer" data-boardroom-advanced-runtime-drawer="true">
+      <summary>
+        <span>
+          <strong>Advanced Runtime / Trust Debug</strong>
+          <small class="muted">Goal Engine, provider, AXO/ETS and trust diagnostics are tucked away here.</small>
+        </span>
+      </summary>
+
+      <div class="boardroom-advanced-runtime-drawer-body" data-boardroom-advanced-runtime-drawer-body="true">
+        ${renderAionGoalEngineContainerProjectionV1(snapshot)}
+        ${renderAionProviderCapabilityManifestV1(snapshot)}
+        ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
+        ${renderAxoReadinessDashboardPanel()}
+        ${renderAxoHumanReviewDecisionPreviewPanel()}
+        ${renderTrustedFeedbackAcceptancePanel()}
+      </div>
+    </details>
+  `;
+}
+/* END PHASE 16A LOCK */
+
+
 function renderAgentMapDashboardPanel() {
   const agentMapSafeFallback = {
     preview_only: true,
@@ -5858,16 +5884,11 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderBoardroomOperatorPresence()}
 
-      ${renderAionGoalEngineContainerProjectionV1(snapshot)}
-      ${renderAionProviderCapabilityManifestV1(snapshot)}
-
-      ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
-      ${renderAxoReadinessDashboardPanel()}
-      ${renderAxoHumanReviewDecisionPreviewPanel()}
-      ${renderTrustedFeedbackAcceptancePanel()}
       ${renderAgentMapDashboardPanel()}
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
+
+      ${renderBoardroomAdvancedRuntimeDrawer(snapshot)}
 
       <div class="two-col">
         ${renderBoardroomRecentRunsPanel()}

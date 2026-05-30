@@ -1,0 +1,66 @@
+\section{Phase 16A --- Boardroom Advanced Runtime Drawer}
+\label{sec:phase16a-boardroom-advanced-runtime-drawer}
+
+\subsection{Status}
+
+Phase 16A locks the first dashboard cleanup step for the AION Boardroom.
+
+\begin{quote}
+\textbf{Status: LOCKED --- advanced runtime and trust diagnostics are moved behind a Boardroom drawer.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Boardroom dashboard had accumulated many runtime, trust, provider, Goal Engine, AXO, and ETS panels.
+These panels are valuable for engineering and audit visibility, but they are too noisy for a business operator's primary dashboard.
+
+Phase 16A introduces a single advanced runtime drawer. This keeps diagnostics available while restoring the main dashboard toward a business-facing operating surface.
+
+\subsection{Locked Behaviour}
+
+The main dashboard keeps the operator-facing panels visible:
+
+\begin{itemize}
+  \item business pulse metrics;
+  \item operator presence;
+  \item AgentMap generation and website install controls;
+  \item Workflow Capsule approvals;
+  \item recent runs and blocked/failed automation panels.
+\end{itemize}
+
+The following diagnostic surfaces are moved into the advanced drawer:
+
+\begin{itemize}
+  \item Goal Engine container projection;
+  \item provider capability manifest;
+  \item Goal Engine runtime preview panels;
+  \item AXO readiness dashboard;
+  \item AXO human review decision preview;
+  \item trusted feedback acceptance preview.
+\end{itemize}
+
+\subsection{Important Product Boundary}
+
+AgentMap remains visible because it is not debug-only.
+It is a business setup action: generate, install, and verify the machine-readable business map for the website.
+
+\subsection{Validation}
+
+Validation command:
+
+\begin{verbatim}
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase16_boardroom_advanced_runtime_drawer_lock.py
+\end{verbatim}
+
+Focused suite command:
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE16A-BOARDROOM-ADVANCED-RUNTIME-DRAWER-LOCK\\
+Status: LOCKED\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson
