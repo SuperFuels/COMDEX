@@ -3,6 +3,7 @@ from .axo_ets_contracts import (
     ETS_FEEDBACK_PACKET_VERSION,
     build_ets_feedback_packet_preview,
     build_ets_agentmap_preview,
+    build_axo_readiness_dashboard_preview,
     attach_ets_preview_to_agentmap,
     validate_ets_feedback_packet_preview,
 )
@@ -12,6 +13,7 @@ __all__ = [
     "ETS_FEEDBACK_PACKET_VERSION",
     "build_ets_feedback_packet_preview",
     "build_ets_agentmap_preview",
+    "build_axo_readiness_dashboard_preview",
     "attach_ets_preview_to_agentmap",
     "validate_ets_feedback_packet_preview",
 ]

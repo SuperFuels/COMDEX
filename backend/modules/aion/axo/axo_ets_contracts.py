@@ -250,3 +250,89 @@ def attach_ets_preview_to_agentmap(
     source["capabilities"] = capabilities
 
     return source
+
+def build_axo_readiness_dashboard_preview(
+    packet: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Build a preview-only AXO readiness dashboard payload.
+
+    This is a Boardroom/read-only summary. It must not mutate reputation,
+    rankings, proof receipts, jobs, payments, bookings, escrow, or external
+    channels.
+    """
+    packet = packet or build_ets_feedback_packet_preview()
+    validation = validate_ets_feedback_packet_preview(packet)
+    ets_preview = build_ets_agentmap_preview(packet)
+    scores = packet.get("scores") or {}
+    trace_links = packet.get("trace_links") or {}
+    external_agent = packet.get("external_agent") or {}
+
+    customer_score = scores.get("customer_outcome_score", 0)
+    system_score = scores.get("system_execution_score", 0)
+    evidence_score = scores.get("evidence_quality_score", 0)
+    agent_score = scores.get("agent_reliability_score", 0)
+
+    readiness_inputs = [
+        int(customer_score or 0),
+        int(system_score or 0),
+        int(evidence_score or 0),
+        int(agent_score or 0),
+    ]
+    readiness_score = int(sum(readiness_inputs) / len(readiness_inputs)) if readiness_inputs else 0
+
+    blockers: list[str] = []
+    if validation.get("ok") is not True:
+        blockers.extend(validation.get("errors") or [])
+    if external_agent.get("signature_verified") is not True:
+        blockers.append("external_agent_signature_not_verified")
+    if ets_preview.get("anti_gaming_locked") is not True:
+        blockers.append("anti_gaming_rules_not_locked")
+    if ets_preview.get("trust_rules_locked") is not True:
+        blockers.append("trust_rules_not_locked")
+
+    return {
+        "dashboard_version": "aion.axo_readiness_dashboard.v0.1",
+        "status": "preview_ready",
+        "preview_only": True,
+        "business_id": packet.get("business_id"),
+        "readiness_score_preview": readiness_score,
+        "readiness_state": "blocked_preview" if blockers else "ready_preview",
+        "score_classes": {
+            "customer_outcome_score": customer_score,
+            "system_execution_score": system_score,
+            "agent_reliability_score": agent_score,
+            "evidence_quality_score": evidence_score,
+        },
+        "score_separation": {
+            "customer_outcome_score_is_customer_signal": True,
+            "system_execution_score_is_machine_execution_signal": True,
+            "must_not_merge_customer_and_system_scores": True,
+        },
+        "trust_controls": {
+            "anti_gaming_locked": False,
+            "trust_rules_locked": False,
+            "human_review_required": True,
+            "live_reputation_mutation_allowed": False,
+            "public_ranking_enabled": False,
+        },
+        "trace_links": {
+            "job_trace_id": trace_links.get("job_trace_id"),
+            "proof_receipt_id": trace_links.get("proof_receipt_id"),
+            "evidence_ids": trace_links.get("evidence_ids") or [],
+            "ets_feedback_hash": packet.get("ets_feedback_hash"),
+        },
+        "blockers": blockers,
+        "safety": {
+            "preview_only": True,
+            "read_only": True,
+            "no_live_reputation_write": True,
+            "no_public_ranking_write": True,
+            "no_autonomous_score_acceptance": True,
+            "no_booking_side_effect": True,
+            "no_payment_side_effect": True,
+            "no_escrow_side_effect": True,
+            "no_external_message_side_effect": True,
+            "human_review_required": True,
+        },
+    }
+

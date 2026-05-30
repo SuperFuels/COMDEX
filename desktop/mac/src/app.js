@@ -5218,6 +5218,174 @@ function renderAgentMapMachineDiscoveryPanel() {
 /* END PHASE 14I LOCK */
 
 
+
+/* PHASE 15C LOCK: AXO readiness dashboard preview */
+function getDefaultAxoReadinessDashboardPreviewPayload() {
+  return {
+    dashboard_version: "aion.axo_readiness_dashboard.v0.1",
+    status: "preview_ready",
+    preview_only: true,
+    business_id: "home_fixed",
+    readiness_score_preview: 0,
+    readiness_state: "blocked_preview",
+    score_classes: {
+      customer_outcome_score: 0,
+      system_execution_score: 0,
+      agent_reliability_score: 0,
+      evidence_quality_score: 0,
+    },
+    score_separation: {
+      customer_outcome_score_is_customer_signal: true,
+      system_execution_score_is_machine_execution_signal: true,
+      must_not_merge_customer_and_system_scores: true,
+    },
+    trust_controls: {
+      anti_gaming_locked: false,
+      trust_rules_locked: false,
+      human_review_required: true,
+      live_reputation_mutation_allowed: false,
+      public_ranking_enabled: false,
+    },
+    trace_links: {
+      job_trace_id: "job_trace_preview",
+      proof_receipt_id: "proof_receipt_preview",
+      evidence_ids: ["evidence_preview"],
+      ets_feedback_hash: "ets_feedback_hash_preview",
+    },
+    blockers: [
+      "external_agent_signature_not_verified",
+      "anti_gaming_rules_not_locked",
+      "trust_rules_not_locked",
+    ],
+    safety: {
+      preview_only: true,
+      read_only: true,
+      no_live_reputation_write: true,
+      no_public_ranking_write: true,
+      no_autonomous_score_acceptance: true,
+      no_booking_side_effect: true,
+      no_payment_side_effect: true,
+      no_escrow_side_effect: true,
+      no_external_message_side_effect: true,
+      human_review_required: true,
+    },
+  };
+}
+
+function getAxoReadinessDashboardPreviewPayload() {
+  const source =
+    state.axoReadinessDashboardPreview ||
+    getDefaultAgentMapDashboardPreviewPayload().axo_readiness_dashboard ||
+    getDefaultAgentMapDashboardPreviewPayload().agentmap_json?.axo_readiness_dashboard ||
+    getDefaultAxoReadinessDashboardPreviewPayload();
+
+  const fallback = getDefaultAxoReadinessDashboardPreviewPayload();
+
+  state.axoReadinessDashboardPreview = {
+    ...fallback,
+    ...(source || {}),
+    score_classes: {
+      ...fallback.score_classes,
+      ...((source || {}).score_classes || {}),
+    },
+    score_separation: {
+      ...fallback.score_separation,
+      ...((source || {}).score_separation || {}),
+    },
+    trust_controls: {
+      ...fallback.trust_controls,
+      ...((source || {}).trust_controls || {}),
+    },
+    trace_links: {
+      ...fallback.trace_links,
+      ...((source || {}).trace_links || {}),
+    },
+    safety: {
+      ...fallback.safety,
+      ...((source || {}).safety || {}),
+    },
+    blockers: Array.isArray((source || {}).blockers)
+      ? (source || {}).blockers
+      : fallback.blockers,
+  };
+
+  return state.axoReadinessDashboardPreview;
+}
+
+function renderAxoReadinessDashboardPanel() {
+  const payload = getAxoReadinessDashboardPreviewPayload();
+  const scores = payload.score_classes || {};
+  const controls = payload.trust_controls || {};
+  const links = payload.trace_links || {};
+  const blockers = Array.isArray(payload.blockers) ? payload.blockers : [];
+  const evidenceIds = Array.isArray(links.evidence_ids) ? links.evidence_ids : [];
+
+  return `
+    <section class="panel axo-readiness-dashboard-panel" data-axo-readiness-dashboard-panel="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">AXO + Execution Trust Score</div>
+          <h2>AXO Readiness Dashboard</h2>
+          <p class="muted">Preview-only trust readiness for the machine-readable business twin. No reputation mutation or ranking write is enabled.</p>
+        </div>
+        <div class="status-pill" data-axo-readiness-status="${escapeHtml(payload.readiness_state || "blocked_preview")}">
+          ${escapeHtml(payload.readiness_state || "blocked_preview")}
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        ${renderDashboardMetricCard("Readiness score", payload.readiness_score_preview ?? 0, "Preview only")}
+        ${renderDashboardMetricCard("Customer outcome", scores.customer_outcome_score ?? 0, "Customer signal")}
+        ${renderDashboardMetricCard("System execution", scores.system_execution_score ?? 0, "Machine execution signal")}
+        ${renderDashboardMetricCard("Evidence quality", scores.evidence_quality_score ?? 0, "Proof and trace quality")}
+      </div>
+
+      <div class="panel-grid">
+        <div class="list-item" data-axo-score-separation="true">
+          <strong>Score separation</strong>
+          <div class="muted">Customer outcome score is separate from system execution score.</div>
+          <div class="muted">Must not merge customer and system scores: ${String(payload.score_separation?.must_not_merge_customer_and_system_scores === true)}</div>
+        </div>
+
+        <div class="list-item" data-axo-trust-controls="true">
+          <strong>Trust controls</strong>
+          <div class="muted">Anti-gaming locked: ${String(controls.anti_gaming_locked === true)}</div>
+          <div class="muted">Trust rules locked: ${String(controls.trust_rules_locked === true)}</div>
+          <div class="muted">Human review required: ${String(controls.human_review_required !== false)}</div>
+          <div class="muted">Live reputation mutation allowed: ${String(controls.live_reputation_mutation_allowed === true)}</div>
+          <div class="muted">Public ranking enabled: ${String(controls.public_ranking_enabled === true)}</div>
+        </div>
+      </div>
+
+      <div class="panel-grid">
+        <div class="list-item" data-axo-trace-links="true">
+          <strong>Evidence / proof links</strong>
+          <div class="muted">Job trace: <code>${escapeHtml(links.job_trace_id || "—")}</code></div>
+          <div class="muted">Proof receipt: <code>${escapeHtml(links.proof_receipt_id || "—")}</code></div>
+          <div class="muted">ETS hash: <code>${escapeHtml(links.ets_feedback_hash || "—")}</code></div>
+          <div class="muted">Evidence ids: ${escapeHtml(evidenceIds.join(", ") || "—")}</div>
+        </div>
+
+        <div class="list-item" data-axo-readiness-blockers="true">
+          <strong>Readiness blockers</strong>
+          ${
+            blockers.length
+              ? `<ul>${blockers.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+              : `<div class="muted">No blockers reported.</div>`
+          }
+        </div>
+      </div>
+
+      <div class="notice warning" data-axo-safety-boundary="true">
+        Preview only. AXO readiness does not mutate reputation, publish rankings, accept external scores,
+        create bookings, move money, create payment, create escrow, send external messages, or execute workflows.
+      </div>
+    </section>
+  `;
+}
+/* END PHASE 15C LOCK */
+
+
 function renderAgentMapDashboardPanel() {
   const agentMapSafeFallback = {
     preview_only: true,
@@ -5371,6 +5539,7 @@ function renderBoardroomDashboardView(snapshot) {
       ${renderAionProviderCapabilityManifestV1(snapshot)}
 
       ${renderAionGoalEngineVisibleBoardroomPanelsV1(snapshot)}
+      ${renderAxoReadinessDashboardPanel()}
       ${renderAgentMapDashboardPanel()}
 
       ${renderBoardroomWorkflowCapsuleApprovalQueue(runtimeApprovals)}
