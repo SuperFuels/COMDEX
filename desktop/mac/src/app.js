@@ -5055,6 +5055,26 @@ function getDefaultAgentMapDashboardPreviewPayload() {
         human_review_required: true,
         live_execution_enabled: false,
       },
+      ets_preview: {
+        agentmap_extension: "aion.ets_preview.v0.1",
+        preview_only: true,
+        anti_gaming_locked: false,
+        trust_rules_locked: false,
+        human_review_required: true,
+        live_reputation_mutation_enabled: false,
+        public_ranking_enabled: false,
+        execution_trust_score_preview: {
+          customer_outcome_score: 0,
+          system_execution_score: 0,
+          customer_outcome_status: "preview_only",
+          system_execution_status: "preview_only",
+        },
+        proof_links: {
+          job_trace_id: "job_trace_preview",
+          proof_receipt_id: "proof_receipt_preview",
+          evidence_ids: ["evidence_preview"],
+        },
+      },
     },
   };
 }
@@ -5235,6 +5255,24 @@ function renderAgentMapDashboardPanel() {
         ${renderDashboardMetricCard("Live verification", preview.live_verification_status, "Phase 14D result")}
         ${renderDashboardMetricCard("Hosted URL", preview.hosted_agentmap_url, "Hosted AgentMap path")}
         ${renderDashboardMetricCard("Self-hosted URL", preview.self_hosted_agentmap_url, "/.well-known export")}
+      </div>
+
+      <div class="panel-grid" data-agentmap-ets-preview-panel="true">
+        <div class="list-item">
+          <strong>ETS Preview</strong>
+          <div class="muted">Preview only: ${String(((preview.agentmap_json || {}).ets_preview || {}).preview_only === true)}</div>
+          <div class="muted">Customer outcome score: ${String(((((preview.agentmap_json || {}).ets_preview || {}).execution_trust_score_preview || {}).customer_outcome_score) ?? 0)}</div>
+          <div class="muted">System execution score: ${String(((((preview.agentmap_json || {}).ets_preview || {}).execution_trust_score_preview || {}).system_execution_score) ?? 0)}</div>
+          <div class="muted">Live reputation mutation: ${String(((preview.agentmap_json || {}).ets_preview || {}).live_reputation_mutation_enabled === true)}</div>
+          <div class="muted">Public ranking: ${String(((preview.agentmap_json || {}).ets_preview || {}).public_ranking_enabled === true)}</div>
+        </div>
+
+        <div class="list-item">
+          <strong>ETS Proof Links</strong>
+          <div class="muted">Proof receipt: ${escapeHtml(((((preview.agentmap_json || {}).ets_preview || {}).proof_links || {}).proof_receipt_id) || "proof_receipt_preview")}</div>
+          <div class="muted">Job trace: ${escapeHtml(((((preview.agentmap_json || {}).ets_preview || {}).proof_links || {}).job_trace_id) || "job_trace_preview")}</div>
+          <div class="muted">Evidence: ${escapeHtml(String((((preview.agentmap_json || {}).ets_preview || {}).proof_links || {}).evidence_ids || "evidence_preview"))}</div>
+        </div>
       </div>
 
       <div class="panel-grid">

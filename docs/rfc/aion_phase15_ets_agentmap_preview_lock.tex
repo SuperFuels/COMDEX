@@ -1,0 +1,79 @@
+\section{Phase 15B --- ETS AgentMap Preview}
+\label{sec:phase15b-ets-agentmap-preview}
+
+\subsection{Status}
+
+Phase 15B exposes the Execution Trust Score preview inside the AgentMap surface.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AgentMap now carries an ETS preview block and the Boardroom renders the ETS preview readout.}
+\end{quote}
+
+\subsection{Purpose}
+
+This lock makes AXO/ETS visible to future machine consumers of the AgentMap without enabling live reputation mutation.
+
+The AgentMap can now expose preview-only trust readiness signals, including separate customer outcome and system execution signals.
+
+\subsection{Locked Behaviour}
+
+The AgentMap preview includes:
+
+\begin{itemize}
+  \item an \texttt{ets\_preview} block;
+  \item a customer outcome score preview;
+  \item a separate system execution score preview;
+  \item proof receipt linkage;
+  \item evidence linkage;
+  \item job trace linkage;
+  \item explicit preview-only flags;
+  \item disabled live reputation mutation;
+  \item disabled public ranking.
+\end{itemize}
+
+\subsection{Score Separation}
+
+Customer outcome score and system execution score MUST remain separate.
+
+A customer outcome score describes the result from the customer or external-agent point of view.
+
+A system execution score describes whether AION followed the required trace, evidence, proof, approval, and safety rules.
+
+One score MUST NOT automatically imply the other.
+
+\subsection{Safety Boundary}
+
+This lock does not create a live reputation system.
+
+The ETS preview MUST NOT:
+
+\begin{itemize}
+  \item mutate reputation;
+  \item publish public ranking;
+  \item accept quotes;
+  \item create bookings;
+  \item move money;
+  \item create escrow;
+  \item send external messages;
+  \item bypass human review.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase15_ets_agentmap_preview_lock.py
+\end{verbatim}
+
+\begin{verbatim}
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE15B-ETS-AGENTMAP-PREVIEW
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

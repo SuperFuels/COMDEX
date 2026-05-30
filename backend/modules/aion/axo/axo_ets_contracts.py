@@ -202,3 +202,51 @@ def build_ets_agentmap_preview(packet: dict[str, Any] | None = None) -> dict[str
             "live_reputation_mutation_allowed": False,
         },
     }
+
+
+def attach_ets_preview_to_agentmap(
+    agentmap: dict[str, Any],
+    packet: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Attach the preview-only ETS projection to an AgentMap payload.
+
+    This is a visibility/export contract only. It MUST NOT mutate reputation,
+    publish rankings, accept quotes, create bookings, move money, create escrow,
+    send external messages, or bypass human review.
+    """
+    source = dict(agentmap or {})
+    ets_preview = build_ets_agentmap_preview(packet)
+
+    ets_preview["preview_only"] = True
+    ets_preview["anti_gaming_locked"] = False
+    ets_preview["trust_rules_locked"] = False
+    ets_preview["human_review_required"] = True
+    ets_preview["live_reputation_mutation_enabled"] = False
+    ets_preview["public_ranking_enabled"] = False
+
+    proof_links = (
+        ets_preview
+        .get("execution_trust_score_preview", {})
+        .get("trace_links", {})
+    )
+
+    ets_preview["proof_links"] = {
+        "job_trace_id": proof_links.get("job_trace_id") or "job_trace_preview",
+        "proof_receipt_id": proof_links.get("proof_receipt_id") or "proof_receipt_preview",
+        "evidence_ids": proof_links.get("evidence_ids") or ["evidence_preview"],
+    }
+
+    source["ets_preview"] = ets_preview
+
+    capabilities = dict(source.get("capabilities") or {})
+    capabilities["ets_preview"] = {
+        "available": True,
+        "preview_only": True,
+        "human_review_required": True,
+        "live_reputation_mutation_enabled": False,
+        "public_ranking_enabled": False,
+    }
+    source["capabilities"] = capabilities
+
+    return source
