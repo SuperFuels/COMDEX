@@ -10389,3 +10389,106 @@ pre {
 }
 /* END PHASE 16H LOCK */
 
+
+/* PHASE 16I LOCK: Home Fixed intake + quote preview */
+.aion-phase16i-intake-card {
+  margin-top: 22px;
+  border: 1px solid rgba(15, 139, 149, 0.28);
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 18px;
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+}
+
+.aion-phase16i-intake-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.aion-phase16i-intake-head h3,
+.aion-phase16i-quote-card h3 {
+  margin: 4px 0 8px;
+  font-size: 22px;
+}
+
+.aion-phase16i-intake-head p {
+  margin: 0;
+  color: rgba(20, 24, 28, 0.78);
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.aion-phase16i-intake-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.aion-phase16i-intake-grid > div,
+.aion-phase16i-quote-card {
+  border: 1px solid rgba(15, 139, 149, 0.18);
+  border-radius: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.65);
+}
+
+.aion-phase16i-intake-grid strong {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(20, 24, 28, 0.58);
+  margin-bottom: 6px;
+}
+
+.aion-phase16i-intake-grid span {
+  font-weight: 800;
+}
+
+.aion-phase16i-route,
+.aion-phase16i-guard-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aion-phase16i-route span,
+.aion-phase16i-guard-grid span {
+  border: 1px solid rgba(15, 139, 149, 0.22);
+  background: rgba(15, 139, 149, 0.08);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 800;
+}
+
+.aion-phase16i-route b {
+  margin-right: 8px;
+  color: #0f8b95;
+}
+
+.aion-phase16i-quote-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+  gap: 18px;
+  align-items: start;
+}
+
+.aion-phase16i-quote-card ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.aion-phase16i-quote-card li {
+  margin: 4px 0;
+}
+
+@media (max-width: 1100px) {
+  .aion-phase16i-intake-grid,
+  .aion-phase16i-quote-card {
+    grid-template-columns: 1fr;
+  }
+}
+/* END PHASE 16I LOCK */

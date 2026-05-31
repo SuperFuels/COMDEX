@@ -74391,6 +74391,116 @@ function renderAionFounderDemoVisibleOutputPanel(state = {}) {
 
 /* END PHASE 16H LOCK */
 
+/* PHASE 16I LOCK: Home Fixed intake + quote preview */
+
+function getAionHomeFixedDemoIntakePayload() {
+  return {
+    customer_request:
+      "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
+    detected_service: "Pergola / roof repair",
+    location: "Arboleas, Almería",
+    urgency: "Medium / rain-related",
+    customer_channel: "Home Fixed website widget",
+    route: [
+      "Website widget",
+      "Public Intent Gateway",
+      "Guard Envelope",
+      "AgentMap route",
+      "Machine Cart quote preview",
+      "Human Review handoff",
+    ],
+    quote_preview: {
+      status: "inspection_required",
+      title: "Pergola roof leak repair",
+      range: "€120–€380 preview range",
+      notes: [
+        "Site visit required before final quote",
+        "No booking created",
+        "No payment created",
+        "No escrow created",
+        "Human review required",
+      ],
+    },
+    safety: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+      live_execution_allowed: false,
+      human_review_required: true,
+    },
+  };
+}
+
+function renderAionHomeFixedIntakeQuotePreview() {
+  const intake = getAionHomeFixedDemoIntakePayload();
+  const quote = intake.quote_preview || {};
+  const safety = intake.safety || {};
+
+  return `
+    <div class="aion-phase16i-intake-card" data-aion-phase16i-intake-quote-preview="true">
+      <div class="aion-phase16i-intake-head">
+        <div>
+          <div class="eyebrow">Home Fixed Customer Intake</div>
+          <h3>Realistic website request → quote preview</h3>
+          <p>${escapeHtml(intake.customer_request)}</p>
+        </div>
+        <span class="status-pill">preview only</span>
+      </div>
+
+      <div class="aion-phase16i-intake-grid">
+        <div>
+          <strong>Detected service</strong>
+          <span>${escapeHtml(intake.detected_service)}</span>
+        </div>
+        <div>
+          <strong>Location</strong>
+          <span>${escapeHtml(intake.location)}</span>
+        </div>
+        <div>
+          <strong>Urgency</strong>
+          <span>${escapeHtml(intake.urgency)}</span>
+        </div>
+        <div>
+          <strong>Channel</strong>
+          <span>${escapeHtml(intake.customer_channel)}</span>
+        </div>
+      </div>
+
+      <div class="aion-phase16i-route">
+        ${safeArray(intake.route).map((step, index) => `
+          <span><b>${index + 1}</b>${escapeHtml(step)}</span>
+        `).join("")}
+      </div>
+
+      <div class="aion-phase16i-quote-card" data-aion-machine-cart-quote-preview="true">
+        <div>
+          <div class="eyebrow">Machine Cart Quote Preview</div>
+          <h3>${escapeHtml(quote.title || "Quote preview")}</h3>
+          <p><strong>${escapeHtml(quote.range || "Quote range pending")}</strong></p>
+        </div>
+
+        <ul>
+          ${safeArray(quote.notes).map((note) => `<li>${escapeHtml(note)}</li>`).join("")}
+        </ul>
+      </div>
+
+      <div class="aion-phase16i-guard-grid">
+        <span>No booking created: ${String(safety.booking_created === false)}</span>
+        <span>No payment created: ${String(safety.payment_created === false)}</span>
+        <span>No escrow created: ${String(safety.escrow_created === false)}</span>
+        <span>No external message sent: ${String(safety.external_message_sent === false)}</span>
+        <span>No live chain write: ${String(safety.live_chain_write === false)}</span>
+        <span>Human review required: ${String(safety.human_review_required === true)}</span>
+      </div>
+    </div>
+  `;
+}
+
+/* END PHASE 16I LOCK */
+
+
 /* PHASE 16G LOCK: Boardroom renderer consolidation
    Exactly one active Boardroom founder-demo renderer/action stack is allowed.
    Older duplicate definitions are renamed with __deprecatedPhase16Duplicate_* prefixes.
