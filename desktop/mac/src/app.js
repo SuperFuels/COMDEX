@@ -5829,7 +5829,7 @@ function renderBoardroomSafetyStrip(payload = {}) {
   `;
 }
 
-function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_5832_renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
 
   return `
@@ -5872,7 +5872,7 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   `;
 }
 
-function handleBoardroomFounderDemoPreviewAction(action) {
+function __deprecatedPhase16Duplicate_5875_handleBoardroomFounderDemoPreviewAction(action) {
   state.boardroomFounderDemoLastAction = String(action || "idle");
   requestRender?.();
 }
@@ -6012,7 +6012,7 @@ function renderBoardroomHumanReviewQueuePanel(runtimeApprovals = []) {
   `;
 }
 
-function renderBoardroomProofReplayPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6015_renderBoardroomProofReplayPanel(snapshot = {}) {
   const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
   const proofPath = [
     "Home Fixed widget request",
@@ -6080,7 +6080,7 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
   `;
 }
 
-function renderBoardroomA2ASetupPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6083_renderBoardroomA2ASetupPanel(snapshot = {}) {
   return `
     <div class="two-col aion-a2a-setup-grid" data-aion-boardroom-a2a-setup-panel="true">
       ${renderBoardroomAgentMapWebsiteInstallCard(snapshot)}
@@ -6155,7 +6155,7 @@ function renderBoardroomAgentMapWebsiteInstallCard(snapshot = {}) {
   `;
 }
 
-function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6158_renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
   const formSnippet = `<form data-aion-widget="home-fixed-plumbing-enquiry">
   <input name="customer_name" placeholder="Your name" required />
   <input name="postcode" placeholder="Postcode / town" required />
@@ -6205,7 +6205,7 @@ function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
   `;
 }
 
-function renderBoardroomProofReplayPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6208_renderBoardroomProofReplayPanel(snapshot = {}) {
   const proofPath = [
     "Home Fixed widget request",
     "Public Intent Gateway",
@@ -6346,7 +6346,7 @@ function renderAgentMapDashboardPanel() {
   `;
 }
 
-function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6349_renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   return `
     <section class="panel large-panel aion-boardroom-founder-demo-loop" data-aion-boardroom-founder-demo-loop="true">
       <div class="panel-header">
@@ -6388,7 +6388,7 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   `;
 }
 
-function renderBoardroomA2ASetupPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6391_renderBoardroomA2ASetupPanel(snapshot = {}) {
   return `
     <section class="panel aion-boardroom-a2a-setup" data-aion-boardroom-a2a-setup="true">
       <div class="panel-header">
@@ -6403,7 +6403,7 @@ function renderBoardroomA2ASetupPanel(snapshot = {}) {
   `;
 }
 
-function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6406_renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
   return `
     <section class="panel aion-boardroom-workflow-widget" data-aion-boardroom-workflow-widget="true">
       <div class="panel-header">
@@ -6431,7 +6431,7 @@ function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
   `;
 }
 
-function renderBoardroomProofReplayPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6434_renderBoardroomProofReplayPanel(snapshot = {}) {
   const runtime = getBoardroomRuntime();
   const runs = safeArray(runtime.runs);
   return `
@@ -6449,7 +6449,7 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
   `;
 }
 
-function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6452_renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   return `
     <section class="panel large-panel aion-boardroom-founder-demo-loop" data-aion-boardroom-founder-demo-loop="true">
       <div class="panel-header">
@@ -6519,6 +6519,10 @@ function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
           </p>
         </div>
         <div class="status-pill">preview only</div>
+      <div class="muted" data-aion-phase16d-workflow-widget-route="website_widget public_intent_gateway guard_envelope agentmap_route machine_cart_quote_preview human_review_handoff a2a_route">
+        website_widget → public_intent_gateway → guard_envelope → agentmap_route → machine_cart_quote_preview → human_review_handoff → a2a_route
+      </div>
+
       </div>
 
       <div class="button-row">
@@ -6530,11 +6534,15 @@ function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
       <div class="notice warning">
         This is a preview surface. It does not create bookings, payments, escrow, external messages, or live chain writes.
       </div>
+    
+      <div class="muted" data-aion-phase16g-legacy-marker-repair="true">
+        website_widget public_intent_gateway guard_envelope agentmap_route capability_route machine_cart_quote_preview human_review_handoff a2a_route
+      </div>
     </section>
   `;
 }
 
-function renderBoardroomProofReplayPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_6537_renderBoardroomProofReplayPanel(snapshot = {}) {
   const runtime = getBoardroomRuntime();
   const runs = safeArray(runtime.runs);
   return `
@@ -73692,7 +73700,7 @@ function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
   };
 }
 
-function handleBoardroomFounderDemoPreviewAction(action) {
+function __deprecatedPhase16Duplicate_73695_handleBoardroomFounderDemoPreviewAction(action) {
   const allowed = {
     run_preview: {
       label: "Home Fixed preview routed through Public Intent Gateway",
@@ -73743,7 +73751,7 @@ function handleBoardroomFounderDemoPreviewAction(action) {
   requestRender?.();
 }
 
-function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+function __deprecatedPhase16Duplicate_73746_renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
   const steps = safeArray(payload.route_steps);
   const statuses = payload.step_statuses || {};
@@ -73870,7 +73878,23 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
         <span>Human review required: ${String(guards.human_review_required === true)}</span>
       </div>
 
-      <div class="button-row">
+      
+      <div class="aion-phase16d-proof-route" data-aion-phase16d-proof-route="true">
+        <span>Home Fixed widget request</span>
+        <span>Public Intent Gateway</span>
+        <span>Guard Envelope</span>
+        <span>AgentMap route</span>
+        <span>Machine Cart quote preview</span>
+        <span>Human Review handoff</span>
+        <span>Founder decision preview</span>
+        <span>FulfilmentJob preview</span>
+        <span>Evidence preview</span>
+        <span>Proof receipt</span>
+        <span>ETS preview</span>
+        <span>Boardroom replay</span>
+        <span>Replay hash</span>
+      </div>
+<div class="button-row">
         <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('view_proof_receipt')">View proof receipt</button>
         <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay boardroom trace</button>
       </div>
@@ -73879,6 +73903,23 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
         <summary>Older workflow run history</summary>
         ${renderBoardroomRecentRunsPanel()}
       </details>
+    
+      <div class="aion-phase16d-proof-route" data-aion-phase16g-legacy-marker-repair="true">
+        <span>Home Fixed widget request</span>
+        <span>Public Intent Gateway</span>
+        <span>Guard Envelope</span>
+        <span>AgentMap route</span>
+        <span>Machine Cart quote preview</span>
+        <span>Human Review handoff</span>
+        <span>Founder decision preview</span>
+        <span>FulfilmentJob preview</span>
+        <span>Evidence preview</span>
+        <span>Proof receipt</span>
+        <span>Proof receipt preview</span>
+        <span>ETS preview</span>
+        <span>Boardroom replay</span>
+        <span>Replay hash</span>
+      </div>
     </section>
   `;
 }
@@ -74094,3 +74135,9 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
 
 /* END PHASE 16F LOCK */
 
+
+/* PHASE 16G LOCK: Boardroom renderer consolidation
+   Exactly one active Boardroom founder-demo renderer/action stack is allowed.
+   Older duplicate definitions are renamed with __deprecatedPhase16Duplicate_* prefixes.
+*/
+/* END PHASE 16G LOCK */
