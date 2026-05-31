@@ -74045,6 +74045,30 @@ function renderAionFounderDemoStepButton(stepKey, label, state) {
   `;
 }
 
+
+
+function renderBoardroomFounderDemoSafetyStrip(guards = {}) {
+  const safe = guards || {};
+
+  const items = [
+    ["No booking created", safe.booking_created === false],
+    ["No payment created", safe.payment_created === false],
+    ["No escrow created", safe.escrow_created === false],
+    ["No external message sent", safe.external_message_sent === false],
+    ["No live chain write", safe.live_chain_write === false],
+    ["Human review required", safe.human_review_required === true],
+    ["Replay/hash proof available", safe.replay_hash_available === true],
+  ];
+
+  return `
+    <div class="aion-founder-demo-guard-grid" data-aion-founder-demo-safety-strip="true">
+      ${items.map(([label, ok]) => `
+        <span class="${ok ? "is-safe" : "is-warn"}">${escapeHtml(label)}</span>
+      `).join("")}
+    </div>
+  `;
+}
+
 function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   const state = getAionFounderDemoLoopState();
 

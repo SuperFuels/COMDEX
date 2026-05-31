@@ -82,3 +82,10 @@ def test_phase16g_action_handler_preserves_side_effect_guards():
         "replay_hash_available: true",
     ]:
         assert phrase in handler
+
+def test_phase16g_missing_safety_strip_helper_is_defined():
+    text = APP.read_text()
+    assert "function renderBoardroomFounderDemoSafetyStrip" in text
+    assert "renderBoardroomFounderDemoSafetyStrip(sideEffectGuards)" in text
+    assert "data-aion-founder-demo-safety-strip" in text
+
