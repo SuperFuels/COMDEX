@@ -5833,7 +5833,7 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
   const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
 
   return `
-    <section class="panel large-panel aion-founder-demo-loop-panel" data-aion-founder-demo-loop-panel="true">
+    <section class="panel large-panel aion-founder-demo-loop-panel" data-aion-founder-demo-loop-panel="true" data-aion-founder-demo-active-state="true">
       <div class="panel-header">
         <div>
           <div class="panel-kicker">Founder Demo Loop</div>
@@ -73883,4 +73883,214 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
   `;
 }
 /* END PHASE 16E LOCK */
+
+
+/* PHASE 16F LOCK: Founder Demo Loop Functional Hero */
+
+window.__aionFounderDemoLoopState = window.__aionFounderDemoLoopState || {
+  activeStep: "website_widget_request",
+  statusLabel: "Ready for founder preview",
+  proofLabel: "Replay/hash proof available",
+  lastAction: "idle",
+};
+
+function getAionFounderDemoLoopState() {
+  window.__aionFounderDemoLoopState = window.__aionFounderDemoLoopState || {
+    activeStep: "website_widget_request",
+    statusLabel: "Ready for founder preview",
+    proofLabel: "Replay/hash proof available",
+    lastAction: "idle",
+  };
+  return window.__aionFounderDemoLoopState;
+}
+
+function setAionFounderDemoLoopState(patch = {}) {
+  const current = getAionFounderDemoLoopState();
+  window.__aionFounderDemoLoopState = {
+    ...current,
+    ...patch,
+    updatedAt: new Date().toISOString(),
+  };
+  try {
+    requestRender();
+  } catch (_) {
+    try {
+      render();
+    } catch (_) {}
+  }
+}
+
+function handleBoardroomFounderDemoPreviewAction(action) {
+  const sideEffectGuards = {
+    booking_created: false,
+    payment_created: false,
+    escrow_created: false,
+    external_message_sent: false,
+    live_chain_write: false,
+    live_execution_allowed: false,
+    human_review_required: true,
+    replay_hash_available: true,
+  };
+
+  if (action === "run_preview") {
+    setAionFounderDemoLoopState({
+      activeStep: "machine_cart_quote_preview",
+      statusLabel: "Home Fixed request preview generated",
+      proofLabel: "Preview hash prepared",
+      lastAction: "run_preview",
+      sideEffectGuards,
+    });
+    requestRender?.();
+    return;
+  }
+
+  if (action === "open_human_review") {
+    setAionFounderDemoLoopState({
+      activeStep: "human_review_handoff",
+      statusLabel: "Human review required before any external action",
+      proofLabel: "Decision preview waiting",
+      lastAction: "open_human_review",
+      sideEffectGuards,
+    });
+    requestRender?.();
+    return;
+  }
+
+  if (action === "view_proof_receipt") {
+    setAionFounderDemoLoopState({
+      activeStep: "proof_receipt",
+      statusLabel: "Proof receipt preview available",
+      proofLabel: "Replay/hash proof available",
+      lastAction: "view_proof_receipt",
+      sideEffectGuards,
+    });
+    requestRender?.();
+    return;
+  }
+
+  if (action === "replay_trace") {
+    setAionFounderDemoLoopState({
+      activeStep: "boardroom_replay",
+      statusLabel: "Boardroom replay preview ready",
+      proofLabel: "Replay trace available",
+      lastAction: "replay_trace",
+      sideEffectGuards,
+    });
+    requestRender?.();
+    return;
+  }
+
+  setAionFounderDemoLoopState({
+    activeStep: "website_widget_request",
+    statusLabel: "Ready for founder preview",
+    proofLabel: "Replay/hash proof available",
+    lastAction: "idle",
+    sideEffectGuards,
+  });
+  requestRender?.();
+}
+
+function renderAionFounderDemoStepButton(stepKey, label, state) {
+  const active = state.activeStep === stepKey;
+  return `
+    <button
+      type="button"
+      class="aion-founder-step-btn ${active ? "is-active" : ""}"
+      data-founder-demo-step="${escapeHtml(stepKey)}"
+      onclick="setAionFounderDemoLoopState({ activeStep: '${escapeHtml(stepKey)}', statusLabel: '${escapeHtml(label)} selected', lastAction: 'step_select' })"
+    >
+      ${escapeHtml(label)}
+    </button>
+  `;
+}
+
+function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+  const state = getAionFounderDemoLoopState();
+
+  const steps = [
+    ["website_widget_request", "Website/widget request"],
+    ["public_intent_gateway", "Public Intent Gateway"],
+    ["guard_envelope", "Guard Envelope"],
+    ["agentmap_route", "AgentMap route"],
+    ["machine_cart_quote_preview", "Machine Cart quote preview"],
+    ["human_review_handoff", "Human Review handoff"],
+    ["founder_decision_preview", "Founder decision preview"],
+    ["fulfilment_job_preview", "FulfilmentJob preview"],
+    ["evidence_preview", "Evidence preview"],
+    ["proof_receipt", "Proof receipt"],
+    ["ets_preview", "ETS preview"],
+    ["boardroom_replay", "Boardroom replay"],
+  ];
+
+  const safety = [
+    "No booking created",
+    "No payment created",
+    "No escrow created",
+    "No external message sent",
+    "No live chain write",
+    "Human review required",
+    state.proofLabel || "Replay/hash proof available",
+  ];
+
+  const sideEffectGuards = state.sideEffectGuards || {
+    booking_created: false,
+    payment_created: false,
+    escrow_created: false,
+    external_message_sent: false,
+    live_chain_write: false,
+    live_execution_allowed: false,
+    human_review_required: true,
+    replay_hash_available: true,
+  };
+
+  return `
+    <section class="panel large-panel aion-founder-demo-loop-panel aion-phase16f-founder-hero aion-phase16e-founder-demo-actions" data-aion-founder-demo-loop-panel="true" data-aion-phase16e-founder-demo-actions="true">
+      <div class="aion-founder-hero-head">
+        <div>
+          <div class="eyebrow">Founder Demo Loop</div>
+          <h2>Home Fixed Website → A2A → Proof Replay</h2>
+          <p>
+            One clean repeatable proof path from website/widget request to guarded quote preview,
+            human review, fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
+          </p>
+        </div>
+        <div class="aion-founder-hero-status" data-founder-demo-status="true" data-aion-founder-demo-active-state="true">
+          <span>Current state</span>
+          <strong>${escapeHtml(state.statusLabel || "Ready for founder preview")}</strong>
+          <small>${escapeHtml(state.lastAction || "idle")}</small>
+        </div>
+      </div>
+
+      <div class="aion-founder-demo-active-state" data-aion-founder-demo-active-state="true">
+        <strong>Current step:</strong>
+        <span>${escapeHtml(state.activeStep || "website_widget_request")}</span>
+        <small>${escapeHtml(state.proofLabel || "Replay/hash proof available")}</small>
+      </div>
+
+      <div class="aion-founder-action-row" data-founder-demo-actions="true" data-aion-phase16e-founder-demo-actions="true">
+        <button type="button" data-founder-demo-action="run_preview" onclick="handleBoardroomFounderDemoPreviewAction('run_preview')">Run Home Fixed preview</button>
+        <button type="button" data-founder-demo-action="open_human_review" onclick="handleBoardroomFounderDemoPreviewAction('open_human_review')">Open human review</button>
+        <button type="button" data-founder-demo-action="view_proof_receipt" onclick="handleBoardroomFounderDemoPreviewAction('view_proof_receipt')">View proof receipt</button>
+        <button type="button" data-founder-demo-action="replay_trace" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay boardroom trace</button>
+      </div>
+
+      <div class="aion-founder-step-grid" data-founder-demo-step-grid="true">
+        ${steps.map(([key, label]) => renderAionFounderDemoStepButton(key, label, state)).join("")}
+      </div>
+
+      <div class="aion-founder-safety-grid" data-founder-demo-safety-grid="true">
+        ${safety.map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
+      </div>
+
+      ${renderBoardroomFounderDemoSafetyStrip(sideEffectGuards)}
+
+      <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
+        <strong>Preview mode:</strong>
+        <span>No booking, payment, escrow, external message, or live chain write can be created from this panel.</span>
+      </div>
+    </section>
+  `;
+}
+
+/* END PHASE 16F LOCK */
 

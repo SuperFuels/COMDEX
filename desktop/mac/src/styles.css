@@ -10159,3 +10159,153 @@ pre {
   }
 }
 /* END PHASE 16E LOCK */
+
+/* PHASE 16F LOCK: Founder Demo Loop Functional Hero */
+.aion-phase16f-founder-hero {
+  border: 1px solid rgba(15, 139, 149, 0.32);
+  background:
+    linear-gradient(135deg, rgba(15, 139, 149, 0.07), rgba(242, 175, 13, 0.05)),
+    rgba(255, 250, 242, 0.92);
+  box-shadow: 0 18px 48px rgba(28, 24, 20, 0.08);
+}
+
+.aion-founder-hero-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 320px);
+  gap: 20px;
+  align-items: start;
+}
+
+.aion-founder-hero-head h2 {
+  margin: 8px 0 10px;
+  font-size: clamp(24px, 2.2vw, 38px);
+  line-height: 1.05;
+}
+
+.aion-founder-hero-head p {
+  max-width: 980px;
+  color: rgba(32, 32, 32, 0.72);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.aion-founder-hero-status {
+  border: 1px solid rgba(15, 139, 149, 0.28);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 16px;
+  display: grid;
+  gap: 6px;
+}
+
+.aion-founder-hero-status span,
+.aion-founder-hero-status small {
+  text-transform: uppercase;
+  letter-spacing: 0.11em;
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(32, 32, 32, 0.55);
+}
+
+.aion-founder-hero-status strong {
+  font-size: 18px;
+  color: #101010;
+}
+
+.aion-founder-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0 18px;
+}
+
+.aion-founder-action-row button,
+.aion-founder-step-btn {
+  appearance: none;
+  border: 1px solid rgba(15, 139, 149, 0.45);
+  background: #0f8b95;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 11px 16px;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.aion-founder-action-row button:hover,
+.aion-founder-step-btn:hover {
+  background: #0b6f78;
+  border-color: #0b6f78;
+}
+
+.aion-founder-step-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 12px 0 18px;
+}
+
+.aion-founder-step-btn {
+  background: rgba(255, 255, 255, 0.72);
+  color: #141414;
+  border-color: rgba(32, 32, 32, 0.15);
+  box-shadow: none;
+}
+
+.aion-founder-step-btn.is-active {
+  background: #111111;
+  color: #ffffff;
+  border-color: #111111;
+}
+
+.aion-founder-safety-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-top: 14px;
+}
+
+.aion-founder-safety-grid span {
+  border: 1px solid rgba(15, 139, 149, 0.28);
+  background: rgba(15, 139, 149, 0.08);
+  color: #102225;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 850;
+  font-size: 13px;
+}
+
+.aion-founder-proof-line {
+  margin-top: 18px;
+  padding: 12px 14px;
+  border-left: 4px solid #0f8b95;
+  background: rgba(255, 255, 255, 0.72);
+  color: rgba(32, 32, 32, 0.78);
+}
+
+.aion-boardroom-frontpage-simplified button {
+  background-image: none !important;
+}
+
+/* Kill accidental purple Boardroom button bleed from prior phase. */
+.aion-boardroom-frontpage-simplified button:not(.tab-button):not(.nav-button),
+.aion-boardroom-proof-replay button,
+.aion-boardroom-main-action-grid button {
+  background: #0f8b95;
+  color: #ffffff;
+  border-color: #0f8b95;
+}
+
+.aion-boardroom-frontpage-simplified button:not(.tab-button):not(.nav-button):hover,
+.aion-boardroom-proof-replay button:hover,
+.aion-boardroom-main-action-grid button:hover {
+  background: #0b6f78;
+  border-color: #0b6f78;
+}
+
+@media (max-width: 900px) {
+  .aion-founder-hero-head {
+    grid-template-columns: 1fr;
+  }
+}
+/* END PHASE 16F LOCK */
