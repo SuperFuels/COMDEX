@@ -74249,6 +74249,8 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
 
       ${renderBoardroomFounderDemoSafetyStrip(sideEffectGuards)}
 
+      ${renderAionFounderDemoVisibleOutputPanel(state)}
+
       <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
         <strong>Preview mode:</strong>
         <span>No booking, payment, escrow, external message, or live chain write can be created from this panel.</span>
@@ -74259,6 +74261,135 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
 
 /* END PHASE 16F LOCK */
 
+
+
+
+/* PHASE 16H LOCK: Founder demo visible action output panels */
+
+function getAionFounderDemoVisibleOutput(action, state = {}) {
+  const selected = String(action || state.lastAction || "idle");
+
+  const commonGuards = [
+    "No booking created",
+    "No payment created",
+    "No escrow created",
+    "No external message sent",
+    "No live chain write",
+    "Preview only",
+  ];
+
+  const outputs = {
+    run_preview: {
+      kicker: "Home Fixed request preview",
+      title: "Incoming website/widget request",
+      status: "quote_preview_generated",
+      rows: [
+        ["Customer", "Home Fixed website/widget"],
+        ["Service", "Roof leak / home repair request"],
+        ["Source", "website_widget"],
+        ["Route", "Public Intent Gateway → Guard Envelope → AgentMap route → Machine Cart"],
+        ["Quote preview", "Generated"],
+        ["Booking", "Not created"],
+        ["Payment", "Not created"],
+        ["Escrow", "Not created"],
+        ["External message", "Not sent"],
+      ],
+      guards: commonGuards,
+    },
+    open_human_review: {
+      kicker: "Human review decision preview",
+      title: "Founder approval required",
+      status: "human_review_required",
+      rows: [
+        ["Decision options", "Approve quote preview / reject / request more evidence"],
+        ["Reason", "External action blocked until founder approval"],
+        ["Live execution", "Blocked"],
+        ["Booking", "Not created"],
+        ["Payment", "Not created"],
+        ["Escrow", "Not created"],
+        ["External message", "Not sent"],
+      ],
+      guards: commonGuards,
+    },
+    view_proof_receipt: {
+      kicker: "Proof receipt preview",
+      title: "Replay/hash proof available",
+      status: "proof_receipt_preview",
+      rows: [
+        ["Trace ID", "home_fixed_widget_trace_preview"],
+        ["Proof receipt", "proof_receipt_preview"],
+        ["Proof hash", "preview-proof-hash"],
+        ["Evidence IDs", "evidence_preview"],
+        ["ETS preview", "ets_preview"],
+        ["GlyphChain write", "Not performed"],
+      ],
+      guards: commonGuards,
+    },
+    replay_trace: {
+      kicker: "Boardroom replay preview",
+      title: "Replay timeline",
+      status: "boardroom_replay_preview",
+      rows: [
+        ["1", "Website/widget request"],
+        ["2", "Public Intent Gateway"],
+        ["3", "Guard Envelope"],
+        ["4", "AgentMap route"],
+        ["5", "Machine Cart quote preview"],
+        ["6", "Human Review handoff"],
+        ["7", "Founder decision preview"],
+        ["8", "FulfilmentJob preview"],
+        ["9", "Evidence preview"],
+        ["10", "Proof receipt"],
+        ["11", "ETS preview"],
+        ["12", "Boardroom replay"],
+      ],
+      guards: commonGuards,
+    },
+  };
+
+  return outputs[selected] || {
+    kicker: "Founder demo preview",
+    title: "No action selected",
+    status: "idle",
+    rows: [
+      ["Next step", "Run Home Fixed preview"],
+      ["Mode", "Preview only"],
+      ["Live execution", "Blocked"],
+    ],
+    guards: commonGuards,
+  };
+}
+
+function renderAionFounderDemoVisibleOutputPanel(state = {}) {
+  const output = getAionFounderDemoVisibleOutput(state.lastAction, state);
+
+  return `
+    <section class="aion-founder-visible-output" data-aion-founder-visible-output="true" data-aion-founder-visible-output-action="${escapeHtml(state.lastAction || "idle")}">
+      <div class="aion-founder-visible-output-head">
+        <div>
+          <div class="eyebrow">${escapeHtml(output.kicker)}</div>
+          <h3>${escapeHtml(output.title)}</h3>
+        </div>
+        <span class="status-pill">${escapeHtml(output.status)}</span>
+      </div>
+
+      <div class="aion-founder-visible-output-grid">
+        ${safeArray(output.rows).map(([label, value]) => `
+          <div class="aion-founder-visible-output-row">
+            <strong>${escapeHtml(label)}</strong>
+            <span>${escapeHtml(value)}</span>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="aion-founder-visible-output-guards">
+        ${safeArray(output.guards).map((guard) => `<span>${escapeHtml(guard)}</span>`).join("")}
+      </div>
+    </section>
+  `;
+}
+
+/* END PHASE 16H LOCK */
 
 /* PHASE 16G LOCK: Boardroom renderer consolidation
    Exactly one active Boardroom founder-demo renderer/action stack is allowed.
