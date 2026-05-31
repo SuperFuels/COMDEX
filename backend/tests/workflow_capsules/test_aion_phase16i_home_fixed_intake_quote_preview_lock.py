@@ -84,3 +84,12 @@ def test_phase16i_css_has_intake_and_quote_styles():
 def test_phase16i_is_in_focused_suite():
     suite = SUITE.read_text()
     assert "test_aion_phase16i_home_fixed_intake_quote_preview_lock.py" in suite
+
+def test_phase16i_intake_quote_is_mounted_when_run_preview_selected():
+    text = APP.read_text()
+
+    assert 'activeStep === "machine_cart_quote_preview"' in text
+    assert 'lastAction === "run_preview"' in text
+    assert "showHomeFixedIntakeQuote" in text
+    assert "renderAionHomeFixedIntakeQuotePreview()" in text
+

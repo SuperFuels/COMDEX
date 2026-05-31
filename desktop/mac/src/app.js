@@ -74361,10 +74361,20 @@ function getAionFounderDemoVisibleOutput(action, state = {}) {
 }
 
 function renderAionFounderDemoVisibleOutputPanel(state = {}) {
-  const output = getAionFounderDemoVisibleOutput(state.lastAction, state);
+  const activeStep = String(state.activeStep || "");
+  const lastAction = String(state.lastAction || "idle");
+
+  const effectiveAction =
+    lastAction === "run_preview" || activeStep === "machine_cart_quote_preview"
+      ? "run_preview"
+      : lastAction;
+
+  const output = getAionFounderDemoVisibleOutput(effectiveAction, state);
+  const showHomeFixedIntakeQuote =
+    effectiveAction === "run_preview" || activeStep === "machine_cart_quote_preview";
 
   return `
-    <section class="aion-founder-visible-output" data-aion-founder-visible-output="true" data-aion-founder-visible-output-action="${escapeHtml(state.lastAction || "idle")}">
+    <section class="aion-founder-visible-output" data-aion-founder-visible-output="true" data-aion-founder-visible-output-action="${escapeHtml(effectiveAction || "idle")}">
       <div class="aion-founder-visible-output-head">
         <div>
           <div class="eyebrow">${escapeHtml(output.kicker)}</div>
@@ -74372,6 +74382,8 @@ function renderAionFounderDemoVisibleOutputPanel(state = {}) {
         </div>
         <span class="status-pill">${escapeHtml(output.status)}</span>
       </div>
+
+      ${showHomeFixedIntakeQuote ? renderAionHomeFixedIntakeQuotePreview() : ""}
 
       <div class="aion-founder-visible-output-grid">
         ${safeArray(output.rows).map(([label, value]) => `
@@ -74388,7 +74400,6 @@ function renderAionFounderDemoVisibleOutputPanel(state = {}) {
     </section>
   `;
 }
-
 /* END PHASE 16H LOCK */
 
 /* PHASE 16I LOCK: Home Fixed intake + quote preview */
