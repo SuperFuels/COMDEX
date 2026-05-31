@@ -73584,3 +73584,303 @@ function getAgentMapSelfHostedExportPayload(payload = {}) {
 /* END AION PHASE 14K LOCK */
 
 /* Phase 14K render hook: ${renderAgentMapHostedSelfHostedOptions(payload)} */
+
+
+/* PHASE 16E LOCK: Founder demo action wiring */
+function getBoardroomFounderDemoActionState() {
+  if (!state.boardroomFounderDemoActionState) {
+    state.boardroomFounderDemoActionState = {
+      selected_action: "idle",
+      current_step: "ready",
+      status: "ready_for_preview",
+      last_action_label: "No founder demo action selected yet",
+      step_statuses: {
+        website_widget_request: "ready",
+        public_intent_gateway: "preview_ready",
+        guard_envelope: "preview_ready",
+        agentmap_capability_route: "verified_preview",
+        machine_cart_quote_preview: "preview_ready",
+        human_review_handoff: "required",
+        founder_decision_preview: "waiting",
+        fulfilment_job_preview: "preview_ready",
+        evidence_preview: "preview_ready",
+        proof_receipt_preview: "available",
+        ets_preview: "preview_ready",
+        boardroom_replay: "available",
+      },
+      side_effect_guards: {
+        booking_created: false,
+        payment_created: false,
+        escrow_created: false,
+        external_message_sent: false,
+        live_chain_write: false,
+        live_execution_allowed: false,
+        human_review_required: true,
+        replay_hash_available: true,
+      },
+    };
+  }
+
+  return state.boardroomFounderDemoActionState;
+}
+
+function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
+  const actionState = getBoardroomFounderDemoActionState();
+  const agentMapPreview = getAgentMapDashboardPreviewPayload?.() || {};
+  const hash =
+    agentMapPreview.agentmap_hash ||
+    agentMapPreview.agentmap_json?.agentmap_hash ||
+    "b1e09a730891e6cbbf093eee509ebc4eb8c012a5a59fdb40bbe0fb125c98ddbe";
+
+  return {
+    demo_version: "aion.phase16e.founder_demo_action_wiring.v0.1",
+    business_id: "home_fixed",
+    business_name: "Home Fixed",
+    vertical_key: "home_repair",
+    selected_action: actionState.selected_action,
+    current_step: actionState.current_step,
+    status: actionState.status,
+    last_action_label: actionState.last_action_label,
+    agentmap_hash: hash,
+    proof_hash: "hf_demo_proof_hash_preview_16e",
+    proof_receipt_id: "proof_receipt_preview",
+    job_trace_id: "job_trace_preview",
+    ets_preview_id: "ets_preview",
+    evidence_ids: ["evidence_preview"],
+    route_steps: [
+      "Home Fixed website/widget request",
+      "Public Intent Gateway",
+      "Guard Envelope",
+      "AgentMap / capability route",
+      "Machine Cart / quote preview",
+      "Human Review handoff",
+      "Founder decision preview",
+      "FulfilmentJob preview",
+      "Evidence preview",
+      "Proof receipt preview",
+      "ETS preview",
+      "Boardroom replay",
+    ],
+    demo_actions: [
+      {
+        key: "run_preview",
+        label: "Run Home Fixed preview",
+        step: "public_intent_gateway",
+        status: "preview_started",
+      },
+      {
+        key: "open_human_review",
+        label: "Open human review",
+        step: "human_review_handoff",
+        status: "human_review_required",
+      },
+      {
+        key: "view_proof_receipt",
+        label: "View proof receipt",
+        step: "proof_receipt_preview",
+        status: "proof_available",
+      },
+      {
+        key: "replay_trace",
+        label: "Replay boardroom trace",
+        step: "boardroom_replay",
+        status: "replay_available",
+      },
+    ],
+    step_statuses: actionState.step_statuses,
+    side_effect_guards: actionState.side_effect_guards,
+  };
+}
+
+function handleBoardroomFounderDemoPreviewAction(action) {
+  const allowed = {
+    run_preview: {
+      label: "Home Fixed preview routed through Public Intent Gateway",
+      current_step: "public_intent_gateway",
+      status: "preview_started",
+    },
+    open_human_review: {
+      label: "Human Review handoff opened",
+      current_step: "human_review_handoff",
+      status: "human_review_required",
+    },
+    view_proof_receipt: {
+      label: "Proof receipt preview opened",
+      current_step: "proof_receipt_preview",
+      status: "proof_available",
+    },
+    replay_trace: {
+      label: "Boardroom replay/hash proof opened",
+      current_step: "boardroom_replay",
+      status: "replay_available",
+    },
+  };
+
+  const next = allowed[action] || {
+    label: "Unknown founder demo action blocked",
+    current_step: "blocked",
+    status: "blocked_unknown_action",
+  };
+
+  state.boardroomFounderDemoActionState = {
+    ...getBoardroomFounderDemoActionState(),
+    selected_action: action,
+    current_step: next.current_step,
+    status: next.status,
+    last_action_label: next.label,
+    side_effect_guards: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+      live_execution_allowed: false,
+      human_review_required: true,
+      replay_hash_available: true,
+    },
+  };
+
+  requestRender?.();
+}
+
+function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+  const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
+  const steps = safeArray(payload.route_steps);
+  const statuses = payload.step_statuses || {};
+  const actions = safeArray(payload.demo_actions);
+
+  return `
+    <section class="panel large-panel aion-founder-demo-loop-panel aion-phase16e-founder-demo-actions" data-aion-founder-demo-loop-panel="true" data-aion-phase16e-founder-demo-actions="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Founder Demo Loop</div>
+          <h2>Home Fixed A2A demo path</h2>
+          <p class="muted">
+            One repeatable route from website request to guarded quote preview, human review,
+            proof receipt, ETS preview, and replay.
+          </p>
+        </div>
+        <div class="status-pill" data-aion-founder-demo-status="${escapeHtml(payload.status)}">
+          ${escapeHtml(payload.status)}
+        </div>
+      </div>
+
+      <div class="aion-founder-demo-active-state" data-aion-founder-demo-active-state="true">
+        <strong>Current step:</strong>
+        <span>${escapeHtml(payload.current_step)}</span>
+        <small>${escapeHtml(payload.last_action_label)}</small>
+      </div>
+
+      <div class="aion-founder-demo-route" data-aion-founder-demo-route="true">
+        ${steps.map((step) => {
+          const key = String(step).toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+          const status = statuses[key] || "preview";
+          return `
+            <div class="aion-founder-demo-step-card" data-aion-founder-demo-step="${escapeHtml(key)}">
+              <strong>${escapeHtml(step)}</strong>
+              <span>${escapeHtml(status)}</span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+
+      <div class="button-row aion-founder-demo-actions" data-aion-founder-demo-action-buttons="true">
+        ${actions.map((item) => `
+          <button type="button" data-founder-demo-action="${escapeHtml(item.key)}" onclick="handleBoardroomFounderDemoPreviewAction('${escapeHtml(item.key)}')">
+            ${escapeHtml(item.label)}
+          </button>
+        `).join("")}
+      </div>
+
+      ${renderBoardroomFounderDemoSafetyStrip(payload.side_effect_guards)}
+
+      <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
+        <strong>Replay/hash proof:</strong>
+        <code>${escapeHtml(aionShortHash(payload.proof_hash))}</code>
+        <span class="muted">Receipt: ${escapeHtml(payload.proof_receipt_id)}</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomHumanReviewQueuePanel(runtimeApprovals = []) {
+  const approvals = safeArray(runtimeApprovals);
+  const payload = getBoardroomFounderDemoPreviewPayload({});
+  const pendingCount = approvals.filter((item) => item?.status === "pending").length;
+
+  return `
+    <section class="panel large-panel aion-boardroom-human-review-queue" data-aion-boardroom-human-review-queue="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Human Review</div>
+          <h2>Decision queue</h2>
+          <p class="muted">Founder approval is required before any booking, payment, escrow, external message, chain write, or live execution.</p>
+        </div>
+        <div class="status-pill">required</div>
+      </div>
+
+      <div class="metric-grid compact">
+        ${renderDashboardMetricCard("Pending approvals", pendingCount, "Runtime queue")}
+        ${renderDashboardMetricCard("Founder decision", payload.current_step === "human_review_handoff" ? "open" : "waiting", "Preview only")}
+        ${renderDashboardMetricCard("Live execution", "blocked", "Human review required")}
+        ${renderDashboardMetricCard("Side effects", "blocked", "No booking/payment/escrow")}
+      </div>
+
+      <div class="list-item" data-aion-founder-decision-preview="true">
+        <strong>Founder decision preview</strong>
+        <div class="muted">Accept preview · Reject preview · Request more evidence</div>
+        <div class="muted">Selected action: ${escapeHtml(payload.selected_action)}</div>
+      </div>
+
+      ${renderBoardroomWorkflowCapsuleApprovalQueue(approvals)}
+    </section>
+  `;
+}
+
+function renderBoardroomProofReplayPanel(snapshot = {}) {
+  const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
+  const guards = payload.side_effect_guards || {};
+
+  return `
+    <section class="panel large-panel aion-boardroom-proof-replay aion-phase16e-proof-replay" data-aion-boardroom-proof-replay="true" data-aion-phase16e-proof-replay="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Replay / Proof</div>
+          <h2>Home Fixed replay and proof receipt</h2>
+          <p class="muted">Founder demo replay is prioritised before old marketing run history.</p>
+        </div>
+        <div class="status-pill">${escapeHtml(payload.status)}</div>
+      </div>
+
+      <div class="aion-founder-demo-grid compact">
+        <div><strong>Request</strong><span>Home Fixed widget request</span></div>
+        <div><strong>Job trace</strong><span>${escapeHtml(payload.job_trace_id)}</span></div>
+        <div><strong>Proof receipt</strong><span>${escapeHtml(payload.proof_receipt_id)}</span></div>
+        <div><strong>ETS preview</strong><span>${escapeHtml(payload.ets_preview_id)}</span></div>
+        <div><strong>Evidence</strong><span>${escapeHtml(payload.evidence_ids.join(", "))}</span></div>
+        <div><strong>Replay hash</strong><span>${escapeHtml(aionShortHash(payload.proof_hash))}</span></div>
+      </div>
+
+      <div class="aion-founder-demo-guard-grid" data-aion-founder-demo-proof-guards="true">
+        <span>No booking created: ${String(guards.booking_created === true ? false : true)}</span>
+        <span>No payment created: ${String(guards.payment_created === true ? false : true)}</span>
+        <span>No escrow created: ${String(guards.escrow_created === true ? false : true)}</span>
+        <span>No external message sent: ${String(guards.external_message_sent === true ? false : true)}</span>
+        <span>No live chain write: ${String(guards.live_chain_write === true ? false : true)}</span>
+        <span>Human review required: ${String(guards.human_review_required === true)}</span>
+      </div>
+
+      <div class="button-row">
+        <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('view_proof_receipt')">View proof receipt</button>
+        <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay boardroom trace</button>
+      </div>
+
+      <details class="aion-boardroom-secondary-history">
+        <summary>Older workflow run history</summary>
+        ${renderBoardroomRecentRunsPanel()}
+      </details>
+    </section>
+  `;
+}
+/* END PHASE 16E LOCK */
+
