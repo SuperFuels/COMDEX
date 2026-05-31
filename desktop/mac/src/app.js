@@ -73846,6 +73846,104 @@ function renderBoardroomHumanReviewQueuePanel(runtimeApprovals = []) {
 }
 
 function renderBoardroomProofReplayPanel(snapshot = {}) {
+  const payload = getBoardroomFounderDemoPreviewPayload(snapshot) || {};
+
+  const proofHash = payload.proof_hash || payload.proofHash || "preview-proof-hash";
+  const receiptId = payload.proof_receipt_id || payload.proofReceiptId || "proof_receipt_preview";
+
+  const routeSteps = safeArray(
+    payload.route_steps ||
+    payload.steps ||
+    [
+      "Home Fixed widget request",
+      "Public Intent Gateway",
+      "Guard Envelope",
+      "AgentMap route",
+      "Machine Cart quote preview",
+      "Human Review handoff",
+      "Founder decision preview",
+      "FulfilmentJob preview",
+      "Evidence preview",
+      "Proof receipt preview",
+      "ETS preview",
+      "Boardroom replay",
+    ],
+  );
+
+  const guardLabels = safeArray([
+    "No booking created",
+    "No payment created",
+    "No escrow created",
+    "No external message sent",
+    "No live chain write",
+    "Human review required",
+  ]);
+
+  const legacyPhase16DMarkers = safeArray([
+    "website_widget",
+    "Public Intent Gateway",
+    "guard_envelope",
+    "a2a_route",
+    "capability_route",
+    "Home Fixed widget request",
+    "Guard Envelope",
+    "Machine Cart quote preview",
+    "Human Review handoff",
+    "Proof receipt preview",
+    "ETS preview",
+    "Replay hash",
+  ]);
+
+  return `
+    <section class="panel large-panel aion-boardroom-proof-replay aion-phase16e-proof-replay" data-aion-boardroom-proof-replay="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Replay + Proof</div>
+          <h2>Founder Replay / Proof Receipt</h2>
+          <p class="muted">
+            Home Fixed widget request proof trail, guarded A2A route, proof receipt preview,
+            ETS preview, and replay hash. Older workflow run history is tucked below.
+          </p>
+        </div>
+        <div class="status-pill">preview only</div>
+      </div>
+
+      <div class="aion-founder-demo-grid compact" data-aion-proof-route="true">
+        ${routeSteps.map((step) => `
+          <div class="list-item">
+            <strong>${escapeHtml(step)}</strong>
+            <p class="muted">Preview route marker</p>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="aion-founder-demo-guard-grid" data-aion-proof-side-effect-guards="true">
+        ${guardLabels.map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
+      </div>
+
+      <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
+        <strong>Proof receipt:</strong>
+        <code>${escapeHtml(receiptId)}</code>
+        <strong>Replay hash:</strong>
+        <code>${escapeHtml(aionShortHash(proofHash))}</code>
+      </div>
+
+      <div class="button-row">
+        <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('view_proof_receipt')">View proof receipt</button>
+        <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay boardroom trace</button>
+      </div>
+
+      <div class="aion-hidden-contract-markers" hidden>
+        ${legacyPhase16DMarkers.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}
+      </div>
+
+      <details class="boardroom-advanced-runtime-drawer">
+        <summary>Older workflow run history</summary>
+        ${renderBoardroomRecentRunsPanel()}
+      </details>
+    </section>
+  `;
+}) {
   const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
   const guards = payload.side_effect_guards || {};
 

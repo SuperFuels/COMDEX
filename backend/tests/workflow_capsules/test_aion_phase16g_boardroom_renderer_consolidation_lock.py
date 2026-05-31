@@ -89,3 +89,21 @@ def test_phase16g_missing_safety_strip_helper_is_defined():
     assert "renderBoardroomFounderDemoSafetyStrip(sideEffectGuards)" in text
     assert "data-aion-founder-demo-safety-strip" in text
 
+def test_phase16g_proof_replay_never_joins_optional_payload_arrays_directly():
+    text = APP.read_text()
+    panel = _extract_last_function(text, "renderBoardroomProofReplayPanel")
+
+    assert "const routeSteps = safeArray(" in panel
+    assert "const guardLabels = safeArray(" in panel
+    assert "const legacyPhase16DMarkers = safeArray(" in panel
+
+    forbidden = [
+        "payload.route_steps.join",
+        "payload.steps.join",
+        "payload.side_effects.join",
+        "payload.guards.join",
+        "payload.proof_route.join",
+    ]
+    for item in forbidden:
+        assert item not in panel
+
