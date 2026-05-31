@@ -74249,6 +74249,8 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
 
       ${renderBoardroomFounderDemoSafetyStrip(sideEffectGuards)}
 
+      ${renderAionFounderDemoTicketRunPanel()}
+
       ${renderAionFounderDemoVisibleOutputPanel(state)}
 
       <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
@@ -74510,6 +74512,165 @@ function renderAionHomeFixedIntakeQuotePreview() {
 }
 
 /* END PHASE 16I LOCK */
+
+
+/* PHASE 16J LOCK: Founder demo ticket run + guard declutter */
+
+const AION_FOUNDER_DEMO_TICKET_STEPS = [
+  {
+    key: "website_widget_request",
+    label: "Received",
+    title: "Customer request received",
+    artifact: "Home Fixed website widget request captured.",
+    detail: "Leaking pergola roof in Arboleas. Rain-related roof/pergola repair request.",
+  },
+  {
+    key: "public_intent_gateway",
+    label: "Routed",
+    title: "Public Intent Gateway normalized request",
+    artifact: "Inbound website message converted into a guarded business intent.",
+    detail: "Service, location, urgency, and channel extracted.",
+  },
+  {
+    key: "guard_envelope",
+    label: "Guarded",
+    title: "Guard Envelope applied",
+    artifact: "Side-effect boundary attached before any quote/job action.",
+    detail: "Booking, payment, escrow, external messaging, live execution, and chain writes are blocked.",
+  },
+  {
+    key: "agentmap_route",
+    label: "AgentMap",
+    title: "AgentMap route selected",
+    artifact: "Home Fixed capability route selected from machine-readable business metadata.",
+    detail: "Workflow path: website widget → A2A route → quote preview → human review.",
+  },
+  {
+    key: "machine_cart_quote_preview",
+    label: "Quoted",
+    title: "Machine Cart quote preview generated",
+    artifact: "Pergola roof leak repair · €120–€380 preview range.",
+    detail: "Site visit required before final quote. No booking or payment created.",
+  },
+  {
+    key: "human_review_handoff",
+    label: "Review",
+    title: "Human review required",
+    artifact: "Founder decision required before any external or irreversible action.",
+    detail: "Approve preview, reject, or request more evidence.",
+  },
+  {
+    key: "proof_receipt",
+    label: "Proof",
+    title: "Proof receipt preview prepared",
+    artifact: "Proof receipt, evidence pointer, ETS preview, and replay hash prepared.",
+    detail: "GlyphChain write is not performed in preview mode.",
+  },
+  {
+    key: "boardroom_replay",
+    label: "Replay",
+    title: "Boardroom replay ready",
+    artifact: "Full ticket timeline is available for replay.",
+    detail: "Replay shows every preview step without creating side effects.",
+  },
+];
+
+function getAionFounderDemoTicketState() {
+  const loop = getAionFounderDemoLoopState();
+  const activeKey = loop.activeStep || "website_widget_request";
+  const index = Math.max(
+    0,
+    AION_FOUNDER_DEMO_TICKET_STEPS.findIndex((step) => step.key === activeKey),
+  );
+  const step = AION_FOUNDER_DEMO_TICKET_STEPS[index] || AION_FOUNDER_DEMO_TICKET_STEPS[0];
+
+  return {
+    ticketId: "HF-DEMO-001",
+    status: step.label,
+    index,
+    step,
+    progress: `${index + 1}/${AION_FOUNDER_DEMO_TICKET_STEPS.length}`,
+    complete: index >= AION_FOUNDER_DEMO_TICKET_STEPS.length - 1,
+  };
+}
+
+function handleAionFounderDemoTicketRun(action = "next") {
+  const ticket = getAionFounderDemoTicketState();
+  let nextIndex = ticket.index;
+
+  if (action === "start" || action === "run_full_demo") {
+    nextIndex = 0;
+  } else if (action === "next") {
+    nextIndex = Math.min(ticket.index + 1, AION_FOUNDER_DEMO_TICKET_STEPS.length - 1);
+  } else if (action === "reset") {
+    nextIndex = 0;
+  }
+
+  const nextStep = AION_FOUNDER_DEMO_TICKET_STEPS[nextIndex] || AION_FOUNDER_DEMO_TICKET_STEPS[0];
+
+  setAionFounderDemoLoopState({
+    activeStep: nextStep.key,
+    statusLabel: nextStep.title,
+    proofLabel: nextStep.artifact,
+    lastAction: "ticket_run",
+    ticketId: "HF-DEMO-001",
+    ticketStatus: nextStep.label,
+    sideEffectGuards: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+      live_execution_allowed: false,
+      human_review_required: true,
+      replay_hash_available: true,
+    },
+  });
+}
+
+function renderAionFounderDemoTicketRunPanel() {
+  const ticket = getAionFounderDemoTicketState();
+  const step = ticket.step;
+
+  return `
+    <section class="aion-founder-ticket-panel" data-aion-founder-demo-ticket="true">
+      <div class="aion-founder-ticket-head">
+        <div>
+          <div class="eyebrow">Founder Demo Ticket</div>
+          <h3>${escapeHtml(ticket.ticketId)} · ${escapeHtml(step.title)}</h3>
+          <p>${escapeHtml(step.detail)}</p>
+        </div>
+        <span class="status-pill">${escapeHtml(ticket.status)} · ${escapeHtml(ticket.progress)}</span>
+      </div>
+
+      <div class="aion-founder-ticket-progress">
+        ${AION_FOUNDER_DEMO_TICKET_STEPS.map((item, index) => `
+          <span class="${index <= ticket.index ? "is-complete" : ""}">
+            <b>${index + 1}</b>${escapeHtml(item.label)}
+          </span>
+        `).join("")}
+      </div>
+
+      <div class="aion-founder-ticket-artifact">
+        <strong>Current artifact</strong>
+        <span>${escapeHtml(step.artifact)}</span>
+      </div>
+
+      <div class="aion-founder-ticket-actions">
+        <button type="button" onclick="handleAionFounderDemoTicketRun('run_full_demo')">Run Full Founder Demo</button>
+        <button type="button" onclick="handleAionFounderDemoTicketRun('next')">Next ticket step</button>
+        <button type="button" onclick="handleAionFounderDemoTicketRun('reset')">Reset ticket</button>
+      </div>
+
+      <div class="aion-founder-single-guard-strip" data-aion-founder-single-guard-strip="true">
+        Preview mode · No booking · No payment · No escrow · No external message · No live chain write
+      </div>
+    </section>
+  `;
+}
+
+/* END PHASE 16J LOCK */
+
 
 
 /* PHASE 16G LOCK: Boardroom renderer consolidation

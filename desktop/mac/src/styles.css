@@ -10492,3 +10492,80 @@ pre {
   }
 }
 /* END PHASE 16I LOCK */
+
+/* PHASE 16J LOCK: Founder demo ticket run + guard declutter */
+
+.aion-founder-ticket-panel {
+  border: 1px solid rgba(14, 147, 154, 0.25);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 18px;
+  margin: 18px 0;
+  display: grid;
+  gap: 14px;
+}
+
+.aion-founder-ticket-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.aion-founder-ticket-head h3 {
+  margin: 2px 0 6px;
+  font-size: 22px;
+}
+
+.aion-founder-ticket-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.aion-founder-ticket-progress span {
+  border: 1px solid rgba(14, 147, 154, 0.2);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 700;
+}
+
+.aion-founder-ticket-progress span.is-complete {
+  background: rgba(14, 147, 154, 0.12);
+}
+
+.aion-founder-ticket-progress b {
+  margin-right: 6px;
+  color: #0e939a;
+}
+
+.aion-founder-ticket-artifact {
+  border: 1px solid rgba(14, 147, 154, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 5px;
+}
+
+.aion-founder-ticket-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.aion-founder-single-guard-strip {
+  border-left: 4px solid #0e939a;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(14, 147, 154, 0.06);
+  font-weight: 800;
+}
+
+/* Declutter repeated preview guard pills inside the founder demo hero. */
+.aion-founder-demo-loop-panel > .aion-founder-safety-grid,
+.aion-founder-demo-loop-panel > .aion-founder-demo-guard-grid {
+  display: none;
+}
+
+/* END PHASE 16J LOCK */
