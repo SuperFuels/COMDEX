@@ -73877,6 +73877,7 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
     "No external message sent",
     "No live chain write",
     "Human review required",
+    "Replay/hash proof available",
   ]);
 
   const legacyPhase16DMarkers = safeArray([
@@ -73943,7 +73944,8 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
       </details>
     </section>
   `;
-}) {
+}
+function __deprecatedPhase16Duplicate_orphan_renderBoardroomProofReplayPanel(snapshot = {}) {
   const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
   const guards = payload.side_effect_guards || {};
 
@@ -73963,7 +73965,7 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
         <div><strong>Job trace</strong><span>${escapeHtml(payload.job_trace_id)}</span></div>
         <div><strong>Proof receipt</strong><span>${escapeHtml(payload.proof_receipt_id)}</span></div>
         <div><strong>ETS preview</strong><span>${escapeHtml(payload.ets_preview_id)}</span></div>
-        <div><strong>Evidence</strong><span>${escapeHtml(payload.evidence_ids.join(", "))}</span></div>
+        <div><strong>Evidence</strong><span>${escapeHtml(safeArray(payload.evidence_ids).join(", "))}</span></div>
         <div><strong>Replay hash</strong><span>${escapeHtml(aionShortHash(payload.proof_hash))}</span></div>
       </div>
 
