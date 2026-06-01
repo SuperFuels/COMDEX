@@ -74251,6 +74251,8 @@ function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
 
       ${renderAionFounderDemoTicketRunPanel()}
 
+      ${renderAionFounderDemoTicketStepArtifactPanel(state)}
+
       ${renderAionFounderDemoVisibleOutputPanel(state)}
 
       <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
@@ -74670,6 +74672,148 @@ function renderAionFounderDemoTicketRunPanel() {
 }
 
 /* END PHASE 16J LOCK */
+
+
+/* PHASE 16K LOCK: Ticket step artifacts */
+
+function getAionFounderDemoTicketStepArtifact(stepKey = "website_widget_request") {
+  const artifacts = {
+    website_widget_request: {
+      kicker: "Ticket intake",
+      title: "Website request received",
+      status: "RECEIVED",
+      rows: [
+        ["Ticket", "HF-DEMO-001"],
+        ["Customer message", "Leaking pergola roof in Arboleas after rain"],
+        ["Detected service", "Pergola / roof repair"],
+        ["Location", "Arboleas, Almería"],
+        ["Channel", "Home Fixed website widget"],
+      ],
+    },
+    public_intent_gateway: {
+      kicker: "Public Intent Gateway",
+      title: "Inbound request normalized",
+      status: "ROUTED",
+      rows: [
+        ["Intent type", "home_repair_quote_request"],
+        ["Service", "Pergola / roof repair"],
+        ["Urgency", "Medium / rain-related"],
+        ["Source", "website_widget"],
+        ["Output", "Normalized guarded intent"],
+      ],
+    },
+    guard_envelope: {
+      kicker: "Guard Envelope",
+      title: "Safety boundary applied",
+      status: "GUARDED",
+      rows: [
+        ["Booking", "Blocked"],
+        ["Payment", "Blocked"],
+        ["Escrow", "Blocked"],
+        ["External message", "Blocked"],
+        ["Live chain write", "Blocked"],
+      ],
+    },
+    agentmap_route: {
+      kicker: "AgentMap route",
+      title: "Business capability selected",
+      status: "ROUTED",
+      rows: [
+        ["Business", "Home Fixed"],
+        ["Capability", "repair.quote.preview"],
+        ["Route", "Public Intent Gateway → Guard Envelope → AgentMap"],
+        ["Next", "Machine Cart quote preview"],
+        ["Mode", "Founder demo preview"],
+      ],
+    },
+    machine_cart_quote_preview: {
+      kicker: "Machine Cart quote preview",
+      title: "Quote preview generated",
+      status: "QUOTED",
+      rows: [
+        ["Job", "Pergola roof leak repair"],
+        ["Preview range", "€120–€380"],
+        ["Condition", "Site visit required before final quote"],
+        ["Booking", "Not created"],
+        ["Payment", "Not created"],
+      ],
+    },
+    human_review_handoff: {
+      kicker: "Human Review",
+      title: "Founder approval required",
+      status: "REVIEW_REQUIRED",
+      rows: [
+        ["Decision", "Approve preview / reject / request more evidence"],
+        ["Reason", "External action blocked until founder approval"],
+        ["Live execution", "Blocked"],
+        ["Booking", "Not created"],
+        ["External message", "Not sent"],
+      ],
+    },
+    proof_receipt: {
+      kicker: "Proof Receipt",
+      title: "Proof receipt preview available",
+      status: "PROOF_READY",
+      rows: [
+        ["Trace ID", "home_fixed_widget_trace_preview"],
+        ["Proof receipt", "proof_receipt_preview"],
+        ["Proof hash", "preview-proof-hash"],
+        ["Evidence", "evidence_preview"],
+        ["GlyphChain write", "Not performed"],
+      ],
+    },
+    boardroom_replay: {
+      kicker: "Boardroom Replay",
+      title: "Replay timeline ready",
+      status: "REPLAY_READY",
+      rows: [
+        ["1", "Website request received"],
+        ["2", "Intent normalized"],
+        ["3", "Guard envelope applied"],
+        ["4", "AgentMap route selected"],
+        ["5", "Quote preview generated"],
+        ["6", "Human review required"],
+        ["7", "Proof receipt prepared"],
+        ["8", "Replay available"],
+      ],
+    },
+  };
+
+  return artifacts[stepKey] || artifacts.website_widget_request;
+}
+
+function renderAionFounderDemoTicketStepArtifactPanel(state = {}) {
+  const stepKey = state.activeStep || "website_widget_request";
+  const artifact = getAionFounderDemoTicketStepArtifact(stepKey);
+
+  return `
+    <section class="aion-ticket-step-artifact" data-aion-ticket-step-artifact="true" data-aion-ticket-step="${escapeHtml(stepKey)}">
+      <div class="aion-ticket-step-artifact-head">
+        <div>
+          <div class="eyebrow">${escapeHtml(artifact.kicker)}</div>
+          <h3>${escapeHtml(artifact.title)}</h3>
+        </div>
+        <span class="status-pill">${escapeHtml(artifact.status)}</span>
+      </div>
+
+      <div class="aion-ticket-step-artifact-grid">
+        ${safeArray(artifact.rows).map(([label, value]) => `
+          <div>
+            <strong>${escapeHtml(label)}</strong>
+            <span>${escapeHtml(value)}</span>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="aion-founder-single-guard-strip">
+        No booking · No payment · No escrow · No external message · No live chain write
+      </div>
+    </section>
+  `;
+}
+
+/* END PHASE 16K LOCK */
+
 
 
 
