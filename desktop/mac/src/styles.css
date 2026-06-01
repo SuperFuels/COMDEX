@@ -10754,3 +10754,72 @@ pre {
 }
 
 /* END PHASE 17E LOCK */
+
+/* PHASE 17F LOCK: Business Website Intake Installation */
+
+.aion-phase17f-installation-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.aion-phase17f-install-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.aion-phase17f-install-card {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  padding: 16px;
+  background: rgba(255,255,255,0.045);
+  display: grid;
+  gap: 12px;
+}
+
+.aion-phase17f-install-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.aion-phase17f-install-card-head div {
+  display: grid;
+  gap: 4px;
+}
+
+.aion-phase17f-install-card-head span,
+.aion-phase17f-install-card p,
+.aion-phase17f-install-card li,
+.aion-phase17f-example span,
+.aion-phase17f-contract p {
+  color: rgba(255,255,255,0.72);
+}
+
+.aion-phase17f-install-card-head em {
+  font-style: normal;
+  font-size: 11px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  white-space: nowrap;
+}
+
+.aion-phase17f-code-line,
+.aion-phase17f-example,
+.aion-phase17f-contract {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  background: rgba(0,0,0,0.16);
+}
+
+.aion-phase17f-code-line code {
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* END PHASE 17F LOCK */

@@ -74962,6 +74962,136 @@ function renderAionPhase17EBoardroomTicketCard() {
 /* END PHASE 17E LOCK */
 
 
+
+/* PHASE 17F LOCK: Business Website Intake Installation */
+
+function getAionBusinessWebsiteIntakeInstallOptions() {
+  return [
+    {
+      key: "email_forwarding",
+      title: "Email Forwarding Setup",
+      audience: "Non-technical business owner",
+      summary:
+        "Use this when the existing website form already sends enquiries to email. The business forwards a copy of those enquiries to the AION intake mailbox.",
+      setup: [
+        "Create or choose a dedicated intake mailbox.",
+        "Forward website enquiry emails to the AION intake mailbox.",
+        "AION reads the enquiry, normalises it, and creates a business ticket.",
+        "The ticket can then trigger the mapped workflow preview.",
+      ],
+      example:
+        "Website form → info@homefixed.es → homefixed@intake.aion.local → AION ticket",
+      recommended: true,
+    },
+    {
+      key: "existing_form_webhook",
+      title: "Existing Form Webhook",
+      audience: "Web designer / developer",
+      summary:
+        "Use this when a web designer can add one POST request after the existing form submits. The original form behaviour remains untouched.",
+      setup: [
+        "Keep the current website form working as normal.",
+        "Send a copy of the enquiry to the AION public intake endpoint.",
+        "AION returns a ticket preview ID.",
+        "No booking, payment, escrow, message, or chain write is created by this intake call.",
+      ],
+      endpoint: "POST /api/aion/public-intake/home_fixed",
+      example:
+        "Existing form submit → normal email/CRM + AION public intake endpoint",
+      recommended: true,
+    },
+    {
+      key: "aion_generated_form",
+      title: "AION Generated Form / Embed",
+      audience: "AION onboarding / replacement form",
+      summary:
+        "Use this when AION should provide the enquiry form or floating request button directly.",
+      setup: [
+        "Generate the business install snippet.",
+        "Paste the snippet into the website page.",
+        "The AION form sends directly into the intake trigger system.",
+        "The resulting ticket is visible in the Boardroom.",
+      ],
+      snippet:
+        '<div id="aion-business-intake"></div><script src="/aion-intake.js" data-business-id="home_fixed" data-mode="enquiry-form"></script>',
+      recommended: false,
+    },
+  ];
+}
+
+function renderAionBusinessWebsiteIntakeInstallationPanel() {
+  const options = getAionBusinessWebsiteIntakeInstallOptions();
+
+  return `
+    <section class="panel large-panel aion-phase17f-installation-panel" data-aion-phase17f-business-installation="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Website Intake Installation</div>
+          <h2>Connect a business website to AION</h2>
+          <p class="muted">
+            Choose the simplest install path for the business. Email forwarding is the default for non-technical owners.
+            Webhook and embed options are available when a web designer or AION onboarding can update the site.
+          </p>
+        </div>
+        <div class="status-pill">Phase 17F</div>
+      </div>
+
+      <div class="aion-phase17f-install-grid">
+        ${options.map((option) => `
+          <article class="aion-phase17f-install-card" data-aion-phase17f-install-option="${escapeHtml(option.key)}">
+            <div class="aion-phase17f-install-card-head">
+              <div>
+                <strong>${escapeHtml(option.title)}</strong>
+                <span>${escapeHtml(option.audience)}</span>
+              </div>
+              ${option.recommended ? `<em>Recommended</em>` : `<em>Optional</em>`}
+            </div>
+
+            <p>${escapeHtml(option.summary)}</p>
+
+            <ol>
+              ${safeArray(option.setup).map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
+            </ol>
+
+            ${option.endpoint ? `
+              <div class="aion-phase17f-code-line">
+                <strong>Endpoint</strong>
+                <code>${escapeHtml(option.endpoint)}</code>
+              </div>
+            ` : ""}
+
+            ${option.snippet ? `
+              <div class="aion-phase17f-code-line">
+                <strong>Snippet</strong>
+                <code>${escapeHtml(option.snippet)}</code>
+              </div>
+            ` : ""}
+
+            <div class="aion-phase17f-example">
+              <strong>Flow</strong>
+              <span>${escapeHtml(option.example)}</span>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+
+      <details class="boardroom-advanced-runtime-drawer">
+        <summary>Technical install contract</summary>
+        <div class="aion-phase17f-contract">
+          <p><strong>Canonical trigger:</strong> website_intake.trigger.created</p>
+          <p><strong>Default mode:</strong> guarded_preview</p>
+          <p><strong>Business ID:</strong> home_fixed</p>
+          <p><strong>Workflow ID:</strong> home_fixed_new_enquiry</p>
+          <p><strong>Side-effect guard:</strong> no booking, payment, escrow, external message, or chain write during intake.</p>
+        </div>
+      </details>
+    </section>
+  `;
+}
+
+/* END PHASE 17F LOCK */
+
+
 /* PHASE 16G LOCK: Boardroom renderer consolidation
    Exactly one active Boardroom founder-demo renderer/action stack is allowed.
    Older duplicate definitions are renamed with __deprecatedPhase16Duplicate_* prefixes.
