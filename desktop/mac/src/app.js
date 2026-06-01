@@ -6625,7 +6625,8 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderBoardroomOperatorPresence()}
 
-      ${renderBoardroomFounderDemoLoopPanel(snapshot)}
+      ${renderAionPhase17EBoardroomTicketCard()}
+        ${renderBoardroomFounderDemoLoopPanel(snapshot)}
 
       <div class="two-col aion-boardroom-main-action-grid" data-aion-boardroom-main-action-grid="true">
         ${renderBoardroomA2ASetupPanel(snapshot)}
@@ -74815,6 +74816,150 @@ function renderAionFounderDemoTicketStepArtifactPanel(state = {}) {
 /* END PHASE 16K LOCK */
 
 
+
+
+
+
+/* PHASE 17E LOCK: Boardroom website intake ticket UI simplification */
+
+function getAionPhase17EWebsiteTicketPreview() {
+  return {
+    ticket_id: "ticket_home_fixed_preview_001",
+    business_id: "home_fixed",
+    workflow_id: "home_fixed_new_enquiry",
+    status: "Workflow preview ready",
+    customer: {
+      name: "Website customer",
+      phone: "Provided through website form",
+      email: "Provided through website form",
+    },
+    request: {
+      message: "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
+      detected_service: "Pergola / roof repair",
+      location: "Arboleas, Almería",
+      urgency: "Medium / rain-related",
+      source: "Home Fixed website form",
+      channel: "website_intake",
+    },
+    suggested_workflow: {
+      name: "Home Fixed new enquiry workflow",
+      current_step: "Quote preview prepared",
+      next_action: "Run workflow preview",
+    },
+    guards: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+      live_execution_allowed: false,
+      human_review_required: true,
+    },
+    trace: [
+      "Website form submitted",
+      "Public website intake endpoint",
+      "Home Fixed adapter normalization",
+      "website_intake.trigger.created",
+      "Business ticket created",
+      "Workflow selected: home_fixed_new_enquiry",
+      "Workflow preview prepared",
+      "Human review required before live action",
+    ],
+  };
+}
+
+function renderAionPhase17EBoardroomTicketCard() {
+  const ticket = getAionPhase17EWebsiteTicketPreview();
+  const request = ticket.request || {};
+  const workflow = ticket.suggested_workflow || {};
+  const guards = ticket.guards || {};
+
+  return `
+    <section class="panel large-panel aion-phase17e-ticket-card" data-aion-phase17e-boardroom-ticket-card="true">
+      <div class="aion-phase17e-ticket-head">
+        <div>
+          <div class="eyebrow">New Website Enquiry</div>
+          <h2>${escapeHtml(request.detected_service || "Website enquiry")}</h2>
+          <p>${escapeHtml(request.message || "")}</p>
+        </div>
+        <span class="status-pill">${escapeHtml(ticket.status || "Preview ready")}</span>
+      </div>
+
+      <div class="aion-phase17e-ticket-grid">
+        <div>
+          <strong>Customer</strong>
+          <span>${escapeHtml(ticket.customer?.name || "Website customer")}</span>
+        </div>
+        <div>
+          <strong>Service</strong>
+          <span>${escapeHtml(request.detected_service || "Unknown")}</span>
+        </div>
+        <div>
+          <strong>Location</strong>
+          <span>${escapeHtml(request.location || "Unknown")}</span>
+        </div>
+        <div>
+          <strong>Urgency</strong>
+          <span>${escapeHtml(request.urgency || "Normal")}</span>
+        </div>
+        <div>
+          <strong>Source</strong>
+          <span>${escapeHtml(request.source || "Website form")}</span>
+        </div>
+        <div>
+          <strong>Suggested workflow</strong>
+          <span>${escapeHtml(ticket.workflow_id || "workflow_pending")}</span>
+        </div>
+      </div>
+
+      <div class="aion-phase17e-workflow-strip">
+        <div>
+          <strong>${escapeHtml(workflow.name || "Suggested workflow")}</strong>
+          <span>${escapeHtml(workflow.current_step || "Workflow preview ready")}</span>
+        </div>
+        <span>${escapeHtml(workflow.next_action || "Run workflow preview")}</span>
+      </div>
+
+      <div class="aion-phase17e-action-row">
+        <button type="button" class="primary" onclick="handleBoardroomFounderDemoPreviewAction('run_preview')">
+          Run workflow preview
+        </button>
+        <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('open_human_review')">
+          Approve next action
+        </button>
+        <button type="button" onclick="handleBoardroomFounderDemoPreviewAction('open_human_review')">
+          Request more info
+        </button>
+      </div>
+
+      <div class="aion-phase17e-safety-line" data-aion-phase17e-compact-safety-line="true">
+        Safe mode: no booking, payment, escrow, external message, or chain write. Human review required.
+      </div>
+
+      <details class="aion-phase17e-technical-trace" data-aion-phase17e-technical-trace-drawer="true">
+        <summary>Show technical trace</summary>
+        <div class="aion-phase17e-trace-list">
+          ${safeArray(ticket.trace).map((step, index) => `
+            <div>
+              <b>${index + 1}</b>
+              <span>${escapeHtml(step)}</span>
+            </div>
+          `).join("")}
+        </div>
+        <div class="aion-phase17e-guard-mini">
+          <span>No booking created: ${String(guards.booking_created === false)}</span>
+          <span>No payment created: ${String(guards.payment_created === false)}</span>
+          <span>No escrow created: ${String(guards.escrow_created === false)}</span>
+          <span>No external message sent: ${String(guards.external_message_sent === false)}</span>
+          <span>No live chain write: ${String(guards.live_chain_write === false)}</span>
+          <span>Human review required: ${String(guards.human_review_required === true)}</span>
+        </div>
+      </details>
+    </section>
+  `;
+}
+
+/* END PHASE 17E LOCK */
 
 
 /* PHASE 16G LOCK: Boardroom renderer consolidation

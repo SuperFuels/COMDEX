@@ -10621,3 +10621,136 @@ pre {
 }
 
 /* END PHASE 16K LOCK */
+
+/* PHASE 17E LOCK: Boardroom website intake ticket UI simplification */
+
+.aion-phase17e-ticket-card {
+  display: grid;
+  gap: 16px;
+}
+
+.aion-phase17e-ticket-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+}
+
+.aion-phase17e-ticket-head h2 {
+  margin: 4px 0 8px;
+}
+
+.aion-phase17e-ticket-head p {
+  margin: 0;
+  max-width: 760px;
+  color: var(--muted, #aeb7c2);
+}
+
+.aion-phase17e-ticket-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.aion-phase17e-ticket-grid > div,
+.aion-phase17e-workflow-strip,
+.aion-phase17e-safety-line,
+.aion-phase17e-technical-trace {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.035);
+  padding: 12px;
+}
+
+.aion-phase17e-ticket-grid strong {
+  display: block;
+  font-size: 12px;
+  opacity: 0.72;
+  margin-bottom: 5px;
+}
+
+.aion-phase17e-ticket-grid span {
+  font-size: 14px;
+}
+
+.aion-phase17e-workflow-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.aion-phase17e-workflow-strip strong,
+.aion-phase17e-workflow-strip span {
+  display: block;
+}
+
+.aion-phase17e-action-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.aion-phase17e-action-row button.primary {
+  font-weight: 700;
+}
+
+.aion-phase17e-safety-line {
+  font-size: 13px;
+  opacity: 0.82;
+}
+
+.aion-phase17e-technical-trace summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.aion-phase17e-trace-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.aion-phase17e-trace-list > div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.aion-phase17e-trace-list b {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.08);
+  font-size: 12px;
+}
+
+.aion-phase17e-guard-mini {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.aion-phase17e-guard-mini span {
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.06);
+}
+
+@media (max-width: 980px) {
+  .aion-phase17e-ticket-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .aion-phase17e-ticket-head,
+  .aion-phase17e-workflow-strip {
+    flex-direction: column;
+  }
+}
+
+/* END PHASE 17E LOCK */
