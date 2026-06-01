@@ -75092,6 +75092,123 @@ function renderAionBusinessWebsiteIntakeInstallationPanel() {
 /* END PHASE 17F LOCK */
 
 
+
+/* PHASE 17F LOCK: Website intake installation panel */
+
+function getAionWebsiteIntakeInstallationOptions() {
+  return [
+    {
+      key: "email_forwarding",
+      title: "Email Forwarding Setup",
+      audience: "Best for non-technical businesses",
+      summary: "Forward existing website enquiry emails into a dedicated AION intake mailbox.",
+      installLabel: "Forward enquiries to",
+      installValue: "home_fixed@intake.tessaris.ai",
+      steps: [
+        "Keep the existing website form as-is.",
+        "Forward contact-form emails to the intake mailbox.",
+        "AION reads the enquiry and creates a workflow ticket.",
+        "No website code changes required.",
+      ],
+    },
+    {
+      key: "existing_form_webhook",
+      title: "Existing Form Webhook",
+      audience: "Best for a web designer or developer",
+      summary: "Connect the current website form directly to the guarded public intake endpoint.",
+      installLabel: "POST endpoint",
+      installValue: "https://api.tessaris.ai/public/intake/home_fixed",
+      steps: [
+        "Keep the existing form design.",
+        "Send name, phone, email, message, service, location, and urgency.",
+        "AION normalises the payload into website_intake.trigger.created.",
+        "The Boardroom receives a workflow ticket preview.",
+      ],
+    },
+    {
+      key: "aion_generated_embed",
+      title: "AION Generated Form / Embed",
+      audience: "Best when the business needs a ready-made form",
+      summary: "Paste one script into the website to show an AION enquiry form or floating request button.",
+      installLabel: "Install snippet",
+      installValue:
+        '<script src="https://cdn.tessaris.ai/intake-widget.js" data-business-id="home_fixed" data-mode="form"></script>',
+      steps: [
+        "Paste the snippet into the website.",
+        "AION renders the enquiry form or floating request button.",
+        "Submissions create guarded workflow tickets.",
+        "The same trigger bridge handles the workflow preview.",
+      ],
+    },
+  ];
+}
+
+function renderAionWebsiteIntakeInstallationPanel() {
+  const options = getAionWebsiteIntakeInstallationOptions();
+
+  return `
+    <section class="panel large-panel aion-website-intake-installation" data-aion-phase17f-website-intake-installation="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Website Intake Installation</div>
+          <h2>Connect Your Website Enquiries</h2>
+          <p class="muted">
+            Choose the simplest way to connect a business website to AION workflows:
+            email forwarding, existing form webhook, or an AION generated form/embed.
+          </p>
+        </div>
+        <div class="status-pill">SETUP OPTIONS</div>
+      </div>
+
+      <div class="aion-intake-install-grid">
+        ${options.map((option) => `
+          <article class="aion-intake-install-card" data-aion-intake-install-mode="${escapeHtml(option.key)}">
+            <div class="aion-intake-install-card-head">
+              <div>
+                <div class="eyebrow">${escapeHtml(option.audience)}</div>
+                <h3>${escapeHtml(option.title)}</h3>
+              </div>
+            </div>
+
+            <p>${escapeHtml(option.summary)}</p>
+
+            <div class="aion-intake-install-copy-box">
+              <strong>${escapeHtml(option.installLabel)}</strong>
+              <code>${escapeHtml(option.installValue)}</code>
+            </div>
+
+            <ol>
+              ${safeArray(option.steps).map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
+            </ol>
+          </article>
+        `).join("")}
+      </div>
+
+      <details class="aion-intake-install-dev-details">
+        <summary>Developer payload example</summary>
+        <pre>{
+  "business_id": "home_fixed",
+  "source": "website_form",
+  "customer": {
+    "name": "Website customer",
+    "phone": "+34...",
+    "email": "customer@example.com"
+  },
+  "request": {
+    "message": "I need a leaking pergola roof repaired in Arboleas",
+    "service": "Pergola / roof repair",
+    "location": "Arboleas, Almería",
+    "urgency": "Medium / rain-related"
+  }
+}</pre>
+      </details>
+    </section>
+  `;
+}
+
+/* END PHASE 17F LOCK */
+
+
 /* PHASE 16G LOCK: Boardroom renderer consolidation
    Exactly one active Boardroom founder-demo renderer/action stack is allowed.
    Older duplicate definitions are renamed with __deprecatedPhase16Duplicate_* prefixes.
