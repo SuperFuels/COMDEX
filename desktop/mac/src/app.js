@@ -7690,7 +7690,7 @@ function renderAionPhase17LSimpleVaultConnectorPanel() {
           </select>
         </label>
 
-        <button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true">
+        <button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true" data-aion-phase17m-connect-gmail="true">
           ${escapeHtml(buttonLabel)}
         </button>
       </div>
@@ -7722,6 +7722,175 @@ function renderAionPhase17LSimpleVaultConnectorPanel() {
     </section>
   `;
 }
+
+
+
+/* PHASE 17M LOCK: final Vault Gmail connect UX binding */
+(function installAionPhase17MFinalVaultConnectBinding() {
+  if (window.__aionPhase17MFinalVaultConnectBindingInstalled) return;
+  window.__aionPhase17MFinalVaultConnectBindingInstalled = true;
+
+  document.addEventListener("click", async function handlePhase17MFinalVaultClick(event) {
+    const target = event.target && event.target.closest
+      ? event.target.closest(
+          "[data-aion-phase17m-connect-gmail], [data-aion-phase17k-open-gmail-oauth], [data-aion-phase17k-refresh-gmail-health], [data-aion-phase17k-poll-gmail-now], [data-aion-vault-refresh-gmail]"
+        )
+      : null;
+
+    if (!target) return;
+
+    if (target.matches("[data-aion-phase17m-connect-gmail], [data-aion-phase17k-open-gmail-oauth]")) {
+      event.preventDefault();
+      if (typeof window.openAionPhase17KGmailOAuth === "function") {
+        await window.openAionPhase17KGmailOAuth();
+      } else if (typeof openAionPhase17KGmailOAuth === "function") {
+        await openAionPhase17KGmailOAuth();
+      }
+      return;
+    }
+
+    if (target.matches("[data-aion-phase17k-refresh-gmail-health], [data-aion-vault-refresh-gmail]")) {
+      event.preventDefault();
+      if (typeof window.refreshAionPhase17KGmailHealth === "function") {
+        await window.refreshAionPhase17KGmailHealth();
+      } else if (typeof refreshAionPhase17KGmailHealth === "function") {
+        await refreshAionPhase17KGmailHealth();
+      }
+      return;
+    }
+
+    if (target.matches("[data-aion-phase17k-poll-gmail-now]")) {
+      event.preventDefault();
+      if (typeof window.pollAionPhase17KGmailNow === "function") {
+        await window.pollAionPhase17KGmailNow();
+      } else if (typeof pollAionPhase17KGmailNow === "function") {
+        await pollAionPhase17KGmailNow();
+      }
+      return;
+    }
+  });
+})();
+/* END PHASE 17M LOCK */
+
+
+
+function installAionPhase17MFinalVaultUxStyles() {
+  if (document.getElementById("aion-phase17m-final-vault-ux-style")) return;
+  const style = document.createElement("style");
+  style.id = "aion-phase17m-final-vault-ux-style";
+  style.textContent = `
+
+/*
+Phase 17M user-facing Vault status language:
+OAuth connected through Google. Read-only intake enabled.
+Safety: OAuth only · live send locked.
+*/
+
+/* PHASE 17M LOCK: final simplified Vault UX */
+.aion-vault-simple-panel {
+  margin: 18px 0 20px;
+  padding: 18px;
+  border: 1px solid rgba(25,25,25,.16);
+  background: rgba(255,255,255,.42);
+}
+
+.aion-vault-simple-panel h2 {
+  margin: 0 0 12px;
+}
+
+.aion-vault-simple-panel .aion-vault-simple-status,
+.aion-vault-simple-panel [data-aion-phase17k-gmail-status],
+.aion-vault-simple-panel [data-aion-phase17h-top-status] {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.55);
+  font-size: 14px;
+}
+
+.aion-vault-simple-panel .aion-vault-status-dot {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-radius: 999px;
+  margin-right: 7px;
+  background: #aaa;
+}
+
+.aion-vault-simple-panel .aion-vault-status-dot.connected {
+  background: #16a34a;
+}
+
+.aion-vault-simple-panel .aion-vault-status-dot.missing,
+.aion-vault-simple-panel .aion-vault-status-dot.not_connected {
+  background: #d97706;
+}
+
+.aion-vault-simple-panel .aion-vault-status-dot.failed {
+  background: #dc2626;
+}
+
+.aion-vault-simple-panel .aion-phase17m-connect-row {
+  display: grid;
+  grid-template-columns: minmax(160px, 220px) minmax(220px, 320px) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.aion-vault-simple-panel label {
+  display: grid;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: #6f6b64;
+}
+
+.aion-vault-simple-panel select {
+  min-height: 38px;
+  padding: 8px 10px;
+}
+
+.aion-vault-simple-panel button[data-aion-phase17m-connect-gmail],
+.aion-vault-simple-panel button[data-aion-phase17k-open-gmail-oauth] {
+  min-height: 38px;
+  padding: 8px 16px;
+  width: auto;
+  white-space: nowrap;
+}
+
+.aion-vault-simple-panel details {
+  margin-top: 12px;
+}
+
+.aion-vault-simple-panel details summary {
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+/* Hide old diagnostic cards from the normal Vault path. */
+.operations-agents-metric-grid,
+.operations-agents-two-column,
+.vault-connector-list,
+.vault-classic-scope-list,
+.vault-live-send-guard-row {
+  display: none !important;
+}
+
+/* Keep the old info available only if manually moved into an advanced details panel later. */
+[data-aion-vault-legacy-diagnostics="true"] {
+  display: none !important;
+}
+/* END PHASE 17M LOCK */
+  `;
+  document.head.appendChild(style);
+}
+
+installAionPhase17MFinalVaultUxStyles();
 
 
 function renderVaultCredentialsSurface() {
