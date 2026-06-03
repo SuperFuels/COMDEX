@@ -4,7 +4,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
-from fastapi import APIRouter, File, Query, UploadFile
+from fastapi import APIRouter
+from fastapi import File, Query, UploadFile
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from backend.modules.local_node.contracts_local_node import (
@@ -495,17 +497,118 @@ def get_gmail_connect_url() -> Dict[str, Any]:
     return get_runtime().get_gmail_connect_url()
 
 
-@router.get("/connectors/gmail/oauth/callback")
+@router.get("/connectors/gmail/oauth/callback", response_class=HTMLResponse)
 def handle_gmail_oauth_callback(
     code: Optional[str] = None,
     state: Optional[str] = None,
     error: Optional[str] = None,
-) -> Dict[str, Any]:
-    return get_runtime().handle_gmail_oauth_callback(
+) -> HTMLResponse:
+    result = get_runtime().handle_gmail_oauth_callback(
         code=code or "",
         state=state or "",
         error=error or "",
     )
+
+    ok = bool(result.get("ok"))
+    title = "Gmail connected" if ok else "Gmail connection failed"
+    message = (
+        "Gmail has been connected to the Tessaris Vault. You can close this window and return to Tessaris, then click Refresh Gmail Status."
+        if ok
+        else str(result.get("message") or result.get("reason") or "Gmail could not be connected.")
+    )
+    status = "CONNECTED" if ok else "FAILED"
+
+    html = f"""<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>{title}</title>
+  <style>
+    body {{
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #fbf2e7;
+      color: #191919;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }}
+    .card {{
+      width: min(560px, calc(100vw - 48px));
+      border: 1px solid #d7cbbb;
+      background: #fffaf3;
+      padding: 34px;
+      box-shadow: 0 18px 50px rgba(0,0,0,.12);
+    }}
+    .eyebrow {{
+      font-size: 12px;
+      letter-spacing: .18em;
+      font-weight: 800;
+      color: #1398a6;
+      margin-bottom: 12px;
+    }}
+    h1 {{
+      margin: 0 0 12px;
+      font-size: 28px;
+    }}
+    p {{
+      margin: 0 0 22px;
+      font-size: 16px;
+      line-height: 1.45;
+      color: #555;
+    }}
+    .status {{
+      display: inline-block;
+      border: 1px solid #191919;
+      padding: 8px 12px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      font-size: 12px;
+    }}
+    button {{
+      margin-top: 24px;
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid #191919;
+      background: #191919;
+      color: white;
+      font-weight: 800;
+      letter-spacing: .08em;
+      cursor: pointer;
+    }}
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="eyebrow">TESSARIS VAULT</div>
+    <h1>{title}</h1>
+    <p>{message}</p>
+    <span class="status">{status}</span>
+    <button onclick="window.close()">Close window</button>
+  </main>
+  <script>
+    try {{
+      if (window.opener && window.opener.postMessage) {{
+        window.opener.postMessage({{
+          type: "aion:gmail_oauth_connected",
+          ok: true,
+          status: "connected"
+        }}, "*");
+      }}
+      localStorage.setItem("aion:gmail_oauth_result", JSON.stringify({{
+        ok: true,
+        status: "connected",
+        at: new Date().toISOString()
+      }}));
+      setTimeout(function () {{
+        window.close();
+      }}, 1200);
+    }} catch (error) {{}}
+  </script>
+</body>
+</html>"""
+
+    return HTMLResponse(html)
 
 
 @router.post("/connectors/gmail/disconnect")

@@ -7770,6 +7770,76 @@ function renderAionPhase17LSimpleVaultConnectorPanel() {
     }
   });
 })();
+
+
+/* PHASE 17N USER STATUS STRINGS */
+const AION_PHASE17N_GMAIL_CONNECTED_BUTTON_LABEL = "GMAIL CONNECTED";
+const AION_PHASE17N_GMAIL_CONNECT_BUTTON_LABEL = "CONNECT GMAIL WITH OAUTH";
+const AION_PHASE17N_GMAIL_CONNECTED_STATUS_COPY = "OAuth connected through Google. Read-only intake enabled.";
+const AION_PHASE17N_GMAIL_SAFETY_COPY = "Safety: OAuth only · live send locked.";
+/* END PHASE 17N USER STATUS STRINGS */
+
+
+function getAionPhase17NGmailConnectButtonLabel() {
+  const status =
+    typeof getAionPhase17KVaultStatusState === "function"
+      ? getAionPhase17KVaultStatusState()
+      : {};
+  const connected =
+    status.auth_status === "connected" ||
+    status.connector_health === "available" ||
+    status.status === "connected";
+  return connected ? "GMAIL CONNECTED" : "CONNECT GMAIL WITH OAUTH";
+}
+
+/* PHASE 17N LOCK: Gmail OAuth success refresh bridge */
+(function installAionPhase17NGmailOAuthSuccessRefreshBridge() {
+  if (window.__aionPhase17NOAuthRefreshBridgeInstalled) return;
+  window.__aionPhase17NOAuthRefreshBridgeInstalled = true;
+
+  async function refreshAfterOauthSuccess(reason = "oauth_success") {
+    try {
+      if (typeof refreshAionPhase17KRealVaultGmailHealth === "function") {
+        await refreshAionPhase17KRealVaultGmailHealth();
+      }
+
+      if (typeof getAionPhase17KVaultStatusState === "function") {
+        const state = getAionPhase17KVaultStatusState();
+        state.latest_action = reason;
+        state.status = state.auth_status === "connected" || state.connector_health === "available"
+          ? "connected"
+          : state.status || "checking";
+      }
+
+      if (typeof render === "function") render();
+    } catch (error) {
+      console.warn("[AION] Gmail OAuth success refresh failed", error);
+    }
+  }
+
+  window.addEventListener("message", function handleAionGmailOAuthMessage(event) {
+    const data = event && event.data ? event.data : {};
+    if (data.type === "aion:gmail_oauth_connected" || data.status === "connected") {
+      refreshAfterOauthSuccess("gmail_oauth_connected");
+    }
+  });
+
+  window.addEventListener("focus", function handleAionGmailOAuthFocusRefresh() {
+    try {
+      const raw = localStorage.getItem("aion:gmail_oauth_result");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && parsed.ok === true && parsed.status === "connected") {
+        localStorage.removeItem("aion:gmail_oauth_result");
+        refreshAfterOauthSuccess("gmail_oauth_connected");
+      }
+    } catch (error) {}
+  });
+
+  window.refreshAionPhase17NGmailOAuthSuccess = refreshAfterOauthSuccess;
+})();
+/* END PHASE 17N LOCK */
+
 /* END PHASE 17M LOCK */
 
 
@@ -7782,7 +7852,7 @@ function installAionPhase17MFinalVaultUxStyles() {
 
 /*
 Phase 17M user-facing Vault status language:
-OAuth connected through Google. Read-only intake enabled.
+Gmail connected · read-only intake enabled
 Safety: OAuth only · live send locked.
 */
 
