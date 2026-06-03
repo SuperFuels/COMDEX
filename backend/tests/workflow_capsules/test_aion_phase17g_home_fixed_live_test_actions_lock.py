@@ -93,3 +93,8 @@ def test_phase17g_preserves_side_effect_guards():
 def test_phase17g_is_in_focused_suite():
     suite = SUITE.read_text()
     assert "test_aion_phase17g_home_fixed_live_test_actions_lock.py" in suite
+
+def test_phase17g_does_not_expose_fake_hosted_mailbox() -> None:
+    assert "home_fixed@intake.tessaris.ai" not in text
+    assert "Gmail" in text
+    assert "vault" in text.lower()
