@@ -88,3 +88,24 @@ def test_phase17f_css_selectors_exist():
 def test_phase17f_is_in_focused_suite():
     suite = SUITE.read_text()
     assert "test_aion_phase17f_website_intake_installation_panel_lock.py" in suite
+
+def test_phase17f_installation_panel_is_mounted_in_active_boardroom_layout():
+    text = APP.read_text()
+    ticket_mount = "${renderAionPhase17EBoardroomTicketCard()}"
+    install_mount = "${renderAionWebsiteIntakeInstallationPanel()}"
+
+    assert ticket_mount in text
+    assert install_mount in text
+
+    ticket_index = text.find(ticket_mount)
+    install_index = text.find(install_mount)
+
+    assert install_index > ticket_index
+    assert install_index < text.find("/* PHASE 17E LOCK:")
+
+    assert "Website Intake Installation" in text
+    assert "Connect Your Website Enquiries" in text
+    assert "Email Forwarding Setup" in text
+    assert "Existing Form Webhook" in text
+    assert "AION Generated Form / Embed" in text
+

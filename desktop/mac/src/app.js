@@ -6626,6 +6626,7 @@ function renderBoardroomDashboardView(snapshot) {
       ${renderBoardroomOperatorPresence()}
 
       ${renderAionPhase17EBoardroomTicketCard()}
+        ${renderAionWebsiteIntakeInstallationPanel()}
         ${renderBoardroomFounderDemoLoopPanel(snapshot)}
 
       <div class="two-col aion-boardroom-main-action-grid" data-aion-boardroom-main-action-grid="true">
