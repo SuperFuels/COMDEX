@@ -59,3 +59,18 @@ def test_phase17g_reuses_phase17_live_test_state_panel():
     assert "getAionPhase17GLiveTestState" in TEXT
     assert "latest_submission" in TEXT
     assert "renderAionPhase17G" in TEXT
+
+def test_phase17g_gmail_vault_readiness_does_not_require_global_state_binding() -> None:
+    text = APP.read_text()
+    start = text.index("function getAionPhase17GGmailVaultReadiness")
+    end = text.index("function getAionPhase17GWebsiteIntakeProviders", start)
+    block = text[start:end]
+
+    assert 'typeof state !== "undefined"' in block
+    assert "window.__aionState || window.state || {}" in block
+    assert "const vault =" in block
+    assert "appState?.vault" in block
+    assert "appState?.vaultCredentials" in block
+    assert "window.__aionVault" in block
+    assert "const vault = state?.vault" not in block
+

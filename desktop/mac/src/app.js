@@ -75099,18 +75099,50 @@ function renderAionBusinessWebsiteIntakeInstallationPanel() {
 /* PHASE 17G LOCK: Gmail/Vault website intake connector */
 
 function getAionPhase17GGmailVaultReadiness() {
-  const vault = state?.vault || state?.connectorVault || state?.credentialVault || {};
+  const appState =
+    typeof state !== "undefined"
+      ? state
+      : window.__aionState || window.state || {};
+
+  const vault =
+    appState?.vault ||
+    appState?.connectorVault ||
+    appState?.credentialVault ||
+    appState?.vaultCredentials ||
+    window.__aionVault ||
+    window.__aionConnectorVault ||
+    {};
+
   const gmail =
     vault.gmail ||
+    vault.gmail_oauth ||
+    vault.gmailOAuth ||
     vault.connectors?.gmail ||
     vault.connected_apps?.gmail ||
     vault.credentials?.gmail ||
     {};
 
-  const scopes = gmail.scopes || [
-    "https://www.googleapis.com/auth/gmail.readonly",
-    "https://www.googleapis.com/auth/gmail.compose",
-  ];
+  const scopes = safeArray(
+    gmail.scopes ||
+      gmail.granted_scopes ||
+      vault.gmail_scopes ||
+      appState?.gmailScopes ||
+      [],
+  );
+
+  const hasReadonly =
+    scopes.includes("https://www.googleapis.com/auth/gmail.readonly") ||
+    scopes.includes("gmail.readonly") ||
+    gmail.readonly === true ||
+    gmail.connected === true ||
+    gmail.ready === true ||
+    gmail.status === "connected" ||
+    gmail.status === "ready";
+
+  const hasCompose =
+    scopes.includes("https://www.googleapis.com/auth/gmail.compose") ||
+    scopes.includes("gmail.compose") ||
+    gmail.compose === true;
 
   const connected =
     gmail.connected === true ||
@@ -75119,26 +75151,29 @@ function getAionPhase17GGmailVaultReadiness() {
     gmail.status === "ready" ||
     gmail.oauth_status === "connected" ||
     gmail.oauth_ready === true ||
-    state?.gmailOAuthReady === true ||
+    appState?.gmailOAuthReady === true ||
     window.__aionGmailOAuthReady === true ||
-    false;
+    hasReadonly;
 
   return {
     provider_key: "gmail_oauth",
     provider_label: "Gmail OAuth",
+    provider: "gmail",
+    label: "Gmail / Google Workspace",
     credential_source: "Vault OAuth",
-    connected,
-    status: connected ? "connected" : "missing",
     mode: "read_only_intake",
+    connected: Boolean(connected),
+    status: connected ? "connected" : "missing",
     account_label:
       gmail.email ||
       gmail.account ||
-      gmail.account_email ||
-      state?.gmailAccountEmail ||
-      "Connect Gmail in Vault",
-    scopes,
-    vault_requirement: "vault.gmail.credentials",
+      gmail.account_label ||
+      gmail.user_email ||
+      "Vault Gmail account",
+    readonly_ready: Boolean(hasReadonly || connected),
+    compose_ready: Boolean(hasCompose),
     raw_password_allowed: false,
+    password_auth_allowed: false,
     live_send_allowed: false,
     live_read_candidate: true,
     human_review_required: true,
