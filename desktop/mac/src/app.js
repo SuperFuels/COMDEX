@@ -7564,6 +7564,8 @@ function renderVaultCredentialsSurface() {
         </div>
       </section>
 
+      ${renderAionPhase17KConnectorSelector()}
+
       <div class="operations-agents-metric-grid">
         ${renderDashboardMetricCard("Connected", gmailReady ? "1" : "0", "Currently ready")}
         ${renderDashboardMetricCard("Mode", "OAuth", "No raw passwords")}
@@ -7576,7 +7578,7 @@ function renderVaultCredentialsSurface() {
           <div class="operations-agents-card-head">
             <div>
               <div class="eyebrow">Connector credentials</div>
-              <h2>Connected apps</h2>
+              <h2>Connector status overview</h2>
             </div>
             <span class="badge">${escapeHtml(statusLabel)}</span>
           </div>
@@ -7626,7 +7628,7 @@ function renderVaultCredentialsSurface() {
                   <span>HubSpot</span>
                   <span>Missing</span>
                 </div>
-                <h3>HubSpot</h3>
+                <h3>HubSpot — planned</h3>
                 <p>Planned connector. Will use the same Vault scope and approval model.</p>
               </div>
             </div>
@@ -7637,7 +7639,7 @@ function renderVaultCredentialsSurface() {
                   <span>Mailchimp</span>
                   <span>Missing</span>
                 </div>
-                <h3>Mailchimp</h3>
+                <h3>Mailchimp — planned</h3>
                 <p>Currently represented as a missing connector placeholder in generated workflows.</p>
               </div>
             </div>
@@ -75096,6 +75098,360 @@ function renderAionBusinessWebsiteIntakeInstallationPanel() {
 
 
 
+
+/* PHASE 17K LOCK: Real Vault Gmail connector UX + Boardroom poll bridge */
+
+function getAionPhase17KConnectorState() {
+  window.__aionPhase17KConnectorState = window.__aionPhase17KConnectorState || {
+    selected_category: "email",
+    selected_app: "gmail",
+    latest_action: "idle",
+    status: "not_checked",
+    auth_status: "unknown",
+    connector_health: "unknown",
+    copied_field: "nothing copied",
+    connect_url: "",
+    oauth_pending: false,
+    poll_result: null,
+    last_error: "",
+    updated_at: "",
+  };
+  return window.__aionPhase17KConnectorState;
+}
+
+function setAionPhase17KConnectorState(patch = {}) {
+  const current = getAionPhase17KConnectorState();
+  window.__aionPhase17KConnectorState = {
+    ...current,
+    ...(patch || {}),
+    updated_at: new Date().toISOString(),
+  };
+  return window.__aionPhase17KConnectorState;
+}
+
+function getAionPhase17KApiBase() {
+  return (
+    window.__AION_API_BASE__ ||
+    window.__aionApiBase ||
+    state?.apiBase ||
+    "http://127.0.0.1:8080"
+  ).replace(/\/$/, "");
+}
+
+function mapAionPhase17KGmailHealth(payload = {}) {
+  const item = payload.health || payload.connector || payload.item || payload || {};
+  const authStatus = String(item.auth_status || item.status || "unknown");
+  const connectorHealth = String(item.connector_health || item.health || "unknown");
+  const connected =
+    authStatus === "connected" &&
+    (connectorHealth === "available" || connectorHealth === "healthy" || connectorHealth === "connected");
+
+  return {
+    ok: payload.ok !== false,
+    status: connected ? "connected" : authStatus === "not_connected" ? "not_connected" : connectorHealth,
+    auth_status: authStatus,
+    connector_health: connectorHealth,
+    connected,
+    provider: item.provider || "gmail",
+    account_id: item.account_id || "default",
+    dry_run_only: item.dry_run_only !== false,
+    external_writes_enabled: item.external_writes_enabled === true,
+    last_poll_status: item.last_poll_status || "never_polled",
+    last_error: item.last_error || "",
+    raw: item,
+  };
+}
+
+async function refreshAionPhase17KGmailHealth() {
+  const state17k = setAionPhase17KConnectorState({
+    latest_action: "gmail_health_refresh",
+    status: "checking",
+    last_error: "",
+  });
+
+  try {
+    const response = await fetch(`${getAionPhase17KApiBase()}/api/local-node/connectors/gmail/health`);
+    const payload = await response.json();
+    const mapped = mapAionPhase17KGmailHealth(payload);
+
+    setAionPhase17KConnectorState({
+      latest_action: "gmail_health_refresh",
+      status: mapped.status,
+      auth_status: mapped.auth_status,
+      connector_health: mapped.connector_health,
+      last_error: mapped.last_error || "",
+      oauth_pending: mapped.auth_status === "connect_url_generated",
+    });
+
+    window.__aionGmailOAuthReady = mapped.connected === true;
+    window.__aionGmailHealth = mapped;
+
+    if (typeof render === "function") render();
+    return mapped;
+  } catch (error) {
+    setAionPhase17KConnectorState({
+      latest_action: "gmail_health_refresh",
+      status: "failed",
+      auth_status: "failed",
+      connector_health: "failed",
+      last_error: String(error?.message || error || "Gmail health check failed"),
+    });
+    if (typeof render === "function") render();
+    return { ok: false, connected: false, error: String(error?.message || error) };
+  }
+}
+
+async function openAionPhase17KGmailOAuth() {
+  setAionPhase17KConnectorState({
+    latest_action: "gmail_oauth_connect",
+    status: "generating_connect_url",
+    oauth_pending: true,
+    last_error: "",
+  });
+
+  try {
+    const response = await fetch(`${getAionPhase17KApiBase()}/api/local-node/connectors/gmail/connect-url`);
+    const payload = await response.json();
+    const connectUrl = payload.connect_url || "";
+
+    setAionPhase17KConnectorState({
+      latest_action: "gmail_oauth_connect",
+      status: connectUrl ? "consent_pending" : "connect_url_missing",
+      auth_status: payload.connector?.auth_status || "connect_url_generated",
+      connector_health: payload.connector?.connector_health || "not_connected",
+      connect_url: connectUrl,
+      oauth_pending: true,
+      last_error: connectUrl ? "" : "Backend did not return connect_url",
+    });
+
+    if (connectUrl) {
+      window.open(connectUrl, "_blank", "noopener,noreferrer");
+    }
+
+    if (typeof render === "function") render();
+    return payload;
+  } catch (error) {
+    setAionPhase17KConnectorState({
+      latest_action: "gmail_oauth_connect",
+      status: "failed",
+      last_error: String(error?.message || error || "Gmail OAuth connect failed"),
+      oauth_pending: false,
+    });
+    if (typeof render === "function") render();
+    return { ok: false, error: String(error?.message || error) };
+  }
+}
+
+async function pollAionPhase17KGmailNow() {
+  setAionPhase17KConnectorState({
+    latest_action: "gmail_poll_now",
+    status: "polling",
+    last_error: "",
+  });
+
+  try {
+    const response = await fetch(`${getAionPhase17KApiBase()}/api/local-node/train-tasks/gmail/poll-now`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    });
+    const payload = await response.json();
+    const mapped = mapAionPhase17KGmailHealth(payload.connector || {});
+
+    setAionPhase17KConnectorState({
+      latest_action: "gmail_poll_now",
+      status: payload.ok ? "poll_completed" : String(payload.reason || "poll_failed"),
+      auth_status: mapped.auth_status,
+      connector_health: mapped.connector_health,
+      poll_result: {
+        ok: payload.ok === true,
+        matched: Number(payload.matched || 0),
+        skipped: Number(payload.skipped || 0),
+        deduped: Number(payload.deduped || 0),
+        runs: Array.isArray(payload.runs) ? payload.runs : [],
+        source: payload.source || "gmail_live_readonly",
+        dry_run: payload.dry_run !== false,
+        external_writes_enabled: payload.connector?.external_writes_enabled === true,
+        reason: payload.reason || "",
+      },
+      last_error: payload.error || payload.connector?.last_error || "",
+    });
+
+    if (typeof render === "function") render();
+    return payload;
+  } catch (error) {
+    setAionPhase17KConnectorState({
+      latest_action: "gmail_poll_now",
+      status: "failed",
+      last_error: String(error?.message || error || "Gmail poll failed"),
+    });
+    if (typeof render === "function") render();
+    return { ok: false, error: String(error?.message || error) };
+  }
+}
+
+function selectAionPhase17KConnectorCategory(category) {
+  setAionPhase17KConnectorState({
+    selected_category: category || "email",
+    selected_app: "gmail",
+    latest_action: "select_category",
+  });
+  if (typeof render === "function") render();
+}
+
+function selectAionPhase17KConnectorApp(appKey) {
+  setAionPhase17KConnectorState({
+    selected_app: appKey || "gmail",
+    latest_action: "select_app",
+  });
+  if (typeof render === "function") render();
+}
+
+function renderAionPhase17KConnectorSelector() {
+  const s = getAionPhase17KConnectorState();
+  const poll = s.poll_result || {};
+
+  return `
+    <section class="operations-agents-card" data-aion-phase17k-real-vault-connector-ux="true">
+      <div class="operations-agents-card-head">
+        <div>
+          <div class="eyebrow">Real connector setup</div>
+          <h2>Connect app to Vault</h2>
+        </div>
+        <span class="badge">${escapeHtml(s.status || "not_checked")}</span>
+      </div>
+
+      <div class="aion-phase17k-selector-grid">
+        <label>
+          <span class="eyebrow">Category</span>
+          <select data-aion-phase17k-category-select="true">
+            <option value="email" ${s.selected_category === "email" ? "selected" : ""}>Email</option>
+            <option value="crm" disabled>CRM — planned</option>
+            <option value="accounting" disabled>Accounting — planned</option>
+            <option value="messaging" disabled>Messaging — planned</option>
+            <option value="payments" disabled>Payments — planned</option>
+            <option value="storage" disabled>Storage — planned</option>
+          </select>
+        </label>
+
+        <label>
+          <span class="eyebrow">App</span>
+          <select data-aion-phase17k-app-select="true">
+            <option value="gmail" selected>Gmail / Google Workspace</option>
+            <option value="hubspot" disabled>HubSpot — planned</option>
+            <option value="mailchimp" disabled>Mailchimp — planned</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="operations-agents-actions aion-phase17k-actions">
+        <button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true">
+          Connect Gmail with OAuth
+        </button>
+        <button type="button" class="secondary-btn" data-aion-phase17k-refresh-gmail-health="true">
+          Refresh Gmail status
+        </button>
+        <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
+          Poll Gmail now
+        </button>
+      </div>
+
+      <div class="vault-safety-note" data-aion-phase17k-status-panel="true">
+        <strong>Gmail status:</strong>
+        ${escapeHtml(s.auth_status || "unknown")} ·
+        ${escapeHtml(s.connector_health || "unknown")} ·
+        ${escapeHtml(s.status || "not_checked")}
+        <br />
+        <strong>Latest action:</strong> ${escapeHtml(s.latest_action || "idle")}
+        <br />
+        <strong>Safety:</strong> OAuth only · no raw passwords · dry-run only · live send locked.
+        ${
+          s.connect_url
+            ? `<br /><strong>OAuth:</strong> consent URL generated. Browser should open automatically.`
+            : ""
+        }
+        ${
+          s.last_error
+            ? `<br /><strong>Error:</strong> ${escapeHtml(s.last_error)}`
+            : ""
+        }
+      </div>
+
+      ${
+        poll && s.latest_action === "gmail_poll_now"
+          ? `
+            <div class="vault-safety-note" data-aion-phase17k-poll-result="true">
+              <strong>Poll result:</strong>
+              matched ${escapeHtml(String(poll.matched ?? 0))} ·
+              skipped ${escapeHtml(String(poll.skipped ?? 0))} ·
+              deduped ${escapeHtml(String(poll.deduped ?? 0))} ·
+              runs ${escapeHtml(String((poll.runs || []).length))}
+              <br />
+              <strong>Source:</strong> ${escapeHtml(poll.source || "gmail_live_readonly")}
+              <br />
+              <strong>Dry run:</strong> ${escapeHtml(String(poll.dry_run !== false))}
+              · <strong>External writes:</strong> ${escapeHtml(String(poll.external_writes_enabled === true))}
+            </div>
+          `
+          : ""
+      }
+    </section>
+  `;
+}
+
+function installAionPhase17KDelegatedBindings() {
+  if (window.__aionPhase17KDelegatedBindingsInstalled) return;
+  window.__aionPhase17KDelegatedBindingsInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const target = event.target && event.target.closest ? event.target.closest("[data-aion-phase17k-open-gmail-oauth], [data-aion-phase17k-refresh-gmail-health], [data-aion-phase17k-poll-gmail-now], [data-aion-vault-refresh-gmail]") : null;
+    if (!target) return;
+
+    if (target.matches("[data-aion-phase17k-open-gmail-oauth]")) {
+      event.preventDefault();
+      openAionPhase17KGmailOAuth();
+      return;
+    }
+
+    if (target.matches("[data-aion-phase17k-refresh-gmail-health], [data-aion-vault-refresh-gmail]")) {
+      event.preventDefault();
+      refreshAionPhase17KGmailHealth();
+      return;
+    }
+
+    if (target.matches("[data-aion-phase17k-poll-gmail-now]")) {
+      event.preventDefault();
+      pollAionPhase17KGmailNow();
+      return;
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    const category = event.target?.closest?.("[data-aion-phase17k-category-select]");
+    if (category) {
+      selectAionPhase17KConnectorCategory(category.value);
+      return;
+    }
+
+    const app = event.target?.closest?.("[data-aion-phase17k-app-select]");
+    if (app) {
+      selectAionPhase17KConnectorApp(app.value);
+      return;
+    }
+  });
+}
+
+window.refreshAionPhase17KGmailHealth = refreshAionPhase17KGmailHealth;
+window.openAionPhase17KGmailOAuth = openAionPhase17KGmailOAuth;
+window.pollAionPhase17KGmailNow = pollAionPhase17KGmailNow;
+window.installAionPhase17KDelegatedBindings = installAionPhase17KDelegatedBindings;
+
+installAionPhase17KDelegatedBindings();
+
+console.log("[AION] Phase 17K real Vault Gmail connector UX installed");
+
+/* END PHASE 17K LOCK */
+
+
 /* PHASE 17G LOCK: Gmail/Vault website intake connector */
 
 function getAionPhase17GGmailVaultReadiness() {
@@ -75104,14 +75460,12 @@ function getAionPhase17GGmailVaultReadiness() {
       ? state
       : window.__aionState || window.state || {};
 
-  const vaultStatus =
-    window.__aionGmailVaultStatus ||
-    appState?.gmailVaultStatus ||
-    window.__aionVaultStatus ||
+  const localHealth =
+    window.__aionGmailHealth ||
+    getAionPhase17KConnectorState?.() ||
     {};
 
   const vault =
-    vaultStatus ||
     appState?.vault ||
     appState?.connectorVault ||
     appState?.credentialVault ||
@@ -75121,7 +75475,6 @@ function getAionPhase17GGmailVaultReadiness() {
     {};
 
   const gmail =
-    vaultStatus?.gmail ||
     vault.gmail ||
     vault.gmail_oauth ||
     vault.gmailOAuth ||
@@ -75133,11 +75486,18 @@ function getAionPhase17GGmailVaultReadiness() {
   const scopes = safeArray(
     gmail.scopes ||
       gmail.granted_scopes ||
-      gmail.required_scopes ||
       vault.gmail_scopes ||
       appState?.gmailScopes ||
       [],
   );
+
+  const localConnected =
+    localHealth.auth_status === "connected" &&
+    (
+      localHealth.connector_health === "available" ||
+      localHealth.connector_health === "connected" ||
+      localHealth.connector_health === "healthy"
+    );
 
   const hasReadonly =
     scopes.includes("https://www.googleapis.com/auth/gmail.readonly") ||
@@ -75146,14 +75506,17 @@ function getAionPhase17GGmailVaultReadiness() {
     gmail.connected === true ||
     gmail.ready === true ||
     gmail.status === "connected" ||
-    gmail.status === "ready";
+    gmail.status === "ready" ||
+    localConnected === true;
 
   const hasCompose =
     scopes.includes("https://www.googleapis.com/auth/gmail.compose") ||
     scopes.includes("gmail.compose") ||
-    gmail.compose === true;
+    gmail.compose === true ||
+    localConnected === true;
 
   const connected =
+    localConnected === true ||
     gmail.connected === true ||
     gmail.ready === true ||
     gmail.status === "connected" ||
@@ -75162,8 +75525,6 @@ function getAionPhase17GGmailVaultReadiness() {
     gmail.oauth_ready === true ||
     appState?.gmailOAuthReady === true ||
     window.__aionGmailOAuthReady === true ||
-    window.__aionGmailVaultStatus?.gmail?.ready === true ||
-    appState?.gmailVaultStatus?.gmail?.ready === true ||
     hasReadonly;
 
   return {
@@ -75171,7 +75532,7 @@ function getAionPhase17GGmailVaultReadiness() {
     provider_label: "Gmail OAuth",
     provider: "gmail",
     label: "Gmail / Google Workspace",
-    credential_source: "Vault OAuth",
+    credential_source: localConnected ? "Local Node OAuth" : "Vault OAuth",
     mode: "read_only_intake",
     connected: Boolean(connected),
     status: connected ? "connected" : "missing",
@@ -75180,6 +75541,7 @@ function getAionPhase17GGmailVaultReadiness() {
       gmail.account ||
       gmail.account_label ||
       gmail.user_email ||
+      localHealth.account_id ||
       "Vault Gmail account",
     readonly_ready: Boolean(hasReadonly || connected),
     compose_ready: Boolean(hasCompose),
@@ -75213,7 +75575,7 @@ function getAionPhase17GWebsiteIntakeProviders() {
         "AION reads matching enquiry emails through the guarded Gmail connector.",
         "AION converts the email into website_intake.trigger.created and creates a workflow ticket.",
       ],
-      actionLabel: gmail.connected ? "Test Gmail intake readiness" : "Open Vault to connect Gmail",
+      actionLabel: gmail.connected ? "Check Gmail connection" : "Open Vault to connect Gmail",
     },
     {
       key: "existing_form_webhook",
@@ -75364,10 +75726,17 @@ function renderAionWebsiteIntakeInstallationPanel() {
             email forwarding, existing form webhook, or an AION generated form/embed.
           </p>
           <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
-            <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Test Gmail intake readiness</button>
-            <button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
+            <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Check Gmail connection</button>
+            
+          <button type="button" class="secondary-btn" data-aion-phase17k-open-gmail-oauth="true">
+            Open Gmail OAuth
+          </button>
+          <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
+            Poll Gmail now
+          </button>
+<button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
             <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17IWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
-            <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17ILocalPayloadTest()">Send local payload test</button>
+            <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17ILocalPayloadTest()">Send local dummy payload</button>
           </div>
           <div class="aion-phase17h-top-status" data-aion-phase17h-top-status="true">
             Action status:

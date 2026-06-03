@@ -22,10 +22,10 @@ def test_phase17g_exposes_honest_provider_routes():
 
 
 def test_phase17g_boardroom_actions_are_not_fake_copy_email():
-    assert "Test Gmail intake readiness" in TEXT
+    assert "Check Gmail connection" in TEXT or "Test Gmail intake readiness" in TEXT
     assert "Copy webhook endpoint" in TEXT
     assert "Copy future embed snippet" in TEXT
-    assert "Send local payload test" in TEXT
+    assert "Send local dummy payload" in TEXT or "Send local payload test" in TEXT
     assert "Copy intake email" not in TEXT
 
 
