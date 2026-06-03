@@ -1903,6 +1903,8 @@ function renderOperationsFlowSurface() {
       </div>
 
       ${renderAppTabs()}
+
+      ${renderAionPhase17LSimpleVaultConnectorPanel()}
       ${renderOperationsFlowModeToggle()}
 
       ${
@@ -7494,6 +7496,233 @@ function renderAionChatSurface() {
     </div>
   `;
 }
+
+
+
+function installAionPhase17LSimplifiedVaultStyles() {
+  if (document.getElementById("aion-phase17l-simplified-vault-styles")) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = "aion-phase17l-simplified-vault-styles";
+  style.textContent = `
+/* PHASE 17L LOCK: simplified Vault connector UX */
+.aion-vault-simple-panel {
+  margin: 22px 0;
+  border: 1px solid rgba(25,25,25,.16);
+  background: rgba(255,255,255,.42);
+  padding: 22px;
+}
+
+.aion-vault-simple-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  border-bottom: 1px solid rgba(25,25,25,.14);
+  padding-bottom: 14px;
+  margin-bottom: 16px;
+}
+
+.aion-vault-simple-head h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.aion-vault-simple-badge {
+  border: 1px solid rgba(25,25,25,.28);
+  padding: 7px 10px;
+  text-transform: uppercase;
+  font-weight: 900;
+  font-size: 11px;
+  letter-spacing: .12em;
+}
+
+.aion-vault-simple-badge.is-connected,
+.aion-vault-status-dot.is-connected {
+  color: #178a3f;
+}
+
+.aion-vault-simple-badge.is-missing,
+.aion-vault-status-dot.is-missing {
+  color: #9b2c2c;
+}
+
+.aion-vault-simple-row {
+  display: grid;
+  grid-template-columns: 220px 280px minmax(120px, 180px);
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 16px;
+}
+
+.aion-vault-simple-row label {
+  display: grid;
+  gap: 6px;
+}
+
+.aion-vault-simple-row label span {
+  font-size: 11px;
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: .14em;
+  color: rgba(25,25,25,.58);
+}
+
+.aion-vault-simple-row select {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(25,25,25,.22);
+  background: white;
+  font: inherit;
+}
+
+.aion-vault-simple-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 14px;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.55);
+}
+
+.aion-vault-simple-status small {
+  color: rgba(25,25,25,.62);
+  margin-left: 8px;
+}
+
+.aion-vault-status-dot {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.aion-vault-advanced-details {
+  margin-top: 12px;
+  color: rgba(25,25,25,.72);
+}
+
+.aion-vault-advanced-details summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.aion-vault-advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.aion-vault-advanced-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.vault-connector-list .vault-connector-row:nth-child(n+3) {
+  display: none;
+}
+
+.vault-classic-scope-list,
+.vault-safety-note {
+  display: none;
+}
+/* END PHASE 17L LOCK */
+  `;
+  document.head.appendChild(style);
+}
+
+installAionPhase17LSimplifiedVaultStyles();
+
+function getAionVaultGmailUiStatus() {
+  const stateObj = typeof state !== "undefined" ? state : window.__aionState || {};
+  const live = stateObj.phase17kGmailHealth || window.__aionPhase17KGmailHealth || {};
+  const vault = window.__aionGmailVaultStatus || stateObj.gmailVaultStatus || {};
+  const vaultGmail = vault.gmail || {};
+
+  const connected =
+    live.auth_status === "connected" ||
+    live.connector_health === "available" ||
+    vaultGmail.ready === true ||
+    vaultGmail.status === "connected";
+
+  return {
+    connected: Boolean(connected),
+    status: connected ? "connected" : "not connected",
+    health: live.connector_health || vaultGmail.status || "unknown",
+    lastPoll: live.last_poll_status || vaultGmail.last_poll_status || "not checked",
+    dryRun: live.dry_run_only !== false,
+    externalWrites: live.external_writes_enabled === true,
+  };
+}
+
+function renderAionPhase17LSimpleVaultConnectorPanel() {
+  const gmail = getAionVaultGmailUiStatus();
+  const dot = gmail.connected ? "●" : "○";
+  const buttonLabel = gmail.connected ? "Reconnect" : "Connect";
+
+  return `
+    <section class="aion-vault-simple-panel" data-aion-phase17l-simple-vault-ui="true">
+      <div class="aion-vault-simple-head">
+        <div>
+          <div class="eyebrow">Real connector setup</div>
+          <h2>Connect app to Vault</h2>
+        </div>
+        <span class="aion-vault-simple-badge ${gmail.connected ? "is-connected" : "is-missing"}">
+          ${escapeHtml(gmail.status)}
+        </span>
+      </div>
+
+      <div class="aion-vault-simple-row">
+        <label>
+          <span>Category</span>
+          <select data-aion-phase17l-category="email">
+            <option selected>Email</option>
+          </select>
+        </label>
+
+        <label>
+          <span>App</span>
+          <select data-aion-phase17l-app="gmail">
+            <option selected>Gmail / Google Workspace</option>
+          </select>
+        </label>
+
+        <button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true">
+          ${escapeHtml(buttonLabel)}
+        </button>
+      </div>
+
+      <div class="aion-vault-simple-status" data-aion-phase17l-gmail-status="true">
+        <span class="aion-vault-status-dot ${gmail.connected ? "is-connected" : "is-missing"}">${dot}</span>
+        <strong>Gmail</strong>
+        <span>${escapeHtml(gmail.status)}</span>
+        <small>Read-only intake enabled · Live send locked</small>
+      </div>
+
+      <details class="aion-vault-advanced-details">
+        <summary>Advanced details</summary>
+        <div class="aion-vault-advanced-grid">
+          <div><strong>Health:</strong> ${escapeHtml(gmail.health)}</div>
+          <div><strong>Last poll:</strong> ${escapeHtml(gmail.lastPoll)}</div>
+          <div><strong>Dry-run:</strong> ${escapeHtml(String(gmail.dryRun))}</div>
+          <div><strong>External writes:</strong> ${escapeHtml(String(gmail.externalWrites))}</div>
+        </div>
+        <div class="aion-vault-advanced-actions">
+          <button type="button" class="secondary-btn" data-aion-phase17k-refresh-gmail-health="true">
+            Refresh status
+          </button>
+          <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
+            Poll now
+          </button>
+        </div>
+      </details>
+    </section>
+  `;
+}
+
 
 function renderVaultCredentialsSurface() {
   const status = window.__aionGmailVaultStatus || state.gmailVaultStatus || {};
@@ -76581,3 +76810,7 @@ function renderAionPhase17GLiveTestResultPanel() {
    Older duplicate definitions are renamed with __deprecatedPhase16Duplicate_* prefixes.
 */
 /* END PHASE 16G LOCK */
+
+
+
+
