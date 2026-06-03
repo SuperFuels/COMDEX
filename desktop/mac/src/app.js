@@ -75104,7 +75104,14 @@ function getAionPhase17GGmailVaultReadiness() {
       ? state
       : window.__aionState || window.state || {};
 
+  const vaultStatus =
+    window.__aionGmailVaultStatus ||
+    appState?.gmailVaultStatus ||
+    window.__aionVaultStatus ||
+    {};
+
   const vault =
+    vaultStatus ||
     appState?.vault ||
     appState?.connectorVault ||
     appState?.credentialVault ||
@@ -75114,6 +75121,7 @@ function getAionPhase17GGmailVaultReadiness() {
     {};
 
   const gmail =
+    vaultStatus?.gmail ||
     vault.gmail ||
     vault.gmail_oauth ||
     vault.gmailOAuth ||
@@ -75125,6 +75133,7 @@ function getAionPhase17GGmailVaultReadiness() {
   const scopes = safeArray(
     gmail.scopes ||
       gmail.granted_scopes ||
+      gmail.required_scopes ||
       vault.gmail_scopes ||
       appState?.gmailScopes ||
       [],
@@ -75153,6 +75162,8 @@ function getAionPhase17GGmailVaultReadiness() {
     gmail.oauth_ready === true ||
     appState?.gmailOAuthReady === true ||
     window.__aionGmailOAuthReady === true ||
+    window.__aionGmailVaultStatus?.gmail?.ready === true ||
+    appState?.gmailVaultStatus?.gmail?.ready === true ||
     hasReadonly;
 
   return {
@@ -75698,6 +75709,86 @@ window.installAionPhase17IHardButtonBindings = installAionPhase17IHardButtonBind
 
 /* PHASE 17H LOCK: Functional Website Intake actions */
 
+
+/* PHASE 17J LOCK: Vault to Boardroom Gmail readiness bridge */
+
+async function refreshAionPhase17JGmailVaultStatus() {
+  const currentAction =
+    typeof getAionPhase17HWebsiteIntakeActionState === "function"
+      ? getAionPhase17HWebsiteIntakeActionState()
+      : {};
+
+  if (typeof setAionPhase17HWebsiteIntakeActionState === "function") {
+    setAionPhase17HWebsiteIntakeActionState({
+      latest_action: "gmail_readiness_test",
+      readiness_status: "checking",
+      copied_field: currentAction.copied_field || "nothing copied",
+      provider_label: "Gmail OAuth",
+      message: "Checking Gmail OAuth readiness from Vault.",
+    });
+  }
+
+  try {
+    const response = await fetch("http://127.0.0.1:8080/api/vault/connectors/gmail/status", {
+      method: "GET",
+      headers: { "Accept": "application/json" },
+    });
+
+    const payload = await response.json().catch(() => ({}));
+
+    window.__aionGmailVaultStatus = payload;
+
+    if (typeof state !== "undefined") {
+      state.gmailVaultStatus = payload;
+    }
+
+    const gmail = payload.gmail || {};
+    const ready = gmail.ready === true;
+
+    window.__aionGmailOAuthReady = ready;
+
+    if (typeof setAionPhase17HWebsiteIntakeActionState === "function") {
+      setAionPhase17HWebsiteIntakeActionState({
+        latest_action: "gmail_readiness_test",
+        readiness_status: ready ? "connected" : "missing",
+        copied_field: currentAction.copied_field || "nothing copied",
+        provider_label: "Gmail OAuth",
+        message: ready
+          ? "Gmail OAuth is connected in Vault. Guarded read-only intake can proceed."
+          : "Gmail OAuth is missing in Vault. Connect Gmail in Vault, then test again.",
+      });
+    }
+
+    try { requestRender?.(); } catch (_) { try { render?.(); } catch (_) {} }
+
+    return payload;
+  } catch (error) {
+    if (typeof setAionPhase17HWebsiteIntakeActionState === "function") {
+      setAionPhase17HWebsiteIntakeActionState({
+        latest_action: "gmail_readiness_test",
+        readiness_status: "error",
+        copied_field: currentAction.copied_field || "nothing copied",
+        provider_label: "Gmail OAuth",
+        message: `Gmail readiness check failed: ${String(error?.message || error)}`,
+      });
+    }
+
+    try { requestRender?.(); } catch (_) { try { render?.(); } catch (_) {} }
+
+    return {
+      ok: false,
+      gmail: { ready: false, status: "error" },
+      error: String(error?.message || error),
+    };
+  }
+}
+
+window.refreshAionPhase17JGmailVaultStatus = refreshAionPhase17JGmailVaultStatus;
+window.testAionPhase17HGmailIntakeReadiness = refreshAionPhase17JGmailVaultStatus;
+
+/* END PHASE 17J LOCK */
+
+
 function getAionPhase17HWebsiteIntakeActionState() {
   window.__aionPhase17HWebsiteIntakeActionState =
     window.__aionPhase17HWebsiteIntakeActionState || {
@@ -75914,7 +76005,7 @@ function installAionPhase17HWebsiteIntakeClickBindings() {
       const action = actionButton.getAttribute("data-aion-phase17h-action");
 
       if (action === "test-gmail-readiness") {
-        testAionPhase17HGmailIntakeReadiness();
+        refreshAionPhase17JGmailVaultStatus();
         return;
       }
 
@@ -75954,7 +76045,7 @@ function installAionPhase17HWebsiteIntakeClickBindings() {
 window.getAionPhase17HWebsiteIntakeActionState = getAionPhase17HWebsiteIntakeActionState;
 window.setAionPhase17HWebsiteIntakeActionState = setAionPhase17HWebsiteIntakeActionState;
 window.selectAionPhase17HWebsiteIntakeProvider = selectAionPhase17HWebsiteIntakeProvider;
-window.testAionPhase17HGmailIntakeReadiness = testAionPhase17HGmailIntakeReadiness;
+window.testAionPhase17HGmailIntakeReadiness = refreshAionPhase17JGmailVaultStatus;
 window.copyAionPhase17HWebsiteIntakeValue = copyAionPhase17HWebsiteIntakeValue;
 window.sendAionPhase17HLocalPayloadTest = sendAionPhase17HLocalPayloadTest;
 window.renderAionPhase17HWebsiteIntakeActionResultPanel = renderAionPhase17HWebsiteIntakeActionResultPanel;
