@@ -67,3 +67,26 @@ def test_phase17h_no_raw_passwords_and_no_live_send() -> None:
 def test_phase17h_is_in_focused_suite_and_doc_exists() -> None:
     assert DOC.exists()
     assert "test_aion_phase17h_functional_website_intake_actions_lock.py" in SUITE.read_text()
+
+def test_phase17h_click_bindings_are_delegated_and_installed() -> None:
+    source = text()
+    assert "installAionPhase17HWebsiteIntakeClickBindings" in source
+    assert "data-aion-phase17h-action" in source
+    assert "document.addEventListener(\"click\"" in source
+    assert "Phase 17H Website Intake click bindings installed" in source
+
+
+def test_phase17h_functions_are_exported_to_window_for_inline_fallback() -> None:
+    source = text()
+    assert "window.testAionPhase17HGmailIntakeReadiness" in source
+    assert "window.copyAionPhase17HWebsiteIntakeValue" in source
+    assert "window.sendAionPhase17HLocalPayloadTest" in source
+    assert "window.selectAionPhase17HWebsiteIntakeProvider" in source
+
+
+def test_phase17h_has_visible_top_action_status() -> None:
+    source = text()
+    assert "data-aion-phase17h-top-status" in source
+    assert "Action status:" in source
+    assert "latest_action" in source
+

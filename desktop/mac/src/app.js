@@ -75354,9 +75354,15 @@ function renderAionWebsiteIntakeInstallationPanel() {
           </p>
           <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
             <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Test Gmail intake readiness</button>
-            <button type="button" onclick="copyAionPhase17HWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
-            <button type="button" onclick="copyAionPhase17HWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
-            <button type="button" onclick="sendAionPhase17HLocalPayloadTest()">Send local payload test</button>
+            <button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17HWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
+            <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17HWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
+            <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17HLocalPayloadTest()">Send local payload test</button>
+          </div>
+          <div class="aion-phase17h-top-status" data-aion-phase17h-top-status="true">
+            Action status:
+            ${escapeHtml(getAionPhase17HWebsiteIntakeActionState().latest_action || "idle")}
+            · ${escapeHtml(getAionPhase17HWebsiteIntakeActionState().readiness_status || "not_checked")}
+            · ${escapeHtml(getAionPhase17HWebsiteIntakeActionState().copied_field || "nothing copied")}
           </div>
           ${renderAionPhase17GGmailVaultProviderStatus()}
         </div>
@@ -75616,6 +75622,71 @@ function renderAionPhase17HWebsiteIntakeActionResultPanel() {
     </section>
   `;
 }
+
+
+
+function installAionPhase17HWebsiteIntakeClickBindings() {
+  if (window.__aionPhase17HWebsiteIntakeClickBindingsInstalled) return;
+  window.__aionPhase17HWebsiteIntakeClickBindingsInstalled = true;
+
+  document.addEventListener("click", function onAionPhase17HWebsiteIntakeClick(event) {
+    const actionButton = event.target?.closest?.("[data-aion-phase17h-action]");
+    if (actionButton) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const action = actionButton.getAttribute("data-aion-phase17h-action");
+
+      if (action === "test-gmail-readiness") {
+        testAionPhase17HGmailIntakeReadiness();
+        return;
+      }
+
+      if (action === "copy-webhook") {
+        copyAionPhase17HWebsiteIntakeValue(
+          "webhook_endpoint",
+          "https://api.tessaris.ai/public/intake/home_fixed",
+        );
+        return;
+      }
+
+      if (action === "copy-embed") {
+        copyAionPhase17HWebsiteIntakeValue(
+          "future_embed_snippet",
+          '<script src="https://cdn.tessaris.ai/intake-widget.js" data-business-id="home_fixed" data-mode="form"></script>',
+        );
+        return;
+      }
+
+      if (action === "send-local-payload-test") {
+        sendAionPhase17HLocalPayloadTest();
+        return;
+      }
+    }
+
+    const providerCard = event.target?.closest?.("[data-aion-intake-provider-option]");
+    if (providerCard) {
+      event.preventDefault();
+      event.stopPropagation();
+      selectAionPhase17HWebsiteIntakeProvider(
+        providerCard.getAttribute("data-aion-intake-provider-option") || "gmail_oauth",
+      );
+    }
+  });
+}
+
+window.getAionPhase17HWebsiteIntakeActionState = getAionPhase17HWebsiteIntakeActionState;
+window.setAionPhase17HWebsiteIntakeActionState = setAionPhase17HWebsiteIntakeActionState;
+window.selectAionPhase17HWebsiteIntakeProvider = selectAionPhase17HWebsiteIntakeProvider;
+window.testAionPhase17HGmailIntakeReadiness = testAionPhase17HGmailIntakeReadiness;
+window.copyAionPhase17HWebsiteIntakeValue = copyAionPhase17HWebsiteIntakeValue;
+window.sendAionPhase17HLocalPayloadTest = sendAionPhase17HLocalPayloadTest;
+window.renderAionPhase17HWebsiteIntakeActionResultPanel = renderAionPhase17HWebsiteIntakeActionResultPanel;
+window.installAionPhase17HWebsiteIntakeClickBindings = installAionPhase17HWebsiteIntakeClickBindings;
+
+installAionPhase17HWebsiteIntakeClickBindings();
+console.log("[AION] Phase 17H Website Intake click bindings installed");
+
 
 /* END PHASE 17H LOCK */
 
