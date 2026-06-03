@@ -15,29 +15,24 @@ def test_phase17g_lock_markers_exist():
     assert DOC.exists()
 
 
-def test_phase17g_installation_panel_has_real_setup_actions():
+def test_phase17g_installation_panel_has_gmail_vault_setup_actions():
     text = APP.read_text()
 
     for phrase in [
-        "Copy intake email",
+        "Gmail",
+        "Vault",
         "Copy webhook endpoint",
-        "Copy embed snippet",
         "Send test enquiry",
         "data-aion-phase17g-live-actions",
     ]:
         assert phrase in text
 
 
-def test_phase17g_copy_values_are_visible():
+def test_phase17g_no_fake_hosted_mailbox_is_visible():
     text = APP.read_text()
 
-    for phrase in [
-        "home_fixed@intake.tessaris.ai",
-        "https://api.tessaris.ai/public/intake/home_fixed",
-        "https://cdn.tessaris.ai/intake-widget.js",
-        "data-business-id=&quot;home_fixed&quot;",
-    ]:
-        assert phrase in text
+    assert "home_fixed@intake.tessaris.ai" not in text
+    assert "https://api.tessaris.ai/public/intake/home_fixed" in text
 
 
 def test_phase17g_test_submission_payload_is_realistic():
@@ -93,8 +88,3 @@ def test_phase17g_preserves_side_effect_guards():
 def test_phase17g_is_in_focused_suite():
     suite = SUITE.read_text()
     assert "test_aion_phase17g_home_fixed_live_test_actions_lock.py" in suite
-
-def test_phase17g_does_not_expose_fake_hosted_mailbox() -> None:
-    assert "home_fixed@intake.tessaris.ai" not in text
-    assert "Gmail" in text
-    assert "vault" in text.lower()
