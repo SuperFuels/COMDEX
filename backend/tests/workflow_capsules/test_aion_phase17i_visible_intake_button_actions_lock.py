@@ -41,3 +41,13 @@ def test_phase17i_preserves_safe_mode_guards():
         "preview_only: true",
     ]:
         assert phrase in TEXT
+
+def test_phase17i_hard_binds_gmail_readiness_button() -> None:
+    source = APP.read_text()
+    assert "PHASE 17I HOTFIX: Hard-bind visible Gmail readiness button" in source
+    assert "runAionPhase17IVisibleGmailReadinessCheck" in source
+    assert "installAionPhase17IHardButtonBindings" in source
+    assert 'label === "test gmail intake readiness"' in source
+    assert 'latest_action: "gmail_readiness_test"' in source
+    assert 'readiness_status: status' in source
+

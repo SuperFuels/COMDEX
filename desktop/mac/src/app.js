@@ -75588,6 +75588,111 @@ window.sendAionPhase17ILocalPayloadTest = sendAionPhase17ILocalPayloadTest;
 /* END PHASE 17I LOCK */
 
 
+/* PHASE 17I HOTFIX: Hard-bind visible Gmail readiness button */
+
+function runAionPhase17IVisibleGmailReadinessCheck() {
+  const readiness =
+    typeof getAionPhase17GGmailVaultReadiness === "function"
+      ? getAionPhase17GGmailVaultReadiness()
+      : {
+          provider_key: "gmail_oauth",
+          provider_label: "Gmail OAuth",
+          connected: false,
+          status: "missing",
+          credential_source: "Vault OAuth",
+          live_send_allowed: false,
+          human_review_required: true,
+        };
+
+  const status = readiness.connected ? "connected" : "missing";
+
+  const nextState = {
+    latest_action: "gmail_readiness_test",
+    readiness_status: status,
+    copied_field: "nothing copied",
+    provider_key: readiness.provider_key || "gmail_oauth",
+    provider_label: readiness.provider_label || "Gmail OAuth",
+    safe_mode: "oauth_readiness_check",
+    message: status === "connected"
+      ? "Gmail OAuth is connected in Vault. Intake can proceed in guarded read-only mode."
+      : "Gmail OAuth is missing in Vault. Connect Gmail in the Vault before live email intake.",
+  };
+
+  if (typeof setAionPhase17IWebsiteIntakeActionState === "function") {
+    setAionPhase17IWebsiteIntakeActionState(nextState);
+  } else {
+    window.__aionPhase17IWebsiteIntakeActionState = {
+      ...(window.__aionPhase17IWebsiteIntakeActionState || {}),
+      ...nextState,
+      updated_at: new Date().toISOString(),
+    };
+    try { requestRender?.(); } catch (_) { try { render?.(); } catch (_) {} }
+  }
+
+  return nextState;
+}
+
+function installAionPhase17IHardButtonBindings() {
+  if (window.__aionPhase17IHardButtonBindingsInstalled) return;
+  window.__aionPhase17IHardButtonBindingsInstalled = true;
+
+  document.addEventListener("click", function handlePhase17IWebsiteIntakeClick(event) {
+    const button = event.target?.closest?.("button");
+    if (!button) return;
+
+    const label = String(button.textContent || "").trim().toLowerCase();
+
+    if (label === "test gmail intake readiness") {
+      event.preventDefault();
+      event.stopPropagation();
+      runAionPhase17IVisibleGmailReadinessCheck();
+      return;
+    }
+
+    if (label === "send local payload test") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof sendAionPhase17ILocalPayloadTest === "function") {
+        sendAionPhase17ILocalPayloadTest();
+      }
+      return;
+    }
+
+    if (label === "copy webhook endpoint") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof copyAionPhase17IWebsiteIntakeValue === "function") {
+        copyAionPhase17IWebsiteIntakeValue(
+          "webhook_endpoint",
+          "https://api.tessaris.ai/public/intake/home_fixed",
+        );
+      }
+      return;
+    }
+
+    if (label === "copy future embed snippet") {
+      event.preventDefault();
+      event.stopPropagation();
+      if (typeof copyAionPhase17IWebsiteIntakeValue === "function") {
+        copyAionPhase17IWebsiteIntakeValue(
+          "future_embed_snippet",
+          '<script src="https://cdn.tessaris.ai/intake-widget.js" data-business-id="home_fixed" data-mode="form"></script>',
+        );
+      }
+      return;
+    }
+  }, true);
+}
+
+installAionPhase17IHardButtonBindings();
+
+window.runAionPhase17IVisibleGmailReadinessCheck = runAionPhase17IVisibleGmailReadinessCheck;
+window.installAionPhase17IHardButtonBindings = installAionPhase17IHardButtonBindings;
+
+/* END PHASE 17I HOTFIX */
+
+
+
 
 
 
