@@ -22,7 +22,7 @@ def test_phase17g_installation_panel_has_gmail_vault_setup_actions():
         "Gmail",
         "Vault",
         "Copy webhook endpoint",
-        "Send test enquiry",
+        "sendAionPhase17GHomeFixedTestEnquiry",
         "data-aion-phase17g-live-actions",
     ]:
         assert phrase in text
