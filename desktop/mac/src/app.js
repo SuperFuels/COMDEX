@@ -75354,9 +75354,9 @@ function renderAionWebsiteIntakeInstallationPanel() {
           </p>
           <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
             <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Test Gmail intake readiness</button>
-            <button type="button" onclick="copyAionPhase17GValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
-            <button type="button" onclick="copyAionPhase17GValue('embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
-            <button type="button" onclick="sendAionPhase17GHomeFixedTestEnquiry()">Send local payload test</button>
+            <button type="button" onclick="copyAionPhase17HWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
+            <button type="button" onclick="copyAionPhase17HWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
+            <button type="button" onclick="sendAionPhase17HLocalPayloadTest()">Send local payload test</button>
           </div>
           ${renderAionPhase17GGmailVaultProviderStatus()}
         </div>
@@ -75365,7 +75365,7 @@ function renderAionWebsiteIntakeInstallationPanel() {
 
       <div class="aion-intake-install-grid">
         ${options.map((option) => `
-          <article class="aion-intake-install-card" data-aion-intake-install-mode="${escapeHtml(option.key)}">
+          <article class="aion-intake-install-card ${getAionPhase17HWebsiteIntakeActionState().selected_provider === option.key ? "is-selected" : ""}" data-aion-intake-install-mode="${escapeHtml(option.key)}" data-aion-intake-provider-option="${escapeHtml(option.key)}" onclick="selectAionPhase17HWebsiteIntakeProvider(\'${escapeHtml(option.key)}\')">
             <div class="aion-intake-install-card-head">
               <div>
                 <div class="eyebrow">${escapeHtml(option.audience)}</div>
@@ -75410,6 +75410,214 @@ function renderAionWebsiteIntakeInstallationPanel() {
 }
 
 /* END PHASE 17F LOCK */
+
+
+
+
+/* PHASE 17H LOCK: Functional Website Intake actions */
+
+function getAionPhase17HWebsiteIntakeActionState() {
+  window.__aionPhase17HWebsiteIntakeActionState =
+    window.__aionPhase17HWebsiteIntakeActionState || {
+      selected_provider: "gmail_oauth",
+      copied_field: "",
+      copied_value: "",
+      readiness_checked: false,
+      readiness_status: "not_checked",
+      readiness_message: "Gmail readiness has not been checked yet.",
+      latest_action: "idle",
+    };
+
+  return window.__aionPhase17HWebsiteIntakeActionState;
+}
+
+function setAionPhase17HWebsiteIntakeActionState(patch = {}) {
+  window.__aionPhase17HWebsiteIntakeActionState = {
+    ...getAionPhase17HWebsiteIntakeActionState(),
+    ...patch,
+    updated_at: new Date().toISOString(),
+  };
+
+  try {
+    requestRender?.();
+  } catch (_) {
+    try { render?.(); } catch (_) {}
+  }
+}
+
+function selectAionPhase17HWebsiteIntakeProvider(providerKey = "gmail_oauth") {
+  const allowed = {
+    gmail_oauth: true,
+    existing_form_webhook: true,
+    aion_generated_embed: true,
+    hosted_mailbox_future: true,
+  };
+
+  const selected = allowed[providerKey] ? providerKey : "gmail_oauth";
+
+  setAionPhase17HWebsiteIntakeActionState({
+    selected_provider: selected,
+    latest_action: "provider_selected",
+  });
+}
+
+function testAionPhase17HGmailIntakeReadiness() {
+  const readiness =
+    typeof getAionPhase17GGmailVaultReadiness === "function"
+      ? getAionPhase17GGmailVaultReadiness()
+      : {
+          provider_label: "Gmail OAuth",
+          connected: false,
+          readonly_scope_ready: false,
+          compose_scope_ready: false,
+          live_send_allowed: false,
+          raw_password_allowed: false,
+          status: "missing",
+        };
+
+  const connected = readiness.connected === true;
+  const hasReadonly = readiness.readonly_scope_ready === true;
+  const liveSendLocked = readiness.live_send_allowed !== true;
+
+  const status =
+    connected && hasReadonly && liveSendLocked
+      ? "ready_for_guarded_read"
+      : "vault_missing_or_incomplete";
+
+  const message =
+    status === "ready_for_guarded_read"
+      ? "Gmail OAuth is ready for guarded read intake. Live send remains locked."
+      : "Gmail OAuth is not ready yet. Go to Vault, refresh/connect Gmail, then test again.";
+
+  setAionPhase17HWebsiteIntakeActionState({
+    readiness_checked: true,
+    readiness_status: status,
+    readiness_message: message,
+    latest_action: "gmail_readiness_test",
+    readiness,
+    selected_provider: "gmail_oauth",
+  });
+}
+
+function copyAionPhase17HWebsiteIntakeValue(field, value) {
+  const safeField = String(field || "value");
+  const safeValue = String(value || "");
+
+  const done = () => {
+    setAionPhase17HWebsiteIntakeActionState({
+      copied_field: safeField,
+      copied_value: safeValue,
+      latest_action: "copy_value",
+    });
+  };
+
+  try {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(safeValue).then(done).catch(done);
+      return;
+    }
+  } catch (_) {}
+
+  try {
+    const el = document.createElement("textarea");
+    el.value = safeValue;
+    el.setAttribute("readonly", "readonly");
+    el.style.position = "fixed";
+    el.style.left = "-9999px";
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand("copy");
+    document.body.removeChild(el);
+  } catch (_) {}
+
+  done();
+}
+
+function sendAionPhase17HLocalPayloadTest() {
+  if (typeof sendAionPhase17GHomeFixedTestEnquiry === "function") {
+    sendAionPhase17GHomeFixedTestEnquiry();
+  }
+
+  setAionPhase17HWebsiteIntakeActionState({
+    latest_action: "local_payload_test",
+    selected_provider: getAionPhase17HWebsiteIntakeActionState().selected_provider || "gmail_oauth",
+  });
+}
+
+function renderAionPhase17HWebsiteIntakeActionResultPanel() {
+  const actionState = getAionPhase17HWebsiteIntakeActionState();
+  const readiness = actionState.readiness || {};
+  const liveTest =
+    typeof getAionPhase17GLiveTestState === "function"
+      ? getAionPhase17GLiveTestState()
+      : {};
+
+  const latestSubmission = liveTest.latest_submission || null;
+
+  return `
+    <section class="aion-phase17h-action-result" data-aion-phase17h-action-result="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Website Intake Action Result</div>
+          <h3>${escapeHtml(actionState.latest_action || "idle")}</h3>
+          <p class="muted">${escapeHtml(actionState.readiness_message || "No action run yet.")}</p>
+        </div>
+        <div class="status-pill">${escapeHtml(actionState.readiness_status || "not_checked")}</div>
+      </div>
+
+      <div class="aion-ticket-step-artifact-grid">
+        <div>
+          <strong>Selected provider</strong>
+          <span>${escapeHtml(actionState.selected_provider || "gmail_oauth")}</span>
+        </div>
+        <div>
+          <strong>Gmail connected</strong>
+          <span>${String(readiness.connected === true)}</span>
+        </div>
+        <div>
+          <strong>Readonly scope</strong>
+          <span>${String(readiness.readonly_scope_ready === true)}</span>
+        </div>
+        <div>
+          <strong>Compose scope</strong>
+          <span>${String(readiness.compose_scope_ready === true)}</span>
+        </div>
+        <div>
+          <strong>Raw passwords</strong>
+          <span>Not allowed</span>
+        </div>
+        <div>
+          <strong>Live send</strong>
+          <span>Locked</span>
+        </div>
+        <div>
+          <strong>Copied field</strong>
+          <span>${escapeHtml(actionState.copied_field || "—")}</span>
+        </div>
+        <div>
+          <strong>Latest ticket preview</strong>
+          <span>${escapeHtml(latestSubmission?.ticket_preview_id || latestSubmission?.ticket_id || "—")}</span>
+        </div>
+      </div>
+
+      ${
+        latestSubmission
+          ? `
+            <div class="aion-founder-single-guard-strip" data-aion-phase17h-latest-submission="true">
+              Latest local payload test created a preview ticket only · no booking · no payment · no escrow · no external message · no live chain write
+            </div>
+          `
+          : `
+            <div class="aion-founder-single-guard-strip">
+              Run local payload test to create a preview ticket. No live side effects are allowed.
+            </div>
+          `
+      }
+    </section>
+  `;
+}
+
+/* END PHASE 17H LOCK */
 
 
 /* PHASE 17G LOCK: Home Fixed live intake test actions */
