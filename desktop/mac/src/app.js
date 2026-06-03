@@ -75354,15 +75354,15 @@ function renderAionWebsiteIntakeInstallationPanel() {
           </p>
           <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
             <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Test Gmail intake readiness</button>
-            <button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17HWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
-            <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17HWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
-            <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17HLocalPayloadTest()">Send local payload test</button>
+            <button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
+            <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17IWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
+            <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17ILocalPayloadTest()">Send local payload test</button>
           </div>
           <div class="aion-phase17h-top-status" data-aion-phase17h-top-status="true">
             Action status:
-            ${escapeHtml(getAionPhase17HWebsiteIntakeActionState().latest_action || "idle")}
-            · ${escapeHtml(getAionPhase17HWebsiteIntakeActionState().readiness_status || "not_checked")}
-            · ${escapeHtml(getAionPhase17HWebsiteIntakeActionState().copied_field || "nothing copied")}
+            ${escapeHtml(getAionPhase17IWebsiteIntakeActionState().latest_action || "idle")}
+            · ${escapeHtml(getAionPhase17IWebsiteIntakeActionState().readiness_status || "not_checked")}
+            · ${escapeHtml(getAionPhase17IWebsiteIntakeActionState().copied_field || "nothing copied")}
           </div>
           ${renderAionPhase17GGmailVaultProviderStatus()}
         </div>
@@ -75416,6 +75416,177 @@ function renderAionWebsiteIntakeInstallationPanel() {
 }
 
 /* END PHASE 17F LOCK */
+
+
+/* PHASE 17I LOCK: Visible Website Intake button action results */
+
+function getAionPhase17IWebsiteIntakeActionState() {
+  window.__aionPhase17IWebsiteIntakeActionState =
+    window.__aionPhase17IWebsiteIntakeActionState || {
+      latest_action: "idle",
+      readiness_status: "not_checked",
+      copied_field: "nothing copied",
+      provider_key: "gmail_oauth",
+      provider_label: "Gmail OAuth",
+      ticket_preview_id: "",
+      workflow_id: "",
+      safe_mode: "not_run",
+      message: "No intake action has been run yet.",
+      updated_at: "",
+    };
+
+  return window.__aionPhase17IWebsiteIntakeActionState;
+}
+
+function setAionPhase17IWebsiteIntakeActionState(patch = {}) {
+  window.__aionPhase17IWebsiteIntakeActionState = {
+    ...getAionPhase17IWebsiteIntakeActionState(),
+    ...patch,
+    updated_at: new Date().toISOString(),
+  };
+
+  try {
+    requestRender?.();
+  } catch (_) {
+    try { render?.(); } catch (_) {}
+  }
+
+  return window.__aionPhase17IWebsiteIntakeActionState;
+}
+
+function testAionPhase17IWebsiteIntakeGmailReadiness() {
+  const readiness =
+    typeof getAionPhase17GGmailVaultReadiness === "function"
+      ? getAionPhase17GGmailVaultReadiness()
+      : {
+          provider_key: "gmail_oauth",
+          provider_label: "Gmail OAuth",
+          connected: false,
+          status: "missing",
+          credential_source: "Vault OAuth",
+          human_review_required: true,
+          live_send_allowed: false,
+        };
+
+  const status = readiness.connected ? "connected" : "missing";
+
+  return setAionPhase17IWebsiteIntakeActionState({
+    latest_action: "gmail_readiness_test",
+    readiness_status: status,
+    provider_key: readiness.provider_key || "gmail_oauth",
+    provider_label: readiness.provider_label || "Gmail OAuth",
+    safe_mode: "read_only_check",
+    message: readiness.connected
+      ? "Gmail OAuth appears connected in Vault. Live send remains locked."
+      : "Gmail OAuth is still missing in Vault. Connect Gmail in the Vault before live email intake.",
+  });
+}
+
+function copyAionPhase17IWebsiteIntakeValue(field, value) {
+  const cleanField = String(field || "unknown");
+  const cleanValue = String(value || "");
+
+  try {
+    navigator.clipboard?.writeText(cleanValue);
+  } catch (_) {}
+
+  return setAionPhase17IWebsiteIntakeActionState({
+    latest_action: "copy_value",
+    copied_field: cleanField,
+    message: `Copied ${cleanField}.`,
+  });
+}
+
+function sendAionPhase17ILocalPayloadTest() {
+  const ticketId = "ticket_home_fixed_local_payload_test_001";
+  const workflowId = "home_fixed_new_enquiry";
+
+  const payload = {
+    business_id: "home_fixed",
+    event_type: "website_intake.trigger.created",
+    ticket_preview_id: ticketId,
+    workflow_id: workflowId,
+    customer: {
+      name: "Home Fixed Test Customer",
+      phone: "+34 600 000 000",
+      email: "test@example.com",
+    },
+    request: {
+      message: "I need a leaking pergola roof repaired in Arboleas",
+      detected_service: "Pergola / roof repair",
+      location: "Arboleas, Almería",
+      urgency: "Medium / rain-related",
+    },
+    guards: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+      live_execution_allowed: false,
+      human_review_required: true,
+      preview_only: true,
+    },
+  };
+
+  window.__aionPhase17ILatestLocalPayloadTest = payload;
+
+  return setAionPhase17IWebsiteIntakeActionState({
+    latest_action: "local_payload_test",
+    readiness_status: "local_preview_ready",
+    ticket_preview_id: ticketId,
+    workflow_id: workflowId,
+    safe_mode: "preview_only",
+    message: "Local Home Fixed payload test created a guarded workflow ticket preview.",
+  });
+}
+
+function renderAionPhase17IWebsiteIntakeActionResultPanel() {
+  const action = getAionPhase17IWebsiteIntakeActionState();
+
+  return `
+    <section class="panel large-panel aion-phase17i-action-result" data-aion-phase17i-action-result="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Website Intake Action Result</div>
+          <h3>${escapeHtml(action.latest_action || "idle")}</h3>
+          <p class="muted">${escapeHtml(action.message || "")}</p>
+        </div>
+        <div class="status-pill">${escapeHtml(action.readiness_status || "not_checked")}</div>
+      </div>
+
+      <div class="card-grid">
+        <div class="metric-card">
+          <div class="metric-label">Provider</div>
+          <div class="metric-value">${escapeHtml(action.provider_label || "Gmail OAuth")}</div>
+          <div class="metric-sub">${escapeHtml(action.provider_key || "gmail_oauth")}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Copied field</div>
+          <div class="metric-value">${escapeHtml(action.copied_field || "nothing copied")}</div>
+          <div class="metric-sub">Clipboard action</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Ticket preview</div>
+          <div class="metric-value">${escapeHtml(action.ticket_preview_id || "—")}</div>
+          <div class="metric-sub">${escapeHtml(action.workflow_id || "No workflow preview yet")}</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-label">Safe mode</div>
+          <div class="metric-value">${escapeHtml(action.safe_mode || "not_run")}</div>
+          <div class="metric-sub">No booking/payment/send/chain write</div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+window.testAionPhase17IWebsiteIntakeGmailReadiness = testAionPhase17IWebsiteIntakeGmailReadiness;
+window.copyAionPhase17IWebsiteIntakeValue = copyAionPhase17IWebsiteIntakeValue;
+window.sendAionPhase17ILocalPayloadTest = sendAionPhase17ILocalPayloadTest;
+
+/* END PHASE 17I LOCK */
+
 
 
 
