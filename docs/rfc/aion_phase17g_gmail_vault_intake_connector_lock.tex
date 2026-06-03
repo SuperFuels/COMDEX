@@ -1,0 +1,54 @@
+\section{Phase 17G --- Gmail/Vault Website Intake Connector Lock}
+\label{sec:aion-phase17g-gmail-vault-website-intake-connector-lock}
+
+\subsection{Status}
+
+Phase 17G replaces the placeholder hosted intake mailbox with an honest connector selection surface.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Website Intake now treats Gmail OAuth from Vault as the first real email intake provider.}
+\end{quote}
+
+\subsection{Purpose}
+
+Small businesses often already have a website form that sends enquiries to Gmail, Outlook, or another mailbox. The lowest-friction onboarding path is therefore not a fake generated mailbox. The first live path is:
+
+\begin{quote}
+Existing website form email $\rightarrow$ connected mailbox in Vault $\rightarrow$ guarded intake read $\rightarrow$ website\_intake.trigger.created $\rightarrow$ workflow ticket preview.
+\end{quote}
+
+\subsection{Locked Behaviour}
+
+The Website Intake Installation panel MUST expose Gmail OAuth from Vault as the first email provider.
+
+The panel MUST NOT show \texttt{home\_fixed@intake.tessaris.ai} as if it is active.
+
+The panel MUST state that Gmail uses OAuth credentials from the Vault and MUST NOT request raw mailbox passwords.
+
+Live email sending remains locked.
+
+The Gmail route is a read/intake candidate only. Any draft, reply, booking, payment, escrow, external message, or chain write remains behind human review and existing side-effect guards.
+
+\subsection{Provider Modes}
+
+\begin{itemize}
+  \item Gmail OAuth from Vault: first real email-intake path.
+  \item Existing Form Webhook: web-designer/developer route.
+  \item AION Generated Form / Embed: future no-code route.
+  \item Hosted AION Mailbox: future optional managed/paid route.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+node --check desktop/mac/src/app.js
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase17g_gmail_vault_intake_connector_lock.py
+bash scripts/run_goal_engine_focused_lock_suite.sh
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+Lock ID: AION-PHASE17G-GMAIL-VAULT-WEBSITE-INTAKE-CONNECTOR-LOCK \\
+Status: LOCKED \\
+Maintainer: Tessaris AI \\
+Author: Kevin Robinson

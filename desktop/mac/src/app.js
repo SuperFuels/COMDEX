@@ -75094,44 +75094,108 @@ function renderAionBusinessWebsiteIntakeInstallationPanel() {
 
 
 
-/* PHASE 17F LOCK: Website intake installation panel */
 
-function getAionWebsiteIntakeInstallationOptions() {
+
+/* PHASE 17G LOCK: Gmail/Vault website intake connector */
+
+function getAionPhase17GGmailVaultReadiness() {
+  const vault = state?.vault || state?.connectorVault || state?.credentialVault || {};
+  const gmail =
+    vault.gmail ||
+    vault.connectors?.gmail ||
+    vault.connected_apps?.gmail ||
+    vault.credentials?.gmail ||
+    {};
+
+  const scopes = gmail.scopes || [
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.compose",
+  ];
+
+  const connected =
+    gmail.connected === true ||
+    gmail.ready === true ||
+    gmail.status === "connected" ||
+    gmail.status === "ready" ||
+    gmail.oauth_status === "connected" ||
+    gmail.oauth_ready === true ||
+    state?.gmailOAuthReady === true ||
+    window.__aionGmailOAuthReady === true ||
+    false;
+
+  return {
+    provider_key: "gmail_oauth",
+    provider_label: "Gmail OAuth",
+    credential_source: "Vault OAuth",
+    connected,
+    status: connected ? "connected" : "missing",
+    mode: "read_only_intake",
+    account_label:
+      gmail.email ||
+      gmail.account ||
+      gmail.account_email ||
+      state?.gmailAccountEmail ||
+      "Connect Gmail in Vault",
+    scopes,
+    vault_requirement: "vault.gmail.credentials",
+    raw_password_allowed: false,
+    live_send_allowed: false,
+    live_read_candidate: true,
+    human_review_required: true,
+  };
+}
+
+function getAionPhase17GWebsiteIntakeProviders() {
+  const gmail = getAionPhase17GGmailVaultReadiness();
+
   return [
     {
-      key: "email_forwarding",
-      title: "Email Forwarding Setup",
-      audience: "Best for non-technical businesses",
-      summary: "Forward existing website enquiry emails into a dedicated AION intake mailbox.",
-      installLabel: "Forward enquiries to",
-      installValue: "home_fixed@intake.tessaris.ai",
+      key: "gmail_oauth",
+      title: "Gmail OAuth from Vault",
+      status: gmail.status,
+      recommended: true,
+      available_now: true,
+      summary:
+        gmail.connected
+          ? "Gmail is available from the Vault. AION can use this as the first real email intake route after the live read bridge is activated."
+          : "Connect Gmail in the Vault first. AION uses OAuth scopes, not raw email passwords.",
+      installLabel: "Selected provider",
+      installValue: `${gmail.provider_label} · ${gmail.credential_source} · ${gmail.account_label}`,
       steps: [
-        "Keep the existing website form as-is.",
-        "Forward contact-form emails to the intake mailbox.",
-        "AION reads the enquiry and creates a workflow ticket.",
-        "No website code changes required.",
+        "Website form continues sending enquiries to the business email.",
+        "Business connects Gmail in the Vault using OAuth.",
+        "AION reads matching enquiry emails through the guarded Gmail connector.",
+        "AION converts the email into website_intake.trigger.created and creates a workflow ticket.",
       ],
+      actionLabel: gmail.connected ? "Test Gmail intake readiness" : "Open Vault to connect Gmail",
     },
     {
       key: "existing_form_webhook",
       title: "Existing Form Webhook",
-      audience: "Best for a web designer or developer",
-      summary: "Connect the current website form directly to the guarded public intake endpoint.",
+      status: "developer_route",
+      recommended: true,
+      available_now: true,
+      summary:
+        "Best when a web designer can add one POST request after the existing form submits.",
       installLabel: "POST endpoint",
       installValue: "https://api.tessaris.ai/public/intake/home_fixed",
       steps: [
-        "Keep the existing form design.",
-        "Send name, phone, email, message, service, location, and urgency.",
+        "Keep the existing website form design.",
+        "Send a copy of the enquiry to the guarded public intake endpoint.",
         "AION normalises the payload into website_intake.trigger.created.",
         "The Boardroom receives a workflow ticket preview.",
       ],
+      actionLabel: "Copy webhook endpoint",
     },
     {
       key: "aion_generated_embed",
       title: "AION Generated Form / Embed",
-      audience: "Best when the business needs a ready-made form",
-      summary: "Paste one script into the website to show an AION enquiry form or floating request button.",
-      installLabel: "Install snippet",
+      status: "future_no_code",
+      recommended: false,
+      available_now: false,
+      summary:
+        "Future no-code route where AION provides the form or floating request button.",
+      installLabel: "Future install snippet",
       installValue:
         '<script src="https://cdn.tessaris.ai/intake-widget.js" data-business-id="home_fixed" data-mode="form"></script>',
       steps: [
@@ -75140,8 +75204,104 @@ function getAionWebsiteIntakeInstallationOptions() {
         "Submissions create guarded workflow tickets.",
         "The same trigger bridge handles the workflow preview.",
       ],
+      actionLabel: "Copy future embed snippet",
+    },
+    {
+      key: "hosted_aion_mailbox",
+      title: "Hosted AION Mailbox",
+      status: "future_paid_route",
+      recommended: false,
+      available_now: false,
+      summary:
+        "Optional future hosted intake mailbox. This replaces the inactive placeholder mailbox concept with a clearly future managed route.",
+      installLabel: "Future hosted mailbox",
+      installValue: "Not active yet",
+      steps: [
+        "AION provisions a dedicated hosted intake mailbox.",
+        "Business forwards website enquiry emails to that mailbox.",
+        "AION reads the hosted mailbox and creates workflow tickets.",
+        "This can become a managed paid route later.",
+      ],
+      actionLabel: "Future route",
     },
   ];
+}
+
+function renderAionPhase17GGmailVaultProviderStatus() {
+  const gmail = getAionPhase17GGmailVaultReadiness();
+
+  return `
+    <div class="aion-phase17g-provider-status" data-aion-phase17g-gmail-vault-status="true">
+      <div>
+        <div class="eyebrow">Selected Email Provider</div>
+        <h3>${escapeHtml(gmail.provider_label)} · ${escapeHtml(gmail.status)}</h3>
+        <p class="muted">
+          Source: ${escapeHtml(gmail.credential_source)} · Requirement: ${escapeHtml(gmail.vault_requirement)}
+        </p>
+      </div>
+      <div class="aion-phase17g-provider-badges">
+        <span>${gmail.connected ? "Vault connected" : "Vault missing"}</span>
+        <span>OAuth only</span>
+        <span>No raw passwords</span>
+        <span>Live send locked</span>
+      </div>
+    </div>
+  `;
+}
+
+function handleAionPhase17GGmailIntakeProviderAction(providerKey = "gmail_oauth") {
+  const gmail = getAionPhase17GGmailVaultReadiness();
+
+  if (providerKey === "gmail_oauth" && !gmail.connected) {
+    setAionPhase17GLiveTestState({
+      status: "vault_missing",
+      last_action: "gmail_oauth_missing",
+      latest_submission: {
+        provider: "Gmail OAuth",
+        result: "Connect Gmail in Vault before testing real email intake.",
+        ticket_preview_id: "",
+        workflow_id: "home_fixed_new_enquiry",
+        safe_mode: true,
+      },
+    });
+    return;
+  }
+
+  if (providerKey === "gmail_oauth" && gmail.connected) {
+    setAionPhase17GLiveTestState({
+      status: "gmail_vault_ready",
+      last_action: "gmail_oauth_ready",
+      latest_submission: {
+        provider: "Gmail OAuth",
+        result: "Gmail Vault credential is ready for guarded intake read testing.",
+        ticket_preview_id: "pending_real_gmail_message_selection",
+        workflow_id: "home_fixed_new_enquiry",
+        safe_mode: true,
+      },
+    });
+    return;
+  }
+
+  setAionPhase17GLiveTestState({
+    status: "provider_preview_only",
+    last_action: providerKey,
+    latest_submission: {
+      provider: providerKey,
+      result: "Provider route is preview-only or future.",
+      ticket_preview_id: "",
+      workflow_id: "home_fixed_new_enquiry",
+      safe_mode: true,
+    },
+  });
+}
+
+/* END PHASE 17G LOCK: Gmail/Vault website intake connector */
+
+
+/* PHASE 17F LOCK: Website intake installation panel */
+
+function getAionWebsiteIntakeInstallationOptions() {
+  return getAionPhase17GWebsiteIntakeProviders();
 }
 
 function renderAionWebsiteIntakeInstallationPanel() {
@@ -75158,11 +75318,12 @@ function renderAionWebsiteIntakeInstallationPanel() {
             email forwarding, existing form webhook, or an AION generated form/embed.
           </p>
           <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
-            <button type="button" onclick="copyAionPhase17GValue('intake_email', 'home_fixed@intake.tessaris.ai')">Copy intake email</button>
+            <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Test Gmail intake readiness</button>
             <button type="button" onclick="copyAionPhase17GValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
-            <button type="button" onclick="copyAionPhase17GValue('embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy embed snippet</button>
-            <button type="button" onclick="sendAionPhase17GHomeFixedTestEnquiry()">Send test enquiry</button>
+            <button type="button" onclick="copyAionPhase17GValue('embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
+            <button type="button" onclick="sendAionPhase17GHomeFixedTestEnquiry()">Send local payload test</button>
           </div>
+          ${renderAionPhase17GGmailVaultProviderStatus()}
         </div>
         <div class="status-pill">SETUP OPTIONS</div>
       </div>
