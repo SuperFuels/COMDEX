@@ -75157,6 +75157,12 @@ function renderAionWebsiteIntakeInstallationPanel() {
             Choose the simplest way to connect a business website to AION workflows:
             email forwarding, existing form webhook, or an AION generated form/embed.
           </p>
+          <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
+            <button type="button" onclick="copyAionPhase17GValue('intake_email', 'home_fixed@intake.tessaris.ai')">Copy intake email</button>
+            <button type="button" onclick="copyAionPhase17GValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
+            <button type="button" onclick="copyAionPhase17GValue('embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy embed snippet</button>
+            <button type="button" onclick="sendAionPhase17GHomeFixedTestEnquiry()">Send test enquiry</button>
+          </div>
         </div>
         <div class="status-pill">SETUP OPTIONS</div>
       </div>
@@ -75208,6 +75214,155 @@ function renderAionWebsiteIntakeInstallationPanel() {
 }
 
 /* END PHASE 17F LOCK */
+
+
+/* PHASE 17G LOCK: Home Fixed live intake test actions */
+
+function getAionPhase17GLiveTestState() {
+  window.__aionPhase17GLiveTestState = window.__aionPhase17GLiveTestState || {
+    status: "not_run",
+    last_action: "none",
+    copied_field: "",
+    latest_submission: null,
+  };
+  return window.__aionPhase17GLiveTestState;
+}
+
+function setAionPhase17GLiveTestState(patch = {}) {
+  window.__aionPhase17GLiveTestState = {
+    ...getAionPhase17GLiveTestState(),
+    ...patch,
+    updated_at: new Date().toISOString(),
+  };
+  try {
+    requestRender?.();
+  } catch (_) {
+    try { render?.(); } catch (_) {}
+  }
+}
+
+function copyAionPhase17GValue(label, value) {
+  try {
+    navigator.clipboard?.writeText?.(value);
+  } catch (_) {}
+  setAionPhase17GLiveTestState({
+    status: "copied",
+    last_action: "copy",
+    copied_field: label,
+  });
+}
+
+function buildAionPhase17GHomeFixedTestSubmission() {
+  return {
+    ticket_preview_id: "ticket_home_fixed_live_test_001",
+    business_id: "home_fixed",
+    workflow_id: "home_fixed_new_enquiry",
+    endpoint: "https://api.tessaris.ai/public/intake/home_fixed",
+    source: "Home Fixed website form",
+    mode: "local_live_test_preview",
+    customer: {
+      name: "Website customer",
+      phone: "+34 test",
+      email: "customer@example.com",
+    },
+    request: {
+      message: "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
+      detected_service: "Pergola / roof repair",
+      location: "Arboleas, Almería",
+      urgency: "Medium / rain-related",
+    },
+    normalized_event: "website_intake.trigger.created",
+    bridge_result: "workflow_ticket_preview_created",
+    selected_workflow: "home_fixed_new_enquiry",
+    safe_mode: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+      human_review_required: true,
+    },
+  };
+}
+
+function sendAionPhase17GHomeFixedTestEnquiry() {
+  const submission = buildAionPhase17GHomeFixedTestSubmission();
+
+  setAionPhase17GLiveTestState({
+    status: "test_submission_created",
+    last_action: "send_test_enquiry",
+    latest_submission: submission,
+  });
+
+  try {
+    setAionFounderDemoLoopState?.({
+      activeStep: "machine_cart_quote_preview",
+      statusLabel: "Home Fixed live test enquiry received",
+      proofLabel: "Workflow ticket preview created",
+      lastAction: "run_preview",
+      sideEffectGuards: {
+        booking_created: false,
+        payment_created: false,
+        escrow_created: false,
+        external_message_sent: false,
+        live_chain_write: false,
+        live_execution_allowed: false,
+        human_review_required: true,
+        replay_hash_available: true,
+      },
+    });
+  } catch (_) {}
+
+  try {
+    requestRender?.();
+  } catch (_) {}
+}
+
+function renderAionPhase17GLiveTestResultPanel() {
+  const state = getAionPhase17GLiveTestState();
+  const submission = state.latest_submission;
+
+  if (!submission) {
+    return `
+      <div class="aion-phase17g-test-result" data-aion-phase17g-test-result="empty">
+        <strong>Live test status</strong>
+        <span>No test enquiry sent yet.</span>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="aion-phase17g-test-result" data-aion-phase17g-test-result="ready">
+      <div>
+        <strong>Latest test submission</strong>
+        <span>${escapeHtml(submission.ticket_preview_id)}</span>
+      </div>
+      <div>
+        <strong>Business</strong>
+        <span>${escapeHtml(submission.business_id)}</span>
+      </div>
+      <div>
+        <strong>Workflow</strong>
+        <span>${escapeHtml(submission.selected_workflow)}</span>
+      </div>
+      <div>
+        <strong>Event</strong>
+        <span>${escapeHtml(submission.normalized_event)}</span>
+      </div>
+      <div>
+        <strong>Bridge result</strong>
+        <span>${escapeHtml(submission.bridge_result)}</span>
+      </div>
+      <div>
+        <strong>Safe mode</strong>
+        <span>No booking · No payment · No escrow · No external message · No chain write</span>
+      </div>
+    </div>
+  `;
+}
+
+/* END PHASE 17G LOCK */
+
 
 
 /* PHASE 16G LOCK: Boardroom renderer consolidation

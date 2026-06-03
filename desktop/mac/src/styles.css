@@ -10896,3 +10896,41 @@ pre {
   }
 }
 /* END PHASE 17F LOCK */
+
+/* PHASE 17G LOCK: Home Fixed live intake test actions */
+.aion-phase17g-live-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.aion-phase17g-live-actions button {
+  border: 0;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.aion-phase17g-test-result {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid rgba(0, 128, 128, 0.24);
+  border-radius: 14px;
+}
+
+.aion-phase17g-test-result div {
+  border: 1px solid rgba(0, 128, 128, 0.16);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.aion-phase17g-test-result strong,
+.aion-phase17g-test-result span {
+  display: block;
+}
+/* END PHASE 17G LOCK */
