@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 from backend.modules.vault.connector_readiness import ConnectorReadinessService
 from backend.modules.vault.credential_schema import gmail_oauth_credential
 from backend.modules.vault.credential_store import InMemoryVaultCredentialStore
+from backend.api.local_node_router import get_runtime
 
 
 router = APIRouter(prefix="/api/vault", tags=["vault"])
@@ -109,20 +110,64 @@ def gmail_status(
     workspace_id: str = "costa-conexion",
     owner_user_id: str = "local_user",
 ) -> Dict[str, Any]:
+    required_scopes = [
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/gmail.compose",
+    ]
+
+    local_health: Dict[str, Any] = {}
+    try:
+        local_health = get_runtime().get_gmail_connector_health()
+    except Exception as exc:
+        local_health = {
+            "ok": False,
+            "auth_status": "unknown",
+            "connector_health": "unknown",
+            "last_error": str(exc),
+        }
+
+    local_connected = (
+        local_health.get("auth_status") == "connected"
+        and local_health.get("connector_health") == "available"
+    )
+
+    if local_connected:
+        return {
+            "ok": True,
+            "gmail": {
+                "ok": True,
+                "connector_id": "gmail",
+                "credential_key": "vault.gmail.credentials",
+                "status": "connected",
+                "ready": True,
+                "reason": "local_node_gmail_connected",
+                "required_scopes": required_scopes,
+                "granted_scopes": required_scopes,
+                "source": "local_node_gmail_health",
+                "local_node": local_health,
+            },
+            "live_send_enabled": False,
+            "dry_run_only": True,
+            "external_writes_enabled": False,
+        }
+
     result = ConnectorReadinessService(_STORE).check(
         business_id=business_id,
         workspace_id=workspace_id,
         owner_user_id=owner_user_id,
         connector_id="gmail",
         credential_key="vault.gmail.credentials",
-        required_scopes=[
-            "https://www.googleapis.com/auth/gmail.readonly",
-            "https://www.googleapis.com/auth/gmail.compose",
-        ],
+        required_scopes=required_scopes,
     )
 
     return {
         "ok": True,
-        "gmail": result.to_dict(),
+        "gmail": {
+            **result.to_dict(),
+            "source": "vault_metadata_store",
+            "local_node": local_health,
+        },
         "live_send_enabled": False,
+        "dry_run_only": True,
+        "external_writes_enabled": False,
     }

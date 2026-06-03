@@ -90,3 +90,12 @@ def test_phase17k_delegated_bindings_installed() -> None:
 def test_phase17k_is_in_focused_suite() -> None:
     suite = SUITE.read_text()
     assert "test_aion_phase17k_real_vault_gmail_ux_lock.py" in suite
+
+def test_phase17k_vault_status_bridges_local_node_gmail_health() -> None:
+    source = Path("backend/api/vault_router.py").read_text()
+    assert "get_runtime().get_gmail_connector_health()" in source
+    assert "local_node_gmail_connected" in source
+    assert "source\": \"local_node_gmail_health\"" in source or "local_node_gmail_health" in source
+    assert "dry_run_only" in source
+    assert "external_writes_enabled" in source
+    assert "live_send_enabled" in source
