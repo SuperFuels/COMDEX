@@ -518,6 +518,7 @@ def handle_gmail_oauth_callback(
     )
     status = "CONNECTED" if ok else "FAILED"
 
+
     html = f"""<!doctype html>
 <html>
 <head>
@@ -543,7 +544,7 @@ def handle_gmail_oauth_callback(
     .eyebrow {{
       font-size: 12px;
       letter-spacing: .18em;
-      font-weight: 800;
+      font-weight: 900;
       color: #1398a6;
       margin-bottom: 12px;
     }}
@@ -561,20 +562,9 @@ def handle_gmail_oauth_callback(
       display: inline-block;
       border: 1px solid #191919;
       padding: 8px 12px;
-      font-weight: 800;
+      font-weight: 900;
       letter-spacing: .12em;
       font-size: 12px;
-    }}
-    button {{
-      margin-top: 24px;
-      width: 100%;
-      padding: 14px 18px;
-      border: 1px solid #191919;
-      background: #191919;
-      color: white;
-      font-weight: 800;
-      letter-spacing: .08em;
-      cursor: pointer;
     }}
   </style>
 </head>
@@ -582,12 +572,16 @@ def handle_gmail_oauth_callback(
   <main class="card">
     <div class="eyebrow">TESSARIS VAULT</div>
     <h1>{title}</h1>
-    <p>{message}</p>
+    <p>{message} Return to the Tessaris app. The Vault will refresh automatically.</p>
     <span class="status">{status}</span>
-    <button onclick="window.close()">Close window</button>
   </main>
   <script>
     try {{
+      localStorage.setItem("aion:gmail_oauth_result", JSON.stringify({{
+        ok: true,
+        status: "connected",
+        at: new Date().toISOString()
+      }}));
       if (window.opener && window.opener.postMessage) {{
         window.opener.postMessage({{
           type: "aion:gmail_oauth_connected",
@@ -595,14 +589,6 @@ def handle_gmail_oauth_callback(
           status: "connected"
         }}, "*");
       }}
-      localStorage.setItem("aion:gmail_oauth_result", JSON.stringify({{
-        ok: true,
-        status: "connected",
-        at: new Date().toISOString()
-      }}));
-      setTimeout(function () {{
-        window.close();
-      }}, 1200);
     }} catch (error) {{}}
   </script>
 </body>

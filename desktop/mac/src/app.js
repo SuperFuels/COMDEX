@@ -7499,641 +7499,200 @@ function renderAionChatSurface() {
 
 
 
-function installAionPhase17LSimplifiedVaultStyles() {
-  if (document.getElementById("aion-phase17l-simplified-vault-styles")) {
-    return;
-  }
 
+
+
+
+
+
+
+
+
+
+function installAionCanonicalVaultStyles() {
+  if (document.getElementById("aion-canonical-vault-styles")) return;
   const style = document.createElement("style");
-  style.id = "aion-phase17l-simplified-vault-styles";
+  style.id = "aion-canonical-vault-styles";
   style.textContent = `
-/* PHASE 17L LOCK: simplified Vault connector UX */
-.aion-vault-simple-panel {
-  margin: 22px 0;
-  border: 1px solid rgba(25,25,25,.16);
-  background: rgba(255,255,255,.42);
-  padding: 22px;
-}
-
-.aion-vault-simple-head {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  align-items: flex-start;
-  border-bottom: 1px solid rgba(25,25,25,.14);
-  padding-bottom: 14px;
-  margin-bottom: 16px;
-}
-
-.aion-vault-simple-head h2 {
-  margin: 0;
-  font-size: 24px;
-}
-
-.aion-vault-simple-badge {
-  border: 1px solid rgba(25,25,25,.28);
-  padding: 7px 10px;
-  text-transform: uppercase;
-  font-weight: 900;
-  font-size: 11px;
-  letter-spacing: .12em;
-}
-
-.aion-vault-simple-badge.is-connected,
-.aion-vault-status-dot.is-connected {
-  color: #178a3f;
-}
-
-.aion-vault-simple-badge.is-missing,
-.aion-vault-status-dot.is-missing {
-  color: #9b2c2c;
-}
-
-.aion-vault-simple-row {
-  display: grid;
-  grid-template-columns: 220px 280px minmax(120px, 180px);
-  gap: 12px;
-  align-items: end;
-  margin-bottom: 16px;
-}
-
-.aion-vault-simple-row label {
-  display: grid;
-  gap: 6px;
-}
-
-.aion-vault-simple-row label span {
-  font-size: 11px;
-  text-transform: uppercase;
-  font-weight: 900;
-  letter-spacing: .14em;
-  color: rgba(25,25,25,.58);
-}
-
-.aion-vault-simple-row select {
-  min-height: 42px;
-  padding: 0 12px;
-  border: 1px solid rgba(25,25,25,.22);
-  background: white;
-  font: inherit;
-}
-
-.aion-vault-simple-status {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 13px 14px;
-  border: 1px solid rgba(25,25,25,.12);
-  background: rgba(255,255,255,.55);
-}
-
-.aion-vault-simple-status small {
-  color: rgba(25,25,25,.62);
-  margin-left: 8px;
-}
-
-.aion-vault-status-dot {
-  font-size: 18px;
-  line-height: 1;
-}
-
-.aion-vault-advanced-details {
-  margin-top: 12px;
-  color: rgba(25,25,25,.72);
-}
-
-.aion-vault-advanced-details summary {
-  cursor: pointer;
-  font-weight: 800;
-}
-
-.aion-vault-advanced-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 12px;
-  font-size: 13px;
-}
-
-.aion-vault-advanced-actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-.vault-connector-list .vault-connector-row:nth-child(n+3) {
-  display: none;
-}
-
-.vault-classic-scope-list,
-.vault-safety-note {
-  display: none;
-}
-/* END PHASE 17L LOCK */
+    .aion-vault-canonical-panel { margin-top: 22px; }
+    .aion-vault-canonical-row {
+      display: grid;
+      grid-template-columns: minmax(150px, 220px) minmax(240px, 340px) auto;
+      gap: 12px;
+      align-items: end;
+      margin-top: 14px;
+    }
+    .aion-vault-canonical-row label {
+      display: grid;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: rgba(25,25,25,.62);
+    }
+    .aion-vault-canonical-row select {
+      min-height: 40px;
+      padding: 8px 10px;
+      border: 1px solid rgba(25,25,25,.2);
+      background: #fffaf3;
+      font: inherit;
+    }
+    .aion-vault-canonical-row button {
+      min-height: 40px;
+      width: auto;
+      padding: 8px 18px;
+      white-space: nowrap;
+    }
+    .aion-vault-canonical-status {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(25,25,25,.12);
+      background: rgba(255,255,255,.52);
+    }
+    .aion-vault-canonical-status small { color: rgba(25,25,25,.62); }
+    .aion-vault-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      display: inline-block;
+      background: #d97706;
+    }
+    .aion-vault-dot.connected { background: #16a34a; }
+    .aion-vault-canonical-advanced { margin-top: 14px; }
+    .aion-vault-canonical-advanced summary {
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 12px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .aion-vault-advanced-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+    .aion-vault-advanced-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
   `;
   document.head.appendChild(style);
 }
 
-installAionPhase17LSimplifiedVaultStyles();
-
-function getAionVaultGmailUiStatus() {
-  const stateObj = typeof state !== "undefined" ? state : window.__aionState || {};
-  const live = stateObj.phase17kGmailHealth || window.__aionPhase17KGmailHealth || {};
-  const vault = window.__aionGmailVaultStatus || stateObj.gmailVaultStatus || {};
-  const vaultGmail = vault.gmail || {};
-
-  const connected =
-    live.auth_status === "connected" ||
-    live.connector_health === "available" ||
-    vaultGmail.ready === true ||
-    vaultGmail.status === "connected";
-
-  return {
-    connected: Boolean(connected),
-    status: connected ? "connected" : "not connected",
-    health: live.connector_health || vaultGmail.status || "unknown",
-    lastPoll: live.last_poll_status || vaultGmail.last_poll_status || "not checked",
-    dryRun: live.dry_run_only !== false,
-    externalWrites: live.external_writes_enabled === true,
-  };
-}
-
-function renderAionPhase17LSimpleVaultConnectorPanel() {
-  const gmail = getAionVaultGmailUiStatus();
-  const dot = gmail.connected ? "●" : "○";
-  const buttonLabel = gmail.connected ? "Reconnect" : "Connect";
-
-  return `
-    <section class="aion-vault-simple-panel" data-aion-phase17l-simple-vault-ui="true">
-      <div class="aion-vault-simple-head">
-        <div>
-          <div class="eyebrow">Real connector setup</div>
-          <h2>Connect app to Vault</h2>
-        </div>
-        <span class="aion-vault-simple-badge ${gmail.connected ? "is-connected" : "is-missing"}">
-          ${escapeHtml(gmail.status)}
-        </span>
-      </div>
-
-      <div class="aion-vault-simple-row">
-        <label>
-          <span>Category</span>
-          <select data-aion-phase17l-category="email">
-            <option selected>Email</option>
-          </select>
-        </label>
-
-        <label>
-          <span>App</span>
-          <select data-aion-phase17l-app="gmail">
-            <option selected>Gmail / Google Workspace</option>
-          </select>
-        </label>
-
-        <button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true" data-aion-phase17m-connect-gmail="true">
-          ${escapeHtml(buttonLabel)}
-        </button>
-      </div>
-
-      <div class="aion-vault-simple-status" data-aion-phase17l-gmail-status="true">
-        <span class="aion-vault-status-dot ${gmail.connected ? "is-connected" : "is-missing"}">${dot}</span>
-        <strong>Gmail</strong>
-        <span>${escapeHtml(gmail.status)}</span>
-        <small>Read-only intake enabled · Live send locked</small>
-      </div>
-
-      <details class="aion-vault-advanced-details">
-        <summary>Advanced details</summary>
-        <div class="aion-vault-advanced-grid">
-          <div><strong>Health:</strong> ${escapeHtml(gmail.health)}</div>
-          <div><strong>Last poll:</strong> ${escapeHtml(gmail.lastPoll)}</div>
-          <div><strong>Dry-run:</strong> ${escapeHtml(String(gmail.dryRun))}</div>
-          <div><strong>External writes:</strong> ${escapeHtml(String(gmail.externalWrites))}</div>
-        </div>
-        <div class="aion-vault-advanced-actions">
-          <button type="button" class="secondary-btn" data-aion-phase17k-refresh-gmail-health="true">
-            Refresh status
-          </button>
-          <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
-            Poll now
-          </button>
-        </div>
-      </details>
-    </section>
-  `;
-}
-
-
-
-/* PHASE 17M LOCK: final Vault Gmail connect UX binding */
-(function installAionPhase17MFinalVaultConnectBinding() {
-  if (window.__aionPhase17MFinalVaultConnectBindingInstalled) return;
-  window.__aionPhase17MFinalVaultConnectBindingInstalled = true;
-
-  document.addEventListener("click", async function handlePhase17MFinalVaultClick(event) {
-    const target = event.target && event.target.closest
-      ? event.target.closest(
-          "[data-aion-phase17m-connect-gmail], [data-aion-phase17k-open-gmail-oauth], [data-aion-phase17k-refresh-gmail-health], [data-aion-phase17k-poll-gmail-now], [data-aion-vault-refresh-gmail]"
-        )
-      : null;
-
-    if (!target) return;
-
-    if (target.matches("[data-aion-phase17m-connect-gmail], [data-aion-phase17k-open-gmail-oauth]")) {
-      event.preventDefault();
-      if (typeof window.openAionPhase17KGmailOAuth === "function") {
-        await window.openAionPhase17KGmailOAuth();
-      } else if (typeof openAionPhase17KGmailOAuth === "function") {
-        await openAionPhase17KGmailOAuth();
-      }
-      return;
-    }
-
-    if (target.matches("[data-aion-phase17k-refresh-gmail-health], [data-aion-vault-refresh-gmail]")) {
-      event.preventDefault();
-      if (typeof window.refreshAionPhase17KGmailHealth === "function") {
-        await window.refreshAionPhase17KGmailHealth();
-      } else if (typeof refreshAionPhase17KGmailHealth === "function") {
-        await refreshAionPhase17KGmailHealth();
-      }
-      return;
-    }
-
-    if (target.matches("[data-aion-phase17k-poll-gmail-now]")) {
-      event.preventDefault();
-      if (typeof window.pollAionPhase17KGmailNow === "function") {
-        await window.pollAionPhase17KGmailNow();
-      } else if (typeof pollAionPhase17KGmailNow === "function") {
-        await pollAionPhase17KGmailNow();
-      }
-      return;
-    }
-  });
-})();
-
-
-/* PHASE 17N USER STATUS STRINGS */
-const AION_PHASE17N_GMAIL_CONNECTED_BUTTON_LABEL = "GMAIL CONNECTED";
-const AION_PHASE17N_GMAIL_CONNECT_BUTTON_LABEL = "CONNECT GMAIL WITH OAUTH";
-const AION_PHASE17N_GMAIL_CONNECTED_STATUS_COPY = "OAuth connected through Google. Read-only intake enabled.";
-const AION_PHASE17N_GMAIL_SAFETY_COPY = "Safety: OAuth only · live send locked.";
-/* END PHASE 17N USER STATUS STRINGS */
-
-
-function getAionPhase17NGmailConnectButtonLabel() {
-  const status =
-    typeof getAionPhase17KVaultStatusState === "function"
-      ? getAionPhase17KVaultStatusState()
-      : {};
-  const connected =
-    status.auth_status === "connected" ||
-    status.connector_health === "available" ||
-    status.status === "connected";
-  return connected ? "GMAIL CONNECTED" : "CONNECT GMAIL WITH OAUTH";
-}
-
-/* PHASE 17N LOCK: Gmail OAuth success refresh bridge */
-(function installAionPhase17NGmailOAuthSuccessRefreshBridge() {
-  if (window.__aionPhase17NOAuthRefreshBridgeInstalled) return;
-  window.__aionPhase17NOAuthRefreshBridgeInstalled = true;
-
-  async function refreshAfterOauthSuccess(reason = "oauth_success") {
-    try {
-      if (typeof refreshAionPhase17KRealVaultGmailHealth === "function") {
-        await refreshAionPhase17KRealVaultGmailHealth();
-      }
-
-      if (typeof getAionPhase17KVaultStatusState === "function") {
-        const state = getAionPhase17KVaultStatusState();
-        state.latest_action = reason;
-        state.status = state.auth_status === "connected" || state.connector_health === "available"
-          ? "connected"
-          : state.status || "checking";
-      }
-
-      if (typeof render === "function") render();
-    } catch (error) {
-      console.warn("[AION] Gmail OAuth success refresh failed", error);
-    }
-  }
-
-  window.addEventListener("message", function handleAionGmailOAuthMessage(event) {
-    const data = event && event.data ? event.data : {};
-    if (data.type === "aion:gmail_oauth_connected" || data.status === "connected") {
-      refreshAfterOauthSuccess("gmail_oauth_connected");
-    }
-  });
-
-  window.addEventListener("focus", function handleAionGmailOAuthFocusRefresh() {
-    try {
-      const raw = localStorage.getItem("aion:gmail_oauth_result");
-      if (!raw) return;
-      const parsed = JSON.parse(raw);
-      if (parsed && parsed.ok === true && parsed.status === "connected") {
-        localStorage.removeItem("aion:gmail_oauth_result");
-        refreshAfterOauthSuccess("gmail_oauth_connected");
-      }
-    } catch (error) {}
-  });
-
-  window.refreshAionPhase17NGmailOAuthSuccess = refreshAfterOauthSuccess;
-})();
-/* END PHASE 17N LOCK */
-
-/* END PHASE 17M LOCK */
-
-
-
-function installAionPhase17MFinalVaultUxStyles() {
-  if (document.getElementById("aion-phase17m-final-vault-ux-style")) return;
-  const style = document.createElement("style");
-  style.id = "aion-phase17m-final-vault-ux-style";
-  style.textContent = `
-
-/*
-Phase 17M user-facing Vault status language:
-Gmail connected · read-only intake enabled
-Safety: OAuth only · live send locked.
-*/
-
-/* PHASE 17M LOCK: final simplified Vault UX */
-.aion-vault-simple-panel {
-  margin: 18px 0 20px;
-  padding: 18px;
-  border: 1px solid rgba(25,25,25,.16);
-  background: rgba(255,255,255,.42);
-}
-
-.aion-vault-simple-panel h2 {
-  margin: 0 0 12px;
-}
-
-.aion-vault-simple-panel .aion-vault-simple-status,
-.aion-vault-simple-panel [data-aion-phase17k-gmail-status],
-.aion-vault-simple-panel [data-aion-phase17h-top-status] {
-  margin-top: 10px;
-  padding: 10px 12px;
-  border: 1px solid rgba(25,25,25,.12);
-  background: rgba(255,255,255,.55);
-  font-size: 14px;
-}
-
-.aion-vault-simple-panel .aion-vault-status-dot {
-  width: 9px;
-  height: 9px;
-  display: inline-block;
-  border-radius: 999px;
-  margin-right: 7px;
-  background: #aaa;
-}
-
-.aion-vault-simple-panel .aion-vault-status-dot.connected {
-  background: #16a34a;
-}
-
-.aion-vault-simple-panel .aion-vault-status-dot.missing,
-.aion-vault-simple-panel .aion-vault-status-dot.not_connected {
-  background: #d97706;
-}
-
-.aion-vault-simple-panel .aion-vault-status-dot.failed {
-  background: #dc2626;
-}
-
-.aion-vault-simple-panel .aion-phase17m-connect-row {
-  display: grid;
-  grid-template-columns: minmax(160px, 220px) minmax(220px, 320px) auto;
-  gap: 12px;
-  align-items: end;
-}
-
-.aion-vault-simple-panel label {
-  display: grid;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: #6f6b64;
-}
-
-.aion-vault-simple-panel select {
-  min-height: 38px;
-  padding: 8px 10px;
-}
-
-.aion-vault-simple-panel button[data-aion-phase17m-connect-gmail],
-.aion-vault-simple-panel button[data-aion-phase17k-open-gmail-oauth] {
-  min-height: 38px;
-  padding: 8px 16px;
-  width: auto;
-  white-space: nowrap;
-}
-
-.aion-vault-simple-panel details {
-  margin-top: 12px;
-}
-
-.aion-vault-simple-panel details summary {
-  cursor: pointer;
-  font-weight: 800;
-  font-size: 12px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-
-/* Hide old diagnostic cards from the normal Vault path. */
-.operations-agents-metric-grid,
-.operations-agents-two-column,
-.vault-connector-list,
-.vault-classic-scope-list,
-.vault-live-send-guard-row {
-  display: none !important;
-}
-
-/* Keep the old info available only if manually moved into an advanced details panel later. */
-[data-aion-vault-legacy-diagnostics="true"] {
-  display: none !important;
-}
-/* END PHASE 17M LOCK */
-  `;
-  document.head.appendChild(style);
-}
-
-installAionPhase17MFinalVaultUxStyles();
-
+installAionCanonicalVaultStyles();
 
 function renderVaultCredentialsSurface() {
-  const status = window.__aionGmailVaultStatus || state.gmailVaultStatus || {};
-  const gmail = status.gmail || {};
-  const gmailReady = gmail.ready === true;
+  const s =
+    typeof getAionPhase17KConnectorState === "function"
+      ? getAionPhase17KConnectorState()
+      : {};
 
-  const statusLabel = gmailReady ? "Connected" : "Missing";
-  const statusSub = gmailReady
-    ? "OAuth credentials available for Gmail read and draft preparation."
-    : "Connect Gmail before real read or draft actions can run.";
+  const connected =
+    s.auth_status === "connected" ||
+    s.connector_health === "available" ||
+    s.status === "connected";
 
-  const scopes = Array.isArray(gmail.granted_scopes) && gmail.granted_scopes.length
-    ? gmail.granted_scopes
-    : Array.isArray(gmail.required_scopes)
-      ? gmail.required_scopes
-      : [
-          "https://www.googleapis.com/auth/gmail.readonly",
-          "https://www.googleapis.com/auth/gmail.compose",
-        ];
+  const statusLabel = connected ? "Connected" : "Not connected";
+  const dotClass = connected ? "connected" : "missing";
+  const buttonLabel = connected ? "Connected" : "Connect";
+
+  if (!window.__aionVaultAutoRefreshStarted) {
+    window.__aionVaultAutoRefreshStarted = true;
+    setTimeout(() => {
+      try {
+        if (typeof refreshAionPhase17KGmailHealth === "function") {
+          refreshAionPhase17KGmailHealth();
+        }
+      } catch (_) {}
+    }, 250);
+  }
 
   return `
-    <div class="operations-agents-page vault-classic-page">
-      <div class="operations-agents-status-strip">
-        <div>Vault mode <strong>LOCAL</strong></div>
-        <div>Credential type <strong>OAUTH</strong></div>
-        <div>Live send <strong>LOCKED</strong></div>
-        <div>Permissions <strong>SCOPED</strong></div>
-        <div>Audit trail <strong>LOCAL</strong></div>
-      </div>
-
+    <div class="operations-agents-page vault-classic-page" data-aion-vault-canonical-gmail-ui="true">
       <div class="operations-agents-hero">
         <div>
-          <div class="eyebrow">Aion Business Desktop</div>
+          <div class="eyebrow">Tessaris Vault</div>
           <h1>Vault</h1>
-          <p>
-            Manage connector credentials, OAuth readiness, user scope, and guarded execution permissions.
-          </p>
+          <p>Connect apps securely with OAuth. Gmail is read-only for intake; live send remains locked.</p>
         </div>
         <div class="operations-agents-hero-meta">
-          <span>Credential Vault</span>
-          <span>Live send disabled</span>
+          <span>OAuth only</span>
+          <span>Live send locked</span>
         </div>
       </div>
 
       ${renderAppTabs()}
 
-      <section class="operations-agents-intro">
-        <div>
-          <div class="eyebrow">Credentials & Connector Access</div>
-          <h2>Connector vault</h2>
-          <p>
-            AION stores connector readiness as scoped Vault credentials. Gmail uses OAuth scopes, not raw passwords.
-          </p>
+      <section class="operations-agents-card aion-vault-canonical-panel">
+        <div class="operations-agents-card-head">
+          <div>
+            <div class="eyebrow">Connect app to Vault</div>
+            <h2>Email connector</h2>
+          </div>
+          <span class="badge">${escapeHtml(statusLabel)}</span>
         </div>
 
-        <div class="operations-agents-actions">
-          <button type="button" class="secondary-btn" data-aion-vault-refresh-gmail="true">
-            Refresh Gmail
-          </button>
+        <div class="aion-vault-canonical-row">
+          <label>
+            <span>Category</span>
+            <select data-aion-vault-category="email">
+              <option selected>Email</option>
+            </select>
+          </label>
+
+          <label>
+            <span>App</span>
+            <select data-aion-vault-app="gmail">
+              <option selected>Gmail / Google Workspace</option>
+            </select>
+          </label>
+
           <button
             type="button"
-            class="primary-btn"
-            data-aion-vault-request-live-send="true"
-            title="Live Gmail send is locked. Click to see why."
+            class="${connected ? "secondary-btn" : "primary-btn"}"
+            data-aion-phase17k-open-gmail-oauth="true"
           >
-            Enable live send
+            ${escapeHtml(buttonLabel)}
           </button>
         </div>
+
+        <div class="aion-vault-canonical-status">
+          <span class="aion-vault-dot ${dotClass}"></span>
+          <strong>Gmail</strong>
+          <span>${escapeHtml(statusLabel)}</span>
+          <small>OAuth connected through Google · read-only intake enabled · live send locked</small>
+        </div>
+
+        <details class="aion-vault-canonical-advanced">
+          <summary>Advanced</summary>
+          <div class="aion-vault-advanced-grid">
+            <div><strong>Auth:</strong> ${escapeHtml(s.auth_status || "unknown")}</div>
+            <div><strong>Health:</strong> ${escapeHtml(s.connector_health || "unknown")}</div>
+            <div><strong>Last poll:</strong> ${escapeHtml(s.poll_result?.source || s.last_poll_status || "not checked")}</div>
+            <div><strong>Latest action:</strong> ${escapeHtml(s.latest_action || "idle")}</div>
+          </div>
+          <div class="aion-vault-advanced-actions">
+            <button type="button" class="secondary-btn" data-aion-phase17k-refresh-gmail-health="true">
+              Refresh status
+            </button>
+            <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
+              Poll Gmail now
+            </button>
+          </div>
+          ${
+            s.last_error
+              ? `<p class="muted">Error: ${escapeHtml(s.last_error)}</p>`
+              : ""
+          }
+        </details>
       </section>
-
-      ${renderAionPhase17KConnectorSelector()}
-
-      <div class="operations-agents-metric-grid">
-        ${renderDashboardMetricCard("Connected", gmailReady ? "1" : "0", "Currently ready")}
-        ${renderDashboardMetricCard("Mode", "OAuth", "No raw passwords")}
-        ${renderDashboardMetricCard("Scope", "Owner", "Business/workspace/user")}
-        ${renderDashboardMetricCard("Live send", "Locked", "Future phase")}
-      </div>
-
-      <div class="operations-agents-two-column">
-        <section class="operations-agents-card">
-          <div class="operations-agents-card-head">
-            <div>
-              <div class="eyebrow">Connector credentials</div>
-              <h2>Connector status overview</h2>
-            </div>
-            <span class="badge">${escapeHtml(statusLabel)}</span>
-          </div>
-
-          <div class="vault-connector-list">
-            <div class="vault-connector-row">
-              <div>
-                <div class="vault-connector-kicker">
-                  <span>Gmail</span>
-                  <span>${escapeHtml(statusLabel)}</span>
-                  <span>Live send locked</span>
-                </div>
-                <h3>Gmail OAuth</h3>
-                <p>${escapeHtml(statusSub)}</p>
-              </div>
-              <button type="button" class="secondary-btn" data-aion-vault-refresh-gmail="true">
-                Check status
-              </button>
-            </div>
-
-            <div class="vault-connector-row vault-live-send-guard-row">
-              <div>
-                <div class="vault-connector-kicker">
-                  <span>Gmail live send</span>
-                  <span>Guarded</span>
-                  <span>Future-only</span>
-                </div>
-                <h3>Live Gmail send is locked</h3>
-                <p>
-                  AION can create Gmail drafts after approval, but it cannot send emails,
-                  reply to emails, send drafts, or delete Gmail messages in this phase.
-                  Clicking the control only records interest and explains the guard.
-                </p>
-              </div>
-              <button
-                type="button"
-                class="secondary-btn"
-                data-aion-vault-request-live-send="true"
-              >
-                Explain guard
-              </button>
-            </div>
-
-            <div class="vault-connector-row">
-              <div>
-                <div class="vault-connector-kicker">
-                  <span>HubSpot</span>
-                  <span>Missing</span>
-                </div>
-                <h3>HubSpot — planned</h3>
-                <p>Planned connector. Will use the same Vault scope and approval model.</p>
-              </div>
-            </div>
-
-            <div class="vault-connector-row">
-              <div>
-                <div class="vault-connector-kicker">
-                  <span>Mailchimp</span>
-                  <span>Missing</span>
-                </div>
-                <h3>Mailchimp — planned</h3>
-                <p>Currently represented as a missing connector placeholder in generated workflows.</p>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="operations-agents-card">
-          <div class="operations-agents-card-head">
-            <div>
-              <div class="eyebrow">Gmail scopes</div>
-              <h2>Granted / required</h2>
-            </div>
-            <span class="badge">OAuth</span>
-          </div>
-
-          <div class="vault-classic-scope-list">
-            ${scopes.map((scope) => `<code>${escapeHtml(scope)}</code>`).join("")}
-          </div>
-
-          <div class="vault-safety-note">
-            <strong>Safety lock:</strong>
-            AION can prepare connector-ready actions after approval, but live sends, draft sends,
-            deletes, and external writes remain disabled until a future live execution phase.
-          </div>
-        </section>
-      </div>
     </div>
   `;
 }
@@ -75670,6 +75229,23 @@ async function refreshAionPhase17KGmailHealth() {
 }
 
 async function openAionPhase17KGmailOAuth() {
+  const current = getAionPhase17KConnectorState();
+
+  if (
+    current.auth_status === "connected" ||
+    current.connector_health === "available" ||
+    current.status === "connected"
+  ) {
+    setAionPhase17KConnectorState({
+      latest_action: "gmail_already_connected",
+      status: "connected",
+      oauth_pending: false,
+      last_error: "",
+    });
+    if (typeof render === "function") render();
+    return { ok: true, reason: "gmail_already_connected" };
+  }
+
   setAionPhase17KConnectorState({
     latest_action: "gmail_oauth_connect",
     status: "generating_connect_url",
@@ -75693,7 +75269,7 @@ async function openAionPhase17KGmailOAuth() {
     });
 
     if (connectUrl) {
-      window.open(connectUrl, "_blank", "noopener,noreferrer");
+      window.open(connectUrl, "_blank", "popup,width=720,height=760");
     }
 
     if (typeof render === "function") render();
@@ -75772,98 +75348,6 @@ function selectAionPhase17KConnectorApp(appKey) {
     latest_action: "select_app",
   });
   if (typeof render === "function") render();
-}
-
-function renderAionPhase17KConnectorSelector() {
-  const s = getAionPhase17KConnectorState();
-  const poll = s.poll_result || {};
-
-  return `
-    <section class="operations-agents-card" data-aion-phase17k-real-vault-connector-ux="true">
-      <div class="operations-agents-card-head">
-        <div>
-          <div class="eyebrow">Real connector setup</div>
-          <h2>Connect app to Vault</h2>
-        </div>
-        <span class="badge">${escapeHtml(s.status || "not_checked")}</span>
-      </div>
-
-      <div class="aion-phase17k-selector-grid">
-        <label>
-          <span class="eyebrow">Category</span>
-          <select data-aion-phase17k-category-select="true">
-            <option value="email" ${s.selected_category === "email" ? "selected" : ""}>Email</option>
-            <option value="crm" disabled>CRM — planned</option>
-            <option value="accounting" disabled>Accounting — planned</option>
-            <option value="messaging" disabled>Messaging — planned</option>
-            <option value="payments" disabled>Payments — planned</option>
-            <option value="storage" disabled>Storage — planned</option>
-          </select>
-        </label>
-
-        <label>
-          <span class="eyebrow">App</span>
-          <select data-aion-phase17k-app-select="true">
-            <option value="gmail" selected>Gmail / Google Workspace</option>
-            <option value="hubspot" disabled>HubSpot — planned</option>
-            <option value="mailchimp" disabled>Mailchimp — planned</option>
-          </select>
-        </label>
-      </div>
-
-      <div class="operations-agents-actions aion-phase17k-actions">
-        <button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true">
-          Connect Gmail with OAuth
-        </button>
-        <button type="button" class="secondary-btn" data-aion-phase17k-refresh-gmail-health="true">
-          Refresh Gmail status
-        </button>
-        <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
-          Poll Gmail now
-        </button>
-      </div>
-
-      <div class="vault-safety-note" data-aion-phase17k-status-panel="true">
-        <strong>Gmail status:</strong>
-        ${escapeHtml(s.auth_status || "unknown")} ·
-        ${escapeHtml(s.connector_health || "unknown")} ·
-        ${escapeHtml(s.status || "not_checked")}
-        <br />
-        <strong>Latest action:</strong> ${escapeHtml(s.latest_action || "idle")}
-        <br />
-        <strong>Safety:</strong> OAuth only · no raw passwords · dry-run only · live send locked.
-        ${
-          s.connect_url
-            ? `<br /><strong>OAuth:</strong> consent URL generated. Browser should open automatically.`
-            : ""
-        }
-        ${
-          s.last_error
-            ? `<br /><strong>Error:</strong> ${escapeHtml(s.last_error)}`
-            : ""
-        }
-      </div>
-
-      ${
-        poll && s.latest_action === "gmail_poll_now"
-          ? `
-            <div class="vault-safety-note" data-aion-phase17k-poll-result="true">
-              <strong>Poll result:</strong>
-              matched ${escapeHtml(String(poll.matched ?? 0))} ·
-              skipped ${escapeHtml(String(poll.skipped ?? 0))} ·
-              deduped ${escapeHtml(String(poll.deduped ?? 0))} ·
-              runs ${escapeHtml(String((poll.runs || []).length))}
-              <br />
-              <strong>Source:</strong> ${escapeHtml(poll.source || "gmail_live_readonly")}
-              <br />
-              <strong>Dry run:</strong> ${escapeHtml(String(poll.dry_run !== false))}
-              · <strong>External writes:</strong> ${escapeHtml(String(poll.external_writes_enabled === true))}
-            </div>
-          `
-          : ""
-      }
-    </section>
-  `;
 }
 
 function installAionPhase17KDelegatedBindings() {

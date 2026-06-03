@@ -274,6 +274,7 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase17g_gmail_vault_intake_connector_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17h_functional_website_intake_actions_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17k_real_vault_gmail_ux_lock.py \
+  backend/tests/workflow_capsules/test_aion_vault_gmail_consolidated_ui_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17l_simplified_vault_connector_ui_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17m_final_vault_connect_ux_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17n_gmail_oauth_success_refresh_lock.py \
