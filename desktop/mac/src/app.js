@@ -4012,12 +4012,152 @@ function renderMarketingStreamSurface() {
   `;
 }
 
+
+
+function installAionBoardroomCompactMetricStyles() {
+  if (document.getElementById("aion-boardroom-compact-metric-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-boardroom-compact-metric-styles";
+  style.textContent = `
+/* AION BOARDROOM COMPACT METRICS LOCK */
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-business-pulse],
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-business-pulse-secondary] {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.aion-boardroom-compact-metric-card {
+  min-height: 52px;
+  padding: 9px 12px;
+  display: grid;
+  align-content: center;
+}
+
+.aion-boardroom-compact-metric-label {
+  margin-bottom: 5px;
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: .16em;
+}
+
+.aion-boardroom-compact-metric-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.aion-boardroom-compact-metric-value {
+  font-size: 21px;
+  line-height: 1;
+  letter-spacing: -.02em;
+  white-space: nowrap;
+}
+
+.aion-boardroom-compact-metric-sub {
+  font-size: 12px;
+  line-height: 1.15;
+  text-align: right;
+  color: rgba(25,25,25,.58);
+  white-space: nowrap;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-business-pulse-secondary] {
+  margin-top: 0;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence],
+.aion-boardroom-frontpage-simplified .operator-presence {
+  margin-top: 12px;
+  padding: 10px 12px;
+  min-height: unset;
+  height: auto;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence].panel,
+.aion-boardroom-frontpage-simplified .operator-presence.panel {
+  min-height: unset;
+  height: auto;
+  padding-bottom: 12px;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence]::after,
+.aion-boardroom-frontpage-simplified .operator-presence::after {
+  display: none;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence] .panel-title,
+.aion-boardroom-frontpage-simplified .operator-presence .panel-title {
+  margin-bottom: 10px;
+  font-size: 10px;
+  letter-spacing: .16em;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence] .card-grid,
+.aion-boardroom-frontpage-simplified .operator-presence .card-grid {
+  gap: 8px;
+  margin-bottom: 0;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence] .card-grid + *,
+.aion-boardroom-frontpage-simplified .operator-presence .card-grid + * {
+  display: none;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence] .card,
+.aion-boardroom-frontpage-simplified .operator-presence .card {
+  min-height: 48px;
+  padding: 9px 12px;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence] .card-label,
+.aion-boardroom-frontpage-simplified .operator-presence .card-label {
+  font-size: 10px;
+  margin-bottom: 5px;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence] .card-value,
+.aion-boardroom-frontpage-simplified .operator-presence .card-value {
+  font-size: 21px;
+  line-height: 1;
+}
+
+.aion-boardroom-frontpage-simplified [data-aion-boardroom-operator-presence] .card-sub,
+.aion-boardroom-frontpage-simplified .operator-presence .card-sub {
+  font-size: 12px;
+  line-height: 1.15;
+}
+/* END AION BOARDROOM COMPACT METRICS LOCK */
+  `;
+  document.head.appendChild(style);
+}
+
+installAionBoardroomCompactMetricStyles();
+
+function formatBoardroomEuro(value) {
+  if (value === null || value === undefined || value === "" || value === "—") return "—";
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return `€${number.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+function formatBoardroomPercent(value) {
+  if (value === null || value === undefined || value === "" || value === "—") return "—";
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return `${number.toLocaleString("en-GB", { maximumFractionDigits: 1 })}%`;
+}
+
 function renderBoardroomMetricCard(label, value, sub = "") {
   return `
-    <div class="card">
-      <div class="card-label">${escapeHtml(label)}</div>
-      <div class="card-value">${escapeHtml(value)}</div>
-      <div class="card-sub">${escapeHtml(sub)}</div>
+    <div class="card aion-boardroom-compact-metric-card">
+      <div class="card-label aion-boardroom-compact-metric-label">${escapeHtml(label)}</div>
+      <div class="aion-boardroom-compact-metric-line">
+        <span class="card-value aion-boardroom-compact-metric-value">${escapeHtml(value)}</span>
+        ${sub ? `<span class="card-sub aion-boardroom-compact-metric-sub">${escapeHtml(sub)}</span>` : ""}
+      </div>
     </div>
   `;
 }
@@ -4108,7 +4248,7 @@ function renderBoardroomOperatorPresence() {
   const pendingApprovals = approvals.filter((item) => item?.status === "pending").length;
 
   return `
-    <div class="panel large-panel">
+    <div class="panel operator-presence" data-aion-boardroom-operator-presence="true">
       <div class="panel-title">Operator Presence</div>
       <div class="card-grid">
         ${renderBoardroomMetricCard("Active runs", running, "Currently executing")}
@@ -6587,12 +6727,12 @@ function renderBoardroomDashboardView(snapshot) {
         )}
         ${renderBoardroomMetricCard(
           "Cash",
-          cash.onHand ?? cash.on_hand ?? center.cash ?? "—",
+          formatBoardroomEuro(cash.onHand ?? cash.on_hand ?? center.cash ?? "—"),
           `Runway ${cash.runwayDays ?? cash.runway_days ?? "—"}d`,
         )}
         ${renderBoardroomMetricCard(
           "Revenue",
-          sales.revenue ?? center.revenue ?? "—",
+          formatBoardroomEuro(sales.revenue ?? center.revenue ?? "—"),
           `Orders ${sales.orders ?? "—"} · Conv ${sales.conversionRate ?? sales.conversion_rate ?? "—"}%`,
         )}
         ${renderBoardroomMetricCard(
@@ -6610,7 +6750,7 @@ function renderBoardroomDashboardView(snapshot) {
         )}
         ${renderBoardroomMetricCard(
           "Gross Margin",
-          finance.grossMarginPct ?? finance.gross_margin_pct ?? "—",
+          formatBoardroomPercent(finance.grossMarginPct ?? finance.gross_margin_pct ?? "—"),
           "Finance pulse",
         )}
         ${renderBoardroomMetricCard(
@@ -6627,7 +6767,8 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderBoardroomOperatorPresence()}
 
-      ${renderAionPhase17EBoardroomTicketCard()}
+      <!-- Phase 17U: founder demo visible output removed from Boardroom main flow; A2A ticket now renders via Phase 18 -->
+      <!-- Phase 17U: old standalone Phase 17E ticket card removed; use Website Enquiries Feed expansion only -->
         ${renderAionWebsiteIntakeInstallationPanel()}
         ${renderBoardroomFounderDemoLoopPanel(snapshot)}
 
@@ -7588,49 +7729,169 @@ function installAionCanonicalVaultStyles() {
 
 installAionCanonicalVaultStyles();
 
+
+function installAionPhase17PFinalVaultLayoutStyles() {
+  if (document.getElementById("aion-phase17p-final-vault-layout-style")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-phase17p-final-vault-layout-style";
+  style.textContent = `
+/* PHASE 17P LOCK: final Vault Gmail connector layout */
+.aion-vault-canonical-page .operations-agents-status-strip,
+.aion-vault-canonical-page .operations-agents-intro,
+.aion-vault-canonical-page .operations-agents-metric-grid,
+.aion-vault-canonical-page .operations-agents-two-column,
+.aion-vault-canonical-page .vault-connector-list,
+.aion-vault-canonical-page .vault-classic-scope-list,
+.aion-vault-canonical-page .vault-safety-note {
+  display: none !important;
+}
+
+.aion-vault-canonical-panel {
+  margin-top: 22px;
+}
+
+.aion-vault-canonical-connect-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 290px) minmax(260px, 420px) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 16px;
+}
+
+.aion-vault-canonical-connect-row label {
+  display: grid;
+  gap: 6px;
+}
+
+.aion-vault-canonical-connect-row select {
+  min-height: 42px;
+  padding: 8px 12px;
+  border: 1px solid rgba(25,25,25,.22);
+  background: rgba(255,255,255,.55);
+  font: inherit;
+}
+
+.aion-vault-canonical-status-row {
+  display: grid;
+  grid-template-columns: 12px auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.48);
+}
+
+.aion-vault-canonical-status-row small {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aion-vault-status-dot {
+  width: 9px;
+  height: 9px;
+  display: inline-block;
+  border-radius: 999px;
+  background: #d97706;
+}
+
+.aion-vault-status-dot.is-connected {
+  background: #16a34a;
+}
+
+.aion-vault-enable-live-btn,
+.aion-vault-connect-now-btn {
+  min-height: 34px;
+  padding: 7px 14px;
+  white-space: nowrap;
+}
+
+.aion-vault-advanced-details {
+  margin-top: 24px;
+}
+
+.aion-vault-advanced-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+/* END PHASE 17P LOCK */
+
+/* PHASE 17Q LOCK: Vault connect button click + compact width */
+.aion-vault-canonical-connect-row {
+  grid-template-columns: minmax(180px, 290px) minmax(260px, 420px) max-content !important;
+}
+
+.aion-vault-connect-now-btn {
+  width: auto !important;
+  min-width: 132px !important;
+  max-width: 170px !important;
+  justify-self: start !important;
+  padding: 10px 18px !important;
+}
+
+.aion-vault-enable-live-btn {
+  width: auto !important;
+  min-width: 110px !important;
+  max-width: 140px !important;
+}
+/* END PHASE 17Q LOCK */
+
+  `;
+  document.head.appendChild(style);
+}
+
+installAionPhase17PFinalVaultLayoutStyles();
+
 function renderVaultCredentialsSurface() {
-  const s =
-    typeof getAionPhase17KConnectorState === "function"
-      ? getAionPhase17KConnectorState()
-      : {};
+  const status = window.__aionGmailVaultStatus || state.gmailVaultStatus || {};
+  const gmailVault = status.gmail || {};
+  const live = window.__aionGmailHealth || window.__aionPhase17KGmailHealth || state.phase17kGmailHealth || {};
+  const s = typeof getAionPhase17KConnectorState === "function" ? getAionPhase17KConnectorState() : {};
 
   const connected =
+    live.auth_status === "connected" ||
+    live.connector_health === "available" ||
+    gmailVault.ready === true ||
+    gmailVault.status === "connected" ||
     s.auth_status === "connected" ||
-    s.connector_health === "available" ||
-    s.status === "connected";
+    s.connector_health === "available";
+
+  const account =
+    live.email ||
+    live.account_email ||
+    live.user_email ||
+    live.account ||
+    live.account_label ||
+    gmailVault.email ||
+    gmailVault.account_email ||
+    gmailVault.user_email ||
+    gmailVault.account ||
+    gmailVault.account_label ||
+    s.email ||
+    s.account_email ||
+    s.account ||
+    s.account_label ||
+    "Gmail account";
 
   const statusLabel = connected ? "Connected" : "Not connected";
-  const dotClass = connected ? "connected" : "missing";
-  const buttonLabel = connected ? "Connected" : "Connect";
-
-  if (!window.__aionVaultAutoRefreshStarted) {
-    window.__aionVaultAutoRefreshStarted = true;
-    setTimeout(() => {
-      try {
-        if (typeof refreshAionPhase17KGmailHealth === "function") {
-          refreshAionPhase17KGmailHealth();
-        }
-      } catch (_) {}
-    }, 250);
-  }
+  const dotClass = connected ? "is-connected" : "is-missing";
 
   return `
-    <div class="operations-agents-page vault-classic-page" data-aion-vault-canonical-gmail-ui="true">
-      <div class="operations-agents-hero">
+    <div class="operations-agents-page vault-classic-page aion-vault-canonical-page">
+      <div class="operations-agents-hero aion-vault-canonical-hero">
         <div>
           <div class="eyebrow">Tessaris Vault</div>
           <h1>Vault</h1>
-          <p>Connect apps securely with OAuth. Gmail is read-only for intake; live send remains locked.</p>
-        </div>
-        <div class="operations-agents-hero-meta">
-          <span>OAuth only</span>
-          <span>Live send locked</span>
         </div>
       </div>
 
       ${renderAppTabs()}
 
-      <section class="operations-agents-card aion-vault-canonical-panel">
+      <section class="operations-agents-card aion-vault-canonical-panel" data-aion-vault-canonical="true" data-aion-vault-canonical-gmail-ui="true">
         <div class="operations-agents-card-head">
           <div>
             <div class="eyebrow">Connect app to Vault</div>
@@ -7639,58 +7900,78 @@ function renderVaultCredentialsSurface() {
           <span class="badge">${escapeHtml(statusLabel)}</span>
         </div>
 
-        <div class="aion-vault-canonical-row">
+        <div class="aion-vault-canonical-connect-row">
           <label>
-            <span>Category</span>
-            <select data-aion-vault-category="email">
-              <option selected>Email</option>
+            <span class="eyebrow">Category</span>
+            <select data-aion-phase17k-category-select="true">
+              <option value="email" selected>Email</option>
             </select>
           </label>
 
           <label>
-            <span>App</span>
-            <select data-aion-vault-app="gmail">
-              <option selected>Gmail / Google Workspace</option>
+            <span class="eyebrow">App</span>
+            <select data-aion-phase17k-app-select="true">
+              <option value="gmail" selected>Gmail / Google Workspace</option>
             </select>
           </label>
 
-          <button
-            type="button"
-            class="${connected ? "secondary-btn" : "primary-btn"}"
-            data-aion-phase17k-open-gmail-oauth="true"
-          >
-            ${escapeHtml(buttonLabel)}
-          </button>
+          ${
+            connected
+              ? ""
+              : `<button
+                  type="button"
+                  class="primary-btn aion-vault-connect-now-btn"
+                  data-aion-phase17k-open-gmail-oauth="true"
+                  onclick="openAionPhase17KGmailOAuth()"
+                >
+                  Connect now
+                </button>`
+          }
         </div>
 
-        <div class="aion-vault-canonical-status">
-          <span class="aion-vault-dot ${dotClass}"></span>
+        <div class="aion-vault-canonical-status-row" data-aion-vault-gmail-status-row="true">
+          <span class="aion-vault-status-dot ${dotClass}"></span>
           <strong>Gmail</strong>
           <span>${escapeHtml(statusLabel)}</span>
-          <small>OAuth connected through Google · read-only intake enabled · live send locked</small>
+          <small>
+            ${
+              connected
+                ? `${escapeHtml(account)} · OAuth connected through Google · read-only intake enabled · live send locked.`
+                : "Connect Gmail with OAuth to enable read-only intake."
+            }
+          </small>
+          ${
+            connected
+              ? `<button type="button" class="secondary-btn aion-vault-enable-live-btn" data-aion-vault-request-live-send="true">
+                  Enable live
+                </button>`
+              : ""
+          }
         </div>
 
-        <details class="aion-vault-canonical-advanced">
+        <details class="aion-vault-advanced-details">
           <summary>Advanced</summary>
           <div class="aion-vault-advanced-grid">
-            <div><strong>Auth:</strong> ${escapeHtml(s.auth_status || "unknown")}</div>
-            <div><strong>Health:</strong> ${escapeHtml(s.connector_health || "unknown")}</div>
-            <div><strong>Last poll:</strong> ${escapeHtml(s.poll_result?.source || s.last_poll_status || "not checked")}</div>
-            <div><strong>Latest action:</strong> ${escapeHtml(s.latest_action || "idle")}</div>
+            <div><strong>Auth:</strong> ${escapeHtml(live.auth_status || s.auth_status || gmailVault.status || "unknown")}</div>
+            <div><strong>Health:</strong> ${escapeHtml(live.connector_health || s.connector_health || "unknown")}</div>
+            <div><strong>Last poll:</strong> ${escapeHtml(live.last_poll_status || s.last_poll_status || "not checked")}</div>
+            <div><strong>External writes:</strong> ${escapeHtml(String(live.external_writes_enabled === true))}</div>
           </div>
           <div class="aion-vault-advanced-actions">
             <button type="button" class="secondary-btn" data-aion-phase17k-refresh-gmail-health="true">
               Refresh status
             </button>
             <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
-              Poll Gmail now
+              Poll now
             </button>
+            ${
+              connected
+                ? `<button type="button" class="secondary-btn" data-aion-phase17k-open-gmail-oauth="true">
+                    Reconnect Gmail
+                  </button>`
+                : ""
+            }
           </div>
-          ${
-            s.last_error
-              ? `<p class="muted">Error: ${escapeHtml(s.last_error)}</p>`
-              : ""
-          }
         </details>
       </section>
     </div>
@@ -74200,98 +74481,434 @@ function renderBoardroomFounderDemoSafetyStrip(guards = {}) {
   `;
 }
 
-function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
-  const state = getAionFounderDemoLoopState();
 
-  const steps = [
-    ["website_widget_request", "Website/widget request"],
-    ["public_intent_gateway", "Public Intent Gateway"],
-    ["guard_envelope", "Guard Envelope"],
-    ["agentmap_route", "AgentMap route"],
-    ["machine_cart_quote_preview", "Machine Cart quote preview"],
-    ["human_review_handoff", "Human Review handoff"],
-    ["founder_decision_preview", "Founder decision preview"],
-    ["fulfilment_job_preview", "FulfilmentJob preview"],
-    ["evidence_preview", "Evidence preview"],
-    ["proof_receipt", "Proof receipt"],
-    ["ets_preview", "ETS preview"],
-    ["boardroom_replay", "Boardroom replay"],
+/* PHASE 18 LOCK: Universal A2A Commercial Ticket model */
+
+function getAionPhase18CommercialRoutes() {
+  return [
+    {
+      route_type: "hourly_service",
+      label: "Hourly service / callout",
+      pricing_model: "first_hour_plus_hourly",
+      summary: "Sell time: first hour/callout plus approved extra hours.",
+      example: "Plumber callout: first hour agreed, extra hours billed at agreed rate.",
+      requires_calendar: true,
+      requires_human_review: true,
+      requires_payment: true,
+      requires_escrow: false,
+      requires_proposal: false,
+    },
+    {
+      route_type: "discovery_session",
+      label: "Discovery / assessment visit",
+      pricing_model: "free_or_paid_discovery",
+      summary: "Inspect or scope first, then prepare quotation/proposal.",
+      example: "Roofer visits site before creating a quote.",
+      requires_calendar: true,
+      requires_human_review: true,
+      requires_payment: false,
+      requires_escrow: false,
+      requires_proposal: true,
+    },
+    {
+      route_type: "custom_quote",
+      label: "Custom quote / proposal",
+      pricing_model: "quote_required",
+      summary: "Project work where price depends on scope.",
+      example: "Design agency, builder, repair work, B2B service proposal.",
+      requires_calendar: false,
+      requires_human_review: true,
+      requires_payment: false,
+      requires_escrow: true,
+      requires_proposal: true,
+    },
+    {
+      route_type: "fixed_product",
+      label: "Fixed product / item",
+      pricing_model: "fixed_price",
+      summary: "Physical or digital product with known price and availability.",
+      example: "Check stock, confirm price, prepare order preview.",
+      requires_calendar: false,
+      requires_human_review: false,
+      requires_payment: true,
+      requires_escrow: false,
+      requires_proposal: false,
+    },
+    {
+      route_type: "metered_work",
+      label: "Metered / additional billed work",
+      pricing_model: "usage_based",
+      summary: "Minimum agreed, then extra time/materials approved under rules.",
+      example: "First hour booked, plumber stays 5 extra hours at agreed rate.",
+      requires_calendar: true,
+      requires_human_review: true,
+      requires_payment: true,
+      requires_escrow: true,
+      requires_proposal: false,
+    },
   ];
+}
 
-  const safety = [
-    "No booking created",
-    "No payment created",
-    "No escrow created",
-    "No external message sent",
-    "No live chain write",
-    "Human review required",
-    state.proofLabel || "Replay/hash proof available",
+function getAionPhase18TicketState() {
+  window.__aionPhase18TicketState = window.__aionPhase18TicketState || {
+    selected_route_type: "discovery_session",
+    selected_step: "commercial_route_selected",
+    latest_action: "ready",
+  };
+  return window.__aionPhase18TicketState;
+}
+
+function setAionPhase18TicketState(patch = {}) {
+  window.__aionPhase18TicketState = {
+    ...getAionPhase18TicketState(),
+    ...(patch || {}),
+    updated_at: new Date().toISOString(),
+  };
+  try { requestRender?.(); } catch (_) { try { render?.(); } catch (_) {} }
+  return window.__aionPhase18TicketState;
+}
+
+function selectAionPhase18CommercialRoute(routeType) {
+  return setAionPhase18TicketState({
+    selected_route_type: routeType || "discovery_session",
+    latest_action: "route_selected",
+  });
+}
+
+function selectAionPhase18TicketStep(stepKey) {
+  return setAionPhase18TicketState({
+    selected_step: stepKey || "commercial_route_selected",
+    latest_action: "step_selected",
+  });
+}
+
+function getAionPhase18SelectedRoute() {
+  const state18 = getAionPhase18TicketState();
+  return (
+    getAionPhase18CommercialRoutes().find((route) => route.route_type === state18.selected_route_type) ||
+    getAionPhase18CommercialRoutes()[0]
+  );
+}
+
+function getAionPhase18CommercialTicket() {
+  const route = getAionPhase18SelectedRoute();
+
+  return {
+    ticket_id: "A2A-HF-001",
+    title: "Home Fixed roof/pergola enquiry",
+    customer_agent: "Customer-side agent",
+    business_agent: "AION Home Fixed agent",
+    customer: "Website customer",
+    request: "Water is coming through near the pergola roof/wall after rain.",
+    service: "Roof / pergola assessment",
+    location: "Arboleas, Almería",
+    urgency: "Medium / rain-related",
+    source: "Website / A2A portal",
+    route,
+    calendar: {
+      resource_model: "single_engineer_now_multi_engineer_ready_later",
+      resource_type: "roofer / general builder",
+      requested_slot: "Tomorrow 11:30",
+      available_slot: "Tomorrow 13:30",
+      status: route.requires_calendar ? "availability_preview" : "not_required",
+      live_booking_created: false,
+    },
+    commercial_preview: {
+      route_label: route.label,
+      pricing_model: route.pricing_model,
+      first_hour: route.route_type === "hourly_service" ? "€65.00 first hour" : "Not applicable",
+      additional_hour: route.route_type === "hourly_service" || route.route_type === "metered_work" ? "€45.00/hour after approval" : "Not applicable",
+      discovery: route.route_type === "discovery_session" ? "Site visit / assessment required before quote" : "Not required",
+      proposal: route.requires_proposal ? "Proposal or quotation required before final price" : "Not required",
+      escrow: route.requires_escrow ? "Escrow can be prepared in future live phase" : "Not required for this route",
+    },
+    guards: {
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+      human_review_required: true,
+      preview_only: true,
+    },
+  };
+}
+
+function getAionPhase18TimelineSteps() {
+  return [
+    ["request_received", "Request received"],
+    ["intent_classified", "Intent classified"],
+    ["business_rules_loaded", "Business rules loaded"],
+    ["commercial_route_selected", "Commercial route selected"],
+    ["availability_scope_checked", "Availability / scope checked"],
+    ["proposal_prepared", "Proposal prepared"],
+    ["customer_agent_pending", "Customer agent reply pending"],
+    ["human_approval_required", "Human approval required"],
+    ["proof_receipt_prepared", "Proof receipt prepared"],
+    ["replay_available", "Replay available"],
   ];
+}
 
-  const sideEffectGuards = state.sideEffectGuards || {
-    booking_created: false,
-    payment_created: false,
-    escrow_created: false,
-    external_message_sent: false,
-    live_chain_write: false,
-    live_execution_allowed: false,
-    human_review_required: true,
-    replay_hash_available: true,
+function getAionPhase18StepCopy(stepKey) {
+  const ticket = getAionPhase18CommercialTicket();
+  const route = ticket.route || {};
+
+  const copy = {
+    request_received: "An external agent or website visitor has asked for a business outcome.",
+    intent_classified: "AION classifies the request as service, product, discovery, quote, or metered work.",
+    business_rules_loaded: "AION loads business rules, rate cards, calendar policy, and human-review rules.",
+    commercial_route_selected: `Selected route: ${route.label}. Pricing model: ${route.pricing_model}.`,
+    availability_scope_checked: route.requires_calendar
+      ? "AION checks calendar/resource availability and proposes safe slots without creating a live booking."
+      : "AION checks stock, scope, or business readiness. Calendar is not required for this route.",
+    proposal_prepared: route.route_type === "discovery_session"
+      ? "AION prepares a site visit / assessment proposal, not a fake final quote."
+      : route.route_type === "hourly_service"
+        ? "AION prepares a first-hour callout proposal plus additional hourly-rate rules."
+        : "AION prepares the correct proposal/order preview for the selected commercial route.",
+    customer_agent_pending: "The customer-side agent can accept, reject, ask for alternatives, or negotiate within the allowed rules.",
+    human_approval_required: "Human review is required before any live booking, payment, escrow, external message, or chain write.",
+    proof_receipt_prepared: "AION prepares a proof receipt for the preview path and guard decisions.",
+    replay_available: "The whole A2A negotiation path can be replayed from deterministic ticket evidence.",
   };
 
+  return copy[stepKey] || copy.commercial_route_selected;
+}
+
+function renderAionPhase18CommercialTicketPanel() {
+  const state18 = getAionPhase18TicketState();
+  const ticket = getAionPhase18CommercialTicket();
+  const route = ticket.route || {};
+  const preview = ticket.commercial_preview || {};
+  const calendar = ticket.calendar || {};
+  const steps = getAionPhase18TimelineSteps();
+
   return `
-    <section class="panel large-panel aion-founder-demo-loop-panel aion-phase16f-founder-hero aion-phase16e-founder-demo-actions" data-aion-founder-demo-loop-panel="true" data-aion-phase16e-founder-demo-actions="true">
-      <div class="aion-founder-hero-head">
+    <section class="panel large-panel aion-phase18-a2a-ticket" data-aion-phase18-a2a-commercial-ticket="true">
+      <div class="panel-header">
         <div>
-          <div class="eyebrow">Founder Demo Loop</div>
-          <h2>Home Fixed Website → A2A → Proof Replay</h2>
-          <p>
-            One clean repeatable proof path from website/widget request to guarded quote preview,
-            human review, fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
-          </p>
+          <div class="panel-kicker">A2A commercial ticket</div>
+          <h2>A2A Job / Order Ticket</h2>
+          <p class="muted">Universal route for products, hourly work, discovery visits, quotes, proposals, metered work, and escrow-ready contracts.</p>
         </div>
-        <div class="aion-founder-hero-status" data-founder-demo-status="true" data-aion-founder-demo-active-state="true">
-          <span>Current state</span>
-          <strong>${escapeHtml(state.statusLabel || "Ready for founder preview")}</strong>
-          <small>${escapeHtml(state.lastAction || "idle")}</small>
+        <div class="status-pill">Preview only</div>
+      </div>
+
+      <div class="aion-phase18-ticket-summary">
+        <div><span class="eyebrow">Ticket</span><strong>${escapeHtml(ticket.ticket_id)}</strong></div>
+        <div><span class="eyebrow">Request</span><strong>${escapeHtml(ticket.service)}</strong></div>
+        <div><span class="eyebrow">Route</span><strong>${escapeHtml(route.route_type)}</strong></div>
+        <div><span class="eyebrow">Pricing</span><strong>${escapeHtml(route.pricing_model)}</strong></div>
+      </div>
+
+      <div class="aion-phase18-route-row">
+        <label>
+          <span class="eyebrow">Commercial route</span>
+          <select data-aion-phase18-route-select="true" onchange="selectAionPhase18CommercialRoute(this.value)">
+            ${getAionPhase18CommercialRoutes().map((option) => `
+              <option value="${escapeHtml(option.route_type)}" ${option.route_type === route.route_type ? "selected" : ""}>${escapeHtml(option.label)}</option>
+            `).join("")}
+          </select>
+        </label>
+
+        <div class="aion-phase18-route-copy">
+          <strong>${escapeHtml(route.label)}</strong>
+          <span>${escapeHtml(route.summary)}</span>
         </div>
       </div>
 
-      <div class="aion-founder-demo-active-state" data-aion-founder-demo-active-state="true">
-        <strong>Current step:</strong>
-        <span>${escapeHtml(state.activeStep || "website_widget_request")}</span>
-        <small>${escapeHtml(state.proofLabel || "Replay/hash proof available")}</small>
+      <div class="aion-phase18-timeline">
+        ${steps.map(([key, label], index) => `
+          <button type="button" class="${state18.selected_step === key ? "is-active" : ""}" onclick="selectAionPhase18TicketStep('${escapeHtml(key)}')">
+            <span>${index + 1}</span>${escapeHtml(label)}
+          </button>
+        `).join("")}
       </div>
 
-      <div class="aion-founder-action-row" data-founder-demo-actions="true" data-aion-phase16e-founder-demo-actions="true">
-        <button type="button" data-founder-demo-action="run_preview" onclick="handleBoardroomFounderDemoPreviewAction('run_preview')">Run Home Fixed preview</button>
-        <button type="button" data-founder-demo-action="open_human_review" onclick="handleBoardroomFounderDemoPreviewAction('open_human_review')">Open human review</button>
-        <button type="button" data-founder-demo-action="view_proof_receipt" onclick="handleBoardroomFounderDemoPreviewAction('view_proof_receipt')">View proof receipt</button>
-        <button type="button" data-founder-demo-action="replay_trace" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay boardroom trace</button>
+      <div class="aion-phase18-step-card">
+        <div class="eyebrow">Selected step</div>
+        <h3>${escapeHtml(steps.find(([key]) => key === state18.selected_step)?.[1] || "Commercial route selected")}</h3>
+        <p>${escapeHtml(getAionPhase18StepCopy(state18.selected_step))}</p>
       </div>
 
-      <div class="aion-founder-step-grid" data-founder-demo-step-grid="true">
-        ${steps.map(([key, label]) => renderAionFounderDemoStepButton(key, label, state)).join("")}
+      <div class="aion-phase18-proposal-grid">
+        <div class="aion-phase18-proposal-card">
+          <div class="eyebrow">Commercial proposal</div>
+          <h3>${escapeHtml(preview.route_label)}</h3>
+          <div class="aion-phase18-facts">
+            <span><strong>First hour:</strong> ${escapeHtml(preview.first_hour)}</span>
+            <span><strong>Additional:</strong> ${escapeHtml(preview.additional_hour)}</span>
+            <span><strong>Discovery:</strong> ${escapeHtml(preview.discovery)}</span>
+            <span><strong>Proposal:</strong> ${escapeHtml(preview.proposal)}</span>
+            <span><strong>Escrow:</strong> ${escapeHtml(preview.escrow)}</span>
+          </div>
+        </div>
+
+        <div class="aion-phase18-proposal-card">
+          <div class="eyebrow">Availability preview</div>
+          <h3>${escapeHtml(calendar.status)}</h3>
+          <div class="aion-phase18-facts">
+            <span><strong>Resource model:</strong> ${escapeHtml(calendar.resource_model)}</span>
+            <span><strong>Resource:</strong> ${escapeHtml(calendar.resource_type)}</span>
+            <span><strong>Requested:</strong> ${escapeHtml(calendar.requested_slot)}</span>
+            <span><strong>Available:</strong> ${escapeHtml(calendar.available_slot)}</span>
+            <span><strong>Live booking:</strong> false</span>
+          </div>
+        </div>
       </div>
 
-      <div class="aion-founder-safety-grid" data-founder-demo-safety-grid="true">
-        ${safety.map((label) => `<span>${escapeHtml(label)}</span>`).join("")}
+      <div class="aion-founder-single-guard-strip">
+        Preview mode · No booking · No payment · No escrow · No external message · No live chain write · Human review required
       </div>
 
-      ${renderBoardroomFounderDemoSafetyStrip(sideEffectGuards)}
-
-      ${renderAionFounderDemoTicketRunPanel()}
-
-      ${renderAionFounderDemoTicketStepArtifactPanel(state)}
-
-      ${renderAionFounderDemoVisibleOutputPanel(state)}
-
-      <div class="aion-founder-proof-line" data-aion-founder-demo-proof-hash="true">
-        <strong>Preview mode:</strong>
-        <span>No booking, payment, escrow, external message, or live chain write can be created from this panel.</span>
-      </div>
+      <details class="aion-phase18-advanced">
+        <summary>Advanced technical trace</summary>
+        <pre>{
+  "ticket_id": "${escapeHtml(ticket.ticket_id)}",
+  "route_type": "${escapeHtml(route.route_type)}",
+  "pricing_model": "${escapeHtml(route.pricing_model)}",
+  "requires_calendar": ${String(route.requires_calendar === true)},
+  "booking_created": false,
+  "payment_created": false,
+  "escrow_created": false,
+  "external_message_sent": false,
+  "live_chain_write": false
+}</pre>
+      </details>
     </section>
   `;
+}
+
+window.selectAionPhase18CommercialRoute = selectAionPhase18CommercialRoute;
+window.selectAionPhase18TicketStep = selectAionPhase18TicketStep;
+
+/* END PHASE 18 LOCK */
+
+
+function installAionPhase18A2ATicketStyles() {
+  if (document.getElementById("aion-phase18-a2a-ticket-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-phase18-a2a-ticket-styles";
+  style.textContent = `
+/* PHASE 18 A2A COMMERCIAL TICKET UI LOCK */
+.aion-phase18-a2a-ticket { margin-top: 18px; }
+
+.aion-phase18-ticket-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.aion-phase18-ticket-summary > div,
+.aion-phase18-step-card,
+.aion-phase18-proposal-card,
+.aion-phase18-route-copy {
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.46);
+  padding: 13px 14px;
+}
+
+.aion-phase18-ticket-summary strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 16px;
+}
+
+.aion-phase18-route-row {
+  display: grid;
+  grid-template-columns: minmax(240px, 360px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: stretch;
+  margin: 14px 0;
+}
+
+.aion-phase18-route-row label {
+  display: grid;
+  gap: 6px;
+}
+
+.aion-phase18-route-row select {
+  min-height: 42px;
+  border: 1px solid rgba(25,25,25,.22);
+  background: rgba(255,255,255,.58);
+  padding: 8px 12px;
+  font: inherit;
+}
+
+.aion-phase18-route-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.aion-phase18-route-copy span,
+.aion-phase18-step-card p {
+  color: rgba(25,25,25,.68);
+}
+
+.aion-phase18-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.aion-phase18-timeline button {
+  border: 1px solid rgba(25,25,25,.18);
+  background: rgba(255,255,255,.55);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.aion-phase18-timeline button.is-active {
+  background: #1398a6;
+  color: white;
+  border-color: #1398a6;
+}
+
+.aion-phase18-proposal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.aion-phase18-facts {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+.aion-phase18-advanced {
+  margin-top: 14px;
+}
+
+.aion-phase18-advanced summary {
+  cursor: pointer;
+  font-weight: 900;
+}
+
+.aion-phase18-advanced pre {
+  white-space: pre-wrap;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.5);
+  padding: 12px;
+}
+/* END PHASE 18 A2A COMMERCIAL TICKET UI LOCK */
+  `;
+  document.head.appendChild(style);
+}
+
+installAionPhase18A2ATicketStyles();
+
+
+
+function renderBoardroomFounderDemoLoopPanel(snapshot = {}) {
+  return renderAionPhase18CommercialTicketPanel();
 }
 
 /* END PHASE 16F LOCK */
@@ -74418,7 +75035,7 @@ function renderAionFounderDemoVisibleOutputPanel(state = {}) {
         <span class="status-pill">${escapeHtml(output.status)}</span>
       </div>
 
-      ${showHomeFixedIntakeQuote ? renderAionHomeFixedIntakeQuotePreview() : ""}
+      "" /* Phase 17U: old standalone dummy enquiry card removed; enquiries now expand inside Website Enquiries Feed */
 
       <div class="aion-founder-visible-output-grid">
         ${safeArray(output.rows).map(([label, value]) => `
@@ -75119,6 +75736,9 @@ function renderAionBusinessWebsiteIntakeInstallationPanel() {
   `;
 }
 
+
+
+
 /* END PHASE 17F LOCK */
 
 
@@ -75229,22 +75849,69 @@ async function refreshAionPhase17KGmailHealth() {
 }
 
 async function openAionPhase17KGmailOAuth() {
-  const current = getAionPhase17KConnectorState();
+  /*
+  PHASE 17R LOCK: OAuth connect is guarded.
+  - Do not reopen Google if Gmail is already connected.
+  - After opening OAuth, poll local-node health until connected.
+  - Render Vault when health becomes connected.
+  */
+  async function pollGmailConnectedAfterOAuth() {
+    const maxAttempts = 24;
 
-  if (
-    current.auth_status === "connected" ||
-    current.connector_health === "available" ||
-    current.status === "connected"
-  ) {
-    setAionPhase17KConnectorState({
-      latest_action: "gmail_already_connected",
-      status: "connected",
-      oauth_pending: false,
-      last_error: "",
-    });
-    if (typeof render === "function") render();
-    return { ok: true, reason: "gmail_already_connected" };
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+      await new Promise((resolve) => setTimeout(resolve, attempt === 0 ? 800 : 1500));
+
+      const mapped = await refreshAionPhase17KGmailHealth();
+      const isConnected =
+        mapped?.connected === true ||
+        mapped?.auth_status === "connected" ||
+        mapped?.connector_health === "available";
+
+      if (isConnected) {
+        setAionPhase17KConnectorState({
+          latest_action: "gmail_oauth_connected",
+          status: "connected",
+          auth_status: "connected",
+          connector_health: mapped.connector_health || "available",
+          oauth_pending: false,
+          last_error: "",
+        });
+
+        window.__aionGmailOAuthReady = true;
+        window.__aionGmailHealth = mapped;
+
+        try { render?.(); } catch (_) {}
+        return mapped;
+      }
+    }
+
+    return null;
   }
+
+  try {
+    const existing = await refreshAionPhase17KGmailHealth();
+    const alreadyConnected =
+      existing?.connected === true ||
+      existing?.auth_status === "connected" ||
+      existing?.connector_health === "available";
+
+    if (alreadyConnected) {
+      setAionPhase17KConnectorState({
+        latest_action: "gmail_already_connected",
+        status: "connected",
+        auth_status: "connected",
+        connector_health: existing.connector_health || "available",
+        oauth_pending: false,
+        last_error: "",
+      });
+
+      window.__aionGmailOAuthReady = true;
+      window.__aionGmailHealth = existing;
+
+      try { render?.(); } catch (_) {}
+      return { ok: true, reason: "gmail_already_connected", connector: existing };
+    }
+  } catch (_) {}
 
   setAionPhase17KConnectorState({
     latest_action: "gmail_oauth_connect",
@@ -75264,15 +75931,17 @@ async function openAionPhase17KGmailOAuth() {
       auth_status: payload.connector?.auth_status || "connect_url_generated",
       connector_health: payload.connector?.connector_health || "not_connected",
       connect_url: connectUrl,
-      oauth_pending: true,
+      oauth_pending: Boolean(connectUrl),
       last_error: connectUrl ? "" : "Backend did not return connect_url",
     });
 
+    if (typeof render === "function") render();
+
     if (connectUrl) {
-      window.open(connectUrl, "_blank", "popup,width=720,height=760");
+      window.open(connectUrl, "_blank");
+      pollGmailConnectedAfterOAuth();
     }
 
-    if (typeof render === "function") render();
     return payload;
   } catch (error) {
     setAionPhase17KConnectorState({
@@ -75281,6 +75950,7 @@ async function openAionPhase17KGmailOAuth() {
       last_error: String(error?.message || error || "Gmail OAuth connect failed"),
       oauth_pending: false,
     });
+
     if (typeof render === "function") render();
     return { ok: false, error: String(error?.message || error) };
   }
@@ -75400,6 +76070,50 @@ window.installAionPhase17KDelegatedBindings = installAionPhase17KDelegatedBindin
 installAionPhase17KDelegatedBindings();
 
 console.log("[AION] Phase 17K real Vault Gmail connector UX installed");
+
+
+
+
+/* PHASE 17R LOCK: refresh Gmail health on app focus, never reopen OAuth */
+(function installAionPhase17RFocusRefreshOnly() {
+  if (window.__aionPhase17RFocusRefreshOnlyInstalled) return;
+  window.__aionPhase17RFocusRefreshOnlyInstalled = true;
+
+  window.addEventListener("focus", function refreshGmailAfterOAuthWindowFocus() {
+    try {
+      const s = typeof getAionPhase17KConnectorState === "function"
+        ? getAionPhase17KConnectorState()
+        : {};
+
+      if (
+        s.oauth_pending === true ||
+        s.latest_action === "gmail_oauth_connect" ||
+        s.status === "consent_pending" ||
+        s.status === "not_checked"
+      ) {
+        refreshAionPhase17KGmailHealth().then((mapped) => {
+          if (
+            mapped?.connected === true ||
+            mapped?.auth_status === "connected" ||
+            mapped?.connector_health === "available"
+          ) {
+            setAionPhase17KConnectorState({
+              latest_action: "gmail_oauth_connected",
+              status: "connected",
+              auth_status: "connected",
+              connector_health: mapped.connector_health || "available",
+              oauth_pending: false,
+              last_error: "",
+            });
+            window.__aionGmailOAuthReady = true;
+            window.__aionGmailHealth = mapped;
+            try { render?.(); } catch (_) {}
+          }
+        });
+      }
+    } catch (_) {}
+  });
+})();
 
 /* END PHASE 17K LOCK */
 
@@ -75664,84 +76378,492 @@ function getAionWebsiteIntakeInstallationOptions() {
   return getAionPhase17GWebsiteIntakeProviders();
 }
 
+
+function installAionPhase17SBoardroomEnquiriesFeedStyles() {
+  if (document.getElementById("aion-phase17s-boardroom-enquiries-feed-styles")) {
+    return;
+  }
+
+  const style = document.createElement("style");
+  style.id = "aion-phase17s-boardroom-enquiries-feed-styles";
+  style.textContent = `/* PHASE 17S LOCK: Boardroom enquiries feed styling */
+.aion-website-enquiries-feed .aion-intake-method-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr) max-content;
+  gap: 14px;
+  align-items: end;
+  margin: 18px 0 14px;
+}
+
+.aion-website-enquiries-feed label {
+  display: grid;
+  gap: 6px;
+}
+
+.aion-website-enquiries-feed select {
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid rgba(25,25,25,.22);
+  background: white;
+  font: inherit;
+}
+
+.aion-intake-method-summary {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.55);
+}
+
+.aion-intake-method-summary span {
+  color: rgba(25,25,25,.68);
+}
+
+.aion-intake-connected-strip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 18px;
+  padding: 11px 12px;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.55);
+}
+
+.aion-intake-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  display: inline-block;
+  background: #d97706;
+}
+
+.aion-intake-connected-strip.is-connected .aion-intake-dot {
+  background: #16a34a;
+}
+
+.aion-enquiries-table-wrap {
+  overflow-x: auto;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.58);
+}
+
+.aion-enquiries-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.aion-enquiries-table th,
+.aion-enquiries-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(25,25,25,.10);
+  vertical-align: top;
+}
+
+.aion-enquiries-table th {
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(25,25,25,.58);
+}
+
+.aion-intake-advanced-details {
+  margin-top: 16px;
+}
+
+.aion-intake-advanced-details summary {
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.aion-intake-selected-instructions {
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid rgba(25,25,25,.12);
+  background: rgba(255,255,255,.48);
+}
+/* END PHASE 17S LOCK */
+
+/* PHASE 17T LOCK: enquiry details live inside Website Enquiries Feed */
+.aion-new-website-enquiry-demo,
+[data-aion-phase17g-home-fixed-live-test-card="true"],
+[data-aion-home-fixed-demo-enquiry="true"] {
+  display: none !important;
+}
+
+.aion-enquiry-row {
+  cursor: pointer;
+}
+
+.aion-enquiry-row:hover td {
+  background: rgba(20, 152, 166, .06);
+}
+
+.aion-enquiry-row.is-open td {
+  background: rgba(20, 152, 166, .08);
+}
+
+.aion-enquiry-expanded-card {
+  padding: 18px;
+  border: 1px solid rgba(25,25,25,.14);
+  background: rgba(255,255,255,.72);
+}
+
+.aion-enquiry-expanded-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.aion-enquiry-expanded-head h3 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+
+.aion-enquiry-expanded-head p {
+  margin: 0;
+  color: rgba(25,25,25,.64);
+}
+
+.aion-enquiry-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 16px 0;
+}
+
+.aion-enquiry-detail-grid div {
+  display: grid;
+  gap: 5px;
+}
+
+.aion-enquiry-detail-grid strong {
+  color: rgba(25,25,25,.62);
+}
+
+.aion-enquiry-workflow-preview {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid rgba(25,25,25,.12);
+  border-bottom: 1px solid rgba(25,25,25,.12);
+}
+
+.aion-enquiry-workflow-preview div {
+  display: grid;
+  gap: 4px;
+}
+
+.aion-enquiry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.aion-enquiry-technical-trace {
+  margin-top: 12px;
+}
+
+.aion-enquiry-technical-trace pre {
+  overflow-x: auto;
+  padding: 12px;
+  background: rgba(255,255,255,.65);
+  border: 1px solid rgba(25,25,25,.12);
+}
+/* END PHASE 17T LOCK */
+`;
+  document.head.appendChild(style);
+}
+
+installAionPhase17SBoardroomEnquiriesFeedStyles();
+
+
+/* PHASE 17T LOCK: clickable Website Enquiries Feed rows */
+function getAionPhase17TWebsiteEnquiryFeedState() {
+  window.__aionPhase17TWebsiteEnquiryFeedState =
+    window.__aionPhase17TWebsiteEnquiryFeedState || {
+      selected_enquiry_id: "",
+    };
+  return window.__aionPhase17TWebsiteEnquiryFeedState;
+}
+
+function setAionPhase17TSelectedWebsiteEnquiry(enquiryId) {
+  const state17t = getAionPhase17TWebsiteEnquiryFeedState();
+  state17t.selected_enquiry_id =
+    state17t.selected_enquiry_id === enquiryId ? "" : String(enquiryId || "");
+
+  try { render?.(); } catch (_) { try { requestRender?.(); } catch (_) {} }
+  return state17t;
+}
+
+window.setAionPhase17TSelectedWebsiteEnquiry = setAionPhase17TSelectedWebsiteEnquiry;
+/* END PHASE 17T LOCK */
+
 function renderAionWebsiteIntakeInstallationPanel() {
+  /*
+  PHASE 17S LOCK: Boardroom Website Enquiries Feed
+  This is no longer a setup/debug wall. The normal user sees:
+  - selected intake method
+  - connected status
+  - live enquiries/feed table
+  - advanced drawer for setup/dev details
+  */
   const options = getAionWebsiteIntakeInstallationOptions();
+  const gmail =
+    typeof getAionPhase17GGmailVaultReadiness === "function"
+      ? getAionPhase17GGmailVaultReadiness()
+      : { connected: false, status: "missing", provider_label: "Gmail OAuth" };
+
+  const selected =
+    getAionPhase17HWebsiteIntakeActionState?.().selected_provider ||
+    "gmail_oauth";
+
+  const selectedOption =
+    options.find((option) => option.key === selected) ||
+    options.find((option) => option.key === "gmail_oauth") ||
+    options[0] ||
+    {};
+
+  const connected = selected === "gmail_oauth" && gmail.connected === true;
+  const connectedLabel = connected
+    ? "Website connected via Gmail"
+    : selected === "existing_form_webhook"
+      ? "Webhook setup available"
+      : selected === "aion_generated_form"
+        ? "AION form setup available"
+        : "Not connected";
+
+  const feedState =
+    typeof getAionPhase17TWebsiteEnquiryFeedState === "function"
+      ? getAionPhase17TWebsiteEnquiryFeedState()
+      : { selected_enquiry_id: "" };
+
+  const sampleRows = window.__aionWebsiteEnquiryFeedRows || [
+    {
+      id: "home_fixed_pergola_roof_repair_001",
+      time: "Just now",
+      customer: "Website customer",
+      source: connected ? "Gmail" : "Home Fixed website form",
+      enquiry: "Pergola / roof repair",
+      message: "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
+      service: "Pergola / roof repair",
+      location: "Arboleas, Almería",
+      urgency: "Medium / rain-related",
+      workflow_id: "home_fixed_new_enquiry",
+      workflow_title: "Home Fixed new enquiry workflow",
+      workflow_status: "Quote preview prepared",
+      status: "Workflow preview ready",
+      next: "Run workflow preview",
+      owner: "Founder review",
+    },
+  ];
 
   return `
-    <section class="panel large-panel aion-website-intake-installation" data-aion-phase17f-website-intake-installation="true">
+    <section class="panel large-panel aion-website-enquiries-feed" data-aion-phase17s-boardroom-enquiries-feed="true">
       <div class="panel-header">
         <div>
-          <div class="panel-kicker">Website Intake Installation</div>
-          <h2>Connect Your Website Enquiries</h2>
+          <div class="panel-kicker">Website enquiries</div>
+          <h2>Website Enquiries Feed</h2>
           <p class="muted">
-            Choose the simplest way to connect a business website to AION workflows:
-            email forwarding, existing form webhook, or an AION generated form/embed.
+            Choose how website enquiries enter AION, then track new enquiries, status, and next action from one feed.
           </p>
-          <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
-            <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Check Gmail connection</button>
-            
-          <button type="button" class="secondary-btn" data-aion-phase17k-open-gmail-oauth="true">
-            Open Gmail OAuth
-          </button>
-          <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">
-            Poll Gmail now
-          </button>
-<button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
-            <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17IWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
-            <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17ILocalPayloadTest()">Send local dummy payload</button>
-          </div>
-          <div class="aion-phase17h-top-status" data-aion-phase17h-top-status="true">
-            Action status:
-            ${escapeHtml(getAionPhase17IWebsiteIntakeActionState().latest_action || "idle")}
-            · ${escapeHtml(getAionPhase17IWebsiteIntakeActionState().readiness_status || "not_checked")}
-            · ${escapeHtml(getAionPhase17IWebsiteIntakeActionState().copied_field || "nothing copied")}
-          </div>
-          ${renderAionPhase17GGmailVaultProviderStatus()}
         </div>
-        <div class="status-pill">SETUP OPTIONS</div>
+        <div class="status-pill">${escapeHtml(connectedLabel)}</div>
       </div>
 
-      <div class="aion-intake-install-grid">
-        ${options.map((option) => `
-          <article class="aion-intake-install-card ${getAionPhase17HWebsiteIntakeActionState().selected_provider === option.key ? "is-selected" : ""}" data-aion-intake-install-mode="${escapeHtml(option.key)}" data-aion-intake-provider-option="${escapeHtml(option.key)}" onclick="selectAionPhase17HWebsiteIntakeProvider(\'${escapeHtml(option.key)}\')">
-            <div class="aion-intake-install-card-head">
-              <div>
-                <div class="eyebrow">${escapeHtml(option.audience)}</div>
-                <h3>${escapeHtml(option.title)}</h3>
-              </div>
-            </div>
+      <div class="aion-intake-method-row">
+        <label>
+          <span class="eyebrow">Intake method</span>
+          <select data-aion-intake-provider-select="true" onchange="selectAionPhase17HWebsiteIntakeProvider(this.value)">
+            ${options.map((option) => `
+              <option value="${escapeHtml(option.key)}" ${option.key === selected ? "selected" : ""}>
+                ${escapeHtml(option.title)}
+              </option>
+            `).join("")}
+          </select>
+        </label>
 
-            <p>${escapeHtml(option.summary)}</p>
+        <div class="aion-intake-method-summary">
+          <strong>${escapeHtml(selectedOption.title || "Gmail OAuth from Vault")}</strong>
+          <span>
+            ${
+              connected
+                ? "Connected. AION can watch matching enquiry emails and create guarded workflow tickets."
+                : escapeHtml(selectedOption.summary || "Select an intake method to view setup instructions.")
+            }
+          </span>
+        </div>
 
-            <div class="aion-intake-install-copy-box">
-              <strong>${escapeHtml(option.installLabel)}</strong>
-              <code>${escapeHtml(option.installValue)}</code>
-            </div>
-
-            <ol>
-              ${safeArray(option.steps).map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
-            </ol>
-          </article>
-        `).join("")}
+        ${
+          connected
+            ? `<button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">Check now</button>`
+            : selected === "gmail_oauth"
+              ? `<button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true">Connect Gmail</button>`
+              : `<button type="button" class="secondary-btn" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy setup</button>`
+        }
       </div>
 
-      <details class="aion-intake-install-dev-details">
-        <summary>Developer payload example</summary>
-        <pre>{
+      <div class="aion-intake-connected-strip ${connected ? "is-connected" : "is-missing"}">
+        <span class="aion-intake-dot"></span>
+        <strong>${escapeHtml(connectedLabel)}</strong>
+        <span>${connected ? "Read-only intake enabled · live send locked · human review required" : "Select and connect an intake route to start receiving enquiries."}</span>
+      </div>
+
+      <div class="aion-enquiries-table-wrap">
+        <table class="aion-enquiries-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Customer</th>
+              <th>Source</th>
+              <th>Enquiry</th>
+              <th>Status</th>
+              <th>Next action</th>
+              <th>Owner</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sampleRows.map((row) => {
+              const rowId = String(row.id || row.enquiry || row.time || "enquiry");
+              const isOpen = feedState.selected_enquiry_id === rowId;
+
+              return `
+                <tr
+                  class="aion-enquiry-row ${isOpen ? "is-open" : ""}"
+                  data-aion-phase17t-enquiry-row="true"
+                  onclick="setAionPhase17TSelectedWebsiteEnquiry('${escapeHtml(rowId)}')"
+                >
+                  <td>${escapeHtml(row.time)}</td>
+                  <td>${escapeHtml(row.customer)}</td>
+                  <td>${escapeHtml(row.source)}</td>
+                  <td>${escapeHtml(row.enquiry)}</td>
+                  <td><span class="status-pill">${escapeHtml(row.status)}</span></td>
+                  <td>${escapeHtml(row.next)}</td>
+                  <td>${escapeHtml(row.owner)}</td>
+                </tr>
+
+                ${
+                  isOpen
+                    ? `
+                      <tr class="aion-enquiry-expanded-row" data-aion-phase17t-enquiry-expanded="true">
+                        <td colspan="7">
+                          <section class="aion-enquiry-expanded-card">
+                            <div class="aion-enquiry-expanded-head">
+                              <div>
+                                <div class="eyebrow">New website enquiry</div>
+                                <h3>${escapeHtml(row.enquiry)}</h3>
+                                <p>${escapeHtml(row.message || "")}</p>
+                              </div>
+                              <button
+                                type="button"
+                                class="secondary-btn"
+                                onclick="event.stopPropagation(); setAionPhase17TSelectedWebsiteEnquiry('${escapeHtml(rowId)}')"
+                              >
+                                Close
+                              </button>
+                            </div>
+
+                            <div class="aion-enquiry-detail-grid">
+                              <div><strong>Customer</strong><span>${escapeHtml(row.customer)}</span></div>
+                              <div><strong>Service</strong><span>${escapeHtml(row.service || row.enquiry)}</span></div>
+                              <div><strong>Location</strong><span>${escapeHtml(row.location || "—")}</span></div>
+                              <div><strong>Urgency</strong><span>${escapeHtml(row.urgency || "—")}</span></div>
+                              <div><strong>Source</strong><span>${escapeHtml(row.source)}</span></div>
+                              <div><strong>Suggested workflow</strong><span>${escapeHtml(row.workflow_id || "home_fixed_new_enquiry")}</span></div>
+                            </div>
+
+                            <div class="aion-enquiry-workflow-preview">
+                              <div>
+                                <strong>${escapeHtml(row.workflow_title || "Home Fixed new enquiry workflow")}</strong>
+                                <span>${escapeHtml(row.workflow_status || "Quote preview prepared")}</span>
+                              </div>
+                              <span class="status-pill">Workflow preview ready</span>
+                            </div>
+
+                            <div class="aion-enquiry-actions">
+                              <button type="button" onclick="event.stopPropagation();" class="primary-btn">
+                                Run workflow preview
+                              </button>
+                              <button type="button" onclick="event.stopPropagation();" class="secondary-btn">
+                                Approve next action
+                              </button>
+                              <button type="button" onclick="event.stopPropagation();" class="secondary-btn">
+                                Request more info
+                              </button>
+                            </div>
+
+                            <p class="muted">
+                              Safe mode: no booking, payment, escrow, external message, or chain write. Human review required.
+                            </p>
+
+                            <details class="aion-enquiry-technical-trace">
+                              <summary>Show technical trace</summary>
+                              <pre>{
+  "event_type": "website_intake.trigger.created",
+  "workflow_id": "${escapeHtml(row.workflow_id || "home_fixed_new_enquiry")}",
+  "human_review_required": true,
+  "live_execution_allowed": false
+}</pre>
+                            </details>
+                          </section>
+                        </td>
+                      </tr>
+                    `
+                    : ""
+                }
+              `;
+            }).join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <details class="aion-intake-advanced-details">
+        <summary>Advanced setup details</summary>
+
+        <div class="aion-intake-selected-instructions">
+          <h3>${escapeHtml(selectedOption.title || "Selected intake method")}</h3>
+          <p>${escapeHtml(selectedOption.summary || "")}</p>
+
+          <div class="aion-intake-install-copy-box">
+            <strong>${escapeHtml(selectedOption.installLabel || "Setup value")}</strong>
+            <code>${escapeHtml(selectedOption.installValue || "")}</code>
+          </div>
+
+          <ol>
+            ${safeArray(selectedOption.steps).map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
+          </ol>
+        </div>
+
+        <div class="aion-phase17g-live-actions" data-aion-phase17g-live-actions="true">
+          <button type="button" onclick="handleAionPhase17GGmailIntakeProviderAction('gmail_oauth')">Check Gmail connection</button>
+          <button type="button" class="secondary-btn" data-aion-phase17k-open-gmail-oauth="true">Open Gmail OAuth</button>
+          <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">Poll Gmail now</button>
+          <button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
+          <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17IWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
+          <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17ILocalPayloadTest()">Send local dummy payload</button>
+        </div>
+
+        <details class="aion-intake-install-dev-details">
+          <summary>Developer payload example</summary>
+          <pre>{
   "business_id": "home_fixed",
   "source": "website_form",
-  "customer": {
-    "name": "Website customer",
-    "phone": "+34...",
-    "email": "customer@example.com"
-  },
-  "request": {
-    "message": "I need a leaking pergola roof repaired in Arboleas",
-    "service": "Pergola / roof repair",
-    "location": "Arboleas, Almería",
-    "urgency": "Medium / rain-related"
+  "event_type": "website_intake.trigger.created",
+  "guards": {
+    "booking_created": false,
+    "payment_created": false,
+    "external_message_sent": false,
+    "human_review_required": true
   }
 }</pre>
+        </details>
       </details>
     </section>
   `;

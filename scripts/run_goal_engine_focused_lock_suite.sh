@@ -275,6 +275,9 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase17h_functional_website_intake_actions_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17k_real_vault_gmail_ux_lock.py \
   backend/tests/workflow_capsules/test_aion_vault_gmail_consolidated_ui_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase17s_boardroom_enquiries_feed_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase17t_clickable_enquiry_rows_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase17u_remove_old_dummy_enquiry_card_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17l_simplified_vault_connector_ui_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17m_final_vault_connect_ux_lock.py \
   backend/tests/workflow_capsules/test_aion_phase17n_gmail_oauth_success_refresh_lock.py \
@@ -285,3 +288,5 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase16k_ticket_step_artifacts_lock.py \
   backend/tests/workflow_capsules/test_goal_engine_visible_step_trace_dry_run_ui_lock.py
 
+
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase18_a2a_commercial_ticket_lock.py

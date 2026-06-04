@@ -37,3 +37,25 @@ def test_oauth_success_page_is_terminal_not_reconnect_loop() -> None:
 
 def test_consolidation_test_is_in_focused_suite() -> None:
     assert "test_aion_vault_gmail_consolidated_ui_lock.py" in SUITE.read_text()
+
+def test_vault_final_layout_has_no_big_connected_button_and_shows_account() -> None:
+    text = source()
+    assert "aion-vault-connect-now-btn" in text
+    assert "aion-vault-enable-live-btn" in text
+    assert "Enable live" in text
+    assert "Reconnect Gmail" in text
+    assert "OAuth connected through Google · read-only intake enabled · live send locked." in text
+    assert "live.email" in text
+    assert "gmailVault.email" in text
+    assert "Gmail account" in text
+    assert "CONNECT NOW" not in text
+    assert ">CONNECTED<" not in text
+
+def test_vault_connect_now_button_is_compact_and_hard_bound() -> None:
+    text = source()
+    assert "aion-vault-connect-now-btn" in text
+    assert "onclick=\"openAionPhase17KGmailOAuth()\"" in text
+    assert "PHASE 17Q LOCK: Vault connect button click + compact width" in text
+    assert "max-content !important" in text
+    assert "width: auto !important" in text
+

@@ -535,7 +535,7 @@ def handle_gmail_oauth_callback(
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }}
     .card {{
-      width: min(560px, calc(100vw - 48px));
+      width: min(620px, calc(100vw - 48px));
       border: 1px solid #d7cbbb;
       background: #fffaf3;
       padding: 34px;
@@ -544,13 +544,13 @@ def handle_gmail_oauth_callback(
     .eyebrow {{
       font-size: 12px;
       letter-spacing: .18em;
-      font-weight: 900;
+      font-weight: 800;
       color: #1398a6;
       margin-bottom: 12px;
     }}
     h1 {{
       margin: 0 0 12px;
-      font-size: 28px;
+      font-size: 30px;
     }}
     p {{
       margin: 0 0 22px;
@@ -562,9 +562,21 @@ def handle_gmail_oauth_callback(
       display: inline-block;
       border: 1px solid #191919;
       padding: 8px 12px;
-      font-weight: 900;
+      font-weight: 800;
       letter-spacing: .12em;
       font-size: 12px;
+      margin-bottom: 18px;
+    }}
+    button {{
+      margin-top: 18px;
+      width: 100%;
+      padding: 14px 18px;
+      border: 1px solid #191919;
+      background: #191919;
+      color: white;
+      font-weight: 800;
+      letter-spacing: .08em;
+      cursor: pointer;
     }}
   </style>
 </head>
@@ -572,16 +584,16 @@ def handle_gmail_oauth_callback(
   <main class="card">
     <div class="eyebrow">TESSARIS VAULT</div>
     <h1>{title}</h1>
-    <p>{message} Return to the Tessaris app. The Vault will refresh automatically.</p>
+    <p>
+      Gmail has been connected to the Tessaris Vault.
+      Return to the Tessaris app. The Vault will refresh automatically.
+    </p>
     <span class="status">{status}</span>
+    <button onclick="window.close()">Close window</button>
   </main>
+
   <script>
     try {{
-      localStorage.setItem("aion:gmail_oauth_result", JSON.stringify({{
-        ok: true,
-        status: "connected",
-        at: new Date().toISOString()
-      }}));
       if (window.opener && window.opener.postMessage) {{
         window.opener.postMessage({{
           type: "aion:gmail_oauth_connected",
