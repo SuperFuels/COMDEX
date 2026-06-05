@@ -15,6 +15,10 @@ from backend.modules.local_node.contracts_local_node import (
     utc_now_iso,
 )
 from backend.modules.local_node.local_node_runtime import LocalNodeRuntime
+from backend.workflow_capsules.aion_a2a_commercial_ticket import (
+    home_fixed_plumbing_hourly_ticket,
+    home_fixed_roof_discovery_ticket,
+)
 
 
 router = APIRouter(prefix="/api/local-node", tags=["local-node"])
@@ -1092,3 +1096,90 @@ def mark_sync_pull(request: MarkSyncRequest) -> Dict[str, Any]:
 @router.post("/sync/apply-commands")
 def apply_sync_commands(request: ApplyCommandsRequest) -> Dict[str, Any]:
     return get_runtime().apply_remote_commands(request.commands)
+
+
+# PHASE 18 LOCK: A2A Commercial Ticket Preview API
+@router.get("/aion/phase18/a2a-commercial-ticket-preview")
+def get_aion_phase18_a2a_commercial_ticket_preview(scenario: str = "home_fixed_plumbing_hourly"):
+    scenario_key = str(scenario or "home_fixed_plumbing_hourly").strip().lower()
+
+    if scenario_key in {
+        "home_fixed_roof_discovery",
+        "roof_discovery",
+        "roof_leak",
+        "discovery_session",
+    }:
+        ticket = home_fixed_roof_discovery_ticket()
+        resolved_scenario = "roof_discovery"
+    else:
+        ticket = home_fixed_plumbing_hourly_ticket()
+        resolved_scenario = "plumbing_hourly"
+
+    data = ticket.to_dict()
+    data["requested_scenario"] = scenario_key
+    data["resolved_scenario"] = resolved_scenario
+
+    # PHASE 18 LOCK:
+    # Keep raw backend IDs/hashes for Advanced technical trace, but provide
+    # a stable customer-facing display_id for normal UI.
+    data["display_id"] = "A2A-HF-001" if resolved_scenario in {"roof_discovery", "plumbing_hourly"} else str(data.get("ticket_id", "A2A-PREVIEW")).upper()
+
+    if resolved_scenario == "roof_discovery":
+        data.setdefault("route", {})
+        data["route"]["label"] = "Discovery / assessment visit"
+        data["route"]["pricing_label"] = "Free or paid discovery"
+        data.setdefault("service_rule", {})
+        data["service_rule"]["resource_type"] = "Roofer / general builder"
+    elif resolved_scenario == "plumbing_hourly":
+        data.setdefault("route", {})
+        data["route"]["label"] = "Hourly service / callout"
+        data["route"]["pricing_label"] = "First hour plus hourly rate"
+        data.setdefault("service_rule", {})
+        data["service_rule"]["resource_type"] = "Plumber"
+
+    # PHASE 18 LOCK:
+    # Normalise the safety envelope at the API boundary so frontend/API consumers
+    # always receive the same guarded no-side-effect contract, regardless of the
+    # internal ticket object's field naming.
+    guard_envelope = {
+        "preview_only": True,
+        "booking_created": False,
+        "payment_created": False,
+        "escrow_created": False,
+        "external_message_sent": False,
+        "live_chain_write": False,
+        "human_review_required": True,
+    }
+
+    existing_guard = (
+        data.get("guard_envelope")
+        or data.get("guard")
+        or data.get("safety")
+        or data.get("side_effect_guards")
+        or {}
+    )
+
+    if isinstance(existing_guard, dict):
+        guard_envelope.update(existing_guard)
+
+    # Re-assert hard safety values after merge.
+    guard_envelope.update({
+        "preview_only": True,
+        "booking_created": False,
+        "payment_created": False,
+        "escrow_created": False,
+        "external_message_sent": False,
+        "live_chain_write": False,
+        "human_review_required": True,
+    })
+
+    data["guard_envelope"] = guard_envelope
+    data["api_contract"] = {
+        "phase": "18",
+        "endpoint": "aion_phase18_a2a_commercial_ticket_preview",
+        "requested_scenario": scenario_key,
+        "resolved_scenario": resolved_scenario,
+        **guard_envelope,
+    }
+    return data
+

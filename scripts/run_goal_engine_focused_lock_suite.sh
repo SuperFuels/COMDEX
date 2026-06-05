@@ -290,3 +290,11 @@ PYTHONPATH=. python -m pytest -q \
 
 
 python -m pytest -q backend/tests/workflow_capsules/test_aion_phase18_a2a_commercial_ticket_lock.py
+
+python -m pytest -q backend/tests/workflow_capsules/test_aion_kindle_soft_ink_permanent_theme_lock.py
+
+python -m pytest -q backend/tests/workflow_capsules/test_aion_desktop_packaging_hygiene_lock.py
+
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase18_backend_contracts_lock.py
+
+python -m pytest -q backend/tests/workflow_capsules/test_aion_phase18_preview_api_lock.py

@@ -1882,6 +1882,25 @@ async function saveBrandFoundationToBackend() {
   );
 }
 
+
+/* PHASE 17L LOCK: Simple Vault Connector fallback
+   Prevents Operations Flow from crashing if the richer Vault connector panel
+   has been removed, renamed, or not yet loaded. */
+function renderAionPhase17LSimpleVaultConnectorPanel() {
+  return `
+    <section class="panel aion-phase17l-vault-connector-fallback" data-aion-phase17l-vault-connector-fallback="true">
+      <div class="panel-header">
+        <div>
+          <div class="panel-kicker">Vault connector</div>
+          <h3>Vault connector unavailable</h3>
+          <p class="muted">Fallback panel active. Operations Flow remains render-safe while the full connector module is restored.</p>
+        </div>
+        <span class="status-pill">Safe fallback</span>
+      </div>
+    </section>
+  `;
+}
+
 function renderOperationsFlowSurface() {
   const viewMode =
     state.operationsFlowViewMode === "spatial" ? "spatial" : "flat";
@@ -4135,6 +4154,373 @@ function installAionBoardroomCompactMetricStyles() {
 }
 
 installAionBoardroomCompactMetricStyles();
+
+
+/* AION KINDLE SOFT INK THEME LOCK: permanent e-paper interface palette */
+function installAionKindleSoftInkTheme() {
+  if (document.getElementById("aion-kindle-soft-ink-theme")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-kindle-soft-ink-theme";
+  style.textContent = `
+/* AION KINDLE SOFT INK THEME LOCK: permanent e-paper interface palette */
+
+:root {
+  --aion-ink-bg: #f4efe7;
+  --aion-ink-paper: #faf7f1;
+  --aion-ink-panel: rgba(255, 252, 246, 0.72);
+  --aion-ink-border: rgba(52, 47, 42, 0.16);
+  --aion-ink-border-strong: rgba(52, 47, 42, 0.30);
+  --aion-ink-text: #272421;
+  --aion-ink-muted: rgba(39, 36, 33, 0.62);
+  --aion-ink-soft: rgba(39, 36, 33, 0.48);
+  --aion-ink-accent: #64766a;
+  --aion-ink-accent-dark: #40564a;
+  --aion-ink-highlight: #ebe2d2;
+}
+
+html,
+body {
+  background: var(--aion-ink-bg) !important;
+  color: var(--aion-ink-text) !important;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.app-shell,
+.dashboard-shell,
+.operations-agents-page,
+.aion-boardroom-frontpage-simplified,
+.panel,
+.large-panel,
+.card,
+.list-item,
+.operations-agents-card,
+.aion-phase18-a2a-ticket,
+.aion-website-enquiries-feed,
+.aion-vault-canonical-page {
+  background: var(--aion-ink-panel) !important;
+  border-color: var(--aion-ink-border) !important;
+  color: var(--aion-ink-text) !important;
+  box-shadow: none !important;
+}
+
+.panel,
+.large-panel,
+.card,
+.list-item,
+.operations-agents-card {
+  border-width: 1px !important;
+}
+
+.card-value,
+.aion-boardroom-compact-metric-value,
+h1,
+h2,
+h3,
+h4,
+strong {
+  color: var(--aion-ink-text) !important;
+}
+
+.muted,
+.card-sub,
+.helper-text,
+.panel p,
+.aion-boardroom-compact-metric-sub,
+.aion-phase18-route-copy span,
+.aion-phase18-step-card p {
+  color: var(--aion-ink-muted) !important;
+}
+
+.eyebrow,
+.panel-kicker,
+.panel-title,
+.card-label,
+.aion-boardroom-compact-metric-label,
+.metric-label {
+  color: var(--aion-ink-soft) !important;
+  letter-spacing: 0.16em !important;
+}
+
+.status-pill,
+.badge {
+  background: rgba(255,255,255,0.42) !important;
+  border: 1px solid var(--aion-ink-border-strong) !important;
+  color: var(--aion-ink-text) !important;
+  box-shadow: none !important;
+}
+
+button,
+.primary-btn,
+.secondary-btn,
+.aion-phase18-timeline-item,
+.aion-phase18-guardrail-pill {
+  border-color: var(--aion-ink-border-strong) !important;
+  background: rgba(255,255,255,0.50) !important;
+  color: var(--aion-ink-text) !important;
+  box-shadow: none !important;
+}
+
+button:hover,
+.primary-btn:hover,
+.secondary-btn:hover,
+.aion-phase18-timeline-item:hover {
+  background: var(--aion-ink-highlight) !important;
+}
+
+button.primary,
+.primary-btn,
+.aion-phase18-timeline-item.is-active {
+  background: var(--aion-ink-accent) !important;
+  border-color: var(--aion-ink-accent-dark) !important;
+  color: #fbfaf6 !important;
+}
+
+.aion-phase18-step-index,
+.aion-intake-dot,
+.aion-vault-status-dot,
+.aion-phase18-guardrail-pill::before {
+  background: var(--aion-ink-accent) !important;
+}
+
+input,
+select,
+textarea,
+pre,
+code {
+  background: rgba(255,255,255,0.46) !important;
+  border-color: var(--aion-ink-border) !important;
+  color: var(--aion-ink-text) !important;
+}
+
+table,
+th,
+td,
+.aion-enquiries-table,
+.aion-enquiries-table-wrap {
+  border-color: var(--aion-ink-border) !important;
+  color: var(--aion-ink-text) !important;
+}
+
+th {
+  color: var(--aion-ink-soft) !important;
+  background: rgba(255,255,255,0.28) !important;
+}
+
+tr:hover td {
+  background: rgba(235,226,210,0.32) !important;
+}
+
+.aion-boardroom-frontpage-simplified .card,
+.aion-phase18-ticket-summary > div,
+.aion-phase18-step-card,
+.aion-phase18-proposal-card,
+.aion-phase18-route-copy,
+.aion-vault-canonical-panel,
+.aion-website-enquiries-feed {
+  background: rgba(255,255,255,0.38) !important;
+}
+
+/* soften current bright turquoise UI without losing affordance */
+[data-aion-boardroom-business-pulse] .card,
+[data-aion-boardroom-business-pulse-secondary] .card,
+[data-aion-boardroom-operator-presence] .card {
+  background: rgba(255,255,255,0.34) !important;
+}
+
+/* END AION KINDLE SOFT INK THEME LOCK: permanent e-paper interface palette */
+  `;
+  document.head.appendChild(style);
+}
+
+installAionKindleSoftInkTheme();
+
+
+
+/* AION KINDLE SOFT INK CANVAS LOCK: safe workflow canvas / train agent styling */
+function installAionWorkflowCanvasKindleSoftInkStyles() {
+  if (document.getElementById("aion-workflow-canvas-kindle-soft-ink-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-workflow-canvas-kindle-soft-ink-styles";
+  style.textContent = `
+/* AION KINDLE SOFT INK CANVAS LOCK */
+
+/*
+  Important:
+  - Do NOT paint .aion-workflow-canvas-viewport as a big paper square.
+  - Do NOT add borders/backgrounds to .aion-workflow-node-card / node bodies.
+  - The canvas grid should remain the single visual background.
+*/
+
+html body .aion-workflow-canvas-shell,
+html body .aion-architect-canvas-shell {
+  background: var(--aion-ink-bg, #f4efe7) !important;
+  color: var(--aion-ink-text, #272421) !important;
+}
+
+/* Make the inner square disappear back into the graph background */
+html body .aion-workflow-canvas,
+html body .aion-workflow-canvas-viewport,
+html body .aion-workflow-canvas-stage,
+html body .aion-workflow-canvas-content,
+html body .aion-architect-full-canvas,
+html body .aion-architect-real-canvas {
+  background-color: transparent !important;
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* One unified e-ink graph-paper surface */
+html body .aion-workflow-canvas {
+  background:
+    linear-gradient(rgba(88, 75, 62, .052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 75, 62, .052) 1px, transparent 1px),
+    linear-gradient(180deg, #f5efe6 0%, #f8f2e9 100%) !important;
+  background-size: 28px 28px, 28px 28px, 100% 100% !important;
+  background-position: 0 0, 0 0, center !important;
+}
+
+/* Keep node geometry/style intact. Only soften text. */
+html body [data-aion-workflow-node-id] strong,
+html body [data-aion-workflow-node-id] h3,
+html body [data-aion-workflow-node-id] .aion-workflow-node-title {
+  color: var(--aion-ink-text, #272421) !important;
+}
+
+html body [data-aion-workflow-node-id] p,
+html body [data-aion-workflow-node-id] small,
+html body [data-aion-workflow-node-id] .muted,
+html body [data-aion-workflow-node-id] .aion-workflow-node-meta {
+  color: var(--aion-ink-muted, rgba(39,36,33,.62)) !important;
+}
+
+/* Do not introduce extra node frames */
+html body [data-aion-workflow-node-id] .aion-workflow-node-card {
+  border-color: inherit !important;
+  background: inherit !important;
+  box-shadow: inherit !important;
+}
+
+/* Keep the existing selected-node style, but prevent accidental extra frame */
+html body [data-aion-workflow-node-id].selected,
+html body .aion-canvas-node[data-aion-workflow-node-id].aion-canvas-node-selected {
+  outline: none !important;
+}
+
+/* Soft e-ink chrome only */
+html body .aion-architect-left-rail,
+html body .aion-workflow-floating-toolbar,
+html body .aion-workflow-floating-toolbar-consolidated,
+html body .aion-architect-page-header {
+  background: rgba(250,247,241,.80) !important;
+  border-color: rgba(52,47,42,.14) !important;
+  color: var(--aion-ink-text, #272421) !important;
+  box-shadow: 0 14px 34px rgba(52,47,42,.08) !important;
+  backdrop-filter: blur(14px) saturate(.92) !important;
+}
+
+/* Buttons: soften without changing layout */
+html body .aion-workflow-floating-toolbar .aion-workflow-mode-btn,
+html body .aion-workflow-floating-toolbar [data-aion-workflow-glyph-debug],
+html body .aion-workflow-floating-toolbar .aion-workflow-floating-add,
+html body .aion-master-glyph-utility-btn {
+  background: rgba(255,255,255,.58) !important;
+  border-color: rgba(52,47,42,.16) !important;
+  color: var(--aion-ink-text, #272421) !important;
+  box-shadow: none !important;
+}
+
+html body .aion-workflow-floating-toolbar .aion-workflow-mode-btn.active {
+  background: rgba(100,118,106,.14) !important;
+  border-color: rgba(64,86,74,.34) !important;
+}
+
+html body .aion-workflow-floating-toolbar .aion-workflow-execute-btn {
+  background: #2b2926 !important;
+  border-color: #2b2926 !important;
+  color: #fbf8f2 !important;
+}
+
+/* Publish: muted Kindle-style green */
+html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn,
+html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.draft,
+html body .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn.published {
+  background: #edf3e8 !important;
+  border-color: rgba(64,86,74,.34) !important;
+  color: #40564a !important;
+  box-shadow: none !important;
+}
+
+/* Picker / Ask Aion / Describe panels only */
+html body .aion-first-step-picker,
+html body .aion-picker-row,
+html body .aion-unified-ai-bar,
+html body .aion-unified-describe-panel,
+html body .aion-architect-start-card,
+html body .aion-architect-describe-card {
+  background: rgba(250,247,241,.74) !important;
+  border-color: rgba(52,47,42,.14) !important;
+  color: var(--aion-ink-text, #272421) !important;
+  box-shadow: 0 14px 32px rgba(52,47,42,.07) !important;
+}
+
+html body .aion-picker-row:hover,
+html body .aion-workflow-floating-toolbar button:hover {
+  background: rgba(235,226,210,.72) !important;
+}
+
+
+/* AION KINDLE CANVAS GRID UNIFICATION LOCK
+   Fix:
+   - The node viewport/stage must not appear as a beige rectangle.
+   - Canvas, viewport, stage, and content must share the same soft graph-paper surface.
+   - Do not change node styling.
+*/
+html body .aion-workflow-canvas,
+html body .aion-workflow-canvas-viewport,
+html body .aion-workflow-canvas-stage,
+html body .aion-workflow-canvas-content,
+html body .aion-architect-full-canvas,
+html body .aion-architect-real-canvas {
+  background:
+    linear-gradient(rgba(88, 75, 62, .052) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 75, 62, .052) 1px, transparent 1px),
+    linear-gradient(180deg, #f7f1e8 0%, #f7f1e8 100%) !important;
+  background-size: 28px 28px, 28px 28px, 100% 100% !important;
+  background-position: 0 0, 0 0, center !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Remove any oversized paper panel effect around the nodes */
+html body .aion-workflow-canvas-viewport,
+html body .aion-workflow-canvas-stage,
+html body .aion-workflow-canvas-content {
+  outline: none !important;
+  filter: none !important;
+}
+
+/* Keep node cards as they were; this lock only fixes the background surface */
+html body [data-aion-workflow-node-id],
+html body [data-aion-workflow-node-id] .aion-workflow-node-card,
+html body [data-aion-workflow-node-id] .aion-workflow-node-visual,
+html body [data-aion-workflow-node-id] .aion-workflow-node-square {
+  background-clip: padding-box !important;
+}
+
+/* END AION KINDLE SOFT INK CANVAS LOCK */
+  `;
+  document.head.appendChild(style);
+}
+
+installAionWorkflowCanvasKindleSoftInkStyles();
+/* END AION KINDLE SOFT INK CANVAS LOCK */
+
+/* END AION KINDLE SOFT INK THEME LOCK: permanent e-paper interface palette */
+
 
 function formatBoardroomEuro(value) {
   if (value === null || value === undefined || value === "" || value === "—") return "—";
@@ -6770,7 +7156,7 @@ function renderBoardroomDashboardView(snapshot) {
       <!-- Phase 17U: founder demo visible output removed from Boardroom main flow; A2A ticket now renders via Phase 18 -->
       <!-- Phase 17U: old standalone Phase 17E ticket card removed; use Website Enquiries Feed expansion only -->
         ${renderAionWebsiteIntakeInstallationPanel()}
-        ${renderBoardroomFounderDemoLoopPanel(snapshot)}
+        ${renderAionPhase18CommercialTicketPanel()}
 
       <div class="two-col aion-boardroom-main-action-grid" data-aion-boardroom-main-action-grid="true">
         ${renderBoardroomA2ASetupPanel(snapshot)}
@@ -74484,154 +74870,597 @@ function renderBoardroomFounderDemoSafetyStrip(guards = {}) {
 
 /* PHASE 18 LOCK: Universal A2A Commercial Ticket model */
 
+function titleCaseAionPhase18Enum(value) {
+  return String(value || "")
+    .replaceAll("_", " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 function getAionPhase18CommercialRoutes() {
   return [
     {
       route_type: "hourly_service",
       label: "Hourly service / callout",
       pricing_model: "first_hour_plus_hourly",
+      pricing_label: "First hour plus hourly rate",
       summary: "Sell time: first hour/callout plus approved extra hours.",
+      normal_copy: "Customer agrees the first-hour callout, then any extra hours are billed at the agreed rate.",
       example: "Plumber callout: first hour agreed, extra hours billed at agreed rate.",
       requires_calendar: true,
       requires_human_review: true,
       requires_payment: true,
       requires_escrow: false,
       requires_proposal: false,
+      requires_evidence: true,
     },
     {
       route_type: "discovery_session",
       label: "Discovery / assessment visit",
       pricing_model: "free_or_paid_discovery",
+      pricing_label: "Free or paid discovery",
       summary: "Inspect or scope first, then prepare quotation/proposal.",
+      normal_copy: "A site visit or assessment is booked before any final quote is created.",
       example: "Roofer visits site before creating a quote.",
       requires_calendar: true,
       requires_human_review: true,
       requires_payment: false,
       requires_escrow: false,
       requires_proposal: true,
+      requires_evidence: true,
     },
     {
       route_type: "custom_quote",
       label: "Custom quote / proposal",
       pricing_model: "quote_required",
+      pricing_label: "Quote required",
       summary: "Project work where price depends on scope.",
+      normal_copy: "The business must scope the job before sending a final price.",
       example: "Design agency, builder, repair work, B2B service proposal.",
       requires_calendar: false,
       requires_human_review: true,
       requires_payment: false,
-      requires_escrow: true,
+      requires_escrow: false,
       requires_proposal: true,
+      requires_evidence: true,
     },
     {
       route_type: "fixed_product",
-      label: "Fixed product / item",
+      label: "Fixed product purchase",
       pricing_model: "fixed_price",
-      summary: "Physical or digital product with known price and availability.",
-      example: "Check stock, confirm price, prepare order preview.",
+      pricing_label: "Fixed price",
+      summary: "Product or digital item with known price and availability.",
+      normal_copy: "AION checks price and stock/availability before purchase approval.",
+      example: "Digital product, physical item, stock check, paid download.",
       requires_calendar: false,
       requires_human_review: false,
       requires_payment: true,
       requires_escrow: false,
       requires_proposal: false,
+      requires_evidence: true,
     },
     {
       route_type: "metered_work",
-      label: "Metered / additional billed work",
+      label: "Metered / usage-based work",
       pricing_model: "usage_based",
-      summary: "Minimum agreed, then extra time/materials approved under rules.",
-      example: "First hour booked, plumber stays 5 extra hours at agreed rate.",
+      pricing_label: "Usage based",
+      summary: "Work billed by approved usage, time, materials, or units.",
+      normal_copy: "The customer agrees the rate card and approval thresholds before work continues.",
+      example: "Engineer remains on site for approved additional hours.",
       requires_calendar: true,
       requires_human_review: true,
       requires_payment: true,
       requires_escrow: true,
       requires_proposal: false,
+      requires_evidence: true,
+    },
+    {
+      route_type: "subscription",
+      label: "Subscription / retained service",
+      pricing_model: "recurring_price",
+      pricing_label: "Recurring price",
+      summary: "Recurring product or service with renewal terms.",
+      normal_copy: "AION prepares the subscription terms for review before activation.",
+      example: "Monthly support, maintenance, retainer, SaaS plan.",
+      requires_calendar: false,
+      requires_human_review: true,
+      requires_payment: true,
+      requires_escrow: false,
+      requires_proposal: false,
+      requires_evidence: true,
+    },
+    {
+      route_type: "escrow_contract",
+      label: "Escrow contract",
+      pricing_model: "proposal_required",
+      pricing_label: "Proposal required",
+      summary: "Proposal-led work where payment may be held in escrow.",
+      normal_copy: "AION prepares the contract preview, milestones, evidence rules, and escrow requirements.",
+      example: "Larger building work, software delivery, supplier contract.",
+      requires_calendar: true,
+      requires_human_review: true,
+      requires_payment: true,
+      requires_escrow: true,
+      requires_proposal: true,
+      requires_evidence: true,
+    },
+  ];
+}
+
+function getAionPhase18BusinessExamples() {
+  return [
+    {
+      id: "home_fixed_roof_discovery",
+      label: "Home Fixed · roof leak assessment",
+      business: "Home Fixed",
+      service: "Roof / pergola assessment",
+      customer_request: "Leaking pergola roof in Arboleas after rain",
+      route_type: "discovery_session",
+      resource_type: "Roofer / general builder",
+      requested_slot: "Tomorrow 11:30",
+      available_slot: "Tomorrow 13:30",
+      alternatives: ["Tomorrow 13:30", "Friday 09:00", "Friday 15:30"],
+      unavailable_reason: "11:30 is already held for another site visit.",
+      visible_test_vertical: true,
+    },
+    {
+      id: "home_fixed_plumber_callout",
+      label: "Home Fixed · plumber first-hour callout",
+      business: "Home Fixed",
+      service: "Plumbing callout",
+      customer_request: "Customer needs a plumber for a leak under the sink",
+      route_type: "hourly_service",
+      resource_type: "Plumber",
+      requested_slot: "Tomorrow 11:30",
+      available_slot: "Tomorrow 11:30",
+      alternatives: ["Tomorrow 11:30", "Tomorrow 13:30", "Friday 10:00"],
+      unavailable_reason: "",
+      visible_test_vertical: true,
+    },
+    {
+      id: "design_agency_discovery",
+      label: "Design agency · discovery call",
+      business: "Design Studio",
+      service: "Brand design discovery call",
+      customer_request: "Customer wants a logo and website proposal",
+      route_type: "discovery_session",
+      resource_type: "Designer / consultant",
+      requested_slot: "Thursday 10:00",
+      available_slot: "Thursday 14:00",
+      alternatives: ["Thursday 14:00", "Friday 11:00"],
+      unavailable_reason: "Designer unavailable at requested time.",
+    },
+    {
+      id: "software_project_proposal",
+      label: "Software project · proposal",
+      business: "Software Studio",
+      service: "Custom software proposal",
+      customer_request: "Customer wants an internal workflow system",
+      route_type: "custom_quote",
+      resource_type: "Software consultant",
+      requested_slot: "Next week",
+      available_slot: "Scoping call required",
+      alternatives: ["Monday 09:30", "Tuesday 15:00"],
+      unavailable_reason: "Final price depends on scope.",
+    },
+    {
+      id: "digital_product_purchase",
+      label: "Digital product · purchase",
+      business: "Digital Store",
+      service: "Template pack purchase",
+      customer_request: "Customer wants to buy a digital template",
+      route_type: "fixed_product",
+      resource_type: "Digital fulfilment",
+      requested_slot: "Immediate",
+      available_slot: "Available now",
+      alternatives: [],
+      unavailable_reason: "",
+    },
+    {
+      id: "physical_stock_check",
+      label: "Physical product · stock check",
+      business: "Supplier",
+      service: "Product stock check",
+      customer_request: "Customer wants 25 units delivered",
+      route_type: "fixed_product",
+      resource_type: "Warehouse / stock",
+      requested_slot: "Dispatch this week",
+      available_slot: "Stock check passed",
+      alternatives: ["Partial shipment", "Backorder"],
+      unavailable_reason: "",
+    },
+    {
+      id: "consultant_hourly",
+      label: "Consultant · hourly session",
+      business: "Consultant",
+      service: "Paid advisory session",
+      customer_request: "Customer wants two hours of consulting",
+      route_type: "hourly_service",
+      resource_type: "Consultant",
+      requested_slot: "Friday 12:00",
+      available_slot: "Friday 12:00",
+      alternatives: ["Friday 12:00", "Monday 10:00"],
+      unavailable_reason: "",
+    },
+    {
+      id: "b2b_supplier_quote",
+      label: "B2B supplier · quote request",
+      business: "B2B Supplier",
+      service: "Bulk quote request",
+      customer_request: "Customer wants trade pricing and delivery terms",
+      route_type: "custom_quote",
+      resource_type: "Sales / supplier desk",
+      requested_slot: "This week",
+      available_slot: "Proposal required",
+      alternatives: ["Send specification", "Book supplier call"],
+      unavailable_reason: "Pricing depends on quantity, freight, and terms.",
     },
   ];
 }
 
 function getAionPhase18TicketState() {
   window.__aionPhase18TicketState = window.__aionPhase18TicketState || {
-    selected_route_type: "discovery_session",
     selected_step: "commercial_route_selected",
-    latest_action: "ready",
+    selected_example_id: "home_fixed_roof_discovery",
+    selected_route_type: "discovery_session",
+    negotiation_state: "slot_proposed",
+    api_preview_ticket: null,
+    api_preview_status: "local_fallback",
+    api_preview_error: "",
   };
+
   return window.__aionPhase18TicketState;
 }
 
-function setAionPhase18TicketState(patch = {}) {
-  window.__aionPhase18TicketState = {
-    ...getAionPhase18TicketState(),
-    ...(patch || {}),
-    updated_at: new Date().toISOString(),
+function getAionPhase18ApiScenarioForExample(exampleId) {
+  const key = String(exampleId || "").toLowerCase();
+
+  if (
+    key.includes("roof") ||
+    key.includes("discovery") ||
+    key === "home_fixed_roof_discovery"
+  ) {
+    return "roof_discovery";
+  }
+
+  if (
+    key.includes("plumb") ||
+    key.includes("callout") ||
+    key === "home_fixed_plumber_callout"
+  ) {
+    return "plumbing_hourly";
+  }
+
+  return "plumbing_hourly";
+}
+
+
+function displayAionPhase18ApiTicketId(value, fallbackValue) {
+  const raw = String(value || "").trim();
+  if (!raw) return fallbackValue;
+  if (raw === "a2a_home_fixed_roof_discovery_preview") return "A2A-HF-001";
+  if (raw === "a2a_home_fixed_plumbing_hourly_preview") return "A2A-HF-002";
+  return raw
+    .replace(/^a2a_/i, "A2A-")
+    .replace(/_preview$/i, "")
+    .replaceAll("_", "-")
+    .toUpperCase();
+}
+
+function displayAionPhase18ApiPricingLabel(value, fallbackValue) {
+  const raw = String(value || "").trim();
+  if (!raw) return fallbackValue;
+  const map = {
+    free_discovery: "Free or paid discovery",
+    "Free discovery before quote": "Free or paid discovery",
+    first_hour_plus_hourly: "First hour plus hourly rate",
+    quote_required: "Quote required",
+    fixed_price: "Fixed price",
+    usage_based: "Usage based",
+    proposal_required: "Proposal required",
   };
-  try { requestRender?.(); } catch (_) { try { render?.(); } catch (_) {} }
-  return window.__aionPhase18TicketState;
+  return map[raw] || raw;
 }
 
-function selectAionPhase18CommercialRoute(routeType) {
-  return setAionPhase18TicketState({
-    selected_route_type: routeType || "discovery_session",
-    latest_action: "route_selected",
-  });
+function displayAionPhase18ApiResource(value, fallbackValue) {
+  const raw = String(value || "").trim();
+  if (!raw) return fallbackValue;
+  const map = {
+    roofer: "Roofer / general builder",
+    plumber: "Plumber",
+    electrician: "Electrician",
+    designer: "Designer / consultant",
+    consultant: "Consultant",
+  };
+  return map[raw.toLowerCase()] || raw;
 }
 
-function selectAionPhase18TicketStep(stepKey) {
-  return setAionPhase18TicketState({
-    selected_step: stepKey || "commercial_route_selected",
-    latest_action: "step_selected",
-  });
-}
 
-function getAionPhase18SelectedRoute() {
-  const state18 = getAionPhase18TicketState();
-  return (
-    getAionPhase18CommercialRoutes().find((route) => route.route_type === state18.selected_route_type) ||
-    getAionPhase18CommercialRoutes()[0]
-  );
-}
+function normaliseAionPhase18ApiTicketForUi(payload, fallbackTicket) {
+  if (!payload || typeof payload !== "object") return fallbackTicket;
 
-function getAionPhase18CommercialTicket() {
-  const route = getAionPhase18SelectedRoute();
+  const route = payload.route || fallbackTicket.route || {};
+  const serviceRule = payload.service_rule || {};
+  const availabilityPreview = payload.availability_preview || {};
+  const proposalPreview = payload.proposal_preview || {};
+  const guard = payload.guard_envelope || payload.api_contract || fallbackTicket.guard_envelope || {};
 
   return {
-    ticket_id: "A2A-HF-001",
-    title: "Home Fixed roof/pergola enquiry",
-    customer_agent: "Customer-side agent",
-    business_agent: "AION Home Fixed agent",
-    customer: "Website customer",
-    request: "Water is coming through near the pergola roof/wall after rain.",
-    service: "Roof / pergola assessment",
-    location: "Arboleas, Almería",
-    urgency: "Medium / rain-related",
-    source: "Website / A2A portal",
-    route,
-    calendar: {
-      resource_model: "single_engineer_now_multi_engineer_ready_later",
-      resource_type: "roofer / general builder",
-      requested_slot: "Tomorrow 11:30",
-      available_slot: "Tomorrow 13:30",
-      status: route.requires_calendar ? "availability_preview" : "not_required",
-      live_booking_created: false,
+    ...fallbackTicket,
+    ticket_id: displayAionPhase18ApiTicketId(payload.ticket_id, fallbackTicket.ticket_id),
+    business: payload.business_name || payload.business || fallbackTicket.business,
+    service: payload.service_name || payload.service || fallbackTicket.service,
+    customer_request:
+      payload.customer_request ||
+      payload.request_text ||
+      payload.customer_message ||
+      fallbackTicket.customer_request ||
+      proposalPreview.customer_visible_summary,
+    route: {
+      ...fallbackTicket.route,
+      ...route,
+      label: route.label || fallbackTicket.route?.label || titleCaseAionPhase18Enum(route.route_type),
+      pricing_label: displayAionPhase18ApiPricingLabel(
+        route.pricing_label || route.pricing_model,
+        fallbackTicket.route?.pricing_label || titleCaseAionPhase18Enum(route.pricing_model),
+      ),
     },
-    commercial_preview: {
-      route_label: route.label,
-      pricing_model: route.pricing_model,
-      first_hour: route.route_type === "hourly_service" ? "€65.00 first hour" : "Not applicable",
-      additional_hour: route.route_type === "hourly_service" || route.route_type === "metered_work" ? "€45.00/hour after approval" : "Not applicable",
-      discovery: route.route_type === "discovery_session" ? "Site visit / assessment required before quote" : "Not required",
-      proposal: route.requires_proposal ? "Proposal or quotation required before final price" : "Not required",
-      escrow: route.requires_escrow ? "Escrow can be prepared in future live phase" : "Not required for this route",
+    rules: {
+      ...fallbackTicket.rules,
+      first_hour_charge: serviceRule.first_hour_charge || fallbackTicket.rules?.first_hour_charge,
+      additional_hour_rate: serviceRule.additional_hourly_rate || fallbackTicket.rules?.additional_hour_rate,
+      discovery_visit: serviceRule.discovery_visit || fallbackTicket.rules?.discovery_visit,
+      proposal_required:
+        serviceRule.quote_or_proposal_required === true
+          ? "Proposal or quotation required before final price"
+          : fallbackTicket.rules?.proposal_required,
+      materials: serviceRule.materials || fallbackTicket.rules?.materials,
+      approval_threshold: serviceRule.approval_threshold || fallbackTicket.rules?.approval_threshold,
+      resource_requirement: displayAionPhase18ApiResource(serviceRule.resource_type, fallbackTicket.rules?.resource_requirement),
+      customer_copy: proposalPreview.customer_visible_summary || fallbackTicket.rules?.customer_copy,
     },
-    guards: {
+    availability: {
+      ...fallbackTicket.availability,
+      status: availabilityPreview.status || fallbackTicket.availability?.status || "Availability preview",
+      resource_model:
+        availabilityPreview.resource_model ||
+        fallbackTicket.availability?.resource_model ||
+        "Single engineer now · multi-engineer ready later",
+      resource_type: displayAionPhase18ApiResource(
+        availabilityPreview.resource_type || serviceRule.resource_type,
+        fallbackTicket.availability?.resource_type,
+      ),
+      requested_slot:
+        availabilityPreview.requested_slot ||
+        fallbackTicket.availability?.requested_slot,
+      available_slot:
+        availabilityPreview.available_slot ||
+        availabilityPreview.proposed_slot ||
+        fallbackTicket.availability?.available_slot,
+      alternatives:
+        Array.isArray(availabilityPreview.alternatives)
+          ? availabilityPreview.alternatives
+          : fallbackTicket.availability?.alternatives || [],
+      unavailable_reason:
+        availabilityPreview.unavailable_reason ||
+        fallbackTicket.availability?.unavailable_reason,
+      calendar_connector:
+        availabilityPreview.calendar_connector ||
+        fallbackTicket.availability?.calendar_connector ||
+        "Future calendar connector · preview only",
+      live_booking: false,
+    },
+    guard_envelope: {
+      ...fallbackTicket.guard_envelope,
+      ...guard,
+      preview_only: true,
       booking_created: false,
       payment_created: false,
       escrow_created: false,
       external_message_sent: false,
       live_chain_write: false,
       human_review_required: true,
-      preview_only: true,
     },
+    api_preview: {
+      source: "api",
+      requested_scenario: payload.requested_scenario || "",
+      resolved_scenario: payload.resolved_scenario || "",
+      ticket_hash: payload.ticket_hash || "",
+      route_hash: payload.route?.route_hash || "",
+      raw_ticket_id: payload.ticket_id || "",
+    },
+    deterministic_seed: payload.ticket_hash || fallbackTicket.deterministic_seed,
   };
+}
+
+async function fetchAionPhase18CommercialTicketPreview() {
+  const state18 = getAionPhase18TicketState();
+
+  if (state18.api_preview_status === "loading") {
+    return;
+  }
+  const scenario = getAionPhase18ApiScenarioForExample(state18.selected_example_id);
+  const url = `http://127.0.0.1:8080/api/local-node/aion/phase18/a2a-commercial-ticket-preview?scenario=${encodeURIComponent(scenario)}`;
+
+  state18.api_preview_status = "loading";
+  state18.api_preview_error = "";
+  requestRender?.();
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort("Phase 18 preview API timed out after 10 seconds"), 10000);
+
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      signal: controller.signal,
+      cache: "no-store",
+    });
+
+    if (!response.ok) throw new Error(`Preview API returned ${response.status}`);
+
+    const payload = await response.json();
+
+    state18.api_preview_ticket = payload;
+    state18.api_preview_status = "api_preview";
+    state18.api_preview_error = "Local API preview loaded";
+  } catch (error) {
+    state18.api_preview_ticket = null;
+    state18.api_preview_status = "local_fallback";
+    state18.api_preview_error = String(error?.message || error || "Preview API unavailable");
+  } finally {
+    window.clearTimeout(timeoutId);
+    requestRender?.();
+  }
+}
+
+function getAionPhase18SelectedExample() {
+  const state18 = getAionPhase18TicketState();
+  const examples = getAionPhase18BusinessExamples();
+  return examples.find((item) => item.id === state18.selected_example_id) || examples[0];
+}
+
+function selectAionPhase18BusinessExample(exampleId) {
+  const examples = getAionPhase18BusinessExamples();
+  const example = examples.find((item) => item.id === exampleId) || examples[0];
+  const state18 = getAionPhase18TicketState();
+  state18.selected_example_id = example.id;
+  state18.selected_route_type = example.route_type;
+  state18.selected_step = "commercial_route_selected";
+  state18.negotiation_state = "slot_proposed";
+  state18.api_preview_ticket = null;
+  state18.api_preview_status = "local_fallback";
+  state18.api_preview_error = "";
+  requestRender?.();
+}
+
+function selectAionPhase18CommercialRoute(routeType) {
+  const state18 = getAionPhase18TicketState();
+  state18.selected_route_type = routeType || "discovery_session";
+  state18.selected_step = "commercial_route_selected";
+  requestRender?.();
+}
+
+function selectAionPhase18TicketStep(stepKey) {
+  const state18 = getAionPhase18TicketState();
+  state18.selected_step = stepKey || "commercial_route_selected";
+  requestRender?.();
+}
+
+function getAionPhase18RouteByType(routeType) {
+  return getAionPhase18CommercialRoutes().find((item) => item.route_type === routeType) || getAionPhase18CommercialRoutes()[1];
+}
+
+function getAionPhase18BusinessRules(route, example) {
+  const type = String(route?.route_type || "");
+
+  const base = {
+    first_hour_charge: "Not applicable",
+    additional_hour_rate: "Not applicable",
+    discovery_visit: "Not applicable",
+    proposal_required: route?.requires_proposal ? "Required before final price" : "Not required",
+    materials: "Quoted separately where required",
+    approval_threshold: "Human approval before booking, payment, escrow, external message, or chain write",
+    resource_requirement: example?.resource_type || "Matched resource",
+    customer_copy: route?.normal_copy || route?.summary || "",
+  };
+
+  if (type === "hourly_service") {
+    return {
+      ...base,
+      first_hour_charge: "First hour callout charge agreed before booking",
+      additional_hour_rate: "Additional hours billed at pre-agreed hourly rate",
+      discovery_visit: "Optional if business requires assessment",
+      proposal_required: "Not required for standard first-hour callout",
+      materials: "Materials quoted separately and approval-gated",
+      approval_threshold: "Extra hours/materials above agreed threshold require approval",
+    };
+  }
+
+  if (type === "discovery_session") {
+    return {
+      ...base,
+      first_hour_charge: "Not applicable unless paid discovery is selected",
+      additional_hour_rate: "Not applicable",
+      discovery_visit: "Site visit / assessment required before quote",
+      proposal_required: "Proposal or quotation required before final price",
+      materials: "Materials cannot be priced until inspection",
+      approval_threshold: "Human approval required before live visit booking",
+    };
+  }
+
+  if (type === "custom_quote") {
+    return {
+      ...base,
+      discovery_visit: "Optional scoping call or assessment",
+      proposal_required: "Scope/proposal required before price",
+      materials: "Materials and third-party costs quoted separately",
+    };
+  }
+
+  if (type === "fixed_product") {
+    return {
+      ...base,
+      first_hour_charge: "Not applicable",
+      additional_hour_rate: "Not applicable",
+      discovery_visit: "Not required",
+      proposal_required: "Not required if stock/price are confirmed",
+      materials: "Included in product price unless stated",
+      approval_threshold: "Payment remains preview-only in this phase",
+    };
+  }
+
+  if (type === "metered_work") {
+    return {
+      ...base,
+      first_hour_charge: "Opening rate or minimum charge agreed first",
+      additional_hour_rate: "Usage/time/materials billed by approved rate card",
+      discovery_visit: "May be required",
+      proposal_required: "Rate card and approval rules required",
+      materials: "Materials billed separately with evidence",
+      approval_threshold: "Additional work requires approval above limit",
+    };
+  }
+
+  if (type === "escrow_contract") {
+    return {
+      ...base,
+      discovery_visit: "Usually required",
+      proposal_required: "Proposal, milestone, evidence, and escrow terms required",
+      materials: "Quoted by milestone or evidence pack",
+      approval_threshold: "Escrow/payment actions remain preview-only",
+    };
+  }
+
+  return base;
+}
+
+function getAionPhase18AvailabilityPreview(route, example) {
+  const requiresCalendar = route?.requires_calendar === true;
+  return {
+    status: requiresCalendar ? "Availability preview" : "Availability / stock preview",
+    resource_model: "Single engineer now · multi-engineer ready later",
+    resource_type: example?.resource_type || "Matched resource",
+    requested_slot: example?.requested_slot || "Customer requested time",
+    available_slot: example?.available_slot || "Alternative proposed",
+    alternatives: Array.isArray(example?.alternatives) ? example.alternatives : [],
+    unavailable_reason: example?.unavailable_reason || "",
+    calendar_connector: "Future calendar connector · preview only",
+    live_booking: false,
+  };
+}
+
+function getAionPhase18NegotiationStates() {
+  return [
+    ["agent_request_received", "Agent request received"],
+    ["route_rules_returned", "Route and rules returned"],
+    ["customer_agent_confirming", "Customer agent confirming"],
+    ["availability_requested", "Availability requested"],
+    ["slot_proposed", "Slot or next action proposed"],
+    ["customer_agent_accepted", "Customer agent accepted"],
+    ["human_approval_required", "Human approval required"],
+    ["proof_ready", "Proof ready"],
+  ];
 }
 
 function getAionPhase18TimelineSteps() {
@@ -74640,9 +75469,9 @@ function getAionPhase18TimelineSteps() {
     ["intent_classified", "Intent classified"],
     ["business_rules_loaded", "Business rules loaded"],
     ["commercial_route_selected", "Commercial route selected"],
-    ["availability_scope_checked", "Availability / scope checked"],
+    ["availability_scope_checked", "Availability / stock / scope checked"],
     ["proposal_prepared", "Proposal prepared"],
-    ["customer_agent_pending", "Customer agent reply pending"],
+    ["customer_agent_pending", "Customer-side agent response pending"],
     ["human_approval_required", "Human approval required"],
     ["proof_receipt_prepared", "Proof receipt prepared"],
     ["replay_available", "Replay available"],
@@ -74650,38 +75479,93 @@ function getAionPhase18TimelineSteps() {
 }
 
 function getAionPhase18StepCopy(stepKey) {
-  const ticket = getAionPhase18CommercialTicket();
-  const route = ticket.route || {};
-
   const copy = {
-    request_received: "An external agent or website visitor has asked for a business outcome.",
-    intent_classified: "AION classifies the request as service, product, discovery, quote, or metered work.",
-    business_rules_loaded: "AION loads business rules, rate cards, calendar policy, and human-review rules.",
-    commercial_route_selected: `Selected route: ${route.label}. Pricing model: ${route.pricing_model}.`,
-    availability_scope_checked: route.requires_calendar
-      ? "AION checks calendar/resource availability and proposes safe slots without creating a live booking."
-      : "AION checks stock, scope, or business readiness. Calendar is not required for this route.",
-    proposal_prepared: route.route_type === "discovery_session"
-      ? "AION prepares a site visit / assessment proposal, not a fake final quote."
-      : route.route_type === "hourly_service"
-        ? "AION prepares a first-hour callout proposal plus additional hourly-rate rules."
-        : "AION prepares the correct proposal/order preview for the selected commercial route.",
-    customer_agent_pending: "The customer-side agent can accept, reject, ask for alternatives, or negotiate within the allowed rules.",
-    human_approval_required: "Human review is required before any live booking, payment, escrow, external message, or chain write.",
-    proof_receipt_prepared: "AION prepares a proof receipt for the preview path and guard decisions.",
-    replay_available: "The whole A2A negotiation path can be replayed from deterministic ticket evidence.",
+    request_received: "Inbound A2A request has been captured as a commercial ticket.",
+    intent_classified: "AION classifies the customer intent, service type, urgency, and likely commercial route.",
+    business_rules_loaded: "Business rules, rate card, approval policy, and resource requirements are loaded.",
+    commercial_route_selected: "The correct commercial route is selected before any price, slot, or proposal is offered.",
+    availability_scope_checked: "AION checks availability, stock, or required scope. It can suggest alternatives but cannot book live yet.",
+    proposal_prepared: "AION prepares the correct proposal preview for the selected route. It does not invent a final quote.",
+    customer_agent_pending: "The customer-side agent can accept, reject, ask for alternatives, or negotiate inside the allowed rules.",
+    human_approval_required: "Human review is required before booking, payment, escrow, external messaging, or chain writing.",
+    proof_receipt_prepared: "AION prepares deterministic proof for the preview path and guard decisions.",
+    replay_available: "The whole A2A negotiation path can be replayed from ticket evidence.",
   };
 
   return copy[stepKey] || copy.commercial_route_selected;
+}
+
+function getAionPhase18StepStatus(index, selectedIndex) {
+  if (index < selectedIndex) return "completed";
+  if (index === selectedIndex) return "current";
+  return "pending";
+}
+
+function getAionPhase18CommercialTicket() {
+  const state18 = getAionPhase18TicketState();
+  const example = getAionPhase18SelectedExample();
+  const route = getAionPhase18RouteByType(state18.selected_route_type || example.route_type);
+  const rules = getAionPhase18BusinessRules(route, example);
+  const availability = getAionPhase18AvailabilityPreview(route, example);
+
+  const deterministic_seed = [
+    example.id,
+    example.business,
+    example.service,
+    route.route_type,
+    route.pricing_model,
+    availability.requested_slot,
+    availability.available_slot,
+  ].join("|");
+
+  const localTicket = {
+    ticket_id: example.id.startsWith("home_fixed") ? "A2A-HF-001" : `A2A-${example.id.toUpperCase().replaceAll("_", "-").slice(0, 18)}`,
+    business: example.business,
+    service: example.service,
+    customer_request: example.customer_request,
+    example,
+    route,
+    rules,
+    availability,
+    negotiation_state: state18.negotiation_state || "slot_proposed",
+    guard_envelope: {
+      preview_only: true,
+      no_live_booking: true,
+      no_live_payment: true,
+      no_external_message: true,
+      no_chain_write: true,
+      human_review_required: route.requires_human_review === true,
+      booking_created: false,
+      payment_created: false,
+      escrow_created: false,
+      external_message_sent: false,
+      live_chain_write: false,
+    },
+    deterministic_seed,
+  };
+
+  if (state18.api_preview_ticket && state18.api_preview_status === "api_preview") {
+    return normaliseAionPhase18ApiTicketForUi(state18.api_preview_ticket, localTicket);
+  }
+
+  return localTicket;
+}
+
+function renderAionPhase18Fact(label, value) {
+  return `<span><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value || "—")}</span>`;
 }
 
 function renderAionPhase18CommercialTicketPanel() {
   const state18 = getAionPhase18TicketState();
   const ticket = getAionPhase18CommercialTicket();
   const route = ticket.route || {};
-  const preview = ticket.commercial_preview || {};
-  const calendar = ticket.calendar || {};
+  const rules = ticket.rules || {};
+  const availability = ticket.availability || {};
   const steps = getAionPhase18TimelineSteps();
+  const selectedIndex = Math.max(0, steps.findIndex(([key]) => key === state18.selected_step));
+  const selectedStep = steps[selectedIndex] || steps[3];
+  const negotiationLabel =
+    (getAionPhase18NegotiationStates().find(([key]) => key === ticket.negotiation_state) || [null, "Slot or next action proposed"])[1];
 
   return `
     <section class="panel large-panel aion-phase18-a2a-ticket" data-aion-phase18-a2a-commercial-ticket="true">
@@ -74689,16 +75573,62 @@ function renderAionPhase18CommercialTicketPanel() {
         <div>
           <div class="panel-kicker">A2A commercial ticket</div>
           <h2>A2A Job / Order Ticket</h2>
-          <p class="muted">Universal route for products, hourly work, discovery visits, quotes, proposals, metered work, and escrow-ready contracts.</p>
+          <p class="muted">Universal route for products, hourly work, discovery visits, quotes, proposals, metered work, subscriptions, and escrow-ready contracts.</p>
         </div>
-        <div class="status-pill">Preview only</div>
+        <div class="aion-phase18-header-actions">
+          <button
+            type="button"
+            class="secondary-btn aion-phase18-refresh-api-btn"
+            data-aion-phase18-refresh-api-preview="true"
+            onclick="fetchAionPhase18CommercialTicketPreview()"
+            title="Refresh preview from the guarded local Phase 18 API"
+          >
+            Refresh API preview
+          </button>
+
+          <div
+            class="status-pill aion-phase18-guardrail-pill"
+            title="Preview mode · No booking · No payment · No escrow · No external message · No live chain write · Human review required"
+          >
+            Guardrails active
+          </div>
+        </div>
+      </div>
+
+      <div class="aion-phase18-example-row">
+        <label>
+          <span class="eyebrow">Scenario</span>
+          <select data-aion-phase18-example-select="true" onchange="selectAionPhase18BusinessExample(this.value)">
+            ${getAionPhase18BusinessExamples().map((option) => `
+              <option value="${escapeHtml(option.id)}" ${option.id === ticket.example.id ? "selected" : ""}>${escapeHtml(option.label)}</option>
+            `).join("")}
+          </select>
+        </label>
       </div>
 
       <div class="aion-phase18-ticket-summary">
         <div><span class="eyebrow">Ticket</span><strong>${escapeHtml(ticket.ticket_id)}</strong></div>
+        <div><span class="eyebrow">Business</span><strong>${escapeHtml(ticket.business)}</strong></div>
         <div><span class="eyebrow">Request</span><strong>${escapeHtml(ticket.service)}</strong></div>
-        <div><span class="eyebrow">Route</span><strong>${escapeHtml(route.route_type)}</strong></div>
-        <div><span class="eyebrow">Pricing</span><strong>${escapeHtml(route.pricing_model)}</strong></div>
+        <div><span class="eyebrow">Status</span><strong>${escapeHtml(negotiationLabel)}</strong></div>
+        <div>
+          <span class="eyebrow">Preview source</span>
+          <strong>${escapeHtml(state18.api_preview_status === "api_preview" ? "Local API" : state18.api_preview_status === "loading" ? "Loading API" : "Local fallback")}</strong>
+        </div>
+      </div>
+
+      ${state18.api_preview_status === "api_preview" && state18.api_preview_error
+        ? `<div class="aion-phase18-api-note is-success">${escapeHtml(state18.api_preview_error)}</div>`
+        : ""}
+      ${state18.api_preview_status === "local_fallback" && state18.api_preview_error
+        ? `<div class="aion-phase18-api-note">API preview unavailable · using local fallback. ${escapeHtml(state18.api_preview_error)}</div>`
+        : ""}
+
+      <div class="aion-phase18-ticket-summary">
+        <div><span class="eyebrow">Route</span><strong>${escapeHtml(route.label)}</strong></div>
+        <div><span class="eyebrow">Pricing</span><strong>${escapeHtml(route.pricing_label)}</strong></div>
+        <div><span class="eyebrow">Resource</span><strong>${escapeHtml(availability.resource_type)}</strong></div>
+        <div><span class="eyebrow">Next action</span><strong>${escapeHtml(route.requires_human_review ? "Human review" : "Customer confirmation")}</strong></div>
       </div>
 
       <div class="aion-phase18-route-row">
@@ -74713,61 +75643,100 @@ function renderAionPhase18CommercialTicketPanel() {
 
         <div class="aion-phase18-route-copy">
           <strong>${escapeHtml(route.label)}</strong>
-          <span>${escapeHtml(route.summary)}</span>
+          <span>${escapeHtml(route.normal_copy || route.summary)}</span>
         </div>
       </div>
 
-      <div class="aion-phase18-timeline">
-        ${steps.map(([key, label], index) => `
-          <button type="button" class="${state18.selected_step === key ? "is-active" : ""}" onclick="selectAionPhase18TicketStep('${escapeHtml(key)}')">
-            <span>${index + 1}</span>${escapeHtml(label)}
-          </button>
-        `).join("")}
+      <div class="aion-phase18-customer-request">
+        <div class="eyebrow">Customer-side agent request</div>
+        <strong>${escapeHtml(ticket.customer_request)}</strong>
+      </div>
+
+      <div class="aion-phase18-timeline" role="list" aria-label="A2A ticket lifecycle">
+        ${steps.map(([key, label], index) => {
+          const stepStatus = getAionPhase18StepStatus(index, selectedIndex);
+          return `
+            <button
+              type="button"
+              class="aion-phase18-timeline-item is-${stepStatus} ${state18.selected_step === key ? "is-active" : ""}"
+              onclick="selectAionPhase18TicketStep('${escapeHtml(key)}')"
+              title="Inspect ${escapeHtml(label)}"
+              aria-label="Inspect ${escapeHtml(label)}"
+            >
+              <span class="aion-phase18-step-index">${index + 1}</span>
+              <span class="aion-phase18-step-copy">
+                <strong>${escapeHtml(label)}</strong>
+                <small>${escapeHtml(stepStatus)}</small>
+              </span>
+            </button>
+          `;
+        }).join("")}
       </div>
 
       <div class="aion-phase18-step-card">
-        <div class="eyebrow">Selected step</div>
-        <h3>${escapeHtml(steps.find(([key]) => key === state18.selected_step)?.[1] || "Commercial route selected")}</h3>
+        <div class="eyebrow">Current ticket field</div>
+        <h3>${escapeHtml(selectedStep[1])}</h3>
         <p>${escapeHtml(getAionPhase18StepCopy(state18.selected_step))}</p>
       </div>
 
       <div class="aion-phase18-proposal-grid">
         <div class="aion-phase18-proposal-card">
-          <div class="eyebrow">Commercial proposal</div>
-          <h3>${escapeHtml(preview.route_label)}</h3>
+          <div class="eyebrow">Business rules / rate card</div>
+          <h3>${escapeHtml(route.label)}</h3>
           <div class="aion-phase18-facts">
-            <span><strong>First hour:</strong> ${escapeHtml(preview.first_hour)}</span>
-            <span><strong>Additional:</strong> ${escapeHtml(preview.additional_hour)}</span>
-            <span><strong>Discovery:</strong> ${escapeHtml(preview.discovery)}</span>
-            <span><strong>Proposal:</strong> ${escapeHtml(preview.proposal)}</span>
-            <span><strong>Escrow:</strong> ${escapeHtml(preview.escrow)}</span>
+            ${renderAionPhase18Fact("First hour", rules.first_hour_charge)}
+            ${renderAionPhase18Fact("Additional", rules.additional_hour_rate)}
+            ${renderAionPhase18Fact("Discovery", rules.discovery_visit)}
+            ${renderAionPhase18Fact("Proposal", rules.proposal_required)}
+            ${renderAionPhase18Fact("Materials", rules.materials)}
+            ${renderAionPhase18Fact("Approval threshold", rules.approval_threshold)}
           </div>
         </div>
 
         <div class="aion-phase18-proposal-card">
-          <div class="eyebrow">Availability preview</div>
-          <h3>${escapeHtml(calendar.status)}</h3>
+          <div class="eyebrow">Availability / resource preview</div>
+          <h3>${escapeHtml(availability.status)}</h3>
           <div class="aion-phase18-facts">
-            <span><strong>Resource model:</strong> ${escapeHtml(calendar.resource_model)}</span>
-            <span><strong>Resource:</strong> ${escapeHtml(calendar.resource_type)}</span>
-            <span><strong>Requested:</strong> ${escapeHtml(calendar.requested_slot)}</span>
-            <span><strong>Available:</strong> ${escapeHtml(calendar.available_slot)}</span>
-            <span><strong>Live booking:</strong> false</span>
+            ${renderAionPhase18Fact("Resource model", availability.resource_model)}
+            ${renderAionPhase18Fact("Resource", availability.resource_type)}
+            ${renderAionPhase18Fact("Requested", availability.requested_slot)}
+            ${renderAionPhase18Fact("Proposed", availability.available_slot)}
+            ${availability.unavailable_reason ? renderAionPhase18Fact("Reason", availability.unavailable_reason) : ""}
+            ${renderAionPhase18Fact("Calendar connector", availability.calendar_connector)}
+            ${renderAionPhase18Fact("Live booking", "Disabled · preview only")}
           </div>
+          ${
+            availability.alternatives?.length
+              ? `<div class="aion-phase18-alternatives">
+                  <strong>Alternatives</strong>
+                  ${availability.alternatives.map((slot) => `<span>${escapeHtml(slot)}</span>`).join("")}
+                </div>`
+              : ""
+          }
         </div>
       </div>
 
-      <div class="aion-founder-single-guard-strip">
-        Preview mode · No booking · No payment · No escrow · No external message · No live chain write · Human review required
+      <div class="aion-phase18-negotiation-card">
+        <div class="eyebrow">A2A negotiation state</div>
+        <h3>${escapeHtml(negotiationLabel)}</h3>
+        <p>
+          Customer-side agent can accept, reject, ask for another slot, or negotiate inside the business rules.
+          AION can answer with route, rules, proposed slot, alternatives, and proof preview only.
+        </p>
       </div>
 
       <details class="aion-phase18-advanced">
         <summary>Advanced technical trace</summary>
         <pre>{
   "ticket_id": "${escapeHtml(ticket.ticket_id)}",
+  "business": "${escapeHtml(ticket.business)}",
   "route_type": "${escapeHtml(route.route_type)}",
   "pricing_model": "${escapeHtml(route.pricing_model)}",
+  "negotiation_state": "${escapeHtml(ticket.negotiation_state)}",
+  "deterministic_seed": "${escapeHtml(ticket.deterministic_seed)}",
   "requires_calendar": ${String(route.requires_calendar === true)},
+  "requires_human_review": ${String(route.requires_human_review === true)},
+  "requires_escrow": ${String(route.requires_escrow === true)},
   "booking_created": false,
   "payment_created": false,
   "escrow_created": false,
@@ -74781,6 +75750,133 @@ function renderAionPhase18CommercialTicketPanel() {
 
 window.selectAionPhase18CommercialRoute = selectAionPhase18CommercialRoute;
 window.selectAionPhase18TicketStep = selectAionPhase18TicketStep;
+window.fetchAionPhase18CommercialTicketPreview = fetchAionPhase18CommercialTicketPreview;
+window.selectAionPhase18BusinessExample = selectAionPhase18BusinessExample;
+
+
+
+/* PHASE 18 LOCK: hide fixed workflow slim header when A2A ticket is visible */
+(function installAionPhase18HideWorkflowSlimHeader() {
+  const STYLE_ID = "aion-phase18-hide-workflow-slim-header-style";
+  if (!document.getElementById(STYLE_ID)) {
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+html body.aion-phase18-ticket-visible [data-aion-selected-workflow-slim-header='true'],
+html body.aion-phase18-ticket-visible .aion-selected-workflow-slim-header-v14 {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+    `;
+    document.head.appendChild(style);
+  }
+
+  const sync = () => {
+    const visible = !!document.querySelector(".aion-phase18-a2a-ticket");
+    document.body.classList.toggle("aion-phase18-ticket-visible", visible);
+  };
+
+  sync();
+  window.requestAnimationFrame?.(sync);
+  window.setTimeout(sync, 80);
+  window.setTimeout(sync, 250);
+
+  if (!window.__aionPhase18SlimHeaderObserver) {
+    window.__aionPhase18SlimHeaderObserver = new MutationObserver(sync);
+    window.__aionPhase18SlimHeaderObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+  }
+})();
+
+
+
+/* PHASE 18 LOCK: remove stale Main workflow overlay while A2A ticket is visible */
+(function installAionPhase18RemoveMainWorkflowOverlay() {
+  const PATCH_ID = "aion-phase18-remove-main-workflow-overlay-v1";
+  if (window[PATCH_ID]) return;
+  window[PATCH_ID] = true;
+
+  const STYLE_ID = "aion-phase18-remove-main-workflow-overlay-style-v1";
+
+  function installStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      body.aion-phase18-ticket-visible [data-aion-selected-workflow-slim-header='true'],
+      body.aion-phase18-ticket-visible .aion-selected-workflow-slim-header-v14 {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function looksLikeMainWorkflowOverlay(el) {
+    if (!el || el.nodeType !== 1) return false;
+
+    const text = String(el.textContent || "").trim();
+    if (text !== "Main workflow") return false;
+
+    const rect = el.getBoundingClientRect?.();
+    if (!rect) return false;
+
+    return rect.width > 80 && rect.width < window.innerWidth && rect.height > 10 && rect.height < 80;
+  }
+
+  function hideStaleMainWorkflowOverlay() {
+    const ticketVisible = !!document.querySelector("[data-aion-phase18-a2a-commercial-ticket='true']");
+    document.body.classList.toggle("aion-phase18-ticket-visible", ticketVisible);
+
+    if (!ticketVisible) return;
+
+    document
+      .querySelectorAll("[data-aion-selected-workflow-slim-header='true'], .aion-selected-workflow-slim-header-v14")
+      .forEach((el) => {
+        el.style.setProperty("display", "none", "important");
+        el.style.setProperty("visibility", "hidden", "important");
+        el.style.setProperty("pointer-events", "none", "important");
+        el.style.setProperty("opacity", "0", "important");
+      });
+
+    Array.from(document.body.querySelectorAll("div, section, header, nav"))
+      .filter(looksLikeMainWorkflowOverlay)
+      .forEach((el) => {
+        el.style.setProperty("display", "none", "important");
+        el.style.setProperty("visibility", "hidden", "important");
+        el.style.setProperty("pointer-events", "none", "important");
+        el.style.setProperty("opacity", "0", "important");
+        el.setAttribute("data-aion-phase18-hidden-main-workflow-overlay", "true");
+      });
+  }
+
+  installStyle();
+
+  const run = () => {
+    try {
+      hideStaleMainWorkflowOverlay();
+    } catch (error) {
+      console.warn("[Phase18] overlay hide skipped", error);
+    }
+  };
+
+  window.setTimeout(run, 0);
+  window.setTimeout(run, 80);
+  window.setTimeout(run, 250);
+  window.setTimeout(run, 700);
+
+  const observer = new MutationObserver(run);
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  window.__debugAionPhase18RemoveMainWorkflowOverlay = run;
+})();
+
 
 /* END PHASE 18 LOCK */
 
@@ -74794,19 +75890,40 @@ function installAionPhase18A2ATicketStyles() {
 /* PHASE 18 A2A COMMERCIAL TICKET UI LOCK */
 .aion-phase18-a2a-ticket { margin-top: 18px; }
 
+.aion-phase18-example-row {
+  margin: 14px 0;
+}
+
+.aion-phase18-example-row label,
+.aion-phase18-route-row label {
+  display: grid;
+  gap: 6px;
+}
+
+.aion-phase18-example-row select,
+.aion-phase18-route-row select {
+  min-height: 42px;
+  border: 1px solid rgba(25,25,25,.18);
+  background: rgba(255,255,255,.52);
+  padding: 8px 12px;
+  font: inherit;
+}
+
 .aion-phase18-ticket-summary {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  margin: 16px 0;
+  margin: 12px 0;
 }
 
 .aion-phase18-ticket-summary > div,
 .aion-phase18-step-card,
 .aion-phase18-proposal-card,
-.aion-phase18-route-copy {
+.aion-phase18-route-copy,
+.aion-phase18-customer-request,
+.aion-phase18-negotiation-card {
   border: 1px solid rgba(25,25,25,.12);
-  background: rgba(255,255,255,.46);
+  background: rgba(255,255,255,.42);
   padding: 13px 14px;
 }
 
@@ -74824,49 +75941,90 @@ function installAionPhase18A2ATicketStyles() {
   margin: 14px 0;
 }
 
-.aion-phase18-route-row label {
-  display: grid;
-  gap: 6px;
-}
-
-.aion-phase18-route-row select {
-  min-height: 42px;
-  border: 1px solid rgba(25,25,25,.22);
-  background: rgba(255,255,255,.58);
-  padding: 8px 12px;
-  font: inherit;
-}
-
 .aion-phase18-route-copy {
   display: grid;
   gap: 4px;
 }
 
 .aion-phase18-route-copy span,
-.aion-phase18-step-card p {
+.aion-phase18-step-card p,
+.aion-phase18-negotiation-card p {
   color: rgba(25,25,25,.68);
 }
 
+.aion-phase18-customer-request {
+  margin: 12px 0;
+  display: grid;
+  gap: 6px;
+}
+
 .aion-phase18-timeline {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 8px;
   margin: 16px 0;
 }
 
-.aion-phase18-timeline button {
-  border: 1px solid rgba(25,25,25,.18);
-  background: rgba(255,255,255,.55);
-  border-radius: 999px;
-  padding: 8px 12px;
-  font-weight: 800;
+.aion-phase18-timeline-item {
+  border: 1px solid rgba(25,25,25,.14);
+  background: rgba(255,255,255,.42);
+  border-radius: 8px;
+  padding: 9px 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  text-align: left;
   cursor: pointer;
+  box-shadow: none;
 }
 
-.aion-phase18-timeline button.is-active {
-  background: #1398a6;
-  color: white;
-  border-color: #1398a6;
+.aion-phase18-timeline-item:hover {
+  background: rgba(235,226,210,.52);
+}
+
+.aion-phase18-timeline-item.is-completed {
+  background: rgba(100,118,106,.10);
+}
+
+.aion-phase18-timeline-item.is-current,
+.aion-phase18-timeline-item.is-active {
+  background: rgba(100,118,106,.16);
+  border-color: rgba(64,86,74,.34);
+}
+
+.aion-phase18-timeline-item.is-pending {
+  opacity: .72;
+}
+
+.aion-phase18-step-index {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(100,118,106,.18);
+  color: #272421;
+  font-weight: 900;
+  flex: 0 0 24px;
+}
+
+.aion-phase18-step-copy {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.aion-phase18-step-copy strong {
+  font-size: 12px;
+  line-height: 1.15;
+}
+
+.aion-phase18-step-copy small {
+  font-size: 10px;
+  color: rgba(25,25,25,.52);
+  text-transform: uppercase;
+  letter-spacing: .08em;
 }
 
 .aion-phase18-proposal-grid {
@@ -74883,6 +76041,69 @@ function installAionPhase18A2ATicketStyles() {
   font-size: 14px;
 }
 
+.aion-phase18-alternatives {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.aion-phase18-alternatives span {
+  border: 1px solid rgba(25,25,25,.14);
+  background: rgba(255,255,255,.36);
+  padding: 5px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.aion-phase18-negotiation-card {
+  margin-top: 12px;
+}
+
+.aion-phase18-guardrail-pill {
+  cursor: help;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.aion-phase18-guardrail-pill::before {
+  content: "●";
+  font-size: 10px;
+}
+
+.aion-phase18-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.aion-phase18-refresh-api-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.aion-phase18-api-note {
+  margin: -2px 0 12px;
+  padding: 9px 12px;
+  border: 1px solid rgba(146, 64, 14, 0.18);
+  background: rgba(251, 191, 36, 0.10);
+  color: rgba(92, 48, 10, 0.86);
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.aion-phase18-api-note.is-success {
+  border-color: rgba(64, 86, 74, 0.28);
+  background: rgba(237, 243, 232, 0.72);
+  color: #40564a;
+}
+
 .aion-phase18-advanced {
   margin-top: 14px;
 }
@@ -74897,6 +76118,18 @@ function installAionPhase18A2ATicketStyles() {
   border: 1px solid rgba(25,25,25,.12);
   background: rgba(255,255,255,.5);
   padding: 12px;
+}
+
+@media (max-width: 1100px) {
+  .aion-phase18-ticket-summary,
+  .aion-phase18-proposal-grid,
+  .aion-phase18-route-row {
+    grid-template-columns: 1fr;
+  }
+
+  .aion-phase18-timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 /* END PHASE 18 A2A COMMERCIAL TICKET UI LOCK */
   `;
