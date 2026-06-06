@@ -82862,3 +82862,175 @@ html body .aion-phase19d-note-text {
   console.log("[AION] Phase 19E.3 backend custom function sandbox contract lock installed");
 })();
 
+/*
+ * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19E.5 Custom Function Execution Policy Lock
+ *
+ * Contract:
+ * - Custom function nodes are saved sandbox contracts.
+ * - Dry-run preview only.
+ * - Code is stored but not executed yet.
+ * - No frontend/backend code execution and no live writes.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19E5CustomFunctionExecutionPolicyLock() {
+  if (window.__aionPhase19E5CustomFunctionExecutionPolicyLockInstalled === true) return;
+  window.__aionPhase19E5CustomFunctionExecutionPolicyLockInstalled = true;
+
+  const POLICY = Object.freeze({
+    phase: "19E.5",
+    mode: "saved_sandbox_contract",
+    label: "Saved sandbox contract",
+    user_message: "Saved sandbox contract. Dry-run preview only. Code is stored but not executed yet.",
+    dry_run_preview_only: true,
+    frontend_code_execution: false,
+    backend_code_execution: false,
+    external_writes_enabled: false,
+    live_execution_enabled: false,
+    network_access: false,
+    filesystem_access: false,
+    secrets_access: false,
+    requires_human_approval: true,
+    future_runner_requires_backend_sandbox: true,
+  });
+
+  function applyPolicyToCustomFunctionNode(node) {
+    if (!node || typeof node !== "object") return node;
+
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node.id,
+      node.type,
+      node.kind,
+      node.title,
+      node.label,
+      node.action_id,
+      node.module_id,
+      node.connector,
+      node.app,
+      config.action_id,
+      config.module_id,
+      config.connector,
+      config.app,
+      config.custom_function,
+    ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+    const isCustom =
+      haystack.includes("custom.function") ||
+      haystack.includes("custom_function") ||
+      haystack.includes("custom function") ||
+      haystack.includes("custom logic");
+
+    if (!isCustom) return node;
+
+    node.config = {
+      ...config,
+      custom_function: true,
+      sandbox_contract_mode: POLICY.mode,
+      dry_run_preview_only: true,
+      frontend_code_execution: false,
+      backend_code_execution: false,
+      external_writes_enabled: false,
+      live_execution_enabled: false,
+      network_access: false,
+      filesystem_access: false,
+      secrets_access: false,
+      requires_human_approval: true,
+      execution_policy_message: POLICY.user_message,
+    };
+
+    node.dry_run_only = true;
+    node.external_writes_enabled = false;
+    node.live_execution_enabled = false;
+    node.meta = POLICY.user_message;
+
+    return node;
+  }
+
+  function applyPolicyToGraph() {
+    const graph =
+      (typeof window.__aionGetActiveWorkflowGraph === "function" && window.__aionGetActiveWorkflowGraph()) ||
+      (typeof getAionWorkflowDraftState === "function" && getAionWorkflowDraftState()) ||
+      window.__aionWorkflowGraph ||
+      window.__aionWorkflowMainGraph ||
+      null;
+
+    if (!graph || !Array.isArray(graph.nodes)) return false;
+
+    graph.nodes = graph.nodes.map(applyPolicyToCustomFunctionNode);
+    graph.dirty = true;
+    graph.dirty_reason = "phase19e5_custom_function_policy_lock";
+    graph.updated_at = new Date().toISOString();
+
+    window.__aionWorkflowGraph = graph;
+    if (String(window.__aionActiveWorkflowTab || "").toLowerCase() !== "glyph") {
+      window.__aionWorkflowMainGraph = graph;
+    }
+
+    return true;
+  }
+
+  function patchVisibleEditorText() {
+    const editors = Array.from(document.querySelectorAll(
+      [
+        "[data-aion-phase19e-final-custom-function-takeover='true']",
+        "[data-aion-phase19e-modal-grid-replaced='true']",
+        "[data-aion-phase19e-real-custom-function-editor='true']",
+        ".aion-phase19e-modal-custom-function-editor",
+        ".aion-phase19e-real-custom-function-editor",
+      ].join(",")
+    ));
+
+    for (const editor of editors) {
+      editor.setAttribute("data-aion-phase19e5-policy", "saved_sandbox_contract");
+
+      if (editor.querySelector("[data-aion-phase19e5-policy-banner='true']")) continue;
+
+      const banner = document.createElement("div");
+      banner.setAttribute("data-aion-phase19e5-policy-banner", "true");
+      banner.style.cssText = [
+        "border:1px solid rgba(180,130,20,0.28)",
+        "background:rgba(255,247,204,0.72)",
+        "padding:10px 12px",
+        "font-weight:900",
+        "font-size:12px",
+        "margin:0 0 12px",
+      ].join(";");
+
+      banner.textContent = POLICY.user_message;
+      editor.prepend(banner);
+    }
+  }
+
+  document.addEventListener("click", (event) => {
+    if (
+      event.target?.closest?.("[data-aion-phase19e-final-save='true']") ||
+      event.target?.closest?.("[data-aion-phase19e-modal-save='true']") ||
+      event.target?.closest?.("[data-aion-phase19e-real-custom-function-save='true']") ||
+      event.target?.closest?.("[data-aion-phase19e-custom-function-save='true']") ||
+      event.target?.closest?.("[data-aion-workflow-dry-run='true']")
+    ) {
+      window.setTimeout(applyPolicyToGraph, 0);
+      window.setTimeout(patchVisibleEditorText, 0);
+      window.setTimeout(patchVisibleEditorText, 120);
+    }
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionPhase19E5PolicyTextTimer);
+    window.__aionPhase19E5PolicyTextTimer = window.setTimeout(patchVisibleEditorText, 60);
+  });
+
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+
+  window.__aionPhase19E5CustomFunctionExecutionPolicy = POLICY;
+  window.__aionPhase19E5ApplyCustomFunctionPolicyToGraph = applyPolicyToGraph;
+  window.__aionPhase19E5PatchVisibleEditorText = patchVisibleEditorText;
+
+  applyPolicyToGraph();
+  window.setInterval(patchVisibleEditorText, 900);
+  window.setTimeout(patchVisibleEditorText, 100);
+  window.setTimeout(patchVisibleEditorText, 500);
+
+  console.log("[AION] Phase 19E.5 custom function execution policy lock installed");
+})();
