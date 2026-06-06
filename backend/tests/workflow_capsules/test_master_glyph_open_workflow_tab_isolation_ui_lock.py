@@ -6,6 +6,13 @@ APP = Path("desktop/mac/src/app.js")
 def _text() -> str:
     return APP.read_text(encoding="utf-8")
 
+def master_glyph_open_workflow_patch_block() -> str:
+    text = _text()
+    start = text.index("AION PATCH: Master Glyph Library Open Workflow Resolution")
+    end_marker = "console.log(\"[AION] Master Glyph Library Open Workflow Resolution v1 installed\");"
+    end = text.index(end_marker, start)
+    return text[start:end]
+
 
 def test_open_workflow_builds_isolated_glyph_graph() -> None:
     text = _text()
@@ -34,7 +41,7 @@ def test_stage_to_canvas_forces_main_graph_path() -> None:
 
 
 def test_no_request_render_assignment_false_positive() -> None:
-    text = _text()
-    idx = text.find("Master Glyph Library Open Workflow Resolution")
-    patch = text[idx:] if idx != -1 else text
+    patch = master_glyph_open_workflow_patch_block()
     assert "requestRender =" not in patch
+    assert "window.requestRender =" not in patch
+    assert 'window["requestRender"]()' in patch or "window.requestRender()" in patch

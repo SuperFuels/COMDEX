@@ -67314,6 +67314,647 @@ function renderAionMasterGlyphCanvasPanel() {
   console.log("[AION] Glyph Library Button Canonical Restore v1 installed");
 })();
 
+
+/*
+ * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19A Glyph Workflow Edit Persistence Lock
+ *
+ * Contract:
+ * - Editing an opened glyph workflow tab MUST persist by glyph_code.
+ * - Main workflow state MUST remain separate from opened glyph workflow state.
+ * - Saved glyph edits MUST survive render churn and tab switches.
+ * - The active glyph graph MUST be written to __aionOpenedGlyphWorkflowGraphsByCode.
+ * - This lock does not execute glyph workflows and does not enable live writes.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19AGlyphWorkflowEditPersistenceLock() {
+  if (window.__aionPhase19AGlyphWorkflowEditPersistenceLockInstalled === true) return;
+  window.__aionPhase19AGlyphWorkflowEditPersistenceLockInstalled = true;
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function getActiveGlyphCode() {
+    return String(
+      window.__aionActiveGlyphWorkflowTabCode ||
+      window.__aionActiveGlyphWorkflowCode ||
+      window.__aionOpenedGlyphWorkflow?.glyph_code ||
+      window.__aionOpenedGlyphWorkflowGraph?.glyph_code ||
+      ""
+    ).trim();
+  }
+
+  function ensureGlyphGraphStore() {
+    window.__aionOpenedGlyphWorkflowGraphsByCode =
+      window.__aionOpenedGlyphWorkflowGraphsByCode &&
+      typeof window.__aionOpenedGlyphWorkflowGraphsByCode === "object"
+        ? window.__aionOpenedGlyphWorkflowGraphsByCode
+        : {};
+    return window.__aionOpenedGlyphWorkflowGraphsByCode;
+  }
+
+  function persistActiveGlyphWorkflowGraph(reason = "phase19a_edit") {
+    const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();
+    const glyphCode = getActiveGlyphCode();
+
+    if (activeTab !== "glyph" || !glyphCode || glyphCode.toLowerCase() === "main") {
+      return null;
+    }
+
+    const source =
+      window.__aionOpenedGlyphWorkflowGraph ||
+      window.__aionWorkflowGraph ||
+      null;
+
+    if (!source || typeof source !== "object") return null;
+
+    const graph = {
+      ...clone(source),
+      glyph_code: source.glyph_code || glyphCode,
+      tab_type: "glyph_workflow",
+      source: source.source || "opened_glyph_workflow",
+      dirty: true,
+      dirty_reason: reason,
+      updated_at: new Date().toISOString(),
+      nodes: Array.isArray(source.nodes) ? source.nodes.map((node) => ({ ...node })) : [],
+      edges: Array.isArray(source.edges) ? source.edges.map((edge) => ({ ...edge })) : [],
+    };
+
+    const store = ensureGlyphGraphStore();
+    store[glyphCode] = graph;
+    store[glyphCode.toUpperCase()] = graph;
+    store[glyphCode.toLowerCase()] = graph;
+
+    window.__aionOpenedGlyphWorkflowGraph = graph;
+    window.__aionWorkflowGraph = graph;
+
+    if (window.__aionOpenedGlyphWorkflow && typeof window.__aionOpenedGlyphWorkflow === "object") {
+      window.__aionOpenedGlyphWorkflow = {
+        ...window.__aionOpenedGlyphWorkflow,
+        glyph_code: glyphCode,
+        dirty: true,
+        updated_at: graph.updated_at,
+      };
+    }
+
+    return graph;
+  }
+
+  function hydrateActiveGlyphWorkflowGraph() {
+    const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();
+    const glyphCode = getActiveGlyphCode();
+
+    if (activeTab !== "glyph" || !glyphCode || glyphCode.toLowerCase() === "main") {
+      return null;
+    }
+
+    const store = ensureGlyphGraphStore();
+    const graph =
+      store[glyphCode] ||
+      store[glyphCode.toUpperCase()] ||
+      store[glyphCode.toLowerCase()] ||
+      window.__aionOpenedGlyphWorkflowGraph ||
+      null;
+
+    if (!graph || typeof graph !== "object") return null;
+
+    graph.glyph_code = graph.glyph_code || glyphCode;
+    graph.tab_type = "glyph_workflow";
+    window.__aionOpenedGlyphWorkflowGraph = graph;
+    window.__aionWorkflowGraph = graph;
+    return graph;
+  }
+
+  const previousPersist = window.persistAionWorkflowDraftState;
+  window.persistAionWorkflowDraftState = function persistAionWorkflowDraftStatePhase19A(...args) {
+    const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();
+
+    if (activeTab === "glyph") {
+      const persisted = persistActiveGlyphWorkflowGraph("persist_call");
+      if (persisted) return persisted;
+    }
+
+    if (typeof previousPersist === "function") {
+      return previousPersist.apply(this, args);
+    }
+
+    return null;
+  };
+
+  const previousGetActive = window.__aionGetActiveWorkflowGraph;
+  window.__aionGetActiveWorkflowGraph = function getActiveWorkflowGraphPhase19A(...args) {
+    const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();
+
+    if (activeTab === "glyph") {
+      return hydrateActiveGlyphWorkflowGraph() || previousGetActive?.apply?.(this, args) || window.__aionWorkflowGraph;
+    }
+
+    return previousGetActive?.apply?.(this, args) || window.__aionWorkflowGraph;
+  };
+
+  const previousSetActive = window.__aionSetActiveWorkflowGraph;
+  window.__aionSetActiveWorkflowGraph = function setActiveWorkflowGraphPhase19A(graph, tab) {
+    const tabName = String(tab || window.__aionActiveWorkflowTab || "main").toLowerCase();
+
+    if (tabName === "glyph") {
+      window.__aionActiveWorkflowTab = "glyph";
+      window.__aionGlyphWorkflowTabOpen = true;
+      window.__aionOpenedGlyphWorkflowGraph = graph;
+      window.__aionWorkflowGraph = graph;
+      return persistActiveGlyphWorkflowGraph("set_active_graph") || graph;
+    }
+
+    if (typeof previousSetActive === "function") {
+      return previousSetActive.call(this, graph, tab);
+    }
+
+    window.__aionActiveWorkflowTab = "main";
+    window.__aionWorkflowMainGraph = graph;
+    window.__aionWorkflowGraph = graph;
+    return graph;
+  };
+
+  document.addEventListener("input", (event) => {
+    const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();
+    if (activeTab !== "glyph") return;
+
+    const target = event.target;
+    if (!target || !target.closest) return;
+
+    if (
+      target.closest(".aion-workflow-inspector") ||
+      target.closest("[data-aion-workflow-canvas-viewport='true']") ||
+      target.closest("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")
+    ) {
+      window.setTimeout(() => persistActiveGlyphWorkflowGraph("input_edit"), 0);
+    }
+  }, true);
+
+  document.addEventListener("change", (event) => {
+    const activeTab = String(window.__aionActiveWorkflowTab || "").toLowerCase();
+    if (activeTab !== "glyph") return;
+
+    const target = event.target;
+    if (!target || !target.closest) return;
+
+    if (
+      target.closest(".aion-workflow-inspector") ||
+      target.closest("[data-aion-workflow-canvas-viewport='true']") ||
+      target.closest("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")
+    ) {
+      window.setTimeout(() => persistActiveGlyphWorkflowGraph("change_edit"), 0);
+    }
+  }, true);
+
+  window.__aionPersistActiveGlyphWorkflowGraph = persistActiveGlyphWorkflowGraph;
+  window.__aionHydrateActiveGlyphWorkflowGraph = hydrateActiveGlyphWorkflowGraph;
+
+  console.log("[AION] Phase 19A glyph workflow edit persistence lock installed");
+})();
+
+
+
+/*
+ * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19B Workflow Plus Tabs Lock
+ *
+ * Contract:
+ * - The workflow canvas MUST support multiple normal workflow tabs.
+ * - A visible + tab MUST create a new blank workflow canvas.
+ * - Normal workflow tabs MUST be separate from opened glyph workflow tabs.
+ * - Closing a normal workflow tab MUST never close glyph workflow tabs.
+ * - Main workflow state MUST not leak into glyph workflow state.
+ * - This lock is UI/state only and does not execute workflows or enable live writes.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19BWorkflowPlusTabsLock() {
+  if (window.__aionPhase19BWorkflowPlusTabsLockInstalled === true) return;
+  window.__aionPhase19BWorkflowPlusTabsLockInstalled = true;
+
+  const TABBAR_ID = "aion-glyph-workflow-top-tabs-v2";
+  const STYLE_ID = "aion-phase19b-workflow-plus-tabs-style";
+  const STORAGE_KEY = "aion.workflow_builder.workflow_tabs.v1";
+
+  function clone(value) {
+    try {
+      return JSON.parse(JSON.stringify(value));
+    } catch (_) {
+      return value;
+    }
+  }
+
+  function makeWorkflowId() {
+    return `workflow_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+  }
+
+  function makeBlankGraph(name) {
+    const id = makeWorkflowId();
+    return {
+      workflow_id: id,
+      name: name || "Untitled workflow",
+      display_name: name || "Untitled workflow",
+      status: "draft",
+      nodes: [],
+      edges: [],
+      dirty: true,
+      tab_type: "main_workflow",
+      updated_at: new Date().toISOString(),
+    };
+  }
+
+  function ensureWorkflowTabs() {
+    window.__aionWorkflowTabs = Array.isArray(window.__aionWorkflowTabs)
+      ? window.__aionWorkflowTabs
+      : [];
+
+    if (!window.__aionWorkflowTabs.length) {
+      const graph =
+        window.__aionWorkflowMainGraph ||
+        window.__aionWorkflowGraph ||
+        makeBlankGraph("Main workflow");
+
+      const tab = {
+        id: graph.workflow_id || "main",
+        title: graph.display_name || graph.name || "Main workflow",
+        graph,
+        closable: false,
+      };
+
+      window.__aionWorkflowTabs.push(tab);
+      window.__aionActiveWorkflowTabId = window.__aionActiveWorkflowTabId || tab.id;
+      window.__aionWorkflowMainGraph = graph;
+      window.__aionWorkflowGraph = graph;
+    }
+
+    return window.__aionWorkflowTabs;
+  }
+
+  function activeWorkflowTab() {
+    const tabs = ensureWorkflowTabs();
+    const activeId = String(window.__aionActiveWorkflowTabId || tabs[0]?.id || "");
+    return tabs.find((tab) => String(tab.id) === activeId) || tabs[0] || null;
+  }
+
+  function persistWorkflowTabs() {
+    const tabs = ensureWorkflowTabs().map((tab) => ({
+      id: tab.id,
+      title: tab.title,
+      closable: tab.closable === true,
+      graph: tab.graph,
+    }));
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        active_id: window.__aionActiveWorkflowTabId || tabs[0]?.id || "",
+        tabs,
+        saved_at: new Date().toISOString(),
+      }));
+    } catch (error) {
+      console.warn("[AION] Phase 19B workflow tab persist skipped", error);
+    }
+
+    return tabs;
+  }
+
+  function hydrateWorkflowTabs() {
+    if (Array.isArray(window.__aionWorkflowTabs) && window.__aionWorkflowTabs.length) {
+      return ensureWorkflowTabs();
+    }
+
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.tabs) && parsed.tabs.length) {
+          window.__aionWorkflowTabs = parsed.tabs.map((tab) => ({
+            id: tab.id || tab.graph?.workflow_id || makeWorkflowId(),
+            title: tab.title || tab.graph?.display_name || tab.graph?.name || "Untitled workflow",
+            closable: tab.closable === true,
+            graph: tab.graph && typeof tab.graph === "object" ? tab.graph : makeBlankGraph(tab.title),
+          }));
+          window.__aionActiveWorkflowTabId = parsed.active_id || window.__aionWorkflowTabs[0].id;
+        }
+      }
+    } catch (error) {
+      console.warn("[AION] Phase 19B workflow tab hydrate skipped", error);
+    }
+
+    return ensureWorkflowTabs();
+  }
+
+  function selectWorkflowTab(tabId) {
+    const tabs = ensureWorkflowTabs();
+    const tab = tabs.find((item) => String(item.id) === String(tabId));
+    if (!tab) return null;
+
+    if (typeof window.__aionPersistActiveGlyphWorkflowGraph === "function") {
+      try { window.__aionPersistActiveGlyphWorkflowGraph("switch_to_main_workflow_tab"); } catch (_) {}
+    }
+
+    window.__aionActiveWorkflowTab = "main";
+    window.__aionGlyphWorkflowTabOpen = false;
+    window.__aionActiveGlyphWorkflowTabCode = "main";
+    window.__aionActiveGlyphWorkflowCode = "";
+    window.__aionOpenedGlyphWorkflow = null;
+
+    window.__aionActiveWorkflowTabId = tab.id;
+    window.__aionWorkflowMainGraph = tab.graph;
+    window.__aionWorkflowGraph = tab.graph;
+
+    persistWorkflowTabs();
+    renderWorkflowTabOverlay();
+
+    if (typeof window.requestRender === "function") {
+      window.requestRender();
+    }
+
+    return tab.graph;
+  }
+
+  function createWorkflowTab() {
+    const tabs = ensureWorkflowTabs();
+    const graph = makeBlankGraph(`Workflow ${tabs.length + 1}`);
+    const tab = {
+      id: graph.workflow_id,
+      title: graph.display_name,
+      graph,
+      closable: true,
+    };
+
+    tabs.push(tab);
+    window.__aionWorkflowTabs = tabs;
+    selectWorkflowTab(tab.id);
+    return tab;
+  }
+
+  function closeWorkflowTab(tabId) {
+    const tabs = ensureWorkflowTabs();
+    const index = tabs.findIndex((tab) => String(tab.id) === String(tabId));
+    if (index < 0) return;
+
+    const tab = tabs[index];
+    if (tab.closable !== true) return;
+
+    tabs.splice(index, 1);
+    window.__aionWorkflowTabs = tabs;
+
+    if (String(window.__aionActiveWorkflowTabId || "") === String(tabId)) {
+      const next = tabs[Math.max(0, index - 1)] || tabs[0];
+      if (next) {
+        window.__aionActiveWorkflowTabId = next.id;
+        window.__aionWorkflowMainGraph = next.graph;
+        window.__aionWorkflowGraph = next.graph;
+      }
+    }
+
+    persistWorkflowTabs();
+    renderWorkflowTabOverlay();
+
+    if (typeof window.requestRender === "function") {
+      window.requestRender();
+    }
+  }
+
+  function renameWorkflowTab(tabId, title) {
+    const tabs = ensureWorkflowTabs();
+    const tab = tabs.find((item) => String(item.id) === String(tabId));
+    if (!tab) return;
+
+    const clean = String(title || "").trim();
+    if (!clean) return;
+
+    tab.title = clean;
+    tab.graph = {
+      ...(tab.graph || {}),
+      name: clean,
+      display_name: clean,
+      dirty: true,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (String(window.__aionActiveWorkflowTabId || "") === String(tabId)) {
+      window.__aionWorkflowMainGraph = tab.graph;
+      window.__aionWorkflowGraph = tab.graph;
+    }
+
+    persistWorkflowTabs();
+    renderWorkflowTabOverlay();
+  }
+
+  function syncActiveGraphIntoTab(reason = "sync") {
+    const activeTabType = String(window.__aionActiveWorkflowTab || "main").toLowerCase();
+    if (activeTabType === "glyph") return null;
+
+    const tab = activeWorkflowTab();
+    if (!tab) return null;
+
+    const graph = window.__aionWorkflowGraph || window.__aionWorkflowMainGraph || tab.graph;
+    if (!graph || typeof graph !== "object") return null;
+
+    tab.graph = {
+      ...clone(graph),
+      tab_type: "main_workflow",
+      dirty: graph.dirty === true,
+      dirty_reason: graph.dirty_reason || reason,
+      updated_at: new Date().toISOString(),
+    };
+
+    tab.title = tab.graph.display_name || tab.graph.name || tab.title || "Untitled workflow";
+    window.__aionWorkflowMainGraph = tab.graph;
+    window.__aionWorkflowGraph = tab.graph;
+
+    persistWorkflowTabs();
+    return tab.graph;
+  }
+
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      #${TABBAR_ID} .aion-phase19b-workflow-tab {
+        border-style: solid;
+      }
+
+      #${TABBAR_ID} .aion-phase19b-workflow-tab.is-active {
+        background: #ffffff !important;
+        color: #0f172a !important;
+      }
+
+      #${TABBAR_ID} .aion-phase19b-workflow-plus-tab {
+        width: 34px;
+        min-width: 34px;
+        justify-content: center;
+        font-size: 18px;
+      }
+
+      #${TABBAR_ID} .aion-phase19b-workflow-tab-close {
+        width: 18px;
+        height: 18px;
+        border: 0;
+        border-radius: 999px;
+        background: transparent;
+        cursor: pointer;
+        font-weight: 1000;
+        color: inherit;
+      }
+
+      #${TABBAR_ID} .aion-phase19b-workflow-tab-close:hover {
+        background: rgba(15, 23, 42, 0.1);
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function renderWorkflowTabOverlay() {
+    hydrateWorkflowTabs();
+    ensureStyle();
+
+    const root = document.getElementById(TABBAR_ID);
+    if (!root) return;
+
+    const old = root.querySelectorAll("[data-aion-phase19b-workflow-tab='true'], [data-aion-phase19b-workflow-plus='true']");
+    old.forEach((node) => node.remove());
+
+    const mainButton = root.querySelector("[data-aion-glyph-top-tab-select='main']");
+    if (mainButton) {
+      mainButton.style.display = "none";
+    }
+
+    const activeId = String(window.__aionActiveWorkflowTabId || "");
+    const activeTabType = String(window.__aionActiveWorkflowTab || "main").toLowerCase();
+
+    const fragment = document.createDocumentFragment();
+
+    ensureWorkflowTabs().forEach((tab) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `aion-glyph-top-tab aion-phase19b-workflow-tab ${
+        activeTabType !== "glyph" && String(tab.id) === activeId ? "active is-active" : ""
+      }`;
+      button.setAttribute("data-aion-phase19b-workflow-tab", "true");
+      button.setAttribute("data-aion-workflow-main-tab-select", String(tab.id));
+      button.setAttribute("data-aion-workflow-tab", String(tab.id));
+      button.title = tab.title || "Workflow";
+
+      const label = document.createElement("span");
+      label.className = "aion-glyph-top-tab-code";
+      label.textContent = tab.title || "Workflow";
+      button.appendChild(label);
+
+      if (tab.closable === true) {
+        const close = document.createElement("span");
+        close.role = "button";
+        close.tabIndex = 0;
+        close.className = "aion-phase19b-workflow-tab-close";
+        close.setAttribute("data-aion-workflow-main-tab-close", String(tab.id));
+        close.setAttribute("aria-label", `Close ${tab.title || "workflow"}`);
+        close.textContent = "×";
+        button.appendChild(close);
+      }
+
+      fragment.appendChild(button);
+    });
+
+    const plus = document.createElement("button");
+    plus.type = "button";
+    plus.className = "aion-glyph-top-tab aion-phase19b-workflow-plus-tab";
+    plus.setAttribute("data-aion-phase19b-workflow-plus", "true");
+    plus.setAttribute("aria-label", "Create new workflow canvas");
+    plus.title = "New workflow canvas";
+    plus.textContent = "+";
+    fragment.appendChild(plus);
+
+    root.insertBefore(fragment, root.firstChild);
+  }
+
+  const previousPersist = window.persistAionWorkflowDraftState;
+  window.persistAionWorkflowDraftState = function persistAionWorkflowDraftStatePhase19B(...args) {
+    const activeTabType = String(window.__aionActiveWorkflowTab || "main").toLowerCase();
+
+    if (activeTabType !== "glyph") {
+      const synced = syncActiveGraphIntoTab("persist_call");
+      if (synced) return synced;
+    }
+
+    if (typeof previousPersist === "function") {
+      return previousPersist.apply(this, args);
+    }
+
+    return null;
+  };
+
+  document.addEventListener("click", (event) => {
+    const plus = event.target?.closest?.("[data-aion-phase19b-workflow-plus='true']");
+    if (plus) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      createWorkflowTab();
+      return;
+    }
+
+    const close = event.target?.closest?.("[data-aion-workflow-main-tab-close]");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      closeWorkflowTab(close.getAttribute("data-aion-workflow-main-tab-close"));
+      return;
+    }
+
+    const tab = event.target?.closest?.("[data-aion-workflow-main-tab-select]");
+    if (tab) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      syncActiveGraphIntoTab("before_tab_switch");
+      selectWorkflowTab(tab.getAttribute("data-aion-workflow-main-tab-select"));
+    }
+  }, true);
+
+  document.addEventListener("dblclick", (event) => {
+    const tab = event.target?.closest?.("[data-aion-workflow-main-tab-select]");
+    if (!tab) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const tabId = tab.getAttribute("data-aion-workflow-main-tab-select");
+    const current = ensureWorkflowTabs().find((item) => String(item.id) === String(tabId));
+    const next = window.prompt?.("Rename workflow canvas", current?.title || "Workflow");
+
+    if (next) {
+      renameWorkflowTab(tabId, next);
+    }
+  }, true);
+
+  window.__aionCreateWorkflowCanvasTab = createWorkflowTab;
+  window.__aionSelectWorkflowCanvasTab = selectWorkflowTab;
+  window.__aionCloseWorkflowCanvasTab = closeWorkflowTab;
+  window.__aionRenameWorkflowCanvasTab = renameWorkflowTab;
+  window.__aionSyncActiveWorkflowCanvasTab = syncActiveGraphIntoTab;
+  window.__aionRenderWorkflowCanvasTabs = renderWorkflowTabOverlay;
+
+  hydrateWorkflowTabs();
+
+  window.addEventListener("aion:workflow-rendered", () => {
+    window.setTimeout(renderWorkflowTabOverlay, 0);
+  });
+
+  window.setTimeout(renderWorkflowTabOverlay, 0);
+  window.setTimeout(renderWorkflowTabOverlay, 250);
+
+  console.log("[AION] Phase 19B workflow plus tabs lock installed");
+})();
+
+
 /*
  * ---------------------------------------------------------------------------
  * AION PATCH: Workflow Tab Active Graph Isolation E9
@@ -75878,6 +76519,208 @@ html body.aion-phase18-ticket-visible .aion-selected-workflow-slim-header-v14 {
 })();
 
 
+
+/*
+ * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19C Workflow Canvas Navigation Cleanup Lock
+ *
+ * Contract:
+ * - Workflow tab strip MUST only be visible while the Workflow Canvas is visible.
+ * - Collapsed workflow sidebar MUST NOT overlap the workflow logo/header.
+ * - Sidebar icons get a cleaner square/icon-button treatment.
+ * - Empty Orchestrated Glyphs footer/panel is hidden unless child glyphs exist.
+ * - UI-only cleanup: no live execution, no API writes, no external side effects.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19CWorkflowCanvasNavigationCleanupLock() {
+  if (window.__aionPhase19CWorkflowCanvasNavigationCleanupLockInstalled === true) return;
+  window.__aionPhase19CWorkflowCanvasNavigationCleanupLockInstalled = true;
+
+  const STYLE_ID = "aion-phase19c-workflow-navigation-cleanup-style";
+
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      body:not(.aion-phase19c-workflow-visible) #aion-glyph-workflow-top-tabs-v2,
+      body:not(.aion-phase19c-workflow-visible) [data-aion-workflow-tab-strip='true'],
+      body:not(.aion-phase19c-workflow-visible) .aion-glyph-workflow-top-tabs-v2 {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2 {
+        display: flex !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-layout {
+        position: relative !important;
+        isolation: isolate !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-sidebar,
+      body.aion-phase19c-workflow-visible [data-aion-workflow-sidebar='true'] {
+        z-index: 40 !important;
+        border-right: 1px solid rgba(15,23,42,0.10) !important;
+        box-shadow: none !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-logo {
+        position: relative !important;
+        z-index: 90 !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-sidebar-toggle {
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        min-height: 42px !important;
+        border-radius: 14px !important;
+        display: grid !important;
+        place-items: center !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-nav-btn {
+        width: 48px !important;
+        min-height: 48px !important;
+        border-radius: 16px !important;
+        display: grid !important;
+        place-items: center !important;
+        gap: 2px !important;
+        margin: 4px auto !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-nav-icon {
+        width: 28px !important;
+        height: 28px !important;
+        display: grid !important;
+        place-items: center !important;
+        border-radius: 12px !important;
+        font-size: 13px !important;
+        font-weight: 950 !important;
+        letter-spacing: -0.03em !important;
+        background: rgba(15,23,42,0.06) !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-nav-btn.active .aion-workflow-nav-icon {
+        background: rgba(13,143,163,0.14) !important;
+      }
+
+      body.aion-phase19c-workflow-visible .aion-workflow-nav-label {
+        font-size: 9px !important;
+        line-height: 1 !important;
+        max-width: 54px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
+
+      .aion-phase19c-hidden-empty-orchestrated-glyphs {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function isWorkflowCanvasVisible() {
+    const stateTab = String(
+      window.desktopStore?.state?.activeTab ||
+      window.desktopStore?.state?.tab ||
+      window.__aionActiveDesktopTab ||
+      ""
+    ).toLowerCase();
+
+    if (
+      stateTab === "workflow" ||
+      stateTab === "workflow_canvas" ||
+      stateTab === "operations_flow"
+    ) {
+      return true;
+    }
+
+    const shell = document.querySelector(
+      ".aion-workflow-canvas-shell, [data-aion-workflow-canvas-viewport='true'], .aion-workflow-layout"
+    );
+
+    if (!shell) return false;
+
+    const rect = shell.getBoundingClientRect?.();
+    const style = window.getComputedStyle ? window.getComputedStyle(shell) : null;
+
+    return (
+      (!style || style.display !== "none") &&
+      (!style || style.visibility !== "hidden") &&
+      (!rect || (rect.width > 0 && rect.height > 0))
+    );
+  }
+
+  function syncWorkflowVisibilityClass() {
+    ensureStyle();
+    document.body.classList.toggle(
+      "aion-phase19c-workflow-visible",
+      isWorkflowCanvasVisible()
+    );
+  }
+
+  function hideEmptyOrchestratedGlyphsPanel() {
+    const candidates = Array.from(
+      document.querySelectorAll(".aion-boardroom-card, .panel, section, div")
+    );
+
+    for (const el of candidates) {
+      const text = String(el.textContent || "");
+      if (
+        text.includes("Orchestrated Glyphs") &&
+        text.includes("No orchestrated child glyphs attached yet")
+      ) {
+        el.classList.add("aion-phase19c-hidden-empty-orchestrated-glyphs");
+        el.setAttribute("data-aion-phase19c-hidden-empty-orchestrated-glyphs", "true");
+      }
+    }
+  }
+
+  function syncPhase19CNavigationCleanup() {
+    syncWorkflowVisibilityClass();
+    hideEmptyOrchestratedGlyphsPanel();
+  }
+
+  document.addEventListener("click", () => {
+    window.setTimeout(syncPhase19CNavigationCleanup, 0);
+    window.setTimeout(syncPhase19CNavigationCleanup, 120);
+  }, true);
+
+  window.addEventListener("aion:workflow-rendered", syncPhase19CNavigationCleanup);
+  window.addEventListener("hashchange", syncPhase19CNavigationCleanup);
+
+  const previousRenderTabs = window.__renderAionGlyphWorkflowTopTabs;
+  if (typeof previousRenderTabs === "function") {
+    window.__renderAionGlyphWorkflowTopTabs = function renderAionGlyphWorkflowTopTabsPhase19C(...args) {
+      const result = previousRenderTabs.apply(this, args);
+      syncPhase19CNavigationCleanup();
+      return result;
+    };
+  }
+
+  window.__syncAionPhase19CNavigationCleanup = syncPhase19CNavigationCleanup;
+
+  window.setTimeout(syncPhase19CNavigationCleanup, 0);
+  window.setTimeout(syncPhase19CNavigationCleanup, 250);
+  window.setTimeout(syncPhase19CNavigationCleanup, 1000);
+
+  console.log("[AION] Phase 19C workflow canvas navigation cleanup lock installed");
+})();
+
+/*
+ * ---------------------------------------------------------------------------
+ *
+
 /* END PHASE 18 LOCK */
 
 
@@ -78890,5 +79733,589 @@ function renderAionPhase17GLiveTestResultPanel() {
 /* END PHASE 16G LOCK */
 
 
+
+
+
+/*
+ * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19D Canonical Canvas Text Notes Lock
+ *
+ * Contract:
+ * - Note button appears once on the workflow bottom toolbar.
+ * - Clicking Note creates exactly one graph.canvas_notes item.
+ * - Notes are plain canvas text boxes, not workflow nodes.
+ * - Notes have no ports, edges, execution state, or dry-run semantics.
+ * - Notes are draggable by the header and deletable by ×.
+ * - Notes persist with the active workflow graph.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19DCanonicalCanvasTextNotesLock() {
+  if (window.__aionPhase19DCanonicalCanvasTextNotesLockInstalled === true) return;
+  window.__aionPhase19DCanonicalCanvasTextNotesLockInstalled = true;
+
+  const STYLE_ID = "aion-phase19d-canonical-canvas-text-notes-style";
+  const LAYER_ID = "aion-phase19d-canonical-canvas-notes-layer";
+  const BUTTON_ATTR = "data-aion-phase19d-add-canvas-note";
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    if (typeof window.__aionGetActiveWorkflowGraph === "function") {
+      const graph = window.__aionGetActiveWorkflowGraph();
+      if (graph && typeof graph === "object") return graph;
+    }
+
+    if (typeof getAionWorkflowDraftState === "function") {
+      const graph = getAionWorkflowDraftState();
+      if (graph && typeof graph === "object") return graph;
+    }
+
+    window.__aionWorkflowGraph = window.__aionWorkflowGraph || {
+      nodes: [],
+      edges: [],
+      canvas_notes: [],
+    };
+    return window.__aionWorkflowGraph;
+  }
+
+  function normaliseNotes(graph) {
+    graph.canvas_notes = Array.isArray(graph.canvas_notes) ? graph.canvas_notes : [];
+    return graph.canvas_notes;
+  }
+
+  function isLegacyStickyNoteNode(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const hay = [
+      node?.id,
+      node?.type,
+      node?.kind,
+      node?.node_type,
+      node?.title,
+      node?.label,
+      node?.action_id,
+      node?.module_id,
+      config.type,
+      config.kind,
+      config.documentation_only,
+    ].map((v) => String(v || "").toLowerCase()).join(" ");
+
+    return (
+      hay.includes("sticky_note") ||
+      hay.includes("canvas_note") ||
+      hay.includes("documentation_note") ||
+      node?.documentation_only === true ||
+      config.documentation_only === true
+    );
+  }
+
+  function persistGraph(reason = "phase19d_canvas_note_update") {
+    const graph = getGraph();
+    graph.dirty = true;
+    graph.dirty_reason = reason;
+    graph.updated_at = new Date().toISOString();
+
+    window.__aionWorkflowGraph = graph;
+
+    if (String(window.__aionActiveWorkflowTab || "").toLowerCase() !== "glyph") {
+      window.__aionWorkflowMainGraph = graph;
+    }
+
+    if (String(window.__aionActiveWorkflowTab || "").toLowerCase() === "glyph") {
+      if (typeof window.__aionPersistActiveGlyphWorkflowGraph === "function") {
+        try {
+          window.__aionPersistActiveGlyphWorkflowGraph(reason);
+          return;
+        } catch (_) {}
+      }
+    }
+
+    if (typeof persistAionWorkflowDraftState === "function") {
+      try { persistAionWorkflowDraftState(); } catch (_) {}
+    }
+  }
+
+  function migrateAndRemoveLegacyStickyNodes() {
+    const graph = getGraph();
+    graph.nodes = Array.isArray(graph.nodes) ? graph.nodes : [];
+    graph.edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+    const oldNodes = graph.nodes.filter(isLegacyStickyNoteNode);
+    if (!oldNodes.length) return;
+
+    const notes = normaliseNotes(graph);
+    const existingMigrationIds = new Set(notes.map((note) => String(note.migrated_from_node || "")));
+
+    for (const node of oldNodes) {
+      const nodeId = String(node.id || "");
+      if (existingMigrationIds.has(nodeId)) continue;
+
+      const config = node.config && typeof node.config === "object" ? node.config : {};
+      notes.push({
+        id: `canvas_note_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
+        type: "canvas_note",
+        documentation_only: true,
+        title: "Note",
+        text: String(config.note_text || config.text || node.note_text || node.description || node.meta || "Type notes here..."),
+        x: Number(node.x || config.x || 220),
+        y: Number(node.y || config.y || 180),
+        width: Number(config.width || 340),
+        migrated_from_node: nodeId,
+        updated_at: new Date().toISOString(),
+      });
+    }
+
+    const oldIds = new Set(oldNodes.map((node) => String(node.id)));
+    graph.nodes = graph.nodes.filter((node) => !oldIds.has(String(node.id)));
+    graph.edges = graph.edges.filter((edge) => !oldIds.has(String(edge.from)) && !oldIds.has(String(edge.to)));
+    graph.canvas_notes = notes;
+
+    persistGraph("phase19d_migrate_legacy_sticky_nodes");
+  }
+
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body #aion-phase19d-real-sticky-note-layer,
+      html body .aion-phase19d-canvas-note,
+      html body .aion-phase19d-real-sticky-note-box {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      html body .aion-canvas-node[data-aion-phase19d-sticky-note-node="true"],
+      html body [data-aion-workflow-node-id][data-aion-phase19d-sticky-note-node="true"] {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      html body #${LAYER_ID} {
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 9999 !important;
+        pointer-events: none !important;
+      }
+
+      html body .aion-phase19d-note-box {
+        position: absolute !important;
+        width: 340px !important;
+        min-height: 160px !important;
+        padding: 14px 14px 12px !important;
+        border: 1px solid rgba(31,31,31,0.22) !important;
+        background: rgba(255,255,255,0.96) !important;
+        box-shadow: 0 18px 42px rgba(15,23,42,0.16) !important;
+        color: #1f1f1f !important;
+        pointer-events: auto !important;
+        user-select: none !important;
+      }
+
+      html body .aion-phase19d-note-box.is-dragging {
+        box-shadow: 0 24px 60px rgba(15,23,42,0.24) !important;
+      }
+
+      html body .aion-phase19d-note-head {
+        height: 32px !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 12px !important;
+        margin-bottom: 8px !important;
+        cursor: grab !important;
+      }
+
+      html body .aion-phase19d-note-label {
+        font-size: 10px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.24em !important;
+        text-transform: uppercase !important;
+        color: rgba(31,31,31,0.55) !important;
+      }
+
+      html body .aion-phase19d-note-close {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        border: 1px solid rgba(31,31,31,0.18) !important;
+        background: #fff !important;
+        color: #111 !important;
+        font-size: 20px !important;
+        font-weight: 950 !important;
+        line-height: 1 !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+      }
+
+      
+      html body .aion-phase19d-note-text::placeholder {
+        color: rgba(31,31,31,0.34) !important;
+        font-weight: 650 !important;
+      }
+
+html body .aion-phase19d-note-text {
+        width: 100% !important;
+        min-height: 96px !important;
+        border: 0 !important;
+        outline: 0 !important;
+        resize: none !important;
+        overflow: hidden !important;
+        background: transparent !important;
+        color: #1f1f1f !important;
+        font: 650 15px/1.35 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+        pointer-events: auto !important;
+        user-select: text !important;
+        cursor: text !important;
+      }
+
+      html body .aion-phase19d-note-foot {
+        margin-top: 10px !important;
+        font-size: 11px !important;
+        font-weight: 850 !important;
+        color: rgba(31,31,31,0.50) !important;
+      }
+
+      html body .aion-phase19d-note-toolbar-button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 7px !important;
+        min-width: 92px !important;
+        height: 42px !important;
+        border-radius: 16px !important;
+        border: 1px solid rgba(15,23,42,0.12) !important;
+        background: rgba(255,255,255,0.94) !important;
+        color: #1f1f1f !important;
+        font-weight: 900 !important;
+        cursor: pointer !important;
+        pointer-events: auto !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function getViewport() {
+    return (
+      document.querySelector("[data-aion-workflow-canvas-viewport='true']") ||
+      document.querySelector(".aion-workflow-canvas-viewport") ||
+      document.querySelector(".aion-workflow-canvas") ||
+      document.querySelector(".aion-workflow-layout")
+    );
+  }
+
+  function ensureLayer() {
+    const viewport = getViewport();
+    if (!viewport) return null;
+
+    if (getComputedStyle(viewport).position === "static") {
+      viewport.style.position = "relative";
+    }
+
+    let layer = document.getElementById(LAYER_ID);
+    if (!layer) {
+      layer = document.createElement("div");
+      layer.id = LAYER_ID;
+      layer.setAttribute("data-aion-phase19d-note-layer", "true");
+      viewport.appendChild(layer);
+    }
+
+    return layer;
+  }
+
+  function autoGrow(textarea) {
+    if (!textarea) return;
+    textarea.style.height = "auto";
+    textarea.style.height = `${Math.max(96, textarea.scrollHeight)}px`;
+  }
+
+  function renderNotes() {
+    ensureStyle();
+    migrateAndRemoveLegacyStickyNodes();
+
+    const graph = getGraph();
+    const layer = ensureLayer();
+    if (!layer) return false;
+
+    const notes = normaliseNotes(graph);
+    const ids = new Set(notes.map((note) => String(note.id)));
+
+    layer.querySelectorAll("[data-aion-phase19d-note-id]").forEach((box) => {
+      if (!ids.has(String(box.getAttribute("data-aion-phase19d-note-id")))) {
+        box.remove();
+      }
+    });
+
+    for (const note of notes) {
+      const id = String(note.id);
+      let box = layer.querySelector(`[data-aion-phase19d-note-id="${CSS.escape(id)}"]`);
+
+      if (!box) {
+        box = document.createElement("section");
+        box.className = "aion-phase19d-note-box";
+        box.setAttribute("data-aion-phase19d-note-id", id);
+        box.innerHTML = `
+          <div class="aion-phase19d-note-head" data-aion-phase19d-note-drag="${esc(id)}">
+            <div class="aion-phase19d-note-label">Note</div>
+            <button type="button" class="aion-phase19d-note-close" data-aion-phase19d-note-close="${esc(id)}" title="Delete note" aria-label="Delete note">×</button>
+          </div>
+          <textarea class="aion-phase19d-note-text" data-aion-phase19d-note-text="${esc(id)}" placeholder="Type notes here..."></textarea>
+          <div class="aion-phase19d-note-foot">Documentation only · never executes</div>
+        `;
+        layer.appendChild(box);
+      }
+
+      box.style.left = `${Number(note.x || 220)}px`;
+      box.style.top = `${Number(note.y || 180)}px`;
+      box.style.width = `${Number(note.width || 340)}px`;
+
+      const textarea = box.querySelector("[data-aion-phase19d-note-text]");
+      if (textarea && textarea.value !== String(note.text || "")) {
+        textarea.value = String(note.text || "");
+      }
+      autoGrow(textarea);
+    }
+
+    return true;
+  }
+
+  function createNote(input = {}) {
+    const graph = getGraph();
+    const notes = normaliseNotes(graph);
+
+    const note = {
+      id: `canvas_note_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`,
+      type: "canvas_note",
+      documentation_only: true,
+      title: "Note",
+      text: input.text ?? "",
+      x: Number(input.x || 220),
+      y: Number(input.y || 180),
+      width: Number(input.width || 340),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    notes.push(note);
+    graph.canvas_notes = notes;
+
+    // Critical: notes are not graph nodes.
+    graph.nodes = Array.isArray(graph.nodes) ? graph.nodes.filter((node) => !isLegacyStickyNoteNode(node)) : [];
+    graph.edges = Array.isArray(graph.edges) ? graph.edges : [];
+
+    persistGraph("phase19d_note_created");
+    renderNotes();
+
+    return note;
+  }
+
+  function updateNote(id, patch) {
+    const graph = getGraph();
+    const note = normaliseNotes(graph).find((item) => String(item.id) === String(id));
+    if (!note) return;
+
+    Object.assign(note, patch, {
+      type: "canvas_note",
+      documentation_only: true,
+      updated_at: new Date().toISOString(),
+    });
+
+    persistGraph("phase19d_note_updated");
+  }
+
+  function deleteNote(id) {
+    const graph = getGraph();
+    graph.canvas_notes = normaliseNotes(graph).filter((note) => String(note.id) !== String(id));
+    persistGraph("phase19d_note_deleted");
+
+    document.querySelector(`[data-aion-phase19d-note-id="${CSS.escape(String(id))}"]`)?.remove();
+    renderNotes();
+  }
+
+  function findToolbar() {
+    return (
+      document.querySelector(".aion-workflow-floating-toolbar") ||
+      document.querySelector("[data-aion-workflow-floating-toolbar='true']") ||
+      document.querySelector(".aion-workflow-bottom-toolbar") ||
+      document.querySelector("[data-aion-workflow-bottom-toolbar='true']")
+    );
+  }
+
+  function ensureButton() {
+    const toolbar = findToolbar();
+    if (!toolbar) return false;
+
+    // Remove duplicate buttons first.
+    toolbar.querySelectorAll(`[${BUTTON_ATTR}='true']`).forEach((button, index) => {
+      if (index > 0) button.remove();
+    });
+
+    let button = toolbar.querySelector(`[${BUTTON_ATTR}='true']`);
+    if (!button) {
+      button = document.createElement("button");
+      button.type = "button";
+      button.className = "aion-phase19d-note-toolbar-button";
+      button.setAttribute(BUTTON_ATTR, "true");
+      button.setAttribute("title", "Add note to canvas");
+      button.setAttribute("aria-label", "Add note to canvas");
+      button.innerHTML = `<span>📝</span><span>Note</span>`;
+
+      const plus = Array.from(toolbar.querySelectorAll("button")).find((candidate) =>
+        String(candidate.textContent || "").trim() === "+"
+      );
+
+      if (plus && plus.parentNode === toolbar) toolbar.insertBefore(button, plus);
+      else toolbar.appendChild(button);
+    }
+
+    return true;
+  }
+
+  document.addEventListener("click", (event) => {
+    const add = event.target?.closest?.(`[${BUTTON_ATTR}='true']`);
+    if (!add) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    createNote({ text: "" });
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    const close = event.target?.closest?.("[data-aion-phase19d-note-close]");
+    if (!close) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    deleteNote(close.getAttribute("data-aion-phase19d-note-close"));
+  }, true);
+
+  document.addEventListener("input", (event) => {
+    const textarea = event.target?.closest?.("[data-aion-phase19d-note-text]");
+    if (!textarea) return;
+
+    event.stopPropagation();
+
+    const id = textarea.getAttribute("data-aion-phase19d-note-text");
+    autoGrow(textarea);
+    updateNote(id, { text: textarea.value });
+  }, true);
+
+  let drag = null;
+
+  document.addEventListener("pointerdown", (event) => {
+    const closeOrText = event.target?.closest?.("[data-aion-phase19d-note-close], [data-aion-phase19d-note-text]");
+    if (closeOrText) {
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      return;
+    }
+
+    const handle = event.target?.closest?.("[data-aion-phase19d-note-drag]");
+    if (!handle) return;
+
+    const id = handle.getAttribute("data-aion-phase19d-note-drag");
+    const box = document.querySelector(`[data-aion-phase19d-note-id="${CSS.escape(id)}"]`);
+    if (!box) return;
+
+    drag = {
+      id,
+      box,
+      startX: event.clientX,
+      startY: event.clientY,
+      left: parseFloat(box.style.left || "0"),
+      top: parseFloat(box.style.top || "0"),
+      pointerId: event.pointerId,
+    };
+
+    box.classList.add("is-dragging");
+    try { box.setPointerCapture?.(event.pointerId); } catch (_) {}
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+  }, true);
+
+  document.addEventListener("pointermove", (event) => {
+    if (!drag) return;
+
+    const x = Math.max(0, drag.left + event.clientX - drag.startX);
+    const y = Math.max(0, drag.top + event.clientY - drag.startY);
+
+    drag.box.style.left = `${x}px`;
+    drag.box.style.top = `${y}px`;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+  }, true);
+
+  document.addEventListener("pointerup", (event) => {
+    if (!drag) return;
+
+    const done = drag;
+    drag = null;
+
+    done.box.classList.remove("is-dragging");
+
+    updateNote(done.id, {
+      x: parseFloat(done.box.style.left || "0"),
+      y: parseFloat(done.box.style.top || "0"),
+    });
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+  }, true);
+
+  window.__createAionPhase19DStickyNoteNode = createNote;
+  window.__createAionPhase19DCanvasNote = createNote;
+  window.__renderAionPhase19DCanvasNotes = renderNotes;
+
+  const previousRequestRender = window.requestRender;
+  if (typeof previousRequestRender === "function" && previousRequestRender.__phase19dCanonicalNotesWrapped !== true) {
+    const wrapped = function requestRenderPhase19DCanonicalNotesWrapped(...args) {
+      const result = previousRequestRender.apply(this, args);
+      window.setTimeout(ensureButton, 0);
+      window.setTimeout(renderNotes, 0);
+      window.setTimeout(ensureButton, 120);
+      window.setTimeout(renderNotes, 120);
+      return result;
+    };
+    wrapped.__phase19dCanonicalNotesWrapped = true;
+    window.requestRender = wrapped;
+  }
+
+  window.addEventListener("aion:workflow-rendered", () => {
+    window.setTimeout(ensureButton, 0);
+    window.setTimeout(renderNotes, 0);
+    window.setTimeout(renderNotes, 120);
+  });
+
+  window.setInterval(() => {
+    ensureButton();
+    renderNotes();
+  }, 1200);
+
+  ensureStyle();
+  window.setTimeout(ensureButton, 50);
+  window.setTimeout(renderNotes, 80);
+  window.setTimeout(ensureButton, 400);
+  window.setTimeout(renderNotes, 450);
+
+  console.log("[AION] Phase 19D canonical canvas text notes lock installed");
+})();
 
 

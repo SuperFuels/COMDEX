@@ -6,6 +6,12 @@ APP = Path("desktop/mac/src/app.js")
 def _text() -> str:
     return APP.read_text(encoding="utf-8")
 
+def e9_function_block() -> str:
+    text = _text()
+    start = text.index("function installAionWorkflowTabActiveGraphIsolationE9()")
+    end = text.index("console.log(\"[AION] Workflow Tab Active Graph Isolation E9 installed\");", start)
+    return text[start:end]
+
 
 def test_e9_active_graph_isolation_installed() -> None:
     text = _text()
@@ -38,7 +44,8 @@ def test_open_glyph_workflow_forces_glyph_graph_only() -> None:
 
 
 def test_e9_does_not_replace_request_render_or_use_observer() -> None:
-    text = _text()
-    block = text[text.index("Workflow Tab Active Graph Isolation E9"):]
+    block = e9_function_block()
     assert "requestRender =" not in block
+    assert "window.requestRender =" not in block
     assert "MutationObserver" not in block
+    assert 'window["requestRender"]()' in block
