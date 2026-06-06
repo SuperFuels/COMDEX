@@ -80319,3 +80319,461 @@ html body .aion-phase19d-note-text {
 })();
 
 
+/*
+ * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19E Custom Function Node Editor Lock
+ *
+ * Contract:
+ * - Custom function nodes open a tailored code/settings editor.
+ * - Editor fields: language, code, inputs schema, outputs schema, safety mode.
+ * - Custom functions are dry-run only and never enable live execution.
+ * - Config is persisted to the active workflow/glyph graph.
+ * - This lock is UI/config only. It does not execute arbitrary code.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19ECustomFunctionNodeEditorLock() {
+  if (window.__aionPhase19ECustomFunctionNodeEditorLockInstalled === true) return;
+  window.__aionPhase19ECustomFunctionNodeEditorLockInstalled = true;
+
+  const STYLE_ID = "aion-phase19e-custom-function-editor-style";
+  const MODAL_ID = "aion-phase19e-custom-function-editor-modal";
+
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function getGraph() {
+    if (typeof window.__aionGetActiveWorkflowGraph === "function") return window.__aionGetActiveWorkflowGraph();
+    if (typeof getAionWorkflowDraftState === "function") return getAionWorkflowDraftState();
+    return window.__aionWorkflowGraph || window.__aionWorkflowMainGraph || null;
+  }
+
+  function persistGraph(reason = "phase19e_custom_function_config_update") {
+    const graph = getGraph();
+    if (graph && typeof graph === "object") {
+      graph.dirty = true;
+      graph.dirty_reason = reason;
+      graph.updated_at = new Date().toISOString();
+    }
+
+    if (typeof compileAndAttachAionWorkflowGlyph === "function") {
+      try { compileAndAttachAionWorkflowGlyph(graph); } catch (_) {}
+    }
+
+    if (String(window.__aionActiveWorkflowTab || "").toLowerCase() === "glyph") {
+      if (typeof window.__aionPersistActiveGlyphWorkflowGraph === "function") {
+        try {
+          window.__aionPersistActiveGlyphWorkflowGraph(reason);
+          return;
+        } catch (_) {}
+      }
+    }
+
+    if (typeof persistAionWorkflowDraftState === "function") {
+      try { persistAionWorkflowDraftState(); } catch (_) {}
+    }
+  }
+
+  function isCustomFunctionNode(node) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node?.id,
+      node?.type,
+      node?.kind,
+      node?.title,
+      node?.label,
+      node?.action_id,
+      node?.module_id,
+      config.type,
+      config.kind,
+      config.action_id,
+      config.module_id,
+    ].map((v) => String(v || "").toLowerCase()).join(" ");
+
+    return (
+      haystack.includes("custom_function") ||
+      haystack.includes("custom function") ||
+      haystack.includes("code function") ||
+      haystack.includes("function node")
+    );
+  }
+
+  function normaliseCustomFunctionNode(node) {
+    node.config = node.config && typeof node.config === "object" ? node.config : {};
+
+    node.type = node.type || "custom_function";
+    node.kind = node.kind || "custom_function";
+    node.title = node.title || "Custom function";
+    node.status = "draft";
+    node.dry_run_only = true;
+    node.non_executable_without_sandbox = true;
+
+    node.config.custom_function = true;
+    node.config.language = node.config.language || "javascript";
+    node.config.code = node.config.code || "";
+    node.config.inputs_schema = node.config.inputs_schema || "{}";
+    node.config.outputs_schema = node.config.outputs_schema || "{}";
+    node.config.safety_mode = node.config.safety_mode || "dry_run_only";
+    node.config.external_writes_enabled = false;
+    node.config.live_execution_enabled = false;
+    node.config.requires_human_approval = true;
+
+    return node;
+  }
+
+  function findNode(nodeId) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+    return nodes.find((node) => String(node.id) === String(nodeId)) || null;
+  }
+
+  function findSelectedCustomFunctionNode() {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+    const selectedId =
+      window.__aionWorkflowSelectedNodeId ||
+      window.__aionSelectedWorkflowNodeId ||
+      window.__aionSelectedNodeId ||
+      "";
+
+    const selected = nodes.find((node) => String(node.id) === String(selectedId));
+    if (selected && isCustomFunctionNode(selected)) return selected;
+
+    return nodes.find(isCustomFunctionNode) || null;
+  }
+
+  function ensureStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      html body #${MODAL_ID} {
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 999999 !important;
+        display: none;
+        place-items: center !important;
+        background: rgba(15,23,42,0.34) !important;
+        backdrop-filter: blur(4px) !important;
+      }
+
+      html body #${MODAL_ID}.open {
+        display: grid !important;
+      }
+
+      html body .aion-phase19e-custom-function-panel {
+        width: min(980px, calc(100vw - 80px)) !important;
+        max-height: min(760px, calc(100vh - 80px)) !important;
+        overflow: auto !important;
+        border: 1px solid rgba(15,23,42,0.14) !important;
+        background: rgba(255,255,255,0.98) !important;
+        color: #0f172a !important;
+        box-shadow: 0 30px 80px rgba(15,23,42,0.24) !important;
+        padding: 22px !important;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      }
+
+      html body .aion-phase19e-custom-function-head {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        gap: 16px !important;
+        margin-bottom: 18px !important;
+      }
+
+      html body .aion-phase19e-custom-function-head h2 {
+        margin: 0 !important;
+        font-size: 24px !important;
+        line-height: 1.05 !important;
+        letter-spacing: -0.04em !important;
+      }
+
+      html body .aion-phase19e-custom-function-grid {
+        display: grid !important;
+        grid-template-columns: 220px 1fr !important;
+        gap: 14px !important;
+      }
+
+      html body .aion-phase19e-custom-function-field {
+        display: grid !important;
+        gap: 7px !important;
+      }
+
+      html body .aion-phase19e-custom-function-field label {
+        font-size: 11px !important;
+        font-weight: 950 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.16em !important;
+        color: rgba(15,23,42,0.58) !important;
+      }
+
+      html body .aion-phase19e-custom-function-field select,
+      html body .aion-phase19e-custom-function-field input,
+      html body .aion-phase19e-custom-function-field textarea {
+        width: 100% !important;
+        border: 1px solid rgba(15,23,42,0.14) !important;
+        background: rgba(248,250,252,0.96) !important;
+        color: #0f172a !important;
+        padding: 10px 12px !important;
+        font: inherit !important;
+        outline: none !important;
+      }
+
+      html body .aion-phase19e-custom-function-code {
+        min-height: 320px !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+        font-size: 13px !important;
+        line-height: 1.45 !important;
+        resize: vertical !important;
+      }
+
+      html body .aion-phase19e-custom-function-schema {
+        min-height: 118px !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+        font-size: 12px !important;
+        resize: vertical !important;
+      }
+
+      html body .aion-phase19e-custom-function-actions {
+        display: flex !important;
+        justify-content: flex-end !important;
+        gap: 10px !important;
+        margin-top: 18px !important;
+      }
+
+      html body .aion-phase19e-custom-function-actions button,
+      html body .aion-phase19e-custom-function-close {
+        border: 1px solid rgba(15,23,42,0.14) !important;
+        background: #ffffff !important;
+        color: #0f172a !important;
+        font-weight: 900 !important;
+        padding: 10px 14px !important;
+        cursor: pointer !important;
+      }
+
+      html body .aion-phase19e-custom-function-save {
+        background: #0f172a !important;
+        color: #ffffff !important;
+      }
+
+      html body .aion-phase19e-custom-function-safety {
+        padding: 12px !important;
+        border: 1px solid rgba(180,130,20,0.24) !important;
+        background: rgba(255,247,204,0.65) !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
+        line-height: 1.45 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function ensureModal() {
+    ensureStyle();
+
+    let modal = document.getElementById(MODAL_ID);
+    if (modal) return modal;
+
+    modal = document.createElement("div");
+    modal.id = MODAL_ID;
+    modal.setAttribute("data-aion-phase19e-custom-function-editor", "true");
+    document.body.appendChild(modal);
+    return modal;
+  }
+
+  function openEditor(nodeOrId) {
+    const node = typeof nodeOrId === "object" ? nodeOrId : findNode(nodeOrId);
+    if (!node) return false;
+
+    normaliseCustomFunctionNode(node);
+
+    const config = node.config || {};
+    const modal = ensureModal();
+    modal.classList.add("open");
+    modal.setAttribute("data-aion-phase19e-editing-node-id", String(node.id));
+
+    modal.innerHTML = `
+      <section class="aion-phase19e-custom-function-panel">
+        <div class="aion-phase19e-custom-function-head">
+          <div>
+            <div class="eyebrow">Custom function node</div>
+            <h2>${esc(node.title || "Custom function")}</h2>
+            <p class="muted">Configure code for dry-run/sandbox planning only. This editor never enables live execution.</p>
+          </div>
+          <button type="button" class="aion-phase19e-custom-function-close" data-aion-phase19e-custom-function-close="true">×</button>
+        </div>
+
+        <div class="aion-phase19e-custom-function-grid">
+          <div class="aion-phase19e-custom-function-field">
+            <label>Language</label>
+            <select data-aion-phase19e-custom-function-input="language">
+              ${["javascript", "python", "typescript", "jsonata", "sql", "bash"]
+                .map((lang) => `<option value="${esc(lang)}" ${String(config.language || "javascript") === lang ? "selected" : ""}>${esc(lang)}</option>`)
+                .join("")}
+            </select>
+          </div>
+
+          <div class="aion-phase19e-custom-function-field">
+            <label>Safety mode</label>
+            <select data-aion-phase19e-custom-function-input="safety_mode">
+              <option value="dry_run_only" ${String(config.safety_mode || "dry_run_only") === "dry_run_only" ? "selected" : ""}>dry_run_only</option>
+              <option value="sandbox_preview" ${String(config.safety_mode || "") === "sandbox_preview" ? "selected" : ""}>sandbox_preview</option>
+              <option value="human_approval_required" ${String(config.safety_mode || "") === "human_approval_required" ? "selected" : ""}>human_approval_required</option>
+            </select>
+          </div>
+
+          <div class="aion-phase19e-custom-function-field" style="grid-column: 1 / -1;">
+            <label>Code</label>
+            <textarea class="aion-phase19e-custom-function-code" spellcheck="false" data-aion-phase19e-custom-function-input="code">${esc(config.code || "")}</textarea>
+          </div>
+
+          <div class="aion-phase19e-custom-function-field">
+            <label>Inputs schema</label>
+            <textarea class="aion-phase19e-custom-function-schema" spellcheck="false" data-aion-phase19e-custom-function-input="inputs_schema">${esc(config.inputs_schema || "{}")}</textarea>
+          </div>
+
+          <div class="aion-phase19e-custom-function-field">
+            <label>Outputs schema</label>
+            <textarea class="aion-phase19e-custom-function-schema" spellcheck="false" data-aion-phase19e-custom-function-input="outputs_schema">${esc(config.outputs_schema || "{}")}</textarea>
+          </div>
+
+          <div class="aion-phase19e-custom-function-safety" style="grid-column: 1 / -1;">
+            Dry-run only. No live execution, no external writes, no booking, no payment, no email send.
+          </div>
+        </div>
+
+        <div class="aion-phase19e-custom-function-actions">
+          <button type="button" data-aion-phase19e-custom-function-close="true">Cancel</button>
+          <button type="button" class="aion-phase19e-custom-function-save" data-aion-phase19e-custom-function-save="true">Save custom function</button>
+        </div>
+      </section>
+    `;
+
+    return true;
+  }
+
+  function closeEditor() {
+    const modal = document.getElementById(MODAL_ID);
+    if (!modal) return;
+    modal.classList.remove("open");
+    modal.removeAttribute("data-aion-phase19e-editing-node-id");
+  }
+
+  function saveEditor() {
+    const modal = document.getElementById(MODAL_ID);
+    if (!modal) return false;
+
+    const nodeId = modal.getAttribute("data-aion-phase19e-editing-node-id");
+    const node = findNode(nodeId);
+    if (!node) return false;
+
+    normaliseCustomFunctionNode(node);
+
+    modal.querySelectorAll("[data-aion-phase19e-custom-function-input]").forEach((input) => {
+      const key = input.getAttribute("data-aion-phase19e-custom-function-input");
+      node.config[key] = input.value;
+    });
+
+    node.config.custom_function = true;
+    node.config.external_writes_enabled = false;
+    node.config.live_execution_enabled = false;
+    node.config.dry_run_only = true;
+    node.config.requires_human_approval = true;
+    node.dry_run_only = true;
+    node.non_executable_without_sandbox = true;
+    node.status = "draft";
+    node.meta = "Custom function configured for dry-run only. This node never performs live execution without a sandbox/approval gate.";
+
+    persistGraph("phase19e_custom_function_saved");
+    closeEditor();
+
+    if (typeof window.requestRender === "function") {
+      window.requestRender();
+    }
+
+    return true;
+  }
+
+  function maybeOpenFromClick(event) {
+    const explicit = event.target?.closest?.("[data-aion-phase19e-open-custom-function-editor]");
+    if (explicit) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      openEditor(explicit.getAttribute("data-aion-phase19e-open-custom-function-editor"));
+      return;
+    }
+
+    const text = String(event.target?.textContent || "").toLowerCase();
+    const button = event.target?.closest?.("button, [role='button']");
+    if (!button) return;
+
+    const selected = findSelectedCustomFunctionNode();
+    if (!selected) return;
+
+    const buttonText = String(button.textContent || "").toLowerCase();
+    const title = String(button.getAttribute("title") || "").toLowerCase();
+    const aria = String(button.getAttribute("aria-label") || "").toLowerCase();
+
+    const opensConfig =
+      buttonText.includes("parameters") ||
+      buttonText.includes("settings") ||
+      buttonText.includes("configure") ||
+      title.includes("parameters") ||
+      title.includes("settings") ||
+      aria.includes("parameters") ||
+      aria.includes("settings") ||
+      text.includes("custom parameters");
+
+    if (!opensConfig) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+    openEditor(selected);
+  }
+
+  document.addEventListener("click", (event) => {
+    const close = event.target?.closest?.("[data-aion-phase19e-custom-function-close='true']");
+    if (close) {
+      event.preventDefault();
+      event.stopPropagation();
+      closeEditor();
+      return;
+    }
+
+    const save = event.target?.closest?.("[data-aion-phase19e-custom-function-save='true']");
+    if (save) {
+      event.preventDefault();
+      event.stopPropagation();
+      saveEditor();
+      return;
+    }
+
+    maybeOpenFromClick(event);
+  }, true);
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    const modal = document.getElementById(MODAL_ID);
+    if (!modal?.classList.contains("open")) return;
+    event.preventDefault();
+    closeEditor();
+  }, true);
+
+  window.__aionOpenPhase19ECustomFunctionEditor = openEditor;
+  window.__aionSavePhase19ECustomFunctionEditor = saveEditor;
+  window.__aionClosePhase19ECustomFunctionEditor = closeEditor;
+  window.__aionIsPhase19ECustomFunctionNode = isCustomFunctionNode;
+  window.__aionNormalisePhase19ECustomFunctionNode = normaliseCustomFunctionNode;
+
+  console.log("[AION] Phase 19E custom function node editor lock installed");
+})();
+
