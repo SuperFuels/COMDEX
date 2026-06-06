@@ -335,3 +335,52 @@ def test_phase19e3_frontend_backend_sandbox_contract_marker_exists() -> None:
     assert "filesystem_access: false" in text
     assert "secrets_access: false" in text
 
+def phase19e4_block() -> str:
+    text = source()
+    start = text.index("AION PATCH: Phase 19E.4 Custom Function Sandbox Dry-Run Contract Bridge")
+    end = text.index('console.log("[AION] Phase 19E.4 custom function sandbox dry-run contract bridge installed");', start)
+    return text[start:end]
+
+
+def test_phase19e4_sandbox_bridge_installed() -> None:
+    block = phase19e4_block()
+    assert "installAionPhase19E4CustomFunctionSandboxDryRunContractBridge" in block
+    assert "__aionPhase19E4BuildBackendSandboxContractPreview" in block
+    assert "__aionPhase19E4TransformCustomFunctionSandboxDryRunResult" in block
+
+
+def test_phase19e4_returns_backend_sandbox_contract_shape() -> None:
+    block = phase19e4_block()
+    assert "custom.function.sandbox.dry_run" in block
+    assert "backend_custom_function_sandbox_dry_run" in block
+    assert "backend_sandbox_preview_only" in block
+    assert "sandbox_policy" in block
+    assert "network_access: false" in block
+    assert "filesystem_access: false" in block
+    assert "secrets_access: false" in block
+
+
+def test_phase19e4_replaces_config_preview_route() -> None:
+    block = phase19e4_block()
+    assert "custom_function_backend_sandbox_contract_dry_run" in block
+    assert "custom.function.sandbox_dry_run" in block
+    assert "custom_function_sandbox_dry_run" in block
+    assert "config_preview_only" not in block
+
+
+def test_phase19e4_never_executes_code_or_external_writes() -> None:
+    block = phase19e4_block()
+    assert "frontend_code_execution: false" in block
+    assert "backend_code_execution: false" in block
+    assert "external_writes_enabled: false" in block
+    assert "live_execution_enabled: false" in block
+    forbidden = [
+        "eval(",
+        "new Function",
+        "sendEmail",
+        "external_writes_enabled: true",
+        "live_execution_enabled: true",
+    ]
+    for token in forbidden:
+        assert token not in block
+

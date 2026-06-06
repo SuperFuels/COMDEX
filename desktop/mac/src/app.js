@@ -82570,6 +82570,264 @@ html body .aion-phase19d-note-text {
 
 /*
  * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19E.4 Custom Function Sandbox Dry-Run Contract Bridge
+ *
+ * Contract:
+ * - Custom function dry-run output must expose the backend sandbox contract shape.
+ * - The visible dry-run trace must use the backend sandbox contract route.
+ * - The frontend still does not execute custom code.
+ * - The dry-run preview remains local, deterministic, and side-effect free.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19E4CustomFunctionSandboxDryRunContractBridge() {
+  if (window.__aionPhase19E4CustomFunctionSandboxDryRunContractBridgeInstalled === true) return;
+  window.__aionPhase19E4CustomFunctionSandboxDryRunContractBridgeInstalled = true;
+
+  function parseJson(value, fallback = {}) {
+    try {
+      if (typeof value === "object" && value !== null) return value;
+      return JSON.parse(String(value || "").trim() || "{}");
+    } catch (_) {
+      return fallback;
+    }
+  }
+
+  function getGraph() {
+    if (typeof window.__aionGetActiveWorkflowGraph === "function") return window.__aionGetActiveWorkflowGraph();
+    if (typeof getAionWorkflowDraftState === "function") return getAionWorkflowDraftState();
+    return window.__aionWorkflowGraph || window.__aionWorkflowMainGraph || null;
+  }
+
+  function isCustomFunctionNode(node) {
+    if (!node) return false;
+    const config = node.config && typeof node.config === "object" ? node.config : {};
+    const haystack = [
+      node.id,
+      node.type,
+      node.kind,
+      node.title,
+      node.label,
+      node.action_id,
+      node.module_id,
+      node.connector,
+      node.app,
+      node.meta,
+      config.action_id,
+      config.module_id,
+      config.connector,
+      config.app,
+      config.kind,
+      config.custom_function,
+    ].map((value) => String(value || "").toLowerCase()).join(" ");
+
+    return (
+      haystack.includes("custom.function") ||
+      haystack.includes("custom_function") ||
+      haystack.includes("custom function") ||
+      haystack.includes("custom logic")
+    );
+  }
+
+  function findCustomFunctionNode(nodeId) {
+    const graph = getGraph();
+    const nodes = Array.isArray(graph?.nodes) ? graph.nodes : [];
+
+    return (
+      nodes.find((node) => String(node.id) === String(nodeId) && isCustomFunctionNode(node)) ||
+      nodes.find(isCustomFunctionNode) ||
+      null
+    );
+  }
+
+  function buildBackendSandboxContractPreview(node, inputItem) {
+    const config = node?.config && typeof node.config === "object" ? node.config : {};
+    const sampleInput = parseJson(config.sample_input, {
+      source: "custom_function_sandbox_sample",
+      dry_run: true,
+    });
+
+    const input = inputItem?.json && typeof inputItem.json === "object"
+      ? inputItem.json
+      : sampleInput;
+
+    const timeoutMs = Number(config?.config_schema?.timeout_ms || config.timeout_ms || 3000);
+    const memoryMb = Number(config?.config_schema?.memory_mb || config.memory_mb || 64);
+    const language = String(config.language || "javascript").toLowerCase();
+
+    return {
+      source: "custom.function.sandbox.dry_run",
+      ok: true,
+      mode: "backend_custom_function_sandbox_dry_run",
+      dry_run: true,
+      frontend_code_execution: false,
+      backend_code_execution: false,
+      external_writes_enabled: false,
+      live_execution_enabled: false,
+      requires_human_approval: true,
+      sandbox_policy: {
+        network_access: false,
+        filesystem_access: false,
+        secrets_access: false,
+        timeout_ms: timeoutMs,
+        memory_mb: memoryMb,
+      },
+      language,
+      input,
+      custom_result: {
+        ok: true,
+        mode: "backend_sandbox_preview_only",
+        source: "custom.function.sandbox.dry_run",
+        language,
+        input,
+        result: {
+          dry_run_preview: true,
+          code_saved: Boolean(String(config.code || "").trim()),
+          code_preview_chars: String(config.code || "").length,
+          timeout_ms: timeoutMs,
+          memory_mb: memoryMb,
+          note: "Backend sandbox contract preview validated. User code was not executed.",
+        },
+      },
+      error: null,
+    };
+  }
+
+  function transformCustomFunctionSandboxDryRunResult(result) {
+    if (!result || typeof result !== "object") return result;
+
+    const trace = Array.isArray(result.trace) ? result.trace : [];
+    let changed = false;
+
+    for (const step of trace) {
+      const node = findCustomFunctionNode(step?.node_id);
+      if (!node) continue;
+
+      const config = node.config && typeof node.config === "object" ? node.config : {};
+      const sample = parseJson(config.sample_input, {
+        source: "custom_function_sandbox_sample",
+        dry_run: true,
+      });
+
+      const incoming = Array.isArray(step.input_items_preview) && step.input_items_preview.length
+        ? step.input_items_preview
+        : [{ json: sample }];
+
+      step.title = String(node.title || "Custom function");
+      step.op = "custom.function.sandbox_dry_run";
+      step.marker = "custom_function_sandbox_dry_run";
+      step.status = "executed";
+      step.risk_tier = "low";
+      step.permission = {
+        decision: "auto_run",
+        requires_approval: false,
+        reason: "backend_sandbox_contract_preview_only",
+      };
+      step.input_items_preview = incoming;
+      step.input_items_count = incoming.length;
+      step.output_items_preview = incoming.map((item, index) => ({
+        json: {
+          ...buildBackendSandboxContractPreview(node, item),
+          item_index: index,
+          item_number: index + 1,
+          item_total: incoming.length,
+        },
+      }));
+      step.output_items_count = step.output_items_preview.length;
+
+      changed = true;
+    }
+
+    if (!changed) return result;
+
+    result.execution_route = "custom_function_backend_sandbox_contract_dry_run";
+    result.dry_run = true;
+    result.local_preview = true;
+    result.blocked_external_writes = [];
+    result.approval_required = false;
+    result.message = "Custom function backend sandbox contract dry-run completed. No code execution or external writes were performed.";
+
+    if (result.compiled_glyph && Array.isArray(result.compiled_glyph.steps)) {
+      result.compiled_glyph.steps = result.compiled_glyph.steps.map((step) => {
+        const node = findCustomFunctionNode(step.node_id || step.ref);
+        if (!node) return step;
+
+        return {
+          ...step,
+          op: "custom.function.sandbox_dry_run",
+          meta: "Custom function backend sandbox contract preview. Dry-run only; no code execution.",
+          config: {
+            ...(step.config || {}),
+            sandbox_contract: "backend/services/aion_custom_function_sandbox.py",
+            sandbox_source: "custom.function.sandbox.dry_run",
+            frontend_code_execution: false,
+            backend_code_execution: false,
+            external_writes_enabled: false,
+            live_execution_enabled: false,
+            network_access: false,
+            filesystem_access: false,
+            secrets_access: false,
+          },
+        };
+      });
+    }
+
+    return result;
+  }
+
+  function patchWindowDryRunResultProperty() {
+    if (window.__aionPhase19E4DryRunResultPropertyPatched === true) return;
+    window.__aionPhase19E4DryRunResultPropertyPatched = true;
+
+    let stored = transformCustomFunctionSandboxDryRunResult(window.__aionWorkflowDryRunResult);
+
+    try {
+      Object.defineProperty(window, "__aionWorkflowDryRunResult", {
+        configurable: true,
+        get() {
+          return stored;
+        },
+        set(value) {
+          const e2 =
+            typeof window.__aionPhase19E2TransformCustomFunctionDryRunResult === "function"
+              ? window.__aionPhase19E2TransformCustomFunctionDryRunResult(value)
+              : value;
+
+          stored = transformCustomFunctionSandboxDryRunResult(e2);
+        },
+      });
+    } catch (_) {}
+  }
+
+  function patchExistingResult() {
+    try {
+      if (window.__aionWorkflowDryRunResult) {
+        window.__aionWorkflowDryRunResult = window.__aionWorkflowDryRunResult;
+      }
+    } catch (_) {}
+  }
+
+  document.addEventListener("click", (event) => {
+    if (event.target?.closest?.("[data-aion-workflow-dry-run='true']")) {
+      window.setTimeout(patchExistingResult, 80);
+      window.setTimeout(patchExistingResult, 240);
+      window.setTimeout(patchExistingResult, 650);
+      window.setTimeout(patchExistingResult, 1200);
+    }
+  }, true);
+
+  window.__aionPhase19E4BuildBackendSandboxContractPreview = buildBackendSandboxContractPreview;
+  window.__aionPhase19E4TransformCustomFunctionSandboxDryRunResult = transformCustomFunctionSandboxDryRunResult;
+
+  patchWindowDryRunResultProperty();
+  window.setInterval(patchExistingResult, 900);
+
+  console.log("[AION] Phase 19E.4 custom function sandbox dry-run contract bridge installed");
+})();
+
+
+
+/*
+ * ---------------------------------------------------------------------------
  * AION PATCH: Phase 19E.3 Backend Custom Function Sandbox Contract Lock
  *
  * Contract:
