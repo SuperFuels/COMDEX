@@ -24,7 +24,14 @@
       "electron/**/*",
       "src/**/*",
       "assets/**/*",
-      "package.json"
+      "package.json",
+      "!src/*.bak*",
+      "!src/**/*.bak*",
+      "!**/*.bak-*",
+      "!**/*.bak_*",
+      "!**/*.backup",
+      "!**/*.orig",
+      "!**/.DS_Store"
     ],
     "extraMetadata": {
       "main": "electron/main.js"
