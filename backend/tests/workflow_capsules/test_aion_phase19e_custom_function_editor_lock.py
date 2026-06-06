@@ -322,3 +322,16 @@ def test_phase19e3_save_persists_safely_without_execution() -> None:
     for token in ["eval(", "new Function", "fetch(", "sendEmail", "external_writes_enabled: true", "live_execution_enabled: true"]:
         assert token not in block
 
+def test_phase19e3_frontend_backend_sandbox_contract_marker_exists() -> None:
+    text = source()
+    assert "Phase 19E.3 Backend Custom Function Sandbox Contract Lock" in text
+    assert "custom.function.sandbox.dry_run" in text
+    assert "fallback_source: \"custom.function.dry_run\"" in text
+    assert "frontend_code_execution: false" in text
+    assert "backend_code_execution: false" in text
+    assert "external_writes_enabled: false" in text
+    assert "live_execution_enabled: false" in text
+    assert "network_access: false" in text
+    assert "filesystem_access: false" in text
+    assert "secrets_access: false" in text
+

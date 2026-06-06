@@ -82568,4 +82568,39 @@ html body .aion-phase19d-note-text {
 })();
 
 
+/*
+ * ---------------------------------------------------------------------------
+ * AION PATCH: Phase 19E.3 Backend Custom Function Sandbox Contract Lock
+ *
+ * Contract:
+ * - Frontend custom function dry-run remains preview-only unless backend sandbox
+ *   returns a safe result.
+ * - Backend sandbox source is custom.function.sandbox.dry_run.
+ * - Frontend must continue to expose no eval, no new Function, no fetch, and no
+ *   live external writes for custom function execution.
+ * - If backend sandbox is unavailable, deterministic preview remains the fallback.
+ * ---------------------------------------------------------------------------
+ */
+(function installAionPhase19E3BackendCustomFunctionSandboxContractLock() {
+  if (window.__aionPhase19E3BackendCustomFunctionSandboxContractLockInstalled === true) return;
+  window.__aionPhase19E3BackendCustomFunctionSandboxContractLockInstalled = true;
+
+  window.__aionCustomFunctionSandboxContract = {
+    source: "custom.function.sandbox.dry_run",
+    fallback_source: "custom.function.dry_run",
+    dry_run: true,
+    frontend_code_execution: false,
+    backend_code_execution: false,
+    external_writes_enabled: false,
+    live_execution_enabled: false,
+    requires_human_approval: true,
+    network_access: false,
+    filesystem_access: false,
+    secrets_access: false,
+    timeout_ms: 3000,
+    memory_mb: 64,
+  };
+
+  console.log("[AION] Phase 19E.3 backend custom function sandbox contract lock installed");
+})();
 
