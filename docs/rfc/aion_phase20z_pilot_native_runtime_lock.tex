@@ -1,0 +1,139 @@
+\section{AION Phase 20Z --- AION Pilot Native Runtime and Process Isolation}
+\label{sec:aion-phase20z-pilot-native-runtime}
+
+\subsection{Status}
+
+Phase 20Z locks AION Pilot as a native AION runtime capability.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION Pilot is native to AION Core, not a separate app, not an OpenClaw clone, and not UI automation.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot is the user-facing executor for AION Mission Mode.
+
+Pilot is not an external agent operating AION like a user.
+
+Pilot is AION operating itself on a longer task, within a governed Mission Contract, visible through the Terminal, Boardroom, Workflow Canvas, proof, replay, and artifact layers.
+
+\begin{quote}
+\textbf{AION Pilot is not an agent operating AION. It is AION operating itself on a longer task.}
+\end{quote}
+
+\subsection{Native Runtime Rule}
+
+AION Pilot MUST:
+
+\begin{itemize}
+  \item be owned by \texttt{aion\_core};
+  \item use executor name \texttt{AION Pilot};
+  \item call internal AION services directly;
+  \item execute through Mission Contracts, lanes, checkpoints, Kernel Guard, runtime state, artifact persistence, proof, replay, and ETS preview;
+  \item expose mission intake through AION Terminal or Command Bar;
+  \item expose supervision through Boardroom Mission Control;
+  \item expose plans and workflows through Workflow Canvas preview surfaces.
+\end{itemize}
+
+\subsection{UI Automation Prohibition}
+
+AION Pilot MUST NOT:
+
+\begin{itemize}
+  \item click the UI;
+  \item type into the UI;
+  \item scrape the UI;
+  \item navigate the UI;
+  \item move the cursor;
+  \item drive a browser or desktop surface like a user;
+  \item operate as a hidden daemon outside Boardroom supervision.
+\end{itemize}
+
+Pilot executes through internal services, not UI simulation.
+
+\subsection{Allowed Native Services}
+
+Pilot may route only through governed AION internal services such as:
+
+\begin{itemize}
+  \item \texttt{mission\_contract}
+  \item \texttt{mission\_template}
+  \item \texttt{mission\_planner}
+  \item \texttt{autonomy\_lane\_classifier}
+  \item \texttt{kernel\_guard}
+  \item \texttt{mission\_runtime}
+  \item \texttt{business\_container\_artifacts}
+  \item \texttt{proof\_replay}
+  \item \texttt{ets\_preview}
+\end{itemize}
+
+\subsection{Process Isolation and Resource Bounding}
+
+MissionRuntime work MUST run asynchronously and outside the primary UI thread.
+
+The worker policy MUST include:
+
+\begin{itemize}
+  \item bounded CPU policy;
+  \item bounded memory policy;
+  \item mission-scoped throttled I/O;
+  \item kill-switch availability;
+  \item trace preservation on kill;
+  \item receipt preservation on kill;
+  \item partial-output preservation on kill.
+\end{itemize}
+
+\subsection{Kill-Switch Contract}
+
+The AION Terminal and Boardroom MUST expose a kill-switch for active Pilot runs.
+
+When triggered, the kill-switch MUST:
+
+\begin{itemize}
+  \item terminate the active worker state;
+  \item preserve trace events;
+  \item preserve receipt references;
+  \item preserve partial outputs;
+  \item produce a new worker state hash;
+  \item prevent corruption of persistent state.
+\end{itemize}
+
+\subsection{Boardroom State Synchronisation}
+
+The Boardroom view MUST be synchronised with runtime and worker state.
+
+The sync hash is:
+
+\begin{verbatim}
+sha256({
+  mission_id,
+  mission_run_id,
+  runtime_state_hash,
+  worker_state_hash
+})
+\end{verbatim}
+
+If the Boardroom sync hash does not match runtime state, Boardroom MUST refuse to present the mission as trustworthy.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Z-PILOT-NATIVE-RUNTIME-PROCESS-ISOLATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
