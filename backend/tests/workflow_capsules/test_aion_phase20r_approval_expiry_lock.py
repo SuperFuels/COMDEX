@@ -127,3 +127,114 @@ def test_phase20r_decision_hash_changes_when_expiry_state_changes() -> None:
     second = make_decision(now_iso="2026-06-07T13:00:01")
 
     assert first["decision_hash"] != second["decision_hash"]
+
+
+def test_phase20r1_time_anchor_is_deterministic_and_immutable() -> None:
+    from backend.services.aion_mission_mode.approval_expiry import create_atomic_time_anchor
+
+    first = create_atomic_time_anchor(eval_time="2026-06-07T12:59:59")
+    second = create_atomic_time_anchor(eval_time="2026-06-07T12:59:59")
+
+    assert first["t_eval"] == "2026-06-07T12:59:59"
+    assert first["immutable_within_checkpoint"] is True
+    assert first["time_anchor_hash"] == second["time_anchor_hash"]
+    assert first["time_anchor_hash"].startswith("sha256:")
+
+
+def test_phase20r1_anchor_drives_expiry_without_resampling() -> None:
+    from backend.services.aion_mission_mode.approval_expiry import (
+        create_atomic_time_anchor,
+        evaluate_approval_expiry_with_time_anchor,
+    )
+
+    payload = {"message": "Draft advert", "limit": 100}
+    anchor = create_atomic_time_anchor(eval_time="2026-06-07T13:00:01")
+
+    decision = evaluate_approval_expiry_with_time_anchor(
+        mission_id="mission_001",
+        mission_run_id="run_001",
+        checkpoint_id="checkpoint_publish",
+        step_id="step_publish",
+        action_type="publish_advert",
+        approval_hash="sha256:approval",
+        approved_payload_hash=payload_sha256_normalized(payload),
+        current_payload=payload,
+        expires_at="2026-06-07T13:00:00",
+        time_anchor=anchor,
+    )
+
+    assert decision["approval_expired"] is True
+    assert decision["event_type"] == "approval_expired"
+    assert decision["t_eval"] == "2026-06-07T13:00:01"
+    assert decision["time_anchor_hash"] == anchor["time_anchor_hash"]
+
+
+def test_phase20r1_temporal_decision_hash_changes_when_time_anchor_changes() -> None:
+    from backend.services.aion_mission_mode.approval_expiry import temporal_decision_hash
+
+    first = temporal_decision_hash(
+        approved_payload_hash="sha256:a",
+        current_payload_hash="sha256:a",
+        t_eval="2026-06-07T12:59:59",
+        payload_changed=False,
+        approval_expired=False,
+        runtime_state="approval_valid_execution_allowed",
+        event_type="approval_valid",
+        checkpoint_id="checkpoint_publish",
+    )
+
+    second = temporal_decision_hash(
+        approved_payload_hash="sha256:a",
+        current_payload_hash="sha256:a",
+        t_eval="2026-06-07T13:00:01",
+        payload_changed=False,
+        approval_expired=True,
+        runtime_state="paused_at_checkpoint",
+        event_type="approval_expired",
+        checkpoint_id="checkpoint_publish",
+    )
+
+    assert first != second
+    assert first.startswith("sha256:")
+    assert second.startswith("sha256:")
+
+
+def test_phase20r1_rejects_mutable_or_missing_time_anchor() -> None:
+    import pytest
+    from backend.services.aion_mission_mode.approval_expiry import evaluate_approval_expiry_with_time_anchor
+
+    payload = {"message": "Draft advert", "limit": 100}
+
+    with pytest.raises(ValueError):
+        evaluate_approval_expiry_with_time_anchor(
+            mission_id="mission_001",
+            mission_run_id="run_001",
+            checkpoint_id="checkpoint_publish",
+            step_id="step_publish",
+            action_type="publish_advert",
+            approval_hash="sha256:approval",
+            approved_payload_hash=payload_sha256_normalized(payload),
+            current_payload=payload,
+            expires_at="2026-06-07T13:00:00",
+            time_anchor={"t_eval": "2026-06-07T12:59:59", "immutable_within_checkpoint": False},
+        )
+
+
+def test_phase20r1_detects_time_anchor_resampling() -> None:
+    from backend.services.aion_mission_mode.approval_expiry import (
+        create_atomic_time_anchor,
+        verify_time_anchor_not_resampled,
+    )
+
+    initial = create_atomic_time_anchor(eval_time="2026-06-07T12:59:59")
+    runtime = create_atomic_time_anchor(eval_time="2026-06-07T13:00:01")
+
+    assert verify_time_anchor_not_resampled(
+        initial_time_anchor=initial,
+        runtime_time_anchor=initial,
+    ) is True
+
+    assert verify_time_anchor_not_resampled(
+        initial_time_anchor=initial,
+        runtime_time_anchor=runtime,
+    ) is False

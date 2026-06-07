@@ -155,3 +155,106 @@ def boardroom_expiry_notice(decision: dict[str, Any]) -> dict[str, Any]:
         "show_approval_expired": decision["approval_expired"],
         "controls_enabled": decision["approval_valid"],
     }
+
+
+def create_atomic_time_anchor(*, eval_time: str) -> dict[str, Any]:
+    """
+    Create a single immutable checkpoint evaluation timestamp.
+
+    The runtime must use this timestamp for every assertion inside the same
+    checkpoint validation frame.
+    """
+    anchor = {
+        "schema_version": "aion.approval_time_anchor.v0",
+        "time_source": "monotonic_or_trusted_reference",
+        "t_eval": str(eval_time),
+        "immutable_within_checkpoint": True,
+    }
+    anchor["time_anchor_hash"] = _hash(anchor)
+    return anchor
+
+
+def temporal_decision_hash(
+    *,
+    approved_payload_hash: str,
+    current_payload_hash: str,
+    t_eval: str,
+    payload_changed: bool,
+    approval_expired: bool,
+    runtime_state: str,
+    event_type: str,
+    checkpoint_id: str,
+) -> str:
+    return _hash(
+        {
+            "approved_payload_hash": approved_payload_hash,
+            "current_payload_hash": current_payload_hash,
+            "t_eval": t_eval,
+            "state_flags": {
+                "payload_changed": payload_changed,
+                "approval_expired": approval_expired,
+            },
+            "runtime_state": runtime_state,
+            "event_type": event_type,
+            "checkpoint_id": checkpoint_id,
+        }
+    )
+
+
+def evaluate_approval_expiry_with_time_anchor(
+    *,
+    mission_id: str,
+    mission_run_id: str,
+    checkpoint_id: str,
+    step_id: str,
+    action_type: str,
+    approval_hash: str,
+    approved_payload_hash: str,
+    current_payload: dict[str, Any],
+    expires_at: str | None,
+    time_anchor: dict[str, Any],
+) -> dict[str, Any]:
+    if time_anchor.get("immutable_within_checkpoint") is not True:
+        raise ValueError("approval_time_anchor_must_be_immutable")
+
+    t_eval = str(time_anchor.get("t_eval", ""))
+
+    decision = evaluate_approval_expiry(
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        checkpoint_id=checkpoint_id,
+        step_id=step_id,
+        action_type=action_type,
+        approval_hash=approval_hash,
+        approved_payload_hash=approved_payload_hash,
+        current_payload=current_payload,
+        expires_at=expires_at,
+        now_iso=t_eval,
+    )
+
+    decision["t_eval"] = t_eval
+    decision["time_anchor_hash"] = time_anchor.get("time_anchor_hash")
+    decision["decision_hash"] = temporal_decision_hash(
+        approved_payload_hash=decision["approved_payload_hash"],
+        current_payload_hash=decision["current_payload_hash"],
+        t_eval=t_eval,
+        payload_changed=decision["payload_changed"],
+        approval_expired=decision["approval_expired"],
+        runtime_state=decision["runtime_state"],
+        event_type=decision["event_type"],
+        checkpoint_id=checkpoint_id,
+    )
+    return decision
+
+
+def verify_time_anchor_not_resampled(
+    *,
+    initial_time_anchor: dict[str, Any],
+    runtime_time_anchor: dict[str, Any],
+) -> bool:
+    return (
+        initial_time_anchor.get("t_eval") == runtime_time_anchor.get("t_eval")
+        and initial_time_anchor.get("time_anchor_hash") == runtime_time_anchor.get("time_anchor_hash")
+        and initial_time_anchor.get("immutable_within_checkpoint") is True
+        and runtime_time_anchor.get("immutable_within_checkpoint") is True
+    )

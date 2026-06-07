@@ -144,3 +144,116 @@ Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson
 \end{verbatim}
+
+\subsection{Phase 20R.1 --- Atomic Time Anchoring and Temporal Decision Hash Closure}
+\label{subsec:aion-phase20r1-atomic-time-anchor}
+
+\subsubsection{Status}
+
+Phase 20R.1 hardens approval expiry against local clock skew, mid-step clock resampling, and temporal TOCTOU drift.
+
+\begin{quote}
+\textbf{Status: LOCKED --- approval expiry checks MUST use one immutable evaluation timestamp across the entire checkpoint validation frame.}
+\end{quote}
+
+\subsubsection{Atomic Time Anchoring Invariant}
+
+To prevent temporal race conditions and clock-drift exploitation during verification, the execution engine MUST sample a single validation timestamp $T_{\mathrm{eval}}$ at the absolute boundary of checkpoint entry.
+
+The evaluation logic for an approval with expiry threshold $T_{\mathrm{expiry}}$ is:
+
+\begin{equation}
+\mathrm{Assert}\; T_{\mathrm{eval}} \le T_{\mathrm{expiry}}
+\end{equation}
+
+The sampled value $T_{\mathrm{eval}}$ MUST remain static across all downstream assertions, including:
+
+\begin{itemize}
+  \item primitive normalisation;
+  \item payload comparison;
+  \item expiry comparison;
+  \item checkpoint token verification;
+  \item Boardroom notice generation;
+  \item decision hash generation.
+\end{itemize}
+
+The runtime MUST NOT re-sample the system clock mid-step.
+
+\subsubsection{Immutable Time Anchor}
+
+The checkpoint validation frame MUST carry an immutable time anchor:
+
+\begin{verbatim}
+schema_version: aion.approval_time_anchor.v0
+time_source: monotonic_or_trusted_reference
+t_eval: <timestamp>
+immutable_within_checkpoint: true
+time_anchor_hash: sha256:<digest>
+\end{verbatim}
+
+If the time anchor is missing or mutable, the expiry decision MUST fail closed.
+
+\subsubsection{Temporal Decision Hash Formula Closure}
+
+The decision hash $\mathcal{D}_{\mathrm{hash}}$ MUST explicitly bind the temporal parameter state:
+
+\begin{equation}
+\mathcal{D}_{\mathrm{hash}}
+=
+\mathrm{SHA256}
+(
+H_{\mathrm{approved\_payload}}
+\parallel
+H_{\mathrm{current\_payload}}
+\parallel
+T_{\mathrm{eval}}
+\parallel
+\mathrm{StateFlags}
+\parallel
+\mathtt{CheckpointID}
+)
+\end{equation}
+
+The state flags include:
+
+\begin{itemize}
+  \item \texttt{payload\_changed}
+  \item \texttt{approval\_expired}
+  \item \texttt{runtime\_state}
+  \item \texttt{event\_type}
+\end{itemize}
+
+Any alteration to the evaluation timestamp or internal boolean states MUST change the decision hash.
+
+\subsubsection{Clock Resampling Rejection}
+
+If the runtime detects that the checkpoint entry anchor and runtime anchor differ, the runtime MUST treat the checkpoint frame as invalid.
+
+This prevents local clock skew, virtualization drift, or delayed worker execution from extending an expired approval.
+
+\subsubsection{Validation Coverage}
+
+Phase 20R.1 tests prove:
+
+\begin{itemize}
+  \item time anchors are deterministic and immutable;
+  \item the anchor drives expiry without clock resampling;
+  \item temporal decision hashes change when the time anchor changes;
+  \item mutable or missing time anchors are rejected;
+  \item mid-frame time anchor resampling is detected.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{A checkpoint expiry decision is made against one immutable evaluation time. AION Pilot may not re-check, rewind, or extend time inside the same checkpoint execution boundary.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20R1-ATOMIC-TIME-ANCHOR-TEMPORAL-DECISION-HASH
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
