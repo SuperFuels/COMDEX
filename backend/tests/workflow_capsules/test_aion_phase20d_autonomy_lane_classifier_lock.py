@@ -2,6 +2,7 @@ from backend.services.aion_mission_mode.autonomy_lane_classifier import (
     classify_action_type,
     classify_mission_step,
     classify_mission_steps,
+    verify_runtime_queue_hash,
 )
 from backend.services.aion_mission_mode.mission_planner import create_home_fixed_lead_campaign_plan
 
@@ -172,3 +173,70 @@ def test_phase20d1_classifier_run_hash_uses_sha256_prefix_and_is_stable() -> Non
 
     assert first["classifier_run_hash"] == second["classifier_run_hash"]
     assert first["classifier_run_hash"].startswith("sha256:")
+
+
+def test_phase20d2_forbidden_key_case_bypass_is_normalised() -> None:
+    result = classify_mission_step({
+        "action_type": "draft_offer",
+        "Live_Execution_Enabled": True,
+    })
+
+    assert result["decision"] == "forbidden"
+    assert "forbidden_payload_shape" in result["reason"]
+
+
+def test_phase20d2_forbidden_key_hyphen_bypass_is_normalised() -> None:
+    result = classify_mission_step({
+        "action_type": "draft_offer",
+        "live-execution-enabled": True,
+    })
+
+    assert result["decision"] == "forbidden"
+    assert "forbidden_payload_shape" in result["reason"]
+
+
+def test_phase20d2_forbidden_key_unicode_whitespace_bypass_is_normalised() -> None:
+    result = classify_mission_step({
+        "action_type": "draft_offer",
+        " live\u00a0execution\u2009enabled ": True,
+    })
+
+    assert result["decision"] == "forbidden"
+    assert "forbidden_payload_shape" in result["reason"]
+
+
+def test_phase20d2_jit_runtime_queue_hash_accepts_unchanged_batch() -> None:
+    classifier_result = classify_mission_steps([
+        {"action_type": "draft_offer", "title": "Draft offer"},
+        {"action_type": "publish_advert", "title": "Publish advert"},
+    ])
+
+    verify = verify_runtime_queue_hash(
+        classifier_result=classifier_result,
+        runtime_classifications=classifier_result["classifications"],
+    )
+
+    assert verify["ok"] is True
+    assert verify["runtime_mount_allowed"] is True
+    assert verify["trace_event"] is None
+
+
+def test_phase20d2_jit_runtime_queue_hash_blocks_mutated_batch() -> None:
+    classifier_result = classify_mission_steps([
+        {"action_type": "draft_offer", "title": "Draft offer"},
+        {"action_type": "publish_advert", "title": "Publish advert"},
+    ])
+
+    mutated = list(classifier_result["classifications"])
+    mutated[0] = {**mutated[0], "action_type": "send_email_live"}
+
+    verify = verify_runtime_queue_hash(
+        classifier_result=classifier_result,
+        runtime_classifications=mutated,
+    )
+
+    assert verify["ok"] is False
+    assert verify["runtime_mount_allowed"] is False
+    assert verify["mission_runtime_state"] == "blocked"
+    assert verify["trace_event"] == "classifier_runtime_hash_mismatch"
+    assert "hash mismatch" in verify["boardroom_alert"].lower()

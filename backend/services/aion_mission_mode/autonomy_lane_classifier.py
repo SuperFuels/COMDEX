@@ -15,6 +15,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from hashlib import sha256
 import json
+import re
 from typing import Any
 
 
@@ -244,7 +245,7 @@ def _payload_text(step: dict[str, Any]) -> str:
 def _contains_live_flag(value: Any) -> str | None:
     if isinstance(value, dict):
         for key, item in value.items():
-            key_slug = _slug(key)
+            key_slug = normalize_payload_key(key)
             if key_slug in LIVE_FLAG_KEYS and item is True:
                 return key_slug
             nested = _contains_live_flag(item)
@@ -312,10 +313,19 @@ def classify_action_type(action_type: str) -> tuple[str, str, str]:
 
 
 
+def normalize_payload_key(key: Any) -> str:
+    """Canonicalise payload keys before forbidden-registry checks."""
+    value = str(key or "")
+    value = value.lower().replace("-", "_")
+    value = re.sub(r"\s+", "_", value)
+    value = re.sub(r"_+", "_", value)
+    return value.strip("_")
+
+
 def _find_forbidden_schema_key(value: Any, path: str = "") -> str | None:
     if isinstance(value, dict):
         for key, item in value.items():
-            key_slug = _slug(key)
+            key_slug = normalize_payload_key(key)
             current_path = f"{path}.{key_slug}" if path else key_slug
 
             if key_slug in DANGEROUS_SCHEMA_KEYS:
@@ -336,7 +346,7 @@ def _find_forbidden_schema_key(value: Any, path: str = "") -> str | None:
 
 def _find_unknown_safe_step_key(step: dict[str, Any]) -> str | None:
     for key in step.keys():
-        key_slug = _slug(key)
+        key_slug = normalize_payload_key(key)
         if key_slug not in SAFE_STEP_TOP_LEVEL_KEYS:
             return key_slug
     return None
@@ -465,3 +475,25 @@ def classify_mission_steps(steps: list[dict[str, Any]]) -> dict[str, Any]:
     summary["classifier_run_hash"] = calculate_classifier_run_hash(classifications)
 
     return summary
+
+
+def verify_runtime_queue_hash(
+    *,
+    classifier_result: dict[str, Any],
+    runtime_classifications: list[dict[str, Any]],
+) -> dict[str, Any]:
+    expected_hash = str(classifier_result.get("classifier_run_hash") or "")
+    runtime_hash = calculate_classifier_run_hash(runtime_classifications)
+
+    ok = expected_hash == runtime_hash
+
+    return {
+        "ok": ok,
+        "expected_classifier_run_hash": expected_hash,
+        "runtime_classifier_run_hash": runtime_hash,
+        "runtime_mount_allowed": ok and bool(classifier_result.get("runtime_mount_allowed")),
+        "mission_runtime_state": "ready_for_runtime" if ok and bool(classifier_result.get("runtime_mount_allowed")) else "blocked",
+        "trace_event": None if ok else "classifier_runtime_hash_mismatch",
+        "boardroom_alert": None if ok else "Classifier/runtime queue hash mismatch. Runtime mount refused.",
+    }
+
