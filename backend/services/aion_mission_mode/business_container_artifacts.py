@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from hashlib import sha256
 import json
+from pathlib import Path
 from typing import Any
 
 
@@ -170,6 +171,13 @@ def commit_pilot_artifact_to_business_container(
         "storage_path": business_container_path(target, artifact_id),
     }
 
+    receipt_hash = artifact_merkle_triad_hash(
+        artifact_hash=artifact_hash,
+        source_payload_hash=source_payload_hash,
+        provenance=asdict(provenance),
+        storage_path=business_container_path(target, artifact_id),
+    )
+
     record = BusinessContainerArtifactRecord(
         artifact_id=artifact_id,
         target=asdict(target),
@@ -177,7 +185,7 @@ def commit_pilot_artifact_to_business_container(
         artifact_payload=dict(artifact_payload),
         artifact_hash=artifact_hash,
         source_payload_hash=source_payload_hash,
-        receipt_hash=_hash(receipt_payload),
+        receipt_hash=receipt_hash,
     )
 
     data = asdict(record)
@@ -225,3 +233,85 @@ def validate_pilot_artifact_record(record: dict[str, Any]) -> bool:
             "receipt_hash",
         ]
     )
+
+
+class ArtifactPathContainmentError(ValueError):
+    """Raised when an artifact target attempts to escape its business container."""
+
+
+def canonical_business_container_root(*, platform_root: str, business_container_id: str) -> Path:
+    if business_container_id in {"", "global", "root", "session_vfs", "tmp", "temp"}:
+        raise ArtifactPathContainmentError("invalid_business_container_root")
+
+    root = Path(platform_root).resolve()
+    return (root / "business_containers" / business_container_id).resolve()
+
+
+def canonical_artifact_real_path(
+    *,
+    platform_root: str,
+    target: BusinessArtifactTarget,
+    artifact_id: str,
+) -> Path:
+    validate_artifact_target(target)
+
+    active_business_root = canonical_business_container_root(
+        platform_root=platform_root,
+        business_container_id=target.business_container_id,
+    )
+
+    destination = (
+        active_business_root /
+        target.sub_container /
+        f"{artifact_id}.json"
+    ).resolve()
+
+    try:
+        destination.relative_to(active_business_root)
+    except ValueError as exc:
+        raise ArtifactPathContainmentError(
+            f"artifact_path_escape:{destination}"
+        ) from exc
+
+    return destination
+
+
+def validate_canonical_path_containment(
+    *,
+    platform_root: str,
+    target: BusinessArtifactTarget,
+    artifact_id: str,
+) -> bool:
+    canonical_artifact_real_path(
+        platform_root=platform_root,
+        target=target,
+        artifact_id=artifact_id,
+    )
+    return True
+
+
+def artifact_merkle_triad_hash(
+    *,
+    artifact_hash: str,
+    source_payload_hash: str,
+    provenance: dict[str, Any],
+    storage_path: str,
+) -> str:
+    return sha256(
+        (
+            str(artifact_hash) +
+            str(source_payload_hash) +
+            _canonical_json(provenance) +
+            str(storage_path)
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def validate_artifact_merkle_triad(record: dict[str, Any]) -> bool:
+    expected = artifact_merkle_triad_hash(
+        artifact_hash=str(record.get("artifact_hash") or ""),
+        source_payload_hash=str(record.get("source_payload_hash") or ""),
+        provenance=dict(record.get("provenance") or {}),
+        storage_path=str(record.get("storage_path") or ""),
+    )
+    return expected == record.get("receipt_hash")

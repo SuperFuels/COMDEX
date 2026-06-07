@@ -157,3 +157,85 @@ def test_phase20aa_hashes_are_deterministic() -> None:
     assert first["artifact_id"] == second["artifact_id"]
     assert first["artifact_hash"] == second["artifact_hash"]
     assert first["receipt_hash"] == second["receipt_hash"]
+
+
+def test_phase20aa1_canonical_path_stays_inside_business_container(tmp_path) -> None:
+    from backend.services.aion_mission_mode.business_container_artifacts import (
+        canonical_artifact_real_path,
+    )
+
+    target = make_target()
+    real_path = canonical_artifact_real_path(
+        platform_root=str(tmp_path),
+        target=target,
+        artifact_id="artifact_safe",
+    )
+
+    assert str(real_path).startswith(
+        str(tmp_path / "business_containers" / "business_home_fixed")
+    )
+    assert real_path.name == "artifact_safe.json"
+
+
+def test_phase20aa1_rejects_artifact_id_directory_traversal(tmp_path) -> None:
+    from backend.services.aion_mission_mode.business_container_artifacts import (
+        ArtifactPathContainmentError,
+        canonical_artifact_real_path,
+    )
+
+    with pytest.raises(ArtifactPathContainmentError):
+        canonical_artifact_real_path(
+            platform_root=str(tmp_path),
+            target=make_target(),
+            artifact_id="../../escape",
+        )
+
+
+def test_phase20aa1_rejects_windows_style_namespace_smuggling(tmp_path) -> None:
+    from backend.services.aion_mission_mode.business_container_artifacts import (
+        validate_artifact_target,
+        BusinessArtifactTarget,
+    )
+
+    with pytest.raises(ValueError):
+        validate_artifact_target(
+            BusinessArtifactTarget(
+                business_id="home_fixed",
+                business_container_id="business_home_fixed",
+                sub_container="..\\..\\escape",
+                artifact_type="advert_draft",
+                artifact_name="bad",
+            )
+        )
+
+
+def test_phase20aa1_artifact_merkle_triad_validates() -> None:
+    from backend.services.aion_mission_mode.business_container_artifacts import (
+        validate_artifact_merkle_triad,
+    )
+
+    record = commit_pilot_artifact_to_business_container(
+        target=make_target(),
+        provenance=make_provenance(),
+        artifact_payload={"draft": "triad"},
+        source_payload={"source": "planner"},
+    )
+
+    assert validate_artifact_merkle_triad(record) is True
+
+
+def test_phase20aa1_artifact_merkle_triad_detects_tampering() -> None:
+    from backend.services.aion_mission_mode.business_container_artifacts import (
+        validate_artifact_merkle_triad,
+    )
+
+    record = commit_pilot_artifact_to_business_container(
+        target=make_target(),
+        provenance=make_provenance(),
+        artifact_payload={"draft": "triad"},
+        source_payload={"source": "planner"},
+    )
+
+    record["storage_path"] = "business_containers/business_home_fixed/reports/tampered.json"
+
+    assert validate_artifact_merkle_triad(record) is False

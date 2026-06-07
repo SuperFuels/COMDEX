@@ -115,3 +115,96 @@ Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson
 \end{verbatim}
+
+\subsection{Phase 20AA.1 --- Canonical Path Containment and Artifact Merkle Triad}
+
+\subsubsection{Status}
+
+Phase 20AA.1 hardens the business-container artifact persistence layer against filesystem path escape and receipt tampering.
+
+\begin{quote}
+\textbf{Status: LOCKED --- final artifact writes MUST pass canonical real-path containment and Merkle triad validation.}
+\end{quote}
+
+\subsubsection{Canonical Path Real-Path Invariant Check}
+
+To eliminate directory traversal exploits such as \texttt{../../} and namespace smuggling attacks, the storage system MUST run a canonical real-path containment check before any file handle is opened.
+
+The engine MUST evaluate:
+
+\begin{equation}
+\mathrm{RealPath}(P_{\mathrm{target}})
+\subset
+\mathrm{RealPath}(P_{\mathrm{active\_business\_container}})
+\end{equation}
+
+where \(P_{\mathrm{target}}\) is the resolved artifact destination path and \(P_{\mathrm{active\_business\_container}}\) is the resolved active business container root.
+
+If the resolved destination path does not remain inside the active business container root, the write MUST fail immediately and emit a file-injection trace event.
+
+\subsubsection{Directory Traversal and Namespace Smuggling Rule}
+
+The following forms MUST NOT be accepted as final artifact destinations:
+
+\begin{verbatim}
+../../escape
+..\..\escape
+business_containers/<other_business>/...
+/absolute/path/outside/container
+\end{verbatim}
+
+The final destination MUST remain under:
+
+\begin{verbatim}
+business_containers/<active_business_container_id>/<approved_sub_container>/
+\end{verbatim}
+
+\subsubsection{Artifact Merkle Triad Validation}
+
+The artifact persistence layer uses a cryptographic triad:
+
+\begin{itemize}
+  \item \texttt{artifact\_hash}
+  \item \texttt{source\_payload\_hash}
+  \item \texttt{receipt\_hash}
+\end{itemize}
+
+The receipt hash MUST bind the artifact hash, source payload hash, provenance metadata, and storage path:
+
+\begin{equation}
+H_{\mathrm{receipt}}
+=
+\mathrm{SHA256}
+(
+H_{\mathrm{artifact}}
+\parallel
+H_{\mathrm{source\_payload}}
+\parallel
+\mathrm{ProvenanceMetadata}
+\parallel
+\mathrm{StoragePath}
+)
+\end{equation}
+
+Any Boardroom view, artifact indexer, replay engine, or retrieval surface MUST recalculate this triad before exposing the artifact to user interaction.
+
+\subsubsection{Validation Coverage}
+
+Phase 20AA.1 tests prove:
+
+\begin{itemize}
+  \item canonical artifact paths remain inside the active business container;
+  \item directory traversal artifact IDs are rejected;
+  \item namespace-smuggled sub-containers are rejected;
+  \item artifact Merkle triads validate when untampered;
+  \item artifact Merkle triads fail after storage-path tampering.
+\end{itemize}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20AA1-CANONICAL-PATH-CONTAINMENT-MERKLE-TRIAD
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
