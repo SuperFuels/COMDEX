@@ -128,3 +128,85 @@ def test_phase20y_keeps_approval_valid_if_payload_unchanged() -> None:
     assert result["approval_valid"] is True
     assert result["requires_fresh_approval"] is False
     assert result["reason"] == "payload_unchanged"
+
+
+def test_phase20y1_integral_float_and_int_hash_identically() -> None:
+    from backend.services.aion_mission_mode.canonical_payload_hashing import (
+        payload_sha256_normalized,
+    )
+
+    assert payload_sha256_normalized({"max_limit": 100}) == payload_sha256_normalized({"max_limit": 100.0})
+
+
+def test_phase20y1_float_precision_is_deterministic() -> None:
+    from backend.services.aion_mission_mode.canonical_payload_hashing import (
+        canonical_json_normalized,
+    )
+
+    first = canonical_json_normalized({"price": 10.1234564})
+    second = canonical_json_normalized({"price": 10.12345640001})
+
+    assert first == second
+
+
+def test_phase20y1_unicode_nfc_normalisation_hashes_equivalent_strings() -> None:
+    from backend.services.aion_mission_mode.canonical_payload_hashing import (
+        payload_sha256_normalized,
+    )
+
+    composed = {"text": "Café"}
+    decomposed = {"text": "Cafe\u0301"}
+
+    assert payload_sha256_normalized(composed) == payload_sha256_normalized(decomposed)
+
+
+def test_phase20y1_normalized_validation_allows_int_float_equivalent_payload() -> None:
+    from backend.services.aion_mission_mode.canonical_payload_hashing import (
+        payload_sha256_normalized,
+        validate_payload_before_execution_normalized,
+    )
+
+    approved_payload = {"max_limit": 100}
+    current_payload = {"max_limit": 100.0}
+
+    result = validate_payload_before_execution_normalized(
+        mission_id="mission_001",
+        mission_run_id="run_001",
+        checkpoint_id="checkpoint_001",
+        step_id="step_001",
+        action_type="publish_advert",
+        approved_payload_hash=payload_sha256_normalized(approved_payload),
+        current_payload=current_payload,
+    )
+
+    assert result["payload_unchanged"] is True
+    assert result["execution_allowed"] is True
+    assert result["validation_hash"].startswith("sha256:")
+
+
+def test_phase20y1_validation_hash_closure_changes_when_decision_changes() -> None:
+    from backend.services.aion_mission_mode.canonical_payload_hashing import (
+        validation_hash_closure,
+    )
+
+    first = validation_hash_closure(
+        approved_payload_hash="sha256:a",
+        current_payload_hash="sha256:a",
+        payload_unchanged=True,
+        execution_allowed=True,
+        reason="payload_hash_match",
+        step_id="step_001",
+    )
+
+    second = validation_hash_closure(
+        approved_payload_hash="sha256:a",
+        current_payload_hash="sha256:b",
+        payload_unchanged=False,
+        execution_allowed=False,
+        reason="payload_hash_mismatch_requires_fresh_approval",
+        step_id="step_001",
+    )
+
+    assert first != second
+    assert first.startswith("sha256:")
+    assert second.startswith("sha256:")
