@@ -1,0 +1,152 @@
+\section{AION Phase 20I.3 --- Mission Outcome Summary and ETS Preview Isolation}
+\label{sec:aion-phase20i3-mission-outcome-ets-preview}
+
+\subsection{Status}
+
+Phase 20I.3 locks mission outcome summaries and ETS preview isolation.
+
+\begin{quote}
+\textbf{Status: LOCKED --- mission outcome metrics, autonomy percentages, blocked action counts, receipt counts, estimated time saved, outcome categories, and ETS preview-only guards are validated.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20I.2 renders deterministic Boardroom replay packets. Phase 20I.3 converts mission execution evidence into a sealed outcome packet.
+
+The packet answers:
+
+\begin{itemize}
+  \item how much work AION completed autonomously;
+  \item where human approval was required;
+  \item where human tasks were required;
+  \item what actions were blocked for safety;
+  \item how many receipts were emitted;
+  \item how much time was estimated to be saved;
+  \item what outcome category applies;
+  \item what ETS preview would result.
+\end{itemize}
+
+\subsection{Outcome Categories}
+
+The mission outcome category MUST be one of:
+
+\begin{itemize}
+  \item \texttt{fully\_autonomous\_success};
+  \item \texttt{checkpointed\_success};
+  \item \texttt{human\_guided\_success};
+  \item \texttt{partial\_failure};
+  \item \texttt{blocked\_for\_safety}.
+\end{itemize}
+
+A blocked safety action MUST dominate ordinary success classification.
+
+\subsection{Outcome Metrics}
+
+Mission outcome metrics MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item total steps;
+  \item completed steps;
+  \item autonomous steps;
+  \item autonomy percentage;
+  \item human approval count;
+  \item human task count;
+  \item blocked action count;
+  \item receipt count;
+  \item failed step count;
+  \item estimated minutes saved;
+  \item outcome category;
+  \item metrics hash.
+\end{itemize}
+
+\subsection{Autonomy Percentage}
+
+The autonomy percentage is calculated as:
+
+\begin{equation}
+A_{\mathrm{pct}}
+=
+\frac{S_{\mathrm{autonomous}}}{S_{\mathrm{total}}}
+\times
+100
+\end{equation}
+
+The value MUST be rounded deterministically to two decimal places.
+
+\subsection{ETS Preview Isolation}
+
+ETS output in Phase 20I.3 is preview-only.
+
+An ETS preview MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item agent ID;
+  \item outcome metrics hash;
+  \item receipt hashes;
+  \item proof hash;
+  \item replay packet hash;
+  \item proposed score delta;
+  \item rationale;
+  \item ETS preview hash.
+\end{itemize}
+
+The preview MUST include:
+
+\begin{verbatim}
+ets_state: preview_only
+live_reputation_mutation_allowed: false
+\end{verbatim}
+
+\subsection{Live Reputation Mutation Prohibition}
+
+Phase 20I.3 MUST block any payload containing live mutation intent.
+
+Blocked fields include:
+
+\begin{itemize}
+  \item \texttt{write\_live\_reputation};
+  \item \texttt{mutate\_agent\_score};
+  \item \texttt{commit\_ets};
+  \item \texttt{publish\_trust\_score};
+  \item \texttt{update\_public\_reputation}.
+\end{itemize}
+
+\subsection{Outcome Packet}
+
+The mission outcome packet MUST bind:
+
+\begin{itemize}
+  \item outcome category;
+  \item autonomy percentage;
+  \item blocked action count;
+  \item receipt count;
+  \item estimated minutes saved;
+  \item metrics hash;
+  \item ETS preview hash;
+  \item replay packet hash;
+  \item proof hash;
+  \item packet hash.
+\end{itemize}
+
+The packet MUST be blocked if metrics or ETS preview data has been tampered with.
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{ETS inside Phase 20 is a preview surface only. Mission outcomes may propose trust deltas, but they MUST NOT mutate live reputation, public trust scores, agent rankings or business memory without a later governance approval layer.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20I3-MISSION-OUTCOME-ETS-PREVIEW-ISOLATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
