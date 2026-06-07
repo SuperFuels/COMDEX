@@ -212,3 +212,84 @@ def final_repair_failure_result(
     }
     payload["failure_hash"] = _hash(payload)
     return payload
+
+
+def validate_repair_pedigree_immutability(
+    *,
+    failed_lane: str,
+    failed_action_type: str,
+    repaired_payload: dict[str, Any],
+) -> tuple[bool, str]:
+    """
+    Repair must not mutate lane/action pedigree.
+
+    A repair payload may omit lane/action_type, but if it includes them they must
+    match the original failed step exactly after canonical slugging.
+    """
+    failed_lane_slug = _slug(failed_lane)
+    failed_action_slug = _slug(failed_action_type)
+
+    repaired_lane = repaired_payload.get("lane", failed_lane_slug)
+    repaired_action = repaired_payload.get("action_type", failed_action_slug)
+
+    if _slug(repaired_lane) != failed_lane_slug:
+        return False, "repair_lane_escalation_intercepted"
+
+    if _slug(repaired_action) != failed_action_slug:
+        return False, "repair_action_mutation_intercepted"
+
+    return True, "repair_pedigree_immutable"
+
+
+def chained_repair_hash(
+    *,
+    previous_repair_hash: str,
+    step_id: str,
+    attempt_index: int,
+    repaired_payload: dict[str, Any],
+) -> str:
+    return _hash(
+        {
+            "previous_repair_hash": previous_repair_hash,
+            "step_id": step_id,
+            "attempt_index": attempt_index,
+            "repaired_payload": repaired_payload,
+        }
+    )
+
+
+def run_repair_attempt_with_pedigree(
+    attempt: RepairAttemptInput,
+    *,
+    previous_repair_hash: str = "",
+) -> dict[str, Any]:
+    result = run_repair_attempt(attempt)
+
+    if result.get("repair_allowed") is not True:
+        return result
+
+    ok, reason = validate_repair_pedigree_immutability(
+        failed_lane=attempt.lane,
+        failed_action_type=attempt.action_type,
+        repaired_payload=result["repaired_payload"],
+    )
+
+    if not ok:
+        result["repair_succeeded"] = False
+        result["runtime_state"] = "waiting_human_review"
+        result["reason"] = reason
+        result["security_trace"] = reason
+        result["live_side_effects_enabled"] = False
+        result["repair_hash"] = _hash(result)
+        return result
+
+    result["pedigree_immutable"] = True
+    result["previous_repair_hash"] = previous_repair_hash
+    result["chained_repair_hash"] = chained_repair_hash(
+        previous_repair_hash=previous_repair_hash,
+        step_id=attempt.step_id,
+        attempt_index=attempt.attempt_index,
+        repaired_payload=result["repaired_payload"],
+    )
+    result["repair_hash"] = _hash(result)
+    return result

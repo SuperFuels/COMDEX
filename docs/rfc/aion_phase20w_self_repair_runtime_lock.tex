@@ -143,3 +143,112 @@ Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson
 \end{verbatim}
+
+\subsection{Phase 20W.1 --- Repair Pedigree Immutability and Chained Repair Hashes}
+\label{subsec:aion-phase20w1-repair-pedigree-chained-hash}
+
+\subsubsection{Status}
+
+Phase 20W.1 hardens the self-repair runtime against lane escalation and repair-chain tampering.
+
+\begin{quote}
+\textbf{Status: LOCKED --- repair attempts MUST preserve lane and action pedigree and MUST chain repair hashes across sequential attempts.}
+\end{quote}
+
+\subsubsection{Repair Loop Escape Threat Model}
+
+A repair loop receives failure context, error payloads, and partially malformed step data.
+
+If that data is trusted uncritically, a repaired payload could attempt to mutate the original step's privilege boundary by changing:
+
+\begin{itemize}
+  \item \texttt{lane}
+  \item \texttt{action\_type}
+  \item downstream tool target
+  \item classification metadata
+\end{itemize}
+
+This is a repair loop escape.
+
+The self-repair engine MUST reject any repair that attempts to elevate a safe internal step into an external, financial, legal, deployment, memory, or live action.
+
+\subsubsection{Repair Pedigree Immutability Invariant}
+
+The lane and action type assigned before repair are immutable.
+
+Before a repaired payload may resume execution, the runtime MUST evaluate:
+
+\begin{equation}
+\mathrm{Lane}(Payload_{\mathrm{repaired}})
+\equiv
+\mathrm{Lane}(Payload_{\mathrm{failed}})
+\end{equation}
+
+\begin{equation}
+\mathrm{ActionType}(Payload_{\mathrm{repaired}})
+\equiv
+\mathrm{ActionType}(Payload_{\mathrm{failed}})
+\end{equation}
+
+If the repaired payload modifies its lane, strips its classification, changes its action type, or targets a different tool handle, the repair MUST be rejected.
+
+The runtime MUST then:
+
+\begin{itemize}
+  \item set \texttt{repair\_succeeded = false};
+  \item set \texttt{runtime\_state = waiting\_human\_review};
+  \item preserve live side effects disabled;
+  \item emit \texttt{repair\_lane\_escalation\_intercepted} or \texttt{repair\_action\_mutation\_intercepted};
+  \item produce a deterministic repair hash for the rejected transition.
+\end{itemize}
+
+\subsubsection{Chained Repair Hash Cascading}
+
+When multiple repair attempts are executed sequentially up to the maximum limit, each repair hash MUST bind the previous repair attempt.
+
+The chained repair hash is:
+
+\begin{equation}
+\mathcal{H}_{\mathrm{repair},n}
+=
+\mathrm{SHA256}
+(
+\mathcal{H}_{\mathrm{repair},n-1}
+\parallel
+\texttt{StepID}
+\parallel
+\texttt{AttemptIndex}
+\parallel
+Payload_{\mathrm{repaired}}
+)
+\end{equation}
+
+This creates an audit chain from the original failure through each repair attempt.
+
+\subsubsection{Validation Coverage}
+
+Phase 20W.1 tests prove:
+
+\begin{itemize}
+  \item omitted lane and action fields are accepted only as unchanged pedigree;
+  \item lane escalation inside a repaired payload is intercepted;
+  \item action mutation inside a repaired payload is intercepted;
+  \item repair attempts include chained repair hashes;
+  \item second repair attempts bind the first repair hash;
+  \item chained repair hashes are deterministic.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{A repair attempt may fix safe payload shape, but it may never change what the step is, what lane it belongs to, or what authority boundary it carries.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20W1-REPAIR-PEDIGREE-IMMUTABILITY-CHAINED-HASH
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

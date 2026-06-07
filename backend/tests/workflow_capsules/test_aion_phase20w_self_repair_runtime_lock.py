@@ -121,3 +121,92 @@ def test_phase20w_repair_hash_is_deterministic() -> None:
     second = run_repair_attempt(make_attempt())
 
     assert first["repair_hash"] == second["repair_hash"]
+
+
+def test_phase20w1_repair_pedigree_accepts_omitted_lane_and_action() -> None:
+    from backend.services.aion_mission_mode.self_repair_runtime import (
+        validate_repair_pedigree_immutability,
+    )
+
+    ok, reason = validate_repair_pedigree_immutability(
+        failed_lane="creation",
+        failed_action_type="draft_offer",
+        repaired_payload={"draft": "safe repaired payload"},
+    )
+
+    assert ok is True
+    assert reason == "repair_pedigree_immutable"
+
+
+def test_phase20w1_repair_pedigree_blocks_lane_escalation() -> None:
+    from backend.services.aion_mission_mode.self_repair_runtime import (
+        validate_repair_pedigree_immutability,
+    )
+
+    ok, reason = validate_repair_pedigree_immutability(
+        failed_lane="creation",
+        failed_action_type="draft_offer",
+        repaired_payload={
+            "lane": "external_action",
+            "action_type": "draft_offer",
+            "draft": "unsafe escalation",
+        },
+    )
+
+    assert ok is False
+    assert reason == "repair_lane_escalation_intercepted"
+
+
+def test_phase20w1_repair_pedigree_blocks_action_mutation() -> None:
+    from backend.services.aion_mission_mode.self_repair_runtime import (
+        validate_repair_pedigree_immutability,
+    )
+
+    ok, reason = validate_repair_pedigree_immutability(
+        failed_lane="creation",
+        failed_action_type="draft_offer",
+        repaired_payload={
+            "lane": "creation",
+            "action_type": "publish_advert",
+            "draft": "unsafe action mutation",
+        },
+    )
+
+    assert ok is False
+    assert reason == "repair_action_mutation_intercepted"
+
+
+def test_phase20w1_repair_attempt_with_pedigree_adds_chained_hash() -> None:
+    from backend.services.aion_mission_mode.self_repair_runtime import (
+        run_repair_attempt_with_pedigree,
+    )
+
+    first = run_repair_attempt_with_pedigree(make_attempt(attempt_index=1))
+    second = run_repair_attempt_with_pedigree(
+        make_attempt(attempt_index=2),
+        previous_repair_hash=first["repair_hash"],
+    )
+
+    assert first["pedigree_immutable"] is True
+    assert second["pedigree_immutable"] is True
+    assert second["previous_repair_hash"] == first["repair_hash"]
+    assert second["chained_repair_hash"].startswith("sha256:")
+    assert first["chained_repair_hash"] != second["chained_repair_hash"]
+
+
+def test_phase20w1_repair_hash_chain_is_deterministic() -> None:
+    from backend.services.aion_mission_mode.self_repair_runtime import (
+        run_repair_attempt_with_pedigree,
+    )
+
+    first = run_repair_attempt_with_pedigree(
+        make_attempt(attempt_index=2),
+        previous_repair_hash="sha256:previous",
+    )
+    second = run_repair_attempt_with_pedigree(
+        make_attempt(attempt_index=2),
+        previous_repair_hash="sha256:previous",
+    )
+
+    assert first["chained_repair_hash"] == second["chained_repair_hash"]
+    assert first["repair_hash"] == second["repair_hash"]
