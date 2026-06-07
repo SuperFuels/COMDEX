@@ -153,3 +153,118 @@ def test_phase20z_boardroom_state_sync_hash_validates() -> None:
         runtime_state_hash="sha256:runtime_changed",
         worker_state_hash="sha256:worker",
     ) is False
+
+
+def test_phase20z1_preemption_checkpoint_passes_when_kill_switch_armed() -> None:
+    from backend.services.aion_mission_mode.pilot_native_runtime import preemption_checkpoint
+
+    state = create_pilot_worker_state(
+        mission_id="mission_z1_001",
+        mission_run_id="run_001",
+        worker_id="worker_001",
+    )
+
+    checked = preemption_checkpoint(
+        state,
+        checkpoint_id="before_step_001",
+        phase="before",
+    )
+
+    assert checked["status"] == "created"
+    assert checked["kill_switch_armed"] is True
+    assert checked["trace_events"][-1]["event_type"] == "pilot_worker_preemption_checkpoint_passed"
+
+
+def test_phase20z1_stop_request_flips_kill_switch() -> None:
+    from backend.services.aion_mission_mode.pilot_native_runtime import request_worker_stop
+
+    state = create_pilot_worker_state(
+        mission_id="mission_z1_002",
+        mission_run_id="run_001",
+        worker_id="worker_001",
+    )
+
+    stopped = request_worker_stop(state)
+
+    assert stopped["kill_switch_armed"] is False
+    assert stopped["trace_events"][-1]["next_preemption_checkpoint_must_halt"] is True
+
+
+def test_phase20z1_preemption_blocks_zombie_worker_loop() -> None:
+    import pytest
+    from backend.services.aion_mission_mode.pilot_native_runtime import (
+        PilotWorkerPreemptionError,
+        preemption_checkpoint,
+        request_worker_stop,
+    )
+
+    state = create_pilot_worker_state(
+        mission_id="mission_z1_003",
+        mission_run_id="run_001",
+        worker_id="worker_001",
+    )
+    stopped = request_worker_stop(state, reason="operator_kill_switch")
+
+    with pytest.raises(PilotWorkerPreemptionError) as exc:
+        preemption_checkpoint(
+            stopped,
+            checkpoint_id="before_tool_call_001",
+            phase="before",
+        )
+
+    assert "pilot_worker_preempted" in str(exc.value)
+    assert "no_further_tool_execution" in str(exc.value)
+
+
+def test_phase20z1_boardroom_divergence_freezes_controls() -> None:
+    from backend.services.aion_mission_mode.pilot_native_runtime import (
+        boardroom_divergence_action,
+        boardroom_state_sync_hash,
+    )
+
+    expected = boardroom_state_sync_hash(
+        mission_id="mission_z1_004",
+        mission_run_id="run_001",
+        runtime_state_hash="sha256:runtime",
+        worker_state_hash="sha256:worker",
+    )
+
+    result = boardroom_divergence_action(
+        expected_sync_hash=expected,
+        mission_id="mission_z1_004",
+        mission_run_id="run_001",
+        runtime_state_hash="sha256:runtime_tampered",
+        worker_state_hash="sha256:worker",
+    )
+
+    assert result["boardroom_trustworthy"] is False
+    assert result["controls_frozen"] is True
+    assert result["status_monitors_greyed"] is True
+    assert result["critical_error"] == "boardroom_state_desynchronization"
+
+
+def test_phase20z1_boardroom_sync_pass_keeps_controls_available() -> None:
+    from backend.services.aion_mission_mode.pilot_native_runtime import (
+        boardroom_divergence_action,
+        boardroom_state_sync_hash,
+    )
+
+    expected = boardroom_state_sync_hash(
+        mission_id="mission_z1_005",
+        mission_run_id="run_001",
+        runtime_state_hash="sha256:runtime",
+        worker_state_hash="sha256:worker",
+    )
+
+    result = boardroom_divergence_action(
+        expected_sync_hash=expected,
+        mission_id="mission_z1_005",
+        mission_run_id="run_001",
+        runtime_state_hash="sha256:runtime",
+        worker_state_hash="sha256:worker",
+    )
+
+    assert result["boardroom_trustworthy"] is True
+    assert result["controls_frozen"] is False
+    assert result["status_monitors_greyed"] is False
+    assert result["critical_error"] is None

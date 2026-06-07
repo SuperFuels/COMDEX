@@ -244,3 +244,109 @@ def validate_boardroom_state_sync(
         mission_id=mission_id,
         mission_run_id=mission_run_id,
     )
+
+
+class PilotWorkerPreemptionError(RuntimeError):
+    """Raised when the Pilot worker is interrupted before/after a micro-step."""
+
+
+def preemption_checkpoint(
+    state_data: dict[str, Any],
+    *,
+    checkpoint_id: str,
+    phase: str,
+) -> dict[str, Any]:
+    """
+    Atomic pre-emption checkpoint.
+
+    The worker loop must call this before and after every internal micro-step.
+    If kill_switch_armed is False, execution is interrupted before any further
+    tool or service route can run.
+    """
+    state = PilotWorkerState(**{k: v for k, v in state_data.items() if k in PilotWorkerState.__dataclass_fields__})
+
+    if state.kill_switch_armed is False:
+        state.status = "killed"
+        state.trace_events.append(
+            {
+                "event_type": "pilot_worker_preempted",
+                "checkpoint_id": checkpoint_id,
+                "phase": phase,
+                "reason": "kill_switch_disarmed",
+                "no_further_tool_execution": True,
+                "preserved_trace": True,
+                "preserved_receipts": True,
+                "preserved_partial_outputs": True,
+            }
+        )
+        state.state_hash = _state_hash(state)
+        raise PilotWorkerPreemptionError(_canonical_json(asdict(state)))
+
+    state.trace_events.append(
+        {
+            "event_type": "pilot_worker_preemption_checkpoint_passed",
+            "checkpoint_id": checkpoint_id,
+            "phase": phase,
+        }
+    )
+    state.state_hash = _state_hash(state)
+    return asdict(state)
+
+
+def request_worker_stop(state_data: dict[str, Any], *, reason: str = "operator_stop_requested") -> dict[str, Any]:
+    """
+    Cooperative stop request.
+
+    This flips kill_switch_armed to False. The next preemption checkpoint must
+    halt execution before another internal tool block starts.
+    """
+    state = PilotWorkerState(**{k: v for k, v in state_data.items() if k in PilotWorkerState.__dataclass_fields__})
+    state.kill_switch_armed = False
+    state.trace_events.append(
+        {
+            "event_type": "pilot_worker_stop_requested",
+            "reason": reason,
+            "next_preemption_checkpoint_must_halt": True,
+        }
+    )
+    state.state_hash = _state_hash(state)
+    return asdict(state)
+
+
+def boardroom_divergence_action(
+    *,
+    expected_sync_hash: str,
+    runtime_state_hash: str,
+    worker_state_hash: str,
+    mission_id: str,
+    mission_run_id: str,
+) -> dict[str, Any]:
+    calculated = boardroom_state_sync_hash(
+        runtime_state_hash=runtime_state_hash,
+        worker_state_hash=worker_state_hash,
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+    )
+
+    if calculated != expected_sync_hash:
+        return {
+            "boardroom_trustworthy": False,
+            "controls_frozen": True,
+            "status_monitors_greyed": True,
+            "critical_error": "boardroom_state_desynchronization",
+            "expected_sync_hash": expected_sync_hash,
+            "calculated_sync_hash": calculated,
+            "mission_id": mission_id,
+            "mission_run_id": mission_run_id,
+        }
+
+    return {
+        "boardroom_trustworthy": True,
+        "controls_frozen": False,
+        "status_monitors_greyed": False,
+        "critical_error": None,
+        "expected_sync_hash": expected_sync_hash,
+        "calculated_sync_hash": calculated,
+        "mission_id": mission_id,
+        "mission_run_id": mission_run_id,
+    }
