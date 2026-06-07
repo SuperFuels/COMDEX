@@ -7822,9 +7822,107 @@ function renderDesktopAssistantPanel() {
 
 /* PHASE 21X LOCK: Real frontend Pilot cockpit mount */
 
+
+/* PHASE 21N LOCK: Pilot frontend interaction smoke */
+
+function getAionPilotFrontendInteractionState() {
+  if (!window.__aionPilotFrontendInteractionState) {
+    window.__aionPilotFrontendInteractionState = {
+      status: "idle",
+      last_request: "",
+      draft_created: false,
+      stream_events: [],
+      artifact_status: "draft_preview",
+      artifact_hash: pilotState.artifact_hash || "sha256:preview_artifact_hash",
+      receipt_hash: pilotState.receipt_hash || "sha256:preview_receipt_hash",
+      replay_hash: "sha256:preview_replay_hash",
+      proof_hash: "sha256:preview_proof_hash",
+      blocked_live_actions: [
+        "external_send",
+        "production_deploy",
+        "payment",
+        "public_post",
+        "booking",
+        "escrow",
+      ],
+    };
+  }
+
+  return window.__aionPilotFrontendInteractionState;
+}
+
+function createAionPilotFrontendDraftMission() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const input = document.querySelector("[data-aion-pilot-mission-input]");
+  const requestText = String(input?.value || "").trim() || "Build me a PDF document with X data";
+
+  pilotState.status = "draft_created";
+  pilotState.last_request = requestText;
+  pilotState.draft_created = true;
+  pilotState.artifact_status = "draft_preview";
+  pilotState.artifact_hash = "sha256:frontend_draft_artifact_preview";
+  pilotState.receipt_hash = "sha256:frontend_draft_receipt_preview";
+  pilotState.replay_hash = "sha256:frontend_draft_replay_preview";
+  pilotState.proof_hash = "sha256:frontend_draft_proof_preview";
+  pilotState.stream_events = [
+    {
+      type: "mission_composer",
+      label: "Draft mission created",
+      detail: requestText,
+      status: "draft_only",
+    },
+    {
+      type: "artifact_preview",
+      label: "Draft PDF artifact prepared",
+      detail: "Saved inside business container preview path",
+      status: "draft_preview",
+    },
+    {
+      type: "safety_block",
+      label: "Live external actions blocked",
+      detail: "No send, deploy, payment, post, booking or escrow without exact approval",
+      status: "blocked",
+    },
+  ];
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return pilotState;
+}
+
+function renderAionPilotFrontendStreamEvents(pilotState = getAionPilotFrontendInteractionState()) {
+  const events = Array.isArray(pilotState.stream_events) ? pilotState.stream_events : [];
+
+  if (!events.length) {
+    return `
+      <p>Private reasoning hidden.</p>
+      <p>Visible actions, receipts, paths and blocked actions will appear here.</p>
+    `;
+  }
+
+  return `
+    <div data-aion-pilot-visible-stream-events>
+      ${events.map((event) => `
+        <div class="aion-pilot-map-node" data-aion-pilot-stream-event="${escapeHtml(event.type)}">
+          <strong>${escapeHtml(event.label)}</strong>
+          <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(event.status)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Detail</span><code>${escapeHtml(event.detail)}</code></div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+/* END PHASE 21N LOCK */
+
+
 function getAionPilotCockpitSnapshot() {
+  const pilotState = getAionPilotFrontendInteractionState();
+
   return {
-    status: "idle",
+    status: pilotState.status || "idle",
     mode: "preview_only",
     identity: "AION Pilot native runtime executor, not UI automation",
     business_id: "home-fixed",
@@ -7930,10 +8028,11 @@ function renderAionPilotCockpitPanel(snapshot = getAionPilotCockpitSnapshot()) {
 
         <div class="aion-pilot-panel" data-aion-pilot-stream>
           <strong>Pilot stream</strong>
-          <p>Private reasoning hidden.</p>
-          <p>Visible actions, receipts, paths and blocked actions will appear here.</p>
+          ${renderAionPilotFrontendStreamEvents(getAionPilotFrontendInteractionState())}
           <div class="aion-pilot-meta-row"><span>Current step</span><code>${escapeHtml(snapshot.step_id)}</code></div>
           <div class="aion-pilot-meta-row"><span>Run</span><code>${escapeHtml(snapshot.mission_run_id)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Replay hash</span><code>${escapeHtml(getAionPilotFrontendInteractionState().replay_hash || "sha256:preview_replay_hash")}</code></div>
+          <div class="aion-pilot-meta-row"><span>Proof hash</span><code>${escapeHtml(getAionPilotFrontendInteractionState().proof_hash || "sha256:preview_proof_hash")}</code></div>
         </div>
       </div>
 
@@ -27419,6 +27518,14 @@ if (action === "capture-browser-approval-checkpoint") {
         });
         desktopStore.persistCache();
         requestRender();
+        return;
+      }
+
+
+      const aionPilotCreateDraftMissionButton = target.closest("[data-aion-pilot-create-draft-mission]");
+      if (aionPilotCreateDraftMissionButton) {
+        createAionPilotFrontendDraftMission();
+        desktopStore.persistCache?.();
         return;
       }
 
