@@ -102,3 +102,49 @@ def test_phase20v_guard_hash_is_deterministic() -> None:
 
     assert first.guard_hash == second.guard_hash
     assert len(first.guard_hash) == 64
+
+
+def test_phase20v1_action_type_case_bypass_is_blocked() -> None:
+    decision = inspect_kernel_payload({
+        "action_type": "send_Email_live",
+        "decision": "safe_autonomous",
+    })
+
+    assert decision.action_type == "send_email_live"
+    assert decision.final_decision == "checkpoint_required"
+    assert decision.runtime_mount_allowed is False
+    assert decision.reason == "kernel_restricted_action_override"
+
+
+def test_phase20v1_action_type_hyphen_bypass_is_blocked() -> None:
+    decision = inspect_kernel_payload({
+        "action_type": "send-email-live",
+        "decision": "safe_autonomous",
+    })
+
+    assert decision.action_type == "send_email_live"
+    assert decision.final_decision == "checkpoint_required"
+    assert decision.runtime_mount_allowed is False
+
+
+def test_phase20v1_action_type_zero_width_space_bypass_is_blocked() -> None:
+    decision = inspect_kernel_payload({
+        "action_type": "send_\u200bemail_live",
+        "decision": "safe_autonomous",
+    })
+
+    assert decision.action_type == "send_email_live"
+    assert decision.final_decision == "checkpoint_required"
+    assert decision.runtime_mount_allowed is False
+
+
+def test_phase20v1_action_type_unicode_whitespace_bypass_is_blocked() -> None:
+    decision = inspect_kernel_payload({
+        "action_type": "capture\u00a0payment\u2009live",
+        "decision": "safe_autonomous",
+    })
+
+    assert decision.action_type == "capture_payment_live"
+    assert decision.final_decision == "checkpoint_required"
+    assert decision.lane == "financial_action"
+    assert decision.runtime_mount_allowed is False

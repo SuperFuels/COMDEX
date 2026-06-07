@@ -76,3 +76,94 @@ Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson
 \end{verbatim}
+
+\subsection{Phase 20V.1 --- Restricted Action Registry Canonicalisation}
+
+\subsubsection{Status}
+
+Phase 20V.1 hardens the Kernel Guard restricted-action registry lookup.
+
+This phase prevents action-name evasion attacks where a restricted action attempts to bypass the registry by changing case, hyphenation, Unicode whitespace, or hidden zero-width characters.
+
+\begin{quote}
+\textbf{Status: LOCKED --- restricted action names MUST be canonicalised before registry lookup.}
+\end{quote}
+
+\subsubsection{Canonical Action-Type Lookup}
+
+The Kernel Guard MUST canonicalise every incoming \texttt{action\_type} before checking it against the restricted-action registry.
+
+The action-type canonicalisation routine MUST:
+
+\begin{enumerate}
+  \item force all characters to lowercase;
+  \item transform hyphens into underscores;
+  \item strip all whitespace, including Unicode whitespace;
+  \item strip zero-width characters including \texttt{U+200B}, \texttt{U+200C}, \texttt{U+200D}, and \texttt{U+FEFF}.
+\end{enumerate}
+
+The following variants MUST all resolve to:
+
+\begin{verbatim}
+send_email_live
+\end{verbatim}
+
+\begin{verbatim}
+send_Email_live
+send-email-live
+send_​email_live
+\end{verbatim}
+
+If the canonicalised action type matches any element in the restricted-action registry, the Kernel Guard MUST apply the protective override immediately.
+
+\subsubsection{Registry Bypass Rule}
+
+A restricted action cannot become safe because its name is formatted differently.
+
+For example:
+
+\begin{verbatim}
+{
+  "action_type": "send-email-live",
+  "decision": "safe_autonomous"
+}
+\end{verbatim}
+
+MUST be treated exactly like:
+
+\begin{verbatim}
+{
+  "action_type": "send_email_live",
+  "decision": "safe_autonomous"
+}
+\end{verbatim}
+
+and MUST return:
+
+\begin{verbatim}
+final_decision: checkpoint_required
+runtime_mount_allowed: false
+requires_checkpoint: true
+reason: kernel_restricted_action_override
+\end{verbatim}
+
+\subsubsection{Phase 20V.1 Validation}
+
+Additional tests prove:
+
+\begin{itemize}
+  \item case-mutated restricted actions are blocked;
+  \item hyphenated restricted actions are blocked;
+  \item zero-width-space restricted actions are blocked;
+  \item Unicode-whitespace restricted financial actions are blocked;
+  \item canonicalised action type is used for registry lookup.
+\end{itemize}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20V1-KERNEL-GUARD-ACTION-CANONICALISATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

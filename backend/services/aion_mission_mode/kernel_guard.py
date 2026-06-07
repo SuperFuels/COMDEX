@@ -16,6 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass, asdict
 from hashlib import sha256
 import json
+import re
 from typing import Any
 
 from backend.services.aion_mission_mode.autonomy_lane_classifier import (
@@ -86,8 +87,17 @@ def _hash(value: Any) -> str:
     return sha256(_canonical_json(value).encode("utf-8")).hexdigest()
 
 
+def canonicalise_action_type(value: Any) -> str:
+    """Canonicalise action_type before restricted registry lookup."""
+    text = str(value or "")
+    text = text.lower().replace("-", "_")
+    text = re.sub(r"[\s\u200b-\u200d\ufeff]+", "_", text)
+    text = re.sub(r"_+", "_", text)
+    return text.strip("_")
+
+
 def _slug(value: Any) -> str:
-    return str(value or "").strip().lower().replace("-", "_").replace(" ", "_")
+    return canonicalise_action_type(value)
 
 
 def _scan_for_runtime_flags(value: Any, path: str = "$") -> str | None:
