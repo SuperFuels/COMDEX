@@ -1,0 +1,110 @@
+\section{AION Phase 20G.1 --- Boardroom Mission Control Data Contract}
+\label{sec:aion-phase20g1-boardroom-mission-control-contract}
+
+\subsection{Status}
+
+Phase 20G.1 locks the backend Boardroom Mission Control data contract.
+
+\begin{quote}
+\textbf{Status: LOCKED --- active mission panel, step state views, approval gates, human task cards, blocked action summaries, replay projection, and visible safety messaging are validated.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 20G.1 defines the backend read model consumed by the Boardroom UI.
+
+The Boardroom MUST render mission state from deterministic proof packets and MUST NOT become a live execution surface.
+
+\subsection{Mission Control Panel}
+
+The panel MUST expose:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item panel state;
+  \item current step ID;
+  \item next checkpoint ID;
+  \item plan approval matrix hash;
+  \item mission trace hash;
+  \item replay hash;
+  \item ETS preview hash;
+  \item demo summary hash;
+  \item step views;
+  \item blocked actions;
+  \item human tasks;
+  \item approval gates;
+  \item panel hash.
+\end{itemize}
+
+\subsection{Step View Contract}
+
+Each step view MUST include:
+
+\begin{itemize}
+  \item step ID;
+  \item title;
+  \item description;
+  \item state;
+  \item lane;
+  \item risk level;
+  \item control mode;
+  \item approval requirement flag;
+  \item human task requirement flag;
+  \item blocked reason;
+  \item receipt hash where available;
+  \item step view hash.
+\end{itemize}
+
+\subsection{Visible Safety Message}
+
+The Boardroom panel MUST expose the required Phase 20U.1 demo message:
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{No Live Action UI Contract}
+
+The backend panel contract MUST set:
+
+\begin{verbatim}
+live_action_buttons_enabled: false
+replay_mode_executes_tools: false
+\end{verbatim}
+
+This ensures the first Boardroom integration is a safe state projection, not a mutation surface.
+
+\subsection{Replay Projection}
+
+Boardroom replay MUST be read-only.
+
+Replay MAY show:
+
+\begin{itemize}
+  \item completed steps;
+  \item waiting approvals;
+  \item human tasks;
+  \item blocked paths;
+  \item receipts;
+  \item ETS preview;
+  \item proof trace hashes.
+\end{itemize}
+
+Replay MUST NOT execute tools or mutate provider state.
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{Boardroom Mission Control is a deterministic projection of mission proof state. It may display active mission status, replay, approval gates and blocked paths, but it MUST NOT expose live execution buttons or mutate external systems.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20G1-BOARDROOM-MISSION-CONTROL-DATA-CONTRACT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
