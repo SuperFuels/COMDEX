@@ -1,0 +1,73 @@
+\section{Phase 21O --- Universal Pilot Task Stream and Simple Dashboard}
+\label{sec:aion-phase21o-universal-pilot-task-stream}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21O changes the Pilot cockpit from a developer-facing technical panel into a user-facing universal task stream.
+
+\subsection{Purpose}
+
+Pilot MUST NOT be limited to PDF/document generation.
+
+A user may ask for any business task, including:
+
+\begin{itemize}
+  \item growth or social media work;
+  \item spreadsheets and business models;
+  \item website previews;
+  \item advertising campaign drafts;
+  \item reports and documents;
+  \item custom business tasks.
+\end{itemize}
+
+\subsection{User Flow}
+
+The default Pilot dashboard MUST use a simple flow:
+
+\begin{enumerate}
+  \item Ask Pilot.
+  \item Pilot Plan.
+  \item Mission Contract.
+  \item Results.
+  \item Pilot Stream.
+\end{enumerate}
+
+\subsection{Advanced Details}
+
+Technical details MUST remain available but collapsed by default.
+
+Advanced details MAY show:
+
+\begin{itemize}
+  \item proof;
+  \item receipt hashes;
+  \item artifact hashes;
+  \item container paths;
+  \item lanes;
+  \item blocked actions;
+  \item replay metadata.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The simplified dashboard changes presentation only.
+
+It MUST NOT create live posts, messages, deployments, payments, bookings, escrow, ad spend or reputation mutation without exact approval.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21o_universal_pilot_task_stream_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21O-UNIVERSAL-PILOT-TASK-STREAM
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
