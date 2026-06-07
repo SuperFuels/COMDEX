@@ -26,7 +26,8 @@ def test_phase21n_button_updates_visible_status():
 def test_phase21n_stream_events_are_visible_not_private_reasoning():
     assert "data-aion-pilot-visible-stream-events" in TEXT
     assert "Draft mission created" in TEXT
-    assert "Draft PDF artifact prepared" in TEXT
+    assert "getAionPilotOutputPreparedLabel(universalPlan)" in TEXT
+    assert "getAionPilotOutputPreparedDetail(universalPlan)" in TEXT
     assert "Live external actions blocked" in TEXT
     assert "Private reasoning hidden." in TEXT
 

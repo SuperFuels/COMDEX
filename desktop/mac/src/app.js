@@ -7865,6 +7865,8 @@ function createAionPilotFrontendDraftMission() {
   pilotState.receipt_hash = "sha256:frontend_draft_receipt_preview";
   pilotState.replay_hash = "sha256:frontend_draft_replay_preview";
   pilotState.proof_hash = "sha256:frontend_draft_proof_preview";
+  const universalPlan = pilotState.plan || buildAionPilotUniversalPlan(requestText);
+
   pilotState.stream_events = [
     {
       type: "mission_composer",
@@ -7874,8 +7876,8 @@ function createAionPilotFrontendDraftMission() {
     },
     {
       type: "artifact_preview",
-      label: "Draft PDF artifact prepared",
-      detail: "Saved inside business container preview path",
+      label: getAionPilotOutputPreparedLabel(universalPlan),
+      detail: getAionPilotOutputPreparedDetail(universalPlan),
       status: "draft_preview",
     },
     {
@@ -8176,6 +8178,50 @@ function renderAionPilotAdvancedTechnicalDetails(snapshot = getAionPilotCockpitS
     </div>
   `;
 }
+
+
+/* PHASE 21P LOCK: Universal Pilot stream output labels */
+
+function getAionPilotOutputPreparedLabel(plan = null) {
+  const safePlan = plan || buildAionPilotUniversalPlan("");
+  const outputLabel = String(safePlan.output_label || "Draft output").trim();
+
+  if (!outputLabel) {
+    return "Draft output prepared";
+  }
+
+  return `${outputLabel} prepared`;
+}
+
+function getAionPilotOutputPreparedDetail(plan = null) {
+  const safePlan = plan || buildAionPilotUniversalPlan("");
+  const taskType = String(safePlan.task_type || "general_task");
+
+  if (taskType === "growth_social") {
+    return "Prepared growth strategy, content drafts and approval-gated social actions.";
+  }
+
+  if (taskType === "spreadsheet") {
+    return "Prepared spreadsheet draft and business model structure inside the business container.";
+  }
+
+  if (taskType === "website_preview") {
+    return "Prepared website preview draft and stopped before production deployment.";
+  }
+
+  if (taskType === "advertising") {
+    return "Prepared campaign preview and ad drafts, with ad spend blocked until approval.";
+  }
+
+  if (taskType === "document") {
+    return "Prepared document draft inside the business container.";
+  }
+
+  return "Prepared draft output inside the business container.";
+}
+
+/* END PHASE 21P LOCK */
+
 
 /* END PHASE 21O LOCK */
 
