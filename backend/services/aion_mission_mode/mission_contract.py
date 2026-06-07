@@ -16,6 +16,7 @@ from dataclasses import dataclass, field, asdict
 from hashlib import sha256
 import json
 from typing import Any, Literal
+from enum import Enum
 
 
 AutonomyLane = Literal[
@@ -53,6 +54,16 @@ DEFAULT_HARD_BLOCKED_LANES: tuple[AutonomyLane, ...] = (
 )
 
 
+
+class MissionMode(str, Enum):
+    """AION Pilot / Mission Mode execution mode."""
+
+    OBSERVE_ONLY = "observe_only"
+    PREVIEW_ONLY = "preview_only"
+    CHECKPOINTED_AUTONOMY = "checkpointed_autonomy"
+    APPROVED_EXECUTION = "approved_execution"
+
+
 @dataclass(frozen=True)
 class MissionCheckpoint:
     checkpoint_id: str
@@ -61,6 +72,7 @@ class MissionCheckpoint:
     required_before_step_id: str
     lane: AutonomyLane
     action_type: str
+    required_action_type: str = ""
     risk_level: str = "medium"
     payload_hash: str | None = None
     expires_at: str | None = None

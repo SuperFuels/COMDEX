@@ -72,14 +72,14 @@ MISSION_TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
                 "description": "Create a draft offer for roof repairs and outdoor living work.",
             },
             {
-                "step_id": "draft_advert",
+                "step_id": "draft_facebook_advert",
                 "title": "Draft Facebook advert",
                 "lane": "creation",
                 "classification": "safe_autonomous",
                 "description": "Create draft advert copy and creative notes.",
             },
             {
-                "step_id": "draft_landing_copy",
+                "step_id": "draft_landing_page_copy",
                 "title": "Draft landing page copy",
                 "lane": "creation",
                 "classification": "safe_autonomous",
@@ -91,6 +91,13 @@ MISSION_TEMPLATE_REGISTRY: dict[str, dict[str, Any]] = {
                 "lane": "internal_ops",
                 "classification": "safe_autonomous",
                 "description": "Create preview-only intake workflow structure.",
+            },
+            {
+                "step_id": "create_agentmap_preview",
+                "title": "Create AgentMap preview",
+                "lane": "internal_ops",
+                "classification": "safe_autonomous",
+                "description": "Create preview-only AgentMap capability update for the campaign.",
             },
             {
                 "step_id": "approve_publish",
@@ -270,7 +277,16 @@ def list_mission_templates() -> list[dict[str, Any]]:
     ]
 
 
+MISSION_TEMPLATE_ALIASES = {
+    "home_fixed_lead_campaign": "home_fixed_lead_campaign_v0",
+    "home_fixed_quote_intake": "home_fixed_quote_intake_v0",
+    "weekly_marketing_pack": "weekly_marketing_pack_v0",
+    "generic_business_build_pack": "generic_business_build_pack_v0",
+}
+
+
 def get_mission_template(template_id: str) -> dict[str, Any]:
+    template_id = MISSION_TEMPLATE_ALIASES.get(template_id, template_id)
     if template_id not in MISSION_TEMPLATE_REGISTRY:
         raise KeyError(f"Unknown mission template: {template_id}")
 
