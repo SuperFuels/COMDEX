@@ -169,14 +169,40 @@
     return runtime?.primaryAgent || null;
   }
 
-  function getSelectedLiveDepartmentKey(state) {
-    const selectedAgentCard = getSelectedLiveAgentCard(state);
 
-    if (selectedAgentCard?.departmentKey) {
-      return normalizeDepartmentKey(selectedAgentCard.departmentKey);
+  /*
+   * PHASE 21M LOCK: explicit Live Agents department selection wins.
+   *
+   * The Live Agents department switcher is allowed to select a department
+   * even when that department has no current run-backed agent card.
+   *
+   * This is required for the Aion department because the Pilot cockpit is a
+   * native operator surface, not a normal marketing/sales run queue card.
+   */
+  function getSelectedLiveDepartmentKey(state) {
+    const explicitDepartment = String(
+      state?.selectedLiveDepartmentKey ||
+        state?.activeLiveDepartmentKey ||
+        state?.activeZone ||
+        "",
+    )
+      .trim()
+      .toLowerCase();
+
+    if (explicitDepartment) {
+      return explicitDepartment;
     }
 
-    return normalizeDepartmentKey(state?.activeZone || "marketing");
+    const selectedAgentCard = getSelectedLiveAgentCard(state);
+    const selectedDepartment = String(
+      selectedAgentCard?.departmentKey ||
+        selectedAgentCard?.department_key ||
+        "",
+    )
+      .trim()
+      .toLowerCase();
+
+    return selectedDepartment || "marketing";
   }
 
   function findSelectedLiveRun(state) {
