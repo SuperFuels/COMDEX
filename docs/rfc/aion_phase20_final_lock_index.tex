@@ -1,0 +1,157 @@
+\section{AION Phase 20 Final Lock Index}
+\label{sec:aion-phase20-final-lock-index}
+
+\subsection{Status}
+
+Phase 20 is locked as:
+
+\begin{quote}
+\textbf{AION Pilot Plan-Gated External Operator v0}
+\end{quote}
+
+The Phase 20 system establishes a governed mission-mode operator in which LLMs may propose and reason, but AION controls planning, approval, execution, memory, external tools, replay, proof, and safety boundaries.
+
+\subsection{Core Security Position}
+
+\begin{quote}
+\textbf{AION may perform safe internal work autonomously. AION MUST NOT create payments, bookings, escrow, production deployments, public posts, live customer messages, external sends, or reputation mutations without the correct plan boundary, approval matrix, exact payload approval, gateway validation, receipt capture and proof trace.}
+\end{quote}
+
+\subsection{Locked Phase Groups}
+
+\subsubsection{Mission Contract and Runtime Spine}
+
+The following mission-mode foundation locks are included:
+
+\begin{itemize}
+  \item Phase 20A --- Mission Contract Lock;
+  \item Phase 20B --- Mission Template Lock;
+  \item Phase 20C --- Mission Planner Lock;
+  \item Phase 20D --- Autonomy Lane Classifier Lock;
+  \item Phase 20E --- Mission Runtime Lock;
+  \item Phase 20F --- Mission Approval Lock;
+  \item Phase 20P --- Mission Contract Integrity Lock;
+  \item Phase 20Q --- Mission Failure Recovery Lock;
+  \item Phase 20R --- Approval Expiry Lock;
+  \item Phase 20S --- Cross-Mission Memory Boundary Lock;
+  \item Phase 20T --- Mission Diff Payload Escrow Lock;
+  \item Phase 20V --- Kernel Guard Lock;
+  \item Phase 20W --- Self-Repair Runtime Lock;
+  \item Phase 20X --- Session VFS Lock;
+  \item Phase 20Y --- Canonical Payload Hashing Lock;
+  \item Phase 20Z --- Pilot Native Runtime Lock;
+  \item Phase 20AA --- Business Container Artifacts Lock.
+\end{itemize}
+
+\subsubsection{Plan Governance and Autonomy Control}
+
+The following plan governance locks are included:
+
+\begin{itemize}
+  \item Phase 20N.1 --- Mission Plan Approval Matrix;
+  \item Phase 20N.2 --- Plan Diff and Sub-Plan Governance;
+  \item Phase 20N.3 --- Human Task Cards and Evidence Binding;
+  \item Phase 20N.4 --- Approval Lattice and User Override Safety;
+  \item Phase 20N.5 --- Delegation Profiles and Autonomy Modes;
+  \item Phase 20N.6 --- Autonomy Budget and Progressive Trust;
+  \item Phase 20N.7 --- Expiry Management and Stale Matrix Revocation.
+\end{itemize}
+
+\subsubsection{External Tool and Browser Safety Perimeter}
+
+The following external execution perimeter locks are included:
+
+\begin{itemize}
+  \item Phase 20H.1 --- External Tool Gateway;
+  \item Phase 20H.2 --- Provider Context Isolation and Credential Vault Scoping;
+  \item Phase 20H.3 --- Browser Worker Sandbox Isolation;
+  \item Phase 20H.4 --- Browser Staged State Contract;
+  \item Phase 20H.5 --- Browser Worker Interception Rules;
+  \item Phase 20H.6 --- External Callback and Signaling Isolation;
+  \item Phase 20H.7 --- Provider Webhook Signature Verification;
+  \item Phase 20H.8 --- Cost Drift and Commercial Safety;
+  \item Phase 20H.9 --- Capability Receipts and Rollback Metadata.
+\end{itemize}
+
+\subsubsection{Proof, Replay, ETS and Reputation Isolation}
+
+The following proof and reputation safety locks are included:
+
+\begin{itemize}
+  \item Phase 20I.1 --- Cross-Mission State Ledger Consensus and Cache Eviction;
+  \item Phase 20I.2 --- Boardroom Replay Event Synchronization;
+  \item Phase 20I.3 --- Mission Outcome Summary and ETS Preview Isolation;
+  \item Phase 20U.1 --- Agent Reputation Isolation and Demo Narrative Lock.
+\end{itemize}
+
+\subsubsection{Boardroom Mission Control}
+
+The following Boardroom locks are included:
+
+\begin{itemize}
+  \item Phase 20G.1 --- Boardroom Mission Control Data Contract;
+  \item Phase 20G.2 --- Live Mission Timeline Contract.
+\end{itemize}
+
+\subsubsection{Planner, Multi-Agent and Template Learning}
+
+The following planner/orchestration locks are included:
+
+\begin{itemize}
+  \item Phase 20K --- LLM Planner Adapter v0;
+  \item Phase 20K.1 --- Dynamic Multi-Model Planning Arbiter;
+  \item Phase 20M --- Multi-Agent Mission Orchestration Prep;
+  \item Phase 20O --- Template Learning Proposal Layer.
+\end{itemize}
+
+\subsubsection{Founder Demo}
+
+The following founder-demo lock is included:
+
+\begin{itemize}
+  \item Phase 20J --- Home Fixed Founder Demo.
+\end{itemize}
+
+\subsection{Final Demonstration Claim}
+
+The Home Fixed founder demo proves:
+
+\begin{itemize}
+  \item AION can autonomously draft useful business outputs;
+  \item AION can prepare previews for website, domain, social and ad workflows;
+  \item AION stops before domain purchase, deployment, public post and ad spend;
+  \item AION stops before payments, bookings, escrow, external sends and reputation mutation;
+  \item AION emits proof, receipts, replay and ETS preview;
+  \item AION shows the Boardroom safety message.
+\end{itemize}
+
+The required Boardroom message is:
+
+\begin{quote}
+\textbf{AION completed safe work autonomously and stopped itself before doing anything risky.}
+\end{quote}
+
+The literal safety message is:
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Final Validation Command}
+
+\begin{verbatim}
+python3 -m pytest -q backend/tests/workflow_capsules
+\end{verbatim}
+
+\subsection{Final Validation Requirement}
+
+Before Phase 20 is considered complete, the focused workflow capsule suite MUST pass.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20-FINAL-LOCK-INDEX
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
