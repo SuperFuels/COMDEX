@@ -1,0 +1,140 @@
+\section{AION Phase 20N.3 --- Human Task Cards and Evidence Binding}
+\label{sec:aion-phase20n3-human-task-cards-evidence-binding}
+
+\subsection{Status}
+
+Phase 20N.3 locks Human Task Cards and Evidence Binding.
+
+\begin{quote}
+\textbf{Status: LOCKED --- human-required work is a first-class mission pause, not a failure.}
+\end{quote}
+
+\subsection{Purpose}
+
+Some business tasks cannot or should not be completed by AION Pilot.
+
+Examples include:
+
+\begin{itemize}
+  \item creating a real Facebook account;
+  \item verifying a phone number;
+  \item uploading identity documents;
+  \item answering provider verification calls;
+  \item taking real job photos;
+  \item signing legal documents;
+  \item approving card ownership;
+  \item providing provider account access.
+\end{itemize}
+
+These tasks MUST pause the mission without marking it failed.
+
+\subsection{Human Task Card Contract}
+
+A Human Task Card MUST include:
+
+\begin{itemize}
+  \item human task ID;
+  \item mission ID;
+  \item mission run ID;
+  \item step ID;
+  \item title;
+  \item reason;
+  \item instructions;
+  \item required evidence type;
+  \item required evidence fields;
+  \item blocking status;
+  \item resume condition;
+  \item provider;
+  \item task hash.
+\end{itemize}
+
+\subsection{Evidence Binding}
+
+Human task completion MUST be evidence-bound.
+
+Supported evidence types include:
+
+\begin{itemize}
+  \item URL;
+  \item screenshot hash;
+  \item confirmation code;
+  \item uploaded file hash;
+  \item manual attestation;
+  \item provider callback.
+\end{itemize}
+
+Evidence MUST emit:
+
+\begin{verbatim}
+evidence_hash: sha256:<digest>
+\end{verbatim}
+
+\subsection{Resume Rule}
+
+A mission may resume only when required evidence is present and validated.
+
+If evidence is missing or incomplete, the mission MUST remain in:
+
+\begin{verbatim}
+waiting_human_task
+\end{verbatim}
+
+If evidence is valid, the mission MAY transition back to:
+
+\begin{verbatim}
+running_autonomous_steps
+\end{verbatim}
+
+\subsection{Example Human Task}
+
+\begin{verbatim}
+Human Task Required:
+Create or connect Facebook Business Page.
+
+Why:
+Facebook requires real account ownership and may require identity or phone verification.
+
+What to do:
+1. Log in to Facebook using the real business owner account.
+2. Create or connect the business page.
+3. Add phone number, service area and category.
+4. Return to AION and submit the Facebook Page URL.
+
+Required evidence:
+page_url
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20N3-HUMAN-TASK-CARDS-EVIDENCE-BINDING
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
