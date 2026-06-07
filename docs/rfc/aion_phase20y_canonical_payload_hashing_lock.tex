@@ -1,0 +1,119 @@
+\section{AION Phase 20Y --- Canonical Payload Hashing}
+\label{sec:aion-phase20y-canonical-payload-hashing}
+
+\subsection{Status}
+
+Phase 20Y locks canonical checkpoint payload hashing.
+
+\begin{quote}
+\textbf{Status: LOCKED --- checkpoint payload identity is canonical, deterministic, and recalculated immediately before execution.}
+\end{quote}
+
+\subsection{Purpose}
+
+Checkpoint approval is only safe if the human approves the exact payload that will later be executed.
+
+Phase 20Y ensures that checkpoint payloads are represented by deterministic canonical hashes and that any post-approval edit invalidates the approval.
+
+\begin{quote}
+\textbf{An approval belongs to one exact payload hash only.}
+\end{quote}
+
+\subsection{Canonical JSON Rule}
+
+Checkpoint payloads MUST be canonicalised using:
+
+\begin{verbatim}
+json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+\end{verbatim}
+
+This removes non-semantic key-order and whitespace differences from the hash calculation.
+
+\subsection{Payload Hash}
+
+The payload hash MUST be:
+
+\begin{verbatim}
+sha256:<digest>
+\end{verbatim}
+
+computed over canonical JSON.
+
+\subsection{Payload Hash Record}
+
+A payload hash record MUST include:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item checkpoint ID;
+  \item step ID;
+  \item action type;
+  \item payload hash;
+  \item canonical payload;
+  \item hash algorithm;
+  \item schema version.
+\end{itemize}
+
+\subsection{Execution-Time Recalculation}
+
+Immediately before execution, the runtime MUST recalculate the payload hash from the current payload.
+
+If:
+
+\begin{equation}
+H_{\mathrm{approved\_payload}}
+\neq
+H_{\mathrm{current\_payload}}
+\end{equation}
+
+then execution MUST be blocked.
+
+\subsection{Edited Payload Invalidation}
+
+If a payload changes after approval, the runtime MUST return:
+
+\begin{verbatim}
+approval_valid: false
+requires_fresh_approval: true
+reason: payload_changed_after_approval
+\end{verbatim}
+
+\subsection{Validation Hash}
+
+Every execution-time payload validation MUST emit a deterministic validation hash binding:
+
+\begin{itemize}
+  \item approved payload hash;
+  \item current payload hash;
+  \item payload unchanged decision;
+  \item execution allowed decision;
+  \item reason.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Y-CANONICAL-PAYLOAD-HASHING
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
