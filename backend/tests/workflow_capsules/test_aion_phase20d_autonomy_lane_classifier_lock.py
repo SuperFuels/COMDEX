@@ -65,7 +65,7 @@ def test_phase20d_payload_token_blocks_hallucinated_lane_bypass() -> None:
     })
 
     assert result["decision"] == "forbidden"
-    assert "Blocked payload token" in result["reason"]
+    assert ("Blocked payload token" in result["reason"]) or ("forbidden_payload_shape" in result["reason"])
 
 
 def test_phase20d_unknown_action_is_blocked_not_autonomous() -> None:
@@ -88,7 +88,8 @@ def test_phase20d_classifies_home_fixed_plan() -> None:
     assert result["planner_labels_are_advisory_only"] is True
     assert result["safe_autonomous_count"] >= 5
     assert result["checkpoint_required_count"] >= 1
-    assert len(result["classifier_run_hash"]) == 64
+    assert result["classifier_run_hash"].startswith("sha256:")
+    assert len(result["classifier_run_hash"].removeprefix("sha256:")) == 64
 
     publish = [
         item for item in result["classifications"]
@@ -110,3 +111,64 @@ def test_phase20d_classifier_hash_is_deterministic() -> None:
 
     assert first["classifier_hash"] == second["classifier_hash"]
     assert len(first["classifier_hash"]) == 64
+
+
+def test_phase20d1_safe_action_with_unknown_parameter_is_blocked() -> None:
+    result = classify_mission_step({
+        "action_type": "draft_offer",
+        "title": "Draft offer",
+        "unexpected_exec_block": {"note": "not allowed"},
+    })
+
+    assert result["decision"] == "blocked"
+    assert result["safe_autonomous"] is False
+    assert "unapproved_parameter" in result["reason"]
+
+
+def test_phase20d1_safe_action_with_nested_forbidden_payload_is_forbidden() -> None:
+    result = classify_mission_step({
+        "action_type": "draft_offer",
+        "title": "Draft offer",
+        "raw_terminal_exec": {"cmd": "rm -rf /"},
+    })
+
+    assert result["decision"] == "forbidden"
+    assert result["safe_autonomous"] is False
+    assert "forbidden_payload_shape" in result["reason"]
+
+
+def test_phase20d1_batch_with_blocked_step_cannot_mount_runtime() -> None:
+    result = classify_mission_steps([
+        {"action_type": "draft_offer", "title": "Draft offer"},
+        {"action_type": "unknown_tool", "title": "Unknown tool"},
+    ])
+
+    assert result["batch_valid"] is False
+    assert result["runtime_mount_allowed"] is False
+    assert result["mission_runtime_state"] == "waiting_human_review"
+    assert result["blocked_count"] == 1
+
+
+def test_phase20d1_batch_with_forbidden_step_blocks_mission() -> None:
+    result = classify_mission_steps([
+        {"action_type": "draft_offer", "title": "Draft offer"},
+        {"action_type": "send_email_live", "title": "Send live email"},
+    ])
+
+    assert result["batch_valid"] is False
+    assert result["runtime_mount_allowed"] is False
+    assert result["mission_runtime_state"] == "blocked"
+    assert result["forbidden_count"] == 1
+
+
+def test_phase20d1_classifier_run_hash_uses_sha256_prefix_and_is_stable() -> None:
+    steps = [
+        {"action_type": "draft_offer", "title": "Draft offer"},
+        {"action_type": "publish_advert", "title": "Publish advert"},
+    ]
+
+    first = classify_mission_steps(steps)
+    second = classify_mission_steps(steps)
+
+    assert first["classifier_run_hash"] == second["classifier_run_hash"]
+    assert first["classifier_run_hash"].startswith("sha256:")

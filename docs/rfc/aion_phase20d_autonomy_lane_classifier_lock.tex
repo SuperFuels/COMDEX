@@ -67,3 +67,61 @@ Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson
 \end{verbatim}
+
+\subsection{Phase 20D.1 --- Strict Parameter Whitelist and Atomic Batch Invalidation}
+
+The Payload Token Guard MUST enforce strict key-level schema validation.
+
+The classifier SHALL maintain an immutable parameter whitelist for every permitted \texttt{safe\_autonomous} action type.
+
+A planner, LLM adapter, template, or runtime step MUST NOT be allowed to attach arbitrary parameters to a safe action.
+
+If a mission step declares a known safe action such as \texttt{draft\_offer}, but introduces unknown keys, nested parameter blocks, live execution flags, unregistered tool payloads, or hidden execution instructions, the classifier MUST downgrade the step to \texttt{blocked} or \texttt{forbidden}.
+
+\begin{quote}
+\textbf{A safe action name is not enough. The payload shape must also be safe.}
+\end{quote}
+
+\subsection{Atomic Batch Isolation}
+
+The batch classifier MUST operate under strict atomic enforcement.
+
+A mission runtime MUST NOT begin executing a partial sequence if any step in the unified classifier batch resolves to \texttt{blocked} or \texttt{forbidden}.
+
+\begin{quote}
+\textbf{If one step in the mission plan is unsafe or unresolved, the runtime queue does not mount.}
+\end{quote}
+
+If any step is \texttt{blocked} or \texttt{forbidden}, the classifier MUST return:
+
+\begin{verbatim}
+batch_valid: false
+runtime_mount_allowed: false
+mission_runtime_state: waiting_human_review | blocked
+\end{verbatim}
+
+\subsection{Classifier Run Hash Folding}
+
+The classifier run hash MUST be deterministic across environments.
+
+The implementation folds individual step classifications in stable sorted order and emits a prefixed SHA-256 value.
+
+\begin{verbatim}
+classifier_run_hash: sha256:<digest>
+\end{verbatim}
+
+\subsection{Phase 20D.1 Validation}
+
+Additional tests prove:
+
+\begin{itemize}
+  \item safe actions with unknown parameters are blocked;
+  \item safe actions with nested forbidden payloads are forbidden;
+  \item a batch containing one blocked step cannot mount runtime;
+  \item a batch containing one forbidden step cannot mount runtime;
+  \item classifier run hashes are stable and SHA-256 prefixed.
+\end{itemize}
+
+\begin{quote}
+\textbf{The deterministic properties, lane constraints, payload schema controls, atomic batch isolation rules, and execution boundaries defined within Phase 20D.1 are officially architecture-locked.}
+\end{quote}

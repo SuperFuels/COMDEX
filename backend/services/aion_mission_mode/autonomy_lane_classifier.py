@@ -141,6 +141,52 @@ BLOCKED_PAYLOAD_TOKENS = {
 }
 
 
+SAFE_STEP_TOP_LEVEL_KEYS = {
+    "action",
+    "action_type",
+    "artifact_type",
+    "classification",
+    "decision",
+    "description",
+    "id",
+    "lane",
+    "preferred_sub_container",
+    "produces_artifact",
+    "requires_checkpoint",
+    "step_id",
+    "title",
+}
+
+DANGEROUS_SCHEMA_KEYS = {
+    "booking_live",
+    "browser_submit",
+    "capture_payment_live",
+    "charge_card",
+    "database_write",
+    "deploy_production_live",
+    "escrow_live",
+    "external_writes_enabled",
+    "live_booking_enabled",
+    "live_chain_write_enabled",
+    "live_deployment_enabled",
+    "live_execution_enabled",
+    "live_payment_enabled",
+    "live_reputation_mutation_enabled",
+    "message_send",
+    "payment_live",
+    "raw_browser_submit",
+    "raw_database_write",
+    "raw_shell_exec",
+    "raw_terminal_exec",
+    "send_email_live",
+    "send_whatsapp_live",
+    "tool_call",
+    "write_live_reputation",
+}
+
+BATCH_BLOCKING_DECISIONS = {"blocked", "forbidden"}
+
+
 LIVE_FLAG_KEYS = {
     "external_writes_enabled",
     "live_execution_enabled",
@@ -264,26 +310,101 @@ def classify_action_type(action_type: str) -> tuple[str, str, str]:
     return "internal_ops", "blocked", "Unknown action blocked until explicitly classified."
 
 
+
+
+def _find_forbidden_schema_key(value: Any, path: str = "") -> str | None:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            key_slug = _slug(key)
+            current_path = f"{path}.{key_slug}" if path else key_slug
+
+            if key_slug in DANGEROUS_SCHEMA_KEYS:
+                return current_path
+
+            nested = _find_forbidden_schema_key(item, current_path)
+            if nested:
+                return nested
+
+    if isinstance(value, list):
+        for index, item in enumerate(value):
+            nested = _find_forbidden_schema_key(item, f"{path}[{index}]")
+            if nested:
+                return nested
+
+    return None
+
+
+def _find_unknown_safe_step_key(step: dict[str, Any]) -> str | None:
+    for key in step.keys():
+        key_slug = _slug(key)
+        if key_slug not in SAFE_STEP_TOP_LEVEL_KEYS:
+            return key_slug
+    return None
+
+
+def _blocked_result(
+    *,
+    action_type: str,
+    lane: str,
+    decision: str,
+    reason: str,
+    planner_lane: Any = None,
+    planner_decision: Any = None,
+) -> dict[str, Any]:
+    result = LaneClassification(
+        action_type=action_type,
+        lane=lane,
+        decision=decision,
+        requires_checkpoint=True,
+        safe_autonomous=False,
+        reason=reason,
+        planner_lane=str(planner_lane) if planner_lane is not None else None,
+        planner_decision=str(planner_decision) if planner_decision is not None else None,
+    )
+    return result.to_dict()
+
+
 def classify_mission_step(step: dict[str, Any]) -> dict[str, Any]:
     action_type = _slug(step.get("action_type") or step.get("step_id") or step.get("action") or "")
     planner_lane = step.get("lane")
     planner_decision = step.get("decision") or step.get("classification")
 
-    blocked_token = _contains_blocked_payload_token(step)
-    if blocked_token:
-        result = LaneClassification(
+    forbidden_schema_key = _find_forbidden_schema_key(step)
+    if forbidden_schema_key:
+        return _blocked_result(
             action_type=action_type,
             lane="external_action",
             decision="forbidden",
-            requires_checkpoint=True,
-            safe_autonomous=False,
-            reason=f"Blocked payload token detected: {blocked_token}",
-            planner_lane=str(planner_lane) if planner_lane is not None else None,
-            planner_decision=str(planner_decision) if planner_decision is not None else None,
+            reason=f"forbidden_payload_shape:{forbidden_schema_key}",
+            planner_lane=planner_lane,
+            planner_decision=planner_decision,
         )
-        return result.to_dict()
+
+    blocked_token = _contains_blocked_payload_token(step)
+    if blocked_token:
+        return _blocked_result(
+            action_type=action_type,
+            lane="external_action",
+            decision="forbidden",
+            reason=f"Blocked payload token detected: {blocked_token}",
+            planner_lane=planner_lane,
+            planner_decision=planner_decision,
+        )
 
     lane, decision, reason = classify_action_type(action_type)
+
+    if decision == "safe_autonomous":
+        unknown_key = _find_unknown_safe_step_key(step)
+        if unknown_key:
+            return _blocked_result(
+                action_type=action_type,
+                lane=lane,
+                decision="blocked",
+                reason=f"unapproved_parameter:{unknown_key}",
+                planner_lane=planner_lane,
+                planner_decision=planner_decision,
+            )
+
     result = LaneClassification(
         action_type=action_type,
         lane=lane,
@@ -297,23 +418,50 @@ def classify_mission_step(step: dict[str, Any]) -> dict[str, Any]:
     return result.to_dict()
 
 
+def calculate_classifier_run_hash(step_outputs: list[dict[str, Any]]) -> str:
+    hasher = sha256()
+
+    for step in sorted(step_outputs, key=lambda item: str(item.get("action_type", ""))):
+        serialized = json.dumps(
+            step,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        )
+        hasher.update(serialized.encode("utf-8"))
+
+    return f"sha256:{hasher.hexdigest()}"
+
+
 def classify_mission_steps(steps: list[dict[str, Any]]) -> dict[str, Any]:
     classifications = [classify_mission_step(step) for step in steps]
+
+    blocked_count = sum(1 for item in classifications if item["decision"] == "blocked")
+    forbidden_count = sum(1 for item in classifications if item["decision"] == "forbidden")
+    batch_valid = blocked_count == 0 and forbidden_count == 0
+
+    mission_runtime_state = "ready_for_runtime"
+    if forbidden_count:
+        mission_runtime_state = "blocked"
+    elif blocked_count:
+        mission_runtime_state = "waiting_human_review"
 
     summary = {
         "schema_version": "aion.autonomy_lane_classifier.v0",
         "classifier": "deterministic_system_classifier",
         "planner_labels_are_advisory_only": True,
+        "atomic_batch_isolation": True,
+        "batch_valid": batch_valid,
+        "runtime_mount_allowed": batch_valid,
+        "mission_runtime_state": mission_runtime_state,
         "total_steps": len(classifications),
         "safe_autonomous_count": sum(1 for item in classifications if item["decision"] == "safe_autonomous"),
         "checkpoint_required_count": sum(1 for item in classifications if item["decision"] == "checkpoint_required"),
-        "blocked_count": sum(1 for item in classifications if item["decision"] == "blocked"),
-        "forbidden_count": sum(1 for item in classifications if item["decision"] == "forbidden"),
+        "blocked_count": blocked_count,
+        "forbidden_count": forbidden_count,
         "classifications": classifications,
     }
 
-    summary["classifier_run_hash"] = sha256(
-        json.dumps(summary, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
-    ).hexdigest()
+    summary["classifier_run_hash"] = calculate_classifier_run_hash(classifications)
 
     return summary
