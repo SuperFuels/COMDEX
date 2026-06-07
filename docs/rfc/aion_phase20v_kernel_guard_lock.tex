@@ -1,0 +1,78 @@
+\section{AION Phase 20V --- Deterministic System Interceptor / Kernel Guard}
+\label{sec:aion-phase20v-kernel-guard}
+
+\subsection{Status}
+
+Phase 20V introduces the deterministic execution interceptor between the autonomy classifier and the future Mission Runtime.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Kernel Guard v0 validates action payloads before runtime mount.}
+\end{quote}
+
+\subsection{Purpose}
+
+The Kernel Guard prevents an unsafe action from entering the Mission Runtime merely because an advisory planner or earlier layer labelled it as safe.
+
+The guard treats all planner and classifier labels as advisory until the final payload is inspected against the hard restricted-action registry.
+
+\subsection{Restricted Action Registry}
+
+The guard maintains a deterministic restricted-action registry covering:
+
+\begin{itemize}
+  \item external communication actions;
+  \item payment and escrow actions;
+  \item booking and dispatch actions;
+  \item live deployment actions;
+  \item raw terminal execution;
+  \item live reputation or memory mutation.
+\end{itemize}
+
+Any restricted action is overridden to \texttt{checkpoint\_required} or \texttt{forbidden} before runtime mount.
+
+\subsection{Payload Runtime Flag Scan}
+
+The guard recursively scans payloads for runtime flags such as:
+
+\begin{itemize}
+  \item \texttt{live\_execution\_enabled};
+  \item \texttt{external\_writes\_enabled};
+  \item \texttt{payment\_enabled};
+  \item \texttt{booking\_enabled};
+  \item \texttt{deployment\_enabled};
+  \item \texttt{reputation\_mutation\_enabled};
+  \item \texttt{raw\_terminal\_exec}.
+\end{itemize}
+
+If such a flag is detected, the action is marked \texttt{forbidden}.
+
+\subsection{Boardroom Alert Contract}
+
+Any override, checkpoint, block, or forbidden decision MUST produce a Boardroom alert describing:
+
+\begin{itemize}
+  \item action type;
+  \item final decision;
+  \item reason;
+  \item guard hash.
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20V-KERNEL-GUARD-V0
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
