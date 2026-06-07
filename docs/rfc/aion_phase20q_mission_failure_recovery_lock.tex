@@ -129,3 +129,117 @@ Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson
 \end{verbatim}
+
+\subsection{Phase 20Q.1 --- Atomic Recovery Transition and Recovery Hash Closure}
+\label{subsec:aion-phase20q1-atomic-recovery}
+
+\subsubsection{Status}
+
+Phase 20Q.1 hardens the recovery boundary with atomic transition semantics and a cryptographic recovery closure hash.
+
+\begin{quote}
+\textbf{Status: LOCKED --- recovery transitions MUST freeze execution, suspend VFS handles, snapshot state, drop process permissions, and emit deterministic closure hashes.}
+\end{quote}
+
+\subsubsection{Recovery State Transition Matrix}
+
+To prevent unhandled exceptions or memory-exhaustion faults from dropping the runtime engine into undefined or unlogged states, the mission controller MUST implement an atomic recovery transition function $\mathcal{F}_{\mathrm{recovery}}$.
+
+Let $\mathcal{S}_{\mathrm{current}}$ be the active execution state, and let $\mathcal{E}$ be the intercepting error or policy violation block.
+
+The state transition is formalised as:
+
+\begin{equation}
+\mathcal{F}_{\mathrm{recovery}}
+(
+\mathcal{S}_{\mathrm{current}},
+\mathcal{E}
+)
+\longrightarrow
+\mathcal{S}_{\mathrm{target}}
+\in
+\{
+\mathtt{failed\_recoverable},
+\mathtt{failed\_final},
+\mathtt{partial\_success},
+\mathtt{blocked\_for\_safety}
+\}
+\end{equation}
+
+When this transition triggers, the runtime engine MUST:
+
+\begin{itemize}
+  \item freeze all execution threads;
+  \item suspend the active VFS handle;
+  \item write a snapshot memory buffer to the tracking layer;
+  \item drop active process permissions;
+  \item preserve trace, proof, receipt and partial output state;
+  \item prevent further out-of-bounds mutations.
+\end{itemize}
+
+\subsubsection{Atomic Transition Record}
+
+The transition record MUST include:
+
+\begin{itemize}
+  \item current state;
+  \item error type;
+  \item target state;
+  \item execution thread freeze flag;
+  \item VFS suspension flag;
+  \item snapshot buffer requirement flag;
+  \item process permission drop flag;
+  \item transition hash.
+\end{itemize}
+
+\subsubsection{Recovery Cryptographic Closure Formula}
+
+The recovery hash $\mathcal{R}_{\mathrm{hash}}$ acts as an unalterable signature anchor sealing the system state during an abort routine.
+
+The deterministic hash signature is defined as:
+
+\begin{equation}
+\mathcal{R}_{\mathrm{hash}}
+=
+\mathrm{SHA256}
+(
+H_{\mathrm{receipt}}
+\parallel
+H_{\mathrm{trace}}
+\parallel
+H_{\mathrm{proof}}
+\parallel
+\sum_i H_{\mathrm{partial\_output}_i}
+\parallel
+\mathtt{State}_{\mathrm{target}}
+)
+\end{equation}
+
+This signature validation block MUST be pushed to the persistent logging layer before the container context relinquishes host thread priority.
+
+\subsubsection{Validation Coverage}
+
+Phase 20Q.1 tests prove:
+
+\begin{itemize}
+  \item atomic recovery transitions map safety violations to \texttt{blocked\_for\_safety};
+  \item recoverable failures with partial outputs map to \texttt{partial\_success};
+  \item recovery closure hashes are deterministic;
+  \item recovery closure hashes change when target state changes;
+  \item full atomic recovery includes both transition record and closure hash.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION failure recovery is an atomic transition, not a best-effort cleanup. Once recovery starts, execution freezes, state is preserved, permissions drop, and the recovery boundary is cryptographically sealed.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20Q1-ATOMIC-RECOVERY-TRANSITION-CLOSURE-HASH
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

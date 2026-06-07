@@ -181,3 +181,112 @@ def test_phase20q_recovery_hash_is_deterministic() -> None:
     second = recover_failed_mission(**kwargs)
 
     assert first["recovery_hash"] == second["recovery_hash"]
+
+
+def test_phase20q1_atomic_recovery_transition_blocks_for_safety() -> None:
+    from backend.services.aion_mission_mode.mission_failure_recovery import atomic_recovery_transition
+
+    transition = atomic_recovery_transition(
+        current_state="running_autonomous_steps",
+        error_type="aggregate_forbidden_outcome",
+        safety_violation_found=True,
+        partial_outputs_available=True,
+    )
+
+    assert transition["target_state"] == "blocked_for_safety"
+    assert transition["execution_threads_frozen"] is True
+    assert transition["active_vfs_handle_suspended"] is True
+    assert transition["snapshot_buffer_required"] is True
+    assert transition["process_permissions_dropped"] is True
+    assert transition["transition_hash"].startswith("sha256:")
+
+
+def test_phase20q1_atomic_recovery_transition_partial_success() -> None:
+    from backend.services.aion_mission_mode.mission_failure_recovery import atomic_recovery_transition
+
+    transition = atomic_recovery_transition(
+        current_state="running_autonomous_steps",
+        error_type="tool_schema_error",
+        safety_violation_found=False,
+        partial_outputs_available=True,
+        recoverable=True,
+    )
+
+    assert transition["target_state"] == "partial_success"
+
+
+def test_phase20q1_recovery_closure_hash_is_deterministic() -> None:
+    from backend.services.aion_mission_mode.mission_failure_recovery import recovery_cryptographic_closure_hash
+
+    first = recovery_cryptographic_closure_hash(
+        failure_receipt_hash="sha256:receipt",
+        trace_hash="sha256:trace",
+        proof_hash="sha256:proof",
+        partial_output_hashes=["sha256:b", "sha256:a"],
+        target_state="blocked_for_safety",
+    )
+    second = recovery_cryptographic_closure_hash(
+        failure_receipt_hash="sha256:receipt",
+        trace_hash="sha256:trace",
+        proof_hash="sha256:proof",
+        partial_output_hashes=["sha256:a", "sha256:b"],
+        target_state="blocked_for_safety",
+    )
+
+    assert first == second
+    assert first.startswith("sha256:")
+
+
+def test_phase20q1_recovery_closure_hash_changes_when_target_state_changes() -> None:
+    from backend.services.aion_mission_mode.mission_failure_recovery import recovery_cryptographic_closure_hash
+
+    first = recovery_cryptographic_closure_hash(
+        failure_receipt_hash="sha256:receipt",
+        trace_hash="sha256:trace",
+        proof_hash="sha256:proof",
+        partial_output_hashes=["sha256:a"],
+        target_state="failed_recoverable",
+    )
+    second = recovery_cryptographic_closure_hash(
+        failure_receipt_hash="sha256:receipt",
+        trace_hash="sha256:trace",
+        proof_hash="sha256:proof",
+        partial_output_hashes=["sha256:a"],
+        target_state="blocked_for_safety",
+    )
+
+    assert first != second
+
+
+def test_phase20q1_full_atomic_recovery_contains_transition_and_closure_hash() -> None:
+    from backend.services.aion_mission_mode.mission_failure_recovery import recover_failed_mission_with_atomic_transition
+
+    result = recover_failed_mission_with_atomic_transition(
+        mission_id="mission_001",
+        mission_run_id="run_001",
+        current_state="running_autonomous_steps",
+        error_type="aggregate_forbidden_outcome",
+        failure_reason="aggregate external messaging path",
+        stopped_step_id="send",
+        trace_hash="sha256:trace",
+        proof_hash="sha256:proof",
+        outputs=[
+            {
+                "output_id": "draft_001",
+                "step_id": "draft",
+                "artifact_type": "advert_draft",
+                "business_container_path": "business_containers/home_fixed/campaigns/draft_001.json",
+            }
+        ],
+        receipt_hashes=["sha256:receipt"],
+        blocked_actions=["send_customer_message"],
+        original_steps=[
+            {"step_id": "draft", "action_type": "draft_offer", "lane": "creation"},
+            {"step_id": "send", "action_type": "send_customer_message", "lane": "external_action"},
+        ],
+        safety_violation_found=True,
+    )
+
+    assert result["atomic_recovery_transition"]["target_state"] == "blocked_for_safety"
+    assert result["recovery_closure_hash"].startswith("sha256:")
+    assert result["recovery_hash"].startswith("sha256:")

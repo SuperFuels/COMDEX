@@ -289,3 +289,117 @@ def recover_failed_mission(
     }
     result["recovery_hash"] = _hash({k: v for k, v in result.items() if k != "recovery_hash"})
     return result
+
+
+def atomic_recovery_transition(
+    *,
+    current_state: str,
+    error_type: str,
+    safety_violation_found: bool = False,
+    partial_outputs_available: bool = False,
+    recoverable: bool = True,
+) -> dict[str, Any]:
+    """
+    Atomic recovery transition.
+
+    This is the hard boundary used when runtime execution enters a fault,
+    safety block, or intercepted policy violation.
+    """
+    target_state = classify_failure_state(
+        blocked_for_safety=safety_violation_found,
+        partial_outputs_available=partial_outputs_available,
+        recoverable=recoverable,
+    )
+
+    transition = {
+        "schema_version": "aion.failure_recovery.transition.v0",
+        "current_state": current_state,
+        "error_type": error_type,
+        "target_state": target_state,
+        "execution_threads_frozen": True,
+        "active_vfs_handle_suspended": True,
+        "snapshot_buffer_required": True,
+        "process_permissions_dropped": True,
+    }
+    transition["transition_hash"] = _hash(transition)
+    return transition
+
+
+def recovery_cryptographic_closure_hash(
+    *,
+    failure_receipt_hash: str,
+    trace_hash: str,
+    proof_hash: str,
+    partial_output_hashes: list[str],
+    target_state: str,
+) -> str:
+    """
+    Recovery closure hash:
+    SHA256(receipt || trace || proof || partial outputs || target state)
+    """
+    return _hash(
+        {
+            "failure_receipt_hash": failure_receipt_hash,
+            "trace_hash": trace_hash,
+            "proof_hash": proof_hash,
+            "partial_output_hashes": sorted(partial_output_hashes),
+            "target_state": target_state,
+        }
+    )
+
+
+def recover_failed_mission_with_atomic_transition(
+    *,
+    mission_id: str,
+    mission_run_id: str,
+    current_state: str,
+    error_type: str,
+    failure_reason: str,
+    stopped_step_id: str,
+    trace_hash: str,
+    proof_hash: str,
+    outputs: list[dict[str, Any]],
+    receipt_hashes: list[str],
+    blocked_actions: list[str],
+    original_steps: list[dict[str, Any]],
+    safety_violation_found: bool = False,
+    recoverable: bool = True,
+) -> dict[str, Any]:
+    transition = atomic_recovery_transition(
+        current_state=current_state,
+        error_type=error_type,
+        safety_violation_found=safety_violation_found,
+        partial_outputs_available=bool(outputs),
+        recoverable=recoverable,
+    )
+
+    recovery = recover_failed_mission(
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        failure_reason=failure_reason,
+        stopped_step_id=stopped_step_id,
+        trace_hash=trace_hash,
+        proof_hash=proof_hash,
+        outputs=outputs,
+        receipt_hashes=receipt_hashes,
+        blocked_actions=blocked_actions,
+        original_steps=original_steps,
+        blocked_for_safety=safety_violation_found,
+        recoverable=recoverable,
+    )
+
+    closure_hash = recovery_cryptographic_closure_hash(
+        failure_receipt_hash=recovery["failure_receipt"]["failure_receipt_hash"],
+        trace_hash=trace_hash,
+        proof_hash=proof_hash,
+        partial_output_hashes=recovery["failure_receipt"]["partial_output_hashes"],
+        target_state=transition["target_state"],
+    )
+
+    result = {
+        **recovery,
+        "atomic_recovery_transition": transition,
+        "recovery_closure_hash": closure_hash,
+    }
+    result["recovery_hash"] = _hash({k: v for k, v in result.items() if k != "recovery_hash"})
+    return result
