@@ -1,0 +1,137 @@
+\section{AION Phase 20X --- Session VFS and Workspace Isolation}
+\label{sec:aion-phase20x-session-vfs}
+
+\subsection{Status}
+
+Phase 20X locks mission-scoped temporary workspace isolation for AION Pilot.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Session VFS records, temporary drafts, repair payloads, and vector workspaces are isolated per mission run.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot requires temporary working space for planning, repair, previews, logs, vectors, and intermediate drafts.
+
+This temporary workspace MUST NOT leak across missions by default.
+
+\begin{quote}
+\textbf{Session VFS is mission-scoped scratch space. It is not business memory and it is not final artifact storage.}
+\end{quote}
+
+\subsection{Allowed Session Subspaces}
+
+The Session VFS may contain only approved subspaces:
+
+\begin{itemize}
+  \item \texttt{drafts}
+  \item \texttt{tmp}
+  \item \texttt{vectors}
+  \item \texttt{repair}
+  \item \texttt{previews}
+  \item \texttt{logs}
+  \item \texttt{receipts}
+\end{itemize}
+
+\subsection{Mission-Scoped Namespace}
+
+Every Session VFS namespace MUST be derived from:
+
+\begin{itemize}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_run\_id}
+  \item \texttt{business\_id}
+  \item \texttt{mission\_hash}
+\end{itemize}
+
+This ensures separate mission runs receive separate scratch namespaces.
+
+\subsection{Vector Workspace Isolation}
+
+Vector workspace IDs MUST be salted by the mission hash.
+
+A vector workspace created for one mission run MUST NOT be reused by another mission run unless a governed transfer approval exists.
+
+\subsection{Session VFS Path Shape}
+
+Temporary records resolve under:
+
+\begin{verbatim}
+session_vfs/<business_id>/<mission_id>/<mission_run_id>/<namespace>/<subspace>/<name>.json
+\end{verbatim}
+
+A valid record MUST include:
+
+\begin{itemize}
+  \item \texttt{storage\_state = session\_vfs\_draft}
+  \item \texttt{session\_vfs\_only = true}
+  \item \texttt{business\_id}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_run\_id}
+  \item \texttt{mission\_hash}
+  \item \texttt{vector\_workspace\_id}
+  \item \texttt{path}
+  \item \texttt{record\_hash}
+\end{itemize}
+
+\subsection{No Live Secrets}
+
+Session VFS payloads MUST NOT contain live secrets or production credentials, including:
+
+\begin{itemize}
+  \item API keys;
+  \item passwords;
+  \item private keys;
+  \item production database URLs;
+  \item production credentials;
+  \item payment provider secrets;
+  \item model provider API keys.
+\end{itemize}
+
+\subsection{Cross-Mission Read Boundary}
+
+A mission can read its own Session VFS records.
+
+A different mission MUST NOT read those records by default.
+
+Cross-mission transfer requires governed approval.
+
+\subsection{Governed Cross-Mission Transfer}
+
+A transfer approval MUST include:
+
+\begin{itemize}
+  \item source mission ID;
+  \item target mission ID;
+  \item approving human;
+  \item reason;
+  \item approval state;
+  \item approval hash.
+\end{itemize}
+
+Without approval, cross-mission Session VFS transfer is rejected.
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20X-SESSION-VFS-WORKSPACE-ISOLATION
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
