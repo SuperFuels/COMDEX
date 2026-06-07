@@ -1,0 +1,63 @@
+\section{Phase 21X --- Real Frontend Pilot Cockpit Mount}
+\label{sec:aion-phase21x-real-frontend-pilot-cockpit-mount}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21X mounts the visible Pilot cockpit into the real desktop frontend.
+
+\subsection{Purpose}
+
+Phase 20P and Phase 21A--H defined Pilot cockpit contracts and read models. Phase 21X connects those contracts to the actual AION desktop UI.
+
+\subsection{Mount Rule}
+
+The Pilot cockpit MUST mount inside the real \texttt{renderAionChatSurface()} path.
+
+It MUST NOT be appended blindly to the end of the frontend source.
+
+It MUST NOT be inserted inside the AION chat \texttt{textarea} tag.
+
+\subsection{Visible Sections}
+
+The cockpit MUST show:
+
+\begin{itemize}
+  \item Pilot Cockpit;
+  \item mission composer;
+  \item Pilot stream;
+  \item plan / mission map;
+  \item business container files;
+  \item artifact preview;
+  \item blocked actions;
+  \item feedback controls.
+\end{itemize}
+
+\subsection{Safety Boundary}
+
+The cockpit is a visible operating surface, not an execution bypass.
+
+It MUST NOT expose private reasoning, raw credentials, raw tool execution, live payment, live deployment, live send, live post, live booking or live escrow buttons by default.
+
+\subsection{Required Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21x_real_frontend_pilot_mount_ui_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21X-REAL-FRONTEND-PILOT-COCKPIT-MOUNT
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}

@@ -7818,7 +7818,271 @@ function renderDesktopAssistantPanel() {
   `;
 }
 
+
+
+/* PHASE 21X LOCK: Real frontend Pilot cockpit mount */
+
+function getAionPilotCockpitSnapshot() {
+  return {
+    status: "idle",
+    mode: "preview_only",
+    identity: "AION Pilot native runtime executor, not UI automation",
+    business_id: "home-fixed",
+    mission_id: "pilot_demo_pdf_mission",
+    mission_run_id: "pilot_demo_run_preview",
+    step_id: "compose_document",
+    request_placeholder: "Build me a PDF document with X data",
+    save_path: "business/home-fixed/missions/pilot_demo_pdf_mission/runs/pilot_demo_run_preview/artifacts/draft-document.pdf",
+    safety_message: "AION stopped itself before doing anything risky.",
+    no_live_side_effects_message: "No money, post, deploy, external send, booking, escrow or reputation mutation without exact approval.",
+    plan_steps: [
+      ["step_1", "autonomous_preview", "Understand document request", "preview"],
+      ["step_2", "autonomous_preview", "Draft document structure", "preview"],
+      ["step_3", "autonomous_preview", "Create draft PDF artifact inside business container", "preview"],
+      ["step_4", "approval_required", "Publish, send, deploy or spend money", "blocked"],
+    ],
+    artifacts: [
+      {
+        type: "pdf",
+        title: "Draft PDF document",
+        status: "draft_preview",
+        path: "business/home-fixed/missions/pilot_demo_pdf_mission/runs/pilot_demo_run_preview/artifacts/draft-document.pdf",
+        artifact_hash: "sha256:preview_artifact_hash",
+        receipt_hash: "sha256:preview_receipt_hash",
+      },
+    ],
+    blocked_actions: [
+      {
+        action_type: "external_send",
+        blocked_reason: "External sending requires exact payload approval.",
+        safe_alternative: "Keep the PDF as a draft preview inside the business container.",
+        required_approval: "exact_payload_approval",
+      },
+      {
+        action_type: "production_deploy",
+        blocked_reason: "Deployment is a live external side effect.",
+        safe_alternative: "Prepare a deployment preview only.",
+        required_approval: "exact_payload_approval",
+      },
+    ],
+  };
+}
+
+function renderAionPilotCockpitPanel(snapshot = getAionPilotCockpitSnapshot()) {
+  const planRows = (snapshot.plan_steps || []).map(([stepId, lane, title, status]) => `
+    <div class="aion-pilot-map-node" data-aion-pilot-map-node="${escapeHtml(stepId)}">
+      <strong>${escapeHtml(title)}</strong>
+      <div class="aion-pilot-meta-row"><span>Step</span><code>${escapeHtml(stepId)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Lane</span><code>${escapeHtml(lane)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(status)}</code></div>
+    </div>
+  `).join("");
+
+  const artifactRows = (snapshot.artifacts || []).map((artifact) => `
+    <div class="aion-pilot-artifact-card" data-aion-pilot-artifact-card>
+      <strong>${escapeHtml(artifact.title)}</strong>
+      <div class="aion-pilot-meta-row"><span>Type</span><code>${escapeHtml(artifact.type)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(artifact.status)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Path</span><code>${escapeHtml(artifact.path)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Artifact hash</span><code>${escapeHtml(artifact.artifact_hash)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Receipt hash</span><code>${escapeHtml(artifact.receipt_hash)}</code></div>
+      <div class="aion-pilot-actions">
+        <button type="button" data-aion-pilot-open-output>Open output</button>
+        <button type="button" data-aion-pilot-download-output>Download output</button>
+        <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+      </div>
+    </div>
+  `).join("");
+
+  const blockedRows = (snapshot.blocked_actions || []).map((item) => `
+    <div class="aion-pilot-blocked-card" data-aion-pilot-blocked-action>
+      <strong>${escapeHtml(item.action_type)}</strong>
+      <div class="aion-pilot-meta-row"><span>Why blocked</span><code>${escapeHtml(item.blocked_reason)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Safe alternative</span><code>${escapeHtml(item.safe_alternative)}</code></div>
+      <div class="aion-pilot-meta-row"><span>Approval required</span><code>${escapeHtml(item.required_approval)}</code></div>
+    </div>
+  `).join("");
+
+  return `
+    <section class="aion-pilot-cockpit" data-aion-pilot-cockpit data-aion-phase21x-real-frontend-pilot-mount>
+      <div class="aion-pilot-header">
+        <div>
+          <div class="eyebrow">AION PILOT</div>
+          <h2>Pilot Cockpit</h2>
+          <p>Visible operator surface for plan-gated safe work, artifacts, approvals, blocked actions, proof and replay.</p>
+        </div>
+        <div class="aion-pilot-status" data-aion-pilot-status="${escapeHtml(snapshot.status)}">STATUS: ${escapeHtml(snapshot.status.toUpperCase())}</div>
+      </div>
+
+      <div class="aion-pilot-safety-banner" data-aion-pilot-safety-banner>
+        <strong>${escapeHtml(snapshot.safety_message)}</strong>
+        <span>${escapeHtml(snapshot.no_live_side_effects_message)}</span>
+      </div>
+
+      <div class="aion-pilot-grid">
+        <div class="aion-pilot-panel" data-aion-pilot-composer>
+          <strong>Mission composer</strong>
+          <textarea data-aion-pilot-mission-input placeholder="${escapeHtml(snapshot.request_placeholder)}"></textarea>
+          <div class="aion-pilot-meta-row"><span>Business</span><code>${escapeHtml(snapshot.business_id)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Save path</span><code>${escapeHtml(snapshot.save_path)}</code></div>
+          <button type="button" data-aion-pilot-create-draft-mission>Create draft mission</button>
+        </div>
+
+        <div class="aion-pilot-panel" data-aion-pilot-stream>
+          <strong>Pilot stream</strong>
+          <p>Private reasoning hidden.</p>
+          <p>Visible actions, receipts, paths and blocked actions will appear here.</p>
+          <div class="aion-pilot-meta-row"><span>Current step</span><code>${escapeHtml(snapshot.step_id)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Run</span><code>${escapeHtml(snapshot.mission_run_id)}</code></div>
+        </div>
+      </div>
+
+      <div class="aion-pilot-grid aion-pilot-grid-three">
+        <div class="aion-pilot-panel" data-aion-pilot-plan-preview>
+          <strong>Plan / mission map</strong>
+          ${planRows}
+        </div>
+        <div class="aion-pilot-panel" data-aion-pilot-files>
+          <strong>Business container files</strong>
+          ${artifactRows}
+        </div>
+        <div class="aion-pilot-panel" data-aion-pilot-blocked-panel>
+          <strong>Blocked actions</strong>
+          ${blockedRows}
+        </div>
+      </div>
+
+      <div class="aion-pilot-feedback" data-aion-pilot-feedback>
+        <button type="button" data-aion-pilot-feedback-approve>Approve route</button>
+        <button type="button" data-aion-pilot-feedback-revise>Revise</button>
+        <button type="button" data-aion-pilot-feedback-stop>Stop</button>
+        <button type="button" data-aion-pilot-feedback-retry>Retry</button>
+        <button type="button" data-aion-pilot-feedback-continue>Continue safe work</button>
+        <textarea data-aion-pilot-feedback-text placeholder="Tell Pilot what to change. Feedback is governed."></textarea>
+      </div>
+    </section>
+  `;
+}
+
+function installAionPilotCockpitStyles() {
+  if (document.getElementById("aion-pilot-cockpit-styles")) return;
+  const style = document.createElement("style");
+  style.id = "aion-pilot-cockpit-styles";
+  style.textContent = `
+    .aion-pilot-cockpit {
+      margin-top: 18px;
+      border: 1px solid rgba(0,0,0,.16);
+      background: rgba(255,255,255,.34);
+      padding: 18px;
+      display: grid;
+      gap: 16px;
+    }
+    .aion-pilot-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+    }
+    .aion-pilot-header h2 {
+      margin: 3px 0 6px;
+      font-size: 28px;
+    }
+    .aion-pilot-status {
+      border: 1px solid rgba(0,0,0,.25);
+      padding: 6px 10px;
+      font-size: 11px;
+      letter-spacing: .14em;
+      font-weight: 800;
+    }
+    .aion-pilot-safety-banner {
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(96,119,103,.12);
+      padding: 12px 14px;
+      display: grid;
+      gap: 4px;
+    }
+    .aion-pilot-grid {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+      gap: 14px;
+    }
+    .aion-pilot-grid-three {
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
+    }
+    .aion-pilot-panel,
+    .aion-pilot-artifact-card,
+    .aion-pilot-blocked-card,
+    .aion-pilot-map-node {
+      border: 1px solid rgba(0,0,0,.14);
+      background: rgba(255,255,255,.42);
+      padding: 12px;
+      display: grid;
+      gap: 9px;
+      min-width: 0;
+    }
+    .aion-pilot-panel textarea,
+    .aion-pilot-feedback textarea {
+      width: 100%;
+      min-height: 86px;
+      border: 1px solid rgba(0,0,0,.18);
+      background: rgba(255,255,255,.55);
+      padding: 10px;
+      box-sizing: border-box;
+      font: inherit;
+    }
+    .aion-pilot-meta-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0,1fr);
+      gap: 8px;
+      border-top: 1px solid rgba(0,0,0,.08);
+      padding-top: 7px;
+    }
+    .aion-pilot-meta-row span { color: #777; }
+    .aion-pilot-meta-row code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .aion-pilot-actions,
+    .aion-pilot-feedback {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .aion-pilot-cockpit button {
+      border: 1px solid rgba(0,0,0,.22);
+      background: rgba(255,255,255,.52);
+      padding: 9px 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      cursor: pointer;
+    }
+    [data-aion-pilot-create-draft-mission] {
+      background: rgba(96,119,103,.92) !important;
+      color: white;
+    }
+    @media (max-width: 1100px) {
+      .aion-pilot-grid,
+      .aion-pilot-grid-three {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+if (typeof window !== "undefined") {
+  window.renderAionPilotCockpitPanel = renderAionPilotCockpitPanel;
+  window.getAionPilotCockpitSnapshot = getAionPilotCockpitSnapshot;
+}
+
+/* END PHASE 21X LOCK */
+
+
 function renderAionChatSurface() {
+  installAionPilotCockpitStyles();
   const engine = state.aionChatEngine || state.desktopAssistantProvider || "gemma4";
   const mode = state.aionChatMode || "business_workspace";
   const prompt = state.aionChatPrompt || state.desktopAssistantPrompt || "";
@@ -7997,6 +8261,8 @@ function renderAionChatSurface() {
                   `
               }
             </div>
+
+            ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
 
             <textarea
               id="aionChatPromptInput"
@@ -23488,6 +23754,11 @@ function renderLiveAgentsSurface() {
 
               <div>
                 <div class="surface-eyebrow">Live Agents</div>
+
+              <div class="aion-pilot-safety-banner" data-aion-pilot-live-agents-entry>
+                <strong>AION Pilot available from the AION tab.</strong>
+                <span>Use Pilot Cockpit for mission composer, artifacts, blocked actions, proof and replay.</span>
+              </div>
                 <div class="last-refresh">Updated ${escapeHtml(formatDateTime(state.lastRefreshAt))}</div>
               </div>
             </div>
