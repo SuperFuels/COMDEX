@@ -1,0 +1,110 @@
+\section{AION Phase 20N.4 --- Approval Lattice and User Override Safety}
+\label{sec:aion-phase20n4-approval-lattice-user-override-safety}
+
+\subsection{Status}
+
+Phase 20N.4 locks the Approval Lattice and User Override Safety layer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- user overrides may make execution stricter, but may never weaken system safety.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot allows the user to configure mission autonomy.
+
+However, user configuration MUST NOT bypass the classifier, kernel guard, approval rules, checkpoint rules, or blocked state.
+
+\subsection{Control Lattice}
+
+Control modes form an ordered safety lattice:
+
+\begin{equation}
+\mathtt{autonomous}
+\prec
+\mathtt{human\_approval\_required}
+\prec
+\mathtt{human\_task\_required}
+\prec
+\mathtt{blocked}
+\end{equation}
+
+\subsection{Effective Decision}
+
+Let $\mathcal{D}_{\mathrm{system}}$ be the system decision and $\mathcal{D}_{\mathrm{user}}$ be the user override.
+
+The executable decision is:
+
+\begin{equation}
+\mathcal{D}_{\mathrm{effective}}
+=
+\sup
+(
+\mathcal{D}_{\mathrm{system}},
+\mathcal{D}_{\mathrm{user}}
+)
+\end{equation}
+
+Where $\sup$ is the least upper bound on the safety lattice.
+
+\subsection{User Override Rule}
+
+The user MAY make a step stricter.
+
+The user MUST NOT make a step looser.
+
+Examples:
+
+\begin{itemize}
+  \item \texttt{autonomous} MAY become \texttt{human\_approval\_required};
+  \item \texttt{autonomous} MAY become \texttt{blocked};
+  \item \texttt{human\_approval\_required} MUST NOT become \texttt{autonomous};
+  \item \texttt{blocked} MUST NOT become \texttt{autonomous}.
+\end{itemize}
+
+\subsection{Policy Override Violation}
+
+If the user attempts to weaken the system decision, AION MUST emit:
+
+\begin{verbatim}
+policy_override_violation: true
+runtime_mount_allowed: false
+fail_closed: true
+reason: policy_override_violation
+\end{verbatim}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20z_pilot_native_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20w_self_repair_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20x_session_vfs_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20f_mission_approval_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20y_canonical_payload_hashing_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20r_approval_expiry_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20t_mission_diff_payload_escrow_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20p_mission_contract_integrity_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20q_mission_failure_recovery_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20s_cross_mission_memory_boundary_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n1_plan_approval_matrix_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n2_plan_diff_subplan_governance_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n3_human_task_cards_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20n4_approval_lattice_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20N4-APPROVAL-LATTICE-USER-OVERRIDE-SAFETY
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
