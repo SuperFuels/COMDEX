@@ -1,0 +1,85 @@
+\section{Phase 21D --- Pilot Artifact Builder Runtime}
+\label{sec:aion-phase21d-pilot-artifact-builder-runtime}
+
+\subsection{Status}
+
+Phase 21D locks the first safe artifact builder runtime for the AION Pilot cockpit.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot can create draft artifacts only inside the business container.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 21C made artifact requests visible in the cockpit.
+
+Phase 21D adds the runtime contract that turns a visible artifact request into a safe draft artifact record.
+
+The runtime supports draft preview artifacts for PDF, document, spreadsheet, text, Markdown and JSON outputs.
+
+\subsection{Business Container Rule}
+
+Pilot-generated artifacts MUST be written under the business container path:
+
+\begin{verbatim}
+business/<business_id>/missions/<mission_id>/runs/<run_id>/artifacts/<artifact_name>
+\end{verbatim}
+
+The runtime MUST block:
+
+\begin{itemize}
+  \item absolute output escapes;
+  \item path traversal;
+  \item hidden artifact names;
+  \item global output directories;
+  \item writes outside the business container.
+\end{itemize}
+
+\subsection{Artifact Receipt Rule}
+
+Every draft artifact MUST emit:
+
+\begin{itemize}
+  \item artifact hash;
+  \item artifact receipt hash;
+  \item business container path;
+  \item mission identifier;
+  \item run identifier;
+  \item step identifier;
+  \item artifact status;
+  \item blocked live-side-effect actions.
+\end{itemize}
+
+\subsection{Revision Rule}
+
+Draft revision MUST create a new draft artifact hash.
+
+Revision MUST NOT silently mutate live memory, reusable templates, provider state or reputation.
+
+\subsection{Feedback Rule}
+
+Feedback MUST be captured as a governed feedback event only.
+
+Feedback MUST NOT silently mutate live memory, reusable templates, provider state or reputation.
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION Pilot may create a draft artifact, but it MUST keep the artifact inside the business container, emit a receipt, and block all live external side effects unless the existing AION approval chain later authorizes them.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21d_pilot_artifact_builder_runtime_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21D-PILOT-ARTIFACT-BUILDER-RUNTIME
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
