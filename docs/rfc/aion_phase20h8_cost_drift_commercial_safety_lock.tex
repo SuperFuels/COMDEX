@@ -1,0 +1,122 @@
+\section{AION Phase 20H.8 --- Cost Drift and Commercial Safety}
+\label{sec:aion-phase20h8-cost-drift-commercial-safety}
+
+\subsection{Status}
+
+Phase 20H.8 locks cost drift and commercial safety checks for staged external actions.
+
+\begin{quote}
+\textbf{Status: LOCKED --- commercial payloads must match reviewed plan terms before exact external approval can execute.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may prepare domain purchases, hosting subscriptions, deployments, adverts, payment flows and provider checkouts.
+
+The user may approve a plan based on estimated commercial terms. The live provider payload may later differ due to taxes, hidden fees, renewal costs, provider changes, target changes, subscription terms, currency changes or auto-renewal changes.
+
+AION MUST detect commercial drift before allowing payload-level approval to execute.
+
+\subsection{Commercial Plan Contract}
+
+A commercial plan contract MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item step ID;
+  \item provider;
+  \item action type;
+  \item target;
+  \item currency;
+  \item plan estimated cost;
+  \item cost variance percentage;
+  \item fixed variance allowance;
+  \item renewal cost;
+  \item subscription term;
+  \item auto-renewal state;
+  \item commercial plan hash.
+\end{itemize}
+
+\subsection{Commercial Payload Snapshot}
+
+A commercial payload snapshot MUST bind:
+
+\begin{itemize}
+  \item provider;
+  \item action type;
+  \item target;
+  \item currency;
+  \item actual payload cost;
+  \item tax amount;
+  \item fee amount;
+  \item renewal cost;
+  \item subscription term;
+  \item trial period;
+  \item auto-renewal state;
+  \item cancellation window;
+  \item commercial payload hash.
+\end{itemize}
+
+\subsection{Cost Drift Rule}
+
+AION MUST compute:
+
+\begin{equation}
+\Delta_{\mathrm{abs}} = |C_{\mathrm{actual}} - C_{\mathrm{estimated}}|
+\end{equation}
+
+and:
+
+\begin{equation}
+\Delta_{\%} =
+\frac{\Delta_{\mathrm{abs}}}{C_{\mathrm{estimated}}}
+\times 100
+\end{equation}
+
+If both the percentage threshold and fixed threshold are exceeded, the mission MUST pause for plan contract re-review.
+
+\subsection{Material Commercial Drift}
+
+AION MUST require re-review if any material commercial term changes:
+
+\begin{itemize}
+  \item provider;
+  \item action type;
+  \item target;
+  \item currency;
+  \item renewal cost;
+  \item subscription term;
+  \item auto-renewal state.
+\end{itemize}
+
+\subsection{Commercial Warning Fields}
+
+AION SHOULD surface warnings when payloads include:
+
+\begin{itemize}
+  \item tax amount;
+  \item fee amount;
+  \item renewal cost;
+  \item subscription term;
+  \item trial period;
+  \item auto-renewal;
+  \item cancellation window.
+\end{itemize}
+
+Warnings do not always block execution, but they MUST be visible in the approval surface.
+
+\subsection{External Approval Binding}
+
+External approval MUST bind to the commercial payload snapshot hash.
+
+If the external approval hash binds to a different payload hash, execution MUST be blocked.
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H8-COST-DRIFT-COMMERCIAL-SAFETY
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
