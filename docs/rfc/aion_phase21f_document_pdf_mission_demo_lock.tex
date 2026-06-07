@@ -1,0 +1,76 @@
+\section{Phase 21F --- Document/PDF Mission Demo}
+\label{sec:aion-phase21f-document-pdf-mission-demo}
+
+\subsection{Status}
+
+\textbf{Status: LOCKED.}
+
+Phase 21F installs the visible Pilot document/PDF mission demonstration.
+
+The demo proves that AION Pilot can accept a user request such as:
+
+\begin{quote}
+\textbf{Build me a PDF document with X data}
+\end{quote}
+
+and produce a deterministic draft artifact flow without creating live external side effects.
+
+\subsection{Required Visible Outputs}
+
+The Pilot cockpit MUST show:
+
+\begin{itemize}
+  \item deterministic plan;
+  \item draft document/PDF artifact;
+  \item business container save path;
+  \item artifact hash;
+  \item receipt hash;
+  \item replay hash;
+  \item proof hash;
+  \item draft/preview status;
+  \item no live side effects.
+\end{itemize}
+
+\subsection{Container Rule}
+
+The generated artifact MUST remain inside the business container path:
+
+\begin{verbatim}
+business/<business_id>/missions/<mission_id>/runs/<run_id>/artifacts/<artifact_name>
+\end{verbatim}
+
+Parent directory traversal MUST be blocked.
+
+\subsection{Replay Rule}
+
+Replay is a non-executing read model.
+
+Replay MAY show what happened, but it MUST NOT execute tools, mutate provider state, mutate live memory, publish content, send messages, deploy, book, escrow or spend money.
+
+\subsection{Required Safety Message}
+
+\begin{quote}
+\textbf{AION stopped itself before doing anything risky.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python3 -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase21f_document_pdf_mission_demo_lock.py
+\end{verbatim}
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{AION Pilot may create a draft document/PDF artifact, but it MUST keep the artifact inside the business container, emit receipt/proof/replay metadata, and block all live external side effects unless the existing AION approval chain later authorizes them.}
+\end{quote}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21F-DOCUMENT-PDF-MISSION-DEMO
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
