@@ -13,22 +13,21 @@ def test_phase21x_renderer_and_snapshot_exist():
     assert "function getAionPilotCockpitSnapshot" in TEXT
 
 
-def test_phase21x_mounts_inside_aion_chat_surface():
+
+def test_phase21x_aion_chat_surface_points_to_pilot_cockpit_location():
     start = TEXT.index("function renderAionChatSurface()")
     end = TEXT.index("function renderAionToolMiniCard", start)
     block = TEXT[start:end]
     assert "installAionPilotCockpitStyles();" in block
-    assert "${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}" in block
+    assert "data-aion-pilot-chat-pointer" in block
+    assert "Live Agents → Aion" in block
 
 
-def test_phase21x_does_not_inject_inside_textarea_tag():
+def test_phase21x_full_cockpit_not_mounted_inside_aion_chat_surface():
     start = TEXT.index("function renderAionChatSurface()")
     end = TEXT.index("function renderAionToolMiniCard", start)
     block = TEXT[start:end]
-    pilot_idx = block.index("${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}")
-    textarea_idx = block.index('<textarea\n              id="aionChatPromptInput"')
-    assert pilot_idx < textarea_idx
-
+    assert "${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}" not in block
 
 def test_phase21x_visible_sections_exist():
     for token in [

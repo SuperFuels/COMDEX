@@ -8262,7 +8262,12 @@ function renderAionChatSurface() {
               }
             </div>
 
-            ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
+            <section class="panel" data-aion-pilot-chat-pointer>
+            <div class="panel-title">AION Pilot</div>
+            <div class="helper-text" style="margin-top:0;">
+              Pilot Cockpit is available in <strong>Live Agents → Aion</strong>, where operator missions, artifacts, blocked actions, proof and replay belong.
+            </div>
+          </section>
 
             <textarea
               id="aionChatPromptInput"
@@ -22367,12 +22372,63 @@ function renderCOOWorkspaceSurface(selectedRuns, selectedAgentCard) {
 }
 
 function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
-  return renderGenericDepartmentWorkspaceSurface(
-    "aion",
-    selectedAgentCard,
-    selectedRuns,
-  );
+  installAionPilotCockpitStyles();
+
+  const counts = getDepartmentRunCounts("aion");
+  const totalRuns = Array.isArray(selectedRuns) ? selectedRuns.length : counts.total;
+  const agentLabel = selectedAgentCard?.label || "Aion";
+
+  return `
+    <section
+      class="aion-live-agents-pilot-workspace"
+      data-aion-phase21l-live-agents-aion-pilot-mount
+      data-aion-live-agents-aion-pilot-workspace
+    >
+      <div class="surface-header" style="padding:0; margin-bottom:18px;">
+        <div>
+          <div class="surface-eyebrow">Live Agents / Aion</div>
+          <div class="surface-title" style="font-size:34px;">AION Pilot</div>
+          <div class="surface-subtitle">
+            Native AION operator cockpit for mission planning, safe work, artifacts, approvals, blocked actions, proof and replay.
+          </div>
+        </div>
+
+        <div class="badge-row">
+          <span class="badge">Runs ${escapeHtml(totalRuns)}</span>
+          <span class="badge">Queued ${escapeHtml(counts.queued)}</span>
+          <span class="badge">Running ${escapeHtml(counts.running)}</span>
+          <span class="badge">Waiting ${escapeHtml(counts.waitingApproval)}</span>
+          <span class="badge">Failed ${escapeHtml(counts.failed)}</span>
+        </div>
+      </div>
+
+      <div class="panel" data-aion-phase21l-operator-identity>
+        <div class="panel-title">Aion Operator Identity</div>
+        <div class="helper-text" style="margin-top:0;">
+          ${escapeHtml(agentLabel)} is the native AION runtime operator. Pilot is not UI automation.
+          It prepares governed missions, draft artifacts, receipts, blocked-action previews, proof and replay inside the AION runtime boundary.
+        </div>
+
+        <div class="kv-row">
+          <span>Executor</span>
+          <strong>AION Pilot native runtime</strong>
+        </div>
+        <div class="kv-row">
+          <span>Mode</span>
+          <strong>Preview / plan-gated</strong>
+        </div>
+        <div class="kv-row">
+          <span>Safety</span>
+          <strong>No live external side effects without exact approval</strong>
+        </div>
+      </div>
+
+      ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
+    </section>
+  `;
 }
+
+/* PHASE 21L LOCK: Live Agents Aion Pilot cockpit mount */
 
 function getDepartmentRecentAudit(departmentKey, limit = 8) {
   const normalizedDepartment = String(departmentKey || "")
