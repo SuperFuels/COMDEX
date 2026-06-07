@@ -7833,8 +7833,8 @@ function getAionPilotFrontendInteractionState() {
       draft_created: false,
       stream_events: [],
       artifact_status: "draft_preview",
-      artifact_hash: pilotState.artifact_hash || "sha256:preview_artifact_hash",
-      receipt_hash: pilotState.receipt_hash || "sha256:preview_receipt_hash",
+      artifact_hash: "sha256:preview_artifact_hash",
+      receipt_hash: "sha256:preview_receipt_hash",
       replay_hash: "sha256:preview_replay_hash",
       proof_hash: "sha256:preview_proof_hash",
       blocked_live_actions: [
@@ -7945,8 +7945,8 @@ function getAionPilotCockpitSnapshot() {
         title: "Draft PDF document",
         status: "draft_preview",
         path: "business/home-fixed/missions/pilot_demo_pdf_mission/runs/pilot_demo_run_preview/artifacts/draft-document.pdf",
-        artifact_hash: "sha256:preview_artifact_hash",
-        receipt_hash: "sha256:preview_receipt_hash",
+        artifact_hash: pilotState.artifact_hash || "sha256:preview_artifact_hash",
+        receipt_hash: pilotState.receipt_hash || "sha256:preview_receipt_hash",
       },
     ],
     blocked_actions: [

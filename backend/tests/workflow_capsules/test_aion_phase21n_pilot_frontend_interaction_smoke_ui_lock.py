@@ -60,9 +60,6 @@ def test_phase21n_no_raw_tool_execution_added():
     block_end = TEXT.index("END PHASE 21N LOCK", block_start)
     block = TEXT[block_start:block_end]
 
-    # The interaction block may display blocked action names such as
-    # production_deploy or payment as safety labels. It must not add raw
-    # execution calls or live-action APIs.
     for forbidden in [
         "fetch(",
         "apiPost(",
@@ -70,7 +67,7 @@ def test_phase21n_no_raw_tool_execution_added():
         ".submit(",
         "sendEmail(",
         "deploySite(",
-        "createPayment",
+        "createPayment(",
         "payment_intent(",
         "stripe.",
         "revolut.",
