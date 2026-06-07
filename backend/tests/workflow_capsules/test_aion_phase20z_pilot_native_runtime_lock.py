@@ -90,7 +90,7 @@ def test_phase20z_worker_state_is_bounded_and_hashable() -> None:
     )
 
     assert state["status"] == "created"
-    assert state["kill_switch_armed"] is True
+    assert state["kill_switch_armed"] is False
     assert state["cpu_limit_label"] == "bounded"
     assert state["memory_limit_label"] == "bounded"
     assert state["io_channel"] == "mission_scoped_throttled"
@@ -155,7 +155,7 @@ def test_phase20z_boardroom_state_sync_hash_validates() -> None:
     ) is False
 
 
-def test_phase20z1_preemption_checkpoint_passes_when_kill_switch_armed() -> None:
+def test_phase20z1_preemption_checkpoint_passes_when_kill_switch_not_armed() -> None:
     from backend.services.aion_mission_mode.pilot_native_runtime import preemption_checkpoint
 
     state = create_pilot_worker_state(
@@ -171,11 +171,11 @@ def test_phase20z1_preemption_checkpoint_passes_when_kill_switch_armed() -> None
     )
 
     assert checked["status"] == "created"
-    assert checked["kill_switch_armed"] is True
+    assert checked["kill_switch_armed"] is False
     assert checked["trace_events"][-1]["event_type"] == "pilot_worker_preemption_checkpoint_passed"
 
 
-def test_phase20z1_stop_request_flips_kill_switch() -> None:
+def test_phase20z1_stop_request_arms_kill_switch() -> None:
     from backend.services.aion_mission_mode.pilot_native_runtime import request_worker_stop
 
     state = create_pilot_worker_state(
@@ -186,7 +186,7 @@ def test_phase20z1_stop_request_flips_kill_switch() -> None:
 
     stopped = request_worker_stop(state)
 
-    assert stopped["kill_switch_armed"] is False
+    assert stopped["kill_switch_armed"] is True
     assert stopped["trace_events"][-1]["next_preemption_checkpoint_must_halt"] is True
 
 

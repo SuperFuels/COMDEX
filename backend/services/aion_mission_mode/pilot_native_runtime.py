@@ -84,7 +84,7 @@ class PilotWorkerState:
     mission_run_id: str
     worker_id: str
     status: str = "created"
-    kill_switch_armed: bool = True
+    kill_switch_armed: bool = False
     cpu_limit_label: str = "bounded"
     memory_limit_label: str = "bounded"
     io_channel: str = "mission_scoped_throttled"
@@ -265,14 +265,14 @@ def preemption_checkpoint(
     """
     state = PilotWorkerState(**{k: v for k, v in state_data.items() if k in PilotWorkerState.__dataclass_fields__})
 
-    if state.kill_switch_armed is False:
+    if state.kill_switch_armed is True:
         state.status = "killed"
         state.trace_events.append(
             {
                 "event_type": "pilot_worker_preempted",
                 "checkpoint_id": checkpoint_id,
                 "phase": phase,
-                "reason": "kill_switch_disarmed",
+                "reason": "kill_switch_armed",
                 "no_further_tool_execution": True,
                 "preserved_trace": True,
                 "preserved_receipts": True,
@@ -297,11 +297,11 @@ def request_worker_stop(state_data: dict[str, Any], *, reason: str = "operator_s
     """
     Cooperative stop request.
 
-    This flips kill_switch_armed to False. The next preemption checkpoint must
+    This flips kill_switch_armed to True. The next preemption checkpoint must
     halt execution before another internal tool block starts.
     """
     state = PilotWorkerState(**{k: v for k, v in state_data.items() if k in PilotWorkerState.__dataclass_fields__})
-    state.kill_switch_armed = False
+    state.kill_switch_armed = True
     state.trace_events.append(
         {
             "event_type": "pilot_worker_stop_requested",

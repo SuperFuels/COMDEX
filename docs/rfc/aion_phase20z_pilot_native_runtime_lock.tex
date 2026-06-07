@@ -174,12 +174,12 @@ Every Pilot worker loop MUST call an atomic pre-emption checkpoint before and af
 The worker MUST evaluate:
 
 \begin{equation}
-\texttt{kill\_switch\_armed} \equiv \texttt{true}
+\texttt{kill\_switch\_armed} \equiv \texttt{false}
 \end{equation}
 
 before executing the next internal block.
 
-If \texttt{kill\_switch\_armed} is false, the worker MUST:
+If \texttt{kill\_switch\_armed} is true, the worker MUST:
 
 \begin{itemize}
   \item halt immediately;
@@ -200,7 +200,7 @@ If \texttt{kill\_switch\_armed} is false, the worker MUST:
 A stop request MUST flip:
 
 \begin{verbatim}
-kill_switch_armed: false
+kill_switch_armed: true
 \end{verbatim}
 
 and emit:
@@ -256,8 +256,8 @@ Boardroom MUST:
 Phase 20Z.1 tests prove:
 
 \begin{itemize}
-  \item pre-emption checkpoints pass while the kill-switch is armed;
-  \item stop requests flip \texttt{kill\_switch\_armed} to false;
+  \item pre-emption checkpoints pass while the kill-switch is not armed;
+  \item stop requests arm \texttt{kill\_switch\_armed} to true;
   \item a stopped worker is interrupted at the next checkpoint;
   \item zombie worker loops cannot continue to another tool block;
   \item Boardroom divergence freezes controls;
