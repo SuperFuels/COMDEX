@@ -1,0 +1,112 @@
+\section{AION Phase 20H.9 --- Capability Receipts and Rollback Metadata}
+\label{sec:aion-phase20h9-capability-receipts}
+
+\subsection{Status}
+
+Phase 20H.9 locks capability receipts and rollback metadata for external actions.
+
+\begin{quote}
+\textbf{Status: LOCKED --- every approved external action must emit a deterministic receipt and rollback metadata where available.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may perform approved live external actions after plan-level control, payload-level approval, gateway checks, staged browser state checks, callback checks, provider signature checks and commercial safety checks.
+
+After execution, AION MUST emit a capability receipt.
+
+The receipt proves what was attempted, what was executed, which provider handled it, what changed, what evidence was captured, and whether rollback or undo metadata exists.
+
+\subsection{Capability Receipt}
+
+A capability receipt MUST bind:
+
+\begin{itemize}
+  \item mission ID;
+  \item mission run ID;
+  \item business ID;
+  \item step ID;
+  \item tool name;
+  \item provider;
+  \item action type;
+  \item requested payload hash;
+  \item executed payload hash;
+  \item before state hash;
+  \item after state hash;
+  \item evidence hashes;
+  \item provider response hash;
+  \item rollback availability;
+  \item rollback instructions;
+  \item rollback deadline;
+  \item external reference ID;
+  \item receipt hash.
+\end{itemize}
+
+\subsection{Rollback Metadata}
+
+When rollback is available, AION MUST record rollback instructions.
+
+Rollback metadata MAY include:
+
+\begin{itemize}
+  \item cancellation link;
+  \item provider reference ID;
+  \item revert command;
+  \item previous deployment ID;
+  \item cancellation window;
+  \item refund window;
+  \item support reference.
+\end{itemize}
+
+If rollback is marked available but instructions are missing, receipt validation MUST fail.
+
+\subsection{Business Container Persistence}
+
+Capability receipts MUST be saved inside the relevant business container.
+
+AION MUST NOT scatter external-action receipts globally.
+
+Receipts MUST be linked to:
+
+\begin{itemize}
+  \item business;
+  \item mission;
+  \item mission run;
+  \item step;
+  \item tool;
+  \item provider.
+\end{itemize}
+
+\subsection{Trace Binding}
+
+A capability receipt MUST bind to:
+
+\begin{itemize}
+  \item mission trace hash;
+  \item proof hash;
+  \item replay hash.
+\end{itemize}
+
+If any trace binding hash is malformed or missing, the receipt trace binding MUST fail closed.
+
+\subsection{Security Invariant}
+
+\begin{quote}
+\textbf{No approved external action is considered complete until its capability receipt, provider response hash, evidence hashes, rollback metadata and business-container persistence record are sealed.}
+\end{quote}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20h9_capability_receipts_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20H9-CAPABILITY-RECEIPTS-ROLLBACK-METADATA
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
