@@ -1,0 +1,117 @@
+\section{AION Phase 20AA --- Business Container Artifact Persistence}
+\label{sec:aion-phase20aa-business-container-artifacts}
+
+\subsection{Status}
+
+Phase 20AA locks the storage rule for all AION Pilot-created user-usable artifacts.
+
+\begin{quote}
+\textbf{Status: LOCKED --- Pilot artifacts must persist inside the active business container and correct sub-container.}
+\end{quote}
+
+\subsection{Purpose}
+
+AION Pilot may create user-usable outputs such as documents, PDFs, spreadsheets, reports, campaign packs, quotes, workflow previews, AgentMap previews, evidence bundles, exports, approval payloads, and receipts.
+
+These outputs MUST NOT be scattered globally, left only in temporary runtime state, or saved outside the business/container hierarchy.
+
+\begin{quote}
+\textbf{If AION Pilot creates something the end user can use, it must be committed into the active business container or correct sub-container with provenance and receipt metadata.}
+\end{quote}
+
+\subsection{Allowed Business Sub-Containers}
+
+Pilot-created artifacts may be promoted only into approved business sub-containers:
+
+\begin{itemize}
+  \item \texttt{missions}
+  \item \texttt{campaigns}
+  \item \texttt{quotes}
+  \item \texttt{workflows}
+  \item \texttt{agentmaps}
+  \item \texttt{reports}
+  \item \texttt{evidence}
+  \item \texttt{exports}
+  \item \texttt{approvals}
+  \item \texttt{receipts}
+\end{itemize}
+
+\subsection{Required Artifact Metadata}
+
+Every promoted Pilot artifact MUST include:
+
+\begin{itemize}
+  \item \texttt{business\_id}
+  \item \texttt{business\_container\_id}
+  \item \texttt{sub\_container}
+  \item \texttt{artifact\_type}
+  \item \texttt{artifact\_name}
+  \item \texttt{mission\_id}
+  \item \texttt{mission\_run\_id}
+  \item \texttt{step\_id}
+  \item \texttt{tool\_id}
+  \item \texttt{created\_by = aion\_pilot}
+  \item \texttt{artifact\_hash}
+  \item \texttt{source\_payload\_hash}
+  \item \texttt{receipt\_hash}
+\end{itemize}
+
+\subsection{Storage Path Rule}
+
+Final promoted artifacts MUST resolve under:
+
+\begin{verbatim}
+business_containers/<business_container_id>/<sub_container>/<artifact_id>.json
+\end{verbatim}
+
+Examples:
+
+\begin{verbatim}
+business_containers/business_home_fixed/campaigns/artifact_abc.json
+business_containers/business_home_fixed/workflows/artifact_def.json
+business_containers/business_home_fixed/agentmaps/artifact_ghi.json
+business_containers/business_home_fixed/receipts/artifact_jkl.json
+\end{verbatim}
+
+\subsection{Session VFS Is Temporary Only}
+
+Session VFS drafts are temporary planning/execution scratch space.
+
+A session VFS draft is not a final artifact.
+
+Before a runtime step may be considered complete, any promoted user-usable output MUST be committed into the active business container.
+
+\subsection{Forbidden Final Targets}
+
+Pilot artifacts MUST NOT be saved as final outputs under:
+
+\begin{itemize}
+  \item \texttt{global}
+  \item \texttt{root}
+  \item \texttt{session\_vfs}
+  \item \texttt{tmp}
+  \item \texttt{temp}
+  \item any unknown business sub-container
+\end{itemize}
+
+\subsection{Validation}
+
+\begin{verbatim}
+python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase20a_mission_contract_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20b_mission_template_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20c_mission_planner_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20d_autonomy_lane_classifier_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20v_kernel_guard_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20e_mission_runtime_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20aa_business_container_artifacts_lock.py
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20AA-BUSINESS-CONTAINER-ARTIFACT-PERSISTENCE
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
