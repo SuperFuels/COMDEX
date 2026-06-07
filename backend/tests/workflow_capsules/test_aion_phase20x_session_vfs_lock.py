@@ -178,3 +178,180 @@ def test_phase20x_cross_mission_transfer_rejects_wrong_approval_target() -> None
         target_ctx=target_ctx,
         approval=approval,
     ) is False
+
+
+def test_phase20x1_vfs_real_path_accepts_inside_mission_boundary(tmp_path) -> None:
+    from backend.services.aion_mission_mode.session_vfs import (
+        assert_vfs_real_path_contained,
+        mission_vfs_boundary_path,
+    )
+
+    ctx = make_ctx()
+    boundary = mission_vfs_boundary_path(ctx=ctx, base_root=str(tmp_path))
+    inside = tmp_path / "session_vfs" / "home_fixed" / ctx.mission_id / ctx.mission_run_id / "tmp" / "draft.json"
+    inside.parent.mkdir(parents=True)
+    inside.write_text("{}", encoding="utf-8")
+
+    assert str(inside.resolve()).startswith(boundary)
+    assert assert_vfs_real_path_contained(
+        ctx=ctx,
+        candidate_path=str(inside),
+        base_root=str(tmp_path),
+    ) is True
+
+
+def test_phase20x1_vfs_real_path_rejects_directory_escape(tmp_path) -> None:
+    import pytest
+    from backend.services.aion_mission_mode.session_vfs import (
+        SessionVFSPolicyViolation,
+        assert_vfs_real_path_contained,
+    )
+
+    ctx = make_ctx()
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}", encoding="utf-8")
+
+    with pytest.raises(SessionVFSPolicyViolation) as exc:
+        assert_vfs_real_path_contained(
+            ctx=ctx,
+            candidate_path=str(outside),
+            base_root=str(tmp_path),
+        )
+
+    assert "session_vfs_real_path_escape_detected" in str(exc.value)
+
+
+def test_phase20x1_vfs_symlink_escape_is_rejected_even_before_read(tmp_path) -> None:
+    import pytest
+    from backend.services.aion_mission_mode.session_vfs import (
+        SessionVFSPolicyViolation,
+        assert_vfs_real_path_contained,
+    )
+
+    ctx = make_ctx()
+    candidate = tmp_path / "session_vfs" / "home_fixed" / ctx.mission_id / ctx.mission_run_id / "tmp" / "link"
+    candidate.parent.mkdir(parents=True)
+
+    with pytest.raises(SessionVFSPolicyViolation) as exc:
+        assert_vfs_real_path_contained(
+            ctx=ctx,
+            candidate_path=str(candidate),
+            base_root=str(tmp_path),
+            symlink_detected=True,
+        )
+
+    assert "session_vfs_symlink_escape_detected" in str(exc.value)
+
+
+def test_phase20x1_vfs_hardlink_escape_is_rejected_even_before_read(tmp_path) -> None:
+    import pytest
+    from backend.services.aion_mission_mode.session_vfs import (
+        SessionVFSPolicyViolation,
+        assert_vfs_real_path_contained,
+    )
+
+    ctx = make_ctx()
+    candidate = tmp_path / "session_vfs" / "home_fixed" / ctx.mission_id / ctx.mission_run_id / "tmp" / "hardlink"
+    candidate.parent.mkdir(parents=True)
+
+    with pytest.raises(SessionVFSPolicyViolation) as exc:
+        assert_vfs_real_path_contained(
+            ctx=ctx,
+            candidate_path=str(candidate),
+            base_root=str(tmp_path),
+            hardlink_escape_detected=True,
+        )
+
+    assert "session_vfs_hardlink_escape_detected" in str(exc.value)
+
+
+def test_phase20x1_transfer_authorization_token_is_deterministic() -> None:
+    from backend.services.aion_mission_mode.session_vfs import transfer_authorization_token
+
+    first = transfer_authorization_token(
+        source_mission_id="mission_a",
+        target_mission_id="mission_b",
+        approving_human="kevin_robinson",
+        approval_hash="sha256:approval",
+    )
+    second = transfer_authorization_token(
+        source_mission_id="mission_a",
+        target_mission_id="mission_b",
+        approving_human="kevin_robinson",
+        approval_hash="sha256:approval",
+    )
+
+    assert first == second
+    assert first.startswith("sha256:")
+
+
+def test_phase20x1_cross_mission_transfer_requires_valid_token() -> None:
+    from backend.services.aion_mission_mode.session_vfs import (
+        attach_transfer_authorization_token,
+        can_transfer_between_missions_with_token,
+    )
+
+    source_ctx = make_ctx(mission_id="mission_source", mission_run_id="run_001")
+    target_ctx = make_ctx(mission_id="mission_target", mission_run_id="run_002")
+
+    record = write_session_vfs_record(
+        ctx=source_ctx,
+        subspace="drafts",
+        name="draft",
+        payload={"draft": "safe"},
+    )
+
+    approval = build_cross_mission_transfer_approval(
+        source_mission_id=source_ctx.mission_id,
+        target_mission_id=target_ctx.mission_id,
+        approved_by="kevin_robinson",
+        reason="governed transfer",
+        approved=True,
+    )
+
+    assert can_transfer_between_missions_with_token(
+        source_record=record,
+        target_ctx=target_ctx,
+        approval=approval,
+    ) is False
+
+    enriched = attach_transfer_authorization_token(approval)
+
+    assert can_transfer_between_missions_with_token(
+        source_record=record,
+        target_ctx=target_ctx,
+        approval=enriched,
+    ) is True
+
+
+def test_phase20x1_cross_mission_transfer_rejects_tampered_token() -> None:
+    from backend.services.aion_mission_mode.session_vfs import (
+        attach_transfer_authorization_token,
+        can_transfer_between_missions_with_token,
+    )
+
+    source_ctx = make_ctx(mission_id="mission_source", mission_run_id="run_001")
+    target_ctx = make_ctx(mission_id="mission_target", mission_run_id="run_002")
+
+    record = write_session_vfs_record(
+        ctx=source_ctx,
+        subspace="drafts",
+        name="draft",
+        payload={"draft": "safe"},
+    )
+
+    approval = build_cross_mission_transfer_approval(
+        source_mission_id=source_ctx.mission_id,
+        target_mission_id=target_ctx.mission_id,
+        approved_by="kevin_robinson",
+        reason="governed transfer",
+        approved=True,
+    )
+    enriched = attach_transfer_authorization_token(approval)
+    enriched["transfer_authorization_token"] = "sha256:tampered"
+
+    assert can_transfer_between_missions_with_token(
+        source_record=record,
+        target_ctx=target_ctx,
+        approval=enriched,
+    ) is False

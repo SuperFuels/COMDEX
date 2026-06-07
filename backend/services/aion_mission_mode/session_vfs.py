@@ -247,3 +247,121 @@ def can_transfer_between_missions(
         and approval.get("target_mission_id") == target_ctx.mission_id
         and bool(approval.get("approval_hash"))
     )
+
+
+class SessionVFSPolicyViolation(RuntimeError):
+    """Raised when Session VFS path containment or transfer authorization fails."""
+
+
+def mission_vfs_boundary_path(*, ctx: SessionVFSContext, base_root: str = ".") -> str:
+    """
+    Absolute mission-scoped VFS boundary.
+
+    All real filesystem reads/writes for this mission must remain under:
+    <base_root>/session_vfs/<business_id>/<mission_id>/<mission_run_id>/
+    """
+    root = Path(base_root).resolve()
+    return str(
+        (
+            root
+            / ctx.workspace_root
+            / _slug(ctx.business_id)
+            / _slug(ctx.mission_id)
+            / _slug(ctx.mission_run_id)
+        ).resolve()
+    )
+
+
+def assert_vfs_real_path_contained(
+    *,
+    ctx: SessionVFSContext,
+    candidate_path: str,
+    base_root: str = ".",
+    symlink_detected: bool = False,
+    hardlink_escape_detected: bool = False,
+) -> bool:
+    """
+    Enforce canonical real-path containment.
+
+    The final resolved path must remain inside the mission-scoped VFS boundary.
+    Symlink/hardlink escape flags fail closed even if a caller attempts to hide
+    the escape through relative path tricks.
+    """
+    if symlink_detected:
+        raise SessionVFSPolicyViolation("session_vfs_symlink_escape_detected")
+
+    if hardlink_escape_detected:
+        raise SessionVFSPolicyViolation("session_vfs_hardlink_escape_detected")
+
+    boundary = Path(mission_vfs_boundary_path(ctx=ctx, base_root=base_root)).resolve()
+    target = Path(candidate_path).resolve()
+
+    try:
+        target.relative_to(boundary)
+    except ValueError as exc:
+        raise SessionVFSPolicyViolation(
+            f"session_vfs_real_path_escape_detected:{target}"
+        ) from exc
+
+    return True
+
+
+def transfer_authorization_token(
+    *,
+    source_mission_id: str,
+    target_mission_id: str,
+    approving_human: str,
+    approval_hash: str,
+) -> str:
+    return _hash(
+        {
+            "source_mission_id": source_mission_id,
+            "target_mission_id": target_mission_id,
+            "approving_human": approving_human,
+            "approval_hash": approval_hash,
+        }
+    )
+
+
+def attach_transfer_authorization_token(approval: dict[str, Any]) -> dict[str, Any]:
+    token = transfer_authorization_token(
+        source_mission_id=str(approval.get("source_mission_id", "")),
+        target_mission_id=str(approval.get("target_mission_id", "")),
+        approving_human=str(approval.get("approved_by", "")),
+        approval_hash=str(approval.get("approval_hash", "")),
+    )
+    enriched = dict(approval)
+    enriched["transfer_authorization_token"] = token
+    return enriched
+
+
+def verify_transfer_authorization_token(approval: dict[str, Any]) -> bool:
+    expected = transfer_authorization_token(
+        source_mission_id=str(approval.get("source_mission_id", "")),
+        target_mission_id=str(approval.get("target_mission_id", "")),
+        approving_human=str(approval.get("approved_by", "")),
+        approval_hash=str(approval.get("approval_hash", "")),
+    )
+    return approval.get("transfer_authorization_token") == expected
+
+
+def can_transfer_between_missions_with_token(
+    *,
+    source_record: dict[str, Any],
+    target_ctx: SessionVFSContext,
+    approval: dict[str, Any] | None = None,
+) -> bool:
+    if source_record.get("mission_id") == target_ctx.mission_id:
+        return True
+
+    if not approval:
+        return False
+
+    return (
+        can_transfer_between_missions(
+            source_record=source_record,
+            target_ctx=target_ctx,
+            approval=approval,
+        )
+        and verify_transfer_authorization_token(approval)
+    )

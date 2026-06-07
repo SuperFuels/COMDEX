@@ -135,3 +135,124 @@ Status: LOCKED
 Maintainer: Tessaris AI
 Author: Kevin Robinson
 \end{verbatim}
+
+\subsection{Phase 20X.1 --- VFS Symlink Real-Path Containment and Transfer Token Verification}
+\label{subsec:aion-phase20x1-vfs-symlink-transfer-token}
+
+\subsubsection{Status}
+
+Phase 20X.1 hardens Session VFS against symlink namespace escape, hardlink namespace escape, and unsigned cross-mission transfer.
+
+\begin{quote}
+\textbf{Status: LOCKED --- all Session VFS real-path operations MUST remain inside the mission-scoped boundary, and cross-mission transfers MUST carry a valid authorization token.}
+\end{quote}
+
+\subsubsection{Symlink Escape Threat Model}
+
+A compromised preview utility, parser, or temporary script could attempt to place a symbolic link or hardlink inside the Session VFS tree that points outside the active mission namespace.
+
+If a downstream preview engine, indexer, or Boardroom reader follows that link, it could bypass normal payload scanning and read host files, environment configuration, memory dumps, or cross-tenant data.
+
+\subsubsection{Virtual Filesystem Real-Path Invariant}
+
+Before any Session VFS read, write, list, or preview operation executes against a path $P_{\mathrm{vfs}}$, the VFS driver MUST resolve the target path and verify:
+
+\begin{equation}
+\mathrm{RealPath}(P_{\mathrm{vfs}})
+\subset
+\mathrm{RealPath}
+(
+\mathtt{session\_vfs}/
+\mathtt{business\_id}/
+\mathtt{mission\_id}/
+\mathtt{mission\_run\_id}/
+)
+\end{equation}
+
+If the resolved path falls outside the mission-scoped boundary, the operation MUST fail immediately.
+
+\subsubsection{Symlink and Hardlink Rejection}
+
+The Session VFS driver MUST fail closed if it detects:
+
+\begin{itemize}
+  \item symbolic links pointing outside the mission boundary;
+  \item hardlinks pointing outside the mission boundary;
+  \item shortcut-style indirections;
+  \item canonical real-path mismatch;
+  \item directory traversal attempts.
+\end{itemize}
+
+The runtime MUST emit a filesystem policy violation such as:
+
+\begin{verbatim}
+session_vfs_symlink_escape_detected
+session_vfs_hardlink_escape_detected
+session_vfs_real_path_escape_detected
+\end{verbatim}
+
+\subsubsection{Transfer Authorization Token}
+
+Governed cross-mission data transfer requires a cryptographic transfer token:
+
+\begin{equation}
+\mathcal{T}_{\mathrm{transfer}}
+=
+\mathrm{SHA256}
+(
+\mathtt{source\_mission\_id}
+\parallel
+\mathtt{target\_mission\_id}
+\parallel
+\mathtt{approving\_human}
+\parallel
+\mathtt{approval\_hash}
+)
+\end{equation}
+
+The VFS ingest engine MUST recalculate and verify this token before moving data across mission namespaces.
+
+\subsubsection{Unsigned or Tampered Transfer Rejection}
+
+A governed transfer approval without a valid token MUST NOT move data.
+
+A tampered token MUST NOT move data.
+
+A valid transfer requires:
+
+\begin{itemize}
+  \item source mission match;
+  \item target mission match;
+  \item approved human;
+  \item approval hash;
+  \item valid transfer authorization token.
+\end{itemize}
+
+\subsubsection{Validation Coverage}
+
+Phase 20X.1 tests prove:
+
+\begin{itemize}
+  \item real paths inside the mission boundary are accepted;
+  \item directory escape paths are rejected;
+  \item symlink escape attempts are rejected before read;
+  \item hardlink escape attempts are rejected before read;
+  \item transfer authorization tokens are deterministic;
+  \item cross-mission transfer requires a valid token;
+  \item tampered transfer tokens are rejected.
+\end{itemize}
+
+\subsubsection{Security Invariant}
+
+\begin{quote}
+\textbf{Session VFS records are only readable inside their real mission-scoped boundary. No symbolic link, hardlink, shortcut, directory traversal path, or unsigned transfer token may move data across the boundary.}
+\end{quote}
+
+\subsubsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE20X1-VFS-SYMLINK-REALPATH-TRANSFER-TOKEN
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
