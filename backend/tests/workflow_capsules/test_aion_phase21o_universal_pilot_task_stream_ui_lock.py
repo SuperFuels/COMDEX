@@ -27,12 +27,11 @@ def test_phase21o_not_pdf_only():
 
 def test_phase21o_simple_user_labels_exist():
     for token in [
-        "What do you want Pilot to do?",
-        "Ask Pilot",
-        "Pilot Plan",
-        "Mission Contract",
+        "Ask for any business task",
+        "Pilot plan",
+        "Mission contract",
         "Results",
-        "Pilot Stream",
+        "Pilot stream",
         "Advanced details",
     ]:
         assert token in TEXT

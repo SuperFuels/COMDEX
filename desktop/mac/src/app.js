@@ -8009,127 +8009,137 @@ function buildAionPilotUniversalPlan(requestText = "") {
   };
 }
 
+/* PHASE 21R LOCK: Pilot stream UI redesign */
+
 function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot()) {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
   const hasDraft = pilotState.draft_created === true;
+  const statusLabel = String(snapshot.status || "idle").replace(/_/g, " ").toUpperCase();
+
+  const safeWorkItems = (plan.automatic_work || [])
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  const approvalItems = (plan.approval_required || [])
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
 
   return `
-    <section class="aion-pilot-simple-dashboard" data-aion-pilot-simple-dashboard>
-      <div class="aion-pilot-simple-hero">
+    <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-phase21r-stream-ui-redesign>
+      <div class="aion-pilot-stream-header">
         <div>
           <div class="eyebrow">AION PILOT</div>
-          <h2>What do you want Pilot to do?</h2>
+          <h2>Pilot</h2>
+          <p>Ask for any business task. Pilot plans it, does safe work, and stops before anything risky.</p>
+        </div>
+
+        <div class="aion-pilot-status" data-aion-pilot-status="${escapeHtml(snapshot.status)}">
+          ${escapeHtml(statusLabel)}
+        </div>
+      </div>
+
+      <div class="aion-pilot-stream-window" data-aion-pilot-stream-window>
+        <div class="aion-pilot-stream-message aion-pilot-stream-message-system">
           <p>
-            Give Pilot any business task. Pilot will plan it, do the safe work, and stop for approval before anything risky.
+            Tell Pilot what you want done. New work appears in the stream. Plans, results and receipts appear as cards.
           </p>
         </div>
-        <div class="aion-pilot-status" data-aion-pilot-status="${escapeHtml(snapshot.status)}">
-          ${escapeHtml(String(snapshot.status || "idle").replace(/_/g, " ").toUpperCase())}
-        </div>
-      </div>
 
-      <div class="aion-pilot-safety-banner" data-aion-pilot-safety-banner>
-        <strong>${escapeHtml(snapshot.safety_message)}</strong>
-        <span>No posting, sending, payment, booking, escrow, deployment or ad spend without exact approval.</span>
-      </div>
-
-      <div class="aion-pilot-user-flow">
-        <div class="aion-pilot-step-card" data-aion-pilot-ask-card>
-          <div class="aion-pilot-step-number">1</div>
-          <div>
-            <strong>Ask Pilot</strong>
-            <textarea
-              data-aion-pilot-mission-input
-              placeholder="Example: get me 10,000 followers, make a spreadsheet, build a website preview, create ads, write a report..."
-            >${escapeHtml(pilotState.last_request || "")}</textarea>
-            <button type="button" data-aion-pilot-create-draft-mission>Create plan</button>
-          </div>
+        <div class="aion-pilot-stream-card aion-pilot-safety-card" data-aion-pilot-safety-banner>
+          <strong>AION stopped itself before doing anything risky.</strong>
+          <span>No posting, sending, payment, booking, escrow, deployment or ad spend without exact approval.</span>
         </div>
 
-        <div class="aion-pilot-step-card" data-aion-pilot-plan-card>
-          <div class="aion-pilot-step-number">2</div>
-          <div>
-            <strong>Pilot Plan</strong>
-            ${
-              hasDraft
-                ? `
-                  <h3>${escapeHtml(plan.title)}</h3>
-                  <p><strong>Goal:</strong> ${escapeHtml(plan.goal)}</p>
-                  <div class="aion-pilot-two-list">
-                    <div>
-                      <h4>Can do safely</h4>
-                      <ul>
-                        ${(plan.automatic_work || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
-                      </ul>
-                    </div>
-                    <div>
-                      <h4>Needs approval</h4>
-                      <ul>
-                        ${(plan.approval_required || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
-                      </ul>
-                    </div>
+        ${
+          hasDraft
+            ? `
+              <div class="aion-pilot-stream-message aion-pilot-stream-message-user">
+                <p>${escapeHtml(pilotState.last_request || plan.goal || "")}</p>
+              </div>
+
+              <div class="aion-pilot-stream-card" data-aion-pilot-plan-card>
+                <div class="aion-pilot-card-kicker">Pilot plan</div>
+                <h3>${escapeHtml(plan.title)}</h3>
+                <p><strong>Goal:</strong> ${escapeHtml(plan.goal)}</p>
+
+                <div class="aion-pilot-stream-columns">
+                  <div>
+                    <h4>Can do safely</h4>
+                    <ul>${safeWorkItems}</ul>
                   </div>
-                `
-                : `<p>Pilot will show a plain-English plan here before doing work.</p>`
-            }
-          </div>
-        </div>
 
-        <div class="aion-pilot-step-card" data-aion-pilot-contract-card>
-          <div class="aion-pilot-step-number">3</div>
-          <div>
-            <strong>Mission Contract</strong>
-            ${
-              hasDraft
-                ? `
-                  <p>Draft contract ready. Safe work can proceed; risky actions stay blocked until exact approval.</p>
-                  <div class="aion-pilot-actions">
-                    <button type="button" data-aion-pilot-feedback-approve>Approve plan</button>
-                    <button type="button" data-aion-pilot-feedback-revise>Revise plan</button>
-                    <button type="button" data-aion-pilot-feedback-stop>Cancel</button>
+                  <div>
+                    <h4>Needs approval</h4>
+                    <ul>${approvalItems}</ul>
                   </div>
-                `
-                : `<p>No contract yet. Create a plan first.</p>`
-            }
-          </div>
-        </div>
+                </div>
+              </div>
 
-        <div class="aion-pilot-step-card" data-aion-pilot-results-card>
-          <div class="aion-pilot-step-number">4</div>
-          <div>
-            <strong>Results</strong>
-            ${
-              hasDraft
-                ? `
-                  <div class="aion-pilot-result-card" data-aion-pilot-result-card>
-                    <h3>${escapeHtml(plan.output_label || "Draft output")}</h3>
-                    <p>Saved as draft/preview inside the business container.</p>
-                    <div class="aion-pilot-actions">
-                      <button type="button" data-aion-pilot-open-output>Open output</button>
-                      <button type="button" data-aion-pilot-download-output>Download output</button>
-                      <button type="button" data-aion-pilot-view-receipt>View receipt</button>
-                    </div>
-                  </div>
-                `
-                : `<p>Created files, drafts, previews and receipts will appear here.</p>`
-            }
-          </div>
-        </div>
+              <div class="aion-pilot-stream-card" data-aion-pilot-contract-card>
+                <div class="aion-pilot-card-kicker">Mission contract</div>
+                <h3>Draft contract ready</h3>
+                <p>Safe work can proceed. Risky actions stay blocked until exact approval.</p>
+
+                <div class="aion-pilot-actions">
+                  <button type="button" data-aion-pilot-feedback-approve>Approve plan</button>
+                  <button type="button" data-aion-pilot-feedback-revise>Revise plan</button>
+                  <button type="button" data-aion-pilot-feedback-stop>Cancel</button>
+                </div>
+              </div>
+
+              <div class="aion-pilot-stream-card" data-aion-pilot-results-card>
+                <div class="aion-pilot-card-kicker">Results</div>
+                <h3>${escapeHtml(plan.output_label || "Draft output")}</h3>
+                <p>Saved as draft/preview inside the business container.</p>
+
+                <div class="aion-pilot-actions">
+                  <button type="button" data-aion-pilot-open-output>Open output</button>
+                  <button type="button" data-aion-pilot-download-output>Download output</button>
+                  <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+                </div>
+              </div>
+
+              ${
+                typeof renderAionPilotOutputPanel === "function"
+                  ? renderAionPilotOutputPanel()
+                  : ""
+              }
+
+              <div class="aion-pilot-stream-card" data-aion-pilot-activity-card>
+                <div class="aion-pilot-card-kicker">Pilot stream</div>
+                ${renderAionPilotFrontendStreamEvents(getAionPilotFrontendInteractionState())}
+              </div>
+
+              <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details>
+                <summary>Advanced details: proof, hashes, paths, lanes and blocked actions</summary>
+                ${renderAionPilotAdvancedTechnicalDetails(snapshot)}
+              </details>
+            `
+            : `
+              <div class="aion-pilot-stream-message aion-pilot-stream-message-system">
+                <p>Example tasks: grow my Twitter/X audience, build a spreadsheet, create ads, make a website preview, write a report.</p>
+              </div>
+            `
+        }
       </div>
 
-      <div class="aion-pilot-panel" data-aion-pilot-stream>
-        <strong>Pilot Stream</strong>
-        ${renderAionPilotFrontendStreamEvents(getAionPilotFrontendInteractionState())}
-      </div>
+      <div class="aion-pilot-composer-bar" data-aion-pilot-composer-bar>
+        <textarea
+          data-aion-pilot-mission-input
+          placeholder="Ask Pilot to do something for the business..."
+        >${escapeHtml(pilotState.last_request || "")}</textarea>
 
-      <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details>
-        <summary>Advanced details: proof, hashes, paths, lanes and blocked actions</summary>
-        ${renderAionPilotAdvancedTechnicalDetails(snapshot)}
-      </details>
+        <button type="button" data-aion-pilot-create-draft-mission>
+          ${hasDraft ? "Update plan" : "Create plan"}
+        </button>
+      </div>
     </section>
   `;
 }
+
+/* END PHASE 21R LOCK */
+
 
 function renderAionPilotAdvancedTechnicalDetails(snapshot = getAionPilotCockpitSnapshot()) {
   const planRows = (snapshot.plan_steps || []).map(([stepId, lane, title, status]) => `
@@ -8219,6 +8229,247 @@ function getAionPilotOutputPreparedDetail(plan = null) {
 
   return "Prepared draft output inside the business container.";
 }
+
+
+/* PHASE 21Q LOCK: Pilot real output actions */
+
+function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const taskType = String(safePlan.task_type || "general_task");
+  const goal = String(safePlan.goal || state.last_request || "Untitled task");
+
+  if (taskType === "growth_social") {
+    return [
+      `Growth Plan: ${goal}`,
+      "",
+      "Recommended safe work:",
+      "1. Audit current profile and audience.",
+      "2. Define target customer segments.",
+      "3. Build a 30-day content calendar.",
+      "4. Draft educational, proof-based and offer-led posts.",
+      "5. Prepare engagement prompts and reply templates.",
+      "6. Identify approval-gated actions: posting, messaging, ads and account access.",
+      "",
+      "Draft content themes:",
+      "- Before/after repair transformations.",
+      "- Helpful maintenance tips.",
+      "- Local trust and proof posts.",
+      "- Customer problem/solution posts.",
+      "- Service-area awareness posts.",
+      "",
+      "Blocked until approval:",
+      "- Posting publicly.",
+      "- Sending messages.",
+      "- Spending ad budget.",
+      "- Connecting or changing social accounts.",
+    ].join("\\n");
+  }
+
+  if (taskType === "spreadsheet") {
+    return [
+      `Spreadsheet Draft: ${goal}`,
+      "",
+      "Suggested tabs:",
+      "1. Assumptions",
+      "2. Revenue model",
+      "3. Costs",
+      "4. Pricing",
+      "5. Monthly forecast",
+      "6. Risks",
+      "7. Action plan",
+      "",
+      "Status: draft/preview only.",
+      "No financial action has been taken.",
+    ].join("\\n");
+  }
+
+  if (taskType === "website_preview") {
+    return [
+      `Website Preview Plan: ${goal}`,
+      "",
+      "Suggested sections:",
+      "1. Hero message",
+      "2. Services",
+      "3. Proof / before-after work",
+      "4. Service area",
+      "5. Contact CTA",
+      "6. FAQ",
+      "",
+      "Blocked until approval:",
+      "- Domain purchase.",
+      "- Production deployment.",
+      "- Public publishing.",
+    ].join("\\n");
+  }
+
+  if (taskType === "advertising") {
+    return [
+      `Campaign Preview: ${goal}`,
+      "",
+      "Draft campaign structure:",
+      "1. Audience",
+      "2. Offer",
+      "3. Creative angles",
+      "4. Draft copy",
+      "5. Landing page recommendation",
+      "6. Budget options",
+      "",
+      "Blocked until approval:",
+      "- Ad spend.",
+      "- Public launch.",
+      "- Account changes.",
+    ].join("\\n");
+  }
+
+  if (taskType === "document") {
+    return [
+      `Document Draft: ${goal}`,
+      "",
+      "Draft outline:",
+      "1. Summary",
+      "2. Key points",
+      "3. Supporting detail",
+      "4. Recommendations",
+      "5. Next steps",
+      "",
+      "Status: draft/preview only.",
+    ].join("\\n");
+  }
+
+  return [
+    `Draft Output: ${goal}`,
+    "",
+    "Pilot prepared a safe draft preview for this task.",
+    "",
+    "Next steps:",
+    "1. Review the plan.",
+    "2. Approve safe work.",
+    "3. Keep risky actions blocked until exact approval.",
+  ].join("\\n");
+}
+
+function getAionPilotReceiptPreview(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+
+  return {
+    receipt_type: "aion_pilot_preview_receipt",
+    status: "draft_preview",
+    task: safePlan.goal || state.last_request || "Untitled task",
+    task_type: safePlan.task_type || "general_task",
+    output_type: safePlan.output_label || "Draft output",
+    artifact_hash: state.artifact_hash || "sha256:preview_artifact_hash",
+    receipt_hash: state.receipt_hash || "sha256:preview_receipt_hash",
+    replay_hash: state.replay_hash || "sha256:preview_replay_hash",
+    proof_hash: state.proof_hash || "sha256:preview_proof_hash",
+    blocked_actions: [
+      "posting publicly",
+      "sending messages or emails",
+      "spending money or running ads",
+      "buying domains or subscriptions",
+      "deploying to production",
+      "booking, dispatching, escrow or payment actions",
+      "mutating live memory, templates, provider state or reputation",
+    ],
+    safety_message: "AION stopped itself before doing anything risky.",
+  };
+}
+
+function openAionPilotOutputPreview() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
+  pilotState.output_panel_open = true;
+  pilotState.output_panel_kind = "output";
+  pilotState.output_panel_title = plan.output_label || "Draft output";
+  pilotState.output_panel_body = getAionPilotOutputPreviewText(plan, pilotState);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+function viewAionPilotReceiptPreview() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
+  pilotState.output_panel_open = true;
+  pilotState.output_panel_kind = "receipt";
+  pilotState.output_panel_title = "Pilot receipt";
+  pilotState.output_panel_body = JSON.stringify(getAionPilotReceiptPreview(plan, pilotState), null, 2);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+function downloadAionPilotOutputPreview() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
+  const outputText = getAionPilotOutputPreviewText(plan, pilotState);
+  const receipt = getAionPilotReceiptPreview(plan, pilotState);
+  const payload = [
+    outputText,
+    "",
+    "---",
+    "AION Pilot Preview Receipt",
+    JSON.stringify(receipt, null, 2),
+  ].join("\\n");
+
+  const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const safeTaskType = String(plan.task_type || "pilot_task").replace(/[^a-z0-9_-]+/gi, "_").toLowerCase();
+  link.href = url;
+  link.download = `aion-pilot-${safeTaskType}-draft-preview.txt`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+  pilotState.last_download_name = link.download;
+  pilotState.output_panel_open = true;
+  pilotState.output_panel_kind = "download";
+  pilotState.output_panel_title = "Draft download prepared";
+  pilotState.output_panel_body = `Prepared safe draft preview download: ${link.download}`;
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+function renderAionPilotOutputPanel() {
+  const pilotState = getAionPilotFrontendInteractionState();
+
+  if (!pilotState.output_panel_open) {
+    return "";
+  }
+
+  return `
+    <div class="aion-pilot-output-panel" data-aion-pilot-output-panel data-aion-pilot-output-kind="${escapeHtml(pilotState.output_panel_kind || "output")}">
+      <div class="aion-pilot-output-panel-header">
+        <strong>${escapeHtml(pilotState.output_panel_title || "Pilot output")}</strong>
+        <button type="button" data-aion-pilot-close-output-panel>Close</button>
+      </div>
+      <pre>${escapeHtml(pilotState.output_panel_body || "")}</pre>
+    </div>
+  `;
+}
+
+function closeAionPilotOutputPanel() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  pilotState.output_panel_open = false;
+  pilotState.output_panel_kind = "";
+  pilotState.output_panel_title = "";
+  pilotState.output_panel_body = "";
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+/* END PHASE 21Q LOCK */
+
 
 /* END PHASE 21P LOCK */
 
@@ -8546,6 +8797,212 @@ function installAionPilotCockpitStyles() {
     .aion-pilot-advanced-details summary {
       cursor: pointer;
       font-weight: 900;
+    }
+
+
+    .aion-pilot-output-panel {
+      border: 1px solid rgba(0,0,0,.14);
+      background: rgba(255,255,255,.62);
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+    .aion-pilot-output-panel-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+    }
+    .aion-pilot-output-panel pre {
+      margin: 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: rgba(0,0,0,.04);
+      border: 1px solid rgba(0,0,0,.10);
+      padding: 12px;
+      max-height: 420px;
+      overflow: auto;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+
+    .aion-pilot-stream-shell {
+      min-height: 72vh;
+      display: grid;
+      grid-template-rows: auto minmax(420px, 1fr) auto;
+      border: 1px solid rgba(0,0,0,.14);
+      background: rgba(255,255,255,.28);
+      margin-top: 18px;
+    }
+
+    .aion-pilot-stream-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid rgba(0,0,0,.10);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      background: rgba(255,255,255,.32);
+    }
+
+    .aion-pilot-stream-header h2 {
+      margin: 3px 0 6px;
+      font-size: 34px;
+      letter-spacing: -0.04em;
+    }
+
+    .aion-pilot-stream-header p {
+      margin: 0;
+      max-width: 760px;
+      color: rgba(17,17,17,.68);
+      line-height: 1.45;
+    }
+
+    .aion-pilot-stream-window {
+      padding: 22px 20px 28px;
+      display: grid;
+      gap: 16px;
+      align-content: start;
+      overflow: auto;
+      background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.08));
+    }
+
+    .aion-pilot-stream-message {
+      max-width: 880px;
+      line-height: 1.55;
+      color: rgba(17,17,17,.78);
+    }
+
+    .aion-pilot-stream-message p {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .aion-pilot-stream-message-user {
+      justify-self: end;
+      max-width: min(760px, 82%);
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.66);
+      border-radius: 18px 18px 4px 18px;
+      padding: 14px 16px;
+      color: #111111;
+    }
+
+    .aion-pilot-stream-message-system {
+      justify-self: start;
+      padding: 2px 4px;
+    }
+
+    .aion-pilot-stream-card {
+      width: min(980px, 100%);
+      border: 1px solid rgba(0,0,0,.12);
+      background: rgba(255,255,255,.72);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 42px rgba(0,0,0,.045);
+      display: grid;
+      gap: 12px;
+    }
+
+    .aion-pilot-safety-card {
+      background: rgba(96,119,103,.11);
+      border-color: rgba(96,119,103,.28);
+      box-shadow: none;
+    }
+
+    .aion-pilot-safety-card span {
+      color: rgba(17,17,17,.72);
+    }
+
+    .aion-pilot-card-kicker {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .14em;
+      font-weight: 900;
+      color: rgba(17,17,17,.48);
+    }
+
+    .aion-pilot-stream-card h3 {
+      margin: 0;
+      font-size: 22px;
+      letter-spacing: -0.02em;
+    }
+
+    .aion-pilot-stream-card h4 {
+      margin: 4px 0 8px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: rgba(17,17,17,.58);
+    }
+
+    .aion-pilot-stream-card p {
+      margin: 0;
+      line-height: 1.48;
+    }
+
+    .aion-pilot-stream-card ul {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .aion-pilot-stream-columns {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+      gap: 18px;
+    }
+
+    .aion-pilot-composer-bar {
+      position: sticky;
+      bottom: 0;
+      padding: 14px 18px;
+      border-top: 1px solid rgba(0,0,0,.12);
+      background: rgba(250,247,241,.94);
+      backdrop-filter: blur(16px);
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 12px;
+      align-items: end;
+      z-index: 20;
+    }
+
+    .aion-pilot-composer-bar textarea {
+      min-height: 58px;
+      max-height: 160px;
+      resize: vertical;
+      border: 1px solid rgba(0,0,0,.14);
+      background: rgba(255,255,255,.74);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font: inherit;
+      line-height: 1.35;
+      box-sizing: border-box;
+      width: 100%;
+    }
+
+    .aion-pilot-composer-bar button {
+      min-height: 52px;
+      border-radius: 16px;
+      padding: 0 20px;
+      background: rgba(96,119,103,.96) !important;
+      color: white !important;
+      border-color: rgba(96,119,103,.96) !important;
+      white-space: nowrap;
+    }
+
+    .aion-pilot-output-panel {
+      width: min(980px, 100%);
+      border-radius: 18px;
+      box-shadow: 0 16px 42px rgba(0,0,0,.045);
+    }
+
+    .aion-pilot-advanced-details {
+      width: min(980px, 100%);
+      border-radius: 18px;
+      background: rgba(255,255,255,.50);
     }
 
     @media (max-width: 1100px) {
@@ -27907,6 +28364,35 @@ if (action === "capture-browser-approval-checkpoint") {
         return;
       }
 
+
+
+      const aionPilotOpenOutputButton = target.closest("[data-aion-pilot-open-output]");
+      if (aionPilotOpenOutputButton) {
+        openAionPilotOutputPreview();
+        desktopStore.persistCache?.();
+        return;
+      }
+
+      const aionPilotDownloadOutputButton = target.closest("[data-aion-pilot-download-output]");
+      if (aionPilotDownloadOutputButton) {
+        downloadAionPilotOutputPreview();
+        desktopStore.persistCache?.();
+        return;
+      }
+
+      const aionPilotViewReceiptButton = target.closest("[data-aion-pilot-view-receipt]");
+      if (aionPilotViewReceiptButton) {
+        viewAionPilotReceiptPreview();
+        desktopStore.persistCache?.();
+        return;
+      }
+
+      const aionPilotCloseOutputPanelButton = target.closest("[data-aion-pilot-close-output-panel]");
+      if (aionPilotCloseOutputPanelButton) {
+        closeAionPilotOutputPanel();
+        desktopStore.persistCache?.();
+        return;
+      }
 
       const aionPilotCreateDraftMissionButton = target.closest("[data-aion-pilot-create-draft-mission]");
       if (aionPilotCreateDraftMissionButton) {
