@@ -8078,8 +8078,24 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
 
               <div class="aion-pilot-stream-card" data-aion-pilot-contract-card>
                 <div class="aion-pilot-card-kicker">Mission contract</div>
-                <h3>Draft contract ready</h3>
-                <p>Safe work can proceed. Risky actions stay blocked until exact approval.</p>
+                <h3>${
+                  pilotState.contract_status === "approved_for_safe_work"
+                    ? "Approved for safe work"
+                    : pilotState.contract_status === "revision_requested"
+                      ? "Revision requested"
+                      : pilotState.contract_status === "cancelled"
+                        ? "Mission cancelled"
+                        : "Draft contract ready"
+                }</h3>
+                <p>${
+                  pilotState.contract_status === "approved_for_safe_work"
+                    ? "Pilot may continue safe draft/preview work. Risky actions are still blocked until exact approval."
+                    : pilotState.contract_status === "revision_requested"
+                      ? "Pilot is waiting for revised instructions before continuing."
+                      : pilotState.contract_status === "cancelled"
+                        ? "Pilot has stopped this mission. No live external action was taken."
+                        : "Safe work can proceed after approval. Risky actions stay blocked until exact approval."
+                }</p>
 
                 <div class="aion-pilot-actions">
                   <button type="button" data-aion-pilot-feedback-approve>Approve plan</button>
@@ -8467,6 +8483,86 @@ function closeAionPilotOutputPanel() {
     requestRender();
   }
 }
+
+
+/* PHASE 21S LOCK: Pilot mission contract buttons */
+
+function appendAionPilotStreamEvent(event) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const currentEvents = Array.isArray(pilotState.stream_events)
+    ? pilotState.stream_events
+    : [];
+
+  pilotState.stream_events = [
+    ...currentEvents,
+    {
+      type: event.type || "pilot_event",
+      label: event.label || "Pilot event",
+      detail: event.detail || "",
+      status: event.status || "info",
+    },
+  ];
+}
+
+function approveAionPilotMissionContract() {
+  const pilotState = getAionPilotFrontendInteractionState();
+
+  pilotState.status = "approved_for_safe_work";
+  pilotState.contract_status = "approved_for_safe_work";
+  pilotState.safe_work_approved = true;
+
+  appendAionPilotStreamEvent({
+    type: "contract_approval",
+    label: "Mission contract approved",
+    detail: "Pilot may continue safe draft/preview work. Risky actions remain blocked until exact approval.",
+    status: "approved_for_safe_work",
+  });
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+function reviseAionPilotMissionContract() {
+  const pilotState = getAionPilotFrontendInteractionState();
+
+  pilotState.status = "revision_requested";
+  pilotState.contract_status = "revision_requested";
+  pilotState.safe_work_approved = false;
+
+  appendAionPilotStreamEvent({
+    type: "contract_revision",
+    label: "Revision requested",
+    detail: "Pilot is waiting for updated instructions before continuing.",
+    status: "revision_requested",
+  });
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+function cancelAionPilotMissionContract() {
+  const pilotState = getAionPilotFrontendInteractionState();
+
+  pilotState.status = "cancelled";
+  pilotState.contract_status = "cancelled";
+  pilotState.safe_work_approved = false;
+
+  appendAionPilotStreamEvent({
+    type: "contract_cancelled",
+    label: "Mission cancelled",
+    detail: "Pilot stopped the mission. No live external action was taken.",
+    status: "cancelled",
+  });
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+/* END PHASE 21S LOCK */
+
 
 /* END PHASE 21Q LOCK */
 
@@ -28390,6 +28486,28 @@ if (action === "capture-browser-approval-checkpoint") {
       const aionPilotCloseOutputPanelButton = target.closest("[data-aion-pilot-close-output-panel]");
       if (aionPilotCloseOutputPanelButton) {
         closeAionPilotOutputPanel();
+        desktopStore.persistCache?.();
+        return;
+      }
+
+
+      const aionPilotApprovePlanButton = target.closest("[data-aion-pilot-feedback-approve]");
+      if (aionPilotApprovePlanButton) {
+        approveAionPilotMissionContract();
+        desktopStore.persistCache?.();
+        return;
+      }
+
+      const aionPilotRevisePlanButton = target.closest("[data-aion-pilot-feedback-revise]");
+      if (aionPilotRevisePlanButton) {
+        reviseAionPilotMissionContract();
+        desktopStore.persistCache?.();
+        return;
+      }
+
+      const aionPilotCancelPlanButton = target.closest("[data-aion-pilot-feedback-stop]");
+      if (aionPilotCancelPlanButton) {
+        cancelAionPilotMissionContract();
         desktopStore.persistCache?.();
         return;
       }
