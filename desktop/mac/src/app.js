@@ -85216,6 +85216,156 @@ function installAionWorkflowFaxTerminalSkinV21W() {
 
 installAionWorkflowFaxTerminalSkinV21W();
 
+/* PHASE 21W.1 LOCK: Real workflow canvas surface fax skin */
+
+function installAionRealWorkflowCanvasSurfaceFaxSkinV21W1() {
+  if (document.getElementById("aion-real-workflow-canvas-surface-fax-skin-v21w1")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-real-workflow-canvas-surface-fax-skin-v21w1";
+  style.textContent = `
+    html body {
+      --aion-fax-ink: #082844;
+      --aion-fax-muted: rgba(8,40,68,.64);
+      --aion-fax-line: rgba(8,40,68,.30);
+      --aion-fax-grid: rgba(8,40,68,.075);
+      --aion-fax-blue: #0b4f8a;
+      --aion-fax-green: #2f7d4f;
+      --aion-fax-yellow: #d69b1f;
+      --aion-fax-red: #b23b3b;
+      --aion-ink-bg: #ffffff !important;
+      --aion-ink-paper: #ffffff !important;
+      background: #ffffff !important;
+    }
+
+    html body .operations-agents-surface,
+    html body .operations-agents-canvas-mode,
+    html body .operations-agents-surface .dashboard-shell,
+    html body .operations-agents-surface .surface-shell,
+    html body .operations-agents-surface .aion-workflow-canvas-shell,
+    html body .operations-agents-canvas-mode .aion-workflow-canvas-shell,
+    html body .operations-agents-surface .aion-workflow-layout {
+      background: #ffffff !important;
+      color: var(--aion-fax-ink) !important;
+      box-shadow: none !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-topbar,
+    html body .operations-agents-surface .aion-workflow-app-nav,
+    html body .operations-agents-surface .aion-workflow-top-tabs,
+    html body .operations-agents-surface .aion-workflow-tabs,
+    html body .operations-agents-surface .aion-workflow-page-header,
+    html body .operations-agents-surface .aion-workflow-canvas-header {
+      background: #ffffff !important;
+      border-color: var(--aion-fax-line) !important;
+      box-shadow: none !important;
+      color: var(--aion-fax-ink) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-sidebar,
+    html body .operations-agents-surface .aion-workflow-side-rail,
+    html body .operations-agents-surface .aion-architect-left-rail {
+      background: #ffffff !important;
+      border-right: 2px solid var(--aion-fax-line) !important;
+      box-shadow: none !important;
+      color: var(--aion-fax-ink) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-canvas,
+    html body .operations-agents-canvas-mode .aion-workflow-canvas,
+    html body .operations-agents-surface .aion-workflow-canvas-viewport,
+    html body .operations-agents-canvas-mode .aion-workflow-canvas-viewport,
+    html body .operations-agents-surface .aion-workflow-canvas-stage,
+    html body .operations-agents-surface .aion-workflow-canvas-content {
+      background-color: #ffffff !important;
+      background-image:
+        linear-gradient(var(--aion-fax-grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--aion-fax-grid) 1px, transparent 1px) !important;
+      background-size: 28px 28px !important;
+      background-position: 0 0 !important;
+      box-shadow: none !important;
+      color: var(--aion-fax-ink) !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-floating-toolbar,
+    html body .operations-agents-surface .aion-workflow-floating-toolbar-consolidated,
+    html body .operations-agents-surface .aion-workflow-bottom-toolbar,
+    html body .operations-agents-surface .aion-canvas-bottom-toolbar,
+    html body .operations-agents-surface .aion-workflow-canvas-controls,
+    html body .operations-agents-surface .aion-workflow-canvas-actions,
+    html body .operations-agents-surface .aion-workflow-zoom,
+    html body .operations-agents-surface .aion-workflow-inspector,
+    html body .operations-agents-surface .aion-workflow-note,
+    html body .operations-agents-surface [data-aion-workflow-note],
+    html body .operations-agents-surface textarea[placeholder="Type notes here..."] {
+      background: #ffffff !important;
+      border: 2px solid var(--aion-fax-line) !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      color: var(--aion-fax-ink) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+    }
+
+    html body .operations-agents-surface button,
+    html body .operations-agents-surface .aion-workflow-mode-btn,
+    html body .operations-agents-surface .aion-workflow-floating-add,
+    html body .operations-agents-surface .aion-master-glyph-utility-btn,
+    html body .operations-agents-surface [data-aion-workflow-glyph-debug] {
+      background: #ffffff !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+      font-weight: 900 !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-floating-toolbar button,
+    html body .operations-agents-surface .aion-workflow-floating-toolbar-consolidated button,
+    html body .operations-agents-surface .aion-workflow-bottom-toolbar button,
+    html body .operations-agents-surface .aion-canvas-bottom-toolbar button {
+      border: 2px solid var(--aion-fax-blue) !important;
+      color: var(--aion-fax-blue) !important;
+    }
+
+    html body .operations-agents-surface .aion-workflow-execute-btn,
+    html body .operations-agents-surface .aion-workflow-floating-add,
+    html body .operations-agents-surface button[data-aion-workflow-save],
+    html body .operations-agents-surface button[data-aion-workflow-publish],
+    html body .operations-agents-surface .aion-workflow-save-btn,
+    html body .operations-agents-surface .primary-btn {
+      background: rgba(47,125,79,.07) !important;
+      border-color: var(--aion-fax-green) !important;
+      color: var(--aion-fax-green) !important;
+    }
+
+    html body .operations-agents-surface .aion-canvas-node,
+    html body .operations-agents-surface .aion-workflow-node-card,
+    html body .operations-agents-surface [data-aion-workflow-node-id] {
+      background: #ffffff !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      color: var(--aion-fax-ink) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+    }
+
+    html body .operations-agents-surface svg path,
+    html body .operations-agents-surface svg line,
+    html body .operations-agents-surface .aion-workflow-connectors path,
+    html body .operations-agents-surface .aion-workflow-connectors line {
+      stroke: var(--aion-fax-line) !important;
+      filter: none !important;
+    }
+  `;
+
+  document.head.appendChild(style);
+}
+
+installAionRealWorkflowCanvasSurfaceFaxSkinV21W1();
+
+/* END PHASE 21W.1 REAL WORKFLOW CANVAS SURFACE FAX SKIN */
+
+
 /* END PHASE 21W WORKFLOW CANVAS SKIN */
 
 
