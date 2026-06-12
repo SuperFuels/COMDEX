@@ -1,0 +1,66 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21M: Prediction Before Action Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21M defines the AION Prediction Before Action Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can predict reward before acting, compare prediction to outcome, calculate prediction error, and update strategy trust.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21L taught AION strategy trust. Phase 21M adds predictive intelligence before action.
+
+The kernel requires AION to predict what will happen before it acts.
+
+\section{Loop Contract}
+
+The locked contract is:
+
+\[
+prediction \rightarrow action \rightarrow outcome
+\rightarrow prediction\_error \rightarrow strategy\_trust\_update.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{predicted\_reward};
+  \item \texttt{actual\_reward};
+  \item \texttt{prediction\_error};
+  \item \texttt{baseline\_prediction\_error};
+  \item \texttt{final\_prediction\_error};
+  \item \texttt{prediction\_error\_delta};
+  \item \texttt{prediction\_improved};
+  \item \texttt{final\_prediction\_model};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational prediction before action. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21M-PREDICTION-BEFORE-ACTION-KERNEL-LOCK\\
+Status: LOCKED --- prediction before action kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
