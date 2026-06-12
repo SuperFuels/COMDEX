@@ -7888,6 +7888,22 @@ function createAionPilotFrontendDraftMission() {
     },
   ];
 
+
+  if (typeof fetchAionLrmPilotContextPreviewIntoPilotState === "function") {
+    fetchAionLrmPilotContextPreviewIntoPilotState({
+      business_id: "home-fixed",
+      mission_id: "pilot_demo_pdf_mission",
+      mission_run_id: "pilot_demo_run_preview",
+    }).catch((error) => {
+      const state = getAionPilotFrontendInteractionState();
+      state.lrm_context_status = "error";
+      state.lrm_context_error = String(error?.message || error || "LRM context preview failed");
+      if (typeof requestRender === "function") {
+        requestRender();
+      }
+    });
+  }
+
   if (typeof requestRender === "function") {
     requestRender();
   }
@@ -85741,3 +85757,97 @@ function installAionFaxTerminalWorkspaceSkinV21W() {
 installAionFaxTerminalWorkspaceSkinV21W();
 
 /* END PHASE 21W PILOT SKIN */
+/* PHASE 21D LOCK: LRM Pilot Context Preview Fetch Bridge */
+function getAionLrmPilotContextPreviewUrl(params = {}) {
+  const businessId = String(params.business_id || "home-fixed");
+  const missionId = String(params.mission_id || "pilot_demo_pdf_mission");
+  const missionRunId = String(params.mission_run_id || "pilot_demo_run_preview");
+
+  const query = new URLSearchParams({
+    business_id: businessId,
+    mission_id: missionId,
+    mission_run_id: missionRunId,
+  });
+
+  return `http://127.0.0.1:8080/api/local-node/aion/lrm/pilot-context-preview?${query.toString()}`;
+}
+
+function applyAionLrmPilotContextPreviewPayload(payload = {}) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const safePayload = payload && typeof payload === "object" ? payload : {};
+  const cockpit = safePayload.pilot_cockpit_projection || {};
+  const lrmState = safePayload.lrm_state || {};
+  const artifacts = Array.isArray(cockpit.artifacts) ? cockpit.artifacts : [];
+  const firstArtifact = artifacts[0] || {};
+  const visibleEvents = Array.isArray(cockpit.visible_stream_events)
+    ? cockpit.visible_stream_events
+    : [];
+
+  pilotState.lrm_context_status = "loaded";
+  pilotState.lrm_pilot_context_payload = safePayload;
+  pilotState.lrm_context_payload_hash = safePayload.payload_hash || "";
+  pilotState.lrm_context_summary_hash = safePayload.summary_hash || "";
+  pilotState.lrm_next_review_state = lrmState.next_review_state || "";
+  pilotState.lrm_loop_hash = lrmState.loop_hash || safePayload.source_lrm_loop_hash || "";
+  pilotState.replay_hash = lrmState.replay_trace_hash || pilotState.replay_hash || "sha256:preview_replay_hash";
+  pilotState.proof_hash = lrmState.recommendation_card_hash || pilotState.proof_hash || "sha256:preview_proof_hash";
+  pilotState.artifact_hash = firstArtifact.artifact_hash || pilotState.artifact_hash || "sha256:preview_artifact_hash";
+  pilotState.receipt_hash = firstArtifact.receipt_hash || pilotState.receipt_hash || "sha256:preview_receipt_hash";
+
+  const existingEvents = Array.isArray(pilotState.stream_events) ? pilotState.stream_events : [];
+  const mappedEvents = visibleEvents.map((event) => ({
+    type: String(event.type || "lrm_context_event"),
+    label: String(event.label || "LRM context loaded"),
+    detail: String(event.detail || safePayload.payload_hash || "LRM preview context available"),
+    status: String(event.status || "preview_only"),
+  }));
+
+  pilotState.stream_events = [
+    ...existingEvents,
+    {
+      type: "lrm_pilot_context_preview",
+      label: "LRM context preview loaded",
+      detail: safePayload.payload_hash || "Preview payload loaded from local-node endpoint",
+      status: "preview_only",
+    },
+    ...mappedEvents,
+  ];
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return pilotState;
+}
+
+async function fetchAionLrmPilotContextPreviewIntoPilotState(params = {}) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  pilotState.lrm_context_status = "loading";
+
+  const url = getAionLrmPilotContextPreviewUrl(params);
+  const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    pilotState.lrm_context_status = "error";
+    pilotState.lrm_context_error = `LRM context preview failed: HTTP ${response.status}`;
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+
+    throw new Error(pilotState.lrm_context_error);
+  }
+
+  const payload = await response.json();
+  return applyAionLrmPilotContextPreviewPayload(payload);
+}
+
+window.getAionLrmPilotContextPreviewUrl = getAionLrmPilotContextPreviewUrl;
+window.applyAionLrmPilotContextPreviewPayload = applyAionLrmPilotContextPreviewPayload;
+window.fetchAionLrmPilotContextPreviewIntoPilotState = fetchAionLrmPilotContextPreviewIntoPilotState;
+/* END PHASE 21D LOCK */
