@@ -18,6 +18,12 @@ from .survival_transfer_generalisation_kernel import (
     SurvivalTransferGeneralisationResult,
     run_survival_transfer_generalisation_kernel,
 )
+from .multi_world_survival_curriculum_kernel import (
+    AionMultiWorldSurvivalCurriculumKernel,
+    CurriculumWorldResult,
+    MultiWorldSurvivalCurriculumResult,
+    run_multi_world_survival_curriculum_kernel,
+)
 
 __all__ = [
     "AionMiniSurvivalEnvironmentKernel",
@@ -32,4 +38,8 @@ __all__ = [
     "SurvivalTransferTick",
     "SurvivalTransferGeneralisationResult",
     "run_survival_transfer_generalisation_kernel",
+    "AionMultiWorldSurvivalCurriculumKernel",
+    "CurriculumWorldResult",
+    "MultiWorldSurvivalCurriculumResult",
+    "run_multi_world_survival_curriculum_kernel",
 ]
