@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21Q: Survival Pressure and Hazard Adaptation Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21Q defines the AION Survival Pressure and Hazard Adaptation Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can encounter hazard, record hazard memory, increase avoidance, and use that memory in later survival runs.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21P proved minimal survival. Phase 21Q adds pressure and hazard adaptation.
+
+\section{Loop Contract}
+
+The locked loop is:
+
+\[
+hazard \rightarrow damage \rightarrow memory
+\rightarrow avoidance\_increase \rightarrow next\_run\_adaptation.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{hazards\_hit};
+  \item \texttt{hazards\_avoided};
+  \item \texttt{hazard\_memory\_loaded};
+  \item \texttt{baseline\_hazard\_hits};
+  \item \texttt{adapted\_hazard\_hits};
+  \item \texttt{hazard\_adaptation\_delta};
+  \item \texttt{adapted};
+  \item \texttt{known\_hazards};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational hazard adaptation under survival pressure. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21Q-SURVIVAL-PRESSURE-HAZARD-ADAPTATION-KERNEL-LOCK\\
+Status: LOCKED --- survival pressure and hazard adaptation kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
