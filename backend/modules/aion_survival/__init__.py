@@ -24,6 +24,12 @@ from .multi_world_survival_curriculum_kernel import (
     MultiWorldSurvivalCurriculumResult,
     run_multi_world_survival_curriculum_kernel,
 )
+from .curriculum_difficulty_escalation_kernel import (
+    AionCurriculumDifficultyEscalationKernel,
+    EscalationWorldResult,
+    CurriculumDifficultyEscalationResult,
+    run_curriculum_difficulty_escalation_kernel,
+)
 
 __all__ = [
     "AionMiniSurvivalEnvironmentKernel",
@@ -42,4 +48,8 @@ __all__ = [
     "CurriculumWorldResult",
     "MultiWorldSurvivalCurriculumResult",
     "run_multi_world_survival_curriculum_kernel",
+    "AionCurriculumDifficultyEscalationKernel",
+    "EscalationWorldResult",
+    "CurriculumDifficultyEscalationResult",
+    "run_curriculum_difficulty_escalation_kernel",
 ]
