@@ -256,6 +256,8 @@ PYTHONPATH=. python -m pytest -q \
   backend/tests/workflow_capsules/test_aion_phase15_trusted_feedback_acceptance_preview_lock.py \
   backend/tests/workflow_capsules/test_aion_phase15_human_review_decision_preview_lock.py \
   backend/tests/workflow_capsules/test_aion_phase15_axo_ets_consolidation_closeout_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20a_reasoning_packet_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase20a_reasoning_packet_lock_doc.py \
   backend/tests/workflow_capsules/test_aion_phase16_boardroom_advanced_runtime_drawer_lock.py \
   backend/tests/workflow_capsules/test_aion_phase16_boardroom_front_page_simplification_lock.py \
   backend/tests/workflow_capsules/test_aion_phase16c_founder_demo_ux_polish_lock.py \
