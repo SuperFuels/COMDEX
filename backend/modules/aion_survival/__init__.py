@@ -67,6 +67,10 @@ __all__ = [
     "PredatorExecutionStep",
     "AdversarialMovingPredatorResult",
     "run_adversarial_moving_predator_kernel",
+    "AionPlanningUnderUncertaintyKernel",
+    "UncertaintyObservation",
+    "PlanningUnderUncertaintyResult",
+    "run_planning_under_uncertainty_kernel",
 ]
 
 from .multistep_lookahead_consequence_simulation_kernel import (
@@ -91,4 +95,11 @@ from .adversarial_moving_predator_kernel import (
     PredatorExecutionStep,
     AdversarialMovingPredatorResult,
     run_adversarial_moving_predator_kernel,
+)
+
+from .planning_under_uncertainty_kernel import (
+    AionPlanningUnderUncertaintyKernel,
+    UncertaintyObservation,
+    PlanningUnderUncertaintyResult,
+    run_planning_under_uncertainty_kernel,
 )
