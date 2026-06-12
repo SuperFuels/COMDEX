@@ -8092,6 +8092,8 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                 </div>
               </div>
 
+              ${renderAionLrmPilotContextReadonlyCard(pilotState)}
+
               <div class="aion-pilot-stream-card" data-aion-pilot-contract-card>
                 <div class="aion-pilot-card-kicker">Mission contract</div>
                 <h3>${
@@ -8224,6 +8226,68 @@ function renderAionPilotAdvancedTechnicalDetails(snapshot = getAionPilotCockpitS
     </div>
   `;
 }
+
+
+
+
+/* PHASE 21E LOCK: Read-only LRM context card in existing Pilot stream */
+function renderAionLrmPilotContextReadonlyCard(pilotState = getAionPilotFrontendInteractionState()) {
+  const payload = pilotState.lrm_pilot_context_payload || {};
+  const lrmState = payload.lrm_state || {};
+  const boardroom = payload.boardroom_projection || {};
+  const cockpit = payload.pilot_cockpit_projection || {};
+  const status = pilotState.lrm_context_status || "not_loaded";
+  const payloadHash = pilotState.lrm_context_payload_hash || payload.payload_hash || "not_loaded";
+  const nextReviewState = pilotState.lrm_next_review_state || lrmState.next_review_state || boardroom.next_review_state || "human_review_required";
+  const loopHash = pilotState.lrm_loop_hash || lrmState.loop_hash || payload.source_lrm_loop_hash || "not_loaded";
+  const evidenceSatisfied = lrmState.evidence_gap_satisfied === true ? "yes" : "pending";
+  const visibleEvents = Array.isArray(cockpit.visible_stream_events) ? cockpit.visible_stream_events : [];
+
+  return `
+    <div class="aion-pilot-stream-card" data-aion-lrm-pilot-context-card data-aion-phase21e-lrm-readonly-card>
+      <div class="aion-pilot-card-kicker">AION-LRM context</div>
+      <h3>Reasoning loop preview</h3>
+      <p>This card is read-only. It shows the governed LRM context loaded from the local preview endpoint.</p>
+
+      <div class="aion-pilot-stream-columns">
+        <div>
+          <h4>Review state</h4>
+          <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(status)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Next review</span><code>${escapeHtml(nextReviewState)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Evidence</span><code>${escapeHtml(evidenceSatisfied)}</code></div>
+        </div>
+        <div>
+          <h4>Proof anchors</h4>
+          <div class="aion-pilot-meta-row"><span>Payload</span><code>${escapeHtml(payloadHash)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Loop</span><code>${escapeHtml(loopHash)}</code></div>
+          <div class="aion-pilot-meta-row"><span>Replay</span><code>${escapeHtml(pilotState.replay_hash || lrmState.replay_trace_hash || "not_loaded")}</code></div>
+        </div>
+      </div>
+
+      <div class="aion-pilot-safety-card" data-aion-lrm-pilot-context-safety>
+        <span>Preview-only</span>
+        <p>No booking, payment, escrow, external message, live chain write or workflow execution is created by this card.</p>
+      </div>
+
+      ${
+        visibleEvents.length
+          ? `
+            <div data-aion-lrm-pilot-context-visible-events>
+              ${visibleEvents.map((event) => `
+                <div class="aion-pilot-map-node" data-aion-lrm-pilot-context-event="${escapeHtml(event.type || "lrm_event")}">
+                  <strong>${escapeHtml(event.label || "LRM event")}</strong>
+                  <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(event.status || "preview_only")}</code></div>
+                  <div class="aion-pilot-meta-row"><span>Detail</span><code>${escapeHtml(event.detail || "")}</code></div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : `<p class="muted">LRM context will appear after the preview payload is loaded.</p>`
+      }
+    </div>
+  `;
+}
+/* END PHASE 21E LOCK */
 
 
 /* PHASE 21P LOCK: Universal Pilot stream output labels */
