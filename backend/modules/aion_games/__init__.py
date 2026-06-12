@@ -37,6 +37,10 @@ __all__ = [
     "MiniChessGameEpisode",
     "MiniChessSelfPlayLearningResult",
     "run_mini_chess_self_play_learning_kernel",
+    "AionMiniChessOpponentWinKernel",
+    "OpponentGameTurn",
+    "MiniChessOpponentWinResult",
+    "run_mini_chess_opponent_win_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -75,4 +79,11 @@ from .mini_chess_self_play_learning_kernel import (
     MiniChessGameEpisode,
     MiniChessSelfPlayLearningResult,
     run_mini_chess_self_play_learning_kernel,
+)
+
+from .mini_chess_opponent_win_kernel import (
+    AionMiniChessOpponentWinKernel,
+    OpponentGameTurn,
+    MiniChessOpponentWinResult,
+    run_mini_chess_opponent_win_kernel,
 )
