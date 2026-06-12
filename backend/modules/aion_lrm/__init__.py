@@ -37,3 +37,9 @@ from .evidence_gap_envelope import (
     build_default_home_fixed_evidence_gap_envelope,
     build_evidence_gap_envelope,
 )
+
+from .evidence_satisfaction_envelope import (
+    EVIDENCE_SATISFACTION_ENVELOPE_VERSION,
+    build_default_home_fixed_evidence_satisfaction_envelope,
+    build_evidence_satisfaction_envelope,
+)
