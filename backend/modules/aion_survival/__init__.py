@@ -12,6 +12,12 @@ from .survival_pressure_hazard_adaptation_kernel import (
     HazardAdaptationResult,
     run_survival_pressure_hazard_adaptation_kernel,
 )
+from .survival_transfer_generalisation_kernel import (
+    AionSurvivalTransferGeneralisationKernel,
+    SurvivalTransferTick,
+    SurvivalTransferGeneralisationResult,
+    run_survival_transfer_generalisation_kernel,
+)
 
 __all__ = [
     "AionMiniSurvivalEnvironmentKernel",
@@ -22,4 +28,8 @@ __all__ = [
     "HazardAdaptationTick",
     "HazardAdaptationResult",
     "run_survival_pressure_hazard_adaptation_kernel",
+    "AionSurvivalTransferGeneralisationKernel",
+    "SurvivalTransferTick",
+    "SurvivalTransferGeneralisationResult",
+    "run_survival_transfer_generalisation_kernel",
 ]
