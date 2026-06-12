@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 21O: Active Exploration and Rule Repair Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 21O defines the AION Active Exploration and Rule Repair Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can detect failed generalisation, actively explore the failed action, repair prediction memory, re-extract rules, and retest transfer.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 21N detects failed generalisation. Phase 21O repairs failed generalisation.
+
+The kernel moves AION from merely observing that a rule failed to deliberately exploring the failed region and updating the rule.
+
+\section{Loop Contract}
+
+The locked contract is:
+
+\[
+failed\_generalisation \rightarrow active\_exploration
+\rightarrow prediction\_repair \rightarrow rule\_repair \rightarrow retest.
+\]
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{failed\_rule\_count};
+  \item \texttt{repair\_actions};
+  \item \texttt{score\_before\_repair};
+  \item \texttt{score\_after\_repair};
+  \item \texttt{repair\_delta};
+  \item \texttt{repaired};
+  \item \texttt{repaired\_rules};
+  \item \texttt{repaired\_trials};
+  \item \texttt{uses\_active\_exploration};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational active exploration and rule repair. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE21O-ACTIVE-EXPLORATION-RULE-REPAIR-KERNEL-LOCK\\
+Status: LOCKED --- active exploration and rule repair kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

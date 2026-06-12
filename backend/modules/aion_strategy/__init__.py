@@ -19,6 +19,12 @@ from .rule_extraction_generalisation_engine import (
     RuleExtractionGeneralisationResult,
     run_rule_extraction_generalisation_engine,
 )
+from .active_exploration_rule_repair_kernel import (
+    AionActiveExplorationRuleRepairKernel,
+    RepairAction,
+    ActiveExplorationRuleRepairResult,
+    run_active_exploration_rule_repair_kernel,
+)
 
 __all__ = [
     "AionStrategyLearningKernel",
@@ -34,4 +40,8 @@ __all__ = [
     "GeneralisationTrial",
     "RuleExtractionGeneralisationResult",
     "run_rule_extraction_generalisation_engine",
+    "AionActiveExplorationRuleRepairKernel",
+    "RepairAction",
+    "ActiveExplorationRuleRepairResult",
+    "run_active_exploration_rule_repair_kernel",
 ]
