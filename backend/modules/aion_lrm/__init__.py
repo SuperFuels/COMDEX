@@ -5,3 +5,9 @@ from .reasoning_memory_snapshot import (
     build_default_home_fixed_reasoning_memory_snapshot,
     build_reasoning_memory_snapshot,
 )
+
+from .reasoning_replay_trace import (
+    REASONING_REPLAY_TRACE_VERSION,
+    build_default_home_fixed_reasoning_replay_trace,
+    build_reasoning_replay_trace,
+)
