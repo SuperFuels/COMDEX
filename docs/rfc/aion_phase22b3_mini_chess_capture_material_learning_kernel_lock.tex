@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.3: Mini Chess Capture Material Learning Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.3 defines the AION Mini Chess Capture Material Learning Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can score captures, reject poisoned material, and protect high-value pieces.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.3 teaches capture value and material-risk tradeoffs.
+
+\section{Capture Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{piece\_values};
+  \item \texttt{capture\_candidates};
+  \item \texttt{selected\_capture};
+  \item \texttt{rejected\_captures};
+  \item \texttt{learned\_safe\_capture};
+  \item \texttt{avoided\_bad\_capture};
+  \item \texttt{protected\_high\_value\_piece};
+  \item \texttt{material\_score\_delta};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates operational mini-chess capture and material learning. It does not prove full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B3-MINI-CHESS-CAPTURE-MATERIAL-LEARNING-KERNEL-LOCK\\
+Status: LOCKED --- mini chess capture material learning kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

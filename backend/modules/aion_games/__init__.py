@@ -29,6 +29,10 @@ __all__ = [
     "MiniThreatMove",
     "MiniChessThreatMapResult",
     "run_mini_chess_threat_map_kernel",
+    "AionMiniChessCaptureMaterialLearningKernel",
+    "CaptureCandidate",
+    "MiniChessCaptureMaterialLearningResult",
+    "run_mini_chess_capture_material_learning_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -53,4 +57,11 @@ from .mini_chess_threat_map_kernel import (
     MiniThreatMove,
     MiniChessThreatMapResult,
     run_mini_chess_threat_map_kernel,
+)
+
+from .mini_chess_capture_material_learning_kernel import (
+    AionMiniChessCaptureMaterialLearningKernel,
+    CaptureCandidate,
+    MiniChessCaptureMaterialLearningResult,
+    run_mini_chess_capture_material_learning_kernel,
 )
