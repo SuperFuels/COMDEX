@@ -71,6 +71,11 @@ __all__ = [
     "UncertaintyObservation",
     "PlanningUnderUncertaintyResult",
     "run_planning_under_uncertainty_kernel",
+    "AionSelfGeneratedSurvivalPlanKernel",
+    "SurvivalPlanStep",
+    "SurvivalPlanRevision",
+    "SelfGeneratedSurvivalPlanResult",
+    "run_self_generated_survival_plan_kernel",
 ]
 
 from .multistep_lookahead_consequence_simulation_kernel import (
@@ -102,4 +107,12 @@ from .planning_under_uncertainty_kernel import (
     UncertaintyObservation,
     PlanningUnderUncertaintyResult,
     run_planning_under_uncertainty_kernel,
+)
+
+from .self_generated_survival_plan_kernel import (
+    AionSelfGeneratedSurvivalPlanKernel,
+    SurvivalPlanStep,
+    SurvivalPlanRevision,
+    SelfGeneratedSurvivalPlanResult,
+    run_self_generated_survival_plan_kernel,
 )
