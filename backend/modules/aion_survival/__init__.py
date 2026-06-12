@@ -58,6 +58,10 @@ __all__ = [
     "LookaheadExecutionStep",
     "MultiStepLookaheadResult",
     "run_multistep_lookahead_consequence_simulation_kernel",
+    "AionHazardSemanticsThreatModelKernel",
+    "ThreatModel",
+    "HazardSemanticsResult",
+    "run_hazard_semantics_threat_model_kernel",
 ]
 
 from .multistep_lookahead_consequence_simulation_kernel import (
@@ -67,4 +71,11 @@ from .multistep_lookahead_consequence_simulation_kernel import (
     LookaheadExecutionStep,
     MultiStepLookaheadResult,
     run_multistep_lookahead_consequence_simulation_kernel,
+)
+
+from .hazard_semantics_threat_model_kernel import (
+    AionHazardSemanticsThreatModelKernel,
+    ThreatModel,
+    HazardSemanticsResult,
+    run_hazard_semantics_threat_model_kernel,
 )
