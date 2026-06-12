@@ -30,3 +30,10 @@ from .human_review_decision_envelope import (
     build_default_home_fixed_human_review_decision_envelope,
     build_human_review_decision_envelope,
 )
+
+from .evidence_gap_envelope import (
+    DEFAULT_REQUIRED_EVIDENCE,
+    EVIDENCE_GAP_ENVELOPE_VERSION,
+    build_default_home_fixed_evidence_gap_envelope,
+    build_evidence_gap_envelope,
+)
