@@ -12,6 +12,13 @@ from .prediction_before_action_kernel import (
     PredictionBeforeActionResult,
     run_prediction_before_action_kernel,
 )
+from .rule_extraction_generalisation_engine import (
+    AionRuleExtractionGeneralisationEngine,
+    ExtractedRule,
+    GeneralisationTrial,
+    RuleExtractionGeneralisationResult,
+    run_rule_extraction_generalisation_engine,
+)
 
 __all__ = [
     "AionStrategyLearningKernel",
@@ -22,4 +29,9 @@ __all__ = [
     "PredictionAttempt",
     "PredictionBeforeActionResult",
     "run_prediction_before_action_kernel",
+    "AionRuleExtractionGeneralisationEngine",
+    "ExtractedRule",
+    "GeneralisationTrial",
+    "RuleExtractionGeneralisationResult",
+    "run_rule_extraction_generalisation_engine",
 ]
