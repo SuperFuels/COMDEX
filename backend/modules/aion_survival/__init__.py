@@ -76,6 +76,9 @@ __all__ = [
     "SurvivalPlanRevision",
     "SelfGeneratedSurvivalPlanResult",
     "run_self_generated_survival_plan_kernel",
+    "AionSurvivalPlannerIntegrationKernel",
+    "SurvivalPlannerIntegrationResult",
+    "run_survival_planner_integration_kernel",
 ]
 
 from .multistep_lookahead_consequence_simulation_kernel import (
@@ -115,4 +118,10 @@ from .self_generated_survival_plan_kernel import (
     SurvivalPlanRevision,
     SelfGeneratedSurvivalPlanResult,
     run_self_generated_survival_plan_kernel,
+)
+
+from .survival_planner_integration_kernel import (
+    AionSurvivalPlannerIntegrationKernel,
+    SurvivalPlannerIntegrationResult,
+    run_survival_planner_integration_kernel,
 )
