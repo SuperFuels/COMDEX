@@ -1183,3 +1183,37 @@ def get_aion_phase18_a2a_commercial_ticket_preview(scenario: str = "home_fixed_p
     }
     return data
 
+
+
+# PHASE 21C LOCK: AION-LRM Pilot Context Preview Endpoint
+@router.get("/aion/lrm/pilot-context-preview")
+def get_aion_lrm_pilot_context_preview(
+    business_id: str = "home-fixed",
+    mission_id: str = "pilot_demo_pdf_mission",
+    mission_run_id: str = "pilot_demo_run_preview",
+) -> Dict[str, Any]:
+    """
+    Preview-only local endpoint for the Phase 21B AION-LRM Pilot context payload.
+
+    Raw safety contract:
+    would_execute_workflow = false
+    would_create_booking = false
+    would_create_payment = false
+    would_create_escrow = false
+    would_send_external_message = false
+    would_write_live_chain = false
+
+    This endpoint exposes the existing backend adapter for the existing Pilot and
+    Boardroom surfaces. It does not create a booking, payment, escrow, external
+    message, live chain write, workflow execution, or business-container write.
+    """
+    from backend.services.aion_mission_mode.lrm_pilot_context_payload_adapter import (
+        build_lrm_pilot_context_payload,
+    )
+
+    return build_lrm_pilot_context_payload(
+        business_id=business_id,
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+    )
+# END PHASE 21C LOCK
