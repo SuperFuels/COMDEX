@@ -7167,6 +7167,8 @@ function renderBoardroomDashboardView(snapshot) {
 
       ${renderBoardroomProofReplayPanel(snapshot)}
 
+      ${renderAionLrmBoardroomProjectionPanel(snapshot)}
+
       ${renderBoardroomAdvancedRuntimeDrawer(snapshot)}
     </div>
   `;
@@ -8228,6 +8230,77 @@ function renderAionPilotAdvancedTechnicalDetails(snapshot = getAionPilotCockpitS
 }
 
 
+
+
+
+
+/* PHASE 21F LOCK: Read-only LRM Boardroom Projection Panel */
+function renderAionLrmBoardroomProjectionPanel(snapshot = {}, pilotState = getAionPilotFrontendInteractionState()) {
+  const payload = pilotState.lrm_pilot_context_payload || {};
+  const boardroom = payload.boardroom_projection || {};
+  const lrmState = payload.lrm_state || {};
+  const status = boardroom.status || "not_loaded";
+  const nextReviewState = boardroom.next_review_state || pilotState.lrm_next_review_state || lrmState.next_review_state || "human_review_required";
+  const loopHash = boardroom.loop_hash || pilotState.lrm_loop_hash || lrmState.loop_hash || "not_loaded";
+  const recommendationHash = boardroom.recommendation_card_hash || lrmState.recommendation_card_hash || "not_loaded";
+  const humanReviewHash = boardroom.human_review_decision_hash || lrmState.human_review_decision_hash || "not_loaded";
+  const evidenceGapHash = boardroom.evidence_gap_hash || lrmState.evidence_gap_hash || "not_loaded";
+  const evidenceSatisfactionHash = boardroom.evidence_satisfaction_hash || lrmState.evidence_satisfaction_hash || "not_loaded";
+  const payloadHash = pilotState.lrm_context_payload_hash || payload.payload_hash || "not_loaded";
+
+  return `
+    <div class="list-section" data-aion-lrm-boardroom-projection-panel data-aion-phase21f-lrm-boardroom-projection>
+      <div class="list-section-header">
+        <div>
+          <div class="section-kicker">AION-LRM</div>
+          <h3>Boardroom Reasoning Projection</h3>
+          <p>Read-only projection from the governed Pilot context payload. No live action is performed here.</p>
+        </div>
+        <span class="badge">preview-only</span>
+      </div>
+
+      <div class="card-grid" data-aion-lrm-boardroom-projection-grid>
+        ${renderBoardroomMetricCard(
+          "LRM Status",
+          status,
+          "Projection only",
+        )}
+        ${renderBoardroomMetricCard(
+          "Human Review",
+          nextReviewState,
+          "Human gate remains required",
+        )}
+        ${renderBoardroomMetricCard(
+          "Evidence",
+          lrmState.evidence_gap_satisfied === true ? "satisfied" : "pending",
+          "Evidence state",
+        )}
+        ${renderBoardroomMetricCard(
+          "Payload",
+          payloadHash,
+          "Deterministic preview hash",
+        )}
+      </div>
+
+      <div class="list-item" data-aion-lrm-boardroom-proof-anchors>
+        <strong>Proof anchors</strong>
+        <div class="kv-grid">
+          <div><span>Loop hash</span><code>${escapeHtml(loopHash)}</code></div>
+          <div><span>Recommendation hash</span><code>${escapeHtml(recommendationHash)}</code></div>
+          <div><span>Human review hash</span><code>${escapeHtml(humanReviewHash)}</code></div>
+          <div><span>Evidence gap hash</span><code>${escapeHtml(evidenceGapHash)}</code></div>
+          <div><span>Evidence satisfaction hash</span><code>${escapeHtml(evidenceSatisfactionHash)}</code></div>
+        </div>
+      </div>
+
+      <div class="list-item" data-aion-lrm-boardroom-safety>
+        <strong>Safety boundary</strong>
+        <p>No booking, payment, escrow, external message, live chain write, workflow execution, business-container write, credential exposure, hidden reasoning exposure or private chain-of-thought exposure is allowed by this panel.</p>
+      </div>
+    </div>
+  `;
+}
+/* END PHASE 21F LOCK */
 
 
 /* PHASE 21E LOCK: Read-only LRM context card in existing Pilot stream */
