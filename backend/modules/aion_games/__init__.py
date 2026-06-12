@@ -19,6 +19,11 @@ __all__ = [
     "ChessActionEvaluation",
     "ChessLikeThreatPlanningResult",
     "run_chess_like_threat_planner",
+    "AionMiniChessLegalMoveKernel",
+    "MiniChessPiece",
+    "MiniChessMove",
+    "MiniChessLegalMoveResult",
+    "run_mini_chess_legal_move_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -27,4 +32,12 @@ from .chess_like_threat_planner import (
     ChessActionEvaluation,
     ChessLikeThreatPlanningResult,
     run_chess_like_threat_planner,
+)
+
+from .mini_chess_legal_move_kernel import (
+    AionMiniChessLegalMoveKernel,
+    MiniChessPiece,
+    MiniChessMove,
+    MiniChessLegalMoveResult,
+    run_mini_chess_legal_move_kernel,
 )
