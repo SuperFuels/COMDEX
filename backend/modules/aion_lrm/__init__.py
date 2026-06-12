@@ -17,3 +17,9 @@ from .reasoning_replay_boardroom import (
     build_default_home_fixed_reasoning_replay_boardroom_panel,
     build_reasoning_replay_boardroom_panel,
 )
+
+from .reasoning_recommendation_card import (
+    REASONING_RECOMMENDATION_CARD_VERSION,
+    build_default_home_fixed_reasoning_recommendation_card,
+    build_reasoning_recommendation_card,
+)
