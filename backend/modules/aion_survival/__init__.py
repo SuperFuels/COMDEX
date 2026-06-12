@@ -62,6 +62,11 @@ __all__ = [
     "ThreatModel",
     "HazardSemanticsResult",
     "run_hazard_semantics_threat_model_kernel",
+    "AionAdversarialMovingPredatorKernel",
+    "PredatorFuture",
+    "PredatorExecutionStep",
+    "AdversarialMovingPredatorResult",
+    "run_adversarial_moving_predator_kernel",
 ]
 
 from .multistep_lookahead_consequence_simulation_kernel import (
@@ -78,4 +83,12 @@ from .hazard_semantics_threat_model_kernel import (
     ThreatModel,
     HazardSemanticsResult,
     run_hazard_semantics_threat_model_kernel,
+)
+
+from .adversarial_moving_predator_kernel import (
+    AionAdversarialMovingPredatorKernel,
+    PredatorFuture,
+    PredatorExecutionStep,
+    AdversarialMovingPredatorResult,
+    run_adversarial_moving_predator_kernel,
 )
