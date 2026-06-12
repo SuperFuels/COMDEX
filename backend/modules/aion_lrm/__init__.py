@@ -43,3 +43,9 @@ from .evidence_satisfaction_envelope import (
     build_default_home_fixed_evidence_satisfaction_envelope,
     build_evidence_satisfaction_envelope,
 )
+
+from .lrm_end_to_end_decision_loop import (
+    LRM_END_TO_END_DECISION_LOOP_VERSION,
+    build_default_home_fixed_lrm_end_to_end_decision_loop,
+    build_lrm_end_to_end_decision_loop,
+)
