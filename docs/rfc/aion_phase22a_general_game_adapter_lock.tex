@@ -1,0 +1,57 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22A: General Game Adapter Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22A defines the AION General Game Adapter.
+
+\begin{quote}
+\textbf{Status: LOCKED --- survival, chess-like, and real-world task contexts are normalized into one planning contract.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22A starts the game and task planning sprint by converting different worlds into a shared planning format.
+
+\section{Adapter Contract}
+
+The adapter MUST emit:
+
+\begin{itemize}
+  \item \texttt{game\_id};
+  \item \texttt{game\_type};
+  \item \texttt{current\_state};
+  \item \texttt{goals};
+  \item \texttt{legal\_actions};
+  \item \texttt{threats};
+  \item \texttt{uncertainty};
+  \item \texttt{adapter\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates an operational general game adapter. It does not prove general intelligence or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22A-GENERAL-GAME-ADAPTER-LOCK\\
+Status: LOCKED --- general game adapter implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
