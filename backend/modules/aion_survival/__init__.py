@@ -52,4 +52,19 @@ __all__ = [
     "EscalationWorldResult",
     "CurriculumDifficultyEscalationResult",
     "run_curriculum_difficulty_escalation_kernel",
+    "AionMultiStepLookaheadConsequenceSimulationKernel",
+    "SimulatedFutureStep",
+    "CandidateFuture",
+    "LookaheadExecutionStep",
+    "MultiStepLookaheadResult",
+    "run_multistep_lookahead_consequence_simulation_kernel",
 ]
+
+from .multistep_lookahead_consequence_simulation_kernel import (
+    AionMultiStepLookaheadConsequenceSimulationKernel,
+    SimulatedFutureStep,
+    CandidateFuture,
+    LookaheadExecutionStep,
+    MultiStepLookaheadResult,
+    run_multistep_lookahead_consequence_simulation_kernel,
+)
