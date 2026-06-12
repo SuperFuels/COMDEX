@@ -1,0 +1,234 @@
+\section{Phase 21A --- AION-LRM Pilot / Boardroom Integration Discovery Lock}
+\label{sec:phase21a-lrm-pilot-boardroom-integration-discovery-lock}
+
+\subsection{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- discovery-only integration map for connecting AION-LRM to the existing Pilot and Boardroom surfaces.}
+\end{quote}
+
+\subsection{Purpose}
+
+Phase 21A records the correct existing integration points for connecting the Phase 20 AION-LRM loop into the already-existing AION Pilot and Boardroom runtime.
+
+This phase is discovery-only.
+
+It MUST NOT implement new runtime behaviour, mount new UI, add live execution authority, write business-container records, or create a parallel Pilot system.
+
+\subsection{Reason For This Lock}
+
+The repository already contains a substantial Pilot / Mission Mode stack.
+
+Therefore Phase 21 MUST integrate with the existing stack instead of guessing or creating a duplicate surface.
+
+The correct design rule is:
+
+\begin{quote}
+AION-LRM SHOULD become an intelligence overlay for the existing Pilot and Boardroom surfaces, not a replacement Pilot.
+\end{quote}
+
+\subsection{Existing Backend Integration Targets}
+
+The existing backend Pilot / Mission Mode package is:
+
+\begin{verbatim}
+backend/services/aion_mission_mode/
+\end{verbatim}
+
+Relevant existing service modules include:
+
+\begin{verbatim}
+backend/services/aion_mission_mode/mission_contract.py
+backend/services/aion_mission_mode/mission_templates.py
+backend/services/aion_mission_mode/mission_planner.py
+backend/services/aion_mission_mode/mission_runtime.py
+backend/services/aion_mission_mode/mission_approval.py
+backend/services/aion_mission_mode/pilot_native_runtime.py
+backend/services/aion_mission_mode/pilot_frontend_interaction.py
+backend/services/aion_mission_mode/pilot_mission_composer_artifact_preview.py
+backend/services/aion_mission_mode/pilot_artifact_builder_runtime.py
+backend/services/aion_mission_mode/pilot_filesystem_container_view.py
+backend/services/aion_mission_mode/pilot_mission_map_view.py
+backend/services/aion_mission_mode/boardroom_mission_control_contract.py
+backend/services/aion_mission_mode/boardroom_replay_sync.py
+backend/services/aion_mission_mode/business_container_artifacts.py
+backend/services/aion_mission_mode/capability_receipts.py
+\end{verbatim}
+
+\subsection{Existing Frontend Integration Targets}
+
+The live frontend file is:
+
+\begin{verbatim}
+desktop/mac/src/app.js
+\end{verbatim}
+
+The existing Boardroom mount points are:
+
+\begin{verbatim}
+renderBoardroomDashboardView(snapshot)
+renderBoardroomSurface()
+\end{verbatim}
+
+The existing Pilot cockpit functions are:
+
+\begin{verbatim}
+getAionPilotCockpitSnapshot()
+renderAionPilotCockpitPanel(snapshot)
+renderAionPilotSimpleTaskStream(snapshot)
+getAionPilotFrontendInteractionState()
+createAionPilotFrontendDraftMission()
+renderAionPilotFrontendStreamEvents()
+\end{verbatim}
+
+The current Pilot cockpit is already mounted into the live frontend and should not be duplicated.
+
+\subsection{Existing API Integration Targets}
+
+The existing local-node API router is:
+
+\begin{verbatim}
+backend/api/local_node_router.py
+\end{verbatim}
+
+The existing Boardroom API router is:
+
+\begin{verbatim}
+backend/modules/aion_business/api/boardroom_api.py
+\end{verbatim}
+
+The Boardroom API already exposes canonical boardroom payload loading through:
+
+\begin{verbatim}
+/api/aion/business/boardroom/{workspace_id}
+/api/aion/business/boardroom/frame
+/api/aion/business/boardroom/{workspace_id}/exists
+\end{verbatim}
+
+\subsection{Existing Phase 20 AION-LRM Backend}
+
+The locked Phase 20 AION-LRM modules are:
+
+\begin{verbatim}
+backend/modules/aion_lrm/reasoning_packet.py
+backend/modules/aion_lrm/reasoning_memory_snapshot.py
+backend/modules/aion_lrm/reasoning_replay_trace.py
+backend/modules/aion_lrm/reasoning_replay_boardroom.py
+backend/modules/aion_lrm/reasoning_recommendation_card.py
+backend/modules/aion_lrm/human_review_decision_envelope.py
+backend/modules/aion_lrm/evidence_gap_envelope.py
+backend/modules/aion_lrm/evidence_satisfaction_envelope.py
+backend/modules/aion_lrm/lrm_end_to_end_decision_loop.py
+\end{verbatim}
+
+The focused validation script is:
+
+\begin{verbatim}
+scripts/run_aion_lrm_phase20_lock_suite.sh
+\end{verbatim}
+
+\subsection{Integration Rule}
+
+Phase 21 SHOULD connect the Phase 20I end-to-end LRM loop to the existing Pilot and Boardroom stack by exposing LRM state as preview/read-only intelligence context.
+
+The first safe integration target SHOULD be a backend payload adapter, not direct UI changes.
+
+The adapter SHOULD read or build:
+
+\begin{itemize}
+  \item the Phase 20I LRM end-to-end decision loop;
+  \item Pilot mission identity;
+  \item mission run identity;
+  \item Boardroom display state;
+  \item artifact/proof/receipt hashes;
+  \item evidence gap and evidence satisfaction state;
+  \item human review state.
+\end{itemize}
+
+It SHOULD emit a Boardroom/Pilot-safe payload that can later be mounted in the existing Pilot cockpit.
+
+\subsection{Explicit Non-Goals}
+
+Phase 21A MUST NOT:
+
+\begin{itemize}
+  \item create a new Pilot system;
+  \item create a new Boardroom surface;
+  \item bypass \texttt{renderBoardroomDashboardView};
+  \item bypass \texttt{renderAionPilotCockpitPanel};
+  \item write live business-container data;
+  \item send external messages;
+  \item create bookings;
+  \item create payments;
+  \item create escrow;
+  \item write live chain data;
+  \item execute workflow steps;
+  \item expose private chain-of-thought;
+  \item expose hidden reasoning;
+  \item expose credentials.
+\end{itemize}
+
+\subsection{Recommended Next Phase}
+
+The next implementation phase SHOULD be:
+
+\begin{verbatim}
+Phase 21B --- LRM Pilot Context Payload Adapter v0
+\end{verbatim}
+
+Phase 21B should create a backend adapter that joins:
+
+\begin{verbatim}
+Phase 20I LRM loop
++ existing Pilot mission identifiers
++ existing Boardroom replay/projection conventions
++ artifact/proof/receipt references
+\end{verbatim}
+
+into one preview-only payload.
+
+\subsection{Validation}
+
+The Phase 21A validation is documentation and source-discovery based.
+
+It checks that the repository contains the real integration targets and that the lock document prevents duplicate Pilot or live-side-effect implementation.
+
+\subsection{Raw Contract Terms}
+
+\begin{verbatim}
+Phase 21A
+AION-LRM
+Pilot
+Boardroom
+integration discovery
+renderBoardroomDashboardView
+renderBoardroomSurface
+getAionPilotCockpitSnapshot
+renderAionPilotCockpitPanel
+renderAionPilotSimpleTaskStream
+getAionPilotFrontendInteractionState
+backend/services/aion_mission_mode
+backend/modules/aion_lrm
+backend/api/local_node_router.py
+backend/modules/aion_business/api/boardroom_api.py
+preview-only
+human review
+no booking
+no payment
+no escrow
+no external message
+no live chain
+no duplicate Pilot
+no private chain-of-thought
+Tessaris AI
+Kevin Robinson
+\end{verbatim}
+
+\subsection{Lock Footer}
+
+\begin{verbatim}
+Lock ID: AION-PHASE21A-LRM-PILOT-BOARDROOM-INTEGRATION-DISCOVERY-v0.1
+Status: LOCKED
+Maintainer: Tessaris AI
+Author: Kevin Robinson
+\end{verbatim}
