@@ -177,6 +177,10 @@ __all__ = [
     "LocalMatchRecord",
     "FullChessLocalEngineMatchHarnessResult",
     "run_full_chess_local_engine_match_harness_kernel",
+    "AionFullChessLocalTournamentRatingLadderKernel",
+    "LadderTierResult",
+    "FullChessLocalTournamentRatingLadderResult",
+    "run_full_chess_local_tournament_rating_ladder_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -452,4 +456,11 @@ from .full_chess_local_engine_match_harness_kernel import (
     LocalMatchRecord,
     FullChessLocalEngineMatchHarnessResult,
     run_full_chess_local_engine_match_harness_kernel,
+)
+
+from .full_chess_local_tournament_rating_ladder_kernel import (
+    AionFullChessLocalTournamentRatingLadderKernel,
+    LadderTierResult,
+    FullChessLocalTournamentRatingLadderResult,
+    run_full_chess_local_tournament_rating_ladder_kernel,
 )
