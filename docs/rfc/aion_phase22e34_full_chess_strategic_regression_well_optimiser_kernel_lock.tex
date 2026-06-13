@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.34 --- Strategic Regression Well Optimiser}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.34 introduces the Strategic Regression Well Optimiser.
+
+The optimiser combines the recent chess intelligence kernels into one deterministic selector whose purpose is to move the game deeper into a smaller winning basin.
+
+\section{Contract}
+
+The optimiser MUST consume:
+
+\begin{itemize}[leftmargin=*]
+  \item Phase 22E.27 Zugzwang Choice Architecture Selector;
+  \item Phase 22E.28 One-Ply Blunder Guard;
+  \item Phase 22E.29 Opponent Threat Map;
+  \item Phase 22E.30 Passed Pawn Conversion Policy;
+  \item Phase 22E.31 Endgame Box/Mate Net Builder;
+  \item Phase 22E.32 Plan Continuity Memory;
+  \item Phase 22E.33 Rook/Bishop Repetition Breaker.
+\end{itemize}
+
+The optimiser MUST require the selected move to pass a local safety check where possible.
+
+The safety signal is:
+
+\begin{verbatim}
+safe_to_send
+\end{verbatim}
+
+The optimiser SHOULD prefer moves that:
+
+\begin{itemize}[leftmargin=*]
+  \item narrow the opponent reply set;
+  \item avoid immediate tactical blunders;
+  \item neutralise critical opponent threats;
+  \item convert passed pawns;
+  \item build endgame mate nets;
+  \item preserve plan continuity;
+  \item break rook or bishop repetition.
+\end{itemize}
+
+\section{Strategic Regression Well}
+
+The Strategic Regression Well is the repeated reduction of bad choices and opponent counterplay until the position falls into a controlled winning basin.
+
+This phase is the first combined optimiser for that model.
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e34_full_chess_strategic_regression_well_optimiser_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e34_full_chess_strategic_regression_well_optimiser_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E34-FULL-CHESS-STRATEGIC-REGRESSION-WELL-OPTIMISER\\
+Status: LOCKED --- Strategic Regression Well optimiser implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
