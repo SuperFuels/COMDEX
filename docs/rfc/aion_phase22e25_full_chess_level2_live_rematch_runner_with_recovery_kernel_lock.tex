@@ -1,0 +1,63 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.25 --- Full Level-2 Live Rematch Runner With 400 Recovery}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.25 locks the full Level-2 live rematch runner decision contract.
+
+It combines:
+
+\begin{itemize}[leftmargin=*]
+  \item Phase 22E.21 queen override sender records;
+  \item Phase 22E.24 POST 400 recovery loop behaviour.
+\end{itemize}
+
+\section{Contract}
+
+The runner MUST:
+
+\begin{itemize}[leftmargin=*]
+  \item consume a live sender record;
+  \item preserve queen override metadata;
+  \item invoke POST 400 recovery on recoverable HTTP 400;
+  \item continue after nonfatal recovery;
+  \item refresh the loop move list from the server state after recovery;
+  \item abort only on confirmed hard failure.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not create live challenges, does not send moves, does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+It defines the deterministic live runner decision contract only.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e25_full_chess_level2_live_rematch_runner_with_recovery_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e25_full_chess_level2_live_rematch_runner_with_recovery_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E25-FULL-CHESS-LEVEL2-LIVE-REMATCH-RUNNER-WITH-400-RECOVERY\\
+Status: LOCKED --- full Level-2 live rematch runner contract with 400 recovery\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
