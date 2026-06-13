@@ -191,6 +191,10 @@ __all__ = [
     "LiveLichessBotEnablementDecision",
     "FullChessLiveLichessBotEnablementResult",
     "run_full_chess_live_lichess_bot_enablement_kernel",
+    "AionFullChessRealLichessNetworkMoveSenderKernel",
+    "RealLichessMoveSendRequest",
+    "RealLichessMoveSendResult",
+    "run_full_chess_real_lichess_network_move_sender_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -489,4 +493,11 @@ from .full_chess_live_lichess_bot_enablement_kernel import (
     LiveLichessBotEnablementDecision,
     FullChessLiveLichessBotEnablementResult,
     run_full_chess_live_lichess_bot_enablement_kernel,
+)
+
+from .full_chess_real_lichess_network_move_sender_kernel import (
+    AionFullChessRealLichessNetworkMoveSenderKernel,
+    RealLichessMoveSendRequest,
+    RealLichessMoveSendResult,
+    run_full_chess_real_lichess_network_move_sender_kernel,
 )
