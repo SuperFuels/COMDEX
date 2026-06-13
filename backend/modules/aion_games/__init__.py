@@ -135,6 +135,10 @@ __all__ = [
     "PlayableUiState",
     "FullChessPlayableUiResult",
     "run_full_chess_playable_ui_kernel",
+    "AionFullChessUciEngineWrapperKernel",
+    "UciCommandTrace",
+    "FullChessUciEngineWrapperResult",
+    "run_full_chess_uci_engine_wrapper_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -341,4 +345,11 @@ from .full_chess_playable_ui_kernel import (
     PlayableUiState,
     FullChessPlayableUiResult,
     run_full_chess_playable_ui_kernel,
+)
+
+from .full_chess_uci_engine_wrapper_kernel import (
+    AionFullChessUciEngineWrapperKernel,
+    UciCommandTrace,
+    FullChessUciEngineWrapperResult,
+    run_full_chess_uci_engine_wrapper_kernel,
 )
