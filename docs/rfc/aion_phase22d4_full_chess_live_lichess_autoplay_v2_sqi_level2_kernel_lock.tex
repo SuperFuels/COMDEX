@@ -1,0 +1,92 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22D.4: Full Chess Live Lichess Autoplay v2 SQI Level 2 Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22D.4 prepares guarded live Lichess autoplay v2 against Stockfish level 2 using the SQI-guided live-loop selector.
+
+\begin{quote}
+\textbf{Status: LOCKED --- guarded SQI autoplay v2 level 2 path implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22C.5 prepared the level 2 autoplay path using the search selector.
+
+Phase 22D.4 upgrades that path so live autoplay uses the SQI-guided selector path.
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_live_lichess_autoplay_v2_sqi_level2_kernel.py
+\end{verbatim}
+
+\section{Autoplay Contract}
+
+The kernel MUST:
+
+\begin{itemize}
+  \item target Lichess Stockfish level 2;
+  \item use the Phase 22D.3 live-loop SQI adapter;
+  \item route move selection through Phase 22D.2 SQI-guided selection;
+  \item preserve SQI trace, selection trace, and autoplay trace hashes;
+  \item prove the selected opening move is legal;
+  \item run in dry-run mode by default;
+  \item require token presence for live mode;
+  \item require explicit network enablement for live mode;
+  \item avoid live network calls during lock tests.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use:
+
+\begin{itemize}
+  \item local Stockfish;
+  \item cloud engines;
+  \item external chess engines;
+  \item Lichess analysis;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+It also does not create bookings, payments, escrow, chain writes, or non-Lichess external messages.
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_live_lichess_autoplay_v2_sqi_level2_memory.json
+\end{verbatim}
+
+This file is runtime SQI autoplay telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Next Step}
+
+The next phase MAY run a real guarded Lichess level 2 game using the SQI selector, then record and review the game result.
+
+\begin{verbatim}
+22D.5 -- Real Lichess Level 2 SQI Autoplay Run and Result Receipt
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D4-FULL-CHESS-LIVE-LICHESS-AUTOPLAY-V2-SQI-LEVEL2-KERNEL-LOCK\\
+Status: LOCKED --- guarded SQI autoplay v2 level 2 path implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
