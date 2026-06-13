@@ -1,0 +1,67 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.33 --- Rook/Bishop Repetition Breaker}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.33 introduces a rook/bishop repetition breaker for AION full chess.
+
+The purpose is to stop non-progress shuffling such as repeated rook or bishop movement between the same squares.
+
+\section{Contract}
+
+The kernel MUST detect:
+
+\begin{itemize}[leftmargin=*]
+  \item repeated move patterns;
+  \item repeated destination square patterns;
+  \item rook and bishop shuffling;
+  \item non-progress major-piece movement.
+\end{itemize}
+
+The kernel MUST prefer irreversible progress when available, including:
+
+\begin{itemize}[leftmargin=*]
+  \item pawn moves;
+  \item captures;
+  \item checks;
+  \item non-repeating redirections.
+\end{itemize}
+
+The phrase repeated destination is part of the lock because the live evidence showed repeated rook destinations.
+
+The phrase irreversible progress is part of the lock because the breaker must prefer moves that make the game state advance.
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e33_full_chess_rook_bishop_repetition_breaker_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e33_full_chess_rook_bishop_repetition_breaker_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E33-FULL-CHESS-ROOK-BISHOP-REPETITION-BREAKER\\
+Status: LOCKED --- rook/bishop repetition breaker implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
