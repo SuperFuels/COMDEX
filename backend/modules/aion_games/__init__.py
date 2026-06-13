@@ -203,6 +203,10 @@ __all__ = [
     "PostGameMoveReview",
     "FullChessPostGameBlunderReviewResult",
     "run_full_chess_post_game_blunder_review_kernel",
+    "AionFullChessRealEvaluationFunctionKernel",
+    "RealChessEvaluationBreakdown",
+    "RealChessEvaluationResult",
+    "run_full_chess_real_evaluation_function_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -522,4 +526,11 @@ from .full_chess_post_game_blunder_review_kernel import (
     PostGameMoveReview,
     FullChessPostGameBlunderReviewResult,
     run_full_chess_post_game_blunder_review_kernel,
+)
+
+from .full_chess_real_evaluation_function_kernel import (
+    AionFullChessRealEvaluationFunctionKernel,
+    RealChessEvaluationBreakdown,
+    RealChessEvaluationResult,
+    run_full_chess_real_evaluation_function_kernel,
 )
