@@ -44,6 +44,11 @@ __all__ = [
     "AionMiniChessFullLoopLock",
     "MiniChessFullLoopResult",
     "run_mini_chess_full_loop_lock",
+    "AionFullChessBoardAdapterKernel",
+    "FullChessPiece",
+    "FullChessMove",
+    "FullChessBoardAdapterResult",
+    "run_full_chess_board_adapter_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -95,4 +100,12 @@ from .mini_chess_full_loop_lock import (
     AionMiniChessFullLoopLock,
     MiniChessFullLoopResult,
     run_mini_chess_full_loop_lock,
+)
+
+from .full_chess_board_adapter_kernel import (
+    AionFullChessBoardAdapterKernel,
+    FullChessPiece,
+    FullChessMove,
+    FullChessBoardAdapterResult,
+    run_full_chess_board_adapter_kernel,
 )
