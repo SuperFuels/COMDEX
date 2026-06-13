@@ -88,6 +88,10 @@ __all__ = [
     "LearningSignal",
     "FullChessLearningLoopResult",
     "run_full_chess_learning_loop_kernel",
+    "AionFullChessSelfPlayImprovementKernel",
+    "SelfPlayEpisode",
+    "FullChessSelfPlayImprovementResult",
+    "run_full_chess_self_play_improvement_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -214,4 +218,11 @@ from .full_chess_learning_loop_kernel import (
     LearningSignal,
     FullChessLearningLoopResult,
     run_full_chess_learning_loop_kernel,
+)
+
+from .full_chess_self_play_improvement_kernel import (
+    AionFullChessSelfPlayImprovementKernel,
+    SelfPlayEpisode,
+    FullChessSelfPlayImprovementResult,
+    run_full_chess_self_play_improvement_kernel,
 )
