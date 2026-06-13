@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional
 
 import chess
 
-from backend.modules.aion_games.full_chess_proactive_intent_primacy_plan_enforcement_kernel import (
-    run_full_chess_proactive_intent_primacy_plan_enforcement_kernel,
+from backend.modules.aion_games.full_chess_dynamic_intent_switching_plan_strength_kernel import (
+    run_full_chess_dynamic_intent_switching_plan_strength_kernel,
 )
 
 DEFAULT_MEMORY_PATH = Path("data/aion_games/full_chess_live_one_move_strategic_well_sender_memory.json")
@@ -137,12 +137,12 @@ class AionLiveOneMoveStrategicWellSenderKernel:
         side = chess.WHITE if side_to_move.lower() == "white" else chess.BLACK
         board.turn = side
 
-        strategic = run_full_chess_proactive_intent_primacy_plan_enforcement_kernel(
+        strategic = run_full_chess_dynamic_intent_switching_plan_strength_kernel(
             input_fen=input_fen,
             side_to_move=side_to_move,
             repeated_moves=list(repeated_moves or []),
             repeated_squares=list(repeated_squares or []),
-            memory_path=self.memory_path.parent / "phase22e38_child_proactive_intent_primacy_memory.json",
+            memory_path=self.memory_path.parent / "phase22e38_child_dynamic_intent_switching_memory.json",
         )
 
         selected_move = strategic.final_selected_move
@@ -212,6 +212,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             self.policy["blocked_count"] = int(self.policy.get("blocked_count", 0)) + 1
 
         evidence = {
+            "phase22e46_dynamic_intent_switching_used": True,
             "phase22e44_proactive_intent_primacy_used": True,
             "phase22e43_anti_shuffling_guard_used": True,
             "phase22e42_passed_pawn_scope_guard_used": True,
