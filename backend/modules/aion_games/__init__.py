@@ -126,6 +126,10 @@ __all__ = [
     "TrainingGame",
     "FullChessSelfPlayTrainingResult",
     "run_full_chess_self_play_training_kernel",
+    "AionFullChessRatingBenchmarkKernel",
+    "BenchmarkMatch",
+    "FullChessRatingBenchmarkResult",
+    "run_full_chess_rating_benchmark_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -317,4 +321,11 @@ from .full_chess_self_play_training_kernel import (
     TrainingGame,
     FullChessSelfPlayTrainingResult,
     run_full_chess_self_play_training_kernel,
+)
+
+from .full_chess_rating_benchmark_kernel import (
+    AionFullChessRatingBenchmarkKernel,
+    BenchmarkMatch,
+    FullChessRatingBenchmarkResult,
+    run_full_chess_rating_benchmark_kernel,
 )
