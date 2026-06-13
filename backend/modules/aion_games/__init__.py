@@ -648,3 +648,5 @@ from .full_chess_sqi_failure_patch_selector_kernel import (
     SQIFailurePatchSelectorResult,
     run_full_chess_sqi_failure_patch_selector_kernel,
 )
+
+from .full_chess_positional_strategy_features_kernel import run_full_chess_positional_strategy_features_kernel
