@@ -1,0 +1,71 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.10 --- Concept-Guided Move Re-Ranking}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.10 introduces deterministic concept-guided move re-ranking.
+
+This phase consumes Phase 22E.9 concept-guided search and plan bias, then applies the resulting concept weights to legal candidate moves.
+
+\section{Re-Ranking Contract}
+
+For each re-ranked candidate move, the kernel emits:
+
+\begin{itemize}[leftmargin=*]
+  \item move UCI;
+  \item base rank;
+  \item re-ranked rank;
+  \item base score;
+  \item concept bias score;
+  \item final score;
+  \item applied concepts;
+  \item original strategic move flag;
+  \item capture/check/castle flags;
+  \item re-rank reason;
+  \item re-rank trace hash.
+\end{itemize}
+
+\section{Technical Position}
+
+This phase is the first local phase where strategic concepts can change move ordering.
+
+It still does not send moves to live Lichess. This is a no live Lichess phase.
+
+Live-play wiring is reserved for a later phase after deterministic local re-ranking is locked.
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, human move scoring, or live Lichess move sending.
+
+It is deterministic local concept-guided move re-ranking over legal chess candidates.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e10_full_chess_concept_guided_move_reranking_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e10_full_chess_concept_guided_move_reranking_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E10-FULL-CHESS-CONCEPT-GUIDED-MOVE-RERANKING\\
+Status: LOCKED --- deterministic concept-guided move re-ranking implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
