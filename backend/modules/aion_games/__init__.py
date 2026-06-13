@@ -154,6 +154,10 @@ __all__ = [
     "GuardDecision",
     "FullChessGuardedLiveMoveExecutionResult",
     "run_full_chess_guarded_live_move_execution_kernel",
+    "AionFullChessAutonomousBotLearningPolicyKernel",
+    "AutonomousLearningGame",
+    "FullChessAutonomousBotLearningPolicyResult",
+    "run_full_chess_autonomous_bot_learning_policy_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -391,4 +395,11 @@ from .full_chess_guarded_live_move_execution_kernel import (
     GuardDecision,
     FullChessGuardedLiveMoveExecutionResult,
     run_full_chess_guarded_live_move_execution_kernel,
+)
+
+from .full_chess_autonomous_bot_learning_policy_kernel import (
+    AionFullChessAutonomousBotLearningPolicyKernel,
+    AutonomousLearningGame,
+    FullChessAutonomousBotLearningPolicyResult,
+    run_full_chess_autonomous_bot_learning_policy_kernel,
 )
