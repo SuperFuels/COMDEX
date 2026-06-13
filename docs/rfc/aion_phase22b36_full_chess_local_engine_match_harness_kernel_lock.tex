@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.36: Full Chess Local Engine Match Harness Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.36 defines the AION Full Chess Local Engine Match Harness Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can run a deterministic local match harness against multiple opponent tiers.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.36 bridges move selection into local match testing.
+
+The harness evaluates AION against random, greedy, tactical, self-play, and simple rated-tier opponents.
+
+\section{Harness Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{harness\_mode};
+  \item \texttt{network\_call\_performed};
+  \item \texttt{human\_approval\_required};
+  \item \texttt{opponent\_profile\_count};
+  \item \texttt{match\_count};
+  \item \texttt{completed\_match\_count};
+  \item \texttt{win\_count};
+  \item \texttt{draw\_count};
+  \item \texttt{loss\_count};
+  \item \texttt{score\_total};
+  \item \texttt{score\_percentage};
+  \item \texttt{local\_match\_passed};
+  \item \texttt{selected\_policy\_after\_matches};
+  \item \texttt{weakest\_policy\_after\_matches};
+  \item \texttt{opponent\_profiles};
+  \item \texttt{local\_matches};
+  \item \texttt{local\_match\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates local match harness testing only.
+
+It does not perform live Lichess play, claim official rating, prove grandmaster-strength play, Stockfish-level calculation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B36-FULL-CHESS-LOCAL-ENGINE-MATCH-HARNESS-KERNEL-LOCK\\
+Status: LOCKED --- full chess local engine match harness kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

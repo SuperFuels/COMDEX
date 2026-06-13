@@ -172,6 +172,11 @@ __all__ = [
     "CandidateMoveScore",
     "FullChessKnowledgeGuidedMoveSelectionResult",
     "run_full_chess_knowledge_guided_move_selection_kernel",
+    "AionFullChessLocalEngineMatchHarnessKernel",
+    "LocalOpponentProfile",
+    "LocalMatchRecord",
+    "FullChessLocalEngineMatchHarnessResult",
+    "run_full_chess_local_engine_match_harness_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -439,4 +444,12 @@ from .full_chess_knowledge_guided_move_selection_kernel import (
     CandidateMoveScore,
     FullChessKnowledgeGuidedMoveSelectionResult,
     run_full_chess_knowledge_guided_move_selection_kernel,
+)
+
+from .full_chess_local_engine_match_harness_kernel import (
+    AionFullChessLocalEngineMatchHarnessKernel,
+    LocalOpponentProfile,
+    LocalMatchRecord,
+    FullChessLocalEngineMatchHarnessResult,
+    run_full_chess_local_engine_match_harness_kernel,
 )
