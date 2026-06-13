@@ -199,6 +199,10 @@ __all__ = [
     "LiveLichessGameLoopMoveRecord",
     "FullChessLiveLichessGameLoopResult",
     "run_full_chess_live_lichess_game_loop_result_recorder_kernel",
+    "AionFullChessPostGameBlunderReviewKernel",
+    "PostGameMoveReview",
+    "FullChessPostGameBlunderReviewResult",
+    "run_full_chess_post_game_blunder_review_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -511,4 +515,11 @@ from .full_chess_live_lichess_game_loop_result_recorder_kernel import (
     LiveLichessGameLoopMoveRecord,
     FullChessLiveLichessGameLoopResult,
     run_full_chess_live_lichess_game_loop_result_recorder_kernel,
+)
+
+from .full_chess_post_game_blunder_review_kernel import (
+    AionFullChessPostGameBlunderReviewKernel,
+    PostGameMoveReview,
+    FullChessPostGameBlunderReviewResult,
+    run_full_chess_post_game_blunder_review_kernel,
 )
