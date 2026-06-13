@@ -163,6 +163,11 @@ __all__ = [
     "RealGameLearningUpdate",
     "FullChessRealGameResultLearningLoopResult",
     "run_full_chess_real_game_result_learning_loop_kernel",
+    "AionFullChessKnowledgeOpeningsStrategyBookKernel",
+    "ChessKnowledgeEntry",
+    "ChessKnowledgeQuery",
+    "FullChessKnowledgeOpeningsStrategyBookResult",
+    "run_full_chess_knowledge_openings_strategy_book_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -415,4 +420,12 @@ from .full_chess_real_game_result_learning_loop_kernel import (
     RealGameLearningUpdate,
     FullChessRealGameResultLearningLoopResult,
     run_full_chess_real_game_result_learning_loop_kernel,
+)
+
+from .full_chess_knowledge_openings_strategy_book_kernel import (
+    AionFullChessKnowledgeOpeningsStrategyBookKernel,
+    ChessKnowledgeEntry,
+    ChessKnowledgeQuery,
+    FullChessKnowledgeOpeningsStrategyBookResult,
+    run_full_chess_knowledge_openings_strategy_book_kernel,
 )
