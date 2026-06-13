@@ -84,6 +84,10 @@ __all__ = [
     "GameLoopTurn",
     "FullChessGameLoopResult",
     "run_full_chess_game_loop_kernel",
+    "AionFullChessLearningLoopKernel",
+    "LearningSignal",
+    "FullChessLearningLoopResult",
+    "run_full_chess_learning_loop_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -203,4 +207,11 @@ from .full_chess_game_loop_kernel import (
     GameLoopTurn,
     FullChessGameLoopResult,
     run_full_chess_game_loop_kernel,
+)
+
+from .full_chess_learning_loop_kernel import (
+    AionFullChessLearningLoopKernel,
+    LearningSignal,
+    FullChessLearningLoopResult,
+    run_full_chess_learning_loop_kernel,
 )
