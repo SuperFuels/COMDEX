@@ -158,6 +158,11 @@ __all__ = [
     "AutonomousLearningGame",
     "FullChessAutonomousBotLearningPolicyResult",
     "run_full_chess_autonomous_bot_learning_policy_kernel",
+    "AionFullChessRealGameResultLearningLoopKernel",
+    "RealGameResult",
+    "RealGameLearningUpdate",
+    "FullChessRealGameResultLearningLoopResult",
+    "run_full_chess_real_game_result_learning_loop_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -402,4 +407,12 @@ from .full_chess_autonomous_bot_learning_policy_kernel import (
     AutonomousLearningGame,
     FullChessAutonomousBotLearningPolicyResult,
     run_full_chess_autonomous_bot_learning_policy_kernel,
+)
+
+from .full_chess_real_game_result_learning_loop_kernel import (
+    AionFullChessRealGameResultLearningLoopKernel,
+    RealGameResult,
+    RealGameLearningUpdate,
+    FullChessRealGameResultLearningLoopResult,
+    run_full_chess_real_game_result_learning_loop_kernel,
 )
