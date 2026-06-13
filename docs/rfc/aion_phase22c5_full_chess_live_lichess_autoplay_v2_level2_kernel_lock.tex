@@ -1,0 +1,98 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22C.5: Full Chess Live Lichess Autoplay v2 Level 2 Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22C.5 prepares AION live Lichess autoplay v2 against Stockfish level 2.
+
+\begin{quote}
+\textbf{Status: LOCKED --- guarded autoplay v2 level 2 path implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+This phase verifies that AION's live Lichess autoplay path can target a stronger opponent while using the new evaluator/search selector stack.
+
+The target opponent is:
+
+\begin{verbatim}
+platform: lichess
+opponent_type: lichess_ai_stockfish
+opponent_level: 2
+rated: false
+\end{verbatim}
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_live_lichess_autoplay_v2_level2_kernel.py
+\end{verbatim}
+
+\section{Autoplay Contract}
+
+The kernel MUST:
+
+\begin{itemize}
+  \item target Lichess Stockfish level 2;
+  \item use the Phase 22C.4 live-loop search selector adapter;
+  \item route move choice through the Phase 22C.3 depth-limited search selector;
+  \item prove the selected opening move is legal;
+  \item run in dry-run mode by default;
+  \item require token presence for live mode;
+  \item require explicit network enablement for live mode;
+  \item avoid live network calls during the lock tests.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use:
+
+\begin{itemize}
+  \item local Stockfish;
+  \item cloud engines;
+  \item external chess engines;
+  \item Lichess analysis;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+It also does not create bookings, payments, escrow, chain writes, or non-Lichess external messages.
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_live_lichess_autoplay_v2_level2_memory.json
+\end{verbatim}
+
+This file is runtime autoplay telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Next Step}
+
+The next phase SHOULD perform the live level 2 run, then record and review the result.
+
+\begin{verbatim}
+22C.6 -- Post-Game Review v2 and Policy Update
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22C5-FULL-CHESS-LIVE-LICHESS-AUTOPLAY-V2-LEVEL2-KERNEL-LOCK\\
+Status: LOCKED --- guarded autoplay v2 level 2 path implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

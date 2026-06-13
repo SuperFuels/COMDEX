@@ -218,6 +218,9 @@ __all__ = [
     "AionFullChessLiveLoopSearchSelectorAdapterKernel",
     "LiveLoopSearchSelectorAdapterResult",
     "run_full_chess_live_loop_search_selector_adapter_kernel",
+    "AionFullChessLiveLichessAutoplayV2Level2Kernel",
+    "LiveLichessAutoplayV2Level2Result",
+    "run_full_chess_live_lichess_autoplay_v2_level2_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -564,4 +567,10 @@ from .full_chess_live_loop_search_selector_adapter_kernel import (
     AionFullChessLiveLoopSearchSelectorAdapterKernel,
     LiveLoopSearchSelectorAdapterResult,
     run_full_chess_live_loop_search_selector_adapter_kernel,
+)
+
+from .full_chess_live_lichess_autoplay_v2_level2_kernel import (
+    AionFullChessLiveLichessAutoplayV2Level2Kernel,
+    LiveLichessAutoplayV2Level2Result,
+    run_full_chess_live_lichess_autoplay_v2_level2_kernel,
 )
