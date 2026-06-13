@@ -109,6 +109,11 @@ __all__ = [
     "LegalRuleCase",
     "FullLegalChessRulesResult",
     "run_full_legal_chess_rules_kernel",
+    "AionFullChessIoInterfaceKernel",
+    "UciMove",
+    "PgnRecord",
+    "FullChessIoInterfaceResult",
+    "run_full_chess_io_interface_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -271,4 +276,12 @@ from .full_legal_chess_rules_kernel import (
     LegalRuleCase,
     FullLegalChessRulesResult,
     run_full_legal_chess_rules_kernel,
+)
+
+from .full_chess_io_interface_kernel import (
+    AionFullChessIoInterfaceKernel,
+    UciMove,
+    PgnRecord,
+    FullChessIoInterfaceResult,
+    run_full_chess_io_interface_kernel,
 )
