@@ -157,7 +157,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
 
         all_live_gates_passed = bool(
             game_id
-            and target_level == 2
+            and target_level in {2, 3}
             and selected_move_is_legal
             and explicit_live_send_authorized
             and human_operator_confirmed
