@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional
 
 import chess
 
-from backend.modules.aion_games.full_chess_promotion_safety_queen_survival_guard_kernel import (
-    run_full_chess_promotion_safety_queen_survival_guard_kernel,
+from backend.modules.aion_games.full_chess_initiative_hygiene_guard_kernel import (
+    run_full_chess_initiative_hygiene_guard_kernel,
 )
 
 DEFAULT_MEMORY_PATH = Path("data/aion_games/full_chess_live_one_move_strategic_well_sender_memory.json")
@@ -137,12 +137,12 @@ class AionLiveOneMoveStrategicWellSenderKernel:
         side = chess.WHITE if side_to_move.lower() == "white" else chess.BLACK
         board.turn = side
 
-        strategic = run_full_chess_promotion_safety_queen_survival_guard_kernel(
+        strategic = run_full_chess_initiative_hygiene_guard_kernel(
             input_fen=input_fen,
             side_to_move=side_to_move,
             repeated_moves=list(repeated_moves or []),
             repeated_squares=list(repeated_squares or []),
-            memory_path=self.memory_path.parent / "phase22e38_child_promotion_safety_memory.json",
+            memory_path=self.memory_path.parent / "phase22e38_child_initiative_hygiene_memory.json",
         )
 
         selected_move = strategic.final_selected_move
@@ -212,6 +212,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             self.policy["blocked_count"] = int(self.policy.get("blocked_count", 0)) + 1
 
         evidence = {
+            "phase22e49_initiative_hygiene_used": True,
             "phase22e48_promotion_safety_queen_survival_used": True,
             "phase22e46_dynamic_intent_switching_used": True,
             "phase22e44_proactive_intent_primacy_used": True,
