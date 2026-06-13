@@ -59,6 +59,11 @@ __all__ = [
     "ThreatMove",
     "FullChessThreatMapResult",
     "run_full_chess_threat_map_kernel",
+    "AionFullChessLegalMoveSafetyKernel",
+    "SafetyPiece",
+    "SafetyMove",
+    "FullChessLegalMoveSafetyResult",
+    "run_full_chess_legal_move_safety_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -134,4 +139,12 @@ from .full_chess_threat_map_kernel import (
     ThreatMove,
     FullChessThreatMapResult,
     run_full_chess_threat_map_kernel,
+)
+
+from .full_chess_legal_move_safety_kernel import (
+    AionFullChessLegalMoveSafetyKernel,
+    SafetyPiece,
+    SafetyMove,
+    FullChessLegalMoveSafetyResult,
+    run_full_chess_legal_move_safety_kernel,
 )
