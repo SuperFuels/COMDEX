@@ -80,6 +80,10 @@ __all__ = [
     "LookaheadLine",
     "FullChessMultiPlyLookaheadResult",
     "run_full_chess_multi_ply_lookahead_kernel",
+    "AionFullChessGameLoopKernel",
+    "GameLoopTurn",
+    "FullChessGameLoopResult",
+    "run_full_chess_game_loop_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -192,4 +196,11 @@ from .full_chess_multi_ply_lookahead_kernel import (
     LookaheadLine,
     FullChessMultiPlyLookaheadResult,
     run_full_chess_multi_ply_lookahead_kernel,
+)
+
+from .full_chess_game_loop_kernel import (
+    AionFullChessGameLoopKernel,
+    GameLoopTurn,
+    FullChessGameLoopResult,
+    run_full_chess_game_loop_kernel,
 )
