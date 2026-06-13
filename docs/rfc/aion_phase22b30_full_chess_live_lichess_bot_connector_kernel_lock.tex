@@ -1,0 +1,66 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.30: Full Chess Live Lichess Bot Connector Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.30 defines the AION Full Chess Live Lichess Bot Connector Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can prepare a dry-run live Lichess bot connector contract.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.30 defines the safe connector boundary required before live Lichess bot operation.
+
+\section{Connector Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{connector\_mode};
+  \item \texttt{config};
+  \item \texttt{endpoints};
+  \item \texttt{game\_id};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{lichess\_move\_payload};
+  \item \texttt{would\_accept\_challenge};
+  \item \texttt{would\_post\_move};
+  \item \texttt{network\_call\_performed};
+  \item \texttt{dry\_run\_guard\_active};
+  \item \texttt{token\_redaction\_active};
+  \item \texttt{connector\_ready};
+  \item \texttt{live\_connector\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Safety Boundary}
+
+Network writes MUST remain disabled by default. Tokens MUST be referenced by environment variable name and MUST NOT be printed in full.
+
+\section{Boundary}
+
+This lock demonstrates a dry-run live Lichess bot connector contract. It does not yet perform live network calls, expose OAuth secrets, enter live games, claim official rating, prove engine-strength play, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B30-FULL-CHESS-LIVE-LICHESS-BOT-CONNECTOR-KERNEL-LOCK\\
+Status: LOCKED --- full chess live Lichess bot connector kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

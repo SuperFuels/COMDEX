@@ -144,6 +144,11 @@ __all__ = [
     "LichessMovePayload",
     "FullChessLichessBotBridgeResult",
     "run_full_chess_lichess_bot_bridge_kernel",
+    "AionFullChessLiveLichessBotConnectorKernel",
+    "LichessConnectorConfig",
+    "LichessEndpointContract",
+    "FullChessLiveLichessBotConnectorResult",
+    "run_full_chess_live_lichess_bot_connector_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -365,4 +370,12 @@ from .full_chess_lichess_bot_bridge_kernel import (
     LichessMovePayload,
     FullChessLichessBotBridgeResult,
     run_full_chess_lichess_bot_bridge_kernel,
+)
+
+from .full_chess_live_lichess_bot_connector_kernel import (
+    AionFullChessLiveLichessBotConnectorKernel,
+    LichessConnectorConfig,
+    LichessEndpointContract,
+    FullChessLiveLichessBotConnectorResult,
+    run_full_chess_live_lichess_bot_connector_kernel,
 )
