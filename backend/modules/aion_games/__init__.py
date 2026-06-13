@@ -207,6 +207,14 @@ __all__ = [
     "RealChessEvaluationBreakdown",
     "RealChessEvaluationResult",
     "run_full_chess_real_evaluation_function_kernel",
+    "AionFullChessEvaluationGuidedMoveSelectionKernel",
+    "EvaluationGuidedCandidateMove",
+    "EvaluationGuidedMoveSelectionResult",
+    "run_full_chess_evaluation_guided_move_selection_kernel",
+    "AionFullChessDepthLimitedLookaheadSearchKernel",
+    "DepthLimitedSearchCandidate",
+    "DepthLimitedLookaheadSearchResult",
+    "run_full_chess_depth_limited_lookahead_search_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -533,4 +541,18 @@ from .full_chess_real_evaluation_function_kernel import (
     RealChessEvaluationBreakdown,
     RealChessEvaluationResult,
     run_full_chess_real_evaluation_function_kernel,
+)
+
+from .full_chess_evaluation_guided_move_selection_kernel import (
+    AionFullChessEvaluationGuidedMoveSelectionKernel,
+    EvaluationGuidedCandidateMove,
+    EvaluationGuidedMoveSelectionResult,
+    run_full_chess_evaluation_guided_move_selection_kernel,
+)
+
+from .full_chess_depth_limited_lookahead_search_kernel import (
+    AionFullChessDepthLimitedLookaheadSearchKernel,
+    DepthLimitedSearchCandidate,
+    DepthLimitedLookaheadSearchResult,
+    run_full_chess_depth_limited_lookahead_search_kernel,
 )

@@ -1,0 +1,90 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22C.3: Full Chess Depth-Limited Lookahead Search Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22C.3 implements deterministic depth-limited chess search.
+
+\begin{quote}
+\textbf{Status: LOCKED --- depth-limited lookahead search implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22C.2 selected moves by scoring the immediate position after each legal move.
+
+Phase 22C.3 extends this into lookahead by simulating future legal continuations and opponent replies before selecting a move.
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_depth_limited_lookahead_search_kernel.py
+\end{verbatim}
+
+\section{Search Contract}
+
+The kernel MUST:
+
+\begin{itemize}
+  \item generate legal candidate moves;
+  \item simulate future legal continuations up to a depth limit;
+  \item include opponent replies;
+  \item evaluate leaf positions with the Phase 22C.1 evaluator;
+  \item prioritise terminal mate moves;
+  \item avoid emitting moves from terminal positions;
+  \item emit node and leaf evaluation counts;
+  \item emit a deterministic search trace hash;
+  \item avoid Stockfish, cloud engines, and LLM move judgement.
+\end{itemize}
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_depth_limited_lookahead_search_memory.json
+\end{verbatim}
+
+This file is runtime search telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Boundary}
+
+This phase does not use:
+
+\begin{itemize}
+  \item Stockfish;
+  \item external chess engines;
+  \item cloud evaluation;
+  \item Lichess analysis;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+\section{Next Step}
+
+The next phase SHOULD replace the live Lichess loop move picker with this search selector.
+
+\begin{verbatim}
+22C.4 -- Live Lichess Loop Uses Evaluator/Search Selector
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22C3-FULL-CHESS-DEPTH-LIMITED-LOOKAHEAD-SEARCH-KERNEL-LOCK\\
+Status: LOCKED --- depth-limited lookahead search implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
