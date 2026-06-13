@@ -72,6 +72,10 @@ __all__ = [
     "AionCandidateMove",
     "FullChessOpponentReplyResult",
     "run_full_chess_opponent_reply_kernel",
+    "AionFullChessOnePlyStrategyKernel",
+    "OnePlyCandidate",
+    "FullChessOnePlyStrategyResult",
+    "run_full_chess_one_ply_strategy_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -170,4 +174,11 @@ from .full_chess_opponent_reply_kernel import (
     AionCandidateMove,
     FullChessOpponentReplyResult,
     run_full_chess_opponent_reply_kernel,
+)
+
+from .full_chess_one_ply_strategy_kernel import (
+    AionFullChessOnePlyStrategyKernel,
+    OnePlyCandidate,
+    FullChessOnePlyStrategyResult,
+    run_full_chess_one_ply_strategy_kernel,
 )

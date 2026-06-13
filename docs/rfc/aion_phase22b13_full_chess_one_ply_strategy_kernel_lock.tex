@@ -1,0 +1,61 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.13: Full Chess One-Ply Strategy Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.13 defines the AION Full Chess One-Ply Strategy Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can combine move generation, threat map, legal safety, capture evaluation, and opponent reply into one strategy selector.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.13 combines the previous full-board chess kernels into one one-ply strategy selector.
+
+\section{One-Ply Strategy Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{candidate\_strategy\_count};
+  \item \texttt{generated\_legal\_count};
+  \item \texttt{safety\_preserving\_count};
+  \item \texttt{safe\_profitable\_capture\_count};
+  \item \texttt{threat\_improving\_count};
+  \item \texttt{survives\_opponent\_reply\_count};
+  \item \texttt{rejected\_by\_safety\_count};
+  \item \texttt{rejected\_by\_bad\_reply\_count};
+  \item \texttt{rejected\_by\_bad\_capture\_count};
+  \item \texttt{selected\_strategy};
+  \item \texttt{selected\_strategy\_survives\_reply};
+  \item \texttt{one\_ply\_strategy\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates selected one-ply full-board chess strategy selection. It does not yet implement multi-ply search, full chess mastery, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B13-FULL-CHESS-ONE-PLY-STRATEGY-KERNEL-LOCK\\
+Status: LOCKED --- full chess one-ply strategy kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
