@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.25: Full Chess Self-Play Training Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.25 defines the AION Full Chess Self-Play Training Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can run deterministic self-play training games and update learned policy strength.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.25 converts self-play outcomes into persistent training updates.
+
+\section{Self-Play Training Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{training\_game\_count};
+  \item \texttt{completed\_training\_game\_count};
+  \item \texttt{stable\_or\_winning\_game\_count};
+  \item \texttt{losing\_or\_penalised\_game\_count};
+  \item \texttt{reinforcement\_update\_count};
+  \item \texttt{penalty\_update\_count};
+  \item \texttt{initial\_policy\_strength};
+  \item \texttt{final\_policy\_strength};
+  \item \texttt{policy\_improvement\_delta};
+  \item \texttt{selected\_policy\_after\_training};
+  \item \texttt{rejected\_policy\_after\_training};
+  \item \texttt{training\_games};
+  \item \texttt{training\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic self-play training over selected chess game outcomes. It does not yet implement open-ended self-play mastery, exhaustive search, engine-strength evaluation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B25-FULL-CHESS-SELF-PLAY-TRAINING-KERNEL-LOCK\\
+Status: LOCKED --- full chess self-play training kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

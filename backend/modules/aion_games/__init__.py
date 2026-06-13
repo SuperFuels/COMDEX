@@ -122,6 +122,10 @@ __all__ = [
     "SearchCandidate",
     "FullChessBasicSearchEngineResult",
     "run_full_chess_basic_search_engine_kernel",
+    "AionFullChessSelfPlayTrainingKernel",
+    "TrainingGame",
+    "FullChessSelfPlayTrainingResult",
+    "run_full_chess_self_play_training_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -306,4 +310,11 @@ from .full_chess_basic_search_engine_kernel import (
     SearchCandidate,
     FullChessBasicSearchEngineResult,
     run_full_chess_basic_search_engine_kernel,
+)
+
+from .full_chess_self_play_training_kernel import (
+    AionFullChessSelfPlayTrainingKernel,
+    TrainingGame,
+    FullChessSelfPlayTrainingResult,
+    run_full_chess_self_play_training_kernel,
 )
