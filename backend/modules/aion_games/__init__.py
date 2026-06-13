@@ -92,6 +92,11 @@ __all__ = [
     "SelfPlayEpisode",
     "FullChessSelfPlayImprovementResult",
     "run_full_chess_self_play_improvement_kernel",
+    "AionFullChessSelfPlayTournamentKernel",
+    "TournamentPolicy",
+    "TournamentMatch",
+    "FullChessSelfPlayTournamentResult",
+    "run_full_chess_self_play_tournament_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -225,4 +230,12 @@ from .full_chess_self_play_improvement_kernel import (
     SelfPlayEpisode,
     FullChessSelfPlayImprovementResult,
     run_full_chess_self_play_improvement_kernel,
+)
+
+from .full_chess_self_play_tournament_kernel import (
+    AionFullChessSelfPlayTournamentKernel,
+    TournamentPolicy,
+    TournamentMatch,
+    FullChessSelfPlayTournamentResult,
+    run_full_chess_self_play_tournament_kernel,
 )
