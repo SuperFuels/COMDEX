@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.21 --- Queen Endgame Override Live Sender}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.21 integrates the Phase 22E.20 queen endgame mate conversion kernel into the live sender path.
+
+The normal live sender remains Phase 22E.16. When a queen endgame is detected, Phase 22E.21 overrides the base move with the deterministic queen endgame conversion move.
+
+\section{Contract}
+
+The live sender MUST:
+
+\begin{itemize}[leftmargin=*]
+  \item call the queen endgame conversion kernel first;
+  \item activate override only when queen endgame conversion is active and legal;
+  \item fall back to the Phase 22E.16 base sender when override is inactive;
+  \item preserve all live send safety gates;
+  \item require token, explicit live authorization, human confirmation, live stream confirmation, one-move gate, live sender flag, and allow-real-post flag before POST;
+  \item emit trace hashes for override and final sender path.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, LLM move judgement, or Lichess analysis.
+
+It may send a move only if all live safety flags are explicitly true.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e21_full_chess_queen_endgame_override_live_sender_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e21_full_chess_queen_endgame_override_live_sender_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E21-FULL-CHESS-QUEEN-ENDGAME-OVERRIDE-LIVE-SENDER\\
+Status: LOCKED --- queen endgame override integrated into live sender\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
