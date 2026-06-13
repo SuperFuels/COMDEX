@@ -1,0 +1,65 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.40 --- Strategic Well Live Post-Game Review}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.40 locks the deterministic post-game review for the Phase 22E.39 live Strategic Well rematch.
+
+The review converts the live game result into a machine-readable failure map for the next patches.
+
+\section{Confirmed Improvement}
+
+The opening failure was corrected:
+
+\begin{verbatim}
+base well: h2h4
+final move: g1f3
+\end{verbatim}
+
+\section{Detected Failure Map}
+
+The review MUST detect:
+
+\begin{itemize}[leftmargin=*]
+  \item later return of \texttt{h2h4};
+  \item wrong underpromotion such as \texttt{d7c8r};
+  \item over-broad \texttt{convert\_passed\_pawn} intent;
+  \item endgame repetition;
+  \item draw conversion failure.
+\end{itemize}
+
+\section{Next Patch Order}
+
+\begin{verbatim}
+22E.41 -- Promotion Choice Fix: Queen First Unless Proven Otherwise
+22E.42 -- Passed Pawn Intent Scope Guard
+22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+22E.44 -- Proactive Intent Primacy & Plan Enforcement
+\end{verbatim}
+
+\section{Boundary}
+
+This review does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E40-FULL-CHESS-STRATEGIC-WELL-LIVE-POST-GAME-REVIEW\\
+Status: LOCKED --- live post-game failure map implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
