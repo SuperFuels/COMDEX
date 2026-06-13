@@ -1,0 +1,70 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.39 --- Full Live Level-2 Strategic Well Rematch}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.39 locks the full live Level-2 Strategic Well rematch loop.
+
+The loop uses the Phase 22E.38 live one-move Strategic Well sender and the Phase 22E.25 post-400 recovery runner.
+
+\section{Correction Path}
+
+The base Strategic Well previously selected:
+
+\begin{verbatim}
+h2h4
+\end{verbatim}
+
+The intent-driven path now corrects this to:
+
+\begin{verbatim}
+g1f3
+\end{verbatim}
+
+The full rematch loop inherits that correction.
+
+\section{Live Boundary}
+
+The live loop creates a Lichess AI Level-2 challenge and posts moves only when:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{dry\_run=false};
+  \item network execution is enabled;
+  \item \texttt{AION\_LICHESS\_LIVE=1};
+  \item a bot token is present.
+\end{itemize}
+
+\section{Evidence Boundary}
+
+The loop does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e39_full_chess_level2_strategic_well_live_rematch_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e39_full_chess_level2_strategic_well_live_rematch_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E39-FULL-CHESS-LEVEL2-STRATEGIC-WELL-LIVE-REMATCH\\
+Status: LOCKED --- full live Level-2 Strategic Well rematch loop implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
