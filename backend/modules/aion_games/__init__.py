@@ -130,6 +130,11 @@ __all__ = [
     "BenchmarkMatch",
     "FullChessRatingBenchmarkResult",
     "run_full_chess_rating_benchmark_kernel",
+    "AionFullChessPlayableUiKernel",
+    "UiMoveEntry",
+    "PlayableUiState",
+    "FullChessPlayableUiResult",
+    "run_full_chess_playable_ui_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -328,4 +333,12 @@ from .full_chess_rating_benchmark_kernel import (
     BenchmarkMatch,
     FullChessRatingBenchmarkResult,
     run_full_chess_rating_benchmark_kernel,
+)
+
+from .full_chess_playable_ui_kernel import (
+    AionFullChessPlayableUiKernel,
+    UiMoveEntry,
+    PlayableUiState,
+    FullChessPlayableUiResult,
+    run_full_chess_playable_ui_kernel,
 )
