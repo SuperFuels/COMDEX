@@ -186,6 +186,11 @@ __all__ = [
     "DryRunReplayDecision",
     "FullChessLichessDryRunGameReplayResult",
     "run_full_chess_lichess_dry_run_game_replay_kernel",
+    "AionFullChessLiveLichessBotEnablementKernel",
+    "LiveLichessBotEnablementConfig",
+    "LiveLichessBotEnablementDecision",
+    "FullChessLiveLichessBotEnablementResult",
+    "run_full_chess_live_lichess_bot_enablement_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -476,4 +481,12 @@ from .full_chess_lichess_dry_run_game_replay_kernel import (
     DryRunReplayDecision,
     FullChessLichessDryRunGameReplayResult,
     run_full_chess_lichess_dry_run_game_replay_kernel,
+)
+
+from .full_chess_live_lichess_bot_enablement_kernel import (
+    AionFullChessLiveLichessBotEnablementKernel,
+    LiveLichessBotEnablementConfig,
+    LiveLichessBotEnablementDecision,
+    FullChessLiveLichessBotEnablementResult,
+    run_full_chess_live_lichess_bot_enablement_kernel,
 )

@@ -1,0 +1,82 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.39: Full Chess Live Lichess Bot Enablement Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.39 defines the AION Full Chess Live Lichess Bot Enablement Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION has a guarded live Lichess bot enablement contract.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.39 is the guarded live enablement boundary.
+
+The kernel prepares the live bot move request, but live execution is allowed only if all guards clear.
+
+\section{Live Enablement Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{enablement\_mode};
+  \item \texttt{human\_approval\_required};
+  \item \texttt{config};
+  \item \texttt{decision};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{selected\_policy};
+  \item \texttt{live\_call\_allowed};
+  \item \texttt{block\_reason};
+  \item \texttt{dry\_run\_guard\_active};
+  \item \texttt{token\_guard\_active};
+  \item \texttt{network\_guard\_active};
+  \item \texttt{live\_enable\_guard\_active};
+  \item \texttt{network\_call\_performed};
+  \item \texttt{live\_enablement\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Guard Rule}
+
+Live execution is allowed only when:
+
+\begin{verbatim}
+dry_run == false
+token_present == true
+allow_network == true
+live_enable == true
+\end{verbatim}
+
+Otherwise the move remains blocked or preview-only.
+
+\section{Boundary}
+
+This lock demonstrates guarded live enablement only.
+
+The tests MUST NOT perform live network calls.
+
+It does not prove live Lichess play, official rating, grandmaster-strength play, Stockfish-level calculation, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B39-FULL-CHESS-LIVE-LICHESS-BOT-ENABLEMENT-KERNEL-LOCK\\
+Status: LOCKED --- full chess live Lichess bot enablement kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
