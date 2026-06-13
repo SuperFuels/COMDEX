@@ -68,6 +68,10 @@ __all__ = [
     "CapturePiece",
     "FullChessCaptureEvaluationResult",
     "run_full_chess_capture_evaluation_kernel",
+    "AionFullChessOpponentReplyKernel",
+    "AionCandidateMove",
+    "FullChessOpponentReplyResult",
+    "run_full_chess_opponent_reply_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -159,4 +163,11 @@ from .full_chess_capture_evaluation_kernel import (
     CaptureCandidate,
     FullChessCaptureEvaluationResult,
     run_full_chess_capture_evaluation_kernel,
+)
+
+from .full_chess_opponent_reply_kernel import (
+    AionFullChessOpponentReplyKernel,
+    AionCandidateMove,
+    FullChessOpponentReplyResult,
+    run_full_chess_opponent_reply_kernel,
 )

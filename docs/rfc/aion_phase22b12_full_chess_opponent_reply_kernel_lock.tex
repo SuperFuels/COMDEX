@@ -1,0 +1,59 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.12: Full Chess Opponent Reply Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.12 defines the AION Full Chess Opponent Reply Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can generate opponent replies, reject bad reply lines, and select a move that survives the opponent response.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.12 adds one-reply opponent reasoning to the full-board chess reasoning ladder.
+
+\section{Opponent Reply Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{candidate\_move\_count};
+  \item \texttt{opponent\_reply\_count};
+  \item \texttt{safe\_after\_reply\_count};
+  \item \texttt{bad\_reply\_rejection\_count};
+  \item \texttt{king\_exposure\_reply\_rejection\_count};
+  \item \texttt{material\_loss\_reply\_rejection\_count};
+  \item \texttt{selected\_move};
+  \item \texttt{selected\_move\_survives\_reply};
+  \item \texttt{avoided\_bad\_opponent\_reply};
+  \item \texttt{opponent\_reply\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates selected one-reply opponent reasoning. It does not yet implement full chess mastery, full game-tree search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B12-FULL-CHESS-OPPONENT-REPLY-KERNEL-LOCK\\
+Status: LOCKED --- full chess opponent reply kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
