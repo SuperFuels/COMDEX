@@ -23,8 +23,8 @@ from typing import Any, Dict, List, Optional
 
 import chess
 
-from .full_chess_sqi_guided_move_selection_kernel import (
-    run_full_chess_sqi_guided_move_selection_kernel,
+from .full_chess_sqi_failure_patch_selector_kernel import (
+    run_full_chess_sqi_failure_patch_selector_kernel,
 )
 
 
@@ -197,25 +197,25 @@ class AionFullChessLiveLoopSQISelectorAdapterKernel:
         if terminal_position:
             selected_sqi_reason = "terminal_position_no_move"
         elif is_aion_turn:
-            sqi_result = run_full_chess_sqi_guided_move_selection_kernel(
+            sqi_result = run_full_chess_sqi_failure_patch_selector_kernel(
                 memory_path=self.sqi_selector_memory_path,
-                sqi_bridge_memory_path=self.sqi_bridge_memory_path,
+                fen=fen,
+                sqi_selector_memory_path=self.sqi_selector_memory_path,
                 selector_memory_path=self.selector_memory_path,
-                evaluation_memory_path=self.evaluation_memory_path,
-                post_game_memory_path=self.post_game_memory_path,
-                fen=board.fen(),
-                side_to_evaluate=aion_colour,
-                sqi_enabled=True,
             )
 
+            top_candidate = {}
+            if getattr(sqi_result, "top_patched_candidates", None):
+                top_candidate = sqi_result.top_patched_candidates[0]
+
             selected_move = sqi_result.selected_move
-            selected_classical_score = sqi_result.selected_classical_score
-            selected_sqi_adjusted_score = sqi_result.selected_sqi_adjusted_score
-            selected_collapse_weight = sqi_result.selected_collapse_weight
-            selected_sqi_reason = sqi_result.selected_sqi_reason
-            sqi_trace_hash = sqi_result.sqi_trace_hash
-            selection_trace_hash = sqi_result.selection_trace_hash
-            live_loop_move_source = "phase22d2_sqi_guided_move_selection"
+            selected_classical_score = float(top_candidate.get("classical_score", 0.0))
+            selected_sqi_adjusted_score = float(sqi_result.selected_patched_score)
+            selected_collapse_weight = float(top_candidate.get("collapse_weight", 0.0))
+            selected_sqi_reason = sqi_result.selected_patch_reason
+            sqi_trace_hash = getattr(sqi_result, "patch_trace_hash", "")
+            selection_trace_hash = getattr(sqi_result, "patch_trace_hash", "")
+            live_loop_move_source = "phase22d8_sqi_failure_patch_selector"
             sqi_guided_selector_used = True
 
         legal_moves = {move.uci() for move in board.legal_moves}
@@ -265,6 +265,8 @@ class AionFullChessLiveLoopSQISelectorAdapterKernel:
             "sqi_enabled": True,
             "live_loop_sqi_selector_adapter_active": True,
             "sqi_guided_selector_used_when_aion_turn": bool(is_aion_turn and sqi_guided_selector_used and selected_move),
+            "failure_patched_sqi_selector_used_when_aion_turn": bool(is_aion_turn and sqi_guided_selector_used and selected_move),
+            "old_sqi_guided_selector_wrapped_by_failure_patch": True,
             "old_search_only_selector_replaced": True,
             "selected_move_is_legal": selected_move_is_legal,
             "no_move_when_not_aion_turn": bool((not is_aion_turn) and selected_move == ""),
@@ -313,7 +315,7 @@ class AionFullChessLiveLoopSQISelectorAdapterKernel:
             final_adapter_policy=dict(self.policy),
             evidence=evidence,
             boundary_statement=(
-                "This kernel replaces the live loop search-only move source with the Phase 22D.2 SQI-guided selector. "
+                "This kernel wires the live loop to the Phase 22D.8 failure-patched SQI selector, which wraps the Phase 22D.2 SQI-guided selector. "
                 "It is dry-run by default and does not send a live Lichess move in this phase."
             ),
         )

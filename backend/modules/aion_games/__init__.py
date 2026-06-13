@@ -243,6 +243,9 @@ __all__ = [
     "AionFullChessLevel2SQILossPostGameReviewKernel",
     "Level2SQILossPostGameReviewResult",
     "run_full_chess_level2_sqi_loss_post_game_review_kernel",
+    "AionFullChessSQIFailurePatchSelectorKernel",
+    "SQIFailurePatchSelectorResult",
+    "run_full_chess_sqi_failure_patch_selector_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -638,4 +641,10 @@ from .full_chess_level2_sqi_loss_post_game_review_kernel import (
     AionFullChessLevel2SQILossPostGameReviewKernel,
     Level2SQILossPostGameReviewResult,
     run_full_chess_level2_sqi_loss_post_game_review_kernel,
+)
+
+from .full_chess_sqi_failure_patch_selector_kernel import (
+    AionFullChessSQIFailurePatchSelectorKernel,
+    SQIFailurePatchSelectorResult,
+    run_full_chess_sqi_failure_patch_selector_kernel,
 )
