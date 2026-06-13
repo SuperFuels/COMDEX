@@ -118,6 +118,10 @@ __all__ = [
     "RealOpponentTurn",
     "FullChessRealOpponentGameLoopResult",
     "run_full_chess_real_opponent_game_loop_kernel",
+    "AionFullChessBasicSearchEngineKernel",
+    "SearchCandidate",
+    "FullChessBasicSearchEngineResult",
+    "run_full_chess_basic_search_engine_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -295,4 +299,11 @@ from .full_chess_real_opponent_game_loop_kernel import (
     RealOpponentTurn,
     FullChessRealOpponentGameLoopResult,
     run_full_chess_real_opponent_game_loop_kernel,
+)
+
+from .full_chess_basic_search_engine_kernel import (
+    AionFullChessBasicSearchEngineKernel,
+    SearchCandidate,
+    FullChessBasicSearchEngineResult,
+    run_full_chess_basic_search_engine_kernel,
 )
