@@ -49,6 +49,11 @@ __all__ = [
     "FullChessMove",
     "FullChessBoardAdapterResult",
     "run_full_chess_board_adapter_kernel",
+    "AionFullChessMoveGeneratorKernel",
+    "ChessPiece",
+    "ChessMove",
+    "FullChessMoveGeneratorResult",
+    "run_full_chess_move_generator_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -108,4 +113,12 @@ from .full_chess_board_adapter_kernel import (
     FullChessMove,
     FullChessBoardAdapterResult,
     run_full_chess_board_adapter_kernel,
+)
+
+from .full_chess_move_generator_kernel import (
+    AionFullChessMoveGeneratorKernel,
+    ChessPiece,
+    ChessMove,
+    FullChessMoveGeneratorResult,
+    run_full_chess_move_generator_kernel,
 )
