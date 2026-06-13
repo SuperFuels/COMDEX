@@ -195,6 +195,10 @@ __all__ = [
     "RealLichessMoveSendRequest",
     "RealLichessMoveSendResult",
     "run_full_chess_real_lichess_network_move_sender_kernel",
+    "AionFullChessLiveLichessGameLoopResultRecorderKernel",
+    "LiveLichessGameLoopMoveRecord",
+    "FullChessLiveLichessGameLoopResult",
+    "run_full_chess_live_lichess_game_loop_result_recorder_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -500,4 +504,11 @@ from .full_chess_real_lichess_network_move_sender_kernel import (
     RealLichessMoveSendRequest,
     RealLichessMoveSendResult,
     run_full_chess_real_lichess_network_move_sender_kernel,
+)
+
+from .full_chess_live_lichess_game_loop_result_recorder_kernel import (
+    AionFullChessLiveLichessGameLoopResultRecorderKernel,
+    LiveLichessGameLoopMoveRecord,
+    FullChessLiveLichessGameLoopResult,
+    run_full_chess_live_lichess_game_loop_result_recorder_kernel,
 )
