@@ -1,0 +1,121 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.45 --- Live Level-2 Strategic Well Rematch Win Proof}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.45 records the first clean live Level-2 Strategic Well rematch win after the Phase 22E.40--22E.44 correction stack.
+
+\section{Live Result}
+
+The live rematch produced the following result:
+
+\begin{verbatim}
+Game ID: zrjumboE
+Full ID: zrjumboE9siT
+AION colour: white
+Final status: mate
+Final winner: white
+AION move count: 18
+Move send OK count: 18
+Post-400 recovery count: 0
+Trace hash: decde4e3d78dd309ee62a9dbcb36a41cc2de8db05312f22b353123860af16299
+\end{verbatim}
+
+\section{Live Execution Boundary}
+
+The rematch was executed with:
+
+\begin{verbatim}
+dry_run = false
+network_enabled = true
+challenge_attempted = true
+challenge_created = true
+full_stream_loop = true
+token_present = true
+live_env_enabled = true
+\end{verbatim}
+
+This confirms that the kernel created a live challenge, streamed the game, and posted real moves.
+
+\section{Correction Stack Used}
+
+The live sender stack used for the rematch was:
+
+\begin{verbatim}
+22E.38 -- Live one-move sender
+  -> 22E.44 -- Proactive Intent Primacy & Plan Enforcement
+    -> 22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+      -> 22E.42 -- Passed Pawn Intent Scope Guard
+        -> 22E.41 -- Queen-First Promotion Guard
+          -> 22E.37 -- Intent-Driven Strategic Well
+\end{verbatim}
+
+\section{Opening Drift Correction}
+
+The base well continued to propose the old bad opening move:
+
+\begin{verbatim}
+h2h4
+\end{verbatim}
+
+The correction stack selected:
+
+\begin{verbatim}
+g1f3
+\end{verbatim}
+
+as the first live move.
+
+This confirms the opening drift correction remained active in live play.
+
+\section{Final Move Sequence}
+
+\begin{verbatim}
+g1f3 c7c5 b1c3 b8c6 e2e4 e7e6 f1e2 d7d6
+d2d4 d8b6 c1g5 c5d4 h2h4 h7h6 g2g4 b6b2
+e4e5 d6e5 a2a3 g8f6 h4h5 f6g4 a3a4 c6b4
+e2b5 c8d7 b5d7 e8d7 d1d4 b4d5 d4d5 d7c7
+d5b7 c7d6 c3e4
+\end{verbatim}
+
+\section{Outcome}
+
+AION won by mate as white after 35 plies.
+
+The run had:
+
+\begin{itemize}
+  \item no timeout loss;
+  \item no post-400 recovery requirement;
+  \item no failed move post;
+  \item no dry-run fallback;
+  \item no Stockfish call;
+  \item no LLM move judgement;
+  \item no Lichess analysis dependency.
+\end{itemize}
+
+\section{Status}
+
+Phase 22E.45 proves that the corrected AION live Level-2 Strategic Well stack can win a live game by mate.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E45-LIVE-LEVEL2-STRATEGIC-WELL-REMATCH-WIN-PROOF\\
+Status: LOCKED --- live Level-2 rematch won by mate\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
