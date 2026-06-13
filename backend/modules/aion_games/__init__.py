@@ -105,6 +105,10 @@ __all__ = [
     "BoardMutationMove",
     "FullChessBoardStateMutationResult",
     "run_full_chess_board_state_mutation_kernel",
+    "AionFullLegalChessRulesKernel",
+    "LegalRuleCase",
+    "FullLegalChessRulesResult",
+    "run_full_legal_chess_rules_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -260,4 +264,11 @@ from .full_chess_board_state_mutation_kernel import (
     BoardMutationMove,
     FullChessBoardStateMutationResult,
     run_full_chess_board_state_mutation_kernel,
+)
+
+from .full_legal_chess_rules_kernel import (
+    AionFullLegalChessRulesKernel,
+    LegalRuleCase,
+    FullLegalChessRulesResult,
+    run_full_legal_chess_rules_kernel,
 )
