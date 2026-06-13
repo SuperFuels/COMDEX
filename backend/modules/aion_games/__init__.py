@@ -181,6 +181,11 @@ __all__ = [
     "LadderTierResult",
     "FullChessLocalTournamentRatingLadderResult",
     "run_full_chess_local_tournament_rating_ladder_kernel",
+    "AionFullChessLichessDryRunGameReplayKernel",
+    "LichessReplayEvent",
+    "DryRunReplayDecision",
+    "FullChessLichessDryRunGameReplayResult",
+    "run_full_chess_lichess_dry_run_game_replay_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -463,4 +468,12 @@ from .full_chess_local_tournament_rating_ladder_kernel import (
     LadderTierResult,
     FullChessLocalTournamentRatingLadderResult,
     run_full_chess_local_tournament_rating_ladder_kernel,
+)
+
+from .full_chess_lichess_dry_run_game_replay_kernel import (
+    AionFullChessLichessDryRunGameReplayKernel,
+    LichessReplayEvent,
+    DryRunReplayDecision,
+    FullChessLichessDryRunGameReplayResult,
+    run_full_chess_lichess_dry_run_game_replay_kernel,
 )
