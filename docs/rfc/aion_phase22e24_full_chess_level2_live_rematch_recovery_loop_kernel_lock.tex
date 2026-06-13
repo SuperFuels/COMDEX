@@ -1,0 +1,58 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.24 --- Integrate POST 400 Recovery Into Live Rematch Loop}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.24 integrates the Phase 22E.23 HTTP 400 recovery guard into the Phase 22E.22 full Level-2 live rematch loop.
+
+The live loop MUST NOT abort immediately when a move POST returns HTTP 400.
+
+\section{Contract}
+
+The live rematch loop MUST:
+
+\begin{itemize}[leftmargin=*]
+  \item invoke Phase 22E.23 on HTTP 400;
+  \item continue when the latest server state shows the move was already applied;
+  \item continue when stale-state server advancement is detected;
+  \item refresh from the latest server move list after nonfatal recovery;
+  \item count the recovered move as sent and successful;
+  \item hard-abort only when the latest current state confirms rejection.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not select chess moves, does not send moves, does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+It only defines the deterministic recovery decision contract for the live rematch loop.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e24_full_chess_level2_live_rematch_recovery_loop_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e24_full_chess_level2_live_rematch_recovery_loop_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E24-FULL-CHESS-LEVEL2-LIVE-REMATCH-RECOVERY-LOOP\\
+Status: LOCKED --- POST 400 recovery integrated into live rematch loop\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
