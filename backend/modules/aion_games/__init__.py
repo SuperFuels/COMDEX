@@ -215,6 +215,9 @@ __all__ = [
     "DepthLimitedSearchCandidate",
     "DepthLimitedLookaheadSearchResult",
     "run_full_chess_depth_limited_lookahead_search_kernel",
+    "AionFullChessLiveLoopSearchSelectorAdapterKernel",
+    "LiveLoopSearchSelectorAdapterResult",
+    "run_full_chess_live_loop_search_selector_adapter_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -555,4 +558,10 @@ from .full_chess_depth_limited_lookahead_search_kernel import (
     DepthLimitedSearchCandidate,
     DepthLimitedLookaheadSearchResult,
     run_full_chess_depth_limited_lookahead_search_kernel,
+)
+
+from .full_chess_live_loop_search_selector_adapter_kernel import (
+    AionFullChessLiveLoopSearchSelectorAdapterKernel,
+    LiveLoopSearchSelectorAdapterResult,
+    run_full_chess_live_loop_search_selector_adapter_kernel,
 )
