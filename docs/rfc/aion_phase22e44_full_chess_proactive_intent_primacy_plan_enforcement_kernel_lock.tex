@@ -1,0 +1,62 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.44 --- Proactive Intent Primacy \& Plan Enforcement}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.44 enforces proactive intent primacy.
+
+AION MUST NOT drift into passive moves when a valid proactive plan move is available.
+
+\section{Rule}
+
+If the active intent is a proactive plan such as rapid development, center control, initiative pressure, kingside attack, queenside expansion, or simplification while ahead, the selected move SHOULD advance that plan.
+
+If the selected move is passive drift and a deterministic legal proactive alternative exists, AION SHOULD replace the drift move.
+
+\section{Latest Upgrade Summary}
+
+The current live correction stack is:
+
+\begin{verbatim}
+22E.38 -- Live one-move sender
+  -> 22E.44 -- Proactive Intent Primacy & Plan Enforcement
+    -> 22E.43 -- Anti-Shuffling / Endgame Conversion Guard
+      -> 22E.42 -- Passed Pawn Intent Scope Guard
+        -> 22E.41 -- Queen-First Promotion Guard
+          -> 22E.37 -- Intent-Driven Strategic Well
+\end{verbatim}
+
+This means the next live rematch will include:
+
+\begin{itemize}
+  \item queen-first promotion correction;
+  \item passed-pawn scope control;
+  \item anti-shuffling endgame conversion;
+  \item proactive plan enforcement before live move posting.
+\end{itemize}
+
+\section{Boundary}
+
+This guard does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E44-FULL-CHESS-PROACTIVE-INTENT-PRIMACY-PLAN-ENFORCEMENT\\
+Status: LOCKED --- proactive intent primacy and plan enforcement implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
