@@ -1,0 +1,72 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.5 --- Self-Play Curriculum with Increasing Difficulty}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.5 introduces a deterministic self-play curriculum layer with increasing difficulty.
+
+This phase consumes Phase 22E.4 post-game strategic policy updates and converts them into repeatable curriculum pressure.
+
+\section{Curriculum Contract}
+
+The kernel tracks:
+
+\begin{itemize}[leftmargin=*]
+  \item episode count;
+  \item curriculum level;
+  \item selected policy profile;
+  \item plan-follow rate;
+  \item positional-delta trend;
+  \item mate-loss reduction;
+  \item promotion-danger reduction;
+  \item invasion-risk reduction;
+  \item trace hash per episode.
+\end{itemize}
+
+\section{Policy Integration}
+
+The curriculum consumes post-game strategic policy updates such as:
+
+\begin{itemize}[leftmargin=*]
+  \item increase king-safety goal bias after mate loss;
+  \item increase invasion reduction after back-rank penetration;
+  \item increase promotion defence after an unstopped pawn;
+  \item increase positional-delta weighting after decline.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use Stockfish, cloud engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+It is deterministic local curriculum pressure over AION chess telemetry.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e5_full_chess_self_play_curriculum_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e5_full_chess_self_play_curriculum_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E5-FULL-CHESS-SELF-PLAY-CURRICULUM\\
+Status: LOCKED --- self-play curriculum with increasing difficulty implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
