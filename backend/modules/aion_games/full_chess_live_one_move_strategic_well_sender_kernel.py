@@ -11,8 +11,8 @@ from typing import Any, Dict, List, Optional
 
 import chess
 
-from backend.modules.aion_games.full_chess_intent_driven_strategic_regression_well_kernel import (
-    run_full_chess_intent_driven_strategic_regression_well_kernel,
+from backend.modules.aion_games.full_chess_promotion_choice_queen_first_guard_kernel import (
+    run_full_chess_promotion_choice_queen_first_guard_kernel,
 )
 
 DEFAULT_MEMORY_PATH = Path("data/aion_games/full_chess_live_one_move_strategic_well_sender_memory.json")
@@ -137,12 +137,12 @@ class AionLiveOneMoveStrategicWellSenderKernel:
         side = chess.WHITE if side_to_move.lower() == "white" else chess.BLACK
         board.turn = side
 
-        strategic = run_full_chess_intent_driven_strategic_regression_well_kernel(
+        strategic = run_full_chess_promotion_choice_queen_first_guard_kernel(
             input_fen=input_fen,
             side_to_move=side_to_move,
             repeated_moves=list(repeated_moves or []),
             repeated_squares=list(repeated_squares or []),
-            memory_path=self.memory_path.parent / "phase22e38_child_intent_well_memory.json",
+            memory_path=self.memory_path.parent / "phase22e38_child_promotion_guard_memory.json",
         )
 
         selected_move = strategic.final_selected_move
@@ -190,7 +190,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             "selected_move": selected_move,
             "selected_move_is_legal": selected_move_is_legal,
             "active_intent": strategic.active_intent,
-            "intent_override_applied": strategic.intent_override_applied,
+            "intent_override_applied": bool(getattr(strategic, "queen_override_applied", False)),
             "all_live_gates_passed": all_live_gates_passed,
             "move_post_attempted": move_post_attempted,
             "move_post_succeeded": move_post_succeeded,
@@ -212,6 +212,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             self.policy["blocked_count"] = int(self.policy.get("blocked_count", 0)) + 1
 
         evidence = {
+            "phase22e41_promotion_choice_guard_used": True,
             "phase22e37_intent_driven_well_used": True,
             "one_move_only": True,
             "live_gates_required": True,
@@ -236,11 +237,11 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             target_level=target_level,
             selected_move=selected_move,
             selected_move_is_legal=selected_move_is_legal,
-            selected_source=strategic.final_selected_source,
+            selected_source=getattr(strategic, "final_selected_source", getattr(strategic, "selected_source", "")),
             active_intent=strategic.active_intent,
             base_well_selected_move=strategic.base_well_selected_move,
-            intent_override_applied=strategic.intent_override_applied,
-            regression_well_score=int(strategic.final_regression_well_score),
+            intent_override_applied=bool(getattr(strategic, "intent_override_applied", False)) or bool(getattr(strategic, "queen_override_applied", False)),
+            regression_well_score=int(getattr(strategic, "final_regression_well_score", 0)),
             explicit_live_send_authorized=explicit_live_send_authorized,
             human_operator_confirmed=human_operator_confirmed,
             live_game_stream_confirmed=live_game_stream_confirmed,

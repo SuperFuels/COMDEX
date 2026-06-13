@@ -1,0 +1,46 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.41 --- Promotion Choice Fix: Queen First Unless Proven Otherwise}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.41 fixes the promotion-choice failure detected in Phase 22E.40.
+
+The live game selected:
+
+\begin{verbatim}
+d7c8r
+\end{verbatim}
+
+The guard MUST select:
+
+\begin{verbatim}
+d7c8q
+\end{verbatim}
+
+when queen promotion is legal and no underpromotion requirement is proven.
+
+\section{Boundary}
+
+This guard does not call Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E41-FULL-CHESS-PROMOTION-CHOICE-QUEEN-FIRST-GUARD\\
+Status: LOCKED --- queen-first promotion guard implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
