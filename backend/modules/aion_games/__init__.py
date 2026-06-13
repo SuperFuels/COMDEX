@@ -237,6 +237,9 @@ __all__ = [
     "AionFullChessRealLichessLevel2SQIAutoplayRunnerKernel",
     "RealLichessLevel2SQIAutoplayRunnerResult",
     "run_full_chess_real_lichess_level2_sqi_autoplay_runner_kernel",
+    "AionFullChessRealLichessLevel2SQIGameLoopKernel",
+    "RealLichessLevel2SQIGameLoopResult",
+    "run_full_chess_real_lichess_level2_sqi_game_loop_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -620,4 +623,10 @@ from .full_chess_real_lichess_level2_sqi_autoplay_runner_kernel import (
     AionFullChessRealLichessLevel2SQIAutoplayRunnerKernel,
     RealLichessLevel2SQIAutoplayRunnerResult,
     run_full_chess_real_lichess_level2_sqi_autoplay_runner_kernel,
+)
+
+from .full_chess_real_lichess_level2_sqi_game_loop_kernel import (
+    AionFullChessRealLichessLevel2SQIGameLoopKernel,
+    RealLichessLevel2SQIGameLoopResult,
+    run_full_chess_real_lichess_level2_sqi_game_loop_kernel,
 )

@@ -1,0 +1,66 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22D.6: Full Real Lichess Level 2 SQI Game Loop Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+\begin{quote}
+\textbf{Status: LOCKED --- full real level 2 SQI game loop implemented and tested in dry-run mode.}
+\end{quote}
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_real_lichess_level2_sqi_game_loop_kernel.py
+\end{verbatim}
+
+\section{Live Gate Contract}
+
+The loop MUST NOT play live unless all gates are satisfied:
+
+\begin{verbatim}
+AION_LICHESS_LIVE=1
+LICHESS_BOT_TOKEN
+dry_run=false
+network_enabled=true
+\end{verbatim}
+
+
+\begin{itemize}
+  \item \texttt{dry\_run = false};
+  \item \texttt{network\_enabled = true};
+  \item \texttt{LICHESS\_BOT\_TOKEN} is present;
+  \item \texttt{AION\_LICHESS\_LIVE=1};
+  \item opponent level is exactly 2.
+\end{itemize}
+
+\section{Loop Contract}
+
+The loop uses the Phase 22D.3 live-loop SQI adapter and Phase 22D.2 SQI-guided move selector.
+
+It can create a live Lichess level 2 game, stream game state, select SQI-guided legal moves, send moves, and record the final result.
+
+\section{Boundary}
+
+This phase does not use local Stockfish, cloud engines, external chess engines, Lichess analysis, LLM move judgement, or human move scoring.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D6-FULL-REAL-LICHESS-LEVEL2-SQI-GAME-LOOP-KERNEL-LOCK\\
+Status: LOCKED --- full real level 2 SQI game loop implemented and tested in dry-run mode\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
