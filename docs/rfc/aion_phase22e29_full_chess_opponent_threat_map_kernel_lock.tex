@@ -1,0 +1,74 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{enumitem}
+
+\title{\textbf{AION Phase 22E.29 --- Opponent Threat Map}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.29 introduces an opponent threat map for AION full chess.
+
+The threat map asks what the opponent is threatening before AION commits to a plan or move.
+
+\section{Contract}
+
+The kernel MUST score all legal opponent moves from the current position.
+
+It MUST detect:
+
+\begin{itemize}[leftmargin=*]
+  \item immediate checkmate threats;
+  \item checking threats;
+  \item queen and rook capture threats;
+  \item major material threats;
+  \item promotion threats;
+  \item attacks created against major AION pieces.
+\end{itemize}
+
+The kernel MUST emit:
+
+\begin{verbatim}
+recommended_response_mode
+\end{verbatim}
+
+The response mode SHOULD be one of:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{neutralise\_critical\_threat};
+  \item \texttt{reduce\_opponent\_threats};
+  \item \texttt{continue\_plan}.
+\end{itemize}
+
+A critical threat MUST bias later selectors toward defence, capture, escape, or forcing counterplay.
+
+\section{Boundary}
+
+This phase does not use Stockfish, does not use LLM move judgement, and does not use Lichess analysis.
+
+\section{Validation}
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e29_full_chess_opponent_threat_map_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e29_full_chess_opponent_threat_map_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E29-FULL-CHESS-OPPONENT-THREAT-MAP\\
+Status: LOCKED --- opponent threat map implemented\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
