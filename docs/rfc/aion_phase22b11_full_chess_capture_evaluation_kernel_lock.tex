@@ -1,0 +1,60 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.11: Full Chess Capture Evaluation Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.11 defines the AION Full Chess Capture Evaluation Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can score captures, reject bad exchanges, avoid hanging-piece traps, reject blocked captures, reject king-exposure captures, and select a safe profitable capture.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.11 adds capture evaluation to the full-board chess reasoning ladder.
+
+\section{Capture Evaluation Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{capture\_candidate\_count};
+  \item \texttt{safe\_capture\_count};
+  \item \texttt{bad\_exchange\_rejection\_count};
+  \item \texttt{hanging\_piece\_trap\_rejection\_count};
+  \item \texttt{king\_exposure\_rejection\_count};
+  \item \texttt{blocked\_capture\_rejection\_count};
+  \item \texttt{defended\_target\_count};
+  \item \texttt{selected\_capture};
+  \item \texttt{selected\_capture\_safe};
+  \item \texttt{selected\_capture\_profitable};
+  \item \texttt{preserved\_king\_safety};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates selected full-board capture evaluation. It does not yet implement full chess mastery, full game-tree search, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B11-FULL-CHESS-CAPTURE-EVALUATION-KERNEL-LOCK\\
+Status: LOCKED --- full chess capture evaluation kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
