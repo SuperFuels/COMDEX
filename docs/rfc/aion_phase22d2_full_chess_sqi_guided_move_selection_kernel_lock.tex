@@ -1,0 +1,88 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22D.2: Full Chess SQI-Guided Move Selection Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22D.2 makes SQI-adjusted scoring the active chess move-selection path.
+
+\begin{quote}
+\textbf{Status: LOCKED --- SQI-guided chess move selection implemented and tested.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22D.1 emitted SQI telemetry over classical chess candidates.
+
+Phase 22D.2 uses that SQI-adjusted ranking to choose the move.
+
+\section{Kernel Location}
+
+\begin{verbatim}
+backend/modules/aion_games/full_chess_sqi_guided_move_selection_kernel.py
+\end{verbatim}
+
+\section{Selection Contract}
+
+The kernel MUST:
+
+\begin{itemize}
+  \item call the Phase 22D.1 SQI bridge;
+  \item preserve classical evaluation score;
+  \item use SQI-adjusted score as the active ranking value;
+  \item emit coherence, resonance, decoherence and collapse-weight context;
+  \item select a legal chess move;
+  \item emit an SQI trace hash and selection trace hash;
+  \item remain live-loop compatible.
+\end{itemize}
+
+\section{Boundary}
+
+This phase does not use:
+
+\begin{itemize}
+  \item Stockfish;
+  \item external chess engines;
+  \item cloud engines;
+  \item Lichess analysis;
+  \item LLM move judgement;
+  \item human move scoring.
+\end{itemize}
+
+\section{Runtime Memory}
+
+\begin{verbatim}
+data/aion_games/full_chess_sqi_guided_move_selection_memory.json
+\end{verbatim}
+
+This file is runtime SQI-guided selection telemetry and SHOULD NOT be committed unless explicitly promoted.
+
+\section{Next Step}
+
+The next phase SHOULD connect SQI-guided selection into the live loop/search adapter.
+
+\begin{verbatim}
+22D.3 -- Live Loop Uses SQI-Guided Move Selection
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22D2-FULL-CHESS-SQI-GUIDED-MOVE-SELECTION-KERNEL-LOCK\\
+Status: LOCKED --- SQI-guided chess move selection implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

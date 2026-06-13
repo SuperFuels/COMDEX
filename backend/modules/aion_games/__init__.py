@@ -225,6 +225,9 @@ __all__ = [
     "SQIChessCandidate",
     "SQIChessEvaluationBridgeResult",
     "run_full_chess_sqi_evaluation_bridge_kernel",
+    "AionFullChessSQIGuidedMoveSelectionKernel",
+    "SQIGuidedMoveSelectionResult",
+    "run_full_chess_sqi_guided_move_selection_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -584,4 +587,10 @@ from .full_chess_sqi_evaluation_bridge_kernel import (
     SQIChessCandidate,
     SQIChessEvaluationBridgeResult,
     run_full_chess_sqi_evaluation_bridge_kernel,
+)
+
+from .full_chess_sqi_guided_move_selection_kernel import (
+    AionFullChessSQIGuidedMoveSelectionKernel,
+    SQIGuidedMoveSelectionResult,
+    run_full_chess_sqi_guided_move_selection_kernel,
 )
