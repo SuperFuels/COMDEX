@@ -101,6 +101,10 @@ __all__ = [
     "TournamentLearningUpdate",
     "FullChessTournamentLearningIntegrationResult",
     "run_full_chess_tournament_learning_integration_kernel",
+    "AionFullChessBoardStateMutationKernel",
+    "BoardMutationMove",
+    "FullChessBoardStateMutationResult",
+    "run_full_chess_board_state_mutation_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -249,4 +253,11 @@ from .full_chess_tournament_learning_integration_kernel import (
     TournamentLearningUpdate,
     FullChessTournamentLearningIntegrationResult,
     run_full_chess_tournament_learning_integration_kernel,
+)
+
+from .full_chess_board_state_mutation_kernel import (
+    AionFullChessBoardStateMutationKernel,
+    BoardMutationMove,
+    FullChessBoardStateMutationResult,
+    run_full_chess_board_state_mutation_kernel,
 )
