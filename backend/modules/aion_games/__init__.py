@@ -228,6 +228,9 @@ __all__ = [
     "AionFullChessSQIGuidedMoveSelectionKernel",
     "SQIGuidedMoveSelectionResult",
     "run_full_chess_sqi_guided_move_selection_kernel",
+    "AionFullChessLiveLoopSQISelectorAdapterKernel",
+    "LiveLoopSQISelectorAdapterResult",
+    "run_full_chess_live_loop_sqi_selector_adapter_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -593,4 +596,10 @@ from .full_chess_sqi_guided_move_selection_kernel import (
     AionFullChessSQIGuidedMoveSelectionKernel,
     SQIGuidedMoveSelectionResult,
     run_full_chess_sqi_guided_move_selection_kernel,
+)
+
+from .full_chess_live_loop_sqi_selector_adapter_kernel import (
+    AionFullChessLiveLoopSQISelectorAdapterKernel,
+    LiveLoopSQISelectorAdapterResult,
+    run_full_chess_live_loop_sqi_selector_adapter_kernel,
 )
