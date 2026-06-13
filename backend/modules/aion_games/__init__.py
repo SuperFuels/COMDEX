@@ -76,6 +76,10 @@ __all__ = [
     "OnePlyCandidate",
     "FullChessOnePlyStrategyResult",
     "run_full_chess_one_ply_strategy_kernel",
+    "AionFullChessMultiPlyLookaheadKernel",
+    "LookaheadLine",
+    "FullChessMultiPlyLookaheadResult",
+    "run_full_chess_multi_ply_lookahead_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -181,4 +185,11 @@ from .full_chess_one_ply_strategy_kernel import (
     OnePlyCandidate,
     FullChessOnePlyStrategyResult,
     run_full_chess_one_ply_strategy_kernel,
+)
+
+from .full_chess_multi_ply_lookahead_kernel import (
+    AionFullChessMultiPlyLookaheadKernel,
+    LookaheadLine,
+    FullChessMultiPlyLookaheadResult,
+    run_full_chess_multi_ply_lookahead_kernel,
 )
