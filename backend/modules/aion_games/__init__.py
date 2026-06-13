@@ -41,6 +41,9 @@ __all__ = [
     "OpponentGameTurn",
     "MiniChessOpponentWinResult",
     "run_mini_chess_opponent_win_kernel",
+    "AionMiniChessFullLoopLock",
+    "MiniChessFullLoopResult",
+    "run_mini_chess_full_loop_lock",
 ]
 
 from .chess_like_threat_planner import (
@@ -86,4 +89,10 @@ from .mini_chess_opponent_win_kernel import (
     OpponentGameTurn,
     MiniChessOpponentWinResult,
     run_mini_chess_opponent_win_kernel,
+)
+
+from .mini_chess_full_loop_lock import (
+    AionMiniChessFullLoopLock,
+    MiniChessFullLoopResult,
+    run_mini_chess_full_loop_lock,
 )
