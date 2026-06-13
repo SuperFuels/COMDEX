@@ -1,0 +1,65 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.29: Full Chess Lichess Bot Bridge Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.29 defines the AION Full Chess Lichess Bot Bridge Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can prepare an offline Lichess bot bridge payload from challenge and game-state events.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.29 creates the bridge contract required before a live Lichess bot connector.
+
+\section{Lichess Bot Bridge Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{bridge\_mode};
+  \item \texttt{challenge\_event\_accepted};
+  \item \texttt{game\_state\_event\_accepted};
+  \item \texttt{game\_id};
+  \item \texttt{bot\_colour};
+  \item \texttt{side\_to\_move};
+  \item \texttt{input\_fen};
+  \item \texttt{input\_moves};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{lichess\_move\_payload};
+  \item \texttt{response\_ready};
+  \item \texttt{should\_resign};
+  \item \texttt{should\_offer\_draw};
+  \item \texttt{event\_count};
+  \item \texttt{accepted\_event\_count};
+  \item \texttt{lichess\_bridge\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates a deterministic offline Lichess bot bridge contract. It does not yet make live network calls, manage OAuth tokens, connect to lichess-bot, claim official rating, prove engine-strength play, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B29-FULL-CHESS-LICHESS-BOT-BRIDGE-KERNEL-LOCK\\
+Status: LOCKED --- full chess Lichess bot bridge kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

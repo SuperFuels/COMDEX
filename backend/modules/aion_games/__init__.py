@@ -139,6 +139,11 @@ __all__ = [
     "UciCommandTrace",
     "FullChessUciEngineWrapperResult",
     "run_full_chess_uci_engine_wrapper_kernel",
+    "AionFullChessLichessBotBridgeKernel",
+    "LichessBridgeEvent",
+    "LichessMovePayload",
+    "FullChessLichessBotBridgeResult",
+    "run_full_chess_lichess_bot_bridge_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -352,4 +357,12 @@ from .full_chess_uci_engine_wrapper_kernel import (
     UciCommandTrace,
     FullChessUciEngineWrapperResult,
     run_full_chess_uci_engine_wrapper_kernel,
+)
+
+from .full_chess_lichess_bot_bridge_kernel import (
+    AionFullChessLichessBotBridgeKernel,
+    LichessBridgeEvent,
+    LichessMovePayload,
+    FullChessLichessBotBridgeResult,
+    run_full_chess_lichess_bot_bridge_kernel,
 )
