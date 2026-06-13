@@ -650,3 +650,5 @@ from .full_chess_sqi_failure_patch_selector_kernel import (
 )
 
 from .full_chess_positional_strategy_features_kernel import run_full_chess_positional_strategy_features_kernel
+
+from .full_chess_goal_biased_strategic_search_kernel import run_full_chess_goal_biased_strategic_search_kernel
