@@ -1,0 +1,65 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+\usepackage{amsmath,amssymb}
+
+\title{\textbf{AION Phase 22B.35: Full Chess Knowledge-Guided Move Selection Kernel Lock}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Status}
+
+Phase 22B.35 defines the AION Full Chess Knowledge-Guided Move Selection Kernel.
+
+\begin{quote}
+\textbf{Status: LOCKED --- AION can score legal chess moves using structured chess knowledge priors.}
+\end{quote}
+
+\section{Purpose}
+
+Phase 22B.35 connects the chess knowledge book to move selection.
+
+The kernel scores candidate legal moves using opening principles, named opening priors, strategic patterns, and avoidance rules.
+
+\section{Move Selection Contract}
+
+The kernel MUST emit:
+
+\begin{itemize}
+  \item \texttt{position\_family};
+  \item \texttt{side\_to\_move};
+  \item \texttt{legal\_candidate\_count};
+  \item \texttt{knowledge\_prior\_count};
+  \item \texttt{avoidance\_rule\_count};
+  \item \texttt{selected\_bestmove};
+  \item \texttt{selected\_policy};
+  \item \texttt{selected\_score};
+  \item \texttt{rejected\_move\_count};
+  \item \texttt{highest\_penalised\_move};
+  \item \texttt{candidate\_scores};
+  \item \texttt{knowledge\_guided\_trace\_hash};
+  \item \texttt{uses\_llm\_shortcut = false}.
+\end{itemize}
+
+\section{Boundary}
+
+This lock demonstrates deterministic knowledge-guided chess move selection.
+
+It does not prove grandmaster-strength play, Stockfish-level calculation, official rating, general intelligence, or biological consciousness.
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22B35-FULL-CHESS-KNOWLEDGE-GUIDED-MOVE-SELECTION-KERNEL-LOCK\\
+Status: LOCKED --- full chess knowledge-guided move selection kernel implemented and tested\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}

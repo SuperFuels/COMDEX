@@ -168,6 +168,10 @@ __all__ = [
     "ChessKnowledgeQuery",
     "FullChessKnowledgeOpeningsStrategyBookResult",
     "run_full_chess_knowledge_openings_strategy_book_kernel",
+    "AionFullChessKnowledgeGuidedMoveSelectionKernel",
+    "CandidateMoveScore",
+    "FullChessKnowledgeGuidedMoveSelectionResult",
+    "run_full_chess_knowledge_guided_move_selection_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -428,4 +432,11 @@ from .full_chess_knowledge_openings_strategy_book_kernel import (
     ChessKnowledgeQuery,
     FullChessKnowledgeOpeningsStrategyBookResult,
     run_full_chess_knowledge_openings_strategy_book_kernel,
+)
+
+from .full_chess_knowledge_guided_move_selection_kernel import (
+    AionFullChessKnowledgeGuidedMoveSelectionKernel,
+    CandidateMoveScore,
+    FullChessKnowledgeGuidedMoveSelectionResult,
+    run_full_chess_knowledge_guided_move_selection_kernel,
 )
