@@ -149,6 +149,11 @@ __all__ = [
     "LichessEndpointContract",
     "FullChessLiveLichessBotConnectorResult",
     "run_full_chess_live_lichess_bot_connector_kernel",
+    "AionFullChessGuardedLiveMoveExecutionKernel",
+    "GuardedLiveMoveRequest",
+    "GuardDecision",
+    "FullChessGuardedLiveMoveExecutionResult",
+    "run_full_chess_guarded_live_move_execution_kernel",
 ]
 
 from .chess_like_threat_planner import (
@@ -378,4 +383,12 @@ from .full_chess_live_lichess_bot_connector_kernel import (
     LichessEndpointContract,
     FullChessLiveLichessBotConnectorResult,
     run_full_chess_live_lichess_bot_connector_kernel,
+)
+
+from .full_chess_guarded_live_move_execution_kernel import (
+    AionFullChessGuardedLiveMoveExecutionKernel,
+    GuardedLiveMoveRequest,
+    GuardDecision,
+    FullChessGuardedLiveMoveExecutionResult,
+    run_full_chess_guarded_live_move_execution_kernel,
 )
