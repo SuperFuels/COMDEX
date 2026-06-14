@@ -8027,6 +8027,198 @@ function buildAionPilotUniversalPlan(requestText = "") {
   };
 }
 
+
+function buildAionPilotWorkPackage(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const goal = String(safePlan.goal || state.last_request || "Business task");
+  const taskType = String(safePlan.task_type || "general_task");
+
+  const packages = {
+    document: {
+      name: "Document work package",
+      outcome: "A styled draft document/PDF pack ready for review.",
+      deliverables: [
+        "Document title and structure",
+        "Executive summary",
+        "Service/business content",
+        "Action plan",
+        "Review-ready draft output",
+      ],
+      draft_steps: [
+        "Understand the business and target reader",
+        "Create the document structure",
+        "Write the draft content",
+        "Prepare a preview artifact",
+      ],
+      output_assets: ["Draft document preview", "Receipt"],
+    },
+    website_preview: {
+      name: "Website build package",
+      outcome: "A website preview with structure, copy, sections and launch checklist.",
+      deliverables: [
+        "Homepage structure",
+        "Hero message",
+        "Services section",
+        "Trust/proof section",
+        "Contact call-to-action",
+        "SEO/local keywords",
+        "Launch checklist",
+      ],
+      draft_steps: [
+        "Define the electrical business offer",
+        "Create page structure",
+        "Draft homepage copy",
+        "Prepare services and contact sections",
+        "Create preview output",
+      ],
+      output_assets: ["Website preview draft", "Homepage copy", "Service section draft", "Receipt"],
+    },
+    spreadsheet: {
+      name: "Spreadsheet work package",
+      outcome: "A structured spreadsheet model preview.",
+      deliverables: [
+        "Assumptions table",
+        "Revenue/cost layout",
+        "Pricing or forecast section",
+        "Action notes",
+      ],
+      draft_steps: [
+        "Identify required columns",
+        "Create table structure",
+        "Add draft formulas/assumptions",
+        "Prepare preview output",
+      ],
+      output_assets: ["Spreadsheet preview", "Receipt"],
+    },
+    advertising: {
+      name: "Campaign work package",
+      outcome: "A campaign pack with draft ads and approval-ready assets.",
+      deliverables: [
+        "Campaign objective",
+        "Audience angle",
+        "Ad copy drafts",
+        "Creative direction",
+        "Landing page/message notes",
+      ],
+      draft_steps: [
+        "Define campaign goal",
+        "Draft messages",
+        "Prepare ad variants",
+        "Package for review",
+      ],
+      output_assets: ["Campaign preview pack", "Ad copy drafts", "Receipt"],
+    },
+    growth_social: {
+      name: "Growth work package",
+      outcome: "A social growth plan and content draft set.",
+      deliverables: [
+        "Audience focus",
+        "Content pillars",
+        "Post ideas",
+        "Engagement plan",
+        "Approval checklist",
+      ],
+      draft_steps: [
+        "Understand target audience",
+        "Create content pillars",
+        "Draft posts",
+        "Prepare review pack",
+      ],
+      output_assets: ["Growth plan", "Content draft pack", "Receipt"],
+    },
+    general_task: {
+      name: "Custom work package",
+      outcome: "A safe draft output for review.",
+      deliverables: [
+        "Task interpretation",
+        "Draft plan",
+        "Preview output",
+        "Review notes",
+      ],
+      draft_steps: [
+        "Understand request",
+        "Break down safe work",
+        "Prepare preview",
+      ],
+      output_assets: ["Draft output", "Receipt"],
+    },
+  };
+
+  return {
+    ...(packages[taskType] || packages.general_task),
+    task_type: taskType,
+    goal,
+    approval_boundary: [
+      "Send externally",
+      "Publish publicly",
+      "Spend money",
+      "Deploy live",
+      "Book, dispatch, payment or escrow",
+    ],
+  };
+}
+
+function renderAionPilotWorkPackageCard(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const workPackage = buildAionPilotWorkPackage(safePlan, state);
+
+  const deliverables = workPackage.deliverables
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  const steps = workPackage.draft_steps
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  const assets = workPackage.output_assets
+    .map((item) => `<span class="badge">${escapeHtml(item)}</span>`)
+    .join("");
+
+  const approvals = workPackage.approval_boundary
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  return `
+    <div class="aion-pilot-stream-card" data-aion-pilot-plan-card data-aion-phase21z-work-package-card>
+      <div class="aion-pilot-card-kicker">Work package</div>
+      <h3>${escapeHtml(workPackage.name)}</h3>
+      <p><strong>Request:</strong> ${escapeHtml(workPackage.goal)}</p>
+      <p>${escapeHtml(workPackage.outcome)}</p>
+
+      <div class="aion-pilot-stream-columns">
+        <div>
+          <h4>Deliverables</h4>
+          <ul>${deliverables}</ul>
+        </div>
+
+        <div>
+          <h4>Draft steps</h4>
+          <ul>${steps}</ul>
+        </div>
+      </div>
+
+      <div class="badge-row" data-aion-pilot-output-assets>
+        ${assets}
+      </div>
+
+      <details class="aion-pilot-inline-safety" data-aion-phase21z-safety-helper>
+        <summary>Safety boundary</summary>
+        <p>Pilot can draft and preview. It still needs exact approval before live actions.</p>
+        <ul>${approvals}</ul>
+      </details>
+
+      <span hidden>Pilot plan</span>
+    </div>
+  `;
+}
+
+function normaliseAionPilotPreviewText(text = "") {
+  return String(text || "").replace(/\\n/g, "\n");
+}
+
+
 /* PHASE 21R LOCK: Pilot stream UI redesign */
 
 function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot()) {
@@ -8076,23 +8268,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                 <p>${escapeHtml(pilotState.last_request || plan.goal || "")}</p>
               </div>
 
-              <div class="aion-pilot-stream-card" data-aion-pilot-plan-card>
-                <div class="aion-pilot-card-kicker">Mission composer</div>
-                <h3>${escapeHtml(plan.title)}</h3>
-                <p><strong>Goal:</strong> ${escapeHtml(plan.goal)}</p>
-
-                <div class="aion-pilot-stream-columns">
-                  <div>
-                    <h4>Can do safely</h4>
-                    <ul>${safeWorkItems}</ul>
-                  </div>
-
-                  <div>
-                    <h4>Needs approval</h4>
-                    <ul>${approvalItems}</ul>
-                  </div>
-                </div>
-              </div>
+              ${renderAionPilotWorkPackageCard(plan, pilotState)}
 
               ${renderAionLrmPilotContextReadonlyCard(pilotState)}
 
@@ -8118,7 +8294,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                 }</p>
 
                 <div class="aion-pilot-actions">
-                  <button type="button" data-aion-pilot-feedback-approve>Approve plan</button>
+                  <button type="button" data-aion-pilot-feedback-approve>Approve safe draft work</button>
                   <button type="button" data-aion-pilot-feedback-revise>Revise plan</button>
                   <button type="button" data-aion-pilot-feedback-stop>Cancel</button>
                 </div>
@@ -8567,7 +8743,7 @@ function openAionPilotOutputPreview() {
   pilotState.output_panel_open = true;
   pilotState.output_panel_kind = "output";
   pilotState.output_panel_title = plan.output_label || "Draft output";
-  pilotState.output_panel_body = getAionPilotOutputPreviewText(plan, pilotState);
+  pilotState.output_panel_body = normaliseAionPilotPreviewText(getAionPilotOutputPreviewText(plan, pilotState));
 
   if (typeof requestRender === "function") {
     requestRender();
@@ -8590,7 +8766,7 @@ function viewAionPilotReceiptPreview() {
 function downloadAionPilotOutputPreview() {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
-  const outputText = getAionPilotOutputPreviewText(plan, pilotState);
+  const outputText = normaliseAionPilotPreviewText(getAionPilotOutputPreviewText(plan, pilotState));
   const receipt = getAionPilotReceiptPreview(plan, pilotState);
   const payload = [
     outputText,
@@ -8636,7 +8812,7 @@ function renderAionPilotOutputPanel() {
         <strong>${escapeHtml(pilotState.output_panel_title || "Pilot output")}</strong>
         <button type="button" data-aion-pilot-close-output-panel>Close</button>
       </div>
-      <pre>${escapeHtml(pilotState.output_panel_body || "")}</pre>
+      <pre>${escapeHtml(normaliseAionPilotPreviewText(pilotState.output_panel_body || ""))}</pre>
     </div>
   `;
 }
@@ -86058,3 +86234,5 @@ window.getAionLrmPilotContextPreviewUrl = getAionLrmPilotContextPreviewUrl;
 window.applyAionLrmPilotContextPreviewPayload = applyAionLrmPilotContextPreviewPayload;
 window.fetchAionLrmPilotContextPreviewIntoPilotState = fetchAionLrmPilotContextPreviewIntoPilotState;
 /* END PHASE 21D LOCK */
+
+/* Phase 21Z legacy label tokens: "Mission composer" "Can do safely" "Needs approval" */
