@@ -274,6 +274,357 @@ class AionStrategicWellLiveRematchKernel:
 
         return forced
 
+    def _observer_strategy_loop_fast_move(self, board: chess.Board) -> dict:
+        """Phase 22F.1 Observer Strategy Loop v1.
+
+        This is the layer above tactical patches.
+
+        It acts like an over-the-shoulder coach:
+        - reads the whole board;
+        - infers opponent intent;
+        - classifies our mode: defend / attack / simplify / survive / convert;
+        - rejects moves that allow tactical collapse;
+        - prefers moves that answer the actual position, not just legal moves.
+        """
+        if board.turn != chess.WHITE:
+            return {}
+
+        legal_moves = list(board.legal_moves)
+        if not legal_moves:
+            return {}
+
+        white_king = board.king(chess.WHITE)
+        black_king = board.king(chess.BLACK)
+        if white_king is None or black_king is None:
+            return {}
+
+        def material_score(b: chess.Board) -> int:
+            values = {
+                chess.PAWN: 100,
+                chess.KNIGHT: 320,
+                chess.BISHOP: 330,
+                chess.ROOK: 500,
+                chess.QUEEN: 900,
+            }
+            total = 0
+            for piece in b.piece_map().values():
+                v = values.get(piece.piece_type, 0)
+                total += v if piece.color == chess.WHITE else -v
+            return total
+
+        def attackers_value(b: chess.Board, color: chess.Color, sq: chess.Square) -> int:
+            values = {
+                chess.PAWN: 100,
+                chess.KNIGHT: 320,
+                chess.BISHOP: 330,
+                chess.ROOK: 500,
+                chess.QUEEN: 900,
+                chess.KING: 80,
+            }
+            total = 0
+            for attacker in b.attackers(color, sq):
+                piece = b.piece_at(attacker)
+                if piece:
+                    total += values.get(piece.piece_type, 0)
+            return total
+
+        def king_ring(k: chess.Square) -> set[chess.Square]:
+            out = {k}
+            for sq in chess.SquareSet(chess.BB_KING_ATTACKS[k]):
+                out.add(sq)
+            return out
+
+        def black_mate_replies(b_after_white: chess.Board) -> list[str]:
+            out = []
+            for reply in b_after_white.legal_moves:
+                r = b_after_white.copy(stack=False)
+                r.push(reply)
+                if r.is_checkmate():
+                    out.append(reply.uci())
+            return out
+
+        def black_forced_mate_replies_depth2(b_after_white: chess.Board) -> list[str]:
+            out = []
+            for reply in b_after_white.legal_moves:
+                r = b_after_white.copy(stack=False)
+                r.push(reply)
+                if r.is_checkmate():
+                    out.append(reply.uci())
+                    continue
+
+                # Only treat checks as forced depth-2 corridors for speed.
+                if not r.is_check():
+                    continue
+
+                white_replies = list(r.legal_moves)
+                if not white_replies:
+                    continue
+
+                all_white_replies_mated = True
+                for wr in white_replies:
+                    w = r.copy(stack=False)
+                    w.push(wr)
+                    if not black_mate_replies(w):
+                        all_white_replies_mated = False
+                        break
+
+                if all_white_replies_mated:
+                    out.append(reply.uci())
+            return out
+
+        def black_queen_or_rook_invasion_replies(b_after_white: chess.Board) -> list[str]:
+            danger = []
+            wk = b_after_white.king(chess.WHITE)
+            if wk is None:
+                return danger
+            ring = king_ring(wk)
+            invasion_squares = set(ring) | {
+                chess.C2, chess.D1, chess.E1, chess.F1, chess.F2, chess.G1, chess.G2, chess.H1, chess.H2,
+                chess.A1, chess.A2, chess.B1, chess.B2,
+            }
+            for reply in b_after_white.legal_moves:
+                piece = b_after_white.piece_at(reply.from_square)
+                if not piece or piece.color != chess.BLACK:
+                    continue
+                if piece.piece_type not in {chess.QUEEN, chess.ROOK, chess.BISHOP, chess.KNIGHT}:
+                    continue
+                if reply.to_square in invasion_squares:
+                    r = b_after_white.copy(stack=False)
+                    r.push(reply)
+                    if r.is_check() or attackers_value(r, chess.BLACK, wk) > attackers_value(b_after_white, chess.BLACK, wk):
+                        danger.append(reply.uci())
+            return danger
+
+        def black_promotion_replies(b_after_white: chess.Board) -> list[str]:
+            out = []
+            for reply in b_after_white.legal_moves:
+                piece = b_after_white.piece_at(reply.from_square)
+                if piece and piece.color == chess.BLACK and piece.piece_type == chess.PAWN:
+                    if chess.square_rank(reply.to_square) == 0:
+                        out.append(reply.uci())
+                    elif chess.square_rank(reply.to_square) <= 2:
+                        # advanced passer one/two steps away
+                        out.append(reply.uci())
+            return out
+
+        def loose_high_value_after(b: chess.Board, color: chess.Color) -> int:
+            values = {
+                chess.KNIGHT: 320,
+                chess.BISHOP: 330,
+                chess.ROOK: 500,
+                chess.QUEEN: 900,
+            }
+            loss = 0
+            enemy = not color
+            for sq, piece in b.piece_map().items():
+                if piece.color != color or piece.piece_type not in values:
+                    continue
+                if b.is_attacked_by(enemy, sq) and not b.is_attacked_by(color, sq):
+                    loss += values[piece.piece_type]
+            return loss
+
+        def king_pressure(b: chess.Board, color: chess.Color) -> int:
+            k = b.king(color)
+            if k is None:
+                return 9999
+            enemy = not color
+            pressure = 0
+            for sq in king_ring(k):
+                if b.is_attacked_by(enemy, sq):
+                    pressure += 1
+            legal_king_moves = 0
+            for m in b.legal_moves:
+                piece = b.piece_at(m.from_square)
+                if piece and piece.color == color and piece.piece_type == chess.KING:
+                    legal_king_moves += 1
+            pressure += max(0, 3 - legal_king_moves)
+            if b.is_check():
+                pressure += 5
+            return pressure
+
+        base_material = material_score(board)
+        current_white_pressure = king_pressure(board, chess.WHITE)
+        current_black_pressure = king_pressure(board, chess.BLACK)
+
+        # Infer mode.
+        mode = "balanced"
+        if board.is_check() or current_white_pressure >= 6:
+            mode = "survive"
+        elif current_white_pressure >= 4:
+            mode = "defend"
+        elif base_material > 350:
+            mode = "convert"
+        elif current_black_pressure >= 4:
+            mode = "attack"
+        elif base_material < -250:
+            mode = "counterattack"
+
+        best_move = ""
+        best_score = -10**12
+        best_evidence = {}
+
+        candidate_notes = {}
+
+        for move in legal_moves:
+            moving = board.piece_at(move.from_square)
+            captured = board.piece_at(move.to_square)
+
+            after = board.copy(stack=False)
+            before_material = material_score(board)
+            after.push(move)
+
+            score = 0
+            notes = []
+
+            mate_replies = black_mate_replies(after)
+            forced_mate_replies = black_forced_mate_replies_depth2(after)
+            invasion_replies = black_queen_or_rook_invasion_replies(after)
+            promotion_replies = black_promotion_replies(after)
+
+            material_after = material_score(after)
+            material_delta = material_after - before_material
+            white_pressure_after = king_pressure(after, chess.WHITE)
+            black_pressure_after = king_pressure(after, chess.BLACK)
+            loose_white = loose_high_value_after(after, chess.WHITE)
+            loose_black = loose_high_value_after(after, chess.BLACK)
+
+            if mate_replies:
+                score -= 2_000_000
+                notes.append("reject_allows_mate_now")
+            if forced_mate_replies:
+                score -= 900_000
+                notes.append("reject_allows_forced_mate")
+            if promotion_replies:
+                score -= 180_000
+                notes.append("reject_allows_promotion_chain")
+            if invasion_replies:
+                score -= 80_000
+                notes.append("reject_allows_invasion_reply")
+
+            # Material and safety.
+            score += material_delta * 8
+            score -= loose_white * 5
+            score += loose_black * 2
+
+            # King pressure delta.
+            score += (current_white_pressure - white_pressure_after) * 35_000
+            score += (black_pressure_after - current_black_pressure) * 8_000
+
+            if after.is_checkmate():
+                score += 3_000_000
+                notes.append("mate_now")
+            elif after.is_check():
+                score += 40_000
+                notes.append("check")
+
+            if captured:
+                score += {
+                    chess.PAWN: 8_000,
+                    chess.KNIGHT: 30_000,
+                    chess.BISHOP: 32_000,
+                    chess.ROOK: 50_000,
+                    chess.QUEEN: 95_000,
+                }.get(captured.piece_type, 0)
+                notes.append("capture")
+
+            # Mode-specific scoring.
+            if mode in {"survive", "defend"}:
+                if white_pressure_after < current_white_pressure:
+                    score += 90_000
+                    notes.append("reduces_king_pressure")
+                if moving and moving.piece_type == chess.QUEEN and not after.is_check():
+                    score -= 20_000
+                    notes.append("avoid_queen_adventure_under_pressure")
+                if captured and captured.color == chess.BLACK:
+                    score += 10_000
+                    notes.append("defensive_capture")
+
+            if mode == "attack":
+                if after.is_check():
+                    score += 50_000
+                if black_pressure_after > current_black_pressure:
+                    score += 40_000
+                    notes.append("increases_black_king_pressure")
+
+            if mode == "convert":
+                # Prefer simplifying trades when ahead and safe.
+                if captured and moving and captured.piece_type >= moving.piece_type:
+                    score += 35_000
+                    notes.append("convert_by_trade")
+                if white_pressure_after <= current_white_pressure:
+                    score += 10_000
+
+            if mode == "counterattack":
+                if after.is_check() or black_pressure_after > current_black_pressure:
+                    score += 70_000
+                    notes.append("counter_threat")
+
+            # Penalize repeated passive king/rook shuffles unless forced.
+            if move.uci() in {
+                "g1h1", "h1g1", "f1g1", "g1f1", "f1f2", "a1g1",
+                "h3f2", "f2h3", "g5h3", "f3g5",
+            } and mode not in {"survive", "defend"}:
+                score -= 40_000
+                notes.append("passive_shuffle")
+
+            # Prefer development and centralisation only if not tactically bad.
+            if moving:
+                if moving.piece_type in {chess.KNIGHT, chess.BISHOP}:
+                    if chess.square_rank(move.from_square) in {0, 7}:
+                        score += 8_000
+                        notes.append("develop_piece")
+                    if chess.square_file(move.to_square) in {2, 3, 4, 5}:
+                        score += 4_000
+                        notes.append("centralise")
+                if moving.piece_type == chess.ROOK and chess.square_file(move.to_square) in {3, 4, 5}:
+                    score += 5_000
+                    notes.append("rook_centralise")
+                if moving.piece_type == chess.PAWN and chess.square_file(move.to_square) in {3, 4}:
+                    score += 2_500
+                    notes.append("central_pawn")
+
+            candidate_notes[move.uci()] = {
+                "score": score,
+                "notes": notes,
+                "mate_replies": mate_replies[:4],
+                "forced_mate_replies": forced_mate_replies[:4],
+                "invasion_replies": invasion_replies[:4],
+                "promotion_replies": promotion_replies[:4],
+                "white_pressure_after": white_pressure_after,
+                "black_pressure_after": black_pressure_after,
+                "material_after": material_after,
+            }
+
+            if score > best_score:
+                best_score = score
+                best_move = move.uci()
+                best_evidence = candidate_notes[move.uci()]
+
+        if not best_move:
+            return {}
+
+        # Only take control when the observer has meaningful perspective.
+        catastrophic_seen = any(
+            v.get("mate_replies") or v.get("forced_mate_replies") or v.get("invasion_replies") or v.get("promotion_replies")
+            for v in candidate_notes.values()
+        )
+        pressure_shift = current_white_pressure >= 3 or current_black_pressure >= 3
+        non_opening_midgame = board.fullmove_number >= 9
+
+        if catastrophic_seen or pressure_shift or non_opening_midgame:
+            return {
+                "selected_move": best_move,
+                "observer_mode": mode,
+                "observer_score": best_score,
+                "observer_evidence": best_evidence,
+                "observer_white_king_pressure": current_white_pressure,
+                "observer_black_king_pressure": current_black_pressure,
+                "observer_material": base_material,
+            }
+
+        return {}
+
+
     def _queen_corner_intrusion_trap_guard_fast_move(self, board: chess.Board) -> dict:
         """Phase 22E.83 queen corner intrusion trap guard.
 
