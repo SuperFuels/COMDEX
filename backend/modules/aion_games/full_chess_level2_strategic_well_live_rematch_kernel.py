@@ -243,30 +243,109 @@ class AionStrategicWellLiveRematchKernel:
 
         moving_piece = board.piece_at(move.from_square)
         captured = board.piece_at(move.to_square)
+        early_game = board.fullmove_number <= 12
 
+        if not moving_piece:
+            return -999999
+
+        # Captures are aggressive, but only after mate safety has already filtered the move.
         if captured and captured.color != board.turn:
-            score += piece_values.get(captured.piece_type, 0) + 400
-
-        if moving_piece:
-            if moving_piece.piece_type in {chess.KNIGHT, chess.BISHOP}:
-                score += 40
-            if moving_piece.piece_type == chess.PAWN:
-                score += 10
-            if moving_piece.piece_type == chess.KING:
-                score -= 120
+            score += piece_values.get(captured.piece_type, 0) + 450
 
         probe = board.copy(stack=False)
         probe.push(move)
 
         if probe.is_check():
-            score += 250
+            score += 350
 
-        # Prefer central / active squares, very cheap.
+        # Phase 22E.73:
+        # Opening discipline + aggressive development.
+        # The previous fast selector moved the same knight repeatedly and brought the queen out too early.
+        if early_game:
+            home_minor_squares = {
+                chess.B1, chess.G1, chess.C1, chess.F1,
+                chess.B8, chess.G8, chess.C8, chess.F8,
+            }
+
+            white_back_rank = chess.square_rank(move.from_square) == 0
+            black_back_rank = chess.square_rank(move.from_square) == 7
+
+            # Reward developing untouched minor pieces.
+            if moving_piece.piece_type in {chess.KNIGHT, chess.BISHOP}:
+                if move.from_square in home_minor_squares:
+                    score += 420
+                else:
+                    # Do not burn opening tempi moving the same minor again and again.
+                    score -= 520
+
+            # Reward central pawn play.
+            if moving_piece.piece_type == chess.PAWN:
+                to_name = chess.square_name(move.to_square)
+                if to_name in {"e4", "d4", "c4", "e5", "d5", "c5"}:
+                    score += 300
+                if move.from_square in {chess.E2, chess.D2, chess.C2, chess.E7, chess.D7, chess.C7}:
+                    score += 120
+
+            # Strongly punish early queen adventures unless checking/capturing.
+            if moving_piece.piece_type == chess.QUEEN:
+                score -= 700
+                if captured:
+                    score += 250
+                if probe.is_check():
+                    score += 250
+
+            # Strongly punish exposed king walks unless castling.
+            if moving_piece.piece_type == chess.KING:
+                is_castle_like = abs(chess.square_file(move.to_square) - chess.square_file(move.from_square)) == 2
+                if is_castle_like:
+                    score += 900
+                else:
+                    score -= 900
+
+            # Reward keeping/achieving castling safety.
+            if board.turn == chess.WHITE:
+                if board.has_kingside_castling_rights(chess.WHITE) and moving_piece.piece_type != chess.KING:
+                    score += 80
+            else:
+                if board.has_kingside_castling_rights(chess.BLACK) and moving_piece.piece_type != chess.KING:
+                    score += 80
+
+            # Penalise running a knight too deep early unless it wins material or checks.
+            if moving_piece.piece_type == chess.KNIGHT:
+                rank = chess.square_rank(move.to_square)
+                too_deep = rank >= 4 if board.turn == chess.WHITE else rank <= 3
+                if too_deep and not captured and not probe.is_check():
+                    score -= 420
+
+            # Penalise moving rooks before development unless capture/check.
+            if moving_piece.piece_type == chess.ROOK and not captured and not probe.is_check():
+                score -= 250
+
+            # Development priority: avoid useless edge pawn pushes early.
+            if moving_piece.piece_type == chess.PAWN:
+                file_idx = chess.square_file(move.from_square)
+                if file_idx in {0, 7}:
+                    score -= 120
+
+        # General active-square score.
         file_idx = chess.square_file(move.to_square)
         rank_idx = chess.square_rank(move.to_square)
-        score += 20 - abs(file_idx - 3) * 3 - abs(rank_idx - 3) * 3
+        score += 30 - abs(file_idx - 3) * 4 - abs(rank_idx - 3) * 4
+
+        # Attack opponent queen if the move lands adjacent/line-attacking is handled by legal capture/check next move.
+        opponent_queen = None
+        for sq, piece in board.piece_map().items():
+            if piece.piece_type == chess.QUEEN and piece.color != board.turn:
+                opponent_queen = sq
+                break
+
+        if opponent_queen is not None:
+            dist = abs(chess.square_file(move.to_square) - chess.square_file(opponent_queen)) + abs(chess.square_rank(move.to_square) - chess.square_rank(opponent_queen))
+            if dist <= 2:
+                score += 90
 
         return score
+
 
     def _select_fast_live_move(self, board: chess.Board) -> Dict[str, Any]:
         legal = [move.uci() for move in board.legal_moves]
