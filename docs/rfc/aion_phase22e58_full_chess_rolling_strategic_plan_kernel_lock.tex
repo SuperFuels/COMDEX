@@ -1,0 +1,64 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.58 --- Rolling Strategic Plan Kernel}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.58 adds a rolling strategic plan layer before move selection.
+
+The purpose is to stop AION from selecting isolated good-looking moves without knowing what plan the move supports.
+
+\section{Plan Fields}
+
+The kernel produces:
+
+\begin{itemize}
+  \item game phase;
+  \item primary plan;
+  \item secondary plan;
+  \item target weakness;
+  \item setup sequence;
+  \item fallback plan;
+  \item opponent disruption risk;
+  \item candidate plan moves;
+  \item selected plan move.
+\end{itemize}
+
+\section{Strategic Boundary}
+
+This phase does not post moves.
+
+It does not call Stockfish, does not use Lichess analysis and does not use LLM move judgement.
+
+It only generates an internal plan object that later kernels can consume.
+
+\section{Validation}
+
+Expected validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e58_full_chess_rolling_strategic_plan_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e58_full_chess_rolling_strategic_plan_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E58-FULL-CHESS-ROLLING-STRATEGIC-PLAN\\
+Status: LOCKED --- rolling strategic plan kernel added\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
