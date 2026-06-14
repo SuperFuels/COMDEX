@@ -228,6 +228,104 @@ class AionStrategicWellLiveRematchKernel:
 
         return forcing
 
+    def _queen_invasion_threat_fast_move(self, board: chess.Board) -> dict:
+        """Phase 22E.78 queen invasion threat map guard."""
+        if board.turn != chess.WHITE:
+            return {}
+
+        white_king = board.king(chess.WHITE)
+        if white_king is None:
+            return {}
+
+        queen_square = None
+        for sq, piece in board.piece_map().items():
+            if piece.color == chess.BLACK and piece.piece_type == chess.QUEEN:
+                queen_square = sq
+                break
+
+        if queen_square is None:
+            return {}
+
+        king_file = chess.square_file(white_king)
+        king_rank = chess.square_rank(white_king)
+        queen_rank = chess.square_rank(queen_square)
+        queen_dist = abs(chess.square_file(queen_square) - king_file) + abs(queen_rank - king_rank)
+
+        # Only after White is castled / king is on g/h back rank.
+        if not (king_rank <= 1 and king_file >= 5 and (queen_rank <= 3 or queen_dist <= 5)):
+            return {}
+
+        best = ""
+        best_score = -10**9
+        best_plan = ""
+
+        for move in board.legal_moves:
+            moving = board.piece_at(move.from_square)
+            captured = board.piece_at(move.to_square)
+            if moving is None:
+                continue
+
+            probe = board.copy(stack=False)
+            probe.push(move)
+
+            score = 0
+            plan = []
+
+            if captured and captured.color == chess.BLACK and captured.piece_type == chess.QUEEN:
+                score += 100000
+                plan.append("capture_invading_queen")
+
+            if probe.is_checkmate():
+                score += 90000
+                plan.append("mate_now")
+            elif probe.is_check():
+                score += 2000
+                plan.append("force_check")
+
+            if probe.is_attacked_by(chess.WHITE, queen_square):
+                score += 2500
+                plan.append("attack_invading_queen")
+
+            mate_replies = []
+            for reply in probe.legal_moves:
+                rprobe = probe.copy(stack=False)
+                rprobe.push(reply)
+                if rprobe.is_checkmate():
+                    mate_replies.append(reply.uci())
+
+            if mate_replies:
+                score -= 50000
+                plan.append("allows_mate_reply")
+
+            if moving.piece_type == chess.ROOK and not captured and not probe.is_check():
+                if chess.square_rank(move.to_square) >= 5:
+                    score -= 3000
+                    plan.append("reject_rook_raid_during_queen_invasion")
+
+            if moving.piece_type == chess.KING:
+                new_king = probe.king(chess.WHITE)
+                if new_king is not None:
+                    new_dist = abs(chess.square_file(queen_square) - chess.square_file(new_king)) + abs(chess.square_rank(queen_square) - chess.square_rank(new_king))
+                    if new_dist > queen_dist:
+                        score += 900
+                        plan.append("king_escapes_queen_net")
+
+            if score > best_score:
+                best_score = score
+                best = move.uci()
+                best_plan = ",".join(plan)
+
+        if best and best_score > -25000:
+            return {
+                "selected_move": best,
+                "strategy_score": best_score,
+                "strategy_plan": best_plan,
+                "queen_square": chess.square_name(queen_square),
+            }
+
+        return {}
+
+
     def _board_strategy_kernel_fast_move(self, board: chess.Board) -> dict:
         """Phase 22E.77 Board Strategy Kernel v1."""
         legal_moves = [m.uci() for m in board.legal_moves]
@@ -732,6 +830,24 @@ class AionStrategicWellLiveRematchKernel:
                     "horizon_rejects": {},
                     "fast_mode_used": True,
                     "selected_source": "phase22e76_advanced_pawn_invasion_fast_selector",
+                }
+
+        queen_invasion = self._queen_invasion_threat_fast_move(board)
+        if queen_invasion.get("selected_move"):
+            queen_legal_moves = [m.uci() for m in board.legal_moves]
+            queen_move = queen_invasion["selected_move"]
+            if queen_move in queen_legal_moves:
+                return {
+                    "selected_move": queen_move,
+                    "legal_moves": queen_legal_moves,
+                    "horizon_safe_moves": queen_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": {},
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e78_queen_invasion_threat_fast_selector",
+                    "phase22e78_strategy_score": queen_invasion.get("strategy_score"),
+                    "phase22e78_strategy_plan": queen_invasion.get("strategy_plan"),
+                    "phase22e78_queen_square": queen_invasion.get("queen_square"),
                 }
 
         # Phase 22E.77:
