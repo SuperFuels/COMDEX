@@ -264,6 +264,25 @@ class AionLiveOneMoveStrategicWellSenderKernel:
         selected_move = phase22e55.final_selected_move
         selected_source = phase22e55.final_selected_source
 
+        # Phase 22E.63:
+        # A validated Phase 22E.61 SQI-collapsed router override MUST survive
+        # the later Monte Carlo policy-value seed layer in the live sender path.
+        phase22e63_router_survived_monte_carlo = False
+        if (
+            phase22e61_router_override_applied
+            and phase22e61_selected_move
+            and selected_move != phase22e61_selected_move
+        ):
+            try:
+                phase22e63_router_move_is_legal = chess.Move.from_uci(phase22e61_selected_move) in board.legal_moves
+            except Exception:
+                phase22e63_router_move_is_legal = False
+
+            if phase22e63_router_move_is_legal:
+                selected_move = phase22e61_selected_move
+                selected_source = "phase22e61_parallel_opponent_beam_router_sqi_collapse"
+                phase22e63_router_survived_monte_carlo = True
+
         monte_carlo_plan_guard_applied = False
         if (
             rolling_plan.phase == "opening"
@@ -365,6 +384,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             "phase22e61_selected_move": phase22e61_selected_move,
             "phase22e61_trace_hash": phase22e61_trace_hash,
             "phase22e62_router_override_applied": phase22e61_router_override_applied,
+            "phase22e63_router_survived_monte_carlo": phase22e63_router_survived_monte_carlo,
             "phase22e56_live_sender_decision_stack_used": True,
             "phase22e55_monte_carlo_policy_value_seed_used": True,
             "phase22e54_opponent_reply_probability_tactical_exposure_guard_used": True,
