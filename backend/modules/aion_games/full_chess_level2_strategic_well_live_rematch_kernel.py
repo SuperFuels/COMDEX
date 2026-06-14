@@ -228,6 +228,172 @@ class AionStrategicWellLiveRematchKernel:
 
         return forcing
 
+    def _fast_forced_mate_sequence_replies(self, board_after_white: chess.Board) -> list[str]:
+        """Phase 22E.81: detect black reply that forces mate next move.
+
+        Input board must be after a candidate White move, with Black to move.
+        """
+        if board_after_white.turn != chess.BLACK:
+            return []
+
+        forced = []
+        for reply in board_after_white.legal_moves:
+            rprobe = board_after_white.copy(stack=False)
+            rprobe.push(reply)
+
+            if rprobe.is_checkmate():
+                forced.append(reply.uci())
+                continue
+
+            if not rprobe.is_check():
+                continue
+
+            white_replies = list(rprobe.legal_moves)
+            if not white_replies:
+                continue
+
+            all_white_replies_allow_mate = True
+            for white_reply in white_replies:
+                wprobe = rprobe.copy(stack=False)
+                wprobe.push(white_reply)
+
+                black_has_mate = False
+                for black_finish in wprobe.legal_moves:
+                    fprobe = wprobe.copy(stack=False)
+                    fprobe.push(black_finish)
+                    if fprobe.is_checkmate():
+                        black_has_mate = True
+                        break
+
+                if not black_has_mate:
+                    all_white_replies_allow_mate = False
+                    break
+
+            if all_white_replies_allow_mate:
+                forced.append(reply.uci())
+
+        return forced
+
+    def _bishop_queen_battery_mate_guard_fast_move(self, board: chess.Board) -> dict:
+        """Phase 22E.81 bishop/queen battery forced-mate guard.
+
+        Prevents moves like Qd1-h5 when Black can answer ...Qf2+ and force
+        ...Bg2# / equivalent mate-net continuation.
+        """
+        if board.turn != chess.WHITE:
+            return {}
+
+        white_king = board.king(chess.WHITE)
+        if white_king is None:
+            return {}
+
+        # Only relevant once White king is castled / exposed on the g-h side.
+        if chess.square_file(white_king) < 5:
+            return {}
+
+        black_queen_sq = None
+        black_bishop_battery = False
+
+        for sq, piece in board.piece_map().items():
+            if piece.color == chess.BLACK and piece.piece_type == chess.QUEEN:
+                black_queen_sq = sq
+            if piece.color == chess.BLACK and piece.piece_type == chess.BISHOP:
+                # b7/a8/c8/e4/d5 style diagonals can form the g2/h1 mate net.
+                if sq in {chess.B7, chess.A8, chess.C8, chess.D5, chess.E4, chess.A3, chess.B2}:
+                    black_bishop_battery = True
+
+        if black_queen_sq is None:
+            return {}
+
+        # Phase 22E.81 is only for kingside queen/bishop battery nets.
+        # Do not steal the older 22E.78 general queen-invasion guard
+        # for queens invading from the queenside/centre such as Qc4.
+        if chess.square_file(black_queen_sq) < 4:
+            return {}
+
+        # Do not run broadly unless a bishop battery exists or queen is already close.
+        queen_dist = (
+            abs(chess.square_file(black_queen_sq) - chess.square_file(white_king))
+            + abs(chess.square_rank(black_queen_sq) - chess.square_rank(white_king))
+        )
+        if not black_bishop_battery and queen_dist > 5:
+            return {}
+
+        legal_moves = list(board.legal_moves)
+        forced_by_move = {}
+        safe_moves = []
+
+        for move in legal_moves:
+            probe = board.copy(stack=False)
+            probe.push(move)
+            forced = self._fast_forced_mate_sequence_replies(probe)
+            if forced:
+                forced_by_move[move.uci()] = forced
+            else:
+                safe_moves.append(move)
+
+        if not forced_by_move:
+            return {}
+
+        if not safe_moves:
+            return {}
+
+        best = ""
+        best_score = -10**9
+        best_plan = ""
+
+        for move in safe_moves:
+            moving = board.piece_at(move.from_square)
+            captured = board.piece_at(move.to_square)
+            if moving is None:
+                continue
+
+            probe = board.copy(stack=False)
+            probe.push(move)
+
+            score = 0
+            plan = ["avoids_forced_mate_sequence"]
+
+            if captured and captured.color == chess.BLACK:
+                score += 5000 + captured.piece_type * 300
+                plan.append("capture")
+
+            if probe.is_checkmate():
+                score += 100000
+                plan.append("mate_now")
+            elif probe.is_check():
+                score += 2500
+                plan.append("check")
+
+            # Defend / occupy common mate-net squares.
+            if move.to_square in {chess.F2, chess.G2, chess.H2, chess.H1, chess.F1, chess.E1}:
+                score += 1800
+                plan.append("cover_king_net")
+
+            # Prefer active queen/rook/knight replies over pawn shuffling.
+            if moving.piece_type in {chess.QUEEN, chess.ROOK, chess.KNIGHT, chess.BISHOP}:
+                score += 900
+                plan.append("active_piece")
+
+            if moving.piece_type == chess.PAWN:
+                score -= 300
+
+            if score > best_score:
+                best_score = score
+                best = move.uci()
+                best_plan = ",".join(plan)
+
+        if best:
+            return {
+                "selected_move": best,
+                "battery_guard_score": best_score,
+                "battery_guard_plan": best_plan,
+                "forced_rejects": forced_by_move,
+            }
+
+        return {}
+
+
     def _passed_pawn_promotion_guard_fast_move(self, board: chess.Board) -> dict:
         """Phase 22E.80 passed pawn promotion guard.
 
@@ -956,6 +1122,24 @@ class AionStrategicWellLiveRematchKernel:
                     "horizon_rejects": {},
                     "fast_mode_used": True,
                     "selected_source": "phase22e76_advanced_pawn_invasion_fast_selector",
+                }
+
+        battery_guard = self._bishop_queen_battery_mate_guard_fast_move(board)
+        if battery_guard.get("selected_move"):
+            battery_legal_moves = [m.uci() for m in board.legal_moves]
+            battery_move = battery_guard["selected_move"]
+            if battery_move in battery_legal_moves:
+                return {
+                    "selected_move": battery_move,
+                    "legal_moves": battery_legal_moves,
+                    "horizon_safe_moves": battery_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": battery_guard.get("forced_rejects", {}),
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e81_bishop_queen_battery_mate_guard_fast_selector",
+                    "phase22e81_battery_guard_score": battery_guard.get("battery_guard_score"),
+                    "phase22e81_battery_guard_plan": battery_guard.get("battery_guard_plan"),
+                    "phase22e81_forced_rejects": battery_guard.get("forced_rejects", {}),
                 }
 
         promotion_guard = self._passed_pawn_promotion_guard_fast_move(board)
