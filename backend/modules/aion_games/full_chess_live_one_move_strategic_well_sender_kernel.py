@@ -17,6 +17,7 @@ from backend.modules.aion_games.full_chess_critical_threat_hygiene_queen_intrusi
 from backend.modules.aion_games.full_chess_opponent_reply_probability_tactical_exposure_guard_kernel import (
     run_full_chess_opponent_reply_probability_tactical_exposure_guard_kernel,
 )
+from backend.modules.aion_games.full_chess_critical_threat_hygiene_queen_intrusion_trap_policy_kernel import run_full_chess_critical_threat_hygiene_queen_intrusion_trap_policy_kernel
 from backend.modules.aion_games.full_chess_monte_carlo_policy_value_seed_kernel import (
     run_full_chess_monte_carlo_policy_value_seed_kernel,
 )
@@ -299,6 +300,48 @@ class AionLiveOneMoveStrategicWellSenderKernel:
                 selected_source = "rolling_plan_monte_carlo_edge_knight_guard"
                 monte_carlo_plan_guard_applied = True
 
+        # Phase 22E.65:
+        # Final live-sender queen intrusion / mate-corridor guard.
+        # This runs after Monte Carlo and after the 22E.63 router survival check,
+        # so a passive or mate-losing final selected move cannot be posted when
+        # the opponent queen has entered the king corridor.
+        phase22e65_queen_intrusion_final_guard_used = False
+        phase22e65_queen_intrusion_override_applied = False
+        phase22e65_queen_intrusion_square = ""
+        phase22e65_guard_selected_move = ""
+        phase22e65_guard_selected_source = ""
+
+        if active_intent in {"center_control", "initiative_pressure", "king_safety", "neutralise_critical_threat"}:
+            try:
+                phase22e65_guard_intent = active_intent
+                if active_intent in {"center_control", "initiative_pressure"}:
+                    phase22e65_guard_intent = "king_safety"
+
+                phase22e65_guard = run_full_chess_critical_threat_hygiene_queen_intrusion_trap_policy_kernel(
+                    input_fen=input_fen,
+                    side_to_move=side_to_move,
+                    forced_base_selected_move=selected_move,
+                    forced_active_intent=phase22e65_guard_intent,
+                    memory_path=self.memory_path.parent / "phase22e65_child_queen_intrusion_final_guard_memory.json",
+                    task_name=f"{task_name}_phase22e65_child_queen_intrusion_final_guard",
+                )
+                phase22e65_queen_intrusion_final_guard_used = True
+                phase22e65_queen_intrusion_square = getattr(phase22e65_guard, "queen_intrusion_square", "")
+                phase22e65_guard_selected_move = getattr(phase22e65_guard, "final_selected_move", "")
+                phase22e65_guard_selected_source = getattr(phase22e65_guard, "final_selected_source", "")
+
+                if (
+                    getattr(phase22e65_guard, "queen_intrusion_detected", False)
+                    and phase22e65_guard_selected_move
+                    and phase22e65_guard_selected_move != selected_move
+                    and chess.Move.from_uci(phase22e65_guard_selected_move) in board.legal_moves
+                ):
+                    selected_move = phase22e65_guard_selected_move
+                    selected_source = "phase22e65_queen_intrusion_final_guard"
+                    phase22e65_queen_intrusion_override_applied = True
+            except Exception:
+                phase22e65_queen_intrusion_final_guard_used = False
+
         base_well_selected_move = strategic.base_well_selected_move
         intent_override_applied = bool(getattr(strategic, "queen_override_applied", False)) or bool(
             getattr(strategic, "intent_override_applied", False)
@@ -385,6 +428,11 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             "phase22e61_trace_hash": phase22e61_trace_hash,
             "phase22e62_router_override_applied": phase22e61_router_override_applied,
             "phase22e63_router_survived_monte_carlo": phase22e63_router_survived_monte_carlo,
+            "phase22e65_queen_intrusion_final_guard_used": phase22e65_queen_intrusion_final_guard_used,
+            "phase22e65_queen_intrusion_override_applied": phase22e65_queen_intrusion_override_applied,
+            "phase22e65_queen_intrusion_square": phase22e65_queen_intrusion_square,
+            "phase22e65_guard_selected_move": phase22e65_guard_selected_move,
+            "phase22e65_guard_selected_source": phase22e65_guard_selected_source,
             "phase22e56_live_sender_decision_stack_used": True,
             "phase22e55_monte_carlo_policy_value_seed_used": True,
             "phase22e54_opponent_reply_probability_tactical_exposure_guard_used": True,
