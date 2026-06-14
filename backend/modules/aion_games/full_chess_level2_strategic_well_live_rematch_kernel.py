@@ -274,6 +274,113 @@ class AionStrategicWellLiveRematchKernel:
 
         return forced
 
+    def _observer_review_selected_fast_move(self, board: chess.Board, selected: dict) -> dict:
+        """Phase 22F.2 observer review helper.
+
+        This does not take over the selector yet.
+        It reviews an already-selected move and records whether it allows
+        mate, forced mate, promotion or invasion danger.
+        """
+        if not selected or not selected.get("selected_move"):
+            return selected
+
+        selected_move = selected.get("selected_move")
+        move = chess.Move.from_uci(selected_move)
+        if move not in board.legal_moves:
+            return selected
+
+        after = board.copy(stack=False)
+        after.push(move)
+
+        def black_mate_replies(b):
+            out = []
+            for reply in b.legal_moves:
+                r = b.copy(stack=False)
+                r.push(reply)
+                if r.is_checkmate():
+                    out.append(reply.uci())
+            return out
+
+        def black_forced_mate_replies_depth2(b):
+            out = []
+            for reply in b.legal_moves:
+                r = b.copy(stack=False)
+                r.push(reply)
+                if r.is_checkmate():
+                    out.append(reply.uci())
+                    continue
+                if not r.is_check():
+                    continue
+
+                white_replies = list(r.legal_moves)
+                if not white_replies:
+                    continue
+
+                forced = True
+                for wr in white_replies:
+                    w = r.copy(stack=False)
+                    w.push(wr)
+                    if not black_mate_replies(w):
+                        forced = False
+                        break
+
+                if forced:
+                    out.append(reply.uci())
+            return out
+
+        def black_promotion_or_deep_pawn_replies(b):
+            out = []
+            for reply in b.legal_moves:
+                piece = b.piece_at(reply.from_square)
+                if piece and piece.color == chess.BLACK and piece.piece_type == chess.PAWN:
+                    if chess.square_rank(reply.to_square) <= 2:
+                        out.append(reply.uci())
+            return out
+
+        def black_major_invasion_replies(b):
+            wk = b.king(chess.WHITE)
+            if wk is None:
+                return []
+
+            danger_squares = {
+                chess.A1, chess.A2, chess.B1, chess.B2,
+                chess.C2, chess.D1, chess.E1, chess.F1, chess.F2,
+                chess.G1, chess.G2, chess.H1, chess.H2,
+            }
+
+            out = []
+            for reply in b.legal_moves:
+                piece = b.piece_at(reply.from_square)
+                if not piece or piece.color != chess.BLACK:
+                    continue
+                if piece.piece_type not in {chess.QUEEN, chess.ROOK}:
+                    continue
+                if reply.to_square in danger_squares:
+                    r = b.copy(stack=False)
+                    r.push(reply)
+                    if r.is_check() or r.is_attacked_by(chess.BLACK, wk):
+                        out.append(reply.uci())
+            return out
+
+        risks = {
+            "mate_replies": black_mate_replies(after),
+            "forced_mate_replies": black_forced_mate_replies_depth2(after),
+            "promotion_replies": black_promotion_or_deep_pawn_replies(after),
+            "invasion_replies": black_major_invasion_replies(after),
+        }
+
+        reviewed = dict(selected)
+        reviewed["phase22f2_observer_review_used"] = True
+        reviewed["phase22f2_selected_move_risks"] = risks
+
+        if any(risks.values()):
+            reviewed["phase22f2_observer_review_decision"] = "risk_detected"
+        else:
+            reviewed["phase22f2_observer_review_decision"] = "allow"
+
+        return reviewed
+
+
     def _observer_strategy_loop_fast_move(self, board: chess.Board) -> dict:
         """Phase 22F.1 Observer Strategy Loop v1.
 
