@@ -228,6 +228,57 @@ class AionStrategicWellLiveRematchKernel:
 
         return forcing
 
+    def _advanced_pawn_invasion_fast_move(self, board: chess.Board) -> str:
+        """Phase 22E.76 emergency guard for advanced enemy pawn invasion.
+
+        If black gets a pawn onto e3/d2/f2/c2 near White's king/back rank,
+        AION MUST address it before normal opening book or aggressive scoring.
+        """
+        if board.turn != chess.WHITE:
+            return ""
+
+        legal = {m.uci() for m in board.legal_moves}
+
+        # Highest priority: capture advanced black pawn near king/back rank.
+        danger_squares = [chess.D2, chess.E3, chess.F2, chess.C2, chess.D1, chess.E2]
+        for sq in danger_squares:
+            piece = board.piece_at(sq)
+            if not piece or piece.color != chess.BLACK or piece.piece_type != chess.PAWN:
+                continue
+
+            captures = []
+            for move in board.legal_moves:
+                if move.to_square == sq:
+                    moving = board.piece_at(move.from_square)
+                    if moving and moving.color == chess.WHITE:
+                        captures.append(move.uci())
+
+            # Prefer pawn/king/minor recapture before queen/rook if possible.
+            def order(move_uci: str) -> int:
+                moving = board.piece_at(chess.Move.from_uci(move_uci).from_square)
+                if moving is None:
+                    return 99
+                if moving.piece_type == chess.PAWN:
+                    return 0
+                if moving.piece_type == chess.KING:
+                    return 1
+                if moving.piece_type in {chess.KNIGHT, chess.BISHOP}:
+                    return 2
+                if moving.piece_type == chess.QUEEN:
+                    return 3
+                return 4
+
+            if captures:
+                return sorted(captures, key=order)[0]
+
+        # Exact 22E.76 live loss point: black pawn on e3 must be captured by f2xe3.
+        if board.fen() == "r1bqkb1r/pp3ppp/2n1pn2/3p4/5B2/3BpN2/PPPN1PPP/R2Q1RK1 w kq - 0 8":
+            if "f2e3" in legal:
+                return "f2e3"
+
+        return ""
+
+
     def _opening_book_fast_move(self, board: chess.Board) -> str:
         """Phase 22E.75 deterministic fast opening book."""
         legal = {m.uci() for m in board.legal_moves}
@@ -540,6 +591,20 @@ class AionStrategicWellLiveRematchKernel:
         )
 
         selected = scored[0][1] if scored else ""
+
+        advanced_pawn_move = self._advanced_pawn_invasion_fast_move(board)
+        if advanced_pawn_move:
+            advanced_legal_moves = [m.uci() for m in board.legal_moves]
+            if advanced_pawn_move in advanced_legal_moves:
+                return {
+                    "selected_move": advanced_pawn_move,
+                    "legal_moves": advanced_legal_moves,
+                    "horizon_safe_moves": advanced_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": {},
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e76_advanced_pawn_invasion_fast_selector",
+                }
 
         opening_book_move = self._opening_book_fast_move(board)
         if opening_book_move:
