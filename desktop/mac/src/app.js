@@ -8044,7 +8044,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
     .join("");
 
   return `
-    <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-phase21r-stream-ui-redesign>
+    <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-phase21r-stream-ui-redesign data-aion-phase21x-real-frontend-pilot-mount>
       <div class="aion-pilot-stream-header">
         <div>
           <div class="eyebrow">AION PILOT</div>
@@ -8077,7 +8077,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
               </div>
 
               <div class="aion-pilot-stream-card" data-aion-pilot-plan-card>
-                <div class="aion-pilot-card-kicker">Pilot plan</div>
+                <div class="aion-pilot-card-kicker">Mission composer</div>
                 <h3>${escapeHtml(plan.title)}</h3>
                 <p><strong>Goal:</strong> ${escapeHtml(plan.goal)}</p>
 
@@ -8146,13 +8146,14 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                   : ""
               }
 
-              <div class="aion-pilot-stream-card" data-aion-pilot-activity-card>
-                <div class="aion-pilot-card-kicker">Pilot stream</div>
-                ${renderAionPilotFrontendStreamEvents(getAionPilotFrontendInteractionState())}
-              </div>
-
-              <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details>
+              <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details data-aion-phase21y-process-log-drawer data-aion-process-log-label="Process log, proof, hashes, paths, lanes and blocked actions">
                 <summary>Advanced details: proof, hashes, paths, lanes and blocked actions</summary>
+
+                <div class="aion-pilot-stream-card" data-aion-pilot-activity-card data-aion-pilot-process-log-card>
+                  <div class="aion-pilot-card-kicker">Pilot process log</div>
+                  ${renderAionPilotFrontendStreamEvents(getAionPilotFrontendInteractionState())}
+                </div>
+
                 ${renderAionPilotAdvancedTechnicalDetails(snapshot)}
               </details>
             `
@@ -8304,59 +8305,65 @@ function renderAionLrmBoardroomProjectionPanel(snapshot = {}, pilotState = getAi
 
 
 /* PHASE 21E LOCK: Read-only LRM context card in existing Pilot stream */
+
 function renderAionLrmPilotContextReadonlyCard(pilotState = getAionPilotFrontendInteractionState()) {
   const payload = pilotState.lrm_pilot_context_payload || {};
   const lrmState = payload.lrm_state || {};
   const boardroom = payload.boardroom_projection || {};
   const cockpit = payload.pilot_cockpit_projection || {};
   const status = pilotState.lrm_context_status || "not_loaded";
-  const payloadHash = pilotState.lrm_context_payload_hash || payload.payload_hash || "not_loaded";
   const nextReviewState = pilotState.lrm_next_review_state || lrmState.next_review_state || boardroom.next_review_state || "human_review_required";
+  const evidenceSatisfied = lrmState.evidence_gap_satisfied === true ? "evidence satisfied" : "evidence pending";
+  const payloadHash = pilotState.lrm_context_payload_hash || payload.payload_hash || "not_loaded";
   const loopHash = pilotState.lrm_loop_hash || lrmState.loop_hash || payload.source_lrm_loop_hash || "not_loaded";
-  const evidenceSatisfied = lrmState.evidence_gap_satisfied === true ? "yes" : "pending";
-  const visibleEvents = Array.isArray(cockpit.visible_stream_events) ? cockpit.visible_stream_events : [];
+  const replayHash = pilotState.replay_hash || lrmState.replay_trace_hash || "not_loaded";
+  const visibleEvents = Array.isArray(pilotState.lrm_visible_events)
+    ? pilotState.lrm_visible_events
+    : Array.isArray(cockpit.visible_stream_events)
+      ? cockpit.visible_stream_events
+      : [];
 
   return `
-    <div class="aion-pilot-stream-card" data-aion-lrm-pilot-context-card data-aion-phase21e-lrm-readonly-card>
-      <div class="aion-pilot-card-kicker">AION-LRM context</div>
-      <h3>Reasoning loop preview</h3>
-      <p>This card is read-only. It shows the governed LRM context loaded from the local preview endpoint.</p>
-
-      <div class="aion-pilot-stream-columns">
-        <div>
-          <h4>Review state</h4>
-          <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(status)}</code></div>
-          <div class="aion-pilot-meta-row"><span>Next review</span><code>${escapeHtml(nextReviewState)}</code></div>
-          <div class="aion-pilot-meta-row"><span>Evidence</span><code>${escapeHtml(evidenceSatisfied)}</code></div>
-        </div>
-        <div>
-          <h4>Proof anchors</h4>
-          <div class="aion-pilot-meta-row"><span>Payload</span><code>${escapeHtml(payloadHash)}</code></div>
-          <div class="aion-pilot-meta-row"><span>Loop</span><code>${escapeHtml(loopHash)}</code></div>
-          <div class="aion-pilot-meta-row"><span>Replay</span><code>${escapeHtml(pilotState.replay_hash || lrmState.replay_trace_hash || "not_loaded")}</code></div>
-        </div>
-      </div>
+    <div class="aion-pilot-stream-card aion-pilot-lrm-compact-card" data-aion-lrm-pilot-context-card data-aion-phase21e-lrm-readonly-card data-aion-phase21y-lrm-compact-card>
+      <div class="aion-pilot-card-kicker">Governed reasoning</div>
+      <h3>LRM ready for review</h3>
+      <p>
+        This card is read-only. Status: <strong>${escapeHtml(status)}</strong>.
+        Next step: <strong>${escapeHtml(nextReviewState)}</strong>.
+        Evidence: <strong>${escapeHtml(evidenceSatisfied)}</strong>.
+      </p>
 
       <div class="aion-pilot-safety-card" data-aion-lrm-pilot-context-safety>
         <span>Preview-only</span>
-        <p>No booking, payment, escrow, external message, live chain write or workflow execution is created by this card.</p>
+        <p>No booking, payment, escrow, external message, live chain write or workflow execution is created by this reasoning layer.</p>
       </div>
 
-      ${
-        visibleEvents.length
-          ? `
-            <div data-aion-lrm-pilot-context-visible-events>
-              ${visibleEvents.map((event) => `
-                <div class="aion-pilot-map-node" data-aion-lrm-pilot-context-event="${escapeHtml(event.type || "lrm_event")}">
-                  <strong>${escapeHtml(event.label || "LRM event")}</strong>
-                  <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(event.status || "preview_only")}</code></div>
-                  <div class="aion-pilot-meta-row"><span>Detail</span><code>${escapeHtml(event.detail || "")}</code></div>
-                </div>
-              `).join("")}
-            </div>
-          `
-          : `<p class="muted">LRM context will appear after the preview payload is loaded.</p>`
-      }
+      <details class="aion-pilot-advanced-details" data-aion-lrm-technical-details>
+        <summary>Technical LRM proof anchors and replay log</summary>
+
+        <div class="aion-pilot-stream-columns">
+          <div>
+            <h4>Proof anchors</h4>
+            <div class="aion-pilot-meta-row"><span>Payload</span><code>${escapeHtml(payloadHash)}</code></div>
+            <div class="aion-pilot-meta-row"><span>Loop</span><code>${escapeHtml(loopHash)}</code></div>
+            <div class="aion-pilot-meta-row"><span>Replay</span><code>${escapeHtml(replayHash)}</code></div>
+          </div>
+          <div>
+            <h4>LRM events</h4>
+            ${
+              visibleEvents.length
+                ? visibleEvents.map((event) => `
+                  <div class="aion-pilot-map-node" data-aion-lrm-pilot-context-event="${escapeHtml(event.type || "lrm_event")}">
+                    <strong>${escapeHtml(event.label || "LRM event")}</strong>
+                    <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(event.status || "preview_only")}</code></div>
+                    <div class="aion-pilot-meta-row"><span>Detail</span><code>${escapeHtml(event.detail || "")}</code></div>
+                  </div>
+                `).join("")
+                : `<p class="muted">No LRM replay events loaded yet.</p>`
+            }
+          </div>
+        </div>
+      </details>
     </div>
   `;
 }
@@ -8649,25 +8656,52 @@ function closeAionPilotOutputPanel() {
 
 /* PHASE 21S LOCK: Pilot mission contract buttons */
 
-function appendAionPilotStreamEvent(event) {
+function appendAionPilotStreamEvent(event, options = {}) {
   const pilotState = getAionPilotFrontendInteractionState();
   const currentEvents = Array.isArray(pilotState.stream_events)
     ? pilotState.stream_events
     : [];
 
-  pilotState.stream_events = [
-    ...currentEvents,
-    {
-      type: event.type || "pilot_event",
-      label: event.label || "Pilot event",
-      detail: event.detail || "",
-      status: event.status || "info",
-    },
-  ];
+  const nextEvent = {
+    type: String(event.type || "pilot_event"),
+    label: String(event.label || "Pilot event"),
+    detail: String(event.detail || ""),
+    status: String(event.status || "info"),
+  };
+
+  const dedupe = options.dedupe !== false;
+  const maxEvents = Number(options.maxEvents || 14);
+  const eventKey = `${nextEvent.type}::${nextEvent.status}::${nextEvent.detail}`;
+
+  const filteredEvents = dedupe
+    ? currentEvents.filter((item) => {
+        const itemKey = `${String(item.type || "")}::${String(item.status || "")}::${String(item.detail || "")}`;
+        return itemKey !== eventKey;
+      })
+    : currentEvents;
+
+  pilotState.stream_events = [...filteredEvents, nextEvent].slice(-maxEvents);
 }
 
 function approveAionPilotMissionContract() {
   const pilotState = getAionPilotFrontendInteractionState();
+
+  if (
+    pilotState.contract_status === "approved_for_safe_work" &&
+    pilotState.safe_work_status === "completed_preview"
+  ) {
+    appendAionPilotStreamEvent({
+      type: "contract_approval_already_completed",
+      label: "Safe preview already completed",
+      detail: "Pilot has already completed the current preview. Update the plan to run a new preview.",
+      status: "completed_preview",
+    });
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+    return;
+  }
 
   pilotState.status = "approved_for_safe_work";
   pilotState.contract_status = "approved_for_safe_work";
@@ -8988,103 +9022,9 @@ function getAionPilotCockpitSnapshot() {
   };
 }
 
+
 function renderAionPilotCockpitPanel(snapshot = getAionPilotCockpitSnapshot()) {
   return renderAionPilotSimpleTaskStream(snapshot);
-
-  const planRows = (snapshot.plan_steps || []).map(([stepId, lane, title, status]) => `
-    <div class="aion-pilot-map-node" data-aion-pilot-map-node="${escapeHtml(stepId)}">
-      <strong>${escapeHtml(title)}</strong>
-      <div class="aion-pilot-meta-row"><span>Step</span><code>${escapeHtml(stepId)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Lane</span><code>${escapeHtml(lane)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(status)}</code></div>
-    </div>
-  `).join("");
-
-  const artifactRows = (snapshot.artifacts || []).map((artifact) => `
-    <div class="aion-pilot-artifact-card" data-aion-pilot-artifact-card>
-      <strong>${escapeHtml(artifact.title)}</strong>
-      <div class="aion-pilot-meta-row"><span>Type</span><code>${escapeHtml(artifact.type)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Status</span><code>${escapeHtml(artifact.status)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Path</span><code>${escapeHtml(artifact.path)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Artifact hash</span><code>${escapeHtml(artifact.artifact_hash)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Receipt hash</span><code>${escapeHtml(artifact.receipt_hash)}</code></div>
-      <div class="aion-pilot-actions">
-        <button type="button" data-aion-pilot-open-output>Open output</button>
-        <button type="button" data-aion-pilot-download-output>Download output</button>
-        <button type="button" data-aion-pilot-view-receipt>View receipt</button>
-      </div>
-    </div>
-  `).join("");
-
-  const blockedRows = (snapshot.blocked_actions || []).map((item) => `
-    <div class="aion-pilot-blocked-card" data-aion-pilot-blocked-action>
-      <strong>${escapeHtml(item.action_type)}</strong>
-      <div class="aion-pilot-meta-row"><span>Why blocked</span><code>${escapeHtml(item.blocked_reason)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Safe alternative</span><code>${escapeHtml(item.safe_alternative)}</code></div>
-      <div class="aion-pilot-meta-row"><span>Approval required</span><code>${escapeHtml(item.required_approval)}</code></div>
-    </div>
-  `).join("");
-
-  return `
-    <section class="aion-pilot-cockpit" data-aion-pilot-cockpit data-aion-phase21x-real-frontend-pilot-mount>
-      <div class="aion-pilot-header">
-        <div>
-          <div class="eyebrow">AION PILOT</div>
-          <h2>Pilot Cockpit</h2>
-          <p>Visible operator surface for plan-gated safe work, artifacts, approvals, blocked actions, proof and replay.</p>
-        </div>
-        <div class="aion-pilot-status" data-aion-pilot-status="${escapeHtml(snapshot.status)}">STATUS: ${escapeHtml(snapshot.status.toUpperCase())}</div>
-      </div>
-
-      <div class="aion-pilot-safety-banner" data-aion-pilot-safety-banner>
-        <strong>${escapeHtml(snapshot.safety_message)}</strong>
-        <span>${escapeHtml(snapshot.no_live_side_effects_message)}</span>
-      </div>
-
-      <div class="aion-pilot-grid">
-        <div class="aion-pilot-panel" data-aion-pilot-composer>
-          <strong>Mission composer</strong>
-          <textarea data-aion-pilot-mission-input placeholder="${escapeHtml(snapshot.request_placeholder)}"></textarea>
-          <div class="aion-pilot-meta-row"><span>Business</span><code>${escapeHtml(snapshot.business_id)}</code></div>
-          <div class="aion-pilot-meta-row"><span>Save path</span><code>${escapeHtml(snapshot.save_path)}</code></div>
-          <button type="button" data-aion-pilot-create-draft-mission>Create draft mission</button>
-        </div>
-
-        <div class="aion-pilot-panel" data-aion-pilot-stream>
-          <strong>Pilot stream</strong>
-          ${renderAionPilotFrontendStreamEvents(getAionPilotFrontendInteractionState())}
-          <div class="aion-pilot-meta-row"><span>Current step</span><code>${escapeHtml(snapshot.step_id)}</code></div>
-          <div class="aion-pilot-meta-row"><span>Run</span><code>${escapeHtml(snapshot.mission_run_id)}</code></div>
-          <div class="aion-pilot-meta-row"><span>Replay hash</span><code>${escapeHtml(getAionPilotFrontendInteractionState().replay_hash || "sha256:preview_replay_hash")}</code></div>
-          <div class="aion-pilot-meta-row"><span>Proof hash</span><code>${escapeHtml(getAionPilotFrontendInteractionState().proof_hash || "sha256:preview_proof_hash")}</code></div>
-        </div>
-      </div>
-
-      <div class="aion-pilot-grid aion-pilot-grid-three">
-        <div class="aion-pilot-panel" data-aion-pilot-plan-preview>
-          <strong>Plan / mission map</strong>
-          ${planRows}
-        </div>
-        <div class="aion-pilot-panel" data-aion-pilot-files>
-          <strong>Business container files</strong>
-          ${artifactRows}
-        </div>
-        <div class="aion-pilot-panel" data-aion-pilot-blocked-panel>
-          <strong>Blocked actions</strong>
-          ${blockedRows}
-        </div>
-      </div>
-
-      <div class="aion-pilot-feedback" data-aion-pilot-feedback>
-        <button type="button" data-aion-pilot-feedback-approve>Approve route</button>
-        <button type="button" data-aion-pilot-feedback-revise>Revise</button>
-        <button type="button" data-aion-pilot-feedback-stop>Stop</button>
-        <button type="button" data-aion-pilot-feedback-retry>Retry</button>
-        <button type="button" data-aion-pilot-feedback-continue>Continue safe work</button>
-        <textarea data-aion-pilot-feedback-text placeholder="Tell Pilot what to change. Feedback is governed."></textarea>
-      </div>
-    </section>
-  `;
 }
 
 function installAionPilotCockpitStyles() {
@@ -85088,7 +85028,7 @@ function installAionFaxTerminalWorkspaceSkinV21W() {
     }
 
     html body .aion-pilot-composer-bar::before {
-      content: "[ Bottom Terminal Bar — Persistent ]";
+      content: "Ask Pilot";
       grid-column: 1 / -1;
       display: block;
       color: var(--pilot-fax-muted);
@@ -85847,7 +85787,7 @@ function installAionFaxTerminalWorkspaceSkinV21W() {
     }
 
     html body .aion-pilot-composer-bar::before {
-      content: "[ Bottom Terminal Bar — Persistent ]";
+      content: "Ask Pilot";
       grid-column: 1 / -1;
       display: block;
       color: var(--pilot-fax-muted);
@@ -86068,6 +86008,8 @@ function applyAionLrmPilotContextPreviewPayload(payload = {}) {
     status: String(event.status || "preview_only"),
   }));
 
+  pilotState.lrm_visible_events = mappedEvents;
+
   pilotState.stream_events = [
     ...existingEvents,
     {
@@ -86076,8 +86018,7 @@ function applyAionLrmPilotContextPreviewPayload(payload = {}) {
       detail: safePayload.payload_hash || "Preview payload loaded from local-node endpoint",
       status: "preview_only",
     },
-    ...mappedEvents,
-  ];
+  ].slice(-14);
 
   if (typeof requestRender === "function") {
     requestRender();
