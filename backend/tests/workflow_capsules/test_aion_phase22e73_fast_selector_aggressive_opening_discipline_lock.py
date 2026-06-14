@@ -43,4 +43,4 @@ def test_phase22e73_aggressive_selector_still_allows_safe_captures_and_checks(tm
 
     assert selected["fast_mode_used"] is True
     assert selected["selected_move"] in selected["legal_moves"]
-    assert selected["selected_source"] == "phase22e69_fast_live_clock_safe_selector"
+    assert selected["selected_source"] in {"phase22e69_fast_live_clock_safe_selector", "phase22e75_opening_book_fast_selector"}

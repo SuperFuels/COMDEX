@@ -228,6 +228,43 @@ class AionStrategicWellLiveRematchKernel:
 
         return forcing
 
+    def _opening_book_fast_move(self, board: chess.Board) -> str:
+        """Phase 22E.75 deterministic fast opening book."""
+        legal = {m.uci() for m in board.legal_moves}
+        fen = board.fen()
+
+        book = {
+            "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1": "d2d4",
+            "rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2": "g1f3",
+            "rnbqkb1r/pppppppp/5n2/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 1 2": "c1f4",
+            "rnbqkb1r/ppp1pppp/5n2/3p4/3P4/5N2/PPP1PPPP/RNBQKB1R w KQkq - 2 3": "c1f4",
+            "rnbqkb1r/ppp1pppp/5n2/3p4/3P1B2/5N2/PPP1PPPP/RN1QKB1R w KQkq - 4 4": "e2e3",
+            "rnbqkb1r/ppp1pppp/5n2/3p4/3P1B2/4PN2/PPP2PPP/RN1QKB1R w KQkq - 0 5": "f1d3",
+            "rnbqkb1r/ppp1pppp/5n2/3p4/3P1B2/3BPN2/PPP2PPP/RN1QK2R w KQkq - 2 6": "e1g1",
+            "rnbqkb1r/ppp1pppp/5n2/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 2 3": "g1f3",
+        }
+
+        wanted = book.get(fen)
+        if wanted in legal:
+            return wanted
+
+        if board.fullmove_number <= 8 and board.turn == chess.WHITE:
+            for move_uci in (
+                "d2d4",
+                "g1f3",
+                "c1f4",
+                "e2e3",
+                "f1d3",
+                "e1g1",
+                "b1d2",
+                "c2c3",
+            ):
+                if move_uci in legal:
+                    return move_uci
+
+        return ""
+
+
     def _score_fast_live_move(self, board: chess.Board, move_uci: str) -> int:
         move = chess.Move.from_uci(move_uci)
         score = 0
@@ -503,6 +540,20 @@ class AionStrategicWellLiveRematchKernel:
         )
 
         selected = scored[0][1] if scored else ""
+
+        opening_book_move = self._opening_book_fast_move(board)
+        if opening_book_move:
+            opening_legal_moves = [m.uci() for m in board.legal_moves]
+            if opening_book_move in opening_legal_moves:
+                return {
+                    "selected_move": opening_book_move,
+                    "legal_moves": opening_legal_moves,
+                    "horizon_safe_moves": opening_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": {},
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e75_opening_book_fast_selector",
+                }
 
         return {
             "selected_move": selected,

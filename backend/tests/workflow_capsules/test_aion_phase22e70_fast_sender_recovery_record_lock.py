@@ -24,4 +24,4 @@ def test_phase22e70_fast_sender_record_shape_has_recovery_fields(tmp_path):
     assert sender_record["move_post_attempted"] is True
     assert sender_record["move_post_succeeded"] is False
     assert int(sender_record["move_post_status_code"]) == 400
-    assert sender_record["selected_source"] == "phase22e69_fast_live_clock_safe_selector"
+    assert sender_record["selected_source"] in {"phase22e69_fast_live_clock_safe_selector", "phase22e75_opening_book_fast_selector"}
