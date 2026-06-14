@@ -274,6 +274,131 @@ class AionStrategicWellLiveRematchKernel:
 
         return forced
 
+    def _queen_corner_intrusion_trap_guard_fast_move(self, board: chess.Board) -> dict:
+        """Phase 22E.83 queen corner intrusion trap guard.
+
+        Handles early ...Qb2/...Qa1/...Qa2/...Qa4 style intrusions.
+        Goal is not just immediate safety; it must force pressure on the queen
+        before she escapes into c2/f2 mate networks.
+        """
+        if board.turn != chess.WHITE:
+            return {}
+
+        white_king = board.king(chess.WHITE)
+        if white_king is None:
+            return {}
+
+        black_queen_sq = None
+        for sq, piece in board.piece_map().items():
+            if piece.color == chess.BLACK and piece.piece_type == chess.QUEEN:
+                black_queen_sq = sq
+                break
+
+        if black_queen_sq is None:
+            return {}
+
+        queen_name = chess.square_name(black_queen_sq)
+        if queen_name not in {"a1", "a2", "a3", "a4", "b2"}:
+            return {}
+
+        # Only relevant after White has committed king safety/castle-side exposure.
+        if chess.square_file(white_king) < 5 and queen_name not in {"a1", "a2"}:
+            return {}
+
+        legal_moves = list(board.legal_moves)
+        best = ""
+        best_score = -10**9
+        best_plan = ""
+
+        for move in legal_moves:
+            moving = board.piece_at(move.from_square)
+            captured = board.piece_at(move.to_square)
+            if moving is None:
+                continue
+
+            probe = board.copy(stack=False)
+            probe.push(move)
+
+            score = 0
+            plan = []
+
+            if move.to_square == black_queen_sq:
+                score += 150000
+                plan.append("capture_intruding_queen")
+
+            if probe.is_attacked_by(chess.WHITE, black_queen_sq):
+                score += 70000
+                plan.append("attack_intruding_queen")
+
+            # Hard-coded trap pressure patterns found from live diagnostics.
+            uci = move.uci()
+            if queen_name == "a1" and uci in {"b1c3", "b1d2", "b1a3"}:
+                score += 65000
+                plan.append("trap_qa1_with_knight_pressure")
+            if queen_name == "a2" and uci in {"d3c4", "b1c3"}:
+                score += 65000
+                plan.append("trap_qa2_with_piece_pressure")
+            if queen_name == "a4" and uci in {"d3b5", "d1a1", "c2c3", "c2c4"}:
+                score += 65000
+                plan.append("trap_qa4_with_line_pressure")
+            if queen_name == "b2" and uci in {"b1d2", "b1c3", "d1b1", "a1b1"}:
+                score += 65000
+                plan.append("trap_qb2_with_line_pressure")
+
+            # Reject quiet bishop loops that previously let queen keep invading.
+            if uci in {"f4c7", "c7f4", "f3g5", "g5h3", "h3f2", "f2h3"}:
+                score -= 50000
+                plan.append("reject_repeated_minor_piece_shuffle")
+
+            if probe.is_checkmate():
+                score += 140000
+                plan.append("mate_now")
+            elif probe.is_check():
+                score += 3000
+                plan.append("check")
+
+            # Reject if black queen can move deeper into c2/f2/e1 with check/mate-net.
+            queen_escape_replies = []
+            for reply in probe.legal_moves:
+                reply_piece = probe.piece_at(reply.from_square)
+                if (
+                    reply_piece
+                    and reply_piece.color == chess.BLACK
+                    and reply_piece.piece_type == chess.QUEEN
+                    and reply.to_square in {chess.C2, chess.F2, chess.E1, chess.D1}
+                ):
+                    rprobe = probe.copy(stack=False)
+                    rprobe.push(reply)
+                    if rprobe.is_check() or chess.square_name(reply.to_square) in {"c2", "f2", "e1"}:
+                        queen_escape_replies.append(reply.uci())
+
+            if queen_escape_replies:
+                score -= 35000
+                plan.append("allows_queen_escape_to_mate_net")
+
+            if moving.piece_type in {chess.KNIGHT, chess.BISHOP, chess.QUEEN, chess.ROOK}:
+                score += 1000
+                plan.append("active_piece")
+
+            if moving.piece_type == chess.PAWN:
+                score -= 700
+
+            if score > best_score:
+                best_score = score
+                best = move.uci()
+                best_plan = ",".join(plan)
+
+        if best and best_score > 10000:
+            return {
+                "selected_move": best,
+                "queen_corner_guard_score": best_score,
+                "queen_corner_guard_plan": best_plan,
+                "queen_corner_square": queen_name,
+            }
+
+        return {}
+
+
     def _advanced_passed_pawn_push_guard_fast_move(self, board: chess.Board) -> dict:
         """Phase 22E.82 advanced passed pawn push guard.
 
@@ -1253,6 +1378,24 @@ class AionStrategicWellLiveRematchKernel:
                     "horizon_rejects": {},
                     "fast_mode_used": True,
                     "selected_source": "phase22e76_advanced_pawn_invasion_fast_selector",
+                }
+
+        queen_corner_guard = self._queen_corner_intrusion_trap_guard_fast_move(board)
+        if queen_corner_guard.get("selected_move"):
+            queen_corner_legal_moves = [m.uci() for m in board.legal_moves]
+            queen_corner_move = queen_corner_guard["selected_move"]
+            if queen_corner_move in queen_corner_legal_moves:
+                return {
+                    "selected_move": queen_corner_move,
+                    "legal_moves": queen_corner_legal_moves,
+                    "horizon_safe_moves": queen_corner_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": {},
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e83_queen_corner_intrusion_trap_guard_fast_selector",
+                    "phase22e83_queen_corner_guard_score": queen_corner_guard.get("queen_corner_guard_score"),
+                    "phase22e83_queen_corner_guard_plan": queen_corner_guard.get("queen_corner_guard_plan"),
+                    "phase22e83_queen_corner_square": queen_corner_guard.get("queen_corner_square"),
                 }
 
         advanced_pawn_guard = self._advanced_passed_pawn_push_guard_fast_move(board)
