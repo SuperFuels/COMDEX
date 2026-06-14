@@ -535,7 +535,11 @@ class AionStrategicWellLiveRematchKernel:
                         }
 
                     latest_state_after_failure = None
-                    if sender.move_post_attempted and not sender.move_post_succeeded and sender.move_post_status_code == 400:
+                    if (
+                        sender_record.get("move_post_attempted")
+                        and not sender_record.get("move_post_succeeded")
+                        and int(sender_record.get("move_post_status_code") or 0) == 400
+                    ):
                         try:
                             latest_state_after_failure = self._fetch_latest_game_state(token=token_value, game_id=game_id)
                         except Exception as exc:
