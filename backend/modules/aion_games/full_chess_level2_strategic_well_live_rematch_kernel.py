@@ -143,6 +143,187 @@ class AionStrategicWellLiveRematchKernel:
             body = response.read().decode("utf-8")
             return json.loads(body)
 
+
+    def _post_fast_move(self, *, token: str, game_id: str, move_uci: str, timeout_seconds: int = 5) -> tuple[bool, int, str]:
+        url = f"https://lichess.org/api/bot/game/{game_id}/move/{move_uci}"
+        req = urllib.request.Request(
+            url,
+            method="POST",
+            headers={
+                "Authorization": f"Bearer {token}",
+                "Accept": "application/json",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=timeout_seconds) as response:
+                return 200 <= response.status < 300, int(response.status), ""
+        except urllib.error.HTTPError as exc:
+            return False, int(exc.code), str(exc)
+        except Exception as exc:
+            return False, 0, str(exc)
+
+    def _fast_mate_replies_after(self, board: chess.Board, move_uci: str) -> List[str]:
+        move = chess.Move.from_uci(move_uci)
+        if move not in board.legal_moves:
+            return []
+
+        probe = board.copy(stack=False)
+        probe.push(move)
+
+        mates: List[str] = []
+        for reply in probe.legal_moves:
+            rp = probe.copy(stack=False)
+            rp.push(reply)
+            if rp.is_checkmate():
+                mates.append(reply.uci())
+
+        return mates
+
+    def _fast_safe_evasions(self, board: chess.Board) -> List[str]:
+        return [
+            move.uci()
+            for move in board.legal_moves
+            if not self._fast_mate_replies_after(board, move.uci())
+        ]
+
+    def _fast_shallow_horizon_safe_moves(self, board: chess.Board) -> List[str]:
+        safe: List[str] = []
+
+        for move in board.legal_moves:
+            move_uci = move.uci()
+
+            if self._fast_mate_replies_after(board, move_uci):
+                continue
+
+            probe = board.copy(stack=False)
+            probe.push(move)
+
+            opponent_can_leave_no_immediate_safe_evasion = False
+            for reply in probe.legal_moves:
+                rp = probe.copy(stack=False)
+                rp.push(reply)
+                if not self._fast_safe_evasions(rp):
+                    opponent_can_leave_no_immediate_safe_evasion = True
+                    break
+
+            if not opponent_can_leave_no_immediate_safe_evasion:
+                safe.append(move_uci)
+
+        return safe
+
+    def _fast_forcing_replies_after(self, board: chess.Board, move_uci: str) -> List[str]:
+        move = chess.Move.from_uci(move_uci)
+        if move not in board.legal_moves:
+            return []
+
+        probe = board.copy(stack=False)
+        probe.push(move)
+
+        forcing: List[str] = []
+        for reply in probe.legal_moves:
+            rp = probe.copy(stack=False)
+            rp.push(reply)
+            if not self._fast_shallow_horizon_safe_moves(rp):
+                forcing.append(reply.uci())
+
+        return forcing
+
+    def _score_fast_live_move(self, board: chess.Board, move_uci: str) -> int:
+        move = chess.Move.from_uci(move_uci)
+        score = 0
+
+        piece_values = {
+            chess.PAWN: 100,
+            chess.KNIGHT: 320,
+            chess.BISHOP: 330,
+            chess.ROOK: 500,
+            chess.QUEEN: 900,
+            chess.KING: 20000,
+        }
+
+        moving_piece = board.piece_at(move.from_square)
+        captured = board.piece_at(move.to_square)
+
+        if captured and captured.color != board.turn:
+            score += piece_values.get(captured.piece_type, 0) + 400
+
+        if moving_piece:
+            if moving_piece.piece_type in {chess.KNIGHT, chess.BISHOP}:
+                score += 40
+            if moving_piece.piece_type == chess.PAWN:
+                score += 10
+            if moving_piece.piece_type == chess.KING:
+                score -= 120
+
+        probe = board.copy(stack=False)
+        probe.push(move)
+
+        if probe.is_check():
+            score += 250
+
+        # Prefer central / active squares, very cheap.
+        file_idx = chess.square_file(move.to_square)
+        rank_idx = chess.square_rank(move.to_square)
+        score += 20 - abs(file_idx - 3) * 3 - abs(rank_idx - 3) * 3
+
+        return score
+
+    def _select_fast_live_move(self, board: chess.Board) -> Dict[str, Any]:
+        legal = [move.uci() for move in board.legal_moves]
+
+        immediate_rejects: Dict[str, List[str]] = {}
+        horizon_rejects: Dict[str, List[str]] = {}
+
+        # Phase 22E.69 fast path:
+        # Keep this cheap enough for live clock use. Do not run full beam/SQI or
+        # expensive multi-ply horizon scans here.
+        forced_corridor_rejects = {
+            # Phase 22E.67 / 22E.68 live loss corridor.
+            (
+                "rnb3k1/1pp1pp2/6pp/p3b3/1PP1n2P/1K6/P2r2P1/8 w - - 0 22",
+                "b3a4",
+            ): ["known_phase22e67_b3a4_forced_no_horizon_corridor"],
+        }
+
+        board_fen = board.fen()
+
+        candidates: List[str] = []
+        for move_uci in legal:
+            mates = self._fast_mate_replies_after(board, move_uci)
+            if mates:
+                immediate_rejects[move_uci] = mates
+                continue
+
+            corridor_key = (board_fen, move_uci)
+            if corridor_key in forced_corridor_rejects:
+                horizon_rejects[move_uci] = forced_corridor_rejects[corridor_key]
+                continue
+
+            candidates.append(move_uci)
+
+        # If every move is bad, still return a legal move immediately.
+        candidates = candidates or [
+            move_uci for move_uci in legal if move_uci not in immediate_rejects
+        ] or legal
+
+        scored = sorted(
+            ((self._score_fast_live_move(board, move_uci), move_uci) for move_uci in candidates),
+            reverse=True,
+        )
+
+        selected = scored[0][1] if scored else ""
+
+        return {
+            "selected_move": selected,
+            "legal_moves": legal,
+            "horizon_safe_moves": candidates,
+            "immediate_rejects": immediate_rejects,
+            "horizon_rejects": horizon_rejects,
+            "selected_source": "phase22e69_fast_live_clock_safe_selector",
+            "fast_mode_used": True,
+        }
+
+
     def run(
         self,
         *,
@@ -172,6 +353,7 @@ class AionStrategicWellLiveRematchKernel:
         move_send_ok_count = 0
         post_400_recovery_count = 0
         strategic_sender_used_count = 0
+        phase22e69_fast_live_mode_count = 0
 
         if dry_run or not network_enabled:
             sender = run_full_chess_live_one_move_strategic_well_sender_kernel(
@@ -257,42 +439,100 @@ class AionStrategicWellLiveRematchKernel:
                     board = self._board_from_moves(moves)
                     current_fen = board.fen()
 
-                    sender = run_full_chess_live_one_move_strategic_well_sender_kernel(
-                        game_id=game_id,
-                        input_fen=current_fen,
-                        side_to_move=aion_colour,
-                        target_level=target_level,
-                        repeated_moves=moves[-16:],
-                        repeated_squares=[m[2:4] for m in moves[-16:] if len(m) >= 4],
-                        explicit_live_send_authorized=True,
-                        human_operator_confirmed=True,
-                        live_game_stream_confirmed=True,
-                        one_move_gate_enabled=True,
-                        live_sender_enabled=True,
-                        allow_real_post=True,
-                        token=token_value,
-                        memory_path=self.memory_path.parent / "phase22e39_child_sender_memory.json",
-                    )
+                    phase22e69_fast_live_mode = clock_limit_seconds <= 300 and clock_increment_seconds <= 2
 
-                    strategic_sender_used_count += 1
+                    if phase22e69_fast_live_mode:
+                        fast = self._select_fast_live_move(board)
+                        selected_move = str(fast.get("selected_move") or "")
+                        selected_move_is_legal = bool(selected_move and chess.Move.from_uci(selected_move) in board.legal_moves)
 
-                    sender_record = {
-                        "aion_move_index": aion_move_count + 1,
-                        "ply_before": len(moves),
-                        "fen_before": current_fen,
-                        "final_selected_move": sender.selected_move,
-                        "selected_move": sender.selected_move,
-                        "selected_move_is_legal": sender.selected_move_is_legal,
-                        "active_intent": sender.active_intent,
-                        "base_well_selected_move": sender.base_well_selected_move,
-                        "intent_override_applied": sender.intent_override_applied,
-                        "selected_source": sender.selected_source,
-                        "move_post_attempted": sender.move_post_attempted,
-                        "move_post_succeeded": sender.move_post_succeeded,
-                        "move_post_status_code": sender.move_post_status_code,
-                        "move_post_error": sender.move_post_error,
-                        "sender_trace_hash": sender.trace_hash,
-                    }
+                        move_post_attempted = False
+                        move_post_succeeded = False
+                        move_post_status_code = 0
+                        move_post_error = ""
+
+                        if selected_move_is_legal:
+                            move_post_attempted = True
+                            move_post_succeeded, move_post_status_code, move_post_error = self._post_fast_move(
+                                token=token_value,
+                                game_id=game_id,
+                                move_uci=selected_move,
+                                timeout_seconds=5,
+                            )
+
+                        phase22e69_fast_live_mode_count += 1
+
+                        sender_trace_hash = self._hash({
+                            "phase": "22E.69",
+                            "game_id": game_id,
+                            "fen": current_fen,
+                            "selected_move": selected_move,
+                            "selected_move_is_legal": selected_move_is_legal,
+                            "move_post_succeeded": move_post_succeeded,
+                            "fast": fast,
+                        })
+
+                        sender_record = {
+                            "aion_move_index": aion_move_count + 1,
+                            "ply_before": len(moves),
+                            "fen_before": current_fen,
+                            "final_selected_move": selected_move,
+                            "selected_move": selected_move,
+                            "selected_move_is_legal": selected_move_is_legal,
+                            "active_intent": "fast_clock_safety",
+                            "base_well_selected_move": "",
+                            "intent_override_applied": False,
+                            "selected_source": str(fast.get("selected_source") or "phase22e69_fast_live_clock_safe_selector"),
+                            "move_post_attempted": move_post_attempted,
+                            "move_post_succeeded": move_post_succeeded,
+                            "move_post_status_code": move_post_status_code,
+                            "move_post_error": move_post_error,
+                            "sender_trace_hash": sender_trace_hash,
+                            "phase22e69_fast_live_mode_used": True,
+                            "phase22e69_horizon_safe_moves": fast.get("horizon_safe_moves", []),
+                            "phase22e69_immediate_rejects": fast.get("immediate_rejects", {}),
+                            "phase22e69_horizon_rejects": fast.get("horizon_rejects", {}),
+                        }
+
+                    else:
+                        sender = run_full_chess_live_one_move_strategic_well_sender_kernel(
+                            game_id=game_id,
+                            input_fen=current_fen,
+                            side_to_move=aion_colour,
+                            target_level=target_level,
+                            repeated_moves=moves[-16:],
+                            repeated_squares=[m[2:4] for m in moves[-16:] if len(m) >= 4],
+                            explicit_live_send_authorized=True,
+                            human_operator_confirmed=True,
+                            live_game_stream_confirmed=True,
+                            one_move_gate_enabled=True,
+                            live_sender_enabled=True,
+                            allow_real_post=True,
+                            token=token_value,
+                            timeout_seconds=5,
+                            memory_path=self.memory_path.parent / "phase22e39_child_sender_memory.json",
+                        )
+
+                        strategic_sender_used_count += 1
+
+                        sender_record = {
+                            "aion_move_index": aion_move_count + 1,
+                            "ply_before": len(moves),
+                            "fen_before": current_fen,
+                            "final_selected_move": sender.selected_move,
+                            "selected_move": sender.selected_move,
+                            "selected_move_is_legal": sender.selected_move_is_legal,
+                            "active_intent": sender.active_intent,
+                            "base_well_selected_move": sender.base_well_selected_move,
+                            "intent_override_applied": sender.intent_override_applied,
+                            "selected_source": sender.selected_source,
+                            "move_post_attempted": sender.move_post_attempted,
+                            "move_post_succeeded": sender.move_post_succeeded,
+                            "move_post_status_code": sender.move_post_status_code,
+                            "move_post_error": sender.move_post_error,
+                            "sender_trace_hash": sender.trace_hash,
+                            "phase22e69_fast_live_mode_used": False,
+                        }
 
                     latest_state_after_failure = None
                     if sender.move_post_attempted and not sender.move_post_succeeded and sender.move_post_status_code == 400:
