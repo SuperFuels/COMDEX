@@ -228,6 +228,134 @@ class AionStrategicWellLiveRematchKernel:
 
         return forcing
 
+    def _board_strategy_kernel_fast_move(self, board: chess.Board) -> dict:
+        """Phase 22E.77 Board Strategy Kernel v1."""
+        legal_moves = [m.uci() for m in board.legal_moves]
+        if board.turn != chess.WHITE or not legal_moves:
+            return {}
+
+        piece_values = {
+            chess.PAWN: 100,
+            chess.KNIGHT: 320,
+            chess.BISHOP: 330,
+            chess.ROOK: 500,
+            chess.QUEEN: 900,
+            chess.KING: 0,
+        }
+
+        our_king = board.king(chess.WHITE)
+        opp_king = board.king(chess.BLACK)
+
+        best = ""
+        best_score = -10**9
+        best_plan = ""
+
+        for move in board.legal_moves:
+            move_uci = move.uci()
+            moving_piece = board.piece_at(move.from_square)
+            captured_piece = board.piece_at(move.to_square)
+            if moving_piece is None:
+                continue
+
+            probe = board.copy(stack=False)
+            probe.push(move)
+
+            score = 0
+            plan_bits = []
+
+            if probe.is_checkmate():
+                score += 100000
+                plan_bits.append("mate_now")
+
+            if probe.is_check():
+                score += 1800
+                plan_bits.append("force_check")
+
+            if captured_piece and captured_piece.color == chess.BLACK:
+                score += piece_values.get(captured_piece.piece_type, 0) * 4
+                plan_bits.append("win_material")
+
+            attacked_value = 0
+            for sq, piece in probe.piece_map().items():
+                if piece.color == chess.BLACK and probe.is_attacked_by(chess.WHITE, sq):
+                    attacked_value += piece_values.get(piece.piece_type, 0)
+
+            if attacked_value:
+                score += attacked_value
+                plan_bits.append("attack_enemy_material")
+
+            if opp_king is not None:
+                king_pressure = 0
+                for sq in chess.SQUARES:
+                    if probe.is_attacked_by(chess.WHITE, sq):
+                        dist = (
+                            abs(chess.square_file(sq) - chess.square_file(opp_king))
+                            + abs(chess.square_rank(sq) - chess.square_rank(opp_king))
+                        )
+                        if dist <= 2:
+                            king_pressure += 1
+
+                if king_pressure:
+                    score += min(king_pressure, 10) * 120
+                    plan_bits.append("pressure_enemy_king")
+
+            if moving_piece.piece_type == chess.KING and not probe.is_check() and not captured_piece:
+                score -= 1200
+                plan_bits.append("passive_king_move_penalty")
+
+            if moving_piece.piece_type == chess.ROOK and not probe.is_check() and not captured_piece:
+                score -= 350
+                plan_bits.append("passive_rook_move_penalty")
+
+            worst_reply = 0
+            for reply in probe.legal_moves:
+                victim = probe.piece_at(reply.to_square)
+
+                rprobe = probe.copy(stack=False)
+                rprobe.push(reply)
+
+                reply_risk = 0
+
+                if rprobe.is_checkmate():
+                    reply_risk += 100000
+                elif rprobe.is_check():
+                    reply_risk += 1200
+
+                if victim and victim.color == chess.WHITE:
+                    reply_risk += piece_values.get(victim.piece_type, 0) * 5
+
+                if our_king is not None:
+                    reply_piece = probe.piece_at(reply.from_square)
+                    if reply_piece and reply_piece.color == chess.BLACK:
+                        dist = (
+                            abs(chess.square_file(reply.to_square) - chess.square_file(our_king))
+                            + abs(chess.square_rank(reply.to_square) - chess.square_rank(our_king))
+                        )
+                        if dist <= 2:
+                            reply_risk += 800
+
+                worst_reply = max(worst_reply, reply_risk)
+
+            score -= worst_reply
+
+            if not plan_bits:
+                continue
+
+            if score > best_score:
+                best_score = score
+                best = move_uci
+                best_plan = ",".join(plan_bits)
+
+        if best and best_score > 250:
+            return {
+                "selected_move": best,
+                "strategy_score": best_score,
+                "strategy_plan": best_plan,
+            }
+
+        return {}
+
+
     def _advanced_pawn_invasion_fast_move(self, board: chess.Board) -> str:
         """Phase 22E.76 emergency guard for advanced enemy pawn invasion.
 
@@ -604,6 +732,29 @@ class AionStrategicWellLiveRematchKernel:
                     "horizon_rejects": {},
                     "fast_mode_used": True,
                     "selected_source": "phase22e76_advanced_pawn_invasion_fast_selector",
+                }
+
+        # Phase 22E.77:
+        # Strategy kernel v1 is enabled only for reduced/tactical boards for now.
+        # Full-board openings must remain controlled by opening book + safety locks.
+        strategy = {}
+        if len(board.piece_map()) <= 10:
+            strategy = self._board_strategy_kernel_fast_move(board)
+
+        if strategy.get("selected_move"):
+            strategy_legal_moves = [m.uci() for m in board.legal_moves]
+            strategy_move = strategy["selected_move"]
+            if strategy_move in strategy_legal_moves:
+                return {
+                    "selected_move": strategy_move,
+                    "legal_moves": strategy_legal_moves,
+                    "horizon_safe_moves": strategy_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": {},
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e77_board_strategy_kernel_fast_selector",
+                    "phase22e77_strategy_score": strategy.get("strategy_score"),
+                    "phase22e77_strategy_plan": strategy.get("strategy_plan"),
                 }
 
         opening_book_move = self._opening_book_fast_move(board)
