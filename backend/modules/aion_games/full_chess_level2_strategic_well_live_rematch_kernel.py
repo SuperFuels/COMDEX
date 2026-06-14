@@ -274,6 +274,137 @@ class AionStrategicWellLiveRematchKernel:
 
         return forced
 
+    def _advanced_passed_pawn_push_guard_fast_move(self, board: chess.Board) -> dict:
+        """Phase 22E.82 advanced passed pawn push guard.
+
+        22E.80 handled pawns already one move from promotion.
+        This catches connected/advanced black pawns earlier, before they become
+        unstoppable promotion/mate material.
+        """
+        if board.turn != chess.WHITE:
+            return {}
+
+        advanced = []
+        for sq, piece in board.piece_map().items():
+            if piece.color == chess.BLACK and piece.piece_type == chess.PAWN:
+                rank = chess.square_rank(sq)
+                file = chess.square_file(sq)
+
+                # Black pawns on ranks 4/3/2 from White perspective are already dangerous.
+                if rank <= 3:
+                    next_sq = chess.square(file, max(0, rank - 1))
+                    promo_sq = chess.square(file, 0)
+                    advanced.append((sq, next_sq, promo_sq))
+
+        if not advanced:
+            return {}
+
+        # Only trigger when at least one advanced pawn is near White king side
+        # or two advanced pawns exist. This avoids stealing normal middlegame moves.
+        white_king = board.king(chess.WHITE)
+        king_file = chess.square_file(white_king) if white_king is not None else 6
+
+        dangerous = [
+            item for item in advanced
+            if len(advanced) >= 2 or abs(chess.square_file(item[0]) - king_file) <= 2
+        ]
+
+        if not dangerous:
+            return {}
+
+        best = ""
+        best_score = -10**9
+        best_plan = ""
+
+        for move in board.legal_moves:
+            moving = board.piece_at(move.from_square)
+            captured = board.piece_at(move.to_square)
+            if moving is None:
+                continue
+
+            score = 0
+            plan = []
+
+            for pawn_sq, next_sq, promo_sq in dangerous:
+                if move.to_square == pawn_sq:
+                    score += 120000
+                    plan.append("capture_advanced_passed_pawn")
+
+                if move.to_square == next_sq:
+                    score += 45000
+                    plan.append("block_next_pawn_push")
+
+                if move.to_square == promo_sq:
+                    score += 35000
+                    plan.append("occupy_future_promotion_square")
+
+            probe = board.copy(stack=False)
+            probe.push(move)
+
+            if probe.is_checkmate():
+                score += 140000
+                plan.append("mate_now")
+            elif probe.is_check():
+                score += 3500
+                plan.append("check")
+
+            # Reward attacks on advanced pawns after the move.
+            for pawn_sq, next_sq, promo_sq in dangerous:
+                if probe.piece_at(pawn_sq) and probe.is_attacked_by(chess.WHITE, pawn_sq):
+                    score += 10000
+                    plan.append("attacks_advanced_passed_pawn")
+
+            # Heavy rejection if black can push a dangerous pawn again immediately.
+            immediate_pushes = []
+            immediate_promotions = []
+            for reply in probe.legal_moves:
+                reply_piece = probe.piece_at(reply.from_square)
+                if (
+                    reply_piece
+                    and reply_piece.color == chess.BLACK
+                    and reply_piece.piece_type == chess.PAWN
+                ):
+                    if chess.square_rank(reply.to_square) == 0:
+                        immediate_promotions.append(reply.uci())
+                    elif chess.square_rank(reply.to_square) <= 1:
+                        immediate_pushes.append(reply.uci())
+
+            if immediate_promotions:
+                score -= 100000
+                plan.append("allows_immediate_promotion")
+
+            if immediate_pushes:
+                score -= 35000
+                plan.append("allows_rank_two_pawn_push")
+
+            # Penalise pure pawn shuffles / king shuffles when advanced pawns exist.
+            if moving.piece_type == chess.PAWN and not captured:
+                score -= 1500
+                plan.append("pawn_shuffle_under_passer_threat")
+
+            if moving.piece_type == chess.KING and not captured and not probe.is_check():
+                score -= 1200
+                plan.append("king_shuffle_under_passer_threat")
+
+            if moving.piece_type in {chess.QUEEN, chess.ROOK, chess.KNIGHT, chess.BISHOP}:
+                score += 600
+                plan.append("active_piece_response")
+
+            if score > best_score:
+                best_score = score
+                best = move.uci()
+                best_plan = ",".join(plan)
+
+        if best and best_score > -45000:
+            return {
+                "selected_move": best,
+                "advanced_pawn_guard_score": best_score,
+                "advanced_pawn_guard_plan": best_plan,
+            }
+
+        return {}
+
+
     def _bishop_queen_battery_mate_guard_fast_move(self, board: chess.Board) -> dict:
         """Phase 22E.81 bishop/queen battery forced-mate guard.
 
@@ -1122,6 +1253,23 @@ class AionStrategicWellLiveRematchKernel:
                     "horizon_rejects": {},
                     "fast_mode_used": True,
                     "selected_source": "phase22e76_advanced_pawn_invasion_fast_selector",
+                }
+
+        advanced_pawn_guard = self._advanced_passed_pawn_push_guard_fast_move(board)
+        if advanced_pawn_guard.get("selected_move"):
+            advanced_pawn_legal_moves = [m.uci() for m in board.legal_moves]
+            advanced_pawn_move = advanced_pawn_guard["selected_move"]
+            if advanced_pawn_move in advanced_pawn_legal_moves:
+                return {
+                    "selected_move": advanced_pawn_move,
+                    "legal_moves": advanced_pawn_legal_moves,
+                    "horizon_safe_moves": advanced_pawn_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": {},
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e82_advanced_passed_pawn_push_guard_fast_selector",
+                    "phase22e82_advanced_pawn_guard_score": advanced_pawn_guard.get("advanced_pawn_guard_score"),
+                    "phase22e82_advanced_pawn_guard_plan": advanced_pawn_guard.get("advanced_pawn_guard_plan"),
                 }
 
         battery_guard = self._bishop_queen_battery_mate_guard_fast_move(board)
