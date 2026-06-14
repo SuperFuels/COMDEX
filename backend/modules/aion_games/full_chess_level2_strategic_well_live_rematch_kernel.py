@@ -283,6 +283,14 @@ class AionStrategicWellLiveRematchKernel:
                 "rnb3k1/1pp1pp2/6pp/p3b3/1PP1n2P/1K6/P2r2P1/8 w - - 0 22",
                 "b3a4",
             ): ["known_phase22e67_b3a4_forced_no_horizon_corridor"],
+
+            # Phase 22E.71 live loss corridor:
+            # f1a6 ignores the queen on b2 and allows:
+            # ...Qxa1+ Kd2 Bb4+ c3 Qc3+ Ke2 Qc2+ Ke3 Qd2#.
+            (
+                "r1b1kbnr/1p3ppp/p7/4n3/4P3/8/PqP2PPP/R3KB1R w KQkq - 0 12",
+                "f1a6",
+            ): ["known_phase22e71_f1a6_allows_queen_invasion_mate_corridor"],
         }
 
         board_fen = board.fen()
