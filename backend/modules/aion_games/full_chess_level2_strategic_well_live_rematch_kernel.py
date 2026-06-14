@@ -287,15 +287,56 @@ class AionStrategicWellLiveRematchKernel:
                 plan.append("attack_invading_queen")
 
             mate_replies = []
+            severe_replies = []
+            queen_still_dangerous_replies = []
+
             for reply in probe.legal_moves:
+                reply_piece = probe.piece_at(reply.from_square)
+                victim = probe.piece_at(reply.to_square)
+
                 rprobe = probe.copy(stack=False)
                 rprobe.push(reply)
+
                 if rprobe.is_checkmate():
                     mate_replies.append(reply.uci())
 
+                # Reply wins/captures the moved piece or a major defender.
+                if victim and victim.color == chess.WHITE:
+                    if victim.piece_type in {chess.QUEEN, chess.ROOK, chess.KNIGHT, chess.BISHOP}:
+                        severe_replies.append(reply.uci())
+
+                # Black queen remains deep and can still attack around our king.
+                new_white_king = rprobe.king(chess.WHITE)
+                black_queen_sq = None
+                for sq2, piece2 in rprobe.piece_map().items():
+                    if piece2.color == chess.BLACK and piece2.piece_type == chess.QUEEN:
+                        black_queen_sq = sq2
+                        break
+
+                if black_queen_sq is not None and new_white_king is not None:
+                    q_rank = chess.square_rank(black_queen_sq)
+                    q_dist = (
+                        abs(chess.square_file(black_queen_sq) - chess.square_file(new_white_king))
+                        + abs(chess.square_rank(black_queen_sq) - chess.square_rank(new_white_king))
+                    )
+                    if q_rank <= 2 or q_dist <= 4:
+                        queen_still_dangerous_replies.append(reply.uci())
+
             if mate_replies:
-                score -= 50000
+                score -= 70000
                 plan.append("allows_mate_reply")
+
+            if severe_replies:
+                score -= min(len(severe_replies), 4) * 2500
+                plan.append("allows_severe_reply")
+
+            # If the move only attacks the queen but black can ignore/counter
+            # and the queen remains deep, it is not a real solution.
+            if "attack_invading_queen" in plan and queen_still_dangerous_replies and not (
+                "capture_invading_queen" in plan or "force_check" in plan
+            ):
+                score -= 12000
+                plan.append("queen_attack_not_decisive")
 
             if moving.piece_type == chess.ROOK and not captured and not probe.is_check():
                 if chess.square_rank(move.to_square) >= 5:
