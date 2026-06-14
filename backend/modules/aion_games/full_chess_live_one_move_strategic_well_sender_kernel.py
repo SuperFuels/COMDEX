@@ -20,6 +20,9 @@ from backend.modules.aion_games.full_chess_opponent_reply_probability_tactical_e
 from backend.modules.aion_games.full_chess_monte_carlo_policy_value_seed_kernel import (
     run_full_chess_monte_carlo_policy_value_seed_kernel,
 )
+from backend.modules.aion_games.full_chess_rolling_strategic_plan_kernel import (
+    run_full_chess_rolling_strategic_plan_kernel,
+)
 
 DEFAULT_MEMORY_PATH = Path("data/aion_games/full_chess_live_one_move_strategic_well_sender_memory.json")
 
@@ -151,12 +154,47 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             memory_path=self.memory_path.parent / "phase22e38_child_critical_threat_hygiene_queen_intrusion_memory.json",
         )
 
+        rolling_plan = run_full_chess_rolling_strategic_plan_kernel(
+            input_fen=input_fen,
+            side_to_move=side_to_move,
+            memory_path=self.memory_path.parent / "phase22e58_child_rolling_strategic_plan_memory.json",
+            task_name=f"{task_name}_phase22e58_child_rolling_plan",
+        )
+
         active_intent = strategic.active_intent
+        strategic_selected_move = strategic.final_selected_move
+        plan_selected_move = rolling_plan.selected_plan_move
+        plan_filtered_move = strategic_selected_move
+        rolling_plan_override_applied = False
+
+        opening_edge_knight_moves = {"b1a3", "g1h3", "b8a6", "g8h6"}
+        early_drift_moves = {"h2h4", "a2a4", "h7h5", "a7a5"}
+
+        if rolling_plan.phase == "opening" and plan_selected_move:
+            try:
+                plan_move_is_legal = chess.Move.from_uci(plan_selected_move) in board.legal_moves
+            except Exception:
+                plan_move_is_legal = False
+
+            base_well_move = getattr(strategic, "base_well_selected_move", "")
+            should_prefer_plan = (
+                strategic_selected_move in opening_edge_knight_moves
+                or strategic_selected_move in early_drift_moves
+                or base_well_move in early_drift_moves
+                or (
+                    active_intent == "rapid_development"
+                    and strategic_selected_move not in rolling_plan.candidate_plan_moves[:5]
+                )
+            )
+
+            if plan_move_is_legal and should_prefer_plan:
+                plan_filtered_move = plan_selected_move
+                rolling_plan_override_applied = plan_filtered_move != strategic_selected_move
 
         phase22e54 = run_full_chess_opponent_reply_probability_tactical_exposure_guard_kernel(
             input_fen=input_fen,
             side_to_move=side_to_move,
-            selected_move=strategic.final_selected_move,
+            selected_move=plan_filtered_move,
             active_intent=active_intent,
             memory_path=self.memory_path.parent / "phase22e54_child_opponent_reply_probability_tactical_exposure_memory.json",
         )
@@ -173,6 +211,23 @@ class AionLiveOneMoveStrategicWellSenderKernel:
 
         selected_move = phase22e55.final_selected_move
         selected_source = phase22e55.final_selected_source
+
+        monte_carlo_plan_guard_applied = False
+        if (
+            rolling_plan.phase == "opening"
+            and rolling_plan.selected_plan_move
+            and selected_move in opening_edge_knight_moves
+        ):
+            try:
+                rolling_plan_move_is_legal = chess.Move.from_uci(rolling_plan.selected_plan_move) in board.legal_moves
+            except Exception:
+                rolling_plan_move_is_legal = False
+
+            if rolling_plan_move_is_legal:
+                selected_move = rolling_plan.selected_plan_move
+                selected_source = "rolling_plan_monte_carlo_edge_knight_guard"
+                monte_carlo_plan_guard_applied = True
+
         base_well_selected_move = strategic.base_well_selected_move
         intent_override_applied = bool(getattr(strategic, "queen_override_applied", False)) or bool(
             getattr(strategic, "intent_override_applied", False)
@@ -245,6 +300,14 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             self.policy["blocked_count"] = int(self.policy.get("blocked_count", 0)) + 1
 
         evidence = {
+            "phase22e59_rolling_plan_live_sender_integration_used": True,
+            "phase22e58_rolling_strategic_plan_used": True,
+            "phase22e58_phase": rolling_plan.phase,
+            "phase22e58_primary_plan": rolling_plan.primary_plan,
+            "phase22e58_selected_plan_move": rolling_plan.selected_plan_move,
+            "phase22e59_plan_filtered_move": plan_filtered_move,
+            "phase22e59_rolling_plan_override_applied": rolling_plan_override_applied,
+            "phase22e59_monte_carlo_plan_guard_applied": monte_carlo_plan_guard_applied,
             "phase22e56_live_sender_decision_stack_used": True,
             "phase22e55_monte_carlo_policy_value_seed_used": True,
             "phase22e54_opponent_reply_probability_tactical_exposure_guard_used": True,
@@ -307,7 +370,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             evidence=evidence,
             boundary_statement=(
                 "This kernel sends at most one live Lichess move using the Phase 22E.37 intent-driven Strategic "
-                "Regression Well. It runs the Phase 22E.56 decision stack before posting and posts only when all live gates are explicitly true. It does not call Stockfish, "
+                "Regression Well. It runs the Phase 22E.59 rolling-plan and Phase 22E.56 decision stack before posting and posts only when all live gates are explicitly true. It does not call Stockfish, "
                 "does not use LLM move judgement, and does not use Lichess analysis."
             ),
         )
