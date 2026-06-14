@@ -258,6 +258,54 @@ class AionStrategicWellLiveRematchKernel:
         if probe.is_check():
             score += 350
 
+        # Phase 22E.74:
+        # Opponent reply-risk scoring.
+        # AION was choosing "safe-looking" moves that allowed black to immediately win
+        # high-value material, invade near the king, or create forced mate nets.
+        # This is a cheap one-ply opponent reply model for live fast mode.
+        worst_reply_penalty = 0
+        our_king_square = probe.king(board.turn)
+
+        for reply in probe.legal_moves:
+            reply_piece = probe.piece_at(reply.from_square)
+            victim = probe.piece_at(reply.to_square)
+
+            reply_probe = probe.copy(stack=False)
+            reply_probe.push(reply)
+
+            reply_penalty = 0
+
+            if reply_probe.is_checkmate():
+                reply_penalty += 200000
+
+            if reply_probe.is_check():
+                reply_penalty += 500
+
+            if victim and victim.color == board.turn:
+                reply_penalty += piece_values.get(victim.piece_type, 0) * 3
+
+                if victim.piece_type == chess.QUEEN:
+                    reply_penalty += 1800
+                elif victim.piece_type == chess.ROOK:
+                    reply_penalty += 900
+                elif victim.piece_type in {chess.BISHOP, chess.KNIGHT}:
+                    reply_penalty += 420
+
+            if reply_piece and reply_piece.color != board.turn and our_king_square is not None:
+                if reply_piece.piece_type in {chess.QUEEN, chess.ROOK, chess.BISHOP, chess.KNIGHT}:
+                    dist = (
+                        abs(chess.square_file(reply.to_square) - chess.square_file(our_king_square))
+                        + abs(chess.square_rank(reply.to_square) - chess.square_rank(our_king_square))
+                    )
+                    if dist <= 2:
+                        reply_penalty += 450
+                    elif dist <= 3:
+                        reply_penalty += 220
+
+            worst_reply_penalty = max(worst_reply_penalty, reply_penalty)
+
+        score -= worst_reply_penalty
+
         # Phase 22E.73:
         # Opening discipline + aggressive development.
         # The previous fast selector moved the same knight repeatedly and brought the queen out too early.
@@ -331,6 +379,62 @@ class AionStrategicWellLiveRematchKernel:
         file_idx = chess.square_file(move.to_square)
         rank_idx = chess.square_rank(move.to_square)
         score += 30 - abs(file_idx - 3) * 4 - abs(rank_idx - 3) * 4
+        # Phase 22E.74:
+        # Aggressive counterplay pressure.
+        # Fast mode must not only avoid immediate mate; it must create threats,
+        # attack loose pieces, chase the opponent queen, and avoid passive shuffling.
+        opponent_king = board.king(not board.turn)
+        if opponent_king is not None:
+            attack_probe = board.copy(stack=False)
+            attack_probe.push(move)
+
+            attacks_near_king = 0
+            for sq in chess.SQUARES:
+                if attack_probe.is_attacked_by(board.turn, sq):
+                    dist = (
+                        abs(chess.square_file(sq) - chess.square_file(opponent_king))
+                        + abs(chess.square_rank(sq) - chess.square_rank(opponent_king))
+                    )
+                    if dist <= 2:
+                        attacks_near_king += 1
+
+            score += min(attacks_near_king, 8) * 65
+
+        # Reward moves that attack enemy queen/rook/minors after the move.
+        attack_probe = board.copy(stack=False)
+        attack_probe.push(move)
+
+        attacked_value = 0
+        for sq, piece in attack_probe.piece_map().items():
+            if piece.color != board.turn and attack_probe.is_attacked_by(board.turn, sq):
+                if piece.piece_type == chess.QUEEN:
+                    attacked_value += 900
+                elif piece.piece_type == chess.ROOK:
+                    attacked_value += 450
+                elif piece.piece_type in {chess.BISHOP, chess.KNIGHT}:
+                    attacked_value += 220
+                elif piece.piece_type == chess.PAWN:
+                    attacked_value += 40
+
+        score += attacked_value
+
+        # Penalise purely passive king/rook shuffling when not forced.
+        if not early_game and moving_piece.piece_type == chess.KING and not captured and not probe.is_check():
+            score -= 450
+
+        if not early_game and moving_piece.piece_type == chess.ROOK and not captured and not probe.is_check():
+            from_rank = chess.square_rank(move.from_square)
+            to_rank = chess.square_rank(move.to_square)
+            if from_rank == to_rank:
+                score -= 180
+
+        # Prefer pawn storms only when already castled or when they attack space.
+        if not early_game and moving_piece.piece_type == chess.PAWN:
+            if move_uci in {"f2f4", "g2g4", "h2h4", "f7f5", "g7g5", "h7h5"}:
+                score += 120
+            if captured:
+                score += 180
+
 
         # Attack opponent queen if the move lands adjacent/line-attacking is handled by legal capture/check next move.
         opponent_queen = None
