@@ -342,6 +342,99 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             except Exception:
                 phase22e65_queen_intrusion_final_guard_used = False
 
+        # Phase 22E.66:
+        # Final immediate-mate reply guard.
+        # This is the final safety net after Monte Carlo, router survival, opening guards,
+        # and queen-intrusion hygiene. It rejects any selected move that allows the
+        # opponent to mate in one reply.
+        phase22e66_immediate_mate_reply_guard_used = False
+        phase22e66_immediate_mate_reply_detected = False
+        phase22e66_immediate_mate_reply_move = ""
+        phase22e66_guard_selected_move = ""
+        phase22e66_guard_override_applied = False
+
+        def _phase22e66_allows_immediate_mate_reply(board_obj, move_uci):
+            try:
+                candidate = chess.Move.from_uci(move_uci)
+                if candidate not in board_obj.legal_moves:
+                    return False, ""
+                probe = board_obj.copy(stack=False)
+                probe.push(candidate)
+                for reply in probe.legal_moves:
+                    reply_probe = probe.copy(stack=False)
+                    reply_probe.push(reply)
+                    if reply_probe.is_checkmate():
+                        return True, reply.uci()
+            except Exception:
+                return False, ""
+            return False, ""
+
+        def _phase22e66_safe_move_score(board_obj, move_obj):
+            score = 0
+            captured = board_obj.piece_at(move_obj.to_square)
+            moving_piece = board_obj.piece_at(move_obj.from_square)
+
+            if captured and captured.color != board_obj.turn:
+                piece_values = {
+                    chess.PAWN: 100,
+                    chess.KNIGHT: 320,
+                    chess.BISHOP: 330,
+                    chess.ROOK: 500,
+                    chess.QUEEN: 900,
+                    chess.KING: 20000,
+                }
+                score += piece_values.get(captured.piece_type, 0) + 500
+                if captured.piece_type == chess.QUEEN:
+                    score += 10000
+
+            probe = board_obj.copy(stack=False)
+            probe.push(move_obj)
+
+            if probe.is_checkmate():
+                score += 50000
+            elif probe.is_check():
+                score += 900
+
+            own_king = probe.king(board_obj.turn)
+            enemy_queen_sq = None
+            for sq, piece in probe.piece_map().items():
+                if piece.color != board_obj.turn and piece.piece_type == chess.QUEEN:
+                    enemy_queen_sq = sq
+                    break
+
+            if own_king is not None and enemy_queen_sq is not None:
+                distance = max(
+                    abs(chess.square_file(enemy_queen_sq) - chess.square_file(own_king)),
+                    abs(chess.square_rank(enemy_queen_sq) - chess.square_rank(own_king)),
+                )
+                score -= max(0, 8 - distance) * 200
+
+            if moving_piece and moving_piece.piece_type == chess.KING:
+                score -= 200
+
+            return score
+
+        phase22e66_immediate_mate_reply_guard_used = True
+        phase22e66_bad, phase22e66_reply = _phase22e66_allows_immediate_mate_reply(board, selected_move)
+        if phase22e66_bad:
+            phase22e66_immediate_mate_reply_detected = True
+            phase22e66_immediate_mate_reply_move = phase22e66_reply
+
+            safe_candidates = []
+            for candidate in board.legal_moves:
+                allows_mate, _ = _phase22e66_allows_immediate_mate_reply(board, candidate.uci())
+                if allows_mate:
+                    continue
+                safe_candidates.append((_phase22e66_safe_move_score(board, candidate), candidate.uci()))
+
+            if safe_candidates:
+                safe_candidates.sort(reverse=True)
+                phase22e66_guard_selected_move = safe_candidates[0][1]
+                if phase22e66_guard_selected_move != selected_move:
+                    selected_move = phase22e66_guard_selected_move
+                    selected_source = "phase22e66_immediate_mate_reply_guard"
+                    phase22e66_guard_override_applied = True
+
         base_well_selected_move = strategic.base_well_selected_move
         intent_override_applied = bool(getattr(strategic, "queen_override_applied", False)) or bool(
             getattr(strategic, "intent_override_applied", False)
@@ -433,6 +526,11 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             "phase22e65_queen_intrusion_square": phase22e65_queen_intrusion_square,
             "phase22e65_guard_selected_move": phase22e65_guard_selected_move,
             "phase22e65_guard_selected_source": phase22e65_guard_selected_source,
+            "phase22e66_immediate_mate_reply_guard_used": phase22e66_immediate_mate_reply_guard_used,
+            "phase22e66_immediate_mate_reply_detected": phase22e66_immediate_mate_reply_detected,
+            "phase22e66_immediate_mate_reply_move": phase22e66_immediate_mate_reply_move,
+            "phase22e66_guard_selected_move": phase22e66_guard_selected_move,
+            "phase22e66_guard_override_applied": phase22e66_guard_override_applied,
             "phase22e56_live_sender_decision_stack_used": True,
             "phase22e55_monte_carlo_policy_value_seed_used": True,
             "phase22e54_opponent_reply_probability_tactical_exposure_guard_used": True,
