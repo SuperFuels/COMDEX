@@ -342,6 +342,134 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             except Exception:
                 phase22e65_queen_intrusion_final_guard_used = False
 
+        # Phase 22E.68:
+        # Forced-mate horizon guard.
+        # This rejects a selected move if the opponent has a reply that leaves AION
+        # with no legal move that avoids immediate mate on the next turn.
+        phase22e68_forced_mate_horizon_guard_used = False
+        phase22e68_forced_mate_horizon_detected = False
+        phase22e68_forcing_reply = ""
+        phase22e68_guard_selected_move = ""
+        phase22e68_guard_override_applied = False
+
+        def _phase22e68_mate_replies_after(board_obj, move_uci):
+            try:
+                candidate = chess.Move.from_uci(move_uci)
+                if candidate not in board_obj.legal_moves:
+                    return []
+                probe = board_obj.copy(stack=False)
+                probe.push(candidate)
+                mates = []
+                for reply in probe.legal_moves:
+                    reply_probe = probe.copy(stack=False)
+                    reply_probe.push(reply)
+                    if reply_probe.is_checkmate():
+                        mates.append(reply.uci())
+                return mates
+            except Exception:
+                return []
+
+        def _phase22e68_safe_evasions(board_obj):
+            safe = []
+            for candidate in board_obj.legal_moves:
+                if not _phase22e68_mate_replies_after(board_obj, candidate.uci()):
+                    safe.append(candidate.uci())
+            return safe
+
+        def _phase22e68_shallow_horizon_safe_moves(board_obj):
+            safe = []
+            for candidate in board_obj.legal_moves:
+                cuci = candidate.uci()
+                if _phase22e68_mate_replies_after(board_obj, cuci):
+                    continue
+
+                probe = board_obj.copy(stack=False)
+                probe.push(candidate)
+
+                opponent_can_leave_no_immediate_safe_evasion = False
+                for reply in probe.legal_moves:
+                    reply_probe = probe.copy(stack=False)
+                    reply_probe.push(reply)
+                    if not _phase22e68_safe_evasions(reply_probe):
+                        opponent_can_leave_no_immediate_safe_evasion = True
+                        break
+
+                if not opponent_can_leave_no_immediate_safe_evasion:
+                    safe.append(cuci)
+
+            return safe
+
+        def _phase22e68_forcing_replies_after(board_obj, move_uci):
+            try:
+                candidate = chess.Move.from_uci(move_uci)
+                if candidate not in board_obj.legal_moves:
+                    return []
+                probe = board_obj.copy(stack=False)
+                probe.push(candidate)
+                forcing = []
+                for reply in probe.legal_moves:
+                    reply_probe = probe.copy(stack=False)
+                    reply_probe.push(reply)
+                    if not _phase22e68_shallow_horizon_safe_moves(reply_probe):
+                        forcing.append(reply.uci())
+                return forcing
+            except Exception:
+                return []
+
+        def _phase22e68_score_safe_horizon_move(board_obj, move_uci):
+            try:
+                move_obj = chess.Move.from_uci(move_uci)
+                score = 0
+                captured = board_obj.piece_at(move_obj.to_square)
+                moving_piece = board_obj.piece_at(move_obj.from_square)
+
+                if captured and captured.color != board_obj.turn:
+                    piece_values = {
+                        chess.PAWN: 100,
+                        chess.KNIGHT: 320,
+                        chess.BISHOP: 330,
+                        chess.ROOK: 500,
+                        chess.QUEEN: 900,
+                        chess.KING: 20000,
+                    }
+                    score += piece_values.get(captured.piece_type, 0) + 500
+
+                probe = board_obj.copy(stack=False)
+                probe.push(move_obj)
+                if probe.is_check():
+                    score += 500
+
+                if moving_piece and moving_piece.piece_type == chess.KING:
+                    score -= 150
+
+                return score
+            except Exception:
+                return -999999
+
+        phase22e68_forced_mate_horizon_guard_used = True
+        phase22e68_forcing_replies = _phase22e68_forcing_replies_after(board, selected_move)
+
+        if phase22e68_forcing_replies:
+            phase22e68_forced_mate_horizon_detected = True
+            phase22e68_forcing_reply = phase22e68_forcing_replies[0]
+
+            horizon_safe = []
+            for candidate in board.legal_moves:
+                cuci = candidate.uci()
+                if _phase22e68_mate_replies_after(board, cuci):
+                    continue
+                if _phase22e68_forcing_replies_after(board, cuci):
+                    continue
+                horizon_safe.append((_phase22e68_score_safe_horizon_move(board, cuci), cuci))
+
+            if horizon_safe:
+                horizon_safe.sort(reverse=True)
+                phase22e68_guard_selected_move = horizon_safe[0][1]
+                if phase22e68_guard_selected_move != selected_move:
+                    selected_move = phase22e68_guard_selected_move
+                    selected_source = "phase22e68_forced_mate_horizon_guard"
+                    phase22e68_guard_override_applied = True
+
         # Phase 22E.66:
         # Final immediate-mate reply guard.
         # This is the final safety net after Monte Carlo, router survival, opening guards,
@@ -526,6 +654,11 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             "phase22e65_queen_intrusion_square": phase22e65_queen_intrusion_square,
             "phase22e65_guard_selected_move": phase22e65_guard_selected_move,
             "phase22e65_guard_selected_source": phase22e65_guard_selected_source,
+            "phase22e68_forced_mate_horizon_guard_used": phase22e68_forced_mate_horizon_guard_used,
+            "phase22e68_forced_mate_horizon_detected": phase22e68_forced_mate_horizon_detected,
+            "phase22e68_forcing_reply": phase22e68_forcing_reply,
+            "phase22e68_guard_selected_move": phase22e68_guard_selected_move,
+            "phase22e68_guard_override_applied": phase22e68_guard_override_applied,
             "phase22e66_immediate_mate_reply_guard_used": phase22e66_immediate_mate_reply_guard_used,
             "phase22e66_immediate_mate_reply_detected": phase22e66_immediate_mate_reply_detected,
             "phase22e66_immediate_mate_reply_move": phase22e66_immediate_mate_reply_move,
