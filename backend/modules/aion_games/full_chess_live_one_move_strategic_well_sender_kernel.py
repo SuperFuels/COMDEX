@@ -14,6 +14,12 @@ import chess
 from backend.modules.aion_games.full_chess_critical_threat_hygiene_queen_intrusion_trap_policy_kernel import (
     run_full_chess_critical_threat_hygiene_queen_intrusion_trap_policy_kernel,
 )
+from backend.modules.aion_games.full_chess_opponent_reply_probability_tactical_exposure_guard_kernel import (
+    run_full_chess_opponent_reply_probability_tactical_exposure_guard_kernel,
+)
+from backend.modules.aion_games.full_chess_monte_carlo_policy_value_seed_kernel import (
+    run_full_chess_monte_carlo_policy_value_seed_kernel,
+)
 
 DEFAULT_MEMORY_PATH = Path("data/aion_games/full_chess_live_one_move_strategic_well_sender_memory.json")
 
@@ -145,7 +151,34 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             memory_path=self.memory_path.parent / "phase22e38_child_critical_threat_hygiene_queen_intrusion_memory.json",
         )
 
-        selected_move = strategic.final_selected_move
+        active_intent = strategic.active_intent
+
+        phase22e54 = run_full_chess_opponent_reply_probability_tactical_exposure_guard_kernel(
+            input_fen=input_fen,
+            side_to_move=side_to_move,
+            selected_move=strategic.final_selected_move,
+            active_intent=active_intent,
+            memory_path=self.memory_path.parent / "phase22e54_child_opponent_reply_probability_tactical_exposure_memory.json",
+        )
+
+        phase22e55 = run_full_chess_monte_carlo_policy_value_seed_kernel(
+            input_fen=input_fen,
+            side_to_move=side_to_move,
+            base_selected_move=phase22e54.final_selected_move,
+            rollout_count=16,
+            beam_width=8,
+            rollout_depth=4,
+            memory_path=self.memory_path.parent / "phase22e55_child_monte_carlo_policy_value_seed_memory.json",
+        )
+
+        selected_move = phase22e55.final_selected_move
+        selected_source = phase22e55.final_selected_source
+        base_well_selected_move = strategic.base_well_selected_move
+        intent_override_applied = bool(getattr(strategic, "queen_override_applied", False)) or bool(
+            getattr(strategic, "intent_override_applied", False)
+        )
+        regression_well_score = int(getattr(strategic, "regression_well_score", 0))
+
         try:
             selected_move_is_legal = chess.Move.from_uci(selected_move) in board.legal_moves
         except Exception:
@@ -157,7 +190,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
 
         all_live_gates_passed = bool(
             game_id
-            and target_level in {2, 3}
+            and target_level in {2, 3, 8}
             and selected_move_is_legal
             and explicit_live_send_authorized
             and human_operator_confirmed
@@ -189,8 +222,8 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             "side_to_move": side_to_move,
             "selected_move": selected_move,
             "selected_move_is_legal": selected_move_is_legal,
-            "active_intent": strategic.active_intent,
-            "intent_override_applied": bool(getattr(strategic, "queen_override_applied", False)),
+            "active_intent": active_intent,
+            "intent_override_applied": intent_override_applied,
             "all_live_gates_passed": all_live_gates_passed,
             "move_post_attempted": move_post_attempted,
             "move_post_succeeded": move_post_succeeded,
@@ -201,7 +234,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
         self.policy["kernel_run_count"] = int(self.policy.get("kernel_run_count", 0)) + 1
         self.policy["last_game_id"] = game_id
         self.policy["last_selected_move"] = selected_move
-        self.policy["last_active_intent"] = strategic.active_intent
+        self.policy["last_active_intent"] = active_intent
         self.policy["last_trace_hash"] = trace_hash
 
         if move_post_attempted:
@@ -212,6 +245,11 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             self.policy["blocked_count"] = int(self.policy.get("blocked_count", 0)) + 1
 
         evidence = {
+            "phase22e56_live_sender_decision_stack_used": True,
+            "phase22e55_monte_carlo_policy_value_seed_used": True,
+            "phase22e54_opponent_reply_probability_tactical_exposure_guard_used": True,
+            "phase22e54_center_control_h2h4_blocked": phase22e54.center_control_h2h4_blocked,
+            "phase22e55_final_selected_move": phase22e55.final_selected_move,
             "phase22e52_critical_threat_hygiene_queen_intrusion_used": True,
             "phase22e50_king_safety_threat_removal_used": True,
             "phase22e49_initiative_hygiene_used": True,
@@ -245,9 +283,9 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             target_level=target_level,
             selected_move=selected_move,
             selected_move_is_legal=selected_move_is_legal,
-            selected_source=getattr(strategic, "final_selected_source", getattr(strategic, "selected_source", "")),
-            active_intent=strategic.active_intent,
-            base_well_selected_move=strategic.base_well_selected_move,
+            selected_source=selected_source,
+            active_intent=active_intent,
+            base_well_selected_move=base_well_selected_move,
             intent_override_applied=bool(getattr(strategic, "intent_override_applied", False)) or bool(getattr(strategic, "queen_override_applied", False)),
             regression_well_score=int(getattr(strategic, "final_regression_well_score", 0)),
             explicit_live_send_authorized=explicit_live_send_authorized,
@@ -269,7 +307,7 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             evidence=evidence,
             boundary_statement=(
                 "This kernel sends at most one live Lichess move using the Phase 22E.37 intent-driven Strategic "
-                "Regression Well. It posts only when all live gates are explicitly true. It does not call Stockfish, "
+                "Regression Well. It runs the Phase 22E.56 decision stack before posting and posts only when all live gates are explicitly true. It does not call Stockfish, "
                 "does not use LLM move judgement, and does not use Lichess analysis."
             ),
         )
