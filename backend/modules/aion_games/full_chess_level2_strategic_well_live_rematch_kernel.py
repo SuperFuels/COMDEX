@@ -228,6 +228,91 @@ class AionStrategicWellLiveRematchKernel:
 
         return forcing
 
+    def _passed_pawn_promotion_guard_fast_move(self, board: chess.Board) -> dict:
+        """Phase 22E.80 passed pawn promotion guard.
+
+        Stops the fast selector from abandoning a promotion block square
+        or ignoring a black pawn one move from promotion.
+        """
+        if board.turn != chess.WHITE:
+            return {}
+
+        urgent_pawns = []
+        for sq, piece in board.piece_map().items():
+            if piece.color == chess.BLACK and piece.piece_type == chess.PAWN:
+                rank = chess.square_rank(sq)
+                if rank <= 1:
+                    promo_sq = chess.square(chess.square_file(sq), 0)
+                    urgent_pawns.append((sq, promo_sq))
+
+        if not urgent_pawns:
+            return {}
+
+        best = ""
+        best_score = -10**9
+        best_plan = ""
+
+        for move in board.legal_moves:
+            moving = board.piece_at(move.from_square)
+            if moving is None:
+                continue
+
+            score = 0
+            plan = []
+
+            for pawn_sq, promo_sq in urgent_pawns:
+                if move.to_square == pawn_sq:
+                    score += 100000
+                    plan.append("capture_promotion_pawn")
+
+                if move.to_square == promo_sq:
+                    score += 70000
+                    plan.append("occupy_promotion_square")
+
+                if move.from_square == promo_sq and move.to_square != pawn_sq:
+                    score -= 90000
+                    plan.append("abandon_promotion_block")
+
+            probe = board.copy(stack=False)
+            probe.push(move)
+
+            if probe.is_checkmate():
+                score += 120000
+                plan.append("mate_now")
+            elif probe.is_check():
+                score += 1500
+                plan.append("check")
+
+            promotion_replies = []
+            for reply in probe.legal_moves:
+                reply_piece = probe.piece_at(reply.from_square)
+                if (
+                    reply_piece
+                    and reply_piece.color == chess.BLACK
+                    and reply_piece.piece_type == chess.PAWN
+                    and chess.square_rank(reply.to_square) == 0
+                ):
+                    promotion_replies.append(reply.uci())
+
+            if promotion_replies:
+                score -= 80000
+                plan.append("allows_immediate_promotion")
+
+            if score > best_score:
+                best_score = score
+                best = move.uci()
+                best_plan = ",".join(plan)
+
+        if best and best_score > -30000:
+            return {
+                "selected_move": best,
+                "promotion_guard_score": best_score,
+                "promotion_guard_plan": best_plan,
+            }
+
+        return {}
+
+
     def _queen_invasion_threat_fast_move(self, board: chess.Board) -> dict:
         """Phase 22E.78 queen invasion threat map guard."""
         if board.turn != chess.WHITE:
@@ -871,6 +956,23 @@ class AionStrategicWellLiveRematchKernel:
                     "horizon_rejects": {},
                     "fast_mode_used": True,
                     "selected_source": "phase22e76_advanced_pawn_invasion_fast_selector",
+                }
+
+        promotion_guard = self._passed_pawn_promotion_guard_fast_move(board)
+        if promotion_guard.get("selected_move"):
+            promotion_legal_moves = [m.uci() for m in board.legal_moves]
+            promotion_move = promotion_guard["selected_move"]
+            if promotion_move in promotion_legal_moves:
+                return {
+                    "selected_move": promotion_move,
+                    "legal_moves": promotion_legal_moves,
+                    "horizon_safe_moves": promotion_legal_moves,
+                    "immediate_rejects": {},
+                    "horizon_rejects": {},
+                    "fast_mode_used": True,
+                    "selected_source": "phase22e80_passed_pawn_promotion_guard_fast_selector",
+                    "phase22e80_promotion_guard_score": promotion_guard.get("promotion_guard_score"),
+                    "phase22e80_promotion_guard_plan": promotion_guard.get("promotion_guard_plan"),
                 }
 
         queen_invasion = self._queen_invasion_threat_fast_move(board)
