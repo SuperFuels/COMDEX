@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
 
-from fastapi import APIRouter
+from fastapi import Request, HTTPException, APIRouter
 from fastapi import File, Query, UploadFile
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
@@ -1183,6 +1183,98 @@ def get_aion_phase18_a2a_commercial_ticket_preview(scenario: str = "home_fixed_p
     }
     return data
 
+
+
+
+# PHASE 21H LOCK: AION Pilot Artifact Preview Endpoint
+@router.post("/aion/pilot/artifact-preview")
+async def post_aion_pilot_artifact_preview(request: Request):
+    """
+    Preview-only local endpoint for creating a Pilot draft artifact inside
+    the mission-scoped business container preview path.
+
+    Safety:
+    - no email
+    - no WhatsApp
+    - no payment
+    - no booking
+    - no escrow
+    - no deployment
+    - no live chain write
+    - no reputation mutation
+    """
+    from pathlib import Path
+    from backend.services.aion_mission_mode.pilot_artifact_builder_runtime import (
+        PilotArtifactBuilderRuntime,
+        PilotArtifactBuilderViolation,
+    )
+
+    body = await request.json()
+
+    business_id = str(body.get("business_id") or "home-fixed")
+    mission_id = str(body.get("mission_id") or "pilot_demo_pdf_mission")
+    mission_run_id = str(body.get("mission_run_id") or "pilot_demo_run_preview")
+    step_id = str(body.get("step_id") or "step-artifact-preview")
+    artifact_type = str(body.get("artifact_type") or "document")
+    artifact_name = str(body.get("artifact_name") or "aion-pilot-draft-preview.txt")
+    title = str(body.get("title") or "AION Pilot Draft Preview")
+    content = str(body.get("content") or "")
+    metadata = body.get("metadata") if isinstance(body.get("metadata"), dict) else {}
+
+    container_root = Path("data/aion_pilot_business_container_preview").resolve()
+
+    try:
+        contract = PilotArtifactBuilderRuntime.build_artifact_contract(
+            business_id=business_id,
+            mission_id=mission_id,
+            mission_run_id=mission_run_id,
+            step_id=step_id,
+            artifact_type=artifact_type,
+            artifact_name=artifact_name,
+        )
+
+        artifact_card = PilotArtifactBuilderRuntime.create_draft_artifact(
+            container_root=str(container_root),
+            contract=contract,
+            title=title,
+            content=content,
+            metadata=metadata,
+        )
+    except PilotArtifactBuilderViolation as exc:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "pilot_artifact_preview_blocked",
+                "reason": str(exc),
+                "preview_only": True,
+                "live_external_side_effects_enabled": False,
+            },
+        ) from exc
+
+    return {
+        "payload_type": "aion_pilot_artifact_preview",
+        "status": "draft_preview",
+        "business_id": business_id,
+        "mission_id": mission_id,
+        "mission_run_id": mission_run_id,
+        "container_root": str(container_root),
+        "artifact_card": artifact_card,
+        "artifact_hash": artifact_card.get("artifact_hash"),
+        "receipt_hash": artifact_card.get("artifact_receipt_hash"),
+        "business_container_relative_path": artifact_card.get("business_container_relative_path"),
+        "content_preview": content,
+        "safety": {
+            "preview_only": True,
+            "live_external_side_effects_enabled": False,
+            "would_send_external_message": False,
+            "would_create_payment": False,
+            "would_create_booking": False,
+            "would_create_escrow": False,
+            "would_deploy": False,
+            "would_write_live_chain": False,
+        },
+    }
+# END PHASE 21H LOCK
 
 
 # PHASE 21C LOCK: AION-LRM Pilot Context Preview Endpoint

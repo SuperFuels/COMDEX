@@ -8884,6 +8884,22 @@ function runAionPilotSafeWorkPreview() {
   pilotState.receipt_hash = "sha256:frontend_completed_preview_receipt";
   pilotState.replay_hash = "sha256:frontend_completed_preview_replay";
   pilotState.proof_hash = "sha256:frontend_completed_preview_proof";
+
+  if (typeof fetchAionPilotArtifactPreviewIntoPilotState === "function") {
+    fetchAionPilotArtifactPreviewIntoPilotState(plan, pilotState).catch((error) => {
+      pilotState.backend_artifact_status = "error";
+      pilotState.backend_artifact_error = String(error?.message || error || "Pilot artifact preview failed");
+      appendAionPilotStreamEvent({
+        type: "backend_artifact_preview_error",
+        label: "Backend artifact preview failed",
+        detail: pilotState.backend_artifact_error,
+        status: "error",
+      });
+      if (typeof requestRender === "function") {
+        requestRender();
+      }
+    });
+  }
   pilotState.output_panel_title = plan.output_label || "Draft output";
   pilotState.output_panel_body = pilotState.generated_output_text;
 
@@ -8936,7 +8952,7 @@ function getAionPilotCockpitSnapshot() {
     mission_run_id: "pilot_demo_run_preview",
     step_id: "compose_document",
     request_placeholder: "Build me a PDF document with X data",
-    save_path: "business/home-fixed/missions/pilot_demo_pdf_mission/runs/pilot_demo_run_preview/artifacts/draft-document.pdf",
+    save_path: pilotState.artifact_path || "business/home-fixed/missions/pilot_demo_pdf_mission/runs/pilot_demo_run_preview/artifacts/draft-document.pdf",
     safety_message: "AION stopped itself before doing anything risky.",
     no_live_side_effects_message: "No money, post, deploy, external send, booking, escrow or reputation mutation without exact approval.",
     plan_steps: [
@@ -8950,7 +8966,7 @@ function getAionPilotCockpitSnapshot() {
         type: "pdf",
         title: "Draft PDF document",
         status: "draft_preview",
-        path: "business/home-fixed/missions/pilot_demo_pdf_mission/runs/pilot_demo_run_preview/artifacts/draft-document.pdf",
+        path: pilotState.artifact_path || "business/home-fixed/missions/pilot_demo_pdf_mission/runs/pilot_demo_run_preview/artifacts/draft-document.pdf",
         artifact_hash: pilotState.artifact_hash || "sha256:preview_artifact_hash",
         receipt_hash: pilotState.receipt_hash || "sha256:preview_receipt_hash",
       },
@@ -85894,6 +85910,119 @@ function installAionFaxTerminalWorkspaceSkinV21W() {
 installAionFaxTerminalWorkspaceSkinV21W();
 
 /* END PHASE 21W PILOT SKIN */
+
+/* PHASE 21H LOCK: Pilot Artifact Preview Backend Bridge */
+function getAionPilotArtifactPreviewUrl() {
+  return "http://127.0.0.1:8080/api/local-node/aion/pilot/artifact-preview";
+}
+
+function getAionPilotArtifactTypeForPlan(plan = {}) {
+  const taskType = String(plan.task_type || "document");
+  const goal = String(plan.goal || "").toLowerCase();
+
+  if (goal.includes("pdf")) return "pdf";
+  if (taskType === "spreadsheet") return "spreadsheet";
+  if (taskType === "document") return "document";
+  return "text";
+}
+
+function getAionPilotArtifactNameForPlan(plan = {}) {
+  const taskType = String(plan.task_type || "pilot_task")
+    .replace(/[^a-z0-9_-]+/gi, "_")
+    .toLowerCase();
+
+  const artifactType = getAionPilotArtifactTypeForPlan(plan);
+
+  if (artifactType === "pdf") return `${taskType}-draft-preview.pdf`;
+  if (artifactType === "spreadsheet") return `${taskType}-draft-preview.csv`;
+  if (artifactType === "document") return `${taskType}-draft-preview.md`;
+
+  return `${taskType}-draft-preview.txt`;
+}
+
+function buildAionPilotArtifactPreviewPayload(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const content = state.generated_output_text || buildAionPilotGeneratedOutput(safePlan, state);
+
+  return {
+    business_id: "home-fixed",
+    mission_id: "pilot_demo_pdf_mission",
+    mission_run_id: "pilot_demo_run_preview",
+    step_id: "step-safe-work-preview",
+    artifact_type: getAionPilotArtifactTypeForPlan(safePlan),
+    artifact_name: getAionPilotArtifactNameForPlan(safePlan),
+    title: safePlan.output_label || safePlan.title || "AION Pilot Draft Preview",
+    content,
+    metadata: {
+      requested_goal: safePlan.goal || state.last_request || "",
+      task_type: safePlan.task_type || "general_task",
+      generated_by: "AION Pilot",
+      status: "draft_preview",
+      live_external_side_effects_enabled: false,
+    },
+  };
+}
+
+function applyAionPilotArtifactPreviewPayload(payload = {}) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const artifactCard = payload.artifact_card || {};
+
+  pilotState.backend_artifact_preview_payload = payload;
+  pilotState.backend_artifact_card = artifactCard;
+  pilotState.artifact_status = payload.status || artifactCard.status || "draft_preview";
+  pilotState.artifact_hash = payload.artifact_hash || artifactCard.artifact_hash || pilotState.artifact_hash;
+  pilotState.receipt_hash = payload.receipt_hash || artifactCard.artifact_receipt_hash || pilotState.receipt_hash;
+  pilotState.artifact_path = payload.business_container_relative_path || artifactCard.business_container_relative_path || pilotState.artifact_path;
+  pilotState.generated_output_text = payload.content_preview || pilotState.generated_output_text || "";
+  pilotState.backend_artifact_status = "loaded";
+
+  appendAionPilotStreamEvent({
+    type: "backend_artifact_preview",
+    label: "Backend artifact saved",
+    detail: pilotState.artifact_path || "Business-container preview artifact created",
+    status: "draft_preview",
+  });
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return pilotState;
+}
+
+async function fetchAionPilotArtifactPreviewIntoPilotState(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const payload = buildAionPilotArtifactPreviewPayload(safePlan, state);
+
+  state.backend_artifact_status = "loading";
+
+  const response = await fetch(getAionPilotArtifactPreviewUrl(), {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    state.backend_artifact_status = "error";
+    state.backend_artifact_error = `Pilot artifact preview failed: HTTP ${response.status}`;
+    if (typeof requestRender === "function") requestRender();
+    throw new Error(state.backend_artifact_error);
+  }
+
+  return applyAionPilotArtifactPreviewPayload(await response.json());
+}
+
+window.getAionPilotArtifactPreviewUrl = getAionPilotArtifactPreviewUrl;
+window.fetchAionPilotArtifactPreviewIntoPilotState = fetchAionPilotArtifactPreviewIntoPilotState;
+window.applyAionPilotArtifactPreviewPayload = applyAionPilotArtifactPreviewPayload;
+/* END PHASE 21H LOCK */
+
+
 /* PHASE 21D LOCK: LRM Pilot Context Preview Fetch Bridge */
 function getAionLrmPilotContextPreviewUrl(params = {}) {
   const businessId = String(params.business_id || "home-fixed");
