@@ -1772,6 +1772,53 @@ class AionStrategicWellLiveRematchKernel:
 
 
     def _select_fast_live_move(self, board: chess.Board) -> Dict[str, Any]:
+        """Phase 22F.3 Observer Review Veto Integration."""
+        selected = self._select_fast_live_move_core(board)
+        reviewed = self._observer_review_selected_fast_move(board, selected)
+
+        if reviewed.get("phase22f2_observer_review_decision") != "risk_detected":
+            return reviewed
+
+        observed = self._observer_strategy_loop_fast_move(board)
+        alt = observed.get("selected_move")
+        if not alt or alt == selected.get("selected_move"):
+            reviewed["phase22f3_observer_veto_attempted"] = True
+            reviewed["phase22f3_observer_veto_decision"] = "no_distinct_alternative"
+            return reviewed
+
+        legal_moves = [m.uci() for m in board.legal_moves]
+        if alt not in legal_moves:
+            reviewed["phase22f3_observer_veto_attempted"] = True
+            reviewed["phase22f3_observer_veto_decision"] = "alternative_illegal"
+            reviewed["phase22f3_observer_alternative"] = alt
+            return reviewed
+
+        alt_selected = dict(selected)
+        alt_selected["selected_move"] = alt
+        alt_reviewed = self._observer_review_selected_fast_move(board, alt_selected)
+
+        if alt_reviewed.get("phase22f2_observer_review_decision") == "risk_detected":
+            reviewed["phase22f3_observer_veto_attempted"] = True
+            reviewed["phase22f3_observer_veto_decision"] = "alternative_also_risky"
+            reviewed["phase22f3_observer_alternative"] = alt
+            reviewed["phase22f3_observer_alternative_risks"] = alt_reviewed.get("phase22f2_selected_move_risks")
+            return reviewed
+
+        return {
+            **reviewed,
+            "selected_move": alt,
+            "selected_source": "phase22f3_observer_review_veto_fast_selector",
+            "phase22f3_observer_veto_attempted": True,
+            "phase22f3_observer_veto_decision": "veto_applied",
+            "phase22f3_original_selected_move": selected.get("selected_move"),
+            "phase22f3_original_selected_source": selected.get("selected_source"),
+            "phase22f3_observer_mode": observed.get("observer_mode"),
+            "phase22f3_observer_score": observed.get("observer_score"),
+            "phase22f3_observer_evidence": observed.get("observer_evidence"),
+        }
+
+
+    def _select_fast_live_move_core(self, board: chess.Board) -> Dict[str, Any]:
         legal = [move.uci() for move in board.legal_moves]
 
         immediate_rejects: Dict[str, List[str]] = {}
