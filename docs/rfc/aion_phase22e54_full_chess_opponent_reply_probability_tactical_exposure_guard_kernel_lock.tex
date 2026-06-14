@@ -1,0 +1,83 @@
+\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage{newtxtext,newtxmath}
+\usepackage{microtype}
+\usepackage{xurl}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{hyperref}
+
+\title{\textbf{AION Phase 22E.54 --- Opponent Reply Probability and Tactical Exposure Guard}}
+\author{Kevin Robinson\\Tessaris AI}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Purpose}
+
+Phase 22E.54 adds deterministic opponent-perspective search to AION full chess.
+
+The purpose is to stop AION selecting moves only from its own intent perspective. A candidate move MUST also be checked against likely opponent replies and tactical exposure.
+
+\section{Implemented Capabilities}
+
+This phase introduces:
+
+\begin{itemize}
+  \item opponent reply probability;
+  \item one-ply and two-ply tactical search;
+  \item a lightweight value function;
+  \item policy-prior scoring hooks;
+  \item self-play memory hooks;
+  \item tactical motif scoring;
+  \item candidate move beam search;
+  \item a blunder filter;
+  \item position-memory hooks.
+\end{itemize}
+
+\section{Level-8 Failure Addressed}
+
+The Level-8 sparring run exposed a failure where \texttt{center\_control} allowed \texttt{h2h4} while the position was already tactically exposed.
+
+Observed failure:
+
+\begin{verbatim}
+Active intent: center_control
+Base well selected move: h2h4
+Final selected move: h2h4
+Selected source: base_well:rook_bishop_repetition_breaker
+\end{verbatim}
+
+Phase 22E.54 blocks this class of move when opponent replies reveal tactical exposure.
+
+\section{Boundary}
+
+This kernel is deterministic.
+
+It does not call Stockfish.
+
+It does not use LLM move judgement.
+
+It does not use Lichess analysis.
+
+It uses legal move generation, tactical motif scoring, reply probability weighting and local policy memory only.
+
+\section{Validation}
+
+Expected validation command:
+
+\begin{verbatim}
+PYTHONPATH=. python -m pytest -q \
+  backend/tests/workflow_capsules/test_aion_phase22e54_full_chess_opponent_reply_probability_tactical_exposure_guard_kernel_lock.py \
+  backend/tests/workflow_capsules/test_aion_phase22e54_full_chess_opponent_reply_probability_tactical_exposure_guard_kernel_lock_doc.py
+\end{verbatim}
+
+\bigskip
+
+\noindent
+Lock ID: AION-PHASE22E54-OPPONENT-REPLY-PROBABILITY-TACTICAL-EXPOSURE-GUARD\\
+Status: LOCKED --- deterministic opponent reply probability and tactical exposure guard added\\
+Maintainer: Tessaris AI\\
+Author: Kevin Robinson.
+
+\end{document}
