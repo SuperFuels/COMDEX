@@ -23,6 +23,9 @@ from backend.modules.aion_games.full_chess_monte_carlo_policy_value_seed_kernel 
 from backend.modules.aion_games.full_chess_rolling_strategic_plan_kernel import (
     run_full_chess_rolling_strategic_plan_kernel,
 )
+from backend.modules.aion_games.full_chess_parallel_opponent_beam_router_sqi_collapse_kernel import (
+    run_full_chess_parallel_opponent_beam_router_sqi_collapse_kernel,
+)
 
 DEFAULT_MEMORY_PATH = Path("data/aion_games/full_chess_live_one_move_strategic_well_sender_memory.json")
 
@@ -191,6 +194,55 @@ class AionLiveOneMoveStrategicWellSenderKernel:
                 plan_filtered_move = plan_selected_move
                 rolling_plan_override_applied = plan_filtered_move != strategic_selected_move
 
+        phase22e61_router_used = False
+        phase22e61_router_override_applied = False
+        phase22e61_selected_move = ""
+        phase22e61_trace_hash = ""
+
+        router_candidates = []
+        for move in [
+            plan_filtered_move,
+            plan_selected_move,
+            strategic_selected_move,
+            getattr(strategic, "base_well_selected_move", ""),
+        ]:
+            if move and move not in router_candidates:
+                router_candidates.append(move)
+
+        for move in getattr(rolling_plan, "candidate_plan_moves", [])[:8]:
+            if move and move not in router_candidates:
+                router_candidates.append(move)
+
+        router_candidates = [
+            move for move in router_candidates
+            if move and chess.Move.from_uci(move) in board.legal_moves
+        ]
+
+        if router_candidates:
+            phase22e61 = run_full_chess_parallel_opponent_beam_router_sqi_collapse_kernel(
+                input_fen=input_fen,
+                side_to_move=side_to_move,
+                candidate_moves=router_candidates,
+                primary_plan=getattr(rolling_plan, "primary_plan", active_intent),
+                target_weakness=getattr(rolling_plan, "target_weakness", ""),
+                max_reply_beams=8,
+                max_continuations_per_reply=16,
+                max_parallel_beams=1000,
+                memory_path=self.memory_path.parent / "phase22e61_child_parallel_opponent_beam_router_memory.json",
+                task_name=f"{task_name}_phase22e61_child_parallel_opponent_beam_router",
+            )
+            phase22e61_router_used = True
+            phase22e61_selected_move = phase22e61.selected_move
+            phase22e61_trace_hash = phase22e61.trace_hash
+
+            if (
+                phase22e61_selected_move
+                and chess.Move.from_uci(phase22e61_selected_move) in board.legal_moves
+                and phase22e61_selected_move != plan_filtered_move
+            ):
+                plan_filtered_move = phase22e61_selected_move
+                phase22e61_router_override_applied = True
+
         phase22e54 = run_full_chess_opponent_reply_probability_tactical_exposure_guard_kernel(
             input_fen=input_fen,
             side_to_move=side_to_move,
@@ -308,6 +360,11 @@ class AionLiveOneMoveStrategicWellSenderKernel:
             "phase22e59_plan_filtered_move": plan_filtered_move,
             "phase22e59_rolling_plan_override_applied": rolling_plan_override_applied,
             "phase22e59_monte_carlo_plan_guard_applied": monte_carlo_plan_guard_applied,
+            "phase22e62_parallel_opponent_beam_router_live_sender_integration_used": True,
+            "phase22e61_parallel_opponent_beam_router_used": phase22e61_router_used,
+            "phase22e61_selected_move": phase22e61_selected_move,
+            "phase22e61_trace_hash": phase22e61_trace_hash,
+            "phase22e62_router_override_applied": phase22e61_router_override_applied,
             "phase22e56_live_sender_decision_stack_used": True,
             "phase22e55_monte_carlo_policy_value_seed_used": True,
             "phase22e54_opponent_reply_probability_tactical_exposure_guard_used": True,
