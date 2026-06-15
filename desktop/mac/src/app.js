@@ -8284,6 +8284,46 @@ function renderAionPilotReasoningMiniStatus(pilotState = null) {
 
 /* PHASE 21R LOCK: Pilot stream UI redesign */
 
+function closeAionPilotStepOutput(stepNumber = 0) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const selectedNumber = Number(stepNumber);
+  const outputs = Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : [];
+
+  pilotState.step_outputs = outputs.map((item) => {
+    if (Number(item.step_number) !== selectedNumber) {
+      return item;
+    }
+
+    return {
+      ...item,
+      open: false,
+    };
+  });
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+function renderAionPilotStepCheckpointCard(pilotState = getAionPilotFrontendInteractionState()) {
+  const currentStep = Number(pilotState.current_step_index || 0);
+  const nextStep = currentStep > 0 ? currentStep + 1 : 1;
+
+  return `
+    <div class="aion-pilot-stream-card" data-aion-pilot-step-checkpoint-card>
+      <div class="aion-pilot-card-kicker">Approval point</div>
+      <h3>Ready for Step ${escapeHtml(String(nextStep))}</h3>
+      <p>The latest safe draft output is complete. Pilot can continue with the next safe step, but live actions still need exact approval.</p>
+
+      <div class="aion-pilot-actions">
+        <button type="button" data-aion-pilot-feedback-approve>Run next safe step</button>
+        <button type="button" data-aion-pilot-feedback-revise>Revise</button>
+        <button type="button" data-aion-pilot-feedback-stop>Stop</button>
+      </div>
+    </div>
+  `;
+}
+
 function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot()) {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
@@ -8355,12 +8395,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                 safeWorkCompleted
                   ? `
                     ${renderAionPilotStepOutputCards(pilotState)}
-
-                    ${
-                      typeof renderAionPilotOutputPanel === "function"
-                        ? renderAionPilotOutputPanel()
-                        : ""
-                    }
+                    ${renderAionPilotStepCheckpointCard(pilotState)}
                   `
                   : ""
               }
@@ -9032,90 +9067,161 @@ function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
   const goal = String(safePlan.goal || state.last_request || "Business growth task");
   const taskType = String(safePlan.task_type || "general_task");
+  const stepNumber = Number(state.current_step_index || 2);
 
   if (taskType === "business_plan") {
+    if (stepNumber === 2) {
+      return [
+        `Step 2: Sales Launch Pack for ${goal}`,
+        "",
+        "1. Priority Order",
+        "1. Define the first sellable offer.",
+        "2. Create a simple lead capture route.",
+        "3. Draft the advert/message.",
+        "4. Prepare the quote/inspection workflow.",
+        "5. Stop before publishing, sending, spending or booking.",
+        "",
+        "2. First Sellable Offer",
+        "Offer: Home Fixed roof repair and home maintenance enquiry.",
+        "Customer action: Send photos, location and a short description of the issue.",
+        "Business action: Human reviews the enquiry and decides whether to quote, inspect or decline.",
+        "",
+        "3. 7-Day Sales Launch Checklist",
+        "Day 1: Confirm target area and services.",
+        "Day 2: Draft Facebook/Google advert copy.",
+        "Day 3: Draft customer message template.",
+        "Day 4: Create enquiry capture fields.",
+        "Day 5: Prepare quote/inspection checklist.",
+        "Day 6: Prepare before/after proof post drafts.",
+        "Day 7: Human approval checkpoint before any live action.",
+        "",
+        "Blocked until exact approval:",
+        "- Publish advert/post.",
+        "- Send messages.",
+        "- Spend ad budget.",
+        "- Book inspection or repair.",
+      ].join("\\n");
+    }
+
+    if (stepNumber === 3) {
+      return [
+        `Step 3: Draft Marketing Asset Set for ${goal}`,
+        "",
+        "1. Facebook Advert Variant A",
+        "Headline: Roof leak or home repair needed?",
+        "Body: Home Fixed helps homeowners with roof repairs, leaks, guttering and general property maintenance. Send photos of the issue and your location for a clear next step.",
+        "CTA: Message us for a quote.",
+        "",
+        "2. Facebook Advert Variant B",
+        "Headline: Need a reliable repair man?",
+        "Body: From roof leaks to small repairs, Home Fixed helps homeowners get jobs sorted without chasing tradesmen. Send your location and a few photos to start.",
+        "CTA: Get a free enquiry review.",
+        "",
+        "3. Google Business Profile Post Draft",
+        "Home Fixed is preparing local home repair and roof leak support. If you have a leak, damaged guttering or general repair issue, send photos and your location so we can confirm the next step.",
+        "",
+        "4. Proof Post Draft",
+        "Before/after repair posts should show the problem, the fix, and a short note explaining what was improved. Do not post until approved.",
+        "",
+        "Safe status:",
+        "Draft assets prepared only. Nothing has been published or sent.",
+      ].join("\\n");
+    }
+
+    if (stepNumber === 4) {
+      return [
+        `Step 4: Lead Capture Workflow for ${goal}`,
+        "",
+        "1. Enquiry Fields",
+        "- Customer name.",
+        "- Phone number.",
+        "- Location/postcode.",
+        "- Photos of issue.",
+        "- Short description.",
+        "- Urgency: today / this week / flexible.",
+        "- Access notes.",
+        "",
+        "2. Intake Script",
+        "Thanks for contacting Home Fixed. Please send your location, a few photos of the issue, and a short description of what has happened. We’ll review it and confirm whether the next step is a quote, inspection or specialist referral.",
+        "",
+        "3. Triage Rules",
+        "- Roof leak: request photos, location and urgency.",
+        "- Unsafe height/access: human review before accepting.",
+        "- Small repair: decide fixed quote or minimum charge.",
+        "- Landlord/property manager: request property access details.",
+        "",
+        "4. Human Review Gate",
+        "A human must approve any booking, quote, callout, payment request or external message.",
+        "",
+        "Safe status:",
+        "Workflow drafted only. No customer has been contacted.",
+      ].join("\\n");
+    }
+
+    if (stepNumber === 5) {
+      return [
+        `Step 5: Landing Page Outline for ${goal}`,
+        "",
+        "1. Hero Section",
+        "Reliable home repairs and roof leak support from Home Fixed.",
+        "",
+        "2. Main CTA",
+        "Send photos of your repair issue for the next best step.",
+        "",
+        "3. Service Sections",
+        "- Roof leaks and minor roof repairs.",
+        "- Guttering, fascia and soffit checks.",
+        "- General home repairs.",
+        "- Painting, decorating and wall repairs.",
+        "- Landlord/property maintenance.",
+        "",
+        "4. Trust Section",
+        "- Clear communication.",
+        "- Written quotes.",
+        "- Before/after evidence where useful.",
+        "- Human review before booking work.",
+        "",
+        "5. Lead Form Fields",
+        "Name, phone, location, photos, issue, urgency.",
+        "",
+        "Blocked until approval:",
+        "- Build live page.",
+        "- Publish page.",
+        "- Connect domain.",
+        "- Connect forms or automations.",
+      ].join("\\n");
+    }
+
     return [
-      `Step 2: Sales Launch Pack for ${goal}`,
+      `Step ${stepNumber}: Live Action Boundary for ${goal}`,
       "",
-      "1. Priority Order",
-      "The fastest route to sales is not another long plan. The priority is:",
-      "1. Define the first sellable offer.",
-      "2. Create a simple lead capture route.",
-      "3. Draft the advert/message.",
-      "4. Prepare the quote/inspection workflow.",
-      "5. Stop before publishing, sending, spending or booking.",
-      "",
-      "2. First Sellable Offer",
-      "Offer: Home Fixed roof repair and home maintenance enquiry.",
-      "Customer action: Send photos, location and a short description of the issue.",
-      "Business action: Human reviews the enquiry and decides whether to quote, inspect or decline.",
-      "",
-      "3. 7-Day Sales Launch Checklist",
-      "Day 1: Confirm target area and services.",
-      "Day 2: Draft Facebook/Google advert copy.",
-      "Day 3: Draft customer message template.",
-      "Day 4: Create enquiry capture fields: name, phone, location, photos, issue, urgency.",
-      "Day 5: Prepare quote/inspection decision checklist.",
-      "Day 6: Prepare before/after proof post drafts.",
-      "Day 7: Human approval checkpoint before any live action.",
-      "",
-      "4. Lead Capture Workflow",
-      "1. Customer sees advert or post.",
-      "2. Customer sends message/photos.",
-      "3. Details are captured.",
-      "4. Human reviews job type and safety.",
-      "5. Quote or inspection is prepared.",
-      "6. Booking is only made after approval.",
-      "",
-      "5. Draft Customer Message",
-      "Hi, thanks for contacting Home Fixed. Can you send your location, a few photos of the issue, and a short description of what has happened? Once we’ve checked it, we’ll confirm the next best step.",
-      "",
-      "6. Draft Advert",
-      "Headline: Roof leak or home repair needed?",
-      "Body: Home Fixed helps homeowners with roof repairs, leaks, guttering and general property maintenance. Send photos of the issue and your location for a clear next step.",
-      "CTA: Message us for a quote.",
-      "",
-      "7. Tools/Actions Pilot Can Prepare Next",
+      "Pilot has prepared the safe draft assets currently available:",
+      "- Business plan.",
+      "- Sales launch pack.",
+      "- Advert/message drafts.",
+      "- Lead capture workflow.",
       "- Landing page outline.",
-      "- Facebook advert variants.",
-      "- Google Business Profile post draft.",
-      "- Lead capture form fields.",
-      "- Quote/inspection checklist.",
       "",
-      "8. Blocked Until Exact Approval",
-      "- Publish advert/post.",
-      "- Send messages to customers.",
-      "- Spend ad budget.",
-      "- Book inspection or repair.",
-      "- Create payment/deposit link.",
-      "- Deploy website or landing page.",
+      "The next actions now require exact approval because they may affect the outside world:",
+      "- Publish adverts or posts.",
+      "- Send messages.",
+      "- Spend money.",
+      "- Book jobs.",
+      "- Create payment links.",
+      "- Deploy a website.",
+      "",
+      "Recommended approval question:",
+      "Which live action do you want to approve first, and with what exact content, budget, account and destination?",
     ].join("\\n");
   }
 
-  if (taskType === "advertising") {
-    return getAionPilotOutputPreviewText({
-      ...safePlan,
-      task_type: "advertising",
-    }, {
-      ...state,
-      generated_output_text: "",
-    });
-  }
-
   return [
-    `Step 2: Priority Execution Pack for ${goal}`,
+    `Step ${stepNumber}: Priority Execution Pack for ${goal}`,
     "",
     "1. Convert the plan into a checklist.",
     "2. Draft the first useful asset.",
     "3. Prepare the next safe output.",
     "4. Stop before live external action.",
-    "",
-    "Blocked until approval:",
-    "- Sending.",
-    "- Publishing.",
-    "- Spending.",
-    "- Booking.",
-    "- Deployment.",
   ].join("\\n");
 }
 
@@ -9145,6 +9251,7 @@ function approveAionPilotMissionContract() {
 
     pilotState.output_panel_open = true;
     pilotState.output_panel_kind = "step_output";
+    pilotState.output_panel_step_number = nextStepNumber;
     pilotState.output_panel_title = `Step ${nextStepNumber} output`;
     pilotState.output_panel_body = outputText;
     pilotState.artifact_hash = `sha256:frontend_step${nextStepNumber}_priority_artifact`;
@@ -9390,6 +9497,7 @@ function appendAionPilotStepOutput(step = {}) {
     title,
     output_label: String(step.output_label || title),
     output_text: outputText,
+    open: step.open !== false,
     status: String(step.status || "completed_preview"),
     artifact_hash: String(step.artifact_hash || `sha256:frontend_step_${stepNumber}_artifact`),
     receipt_hash: String(step.receipt_hash || `sha256:frontend_step_${stepNumber}_receipt`),
@@ -9415,34 +9523,55 @@ function renderAionPilotStepOutputCards(pilotState = getAionPilotFrontendInterac
     return "";
   }
 
-  return outputs.map((item) => `
-    <div class="aion-pilot-stream-card" data-aion-pilot-step-output-card data-aion-pilot-step-number="${escapeHtml(String(item.step_number))}">
-      <div class="aion-pilot-card-kicker">Step ${escapeHtml(String(item.step_number))} output</div>
-      <h3>${escapeHtml(item.title || `Step ${item.step_number} output`)}</h3>
-      <p>Completed safe draft output. Review it, download it, or inspect the receipt.</p>
+  return outputs.map((item) => {
+    const stepNumber = Number(item.step_number || 0);
+    const isOpen = item.open === true;
 
-      <div class="aion-pilot-actions">
-        <button type="button" data-aion-pilot-open-step-output="${escapeHtml(String(item.step_number))}">Open output</button>
-        <button type="button" data-aion-pilot-download-output>Download output</button>
-        <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+    return `
+      <div class="aion-pilot-stream-card" data-aion-pilot-step-output-card data-aion-pilot-step-number="${escapeHtml(String(stepNumber))}">
+        <div class="aion-pilot-card-kicker">Step ${escapeHtml(String(stepNumber))} output</div>
+        <h3>${escapeHtml(item.title || `Step ${stepNumber} output`)}</h3>
+        <p>Completed safe draft output. Review it, download it, or inspect the receipt.</p>
+
+        <div class="aion-pilot-actions">
+          <button type="button" data-aion-pilot-open-step-output="${escapeHtml(String(stepNumber))}">Open output</button>
+          <button type="button" data-aion-pilot-download-output>Download output</button>
+          <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+        </div>
       </div>
-    </div>
-  `).join("");
+
+      ${
+        isOpen
+          ? `
+            <div class="aion-pilot-output-panel" data-aion-pilot-inline-output-panel data-aion-pilot-inline-output-step="${escapeHtml(String(stepNumber))}">
+              <div class="aion-pilot-output-panel-header">
+                <strong>${escapeHtml(item.title || `Step ${stepNumber} output`)}</strong>
+                <button type="button" data-aion-pilot-close-step-output="${escapeHtml(String(stepNumber))}">Close</button>
+              </div>
+              <pre>${escapeHtml(normaliseAionPilotPreviewText(item.output_text || ""))}</pre>
+            </div>
+          `
+          : ""
+      }
+    `;
+  }).join("");
 }
 
 function openAionPilotStepOutput(stepNumber = 0) {
   const pilotState = getAionPilotFrontendInteractionState();
   const outputs = Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : [];
-  const selected = outputs.find((item) => Number(item.step_number) === Number(stepNumber));
+  const selectedNumber = Number(stepNumber);
 
-  if (!selected) {
-    return;
-  }
+  pilotState.step_outputs = outputs.map((item) => {
+    if (Number(item.step_number) !== selectedNumber) {
+      return item;
+    }
 
-  pilotState.output_panel_open = true;
-  pilotState.output_panel_kind = "step_output";
-  pilotState.output_panel_title = selected.title || `Step ${selected.step_number} output`;
-  pilotState.output_panel_body = selected.output_text || "";
+    return {
+      ...item,
+      open: true,
+    };
+  });
 
   if (typeof requestRender === "function") {
     requestRender();
@@ -29348,6 +29477,13 @@ if (action === "capture-browser-approval-checkpoint") {
       const aionPilotOpenStepOutputButton = target.closest("[data-aion-pilot-open-step-output]");
       if (aionPilotOpenStepOutputButton) {
         openAionPilotStepOutput(aionPilotOpenStepOutputButton.getAttribute("data-aion-pilot-open-step-output"));
+        desktopStore.persistCache?.();
+        return;
+      }
+
+      const aionPilotCloseStepOutputButton = target.closest("[data-aion-pilot-close-step-output]");
+      if (aionPilotCloseStepOutputButton) {
+        closeAionPilotStepOutput(aionPilotCloseStepOutputButton.getAttribute("data-aion-pilot-close-step-output"));
         desktopStore.persistCache?.();
         return;
       }

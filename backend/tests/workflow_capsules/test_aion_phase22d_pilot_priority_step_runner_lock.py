@@ -37,8 +37,8 @@ def test_phase22d_priority_step_builder_exists():
     assert "Step 2: Sales Launch Pack" in block
     assert "Priority Order" in block
     assert "Lead Capture Workflow" in block
-    assert "Draft Advert" in block
-    assert "Blocked Until Exact Approval" in block
+    assert "Facebook Advert" in block
+    assert "Blocked until exact approval" in block or "Blocked until approval" in block
 
 
 def test_phase22d_run_next_safe_step_generates_step2_output():
