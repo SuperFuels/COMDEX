@@ -9065,163 +9065,114 @@ function appendAionPilotStreamEvent(event, options = {}) {
 function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
-  const goal = String(safePlan.goal || state.last_request || "Business growth task");
+  const goal = String(safePlan.goal || state.last_request || "Pilot task").trim();
   const taskType = String(safePlan.task_type || "general_task");
-  const stepNumber = Number(state.current_step_index || 2);
+  const stepNumber = Math.max(1, Number(state.current_step_index || 1));
 
-  if (taskType === "business_plan") {
-    if (stepNumber === 2) {
-      return [
-        `Step 2: Sales Launch Pack for ${goal}`,
-        "",
-        "1. Priority Order",
-        "1. Define the first sellable offer.",
-        "2. Create a simple lead capture route.",
-        "3. Draft the advert/message.",
-        "4. Prepare the quote/inspection workflow.",
-        "5. Stop before publishing, sending, spending or booking.",
-        "",
-        "2. First Sellable Offer",
-        "Offer: Home Fixed roof repair and home maintenance enquiry.",
-        "Customer action: Send photos, location and a short description of the issue.",
-        "Business action: Human reviews the enquiry and decides whether to quote, inspect or decline.",
-        "",
-        "3. 7-Day Sales Launch Checklist",
-        "Day 1: Confirm target area and services.",
-        "Day 2: Draft Facebook/Google advert copy.",
-        "Day 3: Draft customer message template.",
-        "Day 4: Create enquiry capture fields.",
-        "Day 5: Prepare quote/inspection checklist.",
-        "Day 6: Prepare before/after proof post drafts.",
-        "Day 7: Human approval checkpoint before any live action.",
-        "",
-        "Blocked until exact approval:",
-        "- Publish advert/post.",
-        "- Send messages.",
-        "- Spend ad budget.",
-        "- Book inspection or repair.",
-      ].join("\\n");
-    }
+  const rawSteps = Array.isArray(safePlan.safe_steps)
+    ? safePlan.safe_steps
+    : Array.isArray(safePlan.steps)
+      ? safePlan.steps
+      : [];
 
-    if (stepNumber === 3) {
-      return [
-        `Step 3: Draft Marketing Asset Set for ${goal}`,
-        "",
-        "1. Facebook Advert Variant A",
-        "Headline: Roof leak or home repair needed?",
-        "Body: Home Fixed helps homeowners with roof repairs, leaks, guttering and general property maintenance. Send photos of the issue and your location for a clear next step.",
-        "CTA: Message us for a quote.",
-        "",
-        "2. Facebook Advert Variant B",
-        "Headline: Need a reliable repair man?",
-        "Body: From roof leaks to small repairs, Home Fixed helps homeowners get jobs sorted without chasing tradesmen. Send your location and a few photos to start.",
-        "CTA: Get a free enquiry review.",
-        "",
-        "3. Google Business Profile Post Draft",
-        "Home Fixed is preparing local home repair and roof leak support. If you have a leak, damaged guttering or general repair issue, send photos and your location so we can confirm the next step.",
-        "",
-        "4. Proof Post Draft",
-        "Before/after repair posts should show the problem, the fix, and a short note explaining what was improved. Do not post until approved.",
-        "",
-        "Safe status:",
-        "Draft assets prepared only. Nothing has been published or sent.",
-      ].join("\\n");
-    }
+  const normalisedSteps = rawSteps
+    .map((step, index) => {
+      if (typeof step === "string") {
+        return {
+          id: `step_${index + 1}`,
+          title: step,
+          description: step,
+          lane: "safe_internal",
+          decision: "autonomous",
+        };
+      }
 
-    if (stepNumber === 4) {
-      return [
-        `Step 4: Lead Capture Workflow for ${goal}`,
-        "",
-        "1. Enquiry Fields",
-        "- Customer name.",
-        "- Phone number.",
-        "- Location/postcode.",
-        "- Photos of issue.",
-        "- Short description.",
-        "- Urgency: today / this week / flexible.",
-        "- Access notes.",
-        "",
-        "2. Intake Script",
-        "Thanks for contacting Home Fixed. Please send your location, a few photos of the issue, and a short description of what has happened. We’ll review it and confirm whether the next step is a quote, inspection or specialist referral.",
-        "",
-        "3. Triage Rules",
-        "- Roof leak: request photos, location and urgency.",
-        "- Unsafe height/access: human review before accepting.",
-        "- Small repair: decide fixed quote or minimum charge.",
-        "- Landlord/property manager: request property access details.",
-        "",
-        "4. Human Review Gate",
-        "A human must approve any booking, quote, callout, payment request or external message.",
-        "",
-        "Safe status:",
-        "Workflow drafted only. No customer has been contacted.",
-      ].join("\\n");
-    }
+      return {
+        id: String(step?.id || step?.step_id || `step_${index + 1}`),
+        title: String(step?.title || step?.label || step?.name || `Step ${index + 1}`),
+        description: String(step?.description || step?.summary || step?.detail || step?.title || ""),
+        lane: String(step?.lane || step?.autonomy_lane || "safe_internal"),
+        decision: String(step?.effective_decision || step?.decision || step?.required_control || "autonomous"),
+        output: String(step?.expected_output || step?.output || step?.deliverable || ""),
+      };
+    });
 
-    if (stepNumber === 5) {
-      return [
-        `Step 5: Landing Page Outline for ${goal}`,
-        "",
-        "1. Hero Section",
-        "Reliable home repairs and roof leak support from Home Fixed.",
-        "",
-        "2. Main CTA",
-        "Send photos of your repair issue for the next best step.",
-        "",
-        "3. Service Sections",
-        "- Roof leaks and minor roof repairs.",
-        "- Guttering, fascia and soffit checks.",
-        "- General home repairs.",
-        "- Painting, decorating and wall repairs.",
-        "- Landlord/property maintenance.",
-        "",
-        "4. Trust Section",
-        "- Clear communication.",
-        "- Written quotes.",
-        "- Before/after evidence where useful.",
-        "- Human review before booking work.",
-        "",
-        "5. Lead Form Fields",
-        "Name, phone, location, photos, issue, urgency.",
-        "",
-        "Blocked until approval:",
-        "- Build live page.",
-        "- Publish page.",
-        "- Connect domain.",
-        "- Connect forms or automations.",
-      ].join("\\n");
-    }
+  const selectedStep =
+    normalisedSteps[stepNumber - 1] ||
+    normalisedSteps[normalisedSteps.length - 1] ||
+    {
+      id: `step_${stepNumber}`,
+      title: "Next safe draft step",
+      description: "Prepare the next safe draft output and stop before live external action.",
+      lane: "safe_internal",
+      decision: "autonomous",
+      output: "Safe draft output",
+    };
 
-    return [
-      `Step ${stepNumber}: Live Action Boundary for ${goal}`,
-      "",
-      "Pilot has prepared the safe draft assets currently available:",
-      "- Business plan.",
-      "- Sales launch pack.",
-      "- Advert/message drafts.",
-      "- Lead capture workflow.",
-      "- Landing page outline.",
-      "",
-      "The next actions now require exact approval because they may affect the outside world:",
-      "- Publish adverts or posts.",
-      "- Send messages.",
-      "- Spend money.",
-      "- Book jobs.",
-      "- Create payment links.",
-      "- Deploy a website.",
-      "",
-      "Recommended approval question:",
-      "Which live action do you want to approve first, and with what exact content, budget, account and destination?",
-    ].join("\\n");
-  }
+  const previousOutputs = Array.isArray(state.step_outputs) ? state.step_outputs : [];
+  const completedTitles = previousOutputs
+    .map((item) => String(item.title || item.output_label || "").trim())
+    .filter(Boolean);
+
+  const approvalLines = normalisedSteps
+    .filter((step) => {
+      const decision = String(step.decision || "").toLowerCase();
+      const lane = String(step.lane || "").toLowerCase();
+      return (
+        decision.includes("approval") ||
+        decision.includes("human") ||
+        decision.includes("blocked") ||
+        lane.includes("external") ||
+        lane.includes("financial") ||
+        lane.includes("deployment") ||
+        lane.includes("legal")
+      );
+    })
+    .map((step) => `- ${step.title}: ${step.decision}`);
+
+  const safeChecklist = normalisedSteps
+    .filter((step) => {
+      const decision = String(step.decision || "").toLowerCase();
+      return !decision.includes("blocked") && !decision.includes("human_task");
+    })
+    .slice(0, Math.max(stepNumber, 3))
+    .map((step, index) => `${index + 1}. ${step.title}${step.description ? ` — ${step.description}` : ""}`);
 
   return [
-    `Step ${stepNumber}: Priority Execution Pack for ${goal}`,
+    `Step ${stepNumber}: ${selectedStep.title}`,
     "",
-    "1. Convert the plan into a checklist.",
-    "2. Draft the first useful asset.",
-    "3. Prepare the next safe output.",
-    "4. Stop before live external action.",
+    "Mission goal:",
+    goal,
+    "",
+    "Task type:",
+    taskType.replace(/_/g, " "),
+    "",
+    "Safe draft work for this step:",
+    selectedStep.description || selectedStep.output || "Prepare the next safe draft output.",
+    "",
+    "Current safe checklist:",
+    ...(safeChecklist.length ? safeChecklist : ["1. Review the approved mission plan.", "2. Prepare the next safe draft output.", "3. Stop before live external action."]),
+    "",
+    ...(completedTitles.length
+      ? [
+          "Already completed outputs:",
+          ...completedTitles.map((title) => `- ${title}`),
+          "",
+        ]
+      : []),
+    "Still approval-gated:",
+    ...(approvalLines.length
+      ? approvalLines
+      : [
+          "- Posting publicly requires exact approval.",
+          "- Sending external messages requires exact approval.",
+          "- Spending money requires exact approval.",
+          "- Production deployment requires exact approval.",
+          "- Booking, payment, escrow or reputation mutation requires exact approval.",
+        ]),
+    "",
+    "Safe status:",
+    "Draft/preview work only. No live external action has been taken.",
   ].join("\\n");
 }
 

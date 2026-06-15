@@ -34,12 +34,14 @@ def function_block(name):
 
 def test_phase22d_priority_step_builder_exists():
     block = function_block("buildAionPilotPriorityStepOutput")
-    assert "Step 2: Sales Launch Pack" in block
-    assert "Priority Order" in block
-    assert "Lead Capture Workflow" in block
-    assert "Facebook Advert" in block
-    assert "Blocked until exact approval" in block or "Blocked until approval" in block
 
+    assert "function buildAionPilotPriorityStepOutput" in block
+    assert "safePlan.safe_steps" in block
+    assert "safePlan.steps" in block
+    assert "normalisedSteps" in block
+    assert "selectedStep" in block
+    assert "Still approval-gated:" in block
+    assert "Draft/preview work only. No live external action has been taken." in block
 
 def test_phase22d_run_next_safe_step_generates_step2_output():
     block = function_block("approveAionPilotMissionContract")
