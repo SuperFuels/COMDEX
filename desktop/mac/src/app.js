@@ -8740,16 +8740,106 @@ function getAionPilotOutputPreparedDetail(plan = null) {
 
 /* PHASE 21Q LOCK: Pilot real output actions */
 
+function buildAionPilotBusinessPlanDraft(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const goal = String(safePlan.goal || state.last_request || "Home repair business plan");
+  const lowerGoal = goal.toLowerCase();
+  const area = lowerGoal.includes("surrey") ? "Surrey, UK" : "the UK";
+  const brand = lowerGoal.includes("home fixed") || lowerGoal.includes("homefixed")
+    ? "Home Fixed"
+    : "the home repair business";
+
+  return [
+    `Business Plan Draft: ${goal}`,
+    "",
+    "1. Business Overview",
+    `${brand} will operate as a local home repair and property maintenance business serving ${area}. The business will focus on reliable small-to-medium repair jobs, clear communication, transparent pricing and repeat customer relationships.`,
+    "",
+    "2. Positioning",
+    "The business should position itself as the dependable repair partner for homeowners, landlords and property managers who need practical work completed without chasing tradesmen.",
+    "",
+    "Core promise:",
+    "- Reliable attendance.",
+    "- Clear written quotes.",
+    "- Practical repair work.",
+    "- Before/after evidence where useful.",
+    "- Simple phone or WhatsApp communication.",
+    "",
+    "3. Core Services",
+    "- General home repairs.",
+    "- Roof leak checks and minor roof repairs.",
+    "- Guttering, fascia and soffit checks.",
+    "- Painting and decorating.",
+    "- Wall repairs and plastering.",
+    "- Door, lock, fence and small exterior repairs.",
+    "- Landlord and property maintenance support.",
+    "",
+    "4. Target Customers",
+    "- Homeowners needing reliable repairs.",
+    "- Landlords needing responsive maintenance.",
+    "- Letting agents and property managers.",
+    "- Older homeowners who prefer simple communication.",
+    "- Busy families who want one trusted repair contact.",
+    "",
+    "5. Pricing Model",
+    "- Free initial enquiry triage.",
+    "- Fixed callout or inspection charge where needed.",
+    "- Written quote before work starts.",
+    "- Small job minimum charge.",
+    "- Half-day or day-rate options for grouped jobs.",
+    "- Optional seasonal maintenance packages.",
+    "",
+    "6. Marketing Plan",
+    "- Google Business Profile with photos and reviews.",
+    "- Local SEO page for home repairs in the target area.",
+    "- Service pages for roof repairs, handyman work and property maintenance.",
+    "- Before/after Facebook posts.",
+    "- Local community group awareness posts where allowed.",
+    "- Referral cards for completed customers.",
+    "- WhatsApp-first enquiry flow.",
+    "",
+    "7. Operations Workflow",
+    "1. Capture enquiry.",
+    "2. Classify urgency and job type.",
+    "3. Request photos if useful.",
+    "4. Decide quote, inspection or decline/escalate.",
+    "5. Send quote for approval.",
+    "6. Complete work.",
+    "7. Save photos, notes and receipt.",
+    "8. Request review or repeat maintenance follow-up.",
+    "",
+    "8. Risks and Controls",
+    "- Weather delays: communicate early and reschedule safely.",
+    "- Scope creep: define quote boundaries before starting.",
+    "- Unsafe roof/high access work: decline or use specialist support.",
+    "- Underpriced jobs: use minimum charges and clear inspection rules.",
+    "- Reputation risk: confirm appointments and keep communication simple.",
+    "",
+    "9. 90-Day Action Plan",
+    "Weeks 1-2: Finalise services, pricing, service area and quote templates.",
+    "Weeks 3-4: Build landing page and Google Business Profile.",
+    "Month 2: Publish local service content and before/after posts.",
+    "Month 3: Add referral cards, review process and landlord/agent outreach.",
+    "",
+    "10. Approval Boundary",
+    "Pilot has prepared this as a draft only. It has not published, sent messages, booked jobs, spent money, deployed a website, created payment links or changed live business state.",
+  ].join("\\n");
+}
+
 function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const taskType = String(safePlan.task_type || "general_task");
+  const goal = String(safePlan.goal || state.last_request || "Untitled task");
+
+  if (taskType === "business_plan") {
+    return buildAionPilotBusinessPlanDraft(safePlan, state);
+  }
 
   if (state.generated_output_text) {
     return String(state.generated_output_text);
   }
-
-  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
-  const taskType = String(safePlan.task_type || "general_task");
-  const goal = String(safePlan.goal || state.last_request || "Untitled task");
 
   if (taskType === "growth_social") {
     return [
@@ -8891,10 +8981,11 @@ function getAionPilotReceiptPreview(plan = null, pilotState = null) {
 function openAionPilotOutputPreview() {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
+
   pilotState.output_panel_open = true;
   pilotState.output_panel_kind = "output";
   pilotState.output_panel_title = plan.output_label || "Draft output";
-  pilotState.output_panel_body = normaliseAionPilotPreviewText(getAionPilotResolvedGeneratedOutput(plan, pilotState));
+  pilotState.output_panel_body = normaliseAionPilotPreviewText(getAionPilotOutputPreviewText(plan, pilotState));
 
   if (typeof requestRender === "function") {
     requestRender();
@@ -8917,7 +9008,7 @@ function viewAionPilotReceiptPreview() {
 function downloadAionPilotOutputPreview() {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
-  const outputText = normaliseAionPilotPreviewText(getAionPilotResolvedGeneratedOutput(plan, pilotState));
+  const outputText = normaliseAionPilotPreviewText(getAionPilotOutputPreviewText(plan, pilotState));
   const receipt = getAionPilotReceiptPreview(plan, pilotState);
   const payload = [
     outputText,
@@ -8957,13 +9048,18 @@ function renderAionPilotOutputPanel() {
     return "";
   }
 
+  const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
+  const body = pilotState.output_panel_kind === "output"
+    ? getAionPilotOutputPreviewText(plan, pilotState)
+    : pilotState.output_panel_body || "";
+
   return `
     <div class="aion-pilot-output-panel" data-aion-pilot-output-panel data-aion-pilot-output-kind="${escapeHtml(pilotState.output_panel_kind || "output")}">
       <div class="aion-pilot-output-panel-header">
         <strong>${escapeHtml(pilotState.output_panel_title || "Pilot output")}</strong>
         <button type="button" data-aion-pilot-close-output-panel>Close</button>
       </div>
-      <pre>${escapeHtml(normaliseAionPilotPreviewText(pilotState.output_panel_body || ""))}</pre>
+      <pre>${escapeHtml(normaliseAionPilotPreviewText(body))}</pre>
     </div>
   `;
 }
@@ -86407,34 +86503,3 @@ window.fetchAionLrmPilotContextPreviewIntoPilotState = fetchAionLrmPilotContextP
 
 /* Phase 21Z legacy label tokens: "Mission composer" "Can do safely" "Needs approval" */
 
-/* PHASE 22A.1 LOCK: Pilot create-plan dedicated click bridge */
-(function installAionPilotCreatePlanClickBridge() {
-  if (window.__aionPilotCreatePlanClickBridgeInstalled) {
-    return;
-  }
-
-  window.__aionPilotCreatePlanClickBridgeInstalled = true;
-
-  document.addEventListener(
-    "click",
-    function onAionPilotCreatePlanClickBridge(event) {
-      const target = event.target;
-      const button =
-        target && target.closest
-          ? target.closest("[data-aion-pilot-create-draft-mission]")
-          : null;
-
-      if (!button) {
-        return;
-      }
-
-      event.preventDefault();
-      event.stopPropagation();
-
-      if (typeof createAionPilotFrontendDraftMission === "function") {
-        createAionPilotFrontendDraftMission();
-      }
-    },
-    true,
-  );
-})();
