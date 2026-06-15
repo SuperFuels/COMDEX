@@ -86387,3 +86387,35 @@ window.fetchAionLrmPilotContextPreviewIntoPilotState = fetchAionLrmPilotContextP
 /* END PHASE 21D LOCK */
 
 /* Phase 21Z legacy label tokens: "Mission composer" "Can do safely" "Needs approval" */
+
+/* PHASE 22A.1 LOCK: Pilot create-plan dedicated click bridge */
+(function installAionPilotCreatePlanClickBridge() {
+  if (window.__aionPilotCreatePlanClickBridgeInstalled) {
+    return;
+  }
+
+  window.__aionPilotCreatePlanClickBridgeInstalled = true;
+
+  document.addEventListener(
+    "click",
+    function onAionPilotCreatePlanClickBridge(event) {
+      const target = event.target;
+      const button =
+        target && target.closest
+          ? target.closest("[data-aion-pilot-create-draft-mission]")
+          : null;
+
+      if (!button) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (typeof createAionPilotFrontendDraftMission === "function") {
+        createAionPilotFrontendDraftMission();
+      }
+    },
+    true,
+  );
+})();
