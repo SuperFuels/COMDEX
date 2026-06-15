@@ -8393,13 +8393,10 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
       </div>
 
       <div class="aion-pilot-composer-bar" data-aion-pilot-composer>
-        <label for="aion-pilot-mission-input">Ask Pilot</label>
-        <div class="aion-pilot-composer-row">
-          <textarea id="aion-pilot-mission-input" data-aion-pilot-mission-input rows="2" placeholder="Example: create a campaign to get 10 roof repair leads this month">${escapeHtml(pilotState.last_request || "")}</textarea>
-          <button type="button" data-aion-pilot-create-draft-mission>
-            ${hasDraft ? "Update plan" : "Create plan"}
-          </button>
-        </div>
+        <textarea id="aion-pilot-mission-input" data-aion-pilot-mission-input rows="3" placeholder="Tell Pilot what to do...">${escapeHtml(pilotState.last_request || "")}</textarea>
+        <button type="button" data-aion-pilot-create-draft-mission>
+          ${hasDraft ? "Update mission" : "Start task"}
+        </button>
       </div>
     </section>
   `;
