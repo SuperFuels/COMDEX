@@ -26,7 +26,7 @@ def test_phase22b2_business_plan_builder_exists():
     block = function_block("buildAionPilotBusinessPlanDraft")
     assert "Business Plan Draft:" in block
     assert "Business Overview" in block
-    assert "Core Services" in block
+    assert "Main Services" in block
     assert "90-Day Action Plan" in block
 
 

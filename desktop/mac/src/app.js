@@ -8609,118 +8609,33 @@ function getAionPilotOutputPreparedLabel(plan = null) {
 function getAionPilotOutputPreparedDetail(plan = null) {
   const safePlan = plan || buildAionPilotUniversalPlan("");
   const taskType = String(safePlan.task_type || "general_task");
+  const goal = String(safePlan.goal || "the requested task");
 
   if (taskType === "business_plan") {
-    const isSurrey = goal.toLowerCase().includes("surrey");
-    const area = isSurrey ? "Surrey, UK" : "the selected local service area";
-
-    return [
-      `Business Plan Draft: ${goal}`,
-      "",
-      "1. Business Overview",
-      "The business will operate as a local home repair and property maintenance service focused on fast, reliable, trust-led work for homeowners, landlords and property managers.",
-      "",
-      `Target area: ${area}.`,
-      "",
-      "2. Positioning",
-      "Position the business as a dependable local repair partner for small-to-medium jobs that larger contractors often ignore or delay.",
-      "",
-      "Core promise:",
-      "- Clear communication.",
-      "- Reliable attendance.",
-      "- Practical repairs.",
-      "- Transparent quotes.",
-      "- Before/after evidence where useful.",
-      "",
-      "3. Main Services",
-      "- General home repairs.",
-      "- Roof leak checks and minor roof repairs.",
-      "- Guttering, fascia and soffit checks.",
-      "- Painting and decorating.",
-      "- Wall repairs and plastering.",
-      "- Door, lock, fence and small exterior repairs.",
-      "- Landlord and property maintenance support.",
-      "",
-      "4. Target Customers",
-      "- Homeowners needing reliable repairs.",
-      "- Landlords needing responsive maintenance.",
-      "- Letting agents and property managers.",
-      "- Older homeowners who prefer simple phone/WhatsApp communication.",
-      "- Busy families who want one trusted repair contact.",
-      "",
-      "5. Pricing Model",
-      "- Free initial enquiry triage.",
-      "- Fixed callout or inspection charge where needed.",
-      "- Written quote before work starts.",
-      "- Small job minimum charge.",
-      "- Day-rate or half-day rate for grouped maintenance tasks.",
-      "- Optional seasonal maintenance packages.",
-      "",
-      "6. Marketing Plan",
-      "- Google Business Profile with photos and reviews.",
-      "- Local SEO page for home repairs in Surrey.",
-      "- Separate service pages for roof repairs, handyman work and property maintenance.",
-      "- Before/after Facebook posts.",
-      "- Local community group awareness posts where allowed.",
-      "- Referral cards for completed customers.",
-      "- WhatsApp-first enquiry flow.",
-      "",
-      "7. Operations Workflow",
-      "1. Capture enquiry.",
-      "2. Classify urgency and job type.",
-      "3. Request photos if useful.",
-      "4. Decide quote, inspection or decline/escalate.",
-      "5. Send quote for approval.",
-      "6. Complete work.",
-      "7. Save photos, notes and receipt.",
-      "8. Request review or repeat maintenance follow-up.",
-      "",
-      "8. Risks",
-      "- Weather delays.",
-      "- Scope creep.",
-      "- Unsafe roof/high access work.",
-      "- Underpriced jobs.",
-      "- Reputation risk from missed communication.",
-      "",
-      "Controls:",
-      "- Clear quote boundaries.",
-      "- Decline unsafe/specialist work.",
-      "- Use photos and written notes.",
-      "- Confirm appointments.",
-      "- Keep customer communication simple and traceable.",
-      "",
-      "9. 90-Day Action Plan",
-      "Weeks 1-2: Finalise services, pricing, service area and quote templates.",
-      "Weeks 3-4: Build landing page and Google Business Profile.",
-      "Month 2: Publish local service content and before/after posts.",
-      "Month 3: Add referral cards, review process and landlord/agent outreach.",
-      "",
-      "10. Approval Boundary",
-      "Pilot has prepared this as a draft only. It has not published, sent messages, booked jobs, spent money, deployed a website, created payment links or changed live business state.",
-    ].join("\\n");
-  }
-
-  if (taskType === "growth_social") {
-    return "Prepared growth strategy, content drafts and approval-gated social actions.";
-  }
-
-  if (taskType === "spreadsheet") {
-    return "Prepared spreadsheet draft and business model structure inside the business container.";
-  }
-
-  if (taskType === "website_preview") {
-    return "Prepared website preview draft and stopped before production deployment.";
+    return `Preparing Business plan draft for: ${goal}`;
   }
 
   if (taskType === "advertising") {
-    return "Prepared campaign preview and ad drafts, with ad spend blocked until approval.";
+    return `Preparing campaign plan, advert draft, customer message and approval checklist for: ${goal}`;
+  }
+
+  if (taskType === "growth_social") {
+    return `Preparing growth plan and content draft pack for: ${goal}`;
+  }
+
+  if (taskType === "spreadsheet") {
+    return `Preparing spreadsheet preview for: ${goal}`;
+  }
+
+  if (taskType === "website_preview") {
+    return `Preparing website preview and copy draft for: ${goal}`;
   }
 
   if (taskType === "document") {
-    return "Prepared document draft inside the business container.";
+    return `Preparing document draft for: ${goal}`;
   }
 
-  return "Prepared draft output inside the business container.";
+  return `Preparing safe draft output for: ${goal}`;
 }
 
 
@@ -8752,7 +8667,7 @@ function buildAionPilotBusinessPlanDraft(plan = null, pilotState = null) {
     "- Before/after evidence where useful.",
     "- Simple phone or WhatsApp communication.",
     "",
-    "3. Core Services",
+    "3. Main Services",
     "- General home repairs.",
     "- Roof leak checks and minor roof repairs.",
     "- Guttering, fascia and soffit checks.",
@@ -9130,11 +9045,35 @@ function approveAionPilotMissionContract() {
     pilotState.contract_status === "approved_for_safe_work" &&
     pilotState.safe_work_status === "completed_preview"
   ) {
+    pilotState.output_panel_open = true;
+    pilotState.output_panel_kind = "next_step";
+    pilotState.output_panel_title = "Next step requires approval";
+    pilotState.output_panel_body = [
+      "Pilot has completed the current safe draft output.",
+      "",
+      "Recommended next safe step:",
+      "Prepare the next draft asset set from this output.",
+      "",
+      "For a business plan, next safe step could be:",
+      "- Create a launch checklist.",
+      "- Create a simple landing page outline.",
+      "- Create a customer enquiry workflow.",
+      "- Create advert/customer message drafts.",
+      "",
+      "Blocked until exact approval:",
+      "- Publishing.",
+      "- Sending messages.",
+      "- Spending money.",
+      "- Booking work.",
+      "- Creating payment links.",
+      "- Deploying anything live.",
+    ].join("\\n");
+
     appendAionPilotStreamEvent({
-      type: "contract_approval_already_completed",
-      label: "Safe preview already completed",
-      detail: "Pilot has already completed the current preview. Update the plan to run a new preview.",
-      status: "completed_preview",
+      type: "next_step_checkpoint",
+      label: "Next step checkpoint",
+      detail: "Current draft is complete. Pilot is waiting for approval or revised instructions before preparing the next safe asset.",
+      status: "checkpoint_required",
     });
 
     if (typeof requestRender === "function") {
@@ -9211,7 +9150,8 @@ function getAionPilotTaskSubject(goal = "") {
 
   if (lower.includes("home fixed")) return "Home Fixed";
   if (lower.includes("roof")) return "Roofing services";
-  if (lower.includes("business plan")) return "Business plan";
+  if (lower.includes("business plan") ||
+    lower.includes("busines plan")) return "Business plan";
   if (lower.includes("twitter") || lower.includes("x ")) return "Twitter/X growth";
   if (lower.includes("spreadsheet")) return "Business spreadsheet";
 
