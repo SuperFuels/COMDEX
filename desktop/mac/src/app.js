@@ -7858,7 +7858,7 @@ function createAionPilotFrontendDraftMission() {
   const input = document.querySelector("[data-aion-pilot-mission-input]");
   const requestText = String(input?.value || "").trim() || "Build me a PDF document with X data";
 
-  pilotState.status = "draft_created";
+  pilotState.status = "plan_ready";
   pilotState.last_request = requestText;
   pilotState.draft_created = true;
   pilotState.plan = buildAionPilotUniversalPlan(requestText);
@@ -7882,7 +7882,7 @@ function createAionPilotFrontendDraftMission() {
   pilotState.stream_events = [
     {
       type: "mission_composer",
-      label: "Draft mission created",
+      label: "Work package created",
       detail: requestText,
       status: "draft_only",
     },
@@ -8894,7 +8894,7 @@ function openAionPilotOutputPreview() {
   pilotState.output_panel_open = true;
   pilotState.output_panel_kind = "output";
   pilotState.output_panel_title = plan.output_label || "Draft output";
-  pilotState.output_panel_body = normaliseAionPilotPreviewText(getAionPilotOutputPreviewText(plan, pilotState));
+  pilotState.output_panel_body = normaliseAionPilotPreviewText(getAionPilotResolvedGeneratedOutput(plan, pilotState));
 
   if (typeof requestRender === "function") {
     requestRender();
@@ -8917,7 +8917,7 @@ function viewAionPilotReceiptPreview() {
 function downloadAionPilotOutputPreview() {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
-  const outputText = normaliseAionPilotPreviewText(getAionPilotOutputPreviewText(plan, pilotState));
+  const outputText = normaliseAionPilotPreviewText(getAionPilotResolvedGeneratedOutput(plan, pilotState));
   const receipt = getAionPilotReceiptPreview(plan, pilotState);
   const payload = [
     outputText,
@@ -9211,6 +9211,25 @@ function buildAionPilotGeneratedOutput(plan = null, pilotState = null) {
   return getAionPilotOutputPreviewText(safePlan, state);
 }
 
+function getAionPilotResolvedGeneratedOutput(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const taskType = String(safePlan.task_type || "general_task");
+
+  if (taskType === "business_plan") {
+    return buildAionPilotGeneratedOutput(safePlan, {
+      ...state,
+      generated_output_text: "",
+    });
+  }
+
+  if (state.generated_output_text) {
+    return String(state.generated_output_text);
+  }
+
+  return buildAionPilotGeneratedOutput(safePlan, state);
+}
+
 function runAionPilotSafeWorkPreview() {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
@@ -9239,7 +9258,7 @@ function runAionPilotSafeWorkPreview() {
     status: "draft_preview",
   });
 
-  pilotState.generated_output_text = buildAionPilotGeneratedOutput(plan, pilotState);
+  pilotState.generated_output_text = getAionPilotResolvedGeneratedOutput(plan, pilotState);
   pilotState.artifact_status = "completed_preview";
   pilotState.artifact_hash = "sha256:frontend_completed_preview_artifact";
   pilotState.receipt_hash = "sha256:frontend_completed_preview_receipt";
