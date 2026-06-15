@@ -8354,7 +8354,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                   ? `
                     <div class="aion-pilot-stream-card" data-aion-pilot-results-card>
                       <div class="aion-pilot-card-kicker">Output</div>
-                      <h3>${escapeHtml(plan.output_label || "Draft output")}</h3>
+                      <h3>${escapeHtml(pilotState.output_panel_title || plan.output_label || "Draft output")}</h3>
                       <p>Draft output is ready. Review it, download it, or inspect the receipt.</p>
 
                       <div class="aion-pilot-actions">
@@ -9038,42 +9038,124 @@ function appendAionPilotStreamEvent(event, options = {}) {
   pilotState.stream_events = [...filteredEvents, nextEvent].slice(-maxEvents);
 }
 
+function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const goal = String(safePlan.goal || state.last_request || "Business growth task");
+  const taskType = String(safePlan.task_type || "general_task");
+
+  if (taskType === "business_plan") {
+    return [
+      `Step 2: Sales Launch Pack for ${goal}`,
+      "",
+      "1. Priority Order",
+      "The fastest route to sales is not another long plan. The priority is:",
+      "1. Define the first sellable offer.",
+      "2. Create a simple lead capture route.",
+      "3. Draft the advert/message.",
+      "4. Prepare the quote/inspection workflow.",
+      "5. Stop before publishing, sending, spending or booking.",
+      "",
+      "2. First Sellable Offer",
+      "Offer: Home Fixed roof repair and home maintenance enquiry.",
+      "Customer action: Send photos, location and a short description of the issue.",
+      "Business action: Human reviews the enquiry and decides whether to quote, inspect or decline.",
+      "",
+      "3. 7-Day Sales Launch Checklist",
+      "Day 1: Confirm target area and services.",
+      "Day 2: Draft Facebook/Google advert copy.",
+      "Day 3: Draft customer message template.",
+      "Day 4: Create enquiry capture fields: name, phone, location, photos, issue, urgency.",
+      "Day 5: Prepare quote/inspection decision checklist.",
+      "Day 6: Prepare before/after proof post drafts.",
+      "Day 7: Human approval checkpoint before any live action.",
+      "",
+      "4. Lead Capture Workflow",
+      "1. Customer sees advert or post.",
+      "2. Customer sends message/photos.",
+      "3. Details are captured.",
+      "4. Human reviews job type and safety.",
+      "5. Quote or inspection is prepared.",
+      "6. Booking is only made after approval.",
+      "",
+      "5. Draft Customer Message",
+      "Hi, thanks for contacting Home Fixed. Can you send your location, a few photos of the issue, and a short description of what has happened? Once we’ve checked it, we’ll confirm the next best step.",
+      "",
+      "6. Draft Advert",
+      "Headline: Roof leak or home repair needed?",
+      "Body: Home Fixed helps homeowners with roof repairs, leaks, guttering and general property maintenance. Send photos of the issue and your location for a clear next step.",
+      "CTA: Message us for a quote.",
+      "",
+      "7. Tools/Actions Pilot Can Prepare Next",
+      "- Landing page outline.",
+      "- Facebook advert variants.",
+      "- Google Business Profile post draft.",
+      "- Lead capture form fields.",
+      "- Quote/inspection checklist.",
+      "",
+      "8. Blocked Until Exact Approval",
+      "- Publish advert/post.",
+      "- Send messages to customers.",
+      "- Spend ad budget.",
+      "- Book inspection or repair.",
+      "- Create payment/deposit link.",
+      "- Deploy website or landing page.",
+    ].join("\\n");
+  }
+
+  if (taskType === "advertising") {
+    return getAionPilotOutputPreviewText({
+      ...safePlan,
+      task_type: "advertising",
+    }, {
+      ...state,
+      generated_output_text: "",
+    });
+  }
+
+  return [
+    `Step 2: Priority Execution Pack for ${goal}`,
+    "",
+    "1. Convert the plan into a checklist.",
+    "2. Draft the first useful asset.",
+    "3. Prepare the next safe output.",
+    "4. Stop before live external action.",
+    "",
+    "Blocked until approval:",
+    "- Sending.",
+    "- Publishing.",
+    "- Spending.",
+    "- Booking.",
+    "- Deployment.",
+  ].join("\\n");
+}
+
 function approveAionPilotMissionContract() {
   const pilotState = getAionPilotFrontendInteractionState();
+  const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
 
   if (
     pilotState.contract_status === "approved_for_safe_work" &&
     pilotState.safe_work_status === "completed_preview"
   ) {
+    pilotState.current_step_index = Number(pilotState.current_step_index || 1) + 1;
+    pilotState.status = "completed_preview";
+    pilotState.safe_work_status = "completed_preview";
     pilotState.output_panel_open = true;
-    pilotState.output_panel_kind = "next_step";
-    pilotState.output_panel_title = "Next step requires approval";
-    pilotState.output_panel_body = [
-      "Pilot has completed the current safe draft output.",
-      "",
-      "Recommended next safe step:",
-      "Prepare the next draft asset set from this output.",
-      "",
-      "For a business plan, next safe step could be:",
-      "- Create a launch checklist.",
-      "- Create a simple landing page outline.",
-      "- Create a customer enquiry workflow.",
-      "- Create advert/customer message drafts.",
-      "",
-      "Blocked until exact approval:",
-      "- Publishing.",
-      "- Sending messages.",
-      "- Spending money.",
-      "- Booking work.",
-      "- Creating payment links.",
-      "- Deploying anything live.",
-    ].join("\\n");
+    pilotState.output_panel_kind = "output";
+    pilotState.output_panel_title = "Step 2 output";
+    pilotState.generated_output_text = buildAionPilotPriorityStepOutput(plan, pilotState);
+    pilotState.output_panel_body = pilotState.generated_output_text;
+    pilotState.artifact_hash = "sha256:frontend_step2_priority_artifact";
+    pilotState.receipt_hash = "sha256:frontend_step2_priority_receipt";
+    pilotState.replay_hash = "sha256:frontend_step2_priority_replay";
+    pilotState.proof_hash = "sha256:frontend_step2_priority_proof";
 
     appendAionPilotStreamEvent({
-      type: "next_step_checkpoint",
-      label: "Next step checkpoint",
-      detail: "Current draft is complete. Pilot is waiting for approval or revised instructions before preparing the next safe asset.",
-      status: "checkpoint_required",
+      type: "priority_step_runner",
+      label: "Step 2 safe work completed",
+      detail: "Pilot generated the next priority execution pack and stopped before live external actions.",
+      status: "completed_preview",
     });
 
     if (typeof requestRender === "function") {
@@ -9085,6 +9167,7 @@ function approveAionPilotMissionContract() {
   pilotState.status = "approved_for_safe_work";
   pilotState.contract_status = "approved_for_safe_work";
   pilotState.safe_work_approved = true;
+  pilotState.current_step_index = 1;
 
   appendAionPilotStreamEvent({
     type: "contract_approval",

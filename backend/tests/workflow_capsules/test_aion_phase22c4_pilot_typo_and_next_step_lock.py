@@ -41,10 +41,10 @@ def test_phase22c4_busines_typo_classifies_as_business_plan():
     assert "business_plan" in TEXT
 
 
-def test_phase22c4_completed_next_step_opens_checkpoint_panel():
+def test_phase22c4_completed_next_step_runs_priority_step():
     block = function_block("approveAionPilotMissionContract")
-    assert 'pilotState.output_panel_kind = "next_step";' in block
-    assert 'pilotState.output_panel_title = "Next step requires approval";' in block
-    assert "Recommended next safe step:" in block
-    assert "next_step_checkpoint" in block
-    assert "checkpoint_required" in block
+    assert 'pilotState.output_panel_kind = "output";' in block
+    assert 'pilotState.output_panel_title = "Step 2 output";' in block
+    assert "buildAionPilotPriorityStepOutput(plan, pilotState)" in block
+    assert "priority_step_runner" in block
+    assert "Step 2 safe work completed" in block
