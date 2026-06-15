@@ -50,7 +50,7 @@ def test_phase22c_top_duplicate_safety_banner_removed_from_active_stream():
 def test_phase22c_results_are_only_visible_after_safe_work_completed():
     block = function_block("renderAionPilotSimpleTaskStream")
     assert "safeWorkCompleted" in block
-    assert 'data-aion-pilot-results-card' in block
+    assert "renderAionPilotStepOutputCards(pilotState)" in block
     assert 'safeWorkCompleted\\n                  ? `' in block or "safeWorkCompleted" in block
 
 

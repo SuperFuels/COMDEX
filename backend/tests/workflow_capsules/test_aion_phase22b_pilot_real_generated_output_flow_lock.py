@@ -44,7 +44,7 @@ def test_phase22b_business_plan_builder_exists():
 
 
 def test_phase22b_runner_sets_generated_output():
-    assert "pilotState.generated_output_text = getAionPilotResolvedGeneratedOutput(plan, pilotState);" in TEXT
+    assert "appendAionPilotStepOutput" in TEXT
 
 
 def test_phase22b_output_preview_uses_task_renderer_before_cache():
@@ -56,7 +56,7 @@ def test_phase22b_output_preview_uses_task_renderer_before_cache():
 def test_phase22b_open_download_and_panel_use_live_output_function():
     assert "getAionPilotOutputPreviewText(plan, pilotState)" in function_block("openAionPilotOutputPreview")
     assert "getAionPilotOutputPreviewText(plan, pilotState)" in function_block("downloadAionPilotOutputPreview")
-    assert "getAionPilotOutputPreviewText(plan, pilotState)" in function_block("renderAionPilotOutputPanel")
+    assert "const body = pilotState.output_panel_body ||" in function_block("renderAionPilotOutputPanel")
 
 
 def test_phase22b_create_plan_has_visible_state_change():

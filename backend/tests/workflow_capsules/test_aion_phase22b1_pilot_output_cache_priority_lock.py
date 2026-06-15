@@ -49,8 +49,8 @@ def test_phase22b1_business_plan_beats_cached_generic_output():
     assert "buildAionPilotBusinessPlanDraft(safePlan, state)" in block
 
 
-def test_phase22b1_output_panel_reads_live_output_function():
+def test_phase22b1_output_panel_uses_selected_body_not_recomputed_plan():
     block = function_block("renderAionPilotOutputPanel")
-    assert 'pilotState.output_panel_kind === "output"' in block
-    assert "getAionPilotOutputPreviewText(plan, pilotState)" in block
+    assert "const body = pilotState.output_panel_body ||" in block
+    assert "getAionPilotOutputPreviewText(plan, pilotState)" not in block
     assert "normaliseAionPilotPreviewText(body)" in block

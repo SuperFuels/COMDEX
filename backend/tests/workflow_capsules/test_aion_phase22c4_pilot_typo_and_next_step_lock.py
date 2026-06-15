@@ -43,8 +43,10 @@ def test_phase22c4_busines_typo_classifies_as_business_plan():
 
 def test_phase22c4_completed_next_step_runs_priority_step():
     block = function_block("approveAionPilotMissionContract")
-    assert 'pilotState.output_panel_kind = "output";' in block
-    assert 'pilotState.output_panel_title = "Step 2 output";' in block
-    assert "buildAionPilotPriorityStepOutput(plan, pilotState)" in block
+    assert 'pilotState.output_panel_kind = "step_output";' in block
+    assert "nextStepNumber" in block
+    assert "output_panel_title" in block
+    assert "buildAionPilotPriorityStepOutput" in block
     assert "priority_step_runner" in block
-    assert "Step 2 safe work completed" in block
+    assert "safe work completed" in block
+    assert "nextStepNumber" in block

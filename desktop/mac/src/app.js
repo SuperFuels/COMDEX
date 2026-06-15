@@ -7871,6 +7871,8 @@ function createAionPilotFrontendDraftMission() {
   pilotState.safe_work_status = "waiting_approval";
   pilotState.safe_work_approved = false;
   pilotState.generated_output_text = "";
+  pilotState.step_outputs = [];
+  pilotState.current_step_index = 0;
   pilotState.backend_artifact_status = "";
   pilotState.backend_artifact_error = "";
   pilotState.output_panel_open = false;
@@ -8352,17 +8354,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
               ${
                 safeWorkCompleted
                   ? `
-                    <div class="aion-pilot-stream-card" data-aion-pilot-results-card>
-                      <div class="aion-pilot-card-kicker">Output</div>
-                      <h3>${escapeHtml(pilotState.output_panel_title || plan.output_label || "Draft output")}</h3>
-                      <p>Draft output is ready. Review it, download it, or inspect the receipt.</p>
-
-                      <div class="aion-pilot-actions">
-                        <button type="button" data-aion-pilot-open-output>Open output</button>
-                        <button type="button" data-aion-pilot-download-output>Download output</button>
-                        <button type="button" data-aion-pilot-view-receipt>View receipt</button>
-                      </div>
-                    </div>
+                    ${renderAionPilotStepOutputCards(pilotState)}
 
                     ${
                       typeof renderAionPilotOutputPanel === "function"
@@ -8980,10 +8972,7 @@ function renderAionPilotOutputPanel() {
     return "";
   }
 
-  const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
-  const body = pilotState.output_panel_kind === "output"
-    ? getAionPilotOutputPreviewText(plan, pilotState)
-    : pilotState.output_panel_body || "";
+  const body = pilotState.output_panel_body || "";
 
   return `
     <div class="aion-pilot-output-panel" data-aion-pilot-output-panel data-aion-pilot-output-kind="${escapeHtml(pilotState.output_panel_kind || "output")}">
@@ -9138,22 +9127,34 @@ function approveAionPilotMissionContract() {
     pilotState.contract_status === "approved_for_safe_work" &&
     pilotState.safe_work_status === "completed_preview"
   ) {
-    pilotState.current_step_index = Number(pilotState.current_step_index || 1) + 1;
-    pilotState.status = "completed_preview";
-    pilotState.safe_work_status = "completed_preview";
+    const nextStepNumber = Number(pilotState.current_step_index || 1) + 1;
+    const outputText = buildAionPilotPriorityStepOutput(plan, {
+      ...pilotState,
+      current_step_index: nextStepNumber,
+      generated_output_text: "",
+    });
+
+    appendAionPilotStepOutput({
+      step_number: nextStepNumber,
+      title: `Step ${nextStepNumber} output`,
+      output_label: `Step ${nextStepNumber} output`,
+      output_text: outputText,
+      artifact_hash: `sha256:frontend_step${nextStepNumber}_priority_artifact`,
+      receipt_hash: `sha256:frontend_step${nextStepNumber}_priority_receipt`,
+    });
+
     pilotState.output_panel_open = true;
-    pilotState.output_panel_kind = "output";
-    pilotState.output_panel_title = "Step 2 output";
-    pilotState.generated_output_text = buildAionPilotPriorityStepOutput(plan, pilotState);
-    pilotState.output_panel_body = pilotState.generated_output_text;
-    pilotState.artifact_hash = "sha256:frontend_step2_priority_artifact";
-    pilotState.receipt_hash = "sha256:frontend_step2_priority_receipt";
-    pilotState.replay_hash = "sha256:frontend_step2_priority_replay";
-    pilotState.proof_hash = "sha256:frontend_step2_priority_proof";
+    pilotState.output_panel_kind = "step_output";
+    pilotState.output_panel_title = `Step ${nextStepNumber} output`;
+    pilotState.output_panel_body = outputText;
+    pilotState.artifact_hash = `sha256:frontend_step${nextStepNumber}_priority_artifact`;
+    pilotState.receipt_hash = `sha256:frontend_step${nextStepNumber}_priority_receipt`;
+    pilotState.replay_hash = `sha256:frontend_step${nextStepNumber}_priority_replay`;
+    pilotState.proof_hash = `sha256:frontend_step${nextStepNumber}_priority_proof`;
 
     appendAionPilotStreamEvent({
       type: "priority_step_runner",
-      label: "Step 2 safe work completed",
+      label: `Step ${nextStepNumber} safe work completed`,
       detail: "Pilot generated the next priority execution pack and stopped before live external actions.",
       status: "completed_preview",
     });
@@ -9167,7 +9168,8 @@ function approveAionPilotMissionContract() {
   pilotState.status = "approved_for_safe_work";
   pilotState.contract_status = "approved_for_safe_work";
   pilotState.safe_work_approved = true;
-  pilotState.current_step_index = 1;
+  pilotState.current_step_index = 0;
+  pilotState.step_outputs = [];
 
   appendAionPilotStreamEvent({
     type: "contract_approval",
@@ -9366,6 +9368,87 @@ function getAionPilotResolvedGeneratedOutput(plan = null, pilotState = null) {
   return buildAionPilotGeneratedOutput(safePlan, state);
 }
 
+function getAionPilotStepOutputs() {
+  const pilotState = getAionPilotFrontendInteractionState();
+
+  if (!Array.isArray(pilotState.step_outputs)) {
+    pilotState.step_outputs = [];
+  }
+
+  return pilotState.step_outputs;
+}
+
+function appendAionPilotStepOutput(step = {}) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const outputs = getAionPilotStepOutputs();
+  const stepNumber = Number(step.step_number || outputs.length + 1);
+  const outputText = String(step.output_text || "");
+  const title = String(step.title || `Step ${stepNumber} output`);
+
+  const nextOutput = {
+    step_number: stepNumber,
+    title,
+    output_label: String(step.output_label || title),
+    output_text: outputText,
+    status: String(step.status || "completed_preview"),
+    artifact_hash: String(step.artifact_hash || `sha256:frontend_step_${stepNumber}_artifact`),
+    receipt_hash: String(step.receipt_hash || `sha256:frontend_step_${stepNumber}_receipt`),
+  };
+
+  pilotState.step_outputs = [
+    ...outputs.filter((item) => Number(item.step_number) !== stepNumber),
+    nextOutput,
+  ].sort((a, b) => Number(a.step_number) - Number(b.step_number));
+
+  pilotState.current_step_index = stepNumber;
+  pilotState.generated_output_text = outputText;
+  pilotState.output_panel_title = title;
+  pilotState.output_panel_body = outputText;
+
+  return nextOutput;
+}
+
+function renderAionPilotStepOutputCards(pilotState = getAionPilotFrontendInteractionState()) {
+  const outputs = Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : [];
+
+  if (!outputs.length) {
+    return "";
+  }
+
+  return outputs.map((item) => `
+    <div class="aion-pilot-stream-card" data-aion-pilot-step-output-card data-aion-pilot-step-number="${escapeHtml(String(item.step_number))}">
+      <div class="aion-pilot-card-kicker">Step ${escapeHtml(String(item.step_number))} output</div>
+      <h3>${escapeHtml(item.title || `Step ${item.step_number} output`)}</h3>
+      <p>Completed safe draft output. Review it, download it, or inspect the receipt.</p>
+
+      <div class="aion-pilot-actions">
+        <button type="button" data-aion-pilot-open-step-output="${escapeHtml(String(item.step_number))}">Open output</button>
+        <button type="button" data-aion-pilot-download-output>Download output</button>
+        <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function openAionPilotStepOutput(stepNumber = 0) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const outputs = Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : [];
+  const selected = outputs.find((item) => Number(item.step_number) === Number(stepNumber));
+
+  if (!selected) {
+    return;
+  }
+
+  pilotState.output_panel_open = true;
+  pilotState.output_panel_kind = "step_output";
+  pilotState.output_panel_title = selected.title || `Step ${selected.step_number} output`;
+  pilotState.output_panel_body = selected.output_text || "";
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
 function runAionPilotSafeWorkPreview() {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
@@ -9387,19 +9470,32 @@ function runAionPilotSafeWorkPreview() {
     status: "running_safe_work",
   });
 
+  const outputText = getAionPilotOutputPreviewText(plan, {
+    ...pilotState,
+    generated_output_text: "",
+  });
+
+  appendAionPilotStepOutput({
+    step_number: 1,
+    title: plan.output_label || "Step 1 output",
+    output_label: plan.output_label || "Draft output",
+    output_text: outputText,
+    artifact_hash: "sha256:frontend_step1_artifact",
+    receipt_hash: "sha256:frontend_step1_receipt",
+  });
+
   appendAionPilotStreamEvent({
     type: "saving_artifact",
     label: "Saving draft artifact",
-    detail: "Draft output saved to the business container preview path.",
+    detail: "Step 1 draft output saved to the business container preview path.",
     status: "draft_preview",
   });
 
-  pilotState.generated_output_text = getAionPilotResolvedGeneratedOutput(plan, pilotState);
   pilotState.artifact_status = "completed_preview";
-  pilotState.artifact_hash = "sha256:frontend_completed_preview_artifact";
-  pilotState.receipt_hash = "sha256:frontend_completed_preview_receipt";
-  pilotState.replay_hash = "sha256:frontend_completed_preview_replay";
-  pilotState.proof_hash = "sha256:frontend_completed_preview_proof";
+  pilotState.artifact_hash = "sha256:frontend_step1_artifact";
+  pilotState.receipt_hash = "sha256:frontend_step1_receipt";
+  pilotState.replay_hash = "sha256:frontend_step1_replay";
+  pilotState.proof_hash = "sha256:frontend_step1_proof";
 
   if (typeof fetchAionPilotArtifactPreviewIntoPilotState === "function") {
     fetchAionPilotArtifactPreviewIntoPilotState(plan, pilotState).catch((error) => {
@@ -9416,8 +9512,6 @@ function runAionPilotSafeWorkPreview() {
       }
     });
   }
-  pilotState.output_panel_title = plan.output_label || "Draft output";
-  pilotState.output_panel_body = pilotState.generated_output_text;
 
   appendAionPilotStreamEvent({
     type: "receipt_created",
@@ -9429,7 +9523,7 @@ function runAionPilotSafeWorkPreview() {
   appendAionPilotStreamEvent({
     type: "safe_work_completed",
     label: "Safe work completed",
-    detail: "Draft preview is ready. Risky actions remain blocked until exact approval.",
+    detail: "Step 1 draft preview is ready. Risky actions remain blocked until exact approval.",
     status: "completed_preview",
   });
 
@@ -29250,6 +29344,13 @@ if (action === "capture-browser-approval-checkpoint") {
       }
 
 
+
+      const aionPilotOpenStepOutputButton = target.closest("[data-aion-pilot-open-step-output]");
+      if (aionPilotOpenStepOutputButton) {
+        openAionPilotStepOutput(aionPilotOpenStepOutputButton.getAttribute("data-aion-pilot-open-step-output"));
+        desktopStore.persistCache?.();
+        return;
+      }
 
       const aionPilotOpenOutputButton = target.closest("[data-aion-pilot-open-output]");
       if (aionPilotOpenOutputButton) {

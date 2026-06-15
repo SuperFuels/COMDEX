@@ -43,10 +43,12 @@ def test_phase22d_priority_step_builder_exists():
 
 def test_phase22d_run_next_safe_step_generates_step2_output():
     block = function_block("approveAionPilotMissionContract")
-    assert "buildAionPilotPriorityStepOutput(plan, pilotState)" in block
-    assert 'pilotState.output_panel_title = "Step 2 output";' in block
+    assert "buildAionPilotPriorityStepOutput" in block
+    assert "nextStepNumber" in block
+    assert "output_panel_title" in block
     assert "priority_step_runner" in block
-    assert "Step 2 safe work completed" in block
+    assert "safe work completed" in block
+    assert "nextStepNumber" in block
 
 
 def test_phase22d_typo_business_plan_classifier_present():

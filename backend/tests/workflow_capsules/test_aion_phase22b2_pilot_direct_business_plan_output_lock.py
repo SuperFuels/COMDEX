@@ -7,13 +7,32 @@ def function_block(name):
     start = TEXT.index(f"function {name}")
     brace = TEXT.index("{", start)
     depth = 0
+    in_string = None
+    escape = False
+
     for i in range(brace, len(TEXT)):
-        if TEXT[i] == "{":
+        ch = TEXT[i]
+
+        if in_string:
+            if escape:
+                escape = False
+            elif ch == "\\":
+                escape = True
+            elif ch == in_string:
+                in_string = None
+            continue
+
+        if ch in ("'", '"', "`"):
+            in_string = ch
+            continue
+
+        if ch == "{":
             depth += 1
-        elif TEXT[i] == "}":
+        elif ch == "}":
             depth -= 1
             if depth == 0:
                 return TEXT[start:i + 1]
+
     raise AssertionError(f"function not closed: {name}")
 
 
@@ -43,10 +62,10 @@ def test_phase22b2_open_output_uses_live_output_function():
     assert "getAionPilotOutputPreviewText(plan, pilotState)" in block
 
 
-def test_phase22b2_render_panel_uses_live_output_function():
+def test_phase22b2_render_panel_uses_selected_body_not_recomputed_plan():
     block = function_block("renderAionPilotOutputPanel")
-    assert 'pilotState.output_panel_kind === "output"' in block
-    assert "getAionPilotOutputPreviewText(plan, pilotState)" in block
+    assert "const body = pilotState.output_panel_body ||" in block
+    assert "getAionPilotOutputPreviewText(plan, pilotState)" not in block
 
 
 def test_phase22b2_download_uses_live_output_function():
