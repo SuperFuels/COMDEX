@@ -60,7 +60,7 @@ def test_phase21q_task_specific_preview_text_exists():
         "Growth Plan:",
         "Spreadsheet Draft:",
         "Website Preview Plan:",
-        "Campaign Preview:",
+        "Campaign Pack:",
         "Document Draft:",
         "Draft Output:",
     ]:

@@ -8287,22 +8287,16 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
   const hasDraft = pilotState.draft_created === true;
   const statusLabel = String(snapshot.status || "idle").replace(/_/g, " ").toUpperCase();
-
-  const safeWorkItems = (plan.automatic_work || [])
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
-
-  const approvalItems = (plan.approval_required || [])
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
+  const safeWorkCompleted = pilotState.safe_work_status === "completed_preview";
+  const safeWorkRunning = pilotState.safe_work_status === "running_safe_work";
 
   return `
-    <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-phase21r-stream-ui-redesign data-aion-phase21x-real-frontend-pilot-mount>
+    <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-phase21r-stream-ui-redesign data-aion-phase21x-real-frontend-pilot-mount data-aion-phase22c-step-runner-ui>
       <div class="aion-pilot-stream-header">
         <div>
           <div class="eyebrow">AION PILOT</div>
           <h2>Pilot</h2>
-          <p>Ask for any business task. Pilot plans it, does safe work, and stops before anything risky.</p>
+          <p>Give Pilot a task. It drafts the safe work, then asks before live actions.</p>
         </div>
 
         <div class="aion-pilot-status" data-aion-pilot-status="${escapeHtml(snapshot.status)}">
@@ -8311,106 +8305,101 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
       </div>
 
       <div class="aion-pilot-stream-window" data-aion-pilot-stream-window>
-        <div class="aion-pilot-stream-message aion-pilot-stream-message-system">
-          <p>
-            Tell Pilot what you want done. New work appears in the stream. Plans, results and receipts appear as cards.
-          </p>
-        </div>
-
-        <div class="aion-pilot-stream-card aion-pilot-safety-card" data-aion-pilot-safety-banner>
-          <strong>AION stopped itself before doing anything risky.</strong>
-          <span>No posting, sending, payment, booking, escrow, deployment or ad spend without exact approval.</span>
-        </div>
-
         ${
           hasDraft
             ? `
               <div class="aion-pilot-stream-message aion-pilot-stream-message-user">
+                <strong>You</strong>
                 <p>${escapeHtml(pilotState.last_request || plan.goal || "")}</p>
               </div>
 
               ${renderAionPilotWorkPackageCard(plan, pilotState)}
 
-              ${renderAionPilotReasoningMiniStatus(pilotState)}
-
               <div class="aion-pilot-stream-card" data-aion-pilot-contract-card>
-                <div class="aion-pilot-card-kicker">Mission contract</div>
+                <div class="aion-pilot-card-kicker">Next step</div>
                 <h3>${
-                  pilotState.contract_status === "approved_for_safe_work"
-                    ? "Approved for safe work"
-                    : pilotState.contract_status === "revision_requested"
-                      ? "Revision requested"
-                      : pilotState.contract_status === "cancelled"
-                        ? "Mission cancelled"
-                        : "Draft contract ready"
+                  safeWorkCompleted
+                    ? "Safe draft work completed"
+                    : safeWorkRunning
+                      ? "Pilot is doing the safe draft work"
+                      : pilotState.contract_status === "revision_requested"
+                        ? "Revision requested"
+                        : pilotState.contract_status === "cancelled"
+                          ? "Mission cancelled"
+                          : "Approve plan to run safe work"
                 }</h3>
                 <p>${
-                  pilotState.contract_status === "approved_for_safe_work"
-                    ? "Pilot may continue safe draft/preview work. Risky actions are still blocked until exact approval."
-                    : pilotState.contract_status === "revision_requested"
-                      ? "Pilot is waiting for revised instructions before continuing."
-                      : pilotState.contract_status === "cancelled"
-                        ? "Pilot has stopped this mission. No live external action was taken."
-                        : "Safe work can proceed after approval. Risky actions stay blocked until exact approval."
+                  safeWorkCompleted
+                    ? "Review the output below. Any live action still needs exact approval."
+                    : safeWorkRunning
+                      ? "Pilot is preparing the draft output inside the business container."
+                      : pilotState.contract_status === "revision_requested"
+                        ? "Pilot is waiting for revised instructions before continuing."
+                        : pilotState.contract_status === "cancelled"
+                          ? "Pilot has stopped this mission. No live external action was taken."
+                          : "This will generate the draft output only. Posting, sending, spending, booking and deployment stay blocked."
                 }</p>
 
                 <div class="aion-pilot-actions">
-                  <button type="button" data-aion-pilot-feedback-approve>Approve safe draft work</button>
-                  <button type="button" data-aion-pilot-feedback-revise>Revise plan</button>
-                  <button type="button" data-aion-pilot-feedback-stop>Cancel</button>
-                </div>
-              </div>
-
-              <div class="aion-pilot-stream-card" data-aion-pilot-results-card>
-                <div class="aion-pilot-card-kicker">Results</div>
-                <h3>${escapeHtml(plan.output_label || "Draft output")}</h3>
-                <p>${
-                  pilotState.safe_work_status === "completed_preview"
-                    ? "Completed draft preview saved inside the business container."
-                    : "Saved as draft/preview inside the business container."
-                }</p>
-
-                <div class="aion-pilot-actions">
-                  <button type="button" data-aion-pilot-open-output>Open output</button>
-                  <button type="button" data-aion-pilot-download-output>Download output</button>
-                  <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+                  <button type="button" data-aion-pilot-feedback-approve>
+                    ${safeWorkCompleted ? "Run next safe step" : "Approve plan and run safe work"}
+                  </button>
+                  <button type="button" data-aion-pilot-feedback-revise>Revise</button>
+                  <button type="button" data-aion-pilot-feedback-stop>Stop</button>
                 </div>
               </div>
 
               ${
-                typeof renderAionPilotOutputPanel === "function"
-                  ? renderAionPilotOutputPanel()
+                safeWorkCompleted
+                  ? `
+                    <div class="aion-pilot-stream-card" data-aion-pilot-results-card>
+                      <div class="aion-pilot-card-kicker">Output</div>
+                      <h3>${escapeHtml(plan.output_label || "Draft output")}</h3>
+                      <p>Draft output is ready. Review it, download it, or inspect the receipt.</p>
+
+                      <div class="aion-pilot-actions">
+                        <button type="button" data-aion-pilot-open-output>Open output</button>
+                        <button type="button" data-aion-pilot-download-output>Download output</button>
+                        <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+                      </div>
+                    </div>
+
+                    ${
+                      typeof renderAionPilotOutputPanel === "function"
+                        ? renderAionPilotOutputPanel()
+                        : ""
+                    }
+                  `
                   : ""
               }
 
-              <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details data-aion-phase21y-process-log-drawer data-aion-process-log-label="Process log, proof, hashes, paths, lanes and blocked actions">
-                <summary>Advanced details: proof, hashes, paths, lanes and blocked actions</summary>
+              <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details>
+                <summary>Advanced details: safety, reasoning, proof, hashes and blocked actions</summary>
 
-                <div class="aion-pilot-stream-card" data-aion-pilot-activity-card data-aion-pilot-process-log-card>
-                  <div class="aion-pilot-card-kicker">Pilot process log</div>
-                  ${renderAionPilotFrontendStreamEvents(getAionPilotFrontendInteractionState())}
-                </div>
-
+                ${renderAionPilotReasoningMiniStatus(pilotState)}
                 ${renderAionPilotAdvancedTechnicalDetails(snapshot)}
+                <details>
+                  <summary>Pilot process log</summary>
+                  ${renderAionPilotFrontendStreamEvents(pilotState)}
+                </details>
               </details>
             `
             : `
               <div class="aion-pilot-stream-message aion-pilot-stream-message-system">
-                <p>Example tasks: grow my Twitter/X audience, build a spreadsheet, create ads, make a website preview, write a report.</p>
+                <p>Ask Pilot for a business task. It will create a plan first, then wait for approval before running safe draft work.</p>
               </div>
             `
         }
       </div>
 
-      <div class="aion-pilot-composer-bar" data-aion-pilot-composer-bar>
-        <textarea
-          data-aion-pilot-mission-input
-          placeholder="Ask Pilot to do something for the business..."
-        >${escapeHtml(pilotState.last_request || "")}</textarea>
-
-        <button type="button" data-aion-pilot-create-draft-mission>
-          ${hasDraft ? "Update plan" : "Create plan"}
-        </button>
+      <div class="aion-pilot-composer" data-aion-pilot-composer>
+        <label for="aion-pilot-mission-input">Ask Pilot</label>
+        <div class="aion-pilot-composer-row">
+          <textarea id="aion-pilot-mission-input" data-aion-pilot-mission-input rows="2" placeholder="Example: create a campaign to get 10 roof repair leads this month">${escapeHtml(pilotState.last_request || "")}</textarea>
+          <button type="button" data-aion-pilot-create-draft-mission>
+            ${hasDraft ? "Update plan" : "Create plan"}
+          </button>
+        </div>
       </div>
     </section>
   `;
@@ -8907,20 +8896,51 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
 
   if (taskType === "advertising") {
     return [
-      `Campaign Preview: ${goal}`,
+      `Campaign Pack: ${goal}`,
       "",
-      "Draft campaign structure:",
-      "1. Audience",
-      "2. Offer",
-      "3. Creative angles",
-      "4. Draft copy",
-      "5. Landing page recommendation",
-      "6. Budget options",
+      "1. Objective",
+      "Generate 10 qualified roof repair enquiries for Home Fixed this month.",
       "",
-      "Blocked until approval:",
-      "- Ad spend.",
-      "- Public launch.",
-      "- Account changes.",
+      "2. Best Route",
+      "Use a local lead-generation campaign focused on urgent roof problems: leaks, broken tiles, gutter issues and storm damage. The safest first route is a draft Facebook/Google campaign preview with WhatsApp or phone enquiry capture.",
+      "",
+      "3. Target Customer",
+      "- Homeowners with visible roof damage or leaks.",
+      "- Landlords needing fast property maintenance.",
+      "- Property managers needing reliable repair support.",
+      "- Homeowners worried about water ingress before the next rain.",
+      "",
+      "4. Offer",
+      "Free roof repair quote / roof leak enquiry. Customer sends photos, location and issue details before a visit is arranged.",
+      "",
+      "5. Draft Advert",
+      "Headline: Roof leak or damaged tiles?",
+      "",
+      "Body: Home Fixed helps homeowners with roof repairs, leaks, guttering and exterior property maintenance. Send us a few photos of the problem and your location, and we’ll come back with the next best step. Reliable repairs, clear quotes and no chasing tradesmen.",
+      "",
+      "CTA: Message us for a free roof repair quote.",
+      "",
+      "6. Draft Customer Message",
+      "Hi, thanks for contacting Home Fixed. Can you send a few photos of the roof issue, your location, and a short note about what has happened? Once we’ve checked that, we can confirm whether it needs a quote, inspection or urgent repair visit.",
+      "",
+      "7. Simple Lead Flow",
+      "1. Customer sees advert.",
+      "2. Customer sends message/photos.",
+      "3. Pilot/office captures name, location, phone and issue.",
+      "4. Human reviews job.",
+      "5. Quote or inspection is approved manually.",
+      "6. Job is scheduled only after human approval.",
+      "",
+      "8. Approval Needed Before Going Live",
+      "- Publish advert.",
+      "- Spend ad budget.",
+      "- Send customer messages.",
+      "- Connect or change ad account.",
+      "- Book inspection or repair visit.",
+      "- Create payment, deposit or escrow.",
+      "",
+      "9. Recommended Next Safe Step",
+      "Create the exact Facebook/Google advert variants and a lead-capture script as draft assets. Do not publish them until approved.",
     ].join("\\n");
   }
 
