@@ -7867,6 +7867,16 @@ function createAionPilotFrontendDraftMission() {
   pilotState.receipt_hash = "sha256:frontend_draft_receipt_preview";
   pilotState.replay_hash = "sha256:frontend_draft_replay_preview";
   pilotState.proof_hash = "sha256:frontend_draft_proof_preview";
+  pilotState.contract_status = "draft_contract";
+  pilotState.safe_work_status = "waiting_approval";
+  pilotState.safe_work_approved = false;
+  pilotState.generated_output_text = "";
+  pilotState.backend_artifact_status = "";
+  pilotState.backend_artifact_error = "";
+  pilotState.output_panel_open = false;
+  pilotState.output_panel_kind = "";
+  pilotState.output_panel_title = "";
+  pilotState.output_panel_body = "";
   const universalPlan = pilotState.plan || buildAionPilotUniversalPlan(requestText);
 
   pilotState.stream_events = [
@@ -7981,6 +7991,19 @@ function classifyAionPilotUniversalTask(requestText = "") {
     };
   }
 
+  if (
+    text.includes("business plan") ||
+    text.includes("businessplan") ||
+    (text.includes("plan") && (text.includes("business") || text.includes("home repair") || text.includes("reapir")))
+  ) {
+    return {
+      task_type: "business_plan",
+      title: "Create business plan",
+      output_label: "Business plan draft",
+      risk_flags: ["commercial assumptions", "pricing", "publishing or sending"],
+    };
+  }
+
   if (text.includes("pdf") || text.includes("document") || text.includes("report")) {
     return {
       task_type: "document",
@@ -8035,6 +8058,28 @@ function buildAionPilotWorkPackage(plan = null, pilotState = null) {
   const taskType = String(safePlan.task_type || "general_task");
 
   const packages = {
+    business_plan: {
+      name: "Business plan package",
+      outcome: "A practical business plan draft with offer, market, services, pricing, marketing and next actions.",
+      deliverables: [
+        "Business summary",
+        "Target customer profile",
+        "Service offer",
+        "Pricing and callout model",
+        "Marketing plan",
+        "Operations workflow",
+        "90-day action plan",
+      ],
+      draft_steps: [
+        "Define the business and local area",
+        "Break down core services",
+        "Draft customer and market position",
+        "Create pricing and delivery assumptions",
+        "Prepare marketing and operations plan",
+        "Create review-ready business plan output",
+      ],
+      output_assets: ["Business plan draft", "Action checklist", "Receipt"],
+    },
     document: {
       name: "Document work package",
       outcome: "A styled draft document/PDF pack ready for review.",
@@ -8218,6 +8263,22 @@ function normaliseAionPilotPreviewText(text = "") {
   return String(text || "").replace(/\\n/g, "\n");
 }
 
+function renderAionPilotReasoningMiniStatus(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const status = state.lrm_context_status === "loaded" ? "checked" : "checking";
+
+  return `
+    <div class="aion-pilot-stream-card aion-pilot-reasoning-mini" data-aion-phase22a-reasoning-mini-status>
+      <div class="aion-pilot-card-kicker">Reasoning checks</div>
+      <p><strong>${escapeHtml(status)}</strong> · Draft/preview only. Live actions still need exact approval.</p>
+      <details>
+        <summary>Why?</summary>
+        <p>Pilot can prepare drafts and previews, but it cannot send, publish, deploy, book, take payment or mutate live memory without approval.</p>
+      </details>
+    </div>
+  `;
+}
+
 
 /* PHASE 21R LOCK: Pilot stream UI redesign */
 
@@ -8270,7 +8331,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
 
               ${renderAionPilotWorkPackageCard(plan, pilotState)}
 
-              ${renderAionLrmPilotContextReadonlyCard(pilotState)}
+              ${renderAionPilotReasoningMiniStatus(pilotState)}
 
               <div class="aion-pilot-stream-card" data-aion-pilot-contract-card>
                 <div class="aion-pilot-card-kicker">Mission contract</div>
@@ -8562,6 +8623,96 @@ function getAionPilotOutputPreparedLabel(plan = null) {
 function getAionPilotOutputPreparedDetail(plan = null) {
   const safePlan = plan || buildAionPilotUniversalPlan("");
   const taskType = String(safePlan.task_type || "general_task");
+
+  if (taskType === "business_plan") {
+    const isSurrey = goal.toLowerCase().includes("surrey");
+    const area = isSurrey ? "Surrey, UK" : "the selected local service area";
+
+    return [
+      `Business Plan Draft: ${goal}`,
+      "",
+      "1. Business Overview",
+      "The business will operate as a local home repair and property maintenance service focused on fast, reliable, trust-led work for homeowners, landlords and property managers.",
+      "",
+      `Target area: ${area}.`,
+      "",
+      "2. Positioning",
+      "Position the business as a dependable local repair partner for small-to-medium jobs that larger contractors often ignore or delay.",
+      "",
+      "Core promise:",
+      "- Clear communication.",
+      "- Reliable attendance.",
+      "- Practical repairs.",
+      "- Transparent quotes.",
+      "- Before/after evidence where useful.",
+      "",
+      "3. Main Services",
+      "- General home repairs.",
+      "- Roof leak checks and minor roof repairs.",
+      "- Guttering, fascia and soffit checks.",
+      "- Painting and decorating.",
+      "- Wall repairs and plastering.",
+      "- Door, lock, fence and small exterior repairs.",
+      "- Landlord and property maintenance support.",
+      "",
+      "4. Target Customers",
+      "- Homeowners needing reliable repairs.",
+      "- Landlords needing responsive maintenance.",
+      "- Letting agents and property managers.",
+      "- Older homeowners who prefer simple phone/WhatsApp communication.",
+      "- Busy families who want one trusted repair contact.",
+      "",
+      "5. Pricing Model",
+      "- Free initial enquiry triage.",
+      "- Fixed callout or inspection charge where needed.",
+      "- Written quote before work starts.",
+      "- Small job minimum charge.",
+      "- Day-rate or half-day rate for grouped maintenance tasks.",
+      "- Optional seasonal maintenance packages.",
+      "",
+      "6. Marketing Plan",
+      "- Google Business Profile with photos and reviews.",
+      "- Local SEO page for home repairs in Surrey.",
+      "- Separate service pages for roof repairs, handyman work and property maintenance.",
+      "- Before/after Facebook posts.",
+      "- Local community group awareness posts where allowed.",
+      "- Referral cards for completed customers.",
+      "- WhatsApp-first enquiry flow.",
+      "",
+      "7. Operations Workflow",
+      "1. Capture enquiry.",
+      "2. Classify urgency and job type.",
+      "3. Request photos if useful.",
+      "4. Decide quote, inspection or decline/escalate.",
+      "5. Send quote for approval.",
+      "6. Complete work.",
+      "7. Save photos, notes and receipt.",
+      "8. Request review or repeat maintenance follow-up.",
+      "",
+      "8. Risks",
+      "- Weather delays.",
+      "- Scope creep.",
+      "- Unsafe roof/high access work.",
+      "- Underpriced jobs.",
+      "- Reputation risk from missed communication.",
+      "",
+      "Controls:",
+      "- Clear quote boundaries.",
+      "- Decline unsafe/specialist work.",
+      "- Use photos and written notes.",
+      "- Confirm appointments.",
+      "- Keep customer communication simple and traceable.",
+      "",
+      "9. 90-Day Action Plan",
+      "Weeks 1-2: Finalise services, pricing, service area and quote templates.",
+      "Weeks 3-4: Build landing page and Google Business Profile.",
+      "Month 2: Publish local service content and before/after posts.",
+      "Month 3: Add referral cards, review process and landlord/agent outreach.",
+      "",
+      "10. Approval Boundary",
+      "Pilot has prepared this as a draft only. It has not published, sent messages, booked jobs, spent money, deployed a website, created payment links or changed live business state.",
+    ].join("\\n");
+  }
 
   if (taskType === "growth_social") {
     return "Prepared growth strategy, content drafts and approval-gated social actions.";
