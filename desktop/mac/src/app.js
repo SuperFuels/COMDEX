@@ -9073,7 +9073,13 @@ function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
     ? safePlan.safe_steps
     : Array.isArray(safePlan.steps)
       ? safePlan.steps
-      : [];
+      : Array.isArray(safePlan.draft_steps)
+        ? safePlan.draft_steps
+        : Array.isArray(safePlan.deliverables)
+          ? safePlan.deliverables
+          : Array.isArray(safePlan.expected_outputs)
+            ? safePlan.expected_outputs
+            : [];
 
   const normalisedSteps = rawSteps
     .map((step, index) => {

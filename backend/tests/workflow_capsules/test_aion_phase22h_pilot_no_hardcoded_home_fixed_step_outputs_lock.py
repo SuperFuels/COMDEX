@@ -82,6 +82,9 @@ def test_phase22h_priority_step_output_uses_plan_steps():
 
     assert "safePlan.safe_steps" in block
     assert "safePlan.steps" in block
+    assert "safePlan.draft_steps" in block
+    assert "safePlan.deliverables" in block
+    assert "safePlan.expected_outputs" in block
     assert "normalisedSteps" in block
     assert "selectedStep" in block
     assert "Still approval-gated:" in block
