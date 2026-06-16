@@ -9062,6 +9062,19 @@ function appendAionPilotStreamEvent(event, options = {}) {
   pilotState.stream_events = [...filteredEvents, nextEvent].slice(-maxEvents);
 }
 
+function getAionPilotStepOutputTitle(outputText = "", fallback = "Step output") {
+  const firstLine = String(outputText || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean);
+
+  if (!firstLine) {
+    return fallback;
+  }
+
+  return firstLine.replace(/^Step\s+\d+\s*:\s*/i, "").trim() || fallback;
+}
+
 function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
@@ -9071,15 +9084,29 @@ function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
 
   const rawSteps = Array.isArray(safePlan.safe_steps)
     ? safePlan.safe_steps
-    : Array.isArray(safePlan.steps)
-      ? safePlan.steps
-      : Array.isArray(safePlan.draft_steps)
-        ? safePlan.draft_steps
-        : Array.isArray(safePlan.deliverables)
-          ? safePlan.deliverables
-          : Array.isArray(safePlan.expected_outputs)
-            ? safePlan.expected_outputs
-            : [];
+    : Array.isArray(safePlan.safeSteps)
+      ? safePlan.safeSteps
+      : Array.isArray(safePlan.steps)
+        ? safePlan.steps
+        : Array.isArray(safePlan.draft_steps)
+          ? safePlan.draft_steps
+          : Array.isArray(safePlan.draftSteps)
+            ? safePlan.draftSteps
+            : Array.isArray(safePlan.draft_step_titles)
+              ? safePlan.draft_step_titles
+              : Array.isArray(safePlan.draftStepTitles)
+                ? safePlan.draftStepTitles
+                : Array.isArray(safePlan.work_package?.draft_steps)
+                  ? safePlan.work_package.draft_steps
+                  : Array.isArray(safePlan.workPackage?.draftSteps)
+                    ? safePlan.workPackage.draftSteps
+                    : Array.isArray(safePlan.deliverables)
+                      ? safePlan.deliverables
+                      : Array.isArray(safePlan.expected_outputs)
+                        ? safePlan.expected_outputs
+                        : Array.isArray(safePlan.expectedOutputs)
+                          ? safePlan.expectedOutputs
+                          : [];
 
   const normalisedSteps = rawSteps
     .map((step, index) => {
@@ -9103,7 +9130,9 @@ function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
       };
     });
 
+  const selectedStepIndex = Math.max(0, stepNumber - 2);
   const selectedStep =
+    normalisedSteps[selectedStepIndex] ||
     normalisedSteps[stepNumber - 1] ||
     normalisedSteps[normalisedSteps.length - 1] ||
     {
@@ -9196,11 +9225,12 @@ function approveAionPilotMissionContract() {
       current_step_index: nextStepNumber,
       generated_output_text: "",
     });
+    const stepOutputTitle = getAionPilotStepOutputTitle(outputText, `Step ${nextStepNumber} output`);
 
     appendAionPilotStepOutput({
       step_number: nextStepNumber,
-      title: `Step ${nextStepNumber} output`,
-      output_label: `Step ${nextStepNumber} output`,
+      title: stepOutputTitle,
+      output_label: stepOutputTitle,
       output_text: outputText,
       artifact_hash: `sha256:frontend_step${nextStepNumber}_priority_artifact`,
       receipt_hash: `sha256:frontend_step${nextStepNumber}_priority_receipt`,
@@ -9209,7 +9239,7 @@ function approveAionPilotMissionContract() {
     pilotState.output_panel_open = true;
     pilotState.output_panel_kind = "step_output";
     pilotState.output_panel_step_number = nextStepNumber;
-    pilotState.output_panel_title = `Step ${nextStepNumber} output`;
+    pilotState.output_panel_title = stepOutputTitle;
     pilotState.output_panel_body = outputText;
     pilotState.artifact_hash = `sha256:frontend_step${nextStepNumber}_priority_artifact`;
     pilotState.receipt_hash = `sha256:frontend_step${nextStepNumber}_priority_receipt`;
@@ -24395,39 +24425,9 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
         <div>
           <div class="surface-eyebrow">Live Agents / Aion</div>
           <div class="surface-title" style="font-size:34px;">AION Pilot</div>
-          <div class="surface-subtitle">
-            Native AION operator cockpit for mission planning, safe work, artifacts, approvals, blocked actions, proof and replay.
-          </div>
+          
         </div>
 
-        <div class="badge-row">
-          <span class="badge">Runs ${escapeHtml(totalRuns)}</span>
-          <span class="badge">Queued ${escapeHtml(counts.queued)}</span>
-          <span class="badge">Running ${escapeHtml(counts.running)}</span>
-          <span class="badge">Waiting ${escapeHtml(counts.waitingApproval)}</span>
-          <span class="badge">Failed ${escapeHtml(counts.failed)}</span>
-        </div>
-      </div>
-
-      <div class="panel" data-aion-phase21l-operator-identity>
-        <div class="panel-title">Aion Operator Identity</div>
-        <div class="helper-text" style="margin-top:0;">
-          ${escapeHtml(agentLabel)} is the native AION runtime operator. Pilot is not UI automation.
-          It prepares governed missions, draft artifacts, receipts, blocked-action previews, proof and replay inside the AION runtime boundary.
-        </div>
-
-        <div class="kv-row">
-          <span>Executor</span>
-          <strong>AION Pilot native runtime</strong>
-        </div>
-        <div class="kv-row">
-          <span>Mode</span>
-          <strong>Preview / plan-gated</strong>
-        </div>
-        <div class="kv-row">
-          <span>Safety</span>
-          <strong>No live external side effects without exact approval</strong>
-        </div>
       </div>
 
       ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
@@ -24757,28 +24757,8 @@ function renderBoardroomAgentGrid() {
   `;
 }
 
-function renderLiveAgentsStatsStrip(selectedRuns, selectedAgentCard) {
-  const queuedRuns = selectedRuns.filter((run) => run?.status === "queued");
-  const runningRuns = selectedRuns.filter((run) => run?.status === "running");
-  const waitingApprovalRuns = selectedRuns.filter(
-    (run) => run?.status === "waiting_approval",
-  );
-  const failedRuns = selectedRuns.filter((run) => run?.status === "failed");
-
-  return `
-    <div class="panel" style="margin-bottom:16px;">
-      <div class="badge-row">
-        <span class="badge">Agents: ${escapeHtml(buildLiveAgentCards(state.runs || []).length)}</span>
-        <span class="badge">Active: ${escapeHtml(
-          queuedRuns.length + runningRuns.length + waitingApprovalRuns.length + failedRuns.length,
-        )}</span>
-        <span class="badge">Waiting approval: ${escapeHtml(waitingApprovalRuns.length)}</span>
-        <span class="badge">Failed: ${escapeHtml(failedRuns.length)}</span>
-        <span class="badge">Selected agent: ${escapeHtml(selectedAgentCard?.label || "None")}</span>
-        <span class="badge">Selected run: ${escapeHtml(state.selectedLiveRunId || "None")}</span>
-      </div>
-    </div>
-  `;
+function renderLiveAgentsStatsStrip() {
+  return "";
 }
 
 function renderLiveAgentHero(selectedAgentCard) {
@@ -25809,23 +25789,6 @@ function renderLiveAgentsSurface() {
       <div class="surface-header surface-header-unified">
         <div class="surface-header-unified-top">
           <div class="surface-header-unified-main">
-            <div class="badge-row" style="gap:32px; align-items:flex-start; margin-bottom:8px;">
-              <div>
-                <div class="surface-eyebrow">Local runtime</div>
-                <div class="surface-runtime-copy">Local backend ready</div>
-              </div>
-
-              <div>
-                <div class="surface-eyebrow">Live Agents</div>
-
-              <div class="aion-pilot-safety-banner" data-aion-pilot-live-agents-entry>
-                <strong>AION Pilot available from the AION tab.</strong>
-                <span>Use Pilot Cockpit for mission composer, artifacts, blocked actions, proof and replay.</span>
-              </div>
-                <div class="last-refresh">Updated ${escapeHtml(formatDateTime(state.lastRefreshAt))}</div>
-              </div>
-            </div>
-
             <div class="surface-eyebrow">Aion Business Desktop</div>
             <div class="surface-title">Live Agents</div>
             <div class="surface-subtitle">
@@ -25851,12 +25814,6 @@ function renderLiveAgentsSurface() {
             </div>
           </div>
 
-          <div class="badge-row">
-            <span class="badge">Queued ${escapeHtml(selectedAgentCard?.queued || 0)}</span>
-            <span class="badge">Running ${escapeHtml(selectedAgentCard?.running || 0)}</span>
-            <span class="badge">Waiting ${escapeHtml(selectedAgentCard?.waitingApproval || 0)}</span>
-            <span class="badge">Failed ${escapeHtml(selectedAgentCard?.failed || 0)}</span>
-          </div>
         </div>
 
         ${renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard)}

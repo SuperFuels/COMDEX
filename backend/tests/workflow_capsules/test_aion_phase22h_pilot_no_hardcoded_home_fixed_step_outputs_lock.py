@@ -94,3 +94,19 @@ def test_phase22h_priority_step_output_uses_plan_steps():
 def test_phase22h_no_bottom_override_was_added():
     text = APP_JS.read_text()
     assert text.count("function buildAionPilotPriorityStepOutput") == 1
+
+def test_phase22h_next_step_titles_are_derived_from_output_text():
+    text = APP_JS.read_text()
+    assert "function getAionPilotStepOutputTitle" in text
+    assert "const stepOutputTitle = getAionPilotStepOutputTitle" in text
+    assert "title: stepOutputTitle" in text
+    assert "output_label: stepOutputTitle" in text
+    assert "pilotState.output_panel_title = stepOutputTitle" in text
+
+
+def test_phase22h_step_selection_accounts_for_step_one_business_plan_output():
+    block = _function_block("buildAionPilotPriorityStepOutput")
+    assert "const selectedStepIndex = Math.max(0, stepNumber - 2);" in block
+    assert "normalisedSteps[selectedStepIndex]" in block
+    assert "safePlan.draftSteps" in block
+    assert "safePlan.work_package?.draft_steps" in block
