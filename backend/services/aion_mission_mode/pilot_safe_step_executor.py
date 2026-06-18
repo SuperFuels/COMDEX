@@ -124,6 +124,55 @@ def assert_safe_internal_step(step: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
+def assert_tool_execution_item_allows_safe_step(tool_execution_item: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    if not tool_execution_item:
+        return {
+            "tool_queue_bound": False,
+            "department_id": None,
+            "department_capability": None,
+            "gateway_tool_name": None,
+            "local_tool_id": None,
+            "tool_mode": None,
+            "tool_execution_item_hash": None,
+        }
+
+    status = str(tool_execution_item.get("status") or "").strip()
+    tool_mode = str(tool_execution_item.get("tool_mode") or "").strip()
+    live_external_side_effect = tool_execution_item.get("live_external_side_effect") is True
+    execution_allowed = tool_execution_item.get("execution_allowed") is True
+    live_execution_allowed = tool_execution_item.get("live_execution_allowed") is True
+
+    violations = []
+
+    if status not in {"ready", "staged"}:
+        violations.append(f"tool_item_status_not_runnable:{status or 'missing'}")
+
+    if tool_mode not in {"safe_internal", "read_only_external", "staged_external"}:
+        violations.append(f"tool_mode_not_safe_for_step_executor:{tool_mode or 'missing'}")
+
+    if execution_allowed is not True:
+        violations.append("tool_execution_not_allowed_by_gateway")
+
+    if live_execution_allowed is True:
+        violations.append("live_execution_flag_not_allowed")
+
+    if live_external_side_effect is True:
+        violations.append("live_external_side_effect_not_allowed")
+
+    if violations:
+        raise PilotSafeStepExecutionBlocked(",".join(violations))
+
+    return {
+        "tool_queue_bound": True,
+        "department_id": tool_execution_item.get("department_id"),
+        "department_capability": tool_execution_item.get("department_capability"),
+        "gateway_tool_name": tool_execution_item.get("gateway_tool_name"),
+        "local_tool_id": tool_execution_item.get("local_tool_id"),
+        "tool_mode": tool_mode,
+        "tool_execution_item_hash": tool_execution_item.get("tool_execution_item_hash"),
+    }
+
+
 def build_safe_step_prompt(
     *,
     user_goal: str,
@@ -172,13 +221,32 @@ def execute_pilot_safe_step(
     business_context: Optional[Dict[str, Any]] = None,
     mission_plan: Optional[Dict[str, Any]] = None,
     assistant_fn: Optional[Callable[[str], str]] = None,
+    tool_execution_item: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
+    tool_context = assert_tool_execution_item_allows_safe_step(tool_execution_item)
+
+    if tool_execution_item and not step:
+        step = {
+            "step_id": tool_execution_item.get("task_id") or "tool_queue_step",
+            "title": tool_execution_item.get("title") or "Tool queue safe step",
+            "action_type": tool_execution_item.get("department_capability") or "safe_internal_work",
+            "decision": "safe_internal",
+            "lane": "safe_internal",
+            "requires_checkpoint": False,
+            "live_external_side_effects_allowed": False,
+            "external_side_effect": False,
+        }
+
     safety = assert_safe_internal_step(step)
 
     prompt = build_safe_step_prompt(
         user_goal=user_goal,
         step=step,
-        business_context=business_context or {},
+        business_context={
+            **(business_context or {}),
+            "tool_execution_item": tool_execution_item or {},
+            "tool_execution_context": tool_context,
+        },
         mission_plan=mission_plan or {},
     )
 
@@ -221,6 +289,13 @@ def execute_pilot_safe_step(
             "step_index": step_index,
             "action_type": safety["action_type"],
             "decision": safety["decision"],
+            "department_id": tool_context.get("department_id"),
+            "department_capability": tool_context.get("department_capability"),
+            "gateway_tool_name": tool_context.get("gateway_tool_name"),
+            "local_tool_id": tool_context.get("local_tool_id"),
+            "tool_mode": tool_context.get("tool_mode"),
+            "tool_execution_item_hash": tool_context.get("tool_execution_item_hash"),
+            "tool_queue_bound": tool_context.get("tool_queue_bound") is True,
         },
     )
 
@@ -242,6 +317,14 @@ def execute_pilot_safe_step(
         "live_external_side_effects_allowed": False,
         "live_external_side_effects_performed": False,
         "raw_tool_execution_allowed": False,
+        "tool_queue_bound": tool_context.get("tool_queue_bound") is True,
+        "department_id": tool_context.get("department_id"),
+        "department_capability": tool_context.get("department_capability"),
+        "gateway_tool_name": tool_context.get("gateway_tool_name"),
+        "local_tool_id": tool_context.get("local_tool_id"),
+        "tool_mode": tool_context.get("tool_mode"),
+        "tool_execution_item_hash": tool_context.get("tool_execution_item_hash"),
+        "tool_execution_item": tool_execution_item or None,
     }
     result["execution_hash"] = canonical_hash(result)
     return result

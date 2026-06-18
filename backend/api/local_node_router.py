@@ -1311,6 +1311,7 @@ async def post_aion_pilot_execute_safe_step(request: Request):
     step_index = int(body.get("step_index") or 0)
     business_context = body.get("business_context") if isinstance(body.get("business_context"), dict) else {}
     mission_plan = body.get("mission_plan") if isinstance(body.get("mission_plan"), dict) else {}
+    tool_execution_item = body.get("tool_execution_item") if isinstance(body.get("tool_execution_item"), dict) else None
     provider = str(body.get("provider") or "gemma4")
 
     def assistant_fn(prompt: str) -> str:
@@ -1383,6 +1384,7 @@ async def post_aion_pilot_execute_safe_step(request: Request):
             },
             mission_plan=mission_plan,
             assistant_fn=assistant_fn,
+            tool_execution_item=tool_execution_item,
         )
     except PilotSafeStepExecutionBlocked as exc:
         raise HTTPException(
