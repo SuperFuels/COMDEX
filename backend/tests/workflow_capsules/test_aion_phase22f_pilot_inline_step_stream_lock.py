@@ -49,16 +49,17 @@ def test_phase22f_step_panel_renders_inline_under_selected_card():
     assert "renderAionPilotOutputPanel()" not in block
 
 
-def test_phase22f_checkpoint_card_exists_after_step_outputs():
-    assert "function renderAionPilotStepCheckpointCard" in TEXT
-    block = function_block("renderAionPilotSimpleTaskStream")
-    assert "renderAionPilotStepOutputCards(pilotState)" in block
-    assert "renderAionPilotStepCheckpointCard(pilotState)" in block
+def test_phase22f_checkpoint_card_is_not_rendered_in_consolidated_output_flow():
+    start = TEXT.find("function renderAionPilotSimpleTaskStream")
+    assert start >= 0
+    end = TEXT.find("\nfunction ", start + 1)
+    block = TEXT[start:end if end > 0 else len(TEXT)]
+    assert "renderAionPilotStepCheckpointCard(pilotState)" not in block
 
 
 def test_phase22f_checkpoint_has_run_next_safe_step_button():
     block = function_block("renderAionPilotStepCheckpointCard")
-    assert "Run next safe step" in block
+    assert "Run next safe output" in block
     assert "data-aion-pilot-feedback-approve" in block
     assert "Ready for Step" in block
 

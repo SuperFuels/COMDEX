@@ -7274,6 +7274,9 @@ class LocalNodeRuntime:
                 service = LocalLLMService()
                 result = service.generate(prompt=prompt)
 
+                if hasattr(result, "response"):
+                    return str(getattr(result, "response") or "").strip()
+
                 if isinstance(result, dict):
                     return str(
                         result.get("text")

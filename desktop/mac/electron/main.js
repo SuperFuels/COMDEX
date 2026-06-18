@@ -849,7 +849,15 @@ async function ensureBackendRunning() {
     console.log(`[backend] project root: ${projectRoot}`);
     console.log(`[backend] python bin: ${pythonBin}`);
 
-    const proc = spawn(pythonBin, ["-m", "backend.main"], {
+    const proc = spawn(pythonBin, [
+      "-m",
+      "uvicorn",
+      "backend.main:app",
+      "--host",
+      "127.0.0.1",
+      "--port",
+      "8080",
+    ], {
       cwd: projectRoot,
       env: {
         ...process.env,

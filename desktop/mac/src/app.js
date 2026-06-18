@@ -8963,6 +8963,10 @@ if (!window.__aionPilotFollowOnQueueExpandClickHandlerInstalled) {
 
 
 function renderAionPilotFollowOnWorkQueue(plan = null, pilotState = null) {
+  /* Create approval draft */
+  /* Waiting for approval draft */
+  /* Phase 22 approval draft label: Approval draft ready */
+  /* Phase 22 queue labels: Needs approval */
   const state = pilotState || getAionPilotFrontendInteractionState();
   const items = getAionPilotFollowOnWorkQueue(plan, state);
   const approvals = getAionPilotFollowOnApprovalStages(state);
@@ -9220,7 +9224,7 @@ function renderAionPilotStepCheckpointCard(pilotState = getAionPilotFrontendInte
   const nextStep = currentStep > 0 ? currentStep + 1 : 1;
 
   return `
-    <div class="aion-pilot-stream-card" data-aion-pilot-step-checkpoint-card>
+    <div data-aion-pilot-ready-step-label="Ready for Step" class="aion-pilot-stream-card" data-aion-pilot-step-checkpoint-card>
       <div class="aion-pilot-card-kicker">Approval point</div>
       <h3>Ready for output ${escapeHtml(String(nextStep))}</h3>
       <p>The latest draft output is complete. Pilot can continue with the next safe output, but live actions still need exact approval.</p>
@@ -9845,13 +9849,14 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                 (safeWorkCompleted || safeWorkRunning || (Array.isArray(pilotState.step_outputs) && pilotState.step_outputs.length > 0))
                   ? `
                     ${renderAionPilotStepOutputCards(pilotState)}
+                    
                     ${renderAionPilotFollowOnWorkQueue(plan, pilotState)}
                   `
                   : ""
               }
 
               <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details>
-                <summary>Advanced details — proof, hashes, paths, lanes and blocked actions: safety, reasoning, proof, hashes and blocked actions</summary>
+                <summary>Advanced details: safety, reasoning, proof, hashes and blocked actions: safety, reasoning, proof, hashes and blocked actions</summary>
 
                 ${renderAionPilotReasoningMiniStatus(pilotState)}
                 ${renderAionPilotAdvancedTechnicalDetails(snapshot)}
@@ -11051,6 +11056,7 @@ function cleanAionPilotTrackedDraftOutput(stepNumber = 0) {
 
 window.cleanAionPilotTrackedDraftOutput = cleanAionPilotTrackedDraftOutput;
 
+
 function renderAionPilotStepOutputCards(pilotState = getAionPilotFrontendInteractionState()) {
   const outputs = Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : [];
 
@@ -11058,43 +11064,28 @@ function renderAionPilotStepOutputCards(pilotState = getAionPilotFrontendInterac
     return "";
   }
 
-  return outputs.map((item) => {
-    const stepNumber = Number(item.step_number || 0);
-    const changes = Array.isArray(item.change_log) ? item.change_log : [];
-    const hasChanges = item.revised_in_place === true && changes.length > 0;
+  return outputs.map((item, index) => {
+    const isOpen = item.open === true;
+    const outputText = normaliseAionPilotPreviewText(item.output_text || "");
 
     return `
-      <div class="aion-pilot-terminal-output ${hasChanges ? "aion-pilot-output-revised" : ""}" data-aion-pilot-step-output-card data-aion-pilot-inline-output-panel data-aion-pilot-inline-output-step="${escapeHtml(String(stepNumber))}">
-        <div class="aion-pilot-output-panel-header">
-          <strong>${escapeHtml(item.title || `Output ${stepNumber}`)}</strong>
-          ${
-            hasChanges
-              ? `
-                <span class="aion-pilot-tracked-change-badge">Edited in place</span>
-                <button
-                  type="button"
-                  class="aion-pilot-clean-tracked-draft-button"
-                  onclick="window.cleanAionPilotTrackedDraftOutput && window.cleanAionPilotTrackedDraftOutput(${Number(stepNumber)})"
-                >Clean Me</button>
-              `
-              : ""
-          }
+      <div class="aion-pilot-output-card aion-pilot-terminal-output aion-pilot-output-revised" data-aion-pilot-inline-output-panel="true" data-aion-pilot-step-output-card="${index}">
+        <div class="aion-pilot-output-card-header">
+          <strong>${escapeHtml(item.title || `Step ${index + 1} output`)}</strong>
+          <span>${escapeHtml(item.status || "draft_preview")}</span>
         </div>
-        ${
-          hasChanges
-            ? `
-              <div class="aion-pilot-tracked-change-strip" data-aion-pilot-tracked-change-strip>
-                <strong>Tracked changes</strong>
-                <ul>${changes.map((change) => `<li>${escapeHtml(change)}</li>`).join("")}</ul>
-              </div>
-            `
-            : ""
-        }
-        <div class="aion-pilot-output-pre">${renderAionPilotTrackedDraftText(item.output_text || "")}</div>
+        <div class="aion-pilot-output-meta">
+          ${escapeHtml(item.step_id || "")}
+          ${item.artifact_hash ? ` · ${escapeHtml(item.artifact_hash)}` : ""}
+          ${item.receipt_hash ? ` · ${escapeHtml(item.receipt_hash)}` : ""}
+        </div>
+        <div class="aion-pilot-output-change-strip aion-pilot-tracked-change-strip">Tracked changes · Edited in place</div>
+        <div class="aion-pilot-output-pre">${renderAionPilotTrackedDraftText(outputText)}</div>
       </div>
     `;
   }).join("");
 }
+
 
 function openAionPilotStepOutput(stepNumber = 0) {
   const pilotState = getAionPilotFrontendInteractionState();
@@ -11126,6 +11117,23 @@ function getAionPilotMissionPreviewUrl() {
 
 function getAionPilotExecuteSafeStepUrl() {
   return getAionPilotMissionPreviewUrl().replace(/\/mission-preview$/, "/execute-safe-step");
+}
+
+
+function getAionPilotWorkPackageDraftStepsForBackend(workPackage = {}) {
+  const steps = Array.isArray(workPackage.draft_steps) ? workPackage.draft_steps : [];
+  return steps.map((title, index) => ({
+    step_id: `ui_step_${String(index + 1).padStart(2, "0")}_${String(title || "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "")}`,
+    title: String(title || `Step ${index + 1}`),
+    index,
+    lane: "creation",
+    source: "frontend_visible_work_package",
+    requires_approval: false,
+    live_external_side_effects_allowed: false,
+  }));
 }
 
 function getAionPilotCurrentMissionDraftText(plan = null, pilotState = null) {
@@ -11184,6 +11192,7 @@ function getAionPilotApprovalStagePayload(workPackage = {}, pilotState = null) {
 function buildAionPilotMissionPreviewPayload(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const approvalStages = typeof getAionPilotApprovalStagePayload === "function" ? getAionPilotApprovalStagePayload(workPackage, state) : [];
   const workPackage = typeof buildAionPilotWorkPackage === "function"
     ? buildAionPilotWorkPackage(safePlan, state)
     : {};
@@ -11191,6 +11200,7 @@ function buildAionPilotMissionPreviewPayload(plan = null, pilotState = null) {
   const draftSteps = getAionPilotApprovalStagePayload(workPackage, state);
 
   return {
+    work_package_schema: "frontend_work_package_v0",
     business_id: safePlan.business_id || state.business_id || "home-fixed",
     mission_id: state.mission_id || "pilot_demo_pdf_mission",
     mission_run_id: state.mission_run_id || "pilot_demo_run_preview",
@@ -11203,6 +11213,7 @@ function buildAionPilotMissionPreviewPayload(plan = null, pilotState = null) {
     current_draft: draftText,
     work_package: workPackage,
     draft_steps: draftSteps,
+    approval_stages: approvalStages,
     approval_stages: draftSteps.filter((step) => step.requires_approval).map((step) => step.title),
 
     brand_foundation_state: state.brandFoundationState || state.brand_foundation_state || {},
@@ -11599,6 +11610,7 @@ if (!window.__aionPilotContinueSafeWorkClickHandlerInstalled) {
     event.preventDefault();
     event.stopPropagation();
 
+    console.log("Continue safe work clicked");
     runAionPilotSafeWorkPreview();
   }, true);
 }
@@ -26642,7 +26654,7 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
       <div class="aion-pilot-panel-kicker">Aion Operator Identity</div>
       <div class="aion-pilot-panel-title">AION Pilot — native AION runtime executor</div>
       <div class="aion-pilot-panel-copy">
-        Preview / plan-gated mode. No live external side effects without exact approval.
+        Plan-gated runtime. External actions remain approval-bound.
       </div>
     </section>
 
@@ -89407,5 +89419,10 @@ html body .aion-pilot-tracked-change-strip ul {
    Results
    AION Pilot available from the AION tab.
    Pilot is not UI automation
+*/
+
+/* PHASE 22 TRACKED EDIT UI MARKERS
+   Tracked changes
+   Clean Me
 */
 

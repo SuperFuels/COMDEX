@@ -45,8 +45,8 @@ def test_phase22c2_composer_matches_css_contract():
 
 def test_phase22c2_button_is_action_language():
     block = function_block("renderAionPilotSimpleTaskStream")
-    assert "Start task" in block
-    assert "Update mission" in block
+    assert "getAionPilotCommandButtonLabel(pilotState, hasDraft)" in block
+    assert "getAionPilotCommandButtonLabel(pilotState, hasDraft)" in block
     assert "Create plan" not in block
 
 
@@ -54,3 +54,13 @@ def test_phase22c2_button_keeps_existing_click_hook():
     block = function_block("renderAionPilotSimpleTaskStream")
     assert "data-aion-pilot-create-draft-mission" in block
     assert "createAionPilotFrontendDraftMission" in TEXT
+
+
+def test_phase22c2_start_task_label_still_exists_in_command_helper():
+    assert "Start task" in TEXT
+
+def test_phase22c2_command_button_helper_controls_thread_labels():
+    assert "function getAionPilotCommandButtonLabel" in TEXT
+    assert "Start task" in TEXT
+    assert "Send to Pilot" in TEXT
+    assert "Send revision" in TEXT

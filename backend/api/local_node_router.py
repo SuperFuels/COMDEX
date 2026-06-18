@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import hashlib
+import json
+import re
+
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
@@ -1276,6 +1280,483 @@ async def post_aion_pilot_artifact_preview(request: Request):
     }
 # END PHASE 21H LOCK
 
+
+
+# PHASE 23A LOCK: AION Pilot Mission Preview Runtime Bridge
+
+@router.post("/aion/pilot/execute-safe-step")
+async def post_aion_pilot_execute_safe_step(request: Request):
+    """
+    Execute one already-approved safe internal Pilot mission step.
+
+    This endpoint is the OpenClaw safe execution boundary:
+    - frontend does not manufacture output
+    - model/provider may only generate draft content
+    - no raw external tools
+    - no live side effects
+    - output is persisted as a draft artifact inside the business container
+    """
+    from backend.services.aion_mission_mode.pilot_safe_step_executor import (
+        PilotSafeStepExecutionBlocked,
+        execute_pilot_safe_step,
+    )
+
+    body = await request.json()
+
+    business_id = str(body.get("business_id") or "home-fixed")
+    mission_id = str(body.get("mission_id") or "pilot_mission_preview")
+    mission_run_id = str(body.get("mission_run_id") or "pilot_mission_preview_run")
+    user_goal = str(body.get("user_goal") or body.get("goal") or "")
+    step = body.get("step") if isinstance(body.get("step"), dict) else {}
+    step_index = int(body.get("step_index") or 0)
+    business_context = body.get("business_context") if isinstance(body.get("business_context"), dict) else {}
+    mission_plan = body.get("mission_plan") if isinstance(body.get("mission_plan"), dict) else {}
+    provider = str(body.get("provider") or "gemma4")
+
+    def assistant_fn(prompt: str) -> str:
+        runtime = get_runtime()
+
+        # This must bypass the desktop fact shortcut, because that route can
+        # return workspace status instead of executing the safe drafting step.
+        provider_call = getattr(runtime, "_call_selected_ai_provider", None)
+
+        if callable(provider_call):
+            attempts = [
+                {"provider": provider, "prompt": prompt},
+                {"clean_provider": provider, "prompt": prompt},
+                {"prompt": prompt, "provider": provider, "active_tab": "live_agents", "context_mode": "aion_pilot_safe_step_executor"},
+                {"prompt": prompt},
+            ]
+
+            for kwargs in attempts:
+                try:
+                    result = provider_call(**kwargs)
+
+                    if hasattr(result, "response"):
+                        text = str(getattr(result, "response") or "").strip()
+                    elif isinstance(result, dict):
+                        text = str(result.get("text") or result.get("response") or result.get("content") or "").strip()
+                    else:
+                        text = str(result or "").strip()
+
+                    if text and "Current approvals in the business workspace" not in text:
+                        return text
+                except TypeError:
+                    continue
+                except Exception:
+                    continue
+
+        ollama_call = getattr(runtime, "_call_ollama_chat", None)
+        if callable(ollama_call):
+            try:
+                result = ollama_call(prompt=prompt)
+                if hasattr(result, "response"):
+                    text = str(getattr(result, "response") or "").strip()
+                else:
+                    text = str(result or "").strip()
+
+                if text and "Current approvals in the business workspace" not in text:
+                    return text
+            except Exception:
+                pass
+
+        return ""
+
+    try:
+        return execute_pilot_safe_step(
+            container_root=get_runtime().base_dir,
+            business_id=business_id,
+            mission_id=mission_id,
+            mission_run_id=mission_run_id,
+            user_goal=user_goal,
+            step=step,
+            step_index=step_index,
+            business_context={
+                **(business_context if isinstance(business_context, dict) else {}),
+                "business_context_mission_map": body.get("business_context_mission_map") if isinstance(body.get("business_context_mission_map"), dict) else {},
+                "brand_foundation_state": body.get("brand_foundation_state") if isinstance(body.get("brand_foundation_state"), dict) else {},
+                "marketing_form": body.get("marketing_form") if isinstance(body.get("marketing_form"), dict) else {},
+                "marketing_summary": body.get("marketing_summary") if isinstance(body.get("marketing_summary"), dict) else {},
+                "draft_steps": body.get("draft_steps") if isinstance(body.get("draft_steps"), list) else [],
+                "approval_stages": body.get("approval_stages") if isinstance(body.get("approval_stages"), list) else [],
+                "context_instruction": "Use supplied business, brand, marketing and approval context before asking for clarification.",
+            },
+            mission_plan=mission_plan,
+            assistant_fn=assistant_fn,
+        )
+    except PilotSafeStepExecutionBlocked as exc:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "error": "pilot_safe_step_execution_blocked",
+                "reason": str(exc),
+                "live_external_side_effects_performed": False,
+            },
+        ) from exc
+
+
+@router.post("/aion/pilot/mission-preview")
+async def post_aion_pilot_mission_preview(request: Request):
+    """
+    Preview-only bridge from the visible Pilot frontend into the locked
+    Phase 20/21 Mission Mode backend spine.
+
+    This endpoint compiles a deterministic mission plan, creates the approval
+    matrix, runs the preview-safe mission runtime, and emits a read-only
+    live mission timeline.
+
+    Safety:
+    - no payment
+    - no booking
+    - no escrow
+    - no external message
+    - no production deployment
+    - no public post
+    - no live chain write
+    - no reputation mutation
+    """
+    from backend.services.aion_mission_mode.mission_contract import (
+        AionMissionContract,
+        MissionCheckpoint,
+        MissionMode,
+    )
+    from backend.services.aion_mission_mode.mission_planner import (
+        build_deterministic_mission_plan,
+    )
+    from backend.services.aion_mission_mode.mission_plan_approval_matrix import (
+        create_mission_plan_approval_matrix,
+    )
+    from backend.services.aion_mission_mode.mission_runtime import (
+        MissionRuntimeLimits,
+        run_mission_runtime_preview,
+    )
+    from backend.services.aion_mission_mode.live_mission_timeline import (
+        assert_live_timeline_safety,
+        compile_live_timeline,
+    )
+    from backend.services.aion_mission_mode.business_context_mission_map import (
+        build_business_context_mission_map,
+    )
+
+    body = await request.json()
+
+    business_id = str(body.get("business_id") or "home-fixed")
+    mission_id = str(body.get("mission_id") or "pilot_mission_preview")
+    mission_run_id = str(body.get("mission_run_id") or "pilot_mission_preview_run")
+    user_goal = str(body.get("user_goal") or body.get("goal") or "Run AION Pilot mission preview")
+    template_id = str(body.get("template_id") or "home_fixed_lead_campaign_v0")
+    brand_foundation_state = body.get("brand_foundation_state") if isinstance(body.get("brand_foundation_state"), dict) else {}
+    marketing_form = body.get("marketing_form") if isinstance(body.get("marketing_form"), dict) else {}
+    marketing_summary = body.get("marketing_summary") if isinstance(body.get("marketing_summary"), dict) else {}
+    available_vault_requirements = (
+        body.get("available_vault_requirements")
+        if isinstance(body.get("available_vault_requirements"), list)
+        else []
+    )
+    plan_text = str(body.get("plan_text") or body.get("generated_output_text") or body.get("current_draft") or "")
+
+    contract = AionMissionContract(
+        mission_id=mission_id,
+        mission_goal=user_goal,
+        business_id=business_id,
+        creator_id=str(body.get("creator_id") or "operator"),
+        agent_mode=MissionMode.CHECKPOINTED_AUTONOMY,
+        allowed_autonomy_lanes=[
+            "research",
+            "creation",
+            "internal_ops",
+        ],
+        hard_blocked_lanes=[
+            "financial_action",
+            "legal_action",
+            "deployment_action",
+        ],
+        human_checkpoints=[
+            MissionCheckpoint(
+                checkpoint_id="checkpoint_external_payload_approval",
+                title="Approve exact external payload before live action",
+                description="Approve exact payload before publishing, sending, spending, booking, deploying or taking payment.",
+                required_before_step_id="step_external_action",
+                lane="external_action",
+                action_type="external_live_action",
+                required_action_type="external_live_action",
+            )
+        ],
+        approval_required_actions=[
+            "publish_advert",
+            "send_customer_message",
+            "spend_money",
+            "create_booking",
+            "deploy_live_page",
+            "take_payment",
+            "create_escrow",
+            "dispatch_worker",
+            "publish_facebook_post",
+            "send_whatsapp_message",
+            "start_ad_campaign",
+            "deploy_to_production",
+            "buy_domain",
+        ],
+        max_runtime_seconds=1800,
+        max_tool_calls=int(body.get("max_tool_calls") or 40),
+        max_cost=0.0,
+        proof_required=True,
+        replay_required=True,
+        ets_enabled=True,
+        data_retention_policy="mission_scoped",
+        external_communication_consent_required=True,
+        proof_sharing_enabled=False,
+    )
+
+    def _pilot_slug(value: object) -> str:
+        return re.sub(r"[^a-z0-9_]+", "_", str(value or "").strip().lower().replace("-", "_")).strip("_")
+
+    def _pilot_hash(payload: dict) -> str:
+        raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+        return hashlib.sha256(raw).hexdigest()
+
+    frontend_draft_steps = body.get("draft_steps") if isinstance(body.get("draft_steps"), list) else []
+
+    if frontend_draft_steps:
+        steps = []
+        for index, raw_step in enumerate(frontend_draft_steps, start=1):
+            source = raw_step if isinstance(raw_step, dict) else {"title": str(raw_step)}
+            title = str(source.get("title") or source.get("label") or f"Step {index}").strip()
+            step_id = str(source.get("step_id") or source.get("id") or f"ui_step_{index:02d}_{_pilot_slug(title)}")
+            requires_approval = bool(source.get("requires_approval") is True or source.get("requires_checkpoint") is True)
+            action_type = _pilot_slug(source.get("action_type") or title or f"safe_step_{index}")
+
+            step = {
+                "step_id": step_id,
+                "title": title,
+                "lane": str(source.get("lane") or "creation"),
+                "action_type": action_type or f"safe_step_{index}",
+                "decision": "checkpoint_required" if requires_approval else "safe_autonomous",
+                "requires_checkpoint": requires_approval,
+                "requires_approval": requires_approval,
+                "source": "frontend_work_package",
+                "safe_draft_work_allowed": not requires_approval,
+                "live_external_side_effects_allowed": False,
+                "subtasks": source.get("subtasks") if isinstance(source.get("subtasks"), list) else [],
+            }
+            step["step_hash"] = "sha256:" + _pilot_hash(step)
+            steps.append(step)
+
+        plan = {
+            "payload_type": "aion_mission_plan",
+            "plan_id": f"{mission_id}_frontend_work_package_plan",
+            "mission_id": mission_id,
+            "business_id": business_id,
+            "mission_goal": user_goal,
+            "template_id": "frontend_work_package_v0",
+            "source": "frontend_visible_work_package",
+            "steps": steps,
+            "live_external_side_effects_allowed": False,
+            "raw_tool_execution_allowed": False,
+        }
+        plan["plan_hash"] = _pilot_hash(plan)
+    else:
+        plan = build_deterministic_mission_plan(
+            contract=contract,
+            template_id=template_id,
+        )
+
+        steps = list(plan.get("steps") or [])
+
+    business_context_mission_map = build_business_context_mission_map(
+        business_id=business_id,
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        user_goal=user_goal,
+        plan_steps=steps,
+        plan_text=plan_text,
+        brand_foundation_state=brand_foundation_state,
+        marketing_form=marketing_form,
+        marketing_summary=marketing_summary,
+        available_vault_requirements=available_vault_requirements,
+    )
+
+    approval_matrix = create_mission_plan_approval_matrix(
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        plan_id=f"{mission_id}_plan_preview",
+        user_goal=user_goal,
+        raw_steps=steps,
+        change_reason="pilot_mission_preview",
+    )
+
+    runtime_steps = [
+        step for step in steps
+        if str(step.get("decision") or "") == "safe_autonomous"
+        and bool(step.get("requires_checkpoint")) is False
+    ]
+
+    if not runtime_steps:
+        runtime_steps = [
+            step for step in steps
+            if str(step.get("lane") or "") in {"research", "creation", "internal_ops"}
+            and str(step.get("decision") or "") not in {"checkpoint_required", "blocked"}
+        ]
+
+    runtime_step_ids = {str(step.get("step_id")) for step in runtime_steps}
+    pending_approval_steps = [
+        step for step in steps
+        if str(step.get("step_id")) not in runtime_step_ids
+        and (
+            bool(step.get("requires_checkpoint")) is True
+            or str(step.get("decision") or "") in {"checkpoint_required", "blocked"}
+        )
+    ]
+
+    runtime_execution_steps = [
+        {
+            "step_id": str(step.get("step_id") or f"runtime_step_{index:02d}"),
+            "action_type": str(step.get("action_type") or "internal_planning"),
+            "title": str(step.get("title") or step.get("action_type") or "Safe preview step"),
+        }
+        for index, step in enumerate(runtime_steps, start=1)
+    ]
+
+    runtime_preview = run_mission_runtime_preview(
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        steps=runtime_execution_steps,
+        limits=MissionRuntimeLimits(
+            max_runtime_seconds=1800,
+            max_tool_calls=int(body.get("max_tool_calls") or 40),
+            max_cost=0.0,
+        ),
+    )
+
+    step_titles = {
+        str(step.get("step_id")): str(step.get("title") or step.get("action_type") or "Mission step")
+        for step in steps
+    }
+
+    runtime_state = runtime_preview.get("state", {})
+    completed_step_ids = list(runtime_state.get("completed_step_ids") or [])
+    paused_step_id = runtime_state.get("paused_step_id")
+    blocked_reason = runtime_state.get("blocked_reason")
+
+    if not paused_step_id and pending_approval_steps:
+        next_paused_step = pending_approval_steps[0]
+        paused_step_id = str(next_paused_step.get("step_id") or "approval_required_step")
+        blocked_reason = "pending_payload_or_human_approval_required"
+
+    timeline_events = [
+        {
+            "mission_id": mission_id,
+            "mission_run_id": mission_run_id,
+            "business_id": business_id,
+            "sequence_number": 0,
+            "event_type": "mission_started",
+            "step_id": "mission",
+            "title": "Mission preview started",
+            "summary": user_goal,
+            "state_after": "running",
+            "source_hash": f"sha256:{plan.get('plan_hash')}",
+        }
+    ]
+
+    sequence = 1
+    for step_id in completed_step_ids:
+        timeline_events.append({
+            "mission_id": mission_id,
+            "mission_run_id": mission_run_id,
+            "business_id": business_id,
+            "sequence_number": sequence,
+            "event_type": "step_completed",
+            "step_id": step_id,
+            "title": step_titles.get(step_id, step_id),
+            "summary": "Safe preview step completed by Mission Runtime.",
+            "state_after": "completed",
+            "source_hash": runtime_state.get("state_hash") or f"sha256:{plan.get('plan_hash')}",
+        })
+        sequence += 1
+
+    if paused_step_id:
+        timeline_events.append({
+            "mission_id": mission_id,
+            "mission_run_id": mission_run_id,
+            "business_id": business_id,
+            "sequence_number": sequence,
+            "event_type": "approval_requested",
+            "step_id": str(paused_step_id),
+            "title": step_titles.get(str(paused_step_id), "Approval required"),
+            "summary": str(blocked_reason or "Mission paused before risky or approval-required action."),
+            "state_after": "waiting_approval",
+            "source_hash": runtime_state.get("state_hash") or f"sha256:{plan.get('plan_hash')}",
+        })
+        sequence += 1
+
+    if runtime_preview.get("completed") is True and not paused_step_id:
+        timeline_events.append({
+            "mission_id": mission_id,
+            "mission_run_id": mission_run_id,
+            "business_id": business_id,
+            "sequence_number": sequence,
+            "event_type": "mission_completed",
+            "step_id": "mission",
+            "title": "Mission preview completed",
+            "summary": "All safe preview steps completed. No live external side effects occurred.",
+            "state_after": "completed",
+            "source_hash": runtime_state.get("state_hash") or f"sha256:{plan.get('plan_hash')}",
+        })
+
+    timeline = compile_live_timeline(
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        business_id=business_id,
+        panel_hash=f"sha256:{plan.get('plan_hash')}",
+        events=timeline_events,
+    )
+
+    timeline_safety = assert_live_timeline_safety(timeline)
+
+    return {
+        "payload_type": "aion_pilot_mission_preview",
+        "status": runtime_state.get("status") or "preview_ready",
+        "business_id": business_id,
+        "mission_id": mission_id,
+        "mission_run_id": mission_run_id,
+        "user_goal": user_goal,
+        "mission_plan": plan,
+        "approval_matrix": approval_matrix,
+        "runtime_preview": runtime_preview,
+        "business_context_mission_map": business_context_mission_map,
+        "task_loop_map": business_context_mission_map.get("task_loop_map", {}),
+        "context_task_nodes": business_context_mission_map.get("task_nodes", []),
+        "human_task_cards": business_context_mission_map.get("human_task_cards", []),
+        "credential_required_cards": business_context_mission_map.get("credential_required_cards", []),
+        "timeline": timeline,
+        "timeline_safety": timeline_safety,
+        "completed_step_ids": completed_step_ids,
+        "paused_step_id": paused_step_id,
+        "blocked_reason": blocked_reason,
+        "safe_outputs": [
+            {
+                "step_id": step_id,
+                "title": step_titles.get(step_id, step_id),
+                "status": "completed_preview",
+            }
+            for step_id in completed_step_ids
+        ],
+        "safety": {
+            "preview_only": True,
+            "live_external_side_effects_enabled": False,
+            "would_create_booking": False,
+            "would_create_payment": False,
+            "would_create_escrow": False,
+            "would_send_external_message": False,
+            "would_publish_public_content": False,
+            "would_deploy": False,
+            "would_write_live_chain": False,
+            "would_mutate_reputation": False,
+            "timeline_executes_tools": False,
+            "timeline_mutates_provider_state": False,
+        },
+    }
+# END PHASE 23A LOCK
 
 # PHASE 21C LOCK: AION-LRM Pilot Context Preview Endpoint
 @router.get("/aion/lrm/pilot-context-preview")

@@ -55,11 +55,12 @@ def test_phase22c_results_are_only_visible_after_safe_work_completed():
 
 
 def test_phase22c_approve_button_is_next_step_language():
-    block = function_block("renderAionPilotSimpleTaskStream")
-    assert "Approve plan and run safe work" in block
-    assert "Run next safe step" in block
-    assert "Approve safe draft work" not in block
-
+    block = function_block("renderAionPilotWorkPackageCard")
+    assert "data-aion-pilot-work-package-actions" in block
+    assert "data-aion-pilot-feedback-approve" in block
+    assert "Approve" in block
+    assert "Revise" in block
+    assert "Stop" in block
 
 def test_phase22c_campaign_output_is_real_campaign_pack():
     block = function_block("getAionPilotOutputPreviewText")

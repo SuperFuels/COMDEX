@@ -61,8 +61,8 @@ def test_phase22i_required_render_functions_still_exist():
 
 def test_phase22i_pilot_core_still_present():
     required = [
-        "Give Pilot a task. It drafts the safe work, then asks before live actions.",
-        "Run next safe step",
+        "It drafts the plan, you choose the human approval stages, and Pilot executes the safe work between them.",
+        "Run next safe output",
         "Advanced details: safety, reasoning, proof, hashes and blocked actions",
     ]
 

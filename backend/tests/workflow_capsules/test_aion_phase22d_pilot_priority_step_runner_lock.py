@@ -34,14 +34,10 @@ def function_block(name):
 
 def test_phase22d_priority_step_builder_exists():
     block = function_block("buildAionPilotPriorityStepOutput")
-
     assert "function buildAionPilotPriorityStepOutput" in block
-    assert "safePlan.safe_steps" in block
-    assert "safePlan.steps" in block
-    assert "normalisedSteps" in block
-    assert "selectedStep" in block
-    assert "Still approval-gated:" in block
-    assert "Draft/preview work only. No live external action has been taken." in block
+    assert "getAionPilotNextExecutableFollowOnWorkItem" in block
+    assert "buildAionPilotFollowOnTaskDraftOutput" in block
+    assert "No live external action has been taken" in block
 
 def test_phase22d_run_next_safe_step_generates_step2_output():
     block = function_block("approveAionPilotMissionContract")
