@@ -9817,6 +9817,97 @@ if (!window.__aionPilotRevisionCommandBarClickHandlerInstalled) {
 }
 
 
+function renderAionPilotDepartmentQueueSummary(pilotState = getAionPilotFrontendInteractionState()) {
+  const departmentQueue = pilotState.department_queue || pilotState.mission_preview?.department_queue || null;
+  const toolQueue = pilotState.tool_execution_queue || pilotState.mission_preview?.tool_execution_queue || null;
+  const toolSummary = pilotState.tool_execution_summary || pilotState.mission_preview?.tool_execution_summary || null;
+  const route = pilotState.department_route || pilotState.mission_preview?.department_route || null;
+
+  if (!departmentQueue && !toolQueue && !toolSummary && !route) {
+    return "";
+  }
+
+  const primaryDepartment = route?.primary_department || departmentQueue?.primary_department || toolQueue?.primary_department || "pilot";
+  const supportingDepartments = route?.supporting_departments || departmentQueue?.supporting_departments || toolQueue?.supporting_departments || [];
+  const queueItems = Array.isArray(departmentQueue?.queue_items) ? departmentQueue.queue_items : [];
+  const toolItems = Array.isArray(toolQueue?.tool_execution_items) ? toolQueue.tool_execution_items : [];
+
+  const readyCount = Number(toolSummary?.ready_count ?? toolQueue?.ready_count ?? 0);
+  const stagedCount = Number(toolSummary?.staged_count ?? toolQueue?.staged_count ?? 0);
+  const waitingApprovalCount = Number(toolSummary?.waiting_approval_count ?? toolQueue?.waiting_approval_count ?? 0);
+  const blockedCount = Number(toolSummary?.blocked_count ?? toolQueue?.blocked_count ?? 0);
+
+  const departments = ["marketing", "sales", "finance", "operations", "support", "builder", "pilot"];
+
+  const renderDepartmentLane = (departmentId) => {
+    const departmentItems = toolItems.filter((item) => String(item.department_id || "").toLowerCase() === departmentId);
+    const queueDepartmentItems = queueItems.filter((item) => String(item.department_id || "").toLowerCase() === departmentId);
+
+    if (!departmentItems.length && !queueDepartmentItems.length) {
+      return "";
+    }
+
+    const title = departmentId === "pilot"
+      ? "Pilot"
+      : departmentId.charAt(0).toUpperCase() + departmentId.slice(1);
+
+    const visibleItems = departmentItems.length ? departmentItems : queueDepartmentItems;
+
+    return `
+      <div class="aion-pilot-department-lane" data-aion-pilot-department-lane="${escapeHtml(departmentId)}">
+        <div class="aion-pilot-output-card-header">
+          <strong>${escapeHtml(title)}</strong>
+          <span>${escapeHtml(String(visibleItems.length))} task(s)</span>
+        </div>
+        <div class="list-wrap">
+          ${visibleItems.slice(0, 8).map((item) => `
+            <div class="list-item">
+              <div class="list-item-title">${escapeHtml(item.title || item.department_capability || item.capability || "Department task")}</div>
+              <div class="list-item-sub">${escapeHtml(item.department_capability || item.capability || item.task_type || "")}</div>
+              <div class="badge-row">
+                <span class="badge">${escapeHtml(item.status || "queued")}</span>
+                <span class="badge">${escapeHtml(item.tool_mode || item.permission || "department_queue")}</span>
+                ${item.live_external_side_effect === true ? `<span class="badge">approval required</span>` : ""}
+              </div>
+            </div>
+          `).join("")}
+        </div>
+      </div>
+    `;
+  };
+
+  return `
+    <div class="aion-pilot-output-card aion-pilot-department-queue-summary" data-aion-pilot-department-queue-summary>
+      <div class="aion-pilot-output-card-header">
+        <strong>Department execution queue</strong>
+        <span>${escapeHtml(String(primaryDepartment))}</span>
+      </div>
+      <div class="aion-pilot-output-meta">
+        Primary: ${escapeHtml(String(primaryDepartment))}
+        ${supportingDepartments.length ? ` · Supporting: ${escapeHtml(supportingDepartments.join(", "))}` : ""}
+      </div>
+      <div class="badge-row" style="margin:10px 0;">
+        <span class="badge">Ready ${escapeHtml(String(readyCount))}</span>
+        <span class="badge">Staged ${escapeHtml(String(stagedCount))}</span>
+        <span class="badge">Needs approval ${escapeHtml(String(waitingApprovalCount))}</span>
+        <span class="badge">Blocked ${escapeHtml(String(blockedCount))}</span>
+      </div>
+      <div class="aion-pilot-department-lane-grid">
+        ${departments.map(renderDepartmentLane).join("")}
+      </div>
+      <details class="aion-pilot-advanced-details">
+        <summary>Queue hashes and proof</summary>
+        <pre class="json-block">${escapeHtml(JSON.stringify({
+          department_queue_hash: departmentQueue?.department_queue_hash || null,
+          tool_queue_hash: toolQueue?.tool_queue_hash || null,
+          summary_hash: toolSummary?.summary_hash || null,
+        }, null, 2))}</pre>
+      </details>
+    </div>
+  `;
+}
+
+
 function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot()) {
   const pilotState = getAionPilotFrontendInteractionState();
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
@@ -9849,6 +9940,8 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
                 (safeWorkCompleted || safeWorkRunning || (Array.isArray(pilotState.step_outputs) && pilotState.step_outputs.length > 0))
                   ? `
                     ${renderAionPilotStepOutputCards(pilotState)}
+
+                    ${renderAionPilotDepartmentQueueSummary(pilotState)}
                     
                     ${renderAionPilotFollowOnWorkQueue(plan, pilotState)}
                   `
@@ -11117,6 +11210,33 @@ function getAionPilotMissionPreviewUrl() {
 
 function getAionPilotExecuteSafeStepUrl() {
   return getAionPilotMissionPreviewUrl().replace(/\/mission-preview$/, "/execute-safe-step");
+}
+
+
+function normaliseAionPilotMissionPreviewQueues(response = {}) {
+  const source = response && typeof response === "object" ? response : {};
+
+  return {
+    department_route: source.department_route || null,
+    department_queue: source.department_queue || null,
+    tool_execution_queue: source.tool_execution_queue || null,
+    tool_execution_summary: source.tool_execution_summary || null,
+    marketing_department_pack: source.marketing_department_pack || null,
+  };
+}
+
+
+function applyAionPilotMissionPreviewQueuesToState(response = {}) {
+  const queues = normaliseAionPilotMissionPreviewQueues(response);
+  const pilotState = getAionPilotFrontendInteractionState();
+
+  pilotState.department_route = queues.department_route;
+  pilotState.department_queue = queues.department_queue;
+  pilotState.tool_execution_queue = queues.tool_execution_queue;
+  pilotState.tool_execution_summary = queues.tool_execution_summary;
+  pilotState.marketing_department_pack = queues.marketing_department_pack;
+
+  return queues;
 }
 
 
