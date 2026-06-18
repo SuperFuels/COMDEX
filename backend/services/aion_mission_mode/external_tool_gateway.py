@@ -145,6 +145,12 @@ DEFAULT_CAPABILITIES = {
         "risk_level": "critical",
         "requires_payload_approval": True,
     },
+    "mutate_provider_account": {
+        "provider": "internal",
+        "tool_mode": "approved_live_external",
+        "risk_level": "critical",
+        "requires_payload_approval": True,
+    },
 }
 
 

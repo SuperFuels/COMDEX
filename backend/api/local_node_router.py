@@ -1437,6 +1437,20 @@ async def post_aion_pilot_mission_preview(request: Request):
     from backend.services.aion_mission_mode.business_context_mission_map import (
         build_business_context_mission_map,
     )
+    from backend.services.aion_mission_mode.marketing_department_pack import (
+        create_marketing_department_pack,
+    )
+    from backend.services.aion_mission_mode.business_function_router import (
+        route_business_function,
+    )
+    from backend.services.aion_mission_mode.department_execution_queue import (
+        add_blocked_live_action_cards,
+        build_department_execution_queue,
+    )
+    from backend.services.aion_mission_mode.pilot_tool_execution_queue import (
+        build_pilot_tool_execution_queue,
+        summarize_tool_execution_queue,
+    )
 
     body = await request.json()
 
@@ -1713,6 +1727,64 @@ async def post_aion_pilot_mission_preview(request: Request):
 
     timeline_safety = assert_live_timeline_safety(timeline)
 
+    department_route = route_business_function(
+        user_goal=user_goal,
+        business_id=business_id,
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        business_context={
+            "brand_foundation_state": brand_foundation_state,
+            "marketing_form": marketing_form,
+            "marketing_summary": marketing_summary,
+            "business_context_mission_map": business_context_mission_map,
+        },
+    )
+
+    department_queue = build_department_execution_queue(
+        user_goal=user_goal,
+        business_id=business_id,
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        routed_plan=department_route,
+        business_context={
+            "brand_foundation_state": brand_foundation_state,
+            "marketing_form": marketing_form,
+            "marketing_summary": marketing_summary,
+            "business_context_mission_map": business_context_mission_map,
+        },
+    )
+
+    department_queue_with_blocked_live_actions = add_blocked_live_action_cards(
+        queue=department_queue,
+    )
+
+    tool_execution_queue = build_pilot_tool_execution_queue(
+        user_goal=user_goal,
+        business_id=business_id,
+        mission_id=mission_id,
+        mission_run_id=mission_run_id,
+        department_queue=department_queue_with_blocked_live_actions,
+        include_blocked_live_actions=False,
+        evaluation_time=int(body.get("evaluation_time") or 0),
+    )
+
+    marketing_department_pack = None
+    if department_route.get("primary_department") == "marketing":
+        marketing_department_pack = create_marketing_department_pack(
+            user_goal=user_goal,
+            business_id=business_id,
+            mission_id=mission_id,
+            mission_run_id=mission_run_id,
+            business_context={
+                "brand_foundation_state": brand_foundation_state,
+                "marketing_form": marketing_form,
+                "marketing_summary": marketing_summary,
+                "business_context_mission_map": business_context_mission_map,
+            },
+            include_blocked_live_actions=True,
+            evaluation_time=int(body.get("evaluation_time") or 0),
+        )
+
     return {
         "payload_type": "aion_pilot_mission_preview",
         "status": runtime_state.get("status") or "preview_ready",
@@ -1724,6 +1796,11 @@ async def post_aion_pilot_mission_preview(request: Request):
         "approval_matrix": approval_matrix,
         "runtime_preview": runtime_preview,
         "business_context_mission_map": business_context_mission_map,
+        "department_route": department_route,
+        "department_queue": department_queue_with_blocked_live_actions,
+        "tool_execution_queue": tool_execution_queue,
+        "tool_execution_summary": summarize_tool_execution_queue(tool_execution_queue),
+        "marketing_department_pack": marketing_department_pack,
         "task_loop_map": business_context_mission_map.get("task_loop_map", {}),
         "context_task_nodes": business_context_mission_map.get("task_nodes", []),
         "human_task_cards": business_context_mission_map.get("human_task_cards", []),

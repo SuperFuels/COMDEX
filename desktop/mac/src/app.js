@@ -12954,21 +12954,69 @@ function getRunsForSelectedLiveAgent() {
 }
 
 function buildDepartmentRoomCards() {
-  return runtimeShared
+  const allowedDepartments = [
+    ["marketing", "Marketing"],
+    ["pilot", "Pilot"],
+    ["sales", "Sales"],
+    ["finance", "Finance"],
+    ["operations", "Operations"],
+    ["support", "Support"],
+    ["builder", "Builder"],
+  ];
+
+  const legacyAlias = {
+    aion: "pilot",
+  };
+
+  const runtimeRooms = runtimeShared
     .getDepartmentRuntimeList(state.runs, state.approvals)
-    .map((room) => ({
-      key: room.key,
-      label: room.label,
-      queued: room.queued,
-      running: room.running,
-      waitingApproval: room.waitingApproval,
-      failed: room.failed,
-      completed: room.completed,
-      total: room.totalRuns,
-      latestRun: room.latestRun,
-      agentCount: room.agentCount,
-      primaryAgent: room.primaryAgent,
-    }));
+    .reduce((acc, room) => {
+      const rawKey = String(room.key || "").toLowerCase();
+      const key = legacyAlias[rawKey] || rawKey;
+      if (!key) return acc;
+
+      const existing = acc[key] || {
+        key,
+        label: key,
+        queued: 0,
+        running: 0,
+        waitingApproval: 0,
+        failed: 0,
+        completed: 0,
+        total: 0,
+        latestRun: null,
+        agentCount: 0,
+        primaryAgent: null,
+      };
+
+      existing.label = key === "pilot" ? "Pilot" : (room.label || existing.label);
+      existing.queued += Number(room.queued || 0);
+      existing.running += Number(room.running || 0);
+      existing.waitingApproval += Number(room.waitingApproval || 0);
+      existing.failed += Number(room.failed || 0);
+      existing.completed += Number(room.completed || 0);
+      existing.total += Number(room.totalRuns || room.total || 0);
+      existing.latestRun = existing.latestRun || room.latestRun || null;
+      existing.agentCount += Number(room.agentCount || 0);
+      existing.primaryAgent = existing.primaryAgent || room.primaryAgent || null;
+
+      acc[key] = existing;
+      return acc;
+    }, {});
+
+  return allowedDepartments.map(([key, label]) => ({
+    key,
+    label,
+    queued: runtimeRooms[key]?.queued || 0,
+    running: runtimeRooms[key]?.running || 0,
+    waitingApproval: runtimeRooms[key]?.waitingApproval || 0,
+    failed: runtimeRooms[key]?.failed || 0,
+    completed: runtimeRooms[key]?.completed || 0,
+    total: runtimeRooms[key]?.total || 0,
+    latestRun: runtimeRooms[key]?.latestRun || null,
+    agentCount: runtimeRooms[key]?.agentCount || 0,
+    primaryAgent: runtimeRooms[key]?.primaryAgent || null,
+  }));
 }
 
 function getRunPrimaryInput(run) {
@@ -13136,12 +13184,13 @@ const OPERATIONS_AGENT_STEP_TYPES = [
 ];
 
 const OPERATIONS_AGENT_DEPARTMENTS = [
-  "Sales",
   "Marketing",
-  "Support",
+  "Pilot",
+  "Sales",
   "Finance",
   "Operations",
-  "HR",
+  "Support",
+  "Builder",
 ];
 
 const OPERATIONS_AGENT_INPUT_SOURCES = [
@@ -26408,7 +26457,15 @@ function renderRunFinalArtifactSection(
 }
 
 function getSelectedLiveDepartmentKey() {
-  return liveAgentsRuntime.getSelectedLiveDepartmentKey(state);
+  const key = String(liveAgentsRuntime.getSelectedLiveDepartmentKey(state) || "").toLowerCase();
+
+  if (key === "aion") return "pilot";
+
+  if (["hr", "ceo", "coo", "core"].includes(key)) {
+    return "marketing";
+  }
+
+  return key || "marketing";
 }
 
 function getDepartmentRuns(departmentKey) {
@@ -26642,8 +26699,8 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
     >
       <div class="surface-header" style="padding:0; margin-bottom:18px;">
         <div>
-          <div class="surface-eyebrow">Live Agents / Aion</div>
-          <div class="surface-title" style="font-size:34px;">AION Pilot</div>
+          <div class="surface-eyebrow">Live Agents / Pilot</div>
+          <div class="surface-title" style="font-size:34px;">Pilot</div>
           
         </div>
 
@@ -27889,20 +27946,12 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
     return renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard);
   }
 
-  if (departmentKey === "hr") {
-    return renderHRWorkspaceSurface(selectedRuns, selectedAgentCard);
-  }
-
-  if (departmentKey === "ceo") {
-    return renderCEOWorkspaceSurface(selectedRuns, selectedAgentCard);
-  }
-
-  if (departmentKey === "coo") {
-    return renderCOOWorkspaceSurface(selectedRuns, selectedAgentCard);
-  }
-
-  if (departmentKey === "aion") {
+  if (departmentKey === "pilot") {
     return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);
+  }
+
+  if (departmentKey === "builder") {
+    return renderGenericDepartmentWorkspaceSurface("builder", selectedAgentCard);
   }
 
   return renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCard);
