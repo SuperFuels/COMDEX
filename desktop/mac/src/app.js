@@ -26807,9 +26807,9 @@ function renderCOOWorkspaceSurface(selectedRuns, selectedAgentCard) {
 function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
   installAionPilotCockpitStyles();
 
-  const counts = getDepartmentRunCounts("aion");
+  const counts = getDepartmentRunCounts("pilot");
   const totalRuns = Array.isArray(selectedRuns) ? selectedRuns.length : counts.total;
-  const agentLabel = selectedAgentCard?.label || "Aion";
+  const agentLabel = selectedAgentCard?.label || "Pilot";
 
   return `
     <section
@@ -28022,6 +28022,14 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   const activeView = getLiveAgentsView();
   const departmentKey = getSelectedLiveDepartmentKey();
 
+  if (departmentKey === "pilot") {
+    if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
+      return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
+    }
+
+    return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);
+  }
+
   if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
     return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
   }
@@ -28064,10 +28072,6 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
 
   if (departmentKey === "support") {
     return renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard);
-  }
-
-  if (departmentKey === "pilot") {
-    return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);
   }
 
   if (departmentKey === "builder") {
