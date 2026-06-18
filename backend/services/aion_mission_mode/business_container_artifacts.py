@@ -28,6 +28,13 @@ ALLOWED_BUSINESS_SUB_CONTAINERS = {
     "exports",
     "approvals",
     "receipts",
+    "marketing",
+    "pilot",
+    "sales",
+    "finance",
+    "operations",
+    "support",
+    "builder",
 }
 
 
@@ -35,6 +42,9 @@ USER_USABLE_ARTIFACT_TYPES = {
     "pdf",
     "spreadsheet",
     "document",
+    "text",
+    "markdown",
+    "json",
     "campaign_pack",
     "campaign_offer",
     "advert_draft",
