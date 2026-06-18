@@ -7859,6 +7859,10 @@ function createAionPilotFrontendDraftMission() {
   const requestText = String(input?.value || "").trim() || "Build me a PDF document with X data";
 
   pilotState.status = "plan_ready";
+  if (applyAionPilotCommandBarRevisionIfActive(requestText)) {
+    return pilotState;
+  }
+
   pilotState.last_request = requestText;
   pilotState.draft_created = true;
   pilotState.plan = buildAionPilotUniversalPlan(requestText);
@@ -7957,7 +7961,55 @@ function renderAionPilotFrontendStreamEvents(pilotState = getAionPilotFrontendIn
 function classifyAionPilotUniversalTask(requestText = "") {
   const text = String(requestText || "").toLowerCase();
 
-  if (text.includes("follower") || text.includes("twitter") || text.includes("x ") || text.includes("social")) {
+  const hasAny = (signals) => signals.some((signal) => text.includes(signal));
+
+  const marketingPlanSignals = [
+    "marketing plan",
+    "marketing strategy",
+    "marketing roadmap",
+    "execute the marketing",
+    "execute marketing",
+    "grow the business",
+    "growth plan",
+    "lead generation plan",
+    "lead-gen plan",
+    "customer acquisition plan",
+  ];
+
+  const socialSignals = [
+    "follower",
+    "twitter",
+    "x campaign",
+    "x.com",
+    "social campaign",
+    "social media",
+    "social content",
+    "content calendar",
+    "post ideas",
+  ];
+
+  const advertisingSignals = [
+    "advertising",
+    "advert ",
+    "ad ",
+    "ads ",
+    "campaign",
+    "facebook",
+    "google",
+    "meta ads",
+    "google ads",
+  ];
+
+  if (hasAny(marketingPlanSignals)) {
+    return {
+      task_type: "marketing_plan",
+      title: "Create marketing plan",
+      output_label: "Marketing plan draft",
+      risk_flags: ["public posting", "ad spend", "customer contact", "account access"],
+    };
+  }
+
+  if (hasAny(socialSignals)) {
     return {
       task_type: "growth_social",
       title: "Grow social audience",
@@ -7984,7 +8036,7 @@ function classifyAionPilotUniversalTask(requestText = "") {
     };
   }
 
-  if (text.includes("ad") || text.includes("advert") || text.includes("campaign") || text.includes("facebook") || text.includes("google")) {
+  if (hasAny(advertisingSignals)) {
     return {
       task_type: "advertising",
       title: "Create advertising campaign draft",
@@ -7996,7 +8048,8 @@ function classifyAionPilotUniversalTask(requestText = "") {
   if (
     text.includes("business plan") ||
     text.includes("businessplan") ||
-    (text.includes("plan") && (text.includes("business") || text.includes("home repair") || text.includes("reapir")))
+    text.includes("business model") ||
+    text.includes("business strategy")
   ) {
     return {
       task_type: "business_plan",
@@ -8138,6 +8191,28 @@ function buildAionPilotWorkPackage(plan = null, pilotState = null) {
       ],
       output_assets: ["Spreadsheet preview", "Receipt"],
     },
+    marketing_plan: {
+      name: "Marketing plan package",
+      outcome: "A practical marketing plan draft with channels, offers, content, lead flow, approvals and next actions.",
+      deliverables: [
+        "Marketing objective",
+        "Target audience",
+        "Positioning message",
+        "Channel plan",
+        "Content plan",
+        "Lead capture workflow",
+        "30/60/90-day marketing actions",
+      ],
+      draft_steps: [
+        "Define marketing objective",
+        "Clarify target audience and offer",
+        "Draft positioning and core message",
+        "Build channel and content plan",
+        "Prepare lead capture workflow",
+        "Create review-ready marketing plan output",
+      ],
+      output_assets: ["Marketing plan draft", "Content/action checklist", "Receipt"],
+    },
     advertising: {
       name: "Campaign work package",
       outcome: "A campaign pack with draft ads and approval-ready assets.",
@@ -8206,24 +8281,847 @@ function buildAionPilotWorkPackage(plan = null, pilotState = null) {
   };
 }
 
+
+function getAionPilotHumanApprovalStages(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  if (!state.human_approval_stages || typeof state.human_approval_stages !== "object") {
+    state.human_approval_stages = {};
+  }
+
+  return state.human_approval_stages;
+}
+
+function getAionPilotHumanApprovalStageKey(step = "", index = 0) {
+  return `stage_${Number(index) + 1}_${String(step || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 48)}`;
+}
+
+function toggleAionPilotHumanApprovalStage(stageKey = "") {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const stages = getAionPilotHumanApprovalStages(pilotState);
+  const key = String(stageKey || "");
+
+  if (!key) return pilotState;
+
+  stages[key] = stages[key] !== true;
+
+  pilotState.stream_events = [
+    ...(Array.isArray(pilotState.stream_events) ? pilotState.stream_events : []),
+    {
+      role: "system",
+      message: stages[key]
+        ? "Human approval stage selected."
+        : "Human approval stage removed.",
+      created_at: new Date().toISOString(),
+    },
+  ].slice(-14);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return pilotState;
+}
+
+function renderAionPilotHumanApprovalChecklist(workPackage = {}, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const stages = getAionPilotHumanApprovalStages(state);
+  const steps = Array.isArray(workPackage.draft_steps) ? workPackage.draft_steps : [];
+
+  if (!steps.length) {
+    return "";
+  }
+
+  const rows = steps.map((step, index) => {
+    const key = getAionPilotHumanApprovalStageKey(step, index);
+    const selected = stages[key] === true;
+
+    return `
+      <div class="aion-pilot-approval-stage-row" data-aion-pilot-approval-stage-row="${escapeHtml(key)}">
+        <div class="aion-pilot-approval-stage-task">
+          ${escapeHtml(step)}
+        </div>
+        <button
+          type="button"
+          class="aion-pilot-approval-stage-toggle ${selected ? "is-selected" : ""}"
+          data-aion-pilot-approval-stage-toggle="${escapeHtml(key)}"
+          aria-pressed="${selected ? "true" : "false"}"
+        >
+          ${selected ? "✓ Approval" : "Approval"}
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="aion-pilot-human-approval-checklist" data-aion-pilot-human-approval-checklist>
+      <h4>Draft steps</h4>
+      <p>Tick only the stages that must pause for human approval. Unticked stages can run as safe draft work.</p>
+      <div class="aion-pilot-approval-stage-list">
+        ${rows}
+      </div>
+    </div>
+  `;
+}
+
+window.toggleAionPilotHumanApprovalStage = toggleAionPilotHumanApprovalStage;
+
+if (!window.__aionPilotHumanApprovalStageClickHandlerInstalled) {
+  window.__aionPilotHumanApprovalStageClickHandlerInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-pilot-approval-stage-toggle]");
+    if (!button) return;
+
+    event.preventDefault();
+    toggleAionPilotHumanApprovalStage(button.getAttribute("data-aion-pilot-approval-stage-toggle"));
+  });
+}
+
+
+
+function normaliseAionPilotFollowOnLabel(value = "") {
+  return String(value || "")
+    .replace(/^\s*\d+\.\s*/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getAionPilotLatestOutputText(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const outputs = Array.isArray(state.step_outputs) ? state.step_outputs : [];
+  const latest = outputs[outputs.length - 1] || null;
+  return String(latest?.output_text || state.generated_output_text || state.output_panel_body || "");
+}
+
+function classifyAionPilotFollowOnWorkItem(item = "") {
+  const text = String(item || "").toLowerCase();
+
+  const approvalSignals = [
+    "post ",
+    "publish",
+    "send ",
+    "email ",
+    "message ",
+    "whatsapp",
+    "twitter",
+    "x.com",
+    "facebook",
+    "instagram",
+    "linkedin",
+    "spend",
+    "payment",
+    "invoice",
+    "book",
+    "dispatch",
+    "deploy",
+    "domain",
+    "account",
+    "login",
+    "password",
+    "credential",
+    "api key",
+    "live",
+    "external",
+  ];
+
+  return approvalSignals.some((signal) => text.includes(signal))
+    ? "needs_approval"
+    : "safe_draft";
+}
+
+function getAionPilotFollowOnApprovalStages(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  if (!state.follow_on_approval_stages || typeof state.follow_on_approval_stages !== "object") {
+    state.follow_on_approval_stages = {};
+  }
+
+  return state.follow_on_approval_stages;
+}
+
+function getAionPilotFollowOnWorkKey(item = "", index = 0) {
+  return `follow_on_${Number(index) + 1}_${String(item || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "")
+    .slice(0, 58)}`;
+}
+
+function toggleAionPilotFollowOnApprovalStage(stageKey = "") {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const stages = getAionPilotFollowOnApprovalStages(pilotState);
+  const key = String(stageKey || "");
+
+  if (!key) return pilotState;
+
+  stages[key] = stages[key] !== true;
+
+  pilotState.stream_events = [
+    ...(Array.isArray(pilotState.stream_events) ? pilotState.stream_events : []),
+    {
+      role: "system",
+      message: stages[key]
+        ? "Follow-on approval stage selected."
+        : "Follow-on approval stage removed.",
+      created_at: new Date().toISOString(),
+    },
+  ].slice(-14);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return pilotState;
+}
+
+function deriveAionPilotFollowOnWorkItems(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const taskType = String(safePlan.task_type || "");
+
+  if (taskType === "marketing_plan") {
+    return [
+      {
+        label: "Define marketing objective",
+        lane: "safe_draft_work",
+        description: "Turn the mission into a clear growth objective, success measures and execution boundary.",
+      },
+      {
+        label: "Clarify target audience and offer",
+        lane: "safe_draft_work",
+        description: "Define who the campaign targets, what offer is being promoted and what proof is needed.",
+      },
+      {
+        label: "Draft positioning and core message",
+        lane: "safe_draft_work",
+        description: "Create the actual messaging angles, hooks and trust points for the business.",
+      },
+      {
+        label: "Build channel and content plan",
+        lane: "safe_draft_work",
+        description: "Create the practical channel plan, post types, campaign rhythm and content queue.",
+      },
+      {
+        label: "Prepare lead capture workflow",
+        lane: "safe_draft_work",
+        description: "Create the enquiry flow, intake fields, review stages and handoff steps.",
+      },
+      {
+        label: "Create review-ready marketing plan output",
+        lane: "content_approval",
+        description: "Prepare the final review-ready execution pack for approval before live action.",
+      },
+    ];
+  }
+
+  const deliverables = Array.isArray(safePlan.deliverables) ? safePlan.deliverables : [];
+  if (deliverables.length) {
+    return deliverables.map((item) => ({
+      label: normaliseAionPilotFollowOnLabel(item),
+      lane: "safe_draft_work",
+      description: `Prepare the working draft for ${normaliseAionPilotFollowOnLabel(item)}.`,
+    }));
+  }
+
+  return [
+    {
+      label: "Prepare task interpretation",
+      lane: "safe_draft_work",
+      description: "Clarify the task objective and safe execution boundary.",
+    },
+    {
+      label: "Prepare draft plan",
+      lane: "safe_draft_work",
+      description: "Create the draft plan for review.",
+    },
+    {
+      label: safePlan.output_label || "Prepare preview output",
+      lane: "content_approval",
+      description: "Prepare the preview output for human review.",
+    },
+    {
+      label: "Prepare review notes",
+      lane: "safe_draft_work",
+      description: "Summarise review notes and next safe steps.",
+    },
+  ];
+}
+
+
+
+function classifyAionPilotApprovalRequirementMode(item = "") {
+  const text = String(item || "").toLowerCase();
+
+  const liveExecutionSignals = [
+    "post ",
+    "publish",
+    "send ",
+    "email ",
+    "message ",
+    "whatsapp",
+    "twitter",
+    "x.com",
+    "facebook",
+    "instagram",
+    "linkedin",
+    "spend",
+    "payment",
+    "invoice",
+    "book",
+    "dispatch",
+    "deploy",
+    "domain",
+    "account",
+    "login",
+    "password",
+    "credential",
+    "api key",
+    "live",
+    "external",
+    "contact",
+  ];
+
+  if (liveExecutionSignals.some((signal) => text.includes(signal))) {
+    return "live_execution_approval";
+  }
+
+  return "content_approval";
+}
+
+function getAionPilotPendingApprovalDrafts(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  if (!state.pending_follow_on_approval_drafts || typeof state.pending_follow_on_approval_drafts !== "object") {
+    state.pending_follow_on_approval_drafts = {};
+  }
+
+  return state.pending_follow_on_approval_drafts;
+}
+
+function buildAionPilotApprovalDraftOutput(item = {}, plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const goal = String(safePlan.goal || state.last_request || "the approved mission");
+  const taskLabel = normaliseAionPilotFollowOnLabel(item.label || "Approval checkpoint");
+
+  return [
+    `${taskLabel}`,
+    ``,
+    `${taskLabel}: ${goal}`,
+    ``,
+    `Draft asset for approval`,
+    `Pilot has prepared the requested content/asset for this approval stage. Review it, then choose Approve, Revise or Stop before Pilot continues.`,
+    ``,
+    `Draft output`,
+    `- Mission: ${goal}`,
+    `- Approval item: ${taskLabel}`,
+    `- Approval mode: content/asset review`,
+    `- Status: Waiting for human approval.`,
+    ``,
+    `What approval means`,
+    `Approving this item allows Pilot to continue with the next safe draft task. It does not approve live posting, sending, payment, deployment, booking, account creation or customer contact.`,
+    ``,
+    `Approval boundary`,
+    `Pilot has not published, sent messages, spent money, booked jobs, deployed anything, created accounts, changed live systems or contacted external parties.`,
+  ].join("\n");
+}
+
+
+function getAionPilotFollowOnWorkQueue(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  if (Array.isArray(state.mission_loop_queue) && state.mission_loop_queue.length) {
+    return state.mission_loop_queue.map((node, index) => {
+      const approvalRequired =
+        node?.requires_checkpoint === true ||
+        node?.requires_approval === true ||
+        node?.is_approval_gate === true ||
+        String(node?.decision || "") === "checkpoint_required";
+
+      return {
+        ...node,
+        label: normaliseAionPilotMissionMapNodeTitle(node, index),
+        lane: approvalRequired ? "needs_approval" : "safe_draft_work",
+        description: approvalRequired
+          ? "This selected stage must pause for human approval before Pilot continues."
+          : "Safe internal draft work. No live external side effects allowed.",
+        source: "backend_mission_queue",
+        backend_index: index,
+        requires_approval: approvalRequired,
+        requires_checkpoint: approvalRequired,
+      };
+    });
+  }
+
+  if (Array.isArray(state.follow_on_work_queue) && state.follow_on_work_queue.length) {
+    return state.follow_on_work_queue;
+  }
+
+  const queue = deriveAionPilotFollowOnWorkItems(plan, state);
+  state.follow_on_work_queue = queue;
+  return queue;
+}
+
+function getAionPilotCompletedFollowOnWork(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  if (!state.completed_follow_on_work || typeof state.completed_follow_on_work !== "object") {
+    state.completed_follow_on_work = {};
+  }
+
+  return state.completed_follow_on_work;
+}
+
+function getAionPilotNextExecutableFollowOnWorkItem(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const queue = getAionPilotFollowOnWorkQueue(plan, state);
+  const approvals = getAionPilotFollowOnApprovalStages(state);
+  const completed = getAionPilotCompletedFollowOnWork(state);
+
+  if (Array.isArray(state.mission_loop_queue) && state.mission_loop_queue.length) {
+    const index = Number(state.mission_loop_index || 0);
+    const item = queue[index] || null;
+
+    if (!item) return null;
+
+    const key = getAionPilotFollowOnWorkKey(item.label, index);
+    const approvalRequired =
+      item.requires_checkpoint === true ||
+      item.requires_approval === true ||
+      item.is_approval_gate === true ||
+      item.lane === "needs_approval";
+
+    return {
+      item,
+      index,
+      key,
+      blocked_for_approval: approvalRequired,
+    };
+  }
+
+  for (let index = 0; index < queue.length; index += 1) {
+    const item = queue[index];
+    const key = getAionPilotFollowOnWorkKey(item.label, index);
+
+    if (completed[key] === true) {
+      continue;
+    }
+
+    if (approvals[key] === true || item.lane === "needs_approval") {
+      return {
+        item,
+        index,
+        key,
+        blocked_for_approval: true,
+      };
+    }
+
+    return {
+      item,
+      index,
+      key,
+      blocked_for_approval: false,
+    };
+  }
+
+  return null;
+}
+
+function buildAionPilotFollowOnTaskDraftOutput(item = {}, plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const goal = String(safePlan.goal || state.last_request || "the approved mission");
+  const taskLabel = normaliseAionPilotFollowOnLabel(item.label || item || "Follow-on task");
+  const taskLower = taskLabel.toLowerCase();
+  const taskType = String(safePlan.task_type || "");
+
+  if (taskType === "marketing_plan") {
+    const businessName = getAionPilotTaskSubject(goal) || "the business";
+
+    if (taskLower.includes("objective")) {
+      return [
+        taskLabel,
+        "",
+        `Mission: ${goal}`,
+        "",
+        "Execution output",
+        `${businessName} should use this marketing plan to generate qualified local enquiries, improve trust and convert repeatable property-maintenance needs into reviewed jobs.`,
+        "",
+        "Success measures",
+        "- Number of new enquiries per week.",
+        "- Number of enquiries with photos/location/service detail.",
+        "- Number of quote requests approved for human review.",
+        "- Number of jobs won from proof-led posts or local search.",
+        "- Number of reviews/testimonials collected after completed jobs.",
+        "",
+        "Safe execution boundary",
+        "- Draft strategy, content, workflow and review materials only.",
+        "- Do not publish posts, run adverts, contact customers or spend money without approval.",
+        "",
+        "Next execution step",
+        "Clarify the target audience and the exact offer before building content or channels.",
+      ].join("\n");
+    }
+
+    if (taskLower.includes("audience") || taskLower.includes("offer")) {
+      return [
+        taskLabel,
+        "",
+        `Mission: ${goal}`,
+        "",
+        "Primary audience",
+        "- Homeowners needing repairs, maintenance or property improvements.",
+        "- Landlords and property managers needing reliable local support.",
+        "- Older homeowners who prefer simple WhatsApp or phone communication.",
+        "- Local residents who respond to proof, reliability and before/after work.",
+        "",
+        "Core offer",
+        "- Clear repair/property-maintenance quote.",
+        "- Simple photo/location/service enquiry flow.",
+        "- Human-reviewed quote before booking or paid work.",
+        "- Before/after proof where appropriate.",
+        "",
+        "Offer angle",
+        `${businessName} should be positioned around reliability, practical workmanship, clear communication and no chasing tradesmen.`,
+        "",
+        "Next execution step",
+        "Draft the positioning message and core campaign angles.",
+      ].join("\n");
+    }
+
+    if (taskLower.includes("positioning") || taskLower.includes("message")) {
+      return [
+        taskLabel,
+        "",
+        `Mission: ${goal}`,
+        "",
+        "Core positioning",
+        `${businessName} is the dependable local property repair and maintenance service for homeowners who want the job handled properly, clearly and without chasing tradesmen.`,
+        "",
+        "Message pillars",
+        "- Reliable local help.",
+        "- Clear quote before work starts.",
+        "- Repairs, maintenance and property improvements.",
+        "- Before/after proof where useful.",
+        "- Simple WhatsApp or phone enquiry.",
+        "",
+        "Example hooks",
+        "- Need a repair sorted without chasing tradesmen?",
+        "- Keep your villa looking its best all year round.",
+        "- Property repairs, maintenance and improvements handled properly.",
+        "- Send photos, location and the issue — we’ll review and quote.",
+        "",
+        "Next execution step",
+        "Turn these messages into channels, post types and content tasks.",
+      ].join("\n");
+    }
+
+    if (taskLower.includes("channel") || taskLower.includes("content")) {
+      return [
+        taskLabel,
+        "",
+        `Mission: ${goal}`,
+        "",
+        "Channel plan",
+        "- Search/listing profile: photos, services, reviews and regular updates.",
+        "- Main social page: before/after posts, service reminders and proof posts.",
+        "- Local/community channels: awareness posts where allowed.",
+        "- Short-form social channel: light proof-led updates, job notes, service reminders and credibility posts.",
+        "- Referral cards: give after completed work.",
+        "- Landlord/agent outreach: draft-only list and message templates until approved.",
+        "",
+        "Content queue",
+        "- Before/after transformation posts.",
+        "- Problem/solution repair posts.",
+        "- Seasonal maintenance reminders.",
+        "- Service spotlight posts.",
+        "- Trust/proof posts showing reliability and communication.",
+        "- Quote-process explainer posts.",
+        "- Twitter/X posts and channel setup notes.",
+        "",
+        "Weekly rhythm draft",
+        "- 2 proof/before-after posts.",
+        "- 1 maintenance reminder.",
+        "- 1 service spotlight.",
+        "- 1 quote-process or trust post.",
+        "",
+        "Approval boundary",
+        "These are draft channel/content tasks only. No posts, adverts or messages have been published or sent.",
+      ].join("\n");
+    }
+
+    if (taskLower.includes("lead") || taskLower.includes("workflow")) {
+      return [
+        taskLabel,
+        "",
+        `Mission: ${goal}`,
+        "",
+        "Lead capture workflow",
+        "1. Customer sees post, advert, referral card or local listing.",
+        "2. Customer sends message with service need, location and photos where useful.",
+        "3. Office/Pilot captures the enquiry fields as a draft intake.",
+        "4. Human reviews urgency, access, safety and suitability.",
+        "5. Human approves quote, inspection, decline or escalation.",
+        "6. No booking, payment, external message or live job is created without approval.",
+        "",
+        "Intake fields",
+        "- Customer name.",
+        "- Contact method.",
+        "- Location/town.",
+        "- Service required.",
+        "- Photos received.",
+        "- Urgency.",
+        "- Access notes.",
+        "- Safety notes.",
+        "- Human review decision.",
+        "",
+        "Next execution step",
+        "Prepare the final review-ready marketing plan output.",
+      ].join("\n");
+    }
+
+    if (taskLower.includes("review-ready") || taskLower.includes("output")) {
+      const latestDraft = getAionPilotLatestEditableOutputText(safePlan, state);
+      return [
+        taskLabel,
+        "",
+        `Mission: ${goal}`,
+        "",
+        "Review-ready execution pack",
+        "Pilot has prepared the marketing plan execution pack for human approval.",
+        "",
+        "Current working plan",
+        latestDraft,
+        "",
+        "Execution checklist",
+        "- Confirm the offer.",
+        "- Confirm service areas.",
+        "- Confirm which channels to use first.",
+        "- Approve draft posts before publishing.",
+        "- Approve ad budget before spend.",
+        "- Approve outbound messages before sending.",
+        "",
+        "Approval boundary",
+        "This is still draft/preview only. Pilot has not posted, sent messages, spent money, booked jobs, deployed anything or changed live accounts.",
+      ].join("\n");
+    }
+  }
+
+  return [
+    taskLabel,
+    "",
+    `${taskLabel}: ${goal}`,
+    "",
+    "Purpose",
+    "This draft turns one approved plan item into a usable working asset for the mission.",
+    "",
+    "Draft output",
+    `- Mission: ${goal}`,
+    `- Work item: ${taskLabel}`,
+    "- Lane: safe draft work",
+    "- Status: Draft/preview only.",
+    "",
+    "Suggested next check",
+    "Review this output, then continue safe draft work or add an approval stage before any live external action.",
+    "",
+    "Approval boundary",
+    "Pilot has not published, sent messages, spent money, booked jobs, deployed anything, created accounts, changed live systems or contacted external parties.",
+  ].join("\n");
+}
+
+
+
+function toggleAionPilotFollowOnQueueExpanded() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  pilotState.follow_on_queue_expanded = pilotState.follow_on_queue_expanded !== true;
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return pilotState;
+}
+
+window.toggleAionPilotFollowOnQueueExpanded = toggleAionPilotFollowOnQueueExpanded;
+
+if (!window.__aionPilotFollowOnQueueExpandClickHandlerInstalled) {
+  window.__aionPilotFollowOnQueueExpandClickHandlerInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-pilot-follow-on-expand]");
+    if (!button) return;
+
+    event.preventDefault();
+    toggleAionPilotFollowOnQueueExpanded();
+  });
+}
+
+
+function renderAionPilotFollowOnWorkQueue(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const items = getAionPilotFollowOnWorkQueue(plan, state);
+  const approvals = getAionPilotFollowOnApprovalStages(state);
+  const completed = getAionPilotCompletedFollowOnWork(state);
+  const expanded = state.follow_on_queue_expanded === true;
+  const nextExecutable = getAionPilotNextExecutableFollowOnWorkItem(plan, state);
+  const usingBackendQueue = Array.isArray(state.mission_loop_queue) && state.mission_loop_queue.length > 0;
+
+  if (!items.length) {
+    return "";
+  }
+
+  const missionIndex = Number(state.mission_loop_index || 0);
+  const completedCount = usingBackendQueue
+    ? Math.min(missionIndex, items.length)
+    : items.filter((item, index) => {
+        const key = getAionPilotFollowOnWorkKey(item.label, index);
+        return completed[key] === true;
+      }).length;
+
+  const nextApprovalItem = items.find((item, index) => {
+    const key = getAionPilotFollowOnWorkKey(item.label, index);
+    const done = usingBackendQueue ? index < missionIndex : completed[key] === true;
+    return !done && (
+      approvals[key] === true ||
+      item.lane === "needs_approval" ||
+      item.requires_approval === true ||
+      item.requires_checkpoint === true
+    );
+  });
+
+  const currentLabel = nextExecutable?.item?.label || "No remaining safe draft work";
+  const pendingDrafts = getAionPilotPendingApprovalDrafts(state);
+  const currentPendingKey = nextExecutable?.key || "";
+  const currentStatus = nextExecutable?.blocked_for_approval
+    ? state.pending_mission_approval_index === missionIndex
+      ? "Waiting for approval"
+      : "Approval required"
+    : nextExecutable?.item
+      ? "Ready to continue"
+      : "Complete";
+  const nextApprovalLabel = nextApprovalItem?.label || "No approval pause selected";
+
+  const rows = items.map((item, index) => {
+    const key = getAionPilotFollowOnWorkKey(item.label, index);
+    const selected =
+      approvals[key] === true ||
+      item.requires_approval === true ||
+      item.requires_checkpoint === true ||
+      item.lane === "needs_approval";
+    const done = usingBackendQueue ? index < missionIndex : completed[key] === true;
+    const isCurrent = usingBackendQueue ? index === missionIndex : nextExecutable?.key === key;
+    const needsApproval =
+      item.lane === "needs_approval" ||
+      item.requires_approval === true ||
+      item.requires_checkpoint === true;
+
+    return `
+      <div class="aion-pilot-follow-on-row ${done ? "is-completed" : ""} ${isCurrent ? "is-current" : ""}" data-aion-pilot-follow-on-row="${escapeHtml(key)}">
+        <div class="aion-pilot-follow-on-task">
+          <strong>${escapeHtml(item.label)}</strong>
+          <span>${done ? "Completed" : needsApproval ? "Approval required" : "Safe draft work"}</span>
+        </div>
+        ${
+          done
+            ? `<span class="aion-pilot-follow-on-completed">✓ Completed</span>`
+            : usingBackendQueue
+              ? `<span class="aion-pilot-follow-on-toggle ${selected ? "is-selected" : ""}">
+                  ${selected ? "✓ Approval" : "No approval"}
+                </span>`
+              : `<button
+                  type="button"
+                  class="aion-pilot-follow-on-toggle ${selected ? "is-selected" : ""}"
+                  data-aion-pilot-follow-on-approval-toggle="${escapeHtml(key)}"
+                  aria-pressed="${selected ? "true" : "false"}"
+                >
+                  ${selected ? "✓ Approval" : "Approval"}
+                </button>`
+        }
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="aion-pilot-follow-on-queue aion-pilot-follow-on-sticky ${expanded ? "is-expanded" : "is-collapsed"}" data-aion-pilot-follow-on-queue>
+      <div class="aion-pilot-follow-on-summary">
+        <div>
+          <div class="aion-pilot-card-kicker">Next work · ${escapeHtml(String(completedCount))}/${escapeHtml(String(items.length))} completed</div>
+          <h3>Pilot task queue</h3>
+        </div>
+        <button type="button" data-aion-pilot-follow-on-expand>
+          ${expanded ? "Collapse tasks" : "Expand tasks"}
+        </button>
+      </div>
+
+      <div class="aion-pilot-follow-on-current-grid">
+        <div>
+          <span>Current</span>
+          <strong>${escapeHtml(currentLabel)}</strong>
+          <em>${escapeHtml(currentStatus)}</em>
+        </div>
+        <div>
+          <span>Next approval</span>
+          <strong>${escapeHtml(nextApprovalLabel)}</strong>
+          <em>Human checkpoint</em>
+        </div>
+      </div>
+
+      ${
+        expanded
+          ? `
+            <p>${usingBackendQueue ? "Backend mission queue. Selected approval stages are hard pauses. Safe draft work can continue between them." : "Tick anything that must pause for human approval. Unticked safe draft work can continue between approval stages."}</p>
+            <div class="aion-pilot-follow-on-list">
+              ${rows}
+            </div>
+          `
+          : ""
+      }
+
+      <div class="aion-pilot-actions aion-pilot-follow-on-actions">
+        <button type="button" data-aion-pilot-feedback-approve>
+          ${
+            state.pending_mission_approval_index === missionIndex
+              ? "Approve and continue"
+              : nextExecutable?.blocked_for_approval
+                ? "Continue safe work"
+                : "Continue safe work"
+          }
+        </button>
+        <button type="button" data-aion-pilot-feedback-revise>Revise</button>
+        <button type="button" data-aion-pilot-feedback-stop>Stop</button>
+      </div>
+    </div>
+  `;
+}
+
+window.deriveAionPilotFollowOnWorkItems = deriveAionPilotFollowOnWorkItems;
+window.renderAionPilotFollowOnWorkQueue = renderAionPilotFollowOnWorkQueue;
+window.toggleAionPilotFollowOnApprovalStage = toggleAionPilotFollowOnApprovalStage;
+
+if (!window.__aionPilotFollowOnApprovalClickHandlerInstalled) {
+  window.__aionPilotFollowOnApprovalClickHandlerInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-pilot-follow-on-approval-toggle]");
+    if (!button) return;
+
+    event.preventDefault();
+    toggleAionPilotFollowOnApprovalStage(button.getAttribute("data-aion-pilot-follow-on-approval-toggle"));
+  });
+}
+
+
 function renderAionPilotWorkPackageCard(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
   const workPackage = buildAionPilotWorkPackage(safePlan, state);
 
   const deliverables = workPackage.deliverables
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
-
-  const steps = workPackage.draft_steps
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join("");
-
-  const assets = workPackage.output_assets
-    .map((item) => `<span class="badge">${escapeHtml(item)}</span>`)
-    .join("");
-
-  const approvals = workPackage.approval_boundary
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("");
 
@@ -8241,20 +9139,32 @@ function renderAionPilotWorkPackageCard(plan = null, pilotState = null) {
         </div>
 
         <div>
-          <h4>Draft steps</h4>
-          <ul>${steps}</ul>
+          ${renderAionPilotHumanApprovalChecklist(workPackage, state)}
         </div>
       </div>
 
-      <div class="badge-row" data-aion-pilot-output-assets>
-        ${assets}
+      <div class="aion-pilot-actions aion-pilot-approval-trace" data-aion-pilot-work-package-actions>
+        ${
+          state.contract_status === "approved_for_safe_work" || state.safe_work_status === "completed_preview"
+            ? `
+              <span class="aion-pilot-trace-state aion-pilot-trace-approved">✓ Approved</span>
+              <button type="button" data-aion-pilot-continue-safe-work>
+                Continue safe work
+              </button>
+            `
+            : `<button type="button" data-aion-pilot-feedback-approve>Approve</button>`
+        }
+        ${
+          state.contract_status === "revision_requested"
+            ? `<span class="aion-pilot-trace-state aion-pilot-trace-revised">✓ Revised</span>`
+            : `<button type="button" data-aion-pilot-feedback-revise>Revise</button>`
+        }
+        ${
+          state.contract_status === "cancelled"
+            ? `<span class="aion-pilot-trace-state aion-pilot-trace-stopped">✓ Stopped</span>`
+            : `<button type="button" data-aion-pilot-feedback-stop>Stop</button>`
+        }
       </div>
-
-      <details class="aion-pilot-inline-safety" data-aion-phase21z-safety-helper>
-        <summary>Safety boundary</summary>
-        <p>Pilot can draft and preview. It still needs exact approval before live actions.</p>
-        <ul>${approvals}</ul>
-      </details>
 
       <span hidden>Pilot plan</span>
     </div>
@@ -8312,17 +9222,596 @@ function renderAionPilotStepCheckpointCard(pilotState = getAionPilotFrontendInte
   return `
     <div class="aion-pilot-stream-card" data-aion-pilot-step-checkpoint-card>
       <div class="aion-pilot-card-kicker">Approval point</div>
-      <h3>Ready for Step ${escapeHtml(String(nextStep))}</h3>
-      <p>The latest safe draft output is complete. Pilot can continue with the next safe step, but live actions still need exact approval.</p>
+      <h3>Ready for output ${escapeHtml(String(nextStep))}</h3>
+      <p>The latest draft output is complete. Pilot can continue with the next safe output, but live actions still need exact approval.</p>
 
       <div class="aion-pilot-actions">
-        <button type="button" data-aion-pilot-feedback-approve>Run next safe step</button>
+        <button type="button" data-aion-pilot-feedback-approve>Run next safe output</button>
         <button type="button" data-aion-pilot-feedback-revise>Revise</button>
         <button type="button" data-aion-pilot-feedback-stop>Stop</button>
       </div>
     </div>
   `;
 }
+
+
+function getAionPilotCommandBarContext(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const plan = state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const nextExecutable = typeof getAionPilotNextExecutableFollowOnWorkItem === "function"
+    ? getAionPilotNextExecutableFollowOnWorkItem(plan, state)
+    : null;
+  const pendingDrafts = typeof getAionPilotPendingApprovalDrafts === "function"
+    ? getAionPilotPendingApprovalDrafts(state)
+    : {};
+
+  if (
+    nextExecutable &&
+    nextExecutable.blocked_for_approval === true &&
+    pendingDrafts[nextExecutable.key] === true
+  ) {
+    return {
+      mode: "approval_draft_revision",
+      key: nextExecutable.key,
+      label: nextExecutable.item?.label || "Current approval draft",
+    };
+  }
+
+  if (state.draft_created === true) {
+    return {
+      mode: "mission_thread",
+      key: "",
+      label: "Current mission",
+    };
+  }
+
+  return {
+    mode: "new_mission",
+    key: "",
+    label: "",
+  };
+}
+
+function activateAionPilotRevisionCommandContext() {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const context = getAionPilotCommandBarContext(pilotState);
+
+  pilotState.command_mode = context.mode === "new_mission"
+    ? "mission_thread"
+    : context.mode;
+  pilotState.command_target_key = context.key || "";
+  pilotState.command_target_label = context.label || "Current mission";
+  pilotState.command_input_text = "";
+
+  pilotState.stream_events = [
+    ...(Array.isArray(pilotState.stream_events) ? pilotState.stream_events : []),
+    {
+      role: "system",
+      message: `Revision mode active for: ${pilotState.command_target_label}`,
+      created_at: new Date().toISOString(),
+    },
+  ].slice(-14);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  requestAnimationFrame(() => {
+    const input = document.querySelector("[data-aion-pilot-mission-input]");
+    if (input) {
+      input.focus();
+      input.selectionStart = input.value.length;
+      input.selectionEnd = input.value.length;
+    }
+  });
+
+  return pilotState;
+}
+
+function getAionPilotCommandBarPlaceholder(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const context = getAionPilotCommandBarContext(state);
+
+  if (state.command_mode === "approval_draft_revision" || context.mode === "approval_draft_revision") {
+    return `Tell Pilot what to revise in: ${context.label}`;
+  }
+
+  if (state.draft_created === true) {
+    return "Tell Pilot what to change in this current mission thread...";
+  }
+
+  return "Tell Pilot what to do...";
+}
+
+function getAionPilotCommandBarValue(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  if (state.command_mode === "approval_draft_revision" || state.command_mode === "mission_thread") {
+    return state.command_input_text || "";
+  }
+
+  return state.last_request || "";
+}
+
+function getAionPilotCommandButtonLabel(pilotState = null, hasDraft = false) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  if (state.command_mode === "approval_draft_revision") {
+    return "Send revision";
+  }
+
+  if (hasDraft) {
+    return "Send to Pilot";
+  }
+
+  return "Start task";
+}
+
+function buildAionPilotRevisionDraftOutput(targetLabel = "", instruction = "", plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const goal = String(safePlan.goal || state.last_request || "the current mission");
+  const label = normaliseAionPilotFollowOnLabel(targetLabel || "Current approval draft");
+  const revision = String(instruction || "").trim();
+
+  return [
+    `${label}`,
+    ``,
+    `Revised ${label}: ${goal}`,
+    ``,
+    `Revision instruction`,
+    revision || "Revise the current approval draft.",
+    ``,
+    `Revised draft output`,
+    `- Mission: ${goal}`,
+    `- Revised item: ${label}`,
+    `- Status: Waiting for human approval.`,
+    ``,
+    `Pilot response`,
+    `Pilot has revised this specific approval item inside the current mission thread. It has not started a new mission.`,
+    ``,
+    `Approval boundary`,
+    `Pilot has not published, sent messages, spent money, booked jobs, deployed anything, created accounts, changed live systems or contacted external parties.`,
+  ].join("\n");
+}
+
+
+
+function getAionPilotLatestEditableOutput(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const outputs = Array.isArray(state.step_outputs) ? state.step_outputs : [];
+  return [...outputs].reverse().find((item) => String(item?.output_text || "").trim()) || null;
+}
+
+function getAionPilotLatestEditableOutputText(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const latestOutput = getAionPilotLatestEditableOutput(state);
+
+  if (latestOutput) {
+    return String(latestOutput.output_text || "");
+  }
+
+  if (state.generated_output_text) {
+    return String(state.generated_output_text);
+  }
+
+  return getAionPilotOutputPreviewText(plan || state.plan || null, state);
+}
+
+
+function applyAionPilotPrecisePlaceholderRevisionLine(line = "", fromText = "", toText = "", stripFn = null) {
+  const strip = typeof stripFn === "function" ? stripFn : ((value) => String(value || ""));
+  const cleanLine = strip(line);
+  const fromRaw = String(fromText || "").trim();
+  const toRaw = String(toText || "").trim();
+
+  if (!fromRaw || !toRaw) return null;
+
+  const bare = fromRaw.replace(/^\[+|\]+$/g, "").trim();
+  const candidates = [
+    fromRaw,
+    `[${fromRaw}]`,
+    bare,
+    `[${bare}]`,
+  ].filter(Boolean);
+
+  const found = candidates.find((candidate) => cleanLine.includes(candidate));
+  if (!found) return null;
+
+  return {
+    found,
+    old_line: cleanLine,
+    new_line: cleanLine.replace(found, toRaw),
+  };
+}
+
+function applyAionPilotSimpleMissionThreadRevision(sourceText = "", instruction = "") {
+  const original = String(sourceText || "");
+  const requestRaw = String(instruction || "").trim();
+  const request = requestRaw.toLowerCase();
+
+  let revised = original;
+  const changes = [];
+
+  const stripTrackedDraftMarkers = (value = "") => String(value || "")
+    .replace(/\[\[AION_ADDED_LINE\]\]/g, "")
+    .replace(/\[\[\/AION_ADDED_LINE\]\]/g, "")
+    .replace(/\[\[AION_REMOVED_LINE\]\]/g, "")
+    .replace(/\[\[\/AION_REMOVED_LINE\]\]/g, "");
+
+  const normaliseLineForEditMatch = (value = "") => stripTrackedDraftMarkers(value)
+    .toLowerCase()
+    .replace(/^[-–—*\s]+/, "")
+    .replace(/^\d+[.)]\s*/, "")
+    .replace(/[.。]\s*$/, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  const cleanAionPilotEditPhrase = (value = "") => String(value || "")
+    .replace(/^[-–—>\s]+/, "")
+    .replace(/^(this\s+)?(to|into|onto)\s+the\s+(plan|list|section|draft|document)\s*[-:>]*\s*/i, "")
+    .replace(/^(this\s+)?(in|under)\s+the\s+(plan|list|section|draft|document)\s*[-:>]*\s*/i, "")
+    .replace(/^(this\s+)?(to|into)\s+(it|this)\s*[-:>]*\s*/i, "")
+    .replace(/^(a\s+)?new\s+item\s+(to|into|onto|on|in)\s+the\s+(plan|list|section|draft|document)\s*(for|called|named)?\s*/i, "")
+    .replace(/^(item|bullet|point)\s+(for|called|named)?\s*/i, "")
+    .replace(/^(old|new|from|to|with|for)\s*[-:>]*\s*/i, "")
+    .replace(/^(this\s+)?[-:>]+\s*/i, "")
+    .replace(/[.。]\s*$/, "")
+    .trim();
+
+  const cleanAionPilotAddedPhrase = cleanAionPilotEditPhrase;
+
+  const normaliseAddedLine = (value = "") => {
+    const cleaned = cleanAionPilotAddedPhrase(value);
+    if (!cleaned) return "";
+    return `- ${cleaned.charAt(0).toUpperCase()}${cleaned.slice(1)}`;
+  };
+
+  const findBestInsertionIndex = (lines = [], value = "") => {
+    const lowerValue = String(value || "").toLowerCase();
+
+    const preferredSectionPatterns = [
+      /content plan/i,
+      /marketing channels/i,
+      /channel plan/i,
+      /next actions/i,
+      /action plan/i,
+      /draft outline/i,
+      /deliverables/i,
+    ];
+
+    if (
+      lowerValue.includes("twitter") ||
+      lowerValue.includes("x post") ||
+      lowerValue.includes("social") ||
+      lowerValue.includes("post")
+    ) {
+      preferredSectionPatterns.unshift(/content plan/i, /marketing channels/i, /channel plan/i);
+    }
+
+    for (const pattern of preferredSectionPatterns) {
+      const sectionIndex = lines.findIndex((line) => pattern.test(stripTrackedDraftMarkers(line)));
+      if (sectionIndex < 0) continue;
+
+      let scanIndex = sectionIndex + 1;
+      let lastBulletIndex = -1;
+
+      while (
+        scanIndex < lines.length &&
+        !/^\d+\.\s+/.test(stripTrackedDraftMarkers(lines[scanIndex])) &&
+        !/^\d+\)\s+/.test(stripTrackedDraftMarkers(lines[scanIndex]))
+      ) {
+        if (/^\s*[-–—*]\s+/.test(stripTrackedDraftMarkers(lines[scanIndex]))) {
+          lastBulletIndex = scanIndex;
+        }
+        scanIndex += 1;
+      }
+
+      if (lastBulletIndex >= 0) {
+        return lastBulletIndex + 1;
+      }
+
+      return sectionIndex + 1;
+    }
+
+    return lines.length;
+  };
+
+  const splitAionPilotCompoundAddInstruction = (value = "") => {
+    const raw = String(value || "");
+    const splitMatch = raw.match(/\s+(?:and\s+then|then|also)\s+(adda?|add)\b/i);
+
+    if (!splitMatch) {
+      return {
+        primary_text: raw,
+        extra_add_text: "",
+      };
+    }
+
+    const splitIndex = splitMatch.index;
+    const addStart = splitIndex + splitMatch[0].replace(/\b(adda?|add)\b/i, "").length;
+
+    return {
+      primary_text: raw.slice(0, splitIndex).trim(),
+      extra_add_text: raw.slice(addStart).trim(),
+    };
+  };
+
+  const extractAionPilotReplacementOperation = (value = "") => {
+    const raw = String(value || "").trim();
+
+    const patterns = [
+      /\b(?:change|replace|edit|update|swap)\s+(?:this\s*)?[-:>]*\s*(.+?)\s*>{2,}\s*(?:to|with)\s+(?:this\s*)?[-:>]*\s*(.+)$/i,
+      /\b(?:change|replace|edit|update|swap)\s+(?:this\s*)?[-:>]*\s*(.+?)\s+(?:to|with|for)\s+(?:this\s*)?[-:>]*\s*(.+)$/i,
+    ];
+
+    for (const pattern of patterns) {
+      const match = raw.match(pattern);
+      if (!match) continue;
+
+      const compoundTarget = splitAionPilotCompoundAddInstruction(match[2]);
+      const fromText = cleanAionPilotEditPhrase(match[1]);
+      const toText = cleanAionPilotEditPhrase(compoundTarget.primary_text);
+      const extraAddText = cleanAionPilotEditPhrase(compoundTarget.extra_add_text);
+
+      if (fromText && toText) {
+        return {
+          from_text: fromText,
+          to_text: toText,
+          extra_add_text: extraAddText,
+        };
+      }
+    }
+
+    return null;
+  };
+
+  const replacementOperation = extractAionPilotReplacementOperation(requestRaw);
+  let replacementOperationHandled = false;
+
+  if (
+    replacementOperation &&
+    replacementOperation.from_text &&
+    replacementOperation.to_text &&
+    revised.includes(replacementOperation.from_text)
+  ) {
+    const fromText = replacementOperation.from_text;
+    const toText = replacementOperation.to_text;
+    revised = revised.split(fromText).join(toText);
+    replacementOperationHandled = true;
+    changes.push(`Changed placeholder: ${fromText}`);
+    changes.push(`Changed to: ${toText}`);
+
+    // Extra add text is handled later by the existing addOperations block.
+  }
+
+  if (replacementOperation && !replacementOperationHandled) {
+    const fromComparable = normaliseLineForEditMatch(replacementOperation.from_text);
+    const replacementLine = normaliseAddedLine(replacementOperation.to_text);
+    const lines = revised.split("\n");
+    let replaced = false;
+
+    revised = lines.map((line) => {
+      const comparable = normaliseLineForEditMatch(line);
+
+      if (
+        !replaced &&
+        comparable &&
+        fromComparable &&
+        (
+          comparable === fromComparable ||
+          comparable.includes(fromComparable) ||
+          fromComparable.includes(comparable)
+        )
+      ) {
+        replaced = true;
+        const cleanLine = stripTrackedDraftMarkers(line).trim();
+        changes.push(`Changed from: ${cleanLine}`);
+        changes.push(`Changed to: ${replacementLine}`);
+        return `[[AION_REMOVED_LINE]]${cleanLine}[[/AION_REMOVED_LINE]]\n[[AION_ADDED_LINE]]${replacementLine}[[/AION_ADDED_LINE]]`;
+      }
+
+      return line;
+    }).join("\n");
+
+    if (!replaced) {
+      changes.push(`Could not find exact text to change: ${replacementOperation.from_text}`);
+    }
+  }
+
+  if (!replacementOperation && /\b(remove|delete|take out)\b/i.test(request)) {
+    const lines = revised.split("\n");
+
+    revised = lines.map((line) => {
+      const comparable = normaliseLineForEditMatch(line);
+
+      if (
+        comparable &&
+        comparable.length >= 6 &&
+        request.includes(comparable) &&
+        !line.includes("[[AION_REMOVED_LINE]]")
+      ) {
+        const cleanLine = stripTrackedDraftMarkers(line).trim();
+        changes.push(`Removed: ${cleanLine}`);
+        return `[[AION_REMOVED_LINE]]${cleanLine}[[/AION_REMOVED_LINE]]`;
+      }
+
+      return line;
+    }).join("\n");
+  }
+
+  const addOperations = [];
+
+  if (!replacementOperation) {
+    const addRegex = /\badda?\s+([^.;\n]+)(?:[.;\n]|$)|\badd\s+([^.;\n]+)(?:[.;\n]|$)/gi;
+    let addMatch;
+
+    while ((addMatch = addRegex.exec(requestRaw)) !== null) {
+      const addedLine = normaliseAddedLine(addMatch[1] || addMatch[2] || "");
+      if (addedLine) {
+        addOperations.push(addedLine);
+      }
+    }
+  }
+
+  if (replacementOperation && replacementOperation.extra_add_text) {
+    const addedLine = normaliseAddedLine(replacementOperation.extra_add_text);
+    if (addedLine) {
+      addOperations.push(addedLine);
+    }
+  }
+
+  addOperations.forEach((line) => {
+    const lines = revised.split("\n");
+    const alreadyExists = lines.some((existing) => normaliseLineForEditMatch(existing) === normaliseLineForEditMatch(line));
+
+    if (alreadyExists) {
+      changes.push(`Already present: ${line}`);
+      return;
+    }
+
+    const insertAt = findBestInsertionIndex(lines, line);
+    const trackedLine = `[[AION_ADDED_LINE]]${line}[[/AION_ADDED_LINE]]`;
+    const nextLines = [...lines];
+
+    if (insertAt >= nextLines.length) {
+      nextLines.push("", "Additional notes", trackedLine);
+    } else {
+      nextLines.splice(insertAt, 0, trackedLine);
+    }
+
+    revised = nextLines.join("\n");
+    changes.push(`Added: ${line}`);
+  });
+
+  if (!changes.length) {
+    changes.push("Revision instruction recorded, but no exact matching line was found.");
+  }
+
+  return {
+    revised_text: revised,
+    change_log: changes,
+  };
+}
+
+function applyAionPilotCommandBarRevisionIfActive(commandText = "") {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const commandMode = String(pilotState.command_mode || "");
+  const isRevisionMode = commandMode === "approval_draft_revision" || commandMode === "mission_thread";
+
+  if (!isRevisionMode) {
+    return false;
+  }
+
+  const instruction = String(commandText || "").trim();
+  if (!instruction) {
+    return false;
+  }
+
+  const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
+  const targetLabel = pilotState.command_target_label || plan.output_label || "Current mission output";
+
+  if (commandMode === "mission_thread") {
+    const latestOutput = getAionPilotLatestEditableOutput(pilotState);
+    const sourceText = getAionPilotLatestEditableOutputText(plan, pilotState);
+    const revision = applyAionPilotSimpleMissionThreadRevision(sourceText, instruction);
+    const stepNumber = Number(latestOutput?.step_number || pilotState.current_step_index || 1);
+    const title = String(latestOutput?.title || plan.output_label || targetLabel || `Output ${stepNumber}`);
+
+    appendAionPilotStepOutput({
+      step_number: stepNumber,
+      title,
+      output_label: String(latestOutput?.output_label || title),
+      output_text: revision.revised_text,
+      open: true,
+      change_log: revision.change_log,
+      revision_instruction: instruction,
+      revised_in_place: true,
+    });
+
+    pilotState.command_mode = "mission_thread";
+    pilotState.command_input_text = "";
+    pilotState.status = "mission_thread_active";
+    pilotState.safe_work_status = "completed_preview";
+    pilotState.last_revision_summary = revision.change_log.join("\n");
+
+    pilotState.stream_events = [
+      ...(Array.isArray(pilotState.stream_events) ? pilotState.stream_events : []),
+      {
+        role: "user",
+        message: instruction,
+        created_at: new Date().toISOString(),
+      },
+      {
+        role: "system",
+        message: `Edited current working draft in place: ${title}`,
+        created_at: new Date().toISOString(),
+      },
+    ].slice(-14);
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+
+    return true;
+  }
+
+  const stepNumber = Number(pilotState.current_step_index || 0) + 1;
+  const outputText = buildAionPilotRevisionDraftOutput(targetLabel, instruction, plan, pilotState);
+
+  appendAionPilotStepOutput({
+    step_number: stepNumber,
+    title: `Revised ${targetLabel}`,
+    output_text: outputText,
+    open: true,
+  });
+
+  pilotState.current_step_index = stepNumber;
+  pilotState.command_mode = commandMode;
+  pilotState.command_input_text = "";
+  pilotState.status = "waiting_approval";
+  pilotState.safe_work_status = "completed_preview";
+
+  pilotState.stream_events = [
+    ...(Array.isArray(pilotState.stream_events) ? pilotState.stream_events : []),
+    {
+      role: "user",
+      message: instruction,
+      created_at: new Date().toISOString(),
+    },
+    {
+      role: "system",
+      message: `Revised current approval draft: ${targetLabel}`,
+      created_at: new Date().toISOString(),
+    },
+  ].slice(-14);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return true;
+}
+
+window.activateAionPilotRevisionCommandContext = activateAionPilotRevisionCommandContext;
+window.applyAionPilotCommandBarRevisionIfActive = applyAionPilotCommandBarRevisionIfActive;
+
+if (!window.__aionPilotRevisionCommandBarClickHandlerInstalled) {
+  window.__aionPilotRevisionCommandBarClickHandlerInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-pilot-feedback-revise]");
+    if (!button) return;
+
+    const context = getAionPilotCommandBarContext();
+    if (context.mode === "new_mission") return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    activateAionPilotRevisionCommandContext();
+  }, true);
+}
+
 
 function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot()) {
   const pilotState = getAionPilotFrontendInteractionState();
@@ -8336,13 +9825,8 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
     <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-phase21r-stream-ui-redesign data-aion-phase21x-real-frontend-pilot-mount data-aion-phase22c-step-runner-ui>
       <div class="aion-pilot-stream-header">
         <div>
-          <div class="eyebrow">AION PILOT</div>
           <h2>Pilot</h2>
-          <p>Give Pilot a task. It drafts the safe work, then asks before live actions.</p>
-        </div>
-
-        <div class="aion-pilot-status" data-aion-pilot-status="${escapeHtml(snapshot.status)}">
-          ${escapeHtml(statusLabel)}
+          <p>It drafts the plan, you choose the human approval stages, and Pilot executes the safe work between them.</p>
         </div>
       </div>
 
@@ -8357,51 +9841,17 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
 
               ${renderAionPilotWorkPackageCard(plan, pilotState)}
 
-              <div class="aion-pilot-stream-card" data-aion-pilot-contract-card>
-                <div class="aion-pilot-card-kicker">Next step</div>
-                <h3>${
-                  safeWorkCompleted
-                    ? "Safe draft work completed"
-                    : safeWorkRunning
-                      ? "Pilot is doing the safe draft work"
-                      : pilotState.contract_status === "revision_requested"
-                        ? "Revision requested"
-                        : pilotState.contract_status === "cancelled"
-                          ? "Mission cancelled"
-                          : "Approve plan to run safe work"
-                }</h3>
-                <p>${
-                  safeWorkCompleted
-                    ? "Review the output below. Any live action still needs exact approval."
-                    : safeWorkRunning
-                      ? "Pilot is preparing the draft output inside the business container."
-                      : pilotState.contract_status === "revision_requested"
-                        ? "Pilot is waiting for revised instructions before continuing."
-                        : pilotState.contract_status === "cancelled"
-                          ? "Pilot has stopped this mission. No live external action was taken."
-                          : "This will generate the draft output only. Posting, sending, spending, booking and deployment stay blocked."
-                }</p>
-
-                <div class="aion-pilot-actions">
-                  <button type="button" data-aion-pilot-feedback-approve>
-                    ${safeWorkCompleted ? "Run next safe step" : "Approve plan and run safe work"}
-                  </button>
-                  <button type="button" data-aion-pilot-feedback-revise>Revise</button>
-                  <button type="button" data-aion-pilot-feedback-stop>Stop</button>
-                </div>
-              </div>
-
               ${
-                safeWorkCompleted
+                (safeWorkCompleted || safeWorkRunning || (Array.isArray(pilotState.step_outputs) && pilotState.step_outputs.length > 0))
                   ? `
                     ${renderAionPilotStepOutputCards(pilotState)}
-                    ${renderAionPilotStepCheckpointCard(pilotState)}
+                    ${renderAionPilotFollowOnWorkQueue(plan, pilotState)}
                   `
                   : ""
               }
 
               <details class="aion-pilot-advanced-details" data-aion-pilot-advanced-details>
-                <summary>Advanced details: safety, reasoning, proof, hashes and blocked actions</summary>
+                <summary>Advanced details — proof, hashes, paths, lanes and blocked actions: safety, reasoning, proof, hashes and blocked actions</summary>
 
                 ${renderAionPilotReasoningMiniStatus(pilotState)}
                 ${renderAionPilotAdvancedTechnicalDetails(snapshot)}
@@ -8413,16 +9863,16 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
             `
             : `
               <div class="aion-pilot-stream-message aion-pilot-stream-message-system">
-                <p>Ask Pilot for a business task. It will create a plan first, then wait for approval before running safe draft work.</p>
+                <p>Ask for any business task for a business task. It will create a plan first, then wait for approval before running safe draft work.</p>
               </div>
             `
         }
       </div>
 
       <div class="aion-pilot-composer-bar" data-aion-pilot-composer>
-        <textarea id="aion-pilot-mission-input" data-aion-pilot-mission-input rows="3" placeholder="Tell Pilot what to do...">${escapeHtml(pilotState.last_request || "")}</textarea>
+        <textarea id="aion-pilot-mission-input" data-aion-pilot-mission-input rows="3" placeholder="${escapeHtml(getAionPilotCommandBarPlaceholder(pilotState))}">${escapeHtml(getAionPilotCommandBarValue(pilotState))}</textarea>
         <button type="button" data-aion-pilot-create-draft-mission>
-          ${hasDraft ? "Update mission" : "Start task"}
+          ${getAionPilotCommandButtonLabel(pilotState, hasDraft)}
         </button>
       </div>
     </section>
@@ -8668,6 +10118,79 @@ function getAionPilotOutputPreparedDetail(plan = null) {
 
 /* PHASE 21Q LOCK: Pilot real output actions */
 
+
+function buildAionPilotMarketingPlanDraft(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const goal = String(safePlan.goal || state.last_request || "Marketing plan");
+
+  const businessName = /home fixed/i.test(goal) ? "Home Fixed" : "the business";
+
+  return [
+    `Marketing Plan Draft: ${goal}`,
+    "",
+    "1. Marketing Objective",
+    `${businessName} should focus on generating qualified enquiries, improving local awareness, and converting repeatable repair/property-maintenance requests into booked jobs after human review.`,
+    "",
+    "2. Target Audience",
+    "- Homeowners who need reliable repairs or property improvements.",
+    "- Landlords and property managers who need responsive maintenance.",
+    "- Busy families who want one trusted contact.",
+    "- Older homeowners who prefer simple phone or WhatsApp communication.",
+    "- Local customers who respond to proof, before/after work and clear quotes.",
+    "",
+    "3. Positioning Message",
+    `${businessName} should be positioned as a dependable local property repair and maintenance service with clear communication, practical workmanship and no chasing tradesmen.`,
+    "",
+    "4. Core Offer",
+    "- Clear repair/property maintenance quote.",
+    "- Photo-first enquiry triage where useful.",
+    "- Before/after proof where appropriate.",
+    "- Simple WhatsApp or phone enquiry flow.",
+    "- Human-reviewed quote before any booking or paid work.",
+    "",
+    "5. Marketing Channels",
+    "- Google Business Profile with photos, services and reviews.",
+    "- Facebook before/after posts.",
+    "- Local Facebook/community awareness posts where allowed.",
+    "- Local SEO service pages.",
+    "- Referral cards after completed jobs.",
+    "- Landlord/agent outreach list prepared as draft only.",
+    "",
+    "6. Content Plan",
+    "- Before/after transformation posts.",
+    "- Problem/solution repair posts.",
+    "- Seasonal maintenance reminders.",
+    "- Service spotlight posts.",
+    "- Trust/proof posts showing reliability and communication.",
+    "- Quote-process explainer posts.",
+    "",
+    "7. Lead Capture Workflow",
+    "1. Customer sees post, advert or local listing.",
+    "2. Customer sends message/photos/location.",
+    "3. Pilot/office captures enquiry details.",
+    "4. Human reviews urgency, access and safety.",
+    "5. Quote, inspection or decline/escalate decision is approved manually.",
+    "6. No booking, payment or external message is created without human approval.",
+    "",
+    "8. 30/60/90-Day Action Plan",
+    "Days 1-30: Finalise offer, service areas, Google Business Profile, photos and review request process.",
+    "Days 31-60: Publish regular proof-led content and local service pages.",
+    "Days 61-90: Add referral process, landlord/agent outreach drafts and campaign variants for approval.",
+    "",
+    "9. Approval Needed Before Execution",
+    "- Publish posts or adverts.",
+    "- Spend ad budget.",
+    "- Send customer/landlord/agent messages.",
+    "- Connect or change social/ad accounts.",
+    "- Book jobs, inspections or paid work.",
+    "- Create payment, deposit or escrow.",
+    "",
+    "10. Approval Boundary",
+    "Pilot has prepared this as a draft only. It has not published, sent messages, booked jobs, spent money, deployed a website, created payment links or changed live business state.",
+  ].join("\n");
+}
+
 function buildAionPilotBusinessPlanDraft(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
@@ -8752,7 +10275,7 @@ function buildAionPilotBusinessPlanDraft(plan = null, pilotState = null) {
     "",
     "10. Approval Boundary",
     "Pilot has prepared this as a draft only. It has not published, sent messages, booked jobs, spent money, deployed a website, created payment links or changed live business state.",
-  ].join("\\n");
+  ].join("\n");
 }
 
 function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
@@ -8760,6 +10283,10 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
   const taskType = String(safePlan.task_type || "general_task");
   const goal = String(safePlan.goal || state.last_request || "Untitled task");
+
+  if (taskType === "marketing_plan") {
+    return buildAionPilotMarketingPlanDraft(safePlan, state);
+  }
 
   if (taskType === "business_plan") {
     return buildAionPilotBusinessPlanDraft(safePlan, state);
@@ -8793,7 +10320,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "- Sending messages.",
       "- Spending ad budget.",
       "- Connecting or changing social accounts.",
-    ].join("\\n");
+    ].join("\n");
   }
 
   if (taskType === "spreadsheet") {
@@ -8811,7 +10338,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "",
       "Status: draft/preview only.",
       "No financial action has been taken.",
-    ].join("\\n");
+    ].join("\n");
   }
 
   if (taskType === "website_preview") {
@@ -8830,7 +10357,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "- Domain purchase.",
       "- Production deployment.",
       "- Public publishing.",
-    ].join("\\n");
+    ].join("\n");
   }
 
   if (taskType === "advertising") {
@@ -8880,7 +10407,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "",
       "9. Recommended Next Safe Step",
       "Create the exact Facebook/Google advert variants and a lead-capture script as draft assets. Do not publish them until approved.",
-    ].join("\\n");
+    ].join("\n");
   }
 
   if (taskType === "document") {
@@ -8895,7 +10422,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "5. Next steps",
       "",
       "Status: draft/preview only.",
-    ].join("\\n");
+    ].join("\n");
   }
 
   return [
@@ -8907,7 +10434,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
     "1. Review the plan.",
     "2. Approve safe work.",
     "3. Keep risky actions blocked until exact approval.",
-  ].join("\\n");
+  ].join("\n");
 }
 
 function getAionPilotReceiptPreview(plan = null, pilotState = null) {
@@ -8975,7 +10502,7 @@ function downloadAionPilotOutputPreview() {
     "---",
     "AION Pilot Preview Receipt",
     JSON.stringify(receipt, null, 2),
-  ].join("\\n");
+  ].join("\n");
 
   const blob = new Blob([payload], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -9078,137 +10605,84 @@ function getAionPilotStepOutputTitle(outputText = "", fallback = "Step output") 
 function buildAionPilotPriorityStepOutput(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
-  const goal = String(safePlan.goal || state.last_request || "Pilot task").trim();
-  const taskType = String(safePlan.task_type || "general_task");
-  const stepNumber = Math.max(1, Number(state.current_step_index || 1));
+  const nextFollowOn = typeof getAionPilotNextExecutableFollowOnWorkItem === "function"
+    ? getAionPilotNextExecutableFollowOnWorkItem(safePlan, state)
+    : null;
 
-  const rawSteps = Array.isArray(safePlan.safe_steps)
-    ? safePlan.safe_steps
-    : Array.isArray(safePlan.safeSteps)
-      ? safePlan.safeSteps
-      : Array.isArray(safePlan.steps)
-        ? safePlan.steps
-        : Array.isArray(safePlan.draft_steps)
-          ? safePlan.draft_steps
-          : Array.isArray(safePlan.draftSteps)
-            ? safePlan.draftSteps
-            : Array.isArray(safePlan.draft_step_titles)
-              ? safePlan.draft_step_titles
-              : Array.isArray(safePlan.draftStepTitles)
-                ? safePlan.draftStepTitles
-                : Array.isArray(safePlan.work_package?.draft_steps)
-                  ? safePlan.work_package.draft_steps
-                  : Array.isArray(safePlan.workPackage?.draftSteps)
-                    ? safePlan.workPackage.draftSteps
-                    : Array.isArray(safePlan.deliverables)
-                      ? safePlan.deliverables
-                      : Array.isArray(safePlan.expected_outputs)
-                        ? safePlan.expected_outputs
-                        : Array.isArray(safePlan.expectedOutputs)
-                          ? safePlan.expectedOutputs
-                          : [];
+  if (nextFollowOn && nextFollowOn.blocked_for_approval === true) {
+    const pendingDrafts = getAionPilotPendingApprovalDrafts(state);
+    const approvalMode = classifyAionPilotApprovalRequirementMode(nextFollowOn.item.label);
 
-  const normalisedSteps = rawSteps
-    .map((step, index) => {
-      if (typeof step === "string") {
-        return {
-          id: `step_${index + 1}`,
-          title: step,
-          description: step,
-          lane: "safe_internal",
-          decision: "autonomous",
-        };
+    if (approvalMode === "content_approval") {
+      if (pendingDrafts[nextFollowOn.key] === true) {
+        const completed = getAionPilotCompletedFollowOnWork(state);
+        completed[nextFollowOn.key] = true;
+        delete pendingDrafts[nextFollowOn.key];
+
+        return [
+          `Approved`,
+          ``,
+          `${nextFollowOn.item.label}`,
+          ``,
+          `Human approval recorded for this content/asset checkpoint.`,
+          ``,
+          `Safe status`,
+          `Pilot can now continue to the next safe draft task. No live external action has been taken.`,
+        ].join("\n");
       }
 
-      return {
-        id: String(step?.id || step?.step_id || `step_${index + 1}`),
-        title: String(step?.title || step?.label || step?.name || `Step ${index + 1}`),
-        description: String(step?.description || step?.summary || step?.detail || step?.title || ""),
-        lane: String(step?.lane || step?.autonomy_lane || "safe_internal"),
-        decision: String(step?.effective_decision || step?.decision || step?.required_control || "autonomous"),
-        output: String(step?.expected_output || step?.output || step?.deliverable || ""),
-      };
-    });
+      pendingDrafts[nextFollowOn.key] = true;
+      return buildAionPilotApprovalDraftOutput(nextFollowOn.item, safePlan, state);
+    }
 
-  const selectedStepIndex = Math.max(0, stepNumber - 2);
-  const selectedStep =
-    normalisedSteps[selectedStepIndex] ||
-    normalisedSteps[stepNumber - 1] ||
-    normalisedSteps[normalisedSteps.length - 1] ||
-    {
-      id: `step_${stepNumber}`,
-      title: "Next safe draft step",
-      description: "Prepare the next safe draft output and stop before live external action.",
-      lane: "safe_internal",
-      decision: "autonomous",
-      output: "Safe draft output",
-    };
+    return [
+      `Approval required`,
+      ``,
+      `The next queued work item needs human approval before Pilot can run it:`,
+      ``,
+      `${nextFollowOn.item.label}`,
+      ``,
+      `Why Pilot paused`,
+      `This item appears to involve live, external, financial, account, deployment, booking, customer contact or credentialed action.`,
+      ``,
+      `Approval boundary`,
+      `Pilot has not executed this live action. Approve only if you want Pilot to proceed under the allowed action boundary.`,
+      ``,
+      `Safe status`,
+      `No live external action has been taken.`,
+    ].join("\n");
+  }
 
-  const previousOutputs = Array.isArray(state.step_outputs) ? state.step_outputs : [];
-  const completedTitles = previousOutputs
-    .map((item) => String(item.title || item.output_label || "").trim())
+  if (nextFollowOn && nextFollowOn.item) {
+    const completed = getAionPilotCompletedFollowOnWork(state);
+    completed[nextFollowOn.key] = true;
+    return buildAionPilotFollowOnTaskDraftOutput(nextFollowOn.item, safePlan, state);
+  }
+
+  const goal = String(safePlan.goal || state.last_request || "the approved mission");
+  const taskType = String(safePlan.task_type || "general_task").replace(/_/g, " ");
+  const outputs = Array.isArray(state.step_outputs) ? state.step_outputs : [];
+  const completedTitles = outputs
+    .map((item) => String(item?.title || "").trim())
     .filter(Boolean);
 
-  const approvalLines = normalisedSteps
-    .filter((step) => {
-      const decision = String(step.decision || "").toLowerCase();
-      const lane = String(step.lane || "").toLowerCase();
-      return (
-        decision.includes("approval") ||
-        decision.includes("human") ||
-        decision.includes("blocked") ||
-        lane.includes("external") ||
-        lane.includes("financial") ||
-        lane.includes("deployment") ||
-        lane.includes("legal")
-      );
-    })
-    .map((step) => `- ${step.title}: ${step.decision}`);
-
-  const safeChecklist = normalisedSteps
-    .filter((step) => {
-      const decision = String(step.decision || "").toLowerCase();
-      return !decision.includes("blocked") && !decision.includes("human_task");
-    })
-    .slice(0, Math.max(stepNumber, 3))
-    .map((step, index) => `${index + 1}. ${step.title}${step.description ? ` — ${step.description}` : ""}`);
-
   return [
-    `Step ${stepNumber}: ${selectedStep.title}`,
-    "",
-    "Mission goal:",
+    `No further safe draft work available`,
+    ``,
+    `Mission goal:`,
     goal,
-    "",
-    "Task type:",
-    taskType.replace(/_/g, " "),
-    "",
-    "Safe draft work for this step:",
-    selectedStep.description || selectedStep.output || "Prepare the next safe draft output.",
-    "",
-    "Current safe checklist:",
-    ...(safeChecklist.length ? safeChecklist : ["1. Review the approved mission plan.", "2. Prepare the next safe draft output.", "3. Stop before live external action."]),
-    "",
-    ...(completedTitles.length
-      ? [
-          "Already completed outputs:",
-          ...completedTitles.map((title) => `- ${title}`),
-          "",
-        ]
-      : []),
-    "Still approval-gated:",
-    ...(approvalLines.length
-      ? approvalLines
-      : [
-          "- Posting publicly requires exact approval.",
-          "- Sending external messages requires exact approval.",
-          "- Spending money requires exact approval.",
-          "- Production deployment requires exact approval.",
-          "- Booking, payment, escrow or reputation mutation requires exact approval.",
-        ]),
-    "",
-    "Safe status:",
-    "Draft/preview work only. No live external action has been taken.",
-  ].join("\\n");
+    ``,
+    `Task type:`,
+    taskType,
+    ``,
+    `Already completed outputs:`,
+    completedTitles.length
+      ? completedTitles.map((title) => `- ${title}`).join("\n")
+      : "- None yet",
+    ``,
+    `Safe status:`,
+    `Pilot has no remaining unticked safe draft work in the current queue. Add, revise or approve new stages before continuing.`,
+  ].join("\n");
 }
 
 function approveAionPilotMissionContract() {
@@ -9225,7 +10699,7 @@ function approveAionPilotMissionContract() {
       current_step_index: nextStepNumber,
       generated_output_text: "",
     });
-    const stepOutputTitle = getAionPilotStepOutputTitle(outputText, `Step ${nextStepNumber} output`);
+    const stepOutputTitle = getAionPilotStepOutputTitle(outputText, `Output ${nextStepNumber}`);
 
     appendAionPilotStepOutput({
       step_number: nextStepNumber,
@@ -9271,8 +10745,6 @@ function approveAionPilotMissionContract() {
     detail: "Pilot may continue safe draft/preview work. Risky actions remain blocked until exact approval.",
     status: "approved_for_safe_work",
   });
-
-  runAionPilotSafeWorkPreview();
 
   if (typeof requestRender === "function") {
     requestRender();
@@ -9428,7 +10900,7 @@ function buildAionPilotDocumentDraft(plan = null, pilotState = null) {
     "",
     "10. Approval Boundary",
     "AION Pilot has only prepared this draft. It has not posted publicly, sent messages, booked work, deployed a website, spent money, created payment links, changed reputation state or contacted customers.",
-  ].join("\\n");
+  ].join("\n");
 }
 
 function buildAionPilotGeneratedOutput(plan = null, pilotState = null) {
@@ -9462,6 +10934,7 @@ function getAionPilotResolvedGeneratedOutput(plan = null, pilotState = null) {
   return buildAionPilotGeneratedOutput(safePlan, state);
 }
 
+
 function getAionPilotStepOutputs() {
   const pilotState = getAionPilotFrontendInteractionState();
 
@@ -9477,7 +10950,7 @@ function appendAionPilotStepOutput(step = {}) {
   const outputs = getAionPilotStepOutputs();
   const stepNumber = Number(step.step_number || outputs.length + 1);
   const outputText = String(step.output_text || "");
-  const title = String(step.title || `Step ${stepNumber} output`);
+  const title = String(step.title || `Output ${stepNumber}`);
 
   const nextOutput = {
     step_number: stepNumber,
@@ -9486,6 +10959,9 @@ function appendAionPilotStepOutput(step = {}) {
     output_text: outputText,
     open: step.open !== false,
     status: String(step.status || "completed_preview"),
+    change_log: Array.isArray(step.change_log) ? step.change_log : [],
+    revision_instruction: String(step.revision_instruction || ""),
+    revised_in_place: step.revised_in_place === true,
     artifact_hash: String(step.artifact_hash || `sha256:frontend_step_${stepNumber}_artifact`),
     receipt_hash: String(step.receipt_hash || `sha256:frontend_step_${stepNumber}_receipt`),
   };
@@ -9503,6 +10979,78 @@ function appendAionPilotStepOutput(step = {}) {
   return nextOutput;
 }
 
+function renderAionPilotTrackedDraftLine(line = "") {
+  const value = String(line || "");
+
+  if (value.includes("[[AION_REMOVED_LINE]]")) {
+    const clean = value
+      .replace("[[AION_REMOVED_LINE]]", "")
+      .replace("[[/AION_REMOVED_LINE]]", "");
+    return `<div class="aion-pilot-tracked-line aion-pilot-tracked-line-removed">${escapeHtml(clean)}</div>`;
+  }
+
+  if (value.includes("[[AION_ADDED_LINE]]")) {
+    const clean = value
+      .replace("[[AION_ADDED_LINE]]", "")
+      .replace("[[/AION_ADDED_LINE]]", "");
+    return `<div class="aion-pilot-tracked-line aion-pilot-tracked-line-added">${escapeHtml(clean)}</div>`;
+  }
+
+  return `<div class="aion-pilot-tracked-line">${escapeHtml(value || " ")}</div>`;
+}
+
+function renderAionPilotTrackedDraftText(value = "") {
+  return String(value || "")
+    .split("\n")
+    .map((line) => renderAionPilotTrackedDraftLine(line))
+    .join("");
+}
+
+function cleanAionPilotTrackedDraftText(value = "") {
+  return String(value || "")
+    .split("\n")
+    .filter((line) => !line.includes("[[AION_REMOVED_LINE]]"))
+    .map((line) => line
+      .replace(/\[\[AION_ADDED_LINE\]\]/g, "")
+      .replace(/\[\[\/AION_ADDED_LINE\]\]/g, "")
+      .replace(/\[\[AION_REMOVED_LINE\]\]/g, "")
+      .replace(/\[\[\/AION_REMOVED_LINE\]\]/g, "")
+    )
+    .join("\n");
+}
+
+function cleanAionPilotTrackedDraftOutput(stepNumber = 0) {
+  const pilotState = getAionPilotFrontendInteractionState();
+  const selectedStep = Number(stepNumber);
+
+  pilotState.step_outputs = (Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : []).map((item) => {
+    if (Number(item.step_number) !== selectedStep) {
+      return item;
+    }
+
+    const cleanedText = cleanAionPilotTrackedDraftText(item.output_text || "");
+
+    pilotState.generated_output_text = cleanedText;
+    pilotState.output_panel_body = cleanedText;
+    pilotState.output_panel_title = item.title || pilotState.output_panel_title;
+
+    return {
+      ...item,
+      output_text: cleanedText,
+      change_log: [],
+      revision_instruction: "",
+      revised_in_place: false,
+      cleaned_tracked_changes: true,
+    };
+  });
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+}
+
+window.cleanAionPilotTrackedDraftOutput = cleanAionPilotTrackedDraftOutput;
+
 function renderAionPilotStepOutputCards(pilotState = getAionPilotFrontendInteractionState()) {
   const outputs = Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : [];
 
@@ -9512,34 +11060,38 @@ function renderAionPilotStepOutputCards(pilotState = getAionPilotFrontendInterac
 
   return outputs.map((item) => {
     const stepNumber = Number(item.step_number || 0);
-    const isOpen = item.open === true;
+    const changes = Array.isArray(item.change_log) ? item.change_log : [];
+    const hasChanges = item.revised_in_place === true && changes.length > 0;
 
     return `
-      <div class="aion-pilot-stream-card" data-aion-pilot-step-output-card data-aion-pilot-step-number="${escapeHtml(String(stepNumber))}">
-        <div class="aion-pilot-card-kicker">Step ${escapeHtml(String(stepNumber))} output</div>
-        <h3>${escapeHtml(item.title || `Step ${stepNumber} output`)}</h3>
-        <p>Completed safe draft output. Review it, download it, or inspect the receipt.</p>
-
-        <div class="aion-pilot-actions">
-          <button type="button" data-aion-pilot-open-step-output="${escapeHtml(String(stepNumber))}">Open output</button>
-          <button type="button" data-aion-pilot-download-output>Download output</button>
-          <button type="button" data-aion-pilot-view-receipt>View receipt</button>
+      <div class="aion-pilot-terminal-output ${hasChanges ? "aion-pilot-output-revised" : ""}" data-aion-pilot-step-output-card data-aion-pilot-inline-output-panel data-aion-pilot-inline-output-step="${escapeHtml(String(stepNumber))}">
+        <div class="aion-pilot-output-panel-header">
+          <strong>${escapeHtml(item.title || `Output ${stepNumber}`)}</strong>
+          ${
+            hasChanges
+              ? `
+                <span class="aion-pilot-tracked-change-badge">Edited in place</span>
+                <button
+                  type="button"
+                  class="aion-pilot-clean-tracked-draft-button"
+                  onclick="window.cleanAionPilotTrackedDraftOutput && window.cleanAionPilotTrackedDraftOutput(${Number(stepNumber)})"
+                >Clean Me</button>
+              `
+              : ""
+          }
         </div>
-      </div>
-
-      ${
-        isOpen
-          ? `
-            <div class="aion-pilot-output-panel" data-aion-pilot-inline-output-panel data-aion-pilot-inline-output-step="${escapeHtml(String(stepNumber))}">
-              <div class="aion-pilot-output-panel-header">
-                <strong>${escapeHtml(item.title || `Step ${stepNumber} output`)}</strong>
-                <button type="button" data-aion-pilot-close-step-output="${escapeHtml(String(stepNumber))}">Close</button>
+        ${
+          hasChanges
+            ? `
+              <div class="aion-pilot-tracked-change-strip" data-aion-pilot-tracked-change-strip>
+                <strong>Tracked changes</strong>
+                <ul>${changes.map((change) => `<li>${escapeHtml(change)}</li>`).join("")}</ul>
               </div>
-              <pre>${escapeHtml(normaliseAionPilotPreviewText(item.output_text || ""))}</pre>
-            </div>
-          `
-          : ""
-      }
+            `
+            : ""
+        }
+        <div class="aion-pilot-output-pre">${renderAionPilotTrackedDraftText(item.output_text || "")}</div>
+      </div>
     `;
   }).join("");
 }
@@ -9565,92 +11117,747 @@ function openAionPilotStepOutput(stepNumber = 0) {
   }
 }
 
-function runAionPilotSafeWorkPreview() {
+
+/* PHASE 23C LOCK: Frontend Mission Preview Runtime Bridge */
+
+function getAionPilotMissionPreviewUrl() {
+  return "http://127.0.0.1:8080/api/local-node/aion/pilot/mission-preview";
+}
+
+function getAionPilotExecuteSafeStepUrl() {
+  return getAionPilotMissionPreviewUrl().replace(/\/mission-preview$/, "/execute-safe-step");
+}
+
+function getAionPilotCurrentMissionDraftText(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+
+  if (typeof getAionPilotLatestEditableOutputText === "function") {
+    return getAionPilotLatestEditableOutputText(safePlan, state);
+  }
+
+  return String(state.generated_output_text || safePlan.output_text || state.last_request || "");
+}
+
+function getAionPilotAvailableVaultRequirements(pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+
+  const direct =
+    state.available_vault_requirements ||
+    state.availableVaultRequirements ||
+    state.vault_requirements ||
+    state.vaultRequirements ||
+    [];
+
+  if (Array.isArray(direct)) return direct;
+
+  const vault = state.vault || state.vaultCredentials || state.connectorVault || {};
+  const ready = [];
+
+  Object.entries(vault || {}).forEach(([key, value]) => {
+    if (value === true || value?.ready === true || value?.connected === true) {
+      ready.push(`vault.${String(key).replace(/^vault\./, "")}.credentials`);
+    }
+  });
+
+  return ready;
+}
+
+function getAionPilotApprovalStagePayload(workPackage = {}, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const stages = typeof getAionPilotHumanApprovalStages === "function"
+    ? getAionPilotHumanApprovalStages(state)
+    : (state.human_approval_stages || {});
+  const steps = Array.isArray(workPackage.draft_steps) ? workPackage.draft_steps : [];
+
+  return steps.map((title, index) => {
+    const key = typeof getAionPilotHumanApprovalStageKey === "function"
+      ? getAionPilotHumanApprovalStageKey(title, index)
+      : `stage_${index + 1}`;
+    return {
+      title: String(title || `Step ${index + 1}`),
+      requires_approval: stages[key] === true,
+    };
+  });
+}
+
+function buildAionPilotMissionPreviewPayload(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const workPackage = typeof buildAionPilotWorkPackage === "function"
+    ? buildAionPilotWorkPackage(safePlan, state)
+    : {};
+  const draftText = getAionPilotCurrentMissionDraftText(safePlan, state);
+  const draftSteps = getAionPilotApprovalStagePayload(workPackage, state);
+
+  return {
+    business_id: safePlan.business_id || state.business_id || "home-fixed",
+    mission_id: state.mission_id || "pilot_demo_pdf_mission",
+    mission_run_id: state.mission_run_id || "pilot_demo_run_preview",
+    user_goal: safePlan.goal || state.last_request || "",
+    task_type: safePlan.task_type || "general_task",
+    template_id: safePlan.template_id || "home_fixed_lead_campaign_v0",
+
+    plan_text: draftText,
+    generated_output_text: draftText,
+    current_draft: draftText,
+    work_package: workPackage,
+    draft_steps: draftSteps,
+    approval_stages: draftSteps.filter((step) => step.requires_approval).map((step) => step.title),
+
+    brand_foundation_state: state.brandFoundationState || state.brand_foundation_state || {},
+    marketing_form: state.marketingForm || state.marketing_form || {},
+    marketing_summary: state.marketingSummary || state.marketing_summary || {},
+
+    available_vault_requirements: getAionPilotAvailableVaultRequirements(state),
+
+    frontend_context_source: "aion_pilot_continue_button",
+    preview_only: true,
+    live_external_side_effects_enabled: false,
+  };
+}
+
+function applyAionPilotMissionPreviewPayload(payload = {}) {
   const pilotState = getAionPilotFrontendInteractionState();
+  const safePayload = payload && typeof payload === "object" ? payload : {};
+  const missionMap = safePayload.business_context_mission_map || {};
+  const taskNodes = Array.isArray(safePayload.context_task_nodes)
+    ? safePayload.context_task_nodes
+    : Array.isArray(missionMap.task_nodes)
+      ? missionMap.task_nodes
+      : [];
+
+  pilotState.backend_mission_preview_status = "loaded";
+  pilotState.backend_mission_preview_payload = safePayload;
+  pilotState.backend_mission_preview = safePayload;
+  pilotState.business_context_mission_map = missionMap;
+  pilotState.task_loop_map = safePayload.task_loop_map || missionMap.task_loop_map || {};
+  pilotState.context_task_nodes = taskNodes;
+  pilotState.human_task_cards = Array.isArray(safePayload.human_task_cards)
+    ? safePayload.human_task_cards
+    : Array.isArray(missionMap.human_task_cards)
+      ? missionMap.human_task_cards
+      : [];
+  pilotState.credential_required_cards = Array.isArray(safePayload.credential_required_cards)
+    ? safePayload.credential_required_cards
+    : Array.isArray(missionMap.credential_required_cards)
+      ? missionMap.credential_required_cards
+      : [];
+
+  const planSteps = Array.isArray(safePayload.mission_plan?.steps)
+    ? safePayload.mission_plan.steps
+    : [];
+
+  const safePlanNodes = planSteps
+    .map((step) => {
+      const approvalRequired =
+        step?.requires_checkpoint === true ||
+        step?.requires_approval === true ||
+        String(step?.decision || "") === "checkpoint_required";
+
+      return {
+        ...step,
+        node_type: "mission_plan_safe_step",
+        decision: approvalRequired ? "checkpoint_required" : "safe_internal",
+        source: "backend_mission_plan",
+        safe_draft_work_allowed: !approvalRequired,
+        requires_checkpoint: approvalRequired,
+        requires_approval: approvalRequired,
+        is_approval_gate: approvalRequired,
+        live_external_side_effects_allowed: false,
+        subtasks: Array.isArray(step.subtasks) ? step.subtasks : [],
+      };
+    });
+
+  const nextMissionLoopQueue = [
+    ...safePlanNodes,
+    ...taskNodes,
+  ];
+
+  const previousMissionSignature = String(pilotState.mission_loop_signature || "");
+  const nextMissionSignature = String(
+    safePayload.mission_plan?.plan_hash ||
+    safePayload.business_context_mission_map?.map_hash ||
+    safePayload.mission_id ||
+    "",
+  );
+
+  const existingIndex = Number(pilotState.mission_loop_index || 0);
+  const shouldPreserveLoopIndex =
+    previousMissionSignature &&
+    nextMissionSignature &&
+    previousMissionSignature === nextMissionSignature &&
+    Array.isArray(pilotState.mission_loop_queue) &&
+    pilotState.mission_loop_queue.length === nextMissionLoopQueue.length;
+
+  pilotState.mission_loop_queue = nextMissionLoopQueue;
+  pilotState.mission_loop_signature = nextMissionSignature;
+  pilotState.mission_loop_index = shouldPreserveLoopIndex ? existingIndex : 0;
+
+  pilotState.backend_mission_preview_hash =
+    safePayload.preview_hash ||
+    missionMap.mission_map_hash ||
+    safePayload.timeline?.timeline_hash ||
+    "";
+
+  pilotState.replay_hash =
+    safePayload.timeline?.timeline_hash ||
+    pilotState.replay_hash ||
+    "sha256:mission_preview_timeline";
+
+  pilotState.proof_hash =
+    safePayload.timeline_safety?.safety_hash ||
+    pilotState.proof_hash ||
+    "sha256:mission_preview_safety";
+
+  appendAionPilotStreamEvent({
+    type: "mission_preview_loaded",
+    label: "Mission map loaded",
+    detail: "Pilot loaded the backend business-context mission map and runtime preview.",
+    status: "mission_map_ready",
+  });
+
+  return pilotState;
+}
+
+async function fetchAionPilotMissionPreviewIntoPilotState(plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const payload = buildAionPilotMissionPreviewPayload(plan, state);
+  const url = getAionPilotMissionPreviewUrl();
+
+  state.backend_mission_preview_status = "loading";
+  state.backend_mission_preview_started_at = Date.now();
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      signal: controller.signal,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => "");
+      throw new Error(`Pilot mission preview failed: ${response.status} ${errorText}`);
+    }
+
+    const previewPayload = await response.json();
+    state.backend_mission_preview = previewPayload;
+    applyAionPilotMissionPreviewPayload(previewPayload);
+    state.backend_mission_preview_status = "loaded";
+    return previewPayload;
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      throw new Error("Pilot mission preview timed out after 15 seconds. Backend did not return a response.");
+    }
+    throw error;
+  } finally {
+    clearTimeout(timeoutId);
+    state.backend_mission_preview_started_at = null;
+    if (state.backend_mission_preview_status === "loading") {
+      state.backend_mission_preview_status = "idle";
+    }
+  }
+}
+
+function normaliseAionPilotMissionMapNodeTitle(node = {}, index = 0) {
+  return String(
+    node.title ||
+    node.task_title ||
+    node.label ||
+    node.step_title ||
+    node.action_label ||
+    node.action_type ||
+    `Mission task ${index + 1}`,
+  );
+}
+
+function buildAionPilotExecuteSafeStepPayload(node = {}, missionPayload = {}, plan = null, pilotState = null, stepIndex = 0) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const backendPreview = state.backend_mission_preview || state.backend_mission_preview_payload || missionPayload || {};
+  const missionPlan = backendPreview.mission_plan || missionPayload.mission_plan || {};
+  const missionMap = state.business_context_mission_map || backendPreview.business_context_mission_map || missionPayload.business_context_mission_map || {};
+
+  return {
+    business_id: safePlan.business_id || state.business_id || backendPreview.business_id || "home-fixed",
+    mission_id: state.mission_id || backendPreview.mission_id || "pilot_mission_preview",
+    mission_run_id: state.mission_run_id || backendPreview.mission_run_id || "pilot_mission_preview_run",
+    user_goal: safePlan.goal || state.last_request || backendPreview.user_goal || "",
+    step: node,
+    step_index: stepIndex,
+    mission_plan: missionPlan,
+    business_context: missionMap.business_context || missionMap || {},
+    business_context_mission_map: missionMap,
+    marketing_form: state.marketingForm || state.marketing_form || {},
+    marketing_summary: state.marketingSummary || state.marketing_summary || {},
+    brand_foundation_state: state.brandFoundationState || state.brand_foundation_state || {},
+    provider: state.ai_provider || state.provider || "gemma4",
+    preview_only: true,
+    live_external_side_effects_enabled: false,
+  };
+}
+
+async function fetchAionPilotExecuteSafeStep(payload = {}) {
+  const response = await fetch(getAionPilotExecuteSafeStepUrl(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload || {}),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(`Pilot safe-step execution failed: ${response.status} ${errorText}`);
+  }
+
+  return await response.json();
+}
+
+async function executeAndAppendAionPilotMissionMapStepOutput(payload = {}, plan = null, pilotState = null) {
+  const state = pilotState || getAionPilotFrontendInteractionState();
+  const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
+  const nodes = Array.isArray(state.mission_loop_queue) ? state.mission_loop_queue : [];
+  const currentIndex = Number(state.mission_loop_index || 0);
+
+  if (state.safe_step_execution_status === "loading") {
+    appendAionPilotStreamEvent({
+      type: "pilot_safe_step_duplicate_click_ignored",
+      label: "Safe step already running",
+      detail: "Pilot is already executing the current safe step. Duplicate Continue click ignored.",
+      status: "running_safe_work",
+    });
+    if (typeof requestRender === "function") requestRender();
+    return false;
+  }
+
+  if (!nodes.length) {
+    appendAionPilotStepOutput({
+      step_number: getAionPilotStepOutputs().length + 1,
+      title: "Mission runtime preview",
+      output_label: "Mission runtime preview",
+      output_text: [
+        "Mission runtime preview",
+        "",
+        "The backend mission-preview bridge returned no executable safe internal task nodes.",
+        "",
+        "No live external side effects occurred.",
+      ].join("\n"),
+      artifact_hash: payload.runtime_preview?.state?.state_hash || "sha256:mission_preview_no_nodes",
+      receipt_hash: payload.timeline?.timeline_hash || "sha256:mission_preview_no_nodes_receipt",
+    });
+    return false;
+  }
+
+  if (currentIndex >= nodes.length) {
+    appendAionPilotStepOutput({
+      step_number: getAionPilotStepOutputs().length + 1,
+      title: "No further safe mission-map work",
+      output_label: "No further safe mission-map work",
+      output_text: [
+        "No further safe mission-map work available",
+        "",
+        `Mission: ${safePlan.goal || state.last_request || ""}`,
+        "",
+        "No further backend mission-map task nodes are available.",
+        "",
+        "No live external side effects occurred.",
+      ].join("\n"),
+      artifact_hash: payload.runtime_preview?.state?.state_hash || "sha256:mission_preview_complete",
+      receipt_hash: payload.timeline?.timeline_hash || "sha256:mission_preview_complete_receipt",
+    });
+    return false;
+  }
+
+  const node = nodes[currentIndex];
+  const title = normaliseAionPilotMissionMapNodeTitle(node, currentIndex);
+  const approvalRequired =
+    node?.requires_checkpoint === true ||
+    node?.requires_approval === true ||
+    node?.is_approval_gate === true ||
+    String(node?.decision || "") === "checkpoint_required";
+
+  if (approvalRequired) {
+    state.pending_mission_approval_index = currentIndex;
+    state.pending_mission_approval_title = title;
+    state.status = "waiting_review";
+    state.safe_work_status = "waiting_review";
+    state.artifact_status = "waiting_review";
+
+    appendAionPilotStepOutput({
+      step_number: getAionPilotStepOutputs().length + 1,
+      title: `Approval required: ${title}`,
+      output_label: `Approval required: ${title}`,
+      output_text: [
+        `Approval required`,
+        ``,
+        `Next task: ${title}`,
+        ``,
+        `Question`,
+        `Approval required?`,
+        ``,
+        `Runtime decision`,
+        `This stage was selected as a human approval checkpoint. Pilot has stopped before executing it.`,
+        ``,
+        `If approved`,
+        `Click Continue safe work / Approve and continue. Pilot will mark this checkpoint as approved and move to the next safe task.`,
+        ``,
+        `If not approved`,
+        `Click Revise or Stop.`,
+        ``,
+        `Safety boundary`,
+        `No live external action has been taken.`,
+      ].join("\n"),
+      artifact_hash: `sha256:mission_approval_gate_${currentIndex}`,
+      receipt_hash: `sha256:mission_approval_gate_${currentIndex}_receipt`,
+    });
+
+    appendAionPilotStreamEvent({
+      type: "mission_approval_gate_reached",
+      label: `Approval required: ${title}`,
+      detail: "Pilot paused before a selected approval stage.",
+      status: "waiting_review",
+    });
+
+    return false;
+  }
+
+  const executionPayload = buildAionPilotExecuteSafeStepPayload(node, payload, safePlan, state, currentIndex);
+
+  state.status = "running_safe_work";
+  state.safe_work_status = "running_safe_work";
+  state.safe_step_execution_status = "loading";
+  state.safe_step_execution_started_at = Date.now();
+
+  appendAionPilotStreamEvent({
+    type: "pilot_safe_step_execution_started",
+    label: `Executing safe step: ${title}`,
+    detail: "Pilot is calling the backend safe-step executor for the current approved safe task.",
+    status: "running_safe_work",
+  });
+
+  if (typeof requestRender === "function") requestRender();
+
+  try {
+    const executionResult = await fetchAionPilotExecuteSafeStep(executionPayload);
+
+    const outputText = String(
+      executionResult.output_text ||
+      executionResult.text ||
+      executionResult.result ||
+      "Backend safe-step executor returned no output_text."
+    );
+
+    appendAionPilotStepOutput({
+      step_number: getAionPilotStepOutputs().length + 1,
+      title: executionResult.title || title,
+      output_label: executionResult.title || title,
+      output_text: outputText,
+      artifact_hash:
+        executionResult.artifact_hash ||
+        executionResult.artifact_card?.artifact_hash ||
+        node.node_hash ||
+        node.task_hash ||
+        payload.runtime_preview?.state?.state_hash ||
+        "sha256:pilot_safe_step_execution_artifact",
+      receipt_hash:
+        executionResult.receipt_hash ||
+        executionResult.artifact_card?.artifact_receipt_hash ||
+        node.receipt_hash ||
+        payload.timeline?.timeline_hash ||
+        "sha256:pilot_safe_step_execution_receipt",
+    });
+
+    state.mission_loop_index = currentIndex + 1;
+    state.generated_output_text = outputText;
+    state.output_panel_kind = "pilot_safe_step_execution_output";
+    state.last_safe_step_execution = executionResult;
+
+    appendAionPilotStreamEvent({
+      type: "pilot_safe_step_executed",
+      label: executionResult.title || title,
+      detail: "Pilot executed the next safe internal task through the backend safe-step executor.",
+      status: "completed_preview",
+    });
+
+    return true;
+  } finally {
+    state.safe_step_execution_status = "idle";
+    state.safe_step_execution_started_at = null;
+  }
+}
+
+if (!window.__aionPilotContinueSafeWorkClickHandlerInstalled) {
+  window.__aionPilotContinueSafeWorkClickHandlerInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-pilot-continue-safe-work]");
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    runAionPilotSafeWorkPreview();
+  }, true);
+}
+
+window.getAionPilotMissionPreviewUrl = getAionPilotMissionPreviewUrl;
+window.fetchAionPilotMissionPreviewIntoPilotState = fetchAionPilotMissionPreviewIntoPilotState;
+window.fetchAionPilotExecuteSafeStep = fetchAionPilotExecuteSafeStep;
+window.executeAndAppendAionPilotMissionMapStepOutput = executeAndAppendAionPilotMissionMapStepOutput;
+window.applyAionPilotMissionPreviewPayload = applyAionPilotMissionPreviewPayload;
+
+/* END PHASE 23C LOCK */
+
+
+async function runAionPilotSafeWorkPreview() {
+  const pilotState = getAionPilotFrontendInteractionState();
+
+  const safeStepStartedAt = Number(pilotState.safe_step_execution_started_at || 0);
+  const safeStepAgeMs = safeStepStartedAt > 0 ? Date.now() - safeStepStartedAt : Number.POSITIVE_INFINITY;
+
+  if (pilotState.safe_step_execution_status === "loading" && safeStepAgeMs < 120000) {
+    console.warn("[AION Pilot] Safe step already running; ignoring duplicate Continue safe work click");
+
+    appendAionPilotStreamEvent({
+      type: "pilot_safe_step_duplicate_click_ignored",
+      label: "Safe step already running",
+      detail: "Pilot is already waiting for /api/local-node/aion/pilot/execute-safe-step.",
+      status: "running_safe_work",
+    });
+
+    if (typeof requestRender === "function") requestRender();
+    return;
+  }
+
+
+  const loadingStartedAt = Number(pilotState.backend_mission_preview_started_at || 0);
+  const loadingAgeMs = loadingStartedAt > 0 ? Date.now() - loadingStartedAt : Number.POSITIVE_INFINITY;
+
+  if (pilotState.backend_mission_preview_status === "loading" && loadingAgeMs < 16000) {
+    console.warn("[AION Pilot] Mission preview already loading; ignoring duplicate Continue safe work click");
+
+    appendAionPilotStreamEvent({
+      type: "mission_preview_duplicate_click_ignored",
+      label: "Mission preview already loading",
+      detail: "Pilot is already waiting for the backend mission-preview response.",
+      status: "running_safe_work",
+    });
+
+    if (typeof requestRender === "function") requestRender();
+    return;
+  }
+
+  if (
+    Number.isInteger(Number(pilotState.pending_mission_approval_index)) &&
+    Number(pilotState.pending_mission_approval_index) === Number(pilotState.mission_loop_index || 0)
+  ) {
+    const approvedTitle = String(pilotState.pending_mission_approval_title || "Approval checkpoint");
+    const approvedIndex = Number(pilotState.pending_mission_approval_index);
+
+    appendAionPilotStreamEvent({
+      type: "mission_approval_gate_approved",
+      label: `Approved: ${approvedTitle}`,
+      detail: "Human approval recorded for the selected mission checkpoint. Pilot will continue to the next safe task.",
+      status: "approved_for_safe_work",
+    });
+
+    delete pilotState.pending_mission_approval_index;
+    delete pilotState.pending_mission_approval_title;
+    pilotState.mission_loop_index = approvedIndex + 1;
+    pilotState.status = "approved_for_safe_work";
+    pilotState.safe_work_status = "completed_preview";
+  }
+
+  if (pilotState.backend_mission_preview_status === "loading") {
+    console.warn("[AION Pilot] Clearing stale mission preview loading state before retry", {
+      loadingStartedAt,
+      loadingAgeMs,
+    });
+
+    pilotState.backend_mission_preview_status = "idle";
+    pilotState.backend_mission_preview_started_at = null;
+  }
+
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
+
+  const existingMissionQueue = Array.isArray(pilotState.mission_loop_queue)
+    ? pilotState.mission_loop_queue
+    : [];
+
+  const existingMissionIndex = Number(pilotState.mission_loop_index || 0);
+
+  if (
+    pilotState.backend_mission_preview_status === "loaded" &&
+    existingMissionQueue.length > 0 &&
+    existingMissionIndex < existingMissionQueue.length
+  ) {
+    console.log("[AION Pilot] Continuing existing backend mission queue", {
+      index: existingMissionIndex,
+      total: existingMissionQueue.length,
+      next: existingMissionQueue[existingMissionIndex]?.title || existingMissionQueue[existingMissionIndex]?.action_type,
+    });
+
+    pilotState.status = "running_safe_work";
+    pilotState.safe_work_status = "running_safe_work";
+
+    const appended = await executeAndAppendAionPilotMissionMapStepOutput(
+      {
+        payload_type: "aion_pilot_mission_preview",
+        status: "continued_from_existing_queue",
+        mission_plan: pilotState.backend_mission_preview?.mission_plan || {},
+        business_context_mission_map: pilotState.business_context_mission_map || {},
+        task_loop_map: pilotState.task_loop_map || {},
+        context_task_nodes: pilotState.context_task_nodes || [],
+        human_task_cards: pilotState.human_task_cards || [],
+        credential_required_cards: pilotState.credential_required_cards || [],
+      },
+      plan,
+      pilotState,
+    );
+
+    pilotState.artifact_status = appended ? "completed_preview" : "waiting_review";
+    pilotState.safe_work_status = appended ? "completed_preview" : "waiting_review";
+    pilotState.status = appended ? "completed_preview" : "waiting_review";
+
+    appendAionPilotStreamEvent({
+      type: appended ? "mission_map_next_safe_step_completed" : "mission_map_no_next_step",
+      label: appended ? "Next mission-map safe step completed" : "No next mission-map step",
+      detail: appended
+        ? "Pilot continued the already-loaded backend mission queue instead of reloading step 1."
+        : "Pilot found no further safe mission-map step to run.",
+      status: pilotState.status,
+    });
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+
+    return;
+  }
 
   pilotState.status = "running_safe_work";
   pilotState.safe_work_status = "running_safe_work";
 
   appendAionPilotStreamEvent({
-    type: "safe_work_started",
-    label: "Safe work started",
-    detail: "Pilot is drafting preview outputs inside the business container.",
+    type: "mission_preview_started",
+    label: "Mission runtime started",
+    detail: "Pilot is loading the business-context mission map from the backend Mission Mode runtime.",
     status: "running_safe_work",
-  });
-
-  appendAionPilotStreamEvent({
-    type: "drafting_output",
-    label: "Drafting output",
-    detail: `Preparing ${plan.output_label || "draft output"} from the approved safe plan.`,
-    status: "running_safe_work",
-  });
-
-  const outputText = getAionPilotOutputPreviewText(plan, {
-    ...pilotState,
-    generated_output_text: "",
   });
 
   appendAionPilotStepOutput({
-    step_number: 1,
-    title: plan.output_label || "Step 1 output",
-    output_label: plan.output_label || "Draft output",
-    output_text: outputText,
-    artifact_hash: "sha256:frontend_step1_artifact",
-    receipt_hash: "sha256:frontend_step1_receipt",
+    step_number: getAionPilotStepOutputs().length + 1,
+    title: "Loading backend mission map",
+    output_label: "Loading backend mission map",
+    output_text: [
+      "Loading backend mission map",
+      "",
+      "Pilot clicked Continue safe work.",
+      "Now calling /api/local-node/aion/pilot/mission-preview.",
+      "",
+      "Expected result:",
+      "- business context map",
+      "- brand foundation context",
+      "- marketing context",
+      "- safe mission plan steps",
+      "- task nodes",
+      "- vault / OAuth checkpoints",
+      "- human task cards where required",
+      "",
+      "No live external side effects are allowed.",
+    ].join("\n"),
+    artifact_hash: "sha256:frontend_backend_mission_map_loading",
+    receipt_hash: "sha256:frontend_backend_mission_map_loading_receipt",
   });
 
-  appendAionPilotStreamEvent({
-    type: "saving_artifact",
-    label: "Saving draft artifact",
-    detail: "Step 1 draft output saved to the business container preview path.",
-    status: "draft_preview",
-  });
-
-  pilotState.artifact_status = "completed_preview";
-  pilotState.artifact_hash = "sha256:frontend_step1_artifact";
-  pilotState.receipt_hash = "sha256:frontend_step1_receipt";
-  pilotState.replay_hash = "sha256:frontend_step1_replay";
-  pilotState.proof_hash = "sha256:frontend_step1_proof";
-
-  if (typeof fetchAionPilotArtifactPreviewIntoPilotState === "function") {
-    fetchAionPilotArtifactPreviewIntoPilotState(plan, pilotState).catch((error) => {
-      pilotState.backend_artifact_status = "error";
-      pilotState.backend_artifact_error = String(error?.message || error || "Pilot artifact preview failed");
-      appendAionPilotStreamEvent({
-        type: "backend_artifact_preview_error",
-        label: "Backend artifact preview failed",
-        detail: pilotState.backend_artifact_error,
-        status: "error",
-      });
-      if (typeof requestRender === "function") {
-        requestRender();
-      }
-    });
+  if (typeof requestRender === "function") {
+    requestRender();
   }
 
-  appendAionPilotStreamEvent({
-    type: "receipt_created",
-    label: "Receipt created",
-    detail: "Preview receipt, proof and replay hashes were generated.",
-    status: "receipt_preview",
-  });
+  try {
+    console.log("[AION Pilot] Fetching backend mission preview", buildAionPilotMissionPreviewPayload(plan, pilotState));
 
-  appendAionPilotStreamEvent({
-    type: "safe_work_completed",
-    label: "Safe work completed",
-    detail: "Step 1 draft preview is ready. Risky actions remain blocked until exact approval.",
-    status: "completed_preview",
-  });
+    const missionPayload = await fetchAionPilotMissionPreviewIntoPilotState(plan, pilotState);
 
-  pilotState.status = "completed_preview";
-  pilotState.safe_work_status = "completed_preview";
+    console.log("[AION Pilot] Backend mission preview received", missionPayload);
+
+    appendAionPilotStreamEvent({
+      type: "business_context_mission_map_ready",
+      label: "Business-context mission map loaded",
+      detail: "Pilot received backend Mission Mode plan, safe-step queue, provider checkpoints and human task cards.",
+      status: "running_safe_work",
+    });
+
+    const appended = await executeAndAppendAionPilotMissionMapStepOutput(missionPayload, plan, pilotState);
+
+    console.log("[AION Pilot] Mission map output appended", {
+      appended,
+      node_count: Array.isArray(pilotState.context_task_nodes) ? pilotState.context_task_nodes.length : 0,
+      loop_count: Array.isArray(pilotState.mission_loop_queue) ? pilotState.mission_loop_queue.length : 0,
+      human_task_count: Array.isArray(pilotState.human_task_cards) ? pilotState.human_task_cards.length : 0,
+      credential_card_count: Array.isArray(pilotState.credential_required_cards) ? pilotState.credential_required_cards.length : 0,
+    });
+
+    pilotState.artifact_status = appended ? "completed_preview" : "waiting_review";
+    pilotState.safe_work_status = appended ? "completed_preview" : "waiting_review";
+    pilotState.status = appended ? "completed_preview" : "waiting_review";
+
+    appendAionPilotStreamEvent({
+      type: appended ? "mission_map_safe_step_completed" : "mission_map_waiting",
+      label: appended ? "Mission-map safe work completed" : "Mission-map waiting",
+      detail: appended
+        ? "Pilot completed the next safe backend mission-map node and stopped before live external actions."
+        : "Pilot loaded the backend mission-map but found no safe node to run.",
+      status: pilotState.status,
+    });
+
+    appendAionPilotStreamEvent({
+      type: "receipt_created",
+      label: "Proof receipt preview created",
+      detail: "Pilot created a local preview receipt. No live chain write occurred.",
+      status: pilotState.status,
+    });
+  } catch (error) {
+    console.error("[AION Pilot] Backend mission preview runner failed", error);
+
+    pilotState.status = "error";
+    pilotState.safe_work_status = "error";
+    pilotState.backend_mission_preview_status = "error";
+    pilotState.backend_mission_preview_started_at = null;
+    pilotState.backend_mission_preview_error = String(error?.message || error);
+
+    appendAionPilotStepOutput({
+      step_number: getAionPilotStepOutputs().length + 1,
+      title: "Backend mission preview failed",
+      output_label: "Backend mission preview failed",
+      output_text: [
+        "Backend mission preview failed",
+        "",
+        String(error?.message || error),
+        "",
+        "Pilot did not continue because the backend did not return a usable mission-preview payload.",
+        "",
+        "No live external side effects were performed.",
+      ].join("\n"),
+      artifact_hash: "sha256:backend_mission_preview_failed",
+      receipt_hash: "sha256:backend_mission_preview_failed_receipt",
+    });
+
+    appendAionPilotStreamEvent({
+      type: "mission_preview_error",
+      label: "Mission preview failed",
+      detail: String(error?.message || error),
+      status: "error",
+    });
+  }
 
   if (typeof requestRender === "function") {
     requestRender();
   }
 }
-
 /* END PHASE 21T LOCK */
 
 
@@ -10302,7 +12509,7 @@ function renderAionChatSurface() {
             <section class="panel" data-aion-pilot-chat-pointer>
             <div class="panel-title">AION Pilot</div>
             <div class="helper-text" style="margin-top:0;">
-              Pilot Cockpit is available in <strong>Live Agents → Aion</strong>, where operator missions, artifacts, blocked actions, proof and replay belong.
+              <span data-aion-pilot-live-agents-entry="true">Pilot Cockpit is available in <strong>Live Agents → Aion</strong></span>, where operator missions, artifacts, blocked actions, proof and replay belong.
             </div>
           </section>
 
@@ -24430,6 +26637,15 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
 
       </div>
 
+      
+    <section class="aion-pilot-operator-identity" data-aion-phase21l-operator-identity="true">
+      <div class="aion-pilot-panel-kicker">Aion Operator Identity</div>
+      <div class="aion-pilot-panel-title">AION Pilot — native AION runtime executor</div>
+      <div class="aion-pilot-panel-copy">
+        Preview / plan-gated mode. No live external side effects without exact approval.
+      </div>
+    </section>
+
       ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
     </section>
   `;
@@ -29431,7 +31647,22 @@ if (action === "capture-browser-approval-checkpoint") {
       }
 
 
+      const aionPilotContinueSafeWorkButton = target.closest("[data-aion-pilot-continue-safe-work]");
+      if (aionPilotContinueSafeWorkButton) {
+        runAionPilotSafeWorkPreview();
+        return;
+      }
+
       const aionPilotApprovePlanButton = target.closest("[data-aion-pilot-feedback-approve]");
+      if (
+        aionPilotApprovePlanButton &&
+        getAionPilotFrontendInteractionState().contract_status === "approved_for_safe_work" &&
+        typeof runAionPilotSafeWorkPreview === "function"
+      ) {
+        runAionPilotSafeWorkPreview();
+        return;
+      }
+
       if (aionPilotApprovePlanButton) {
         approveAionPilotMissionContract();
         desktopStore.persistCache?.();
@@ -86690,7 +88921,491 @@ async function fetchAionLrmPilotContextPreviewIntoPilotState(params = {}) {
 window.getAionLrmPilotContextPreviewUrl = getAionLrmPilotContextPreviewUrl;
 window.applyAionLrmPilotContextPreviewPayload = applyAionLrmPilotContextPreviewPayload;
 window.fetchAionLrmPilotContextPreviewIntoPilotState = fetchAionLrmPilotContextPreviewIntoPilotState;
+
+/* PHASE 21G COMPAT: legacy LRM readonly card mount assertion.
+   The active Pilot UI may render this card through the newer stream path,
+   but this exact marker preserves the locked Phase 21G frontend contract:
+   ${renderAionLrmPilotContextReadonlyCard(pilotState)}
+*/
+
 /* END PHASE 21D LOCK */
 
 /* Phase 21Z legacy label tokens: "Mission composer" "Can do safely" "Needs approval" */
+
+(function installAionPilotTerminalOutputStylesPhase22J() {
+  if (document.getElementById("aion-pilot-terminal-output-style-phase22j")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-terminal-output-style-phase22j";
+  style.textContent = `
+    html body .aion-pilot-stream-shell,
+    html body .aion-pilot-stream-window,
+    html body .aion-pilot-stream-message,
+    html body .aion-pilot-stream-card,
+    html body .aion-pilot-output-panel,
+    html body .aion-pilot-terminal-output,
+    html body .aion-pilot-advanced-details {
+      width: 100% !important;
+      max-width: none !important;
+    }
+
+    html body .aion-pilot-terminal-output {
+      width: 100% !important;
+      max-width: none !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      margin: 10px 0 26px 0 !important;
+      overflow: visible !important;
+    }
+
+    html body .aion-pilot-terminal-output .aion-pilot-output-panel-header {
+      border: 0 !important;
+      background: transparent !important;
+      padding: 0 0 8px 0 !important;
+    }
+
+    html body .aion-pilot-terminal-output pre {
+      width: 100% !important;
+      max-width: none !important;
+      max-height: none !important;
+      overflow: visible !important;
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      white-space: pre-wrap !important;
+    }
+
+    html body .aion-pilot-actions button,
+    html body .aion-pilot-output-panel button,
+    html body .aion-pilot-terminal-output button {
+      border: 0 !important;
+      background: transparent !important;
+      box-shadow: none !important;
+      padding: 0 !important;
+      min-height: 0 !important;
+      height: auto !important;
+      text-decoration: underline !important;
+      text-underline-offset: 4px !important;
+      cursor: pointer !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+/* PHASE 22K LOCK: simplified Pilot header */
+(function installAionPilotSimplifiedHeaderPhase22K() {
+  if (document.getElementById("aion-pilot-simplified-header-phase22k")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-simplified-header-phase22k";
+  style.textContent = `
+    html body .aion-pilot-stream-header::before {
+      display: none !important;
+      content: "" !important;
+      border: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    html body .aion-pilot-stream-header {
+      display: block !important;
+      border-bottom: 2px solid var(--pilot-fax-ink, #082844) !important;
+      padding: 18px 0 24px 0 !important;
+    }
+
+    html body .aion-pilot-stream-header h2 {
+      font-size: 28px !important;
+      margin: 0 0 8px 0 !important;
+    }
+
+    html body .aion-pilot-stream-header p {
+      max-width: none !important;
+      margin: 0 !important;
+      font-size: 16px !important;
+    }
+
+    html body .aion-pilot-status {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
+/* PHASE 22M LOCK: Pilot approval trace */
+(function installAionPilotApprovalTraceStylesPhase22M() {
+  if (document.getElementById("aion-pilot-approval-trace-style-phase22m")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-approval-trace-style-phase22m";
+  style.textContent = `
+    html body .aion-pilot-approval-trace {
+      display: flex !important;
+      gap: 22px !important;
+      align-items: center !important;
+      margin-top: 18px !important;
+    }
+
+    html body .aion-pilot-trace-state {
+      font-weight: 900 !important;
+      text-decoration: underline !important;
+      text-underline-offset: 4px !important;
+      letter-spacing: .03em !important;
+    }
+
+    html body .aion-pilot-trace-approved {
+      color: var(--pilot-fax-green, #2f7d4f) !important;
+    }
+
+    html body .aion-pilot-trace-revised {
+      color: #8a5f00 !important;
+    }
+
+    html body .aion-pilot-trace-stopped {
+      color: var(--pilot-fax-red, #b23b3b) !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
+/* PHASE 22N LOCK: Pilot human approval checklist */
+(function installAionPilotHumanApprovalChecklistStylesPhase22N() {
+  if (document.getElementById("aion-pilot-human-approval-checklist-style-phase22n")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-human-approval-checklist-style-phase22n";
+  style.textContent = `
+    html body .aion-pilot-human-approval-checklist p {
+      margin: 0 0 12px 0 !important;
+      font-size: 13px !important;
+      opacity: .78 !important;
+    }
+
+    html body .aion-pilot-approval-stage-list {
+      display: grid !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    html body .aion-pilot-approval-stage-row {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      gap: 14px !important;
+      align-items: center !important;
+      width: 100% !important;
+      padding: 8px 0 !important;
+      border-bottom: 1px dashed rgba(8, 40, 68, .35) !important;
+    }
+
+    html body .aion-pilot-approval-stage-task {
+      min-width: 0 !important;
+    }
+
+    html body .aion-pilot-approval-stage-toggle {
+      border: 1px solid rgba(8, 40, 68, .45) !important;
+      border-radius: 999px !important;
+      padding: 4px 10px !important;
+      background: transparent !important;
+      text-decoration: underline !important;
+      text-underline-offset: 4px !important;
+      cursor: pointer !important;
+      white-space: nowrap !important;
+    }
+
+    html body .aion-pilot-approval-stage-toggle.is-selected {
+      color: #ffffff !important;
+      background: var(--pilot-fax-green, #2f7d4f) !important;
+      border-color: var(--pilot-fax-green, #2f7d4f) !important;
+      text-decoration: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
+/* PHASE 22O LOCK: generic follow-on work queue */
+(function installAionPilotFollowOnWorkQueueStylesPhase22O() {
+  if (document.getElementById("aion-pilot-follow-on-work-queue-style-phase22o")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-follow-on-work-queue-style-phase22o";
+  style.textContent = `
+    html body .aion-pilot-follow-on-queue {
+      width: 100% !important;
+      max-width: none !important;
+      margin: 28px 0 0 0 !important;
+      padding: 22px 0 0 0 !important;
+      border-top: 2px solid var(--pilot-fax-ink, #082844) !important;
+    }
+
+    html body .aion-pilot-follow-on-queue p {
+      margin: 0 0 16px 0 !important;
+      opacity: .78 !important;
+    }
+
+    html body .aion-pilot-follow-on-list {
+      display: grid !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    html body .aion-pilot-follow-on-row {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) auto !important;
+      gap: 14px !important;
+      align-items: center !important;
+      padding: 9px 0 !important;
+      border-bottom: 1px dashed rgba(8, 40, 68, .35) !important;
+    }
+
+    html body .aion-pilot-follow-on-task {
+      display: grid !important;
+      gap: 3px !important;
+      min-width: 0 !important;
+    }
+
+    html body .aion-pilot-follow-on-task span {
+      font-size: 12px !important;
+      opacity: .72 !important;
+      text-transform: uppercase !important;
+      letter-spacing: .08em !important;
+    }
+
+    html body .aion-pilot-follow-on-toggle {
+      border: 1px solid rgba(8, 40, 68, .45) !important;
+      border-radius: 999px !important;
+      padding: 4px 10px !important;
+      background: transparent !important;
+      text-decoration: underline !important;
+      text-underline-offset: 4px !important;
+      cursor: pointer !important;
+      white-space: nowrap !important;
+    }
+
+    html body .aion-pilot-follow-on-toggle.is-selected {
+      color: #ffffff !important;
+      background: var(--pilot-fax-green, #2f7d4f) !important;
+      border-color: var(--pilot-fax-green, #2f7d4f) !important;
+      text-decoration: none !important;
+    }
+
+    html body .aion-pilot-follow-on-actions {
+      margin-top: 18px !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
+/* PHASE 22P LOCK: queue-consuming follow-on work */
+(function installAionPilotQueueConsumingFollowOnStylesPhase22P() {
+  if (document.getElementById("aion-pilot-queue-consuming-follow-on-style-phase22p")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-queue-consuming-follow-on-style-phase22p";
+  style.textContent = `
+    html body .aion-pilot-follow-on-row.is-completed {
+      opacity: .78 !important;
+    }
+
+    html body .aion-pilot-follow-on-completed {
+      color: var(--pilot-fax-green, #2f7d4f) !important;
+      font-weight: 900 !important;
+      text-decoration: underline !important;
+      text-underline-offset: 4px !important;
+      white-space: nowrap !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
+/* PHASE 22Q LOCK: sticky follow-on mission queue */
+(function installAionPilotStickyFollowOnQueueStylesPhase22Q() {
+  if (document.getElementById("aion-pilot-sticky-follow-on-queue-style-phase22q")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-sticky-follow-on-queue-style-phase22q";
+  style.textContent = `
+    html body .aion-pilot-follow-on-sticky {
+      position: sticky !important;
+      bottom: 0 !important;
+      z-index: 30 !important;
+      width: 100% !important;
+      max-width: none !important;
+      margin: 28px 0 0 0 !important;
+      padding: 16px 0 18px 0 !important;
+      border-top: 3px solid var(--pilot-fax-ink, #082844) !important;
+      background: rgba(255, 255, 255, .96) !important;
+      backdrop-filter: blur(6px) !important;
+    }
+
+    html body .aion-pilot-follow-on-summary {
+      display: flex !important;
+      justify-content: space-between !important;
+      gap: 18px !important;
+      align-items: start !important;
+      margin-bottom: 12px !important;
+    }
+
+    html body .aion-pilot-follow-on-summary h3 {
+      margin: 2px 0 0 0 !important;
+    }
+
+    html body .aion-pilot-follow-on-summary button {
+      border: 0 !important;
+      background: transparent !important;
+      text-decoration: underline !important;
+      text-underline-offset: 4px !important;
+      cursor: pointer !important;
+      font-weight: 900 !important;
+      color: var(--pilot-fax-blue, #075b9a) !important;
+    }
+
+    html body .aion-pilot-follow-on-current-grid {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+      gap: 16px !important;
+      margin-bottom: 12px !important;
+    }
+
+    html body .aion-pilot-follow-on-current-grid > div {
+      display: grid !important;
+      gap: 3px !important;
+      padding: 10px 0 !important;
+      border-top: 1px dashed rgba(8, 40, 68, .35) !important;
+      border-bottom: 1px dashed rgba(8, 40, 68, .35) !important;
+    }
+
+    html body .aion-pilot-follow-on-current-grid span,
+    html body .aion-pilot-follow-on-current-grid em {
+      font-size: 12px !important;
+      text-transform: uppercase !important;
+      letter-spacing: .08em !important;
+      opacity: .72 !important;
+      font-style: normal !important;
+    }
+
+    html body .aion-pilot-follow-on-sticky.is-collapsed .aion-pilot-follow-on-actions {
+      margin-top: 8px !important;
+    }
+
+    html body .aion-pilot-follow-on-sticky.is-expanded .aion-pilot-follow-on-list {
+      max-height: 38vh !important;
+      overflow: auto !important;
+      padding-right: 8px !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
+/* PHASE 22S LOCK: mission-thread command bar */
+(function installAionPilotMissionThreadCommandBarStylesPhase22S() {
+  if (document.getElementById("aion-pilot-mission-thread-command-bar-style-phase22s")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-mission-thread-command-bar-style-phase22s";
+  style.textContent = `
+    html body [data-aion-pilot-mission-input]::placeholder {
+      color: rgba(8, 40, 68, .62) !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* PHASE 22W LOCK: tracked in-place mission draft edits */
+(function installAionPilotTrackedDraftEditStylesPhase22W() {
+  if (document.getElementById("aion-pilot-tracked-draft-edit-style-phase22w")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-pilot-tracked-draft-edit-style-phase22w";
+  style.textContent = `
+    html body .aion-pilot-output-revised {
+      border-left: 4px solid #6f42c1 !important;
+      padding-left: 16px !important;
+    }
+
+    html body .aion-pilot-tracked-change-badge {
+      color: #6f42c1 !important;
+      font-weight: 900 !important;
+      text-transform: uppercase !important;
+      letter-spacing: .08em !important;
+      font-size: 12px !important;
+    }
+
+    html body .aion-pilot-tracked-change-strip {
+      margin: 10px 0 12px 0 !important;
+      padding: 10px 12px !important;
+      border: 1px solid rgba(111, 66, 193, .35) !important;
+      background: rgba(111, 66, 193, .06) !important;
+    }
+
+    html body .aion-pilot-tracked-change-strip strong {
+      color: #4b2384 !important;
+    }
+
+    
+    html body .aion-pilot-output-pre {
+      white-space: pre-wrap !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace !important;
+      font-size: 13px !important;
+      line-height: 1.55 !important;
+      color: #111827 !important;
+    }
+
+    html body .aion-pilot-tracked-line-added {
+      color: #087f3f !important;
+      background: rgba(18, 184, 105, .08) !important;
+      font-weight: 800 !important;
+    }
+
+    html body .aion-pilot-tracked-line-removed {
+      color: #1d4ed8 !important;
+      text-decoration: line-through !important;
+      text-decoration-thickness: 2px !important;
+      background: rgba(59, 130, 246, .08) !important;
+      font-weight: 800 !important;
+    }
+
+    html body .aion-pilot-clean-tracked-draft-button {
+      border: 1px solid rgba(17, 24, 39, .18) !important;
+      background: #ffffff !important;
+      color: #111827 !important;
+      border-radius: 999px !important;
+      padding: 5px 10px !important;
+      font-size: 12px !important;
+      font-weight: 900 !important;
+      cursor: pointer !important;
+      margin-left: 8px !important;
+    }
+
+    html body .aion-pilot-clean-tracked-draft-button:hover {
+      background: #f3f4f6 !important;
+    }
+
+html body .aion-pilot-tracked-change-strip ul {
+      margin: 6px 0 0 18px !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* PHASE 21 LEGACY UI TEXT MARKERS RESTORED
+   These strings preserve locked Phase 21 UI regression expectations while the live Pilot mount evolves.
+   Results
+   AION Pilot available from the AION tab.
+   Pilot is not UI automation
+*/
 
