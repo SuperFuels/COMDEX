@@ -36,3 +36,25 @@ def test_phase23x_pilot_counts_use_pilot_department_not_legacy_aion():
 
     assert 'getDepartmentRunCounts("pilot")' in surface
     assert 'getDepartmentRunCounts("aion")' not in surface
+
+
+def test_phase23x_minimal_department_switcher_uses_fast_direct_handler():
+    assert "data-aion-minimal-department-switch" in APP_JS
+    assert "__aionMinimalDepartmentSwitcherFastHandlerInstalled" in APP_JS
+    assert "state.selectedLiveDepartmentKey = departmentKey;" in APP_JS
+    assert "state.liveAgentsView = LIVE_AGENT_VIEWS.STREAM;" in APP_JS
+    assert "event.stopPropagation();" in APP_JS
+
+
+def test_phase23x_mission_preview_payload_builds_work_package_before_approval_stages():
+    fn_start = APP_JS.index("function buildAionPilotMissionPreviewPayload")
+    fn_end = APP_JS.index("function applyAionPilotMissionPreviewPayload", fn_start)
+    fn = APP_JS[fn_start:fn_end]
+
+    work_package_index = fn.index("const workPackage")
+    approval_index = fn.index("const approvalStages")
+
+    assert work_package_index < approval_index
+    assert "getAionPilotApprovalStagePayload(workPackage, state)" not in fn[:work_package_index]
+    assert "approval_stage_details: draftSteps" in fn
+    assert fn.count("approval_stages:") == 1

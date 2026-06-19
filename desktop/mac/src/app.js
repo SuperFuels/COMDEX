@@ -11312,12 +11312,14 @@ function getAionPilotApprovalStagePayload(workPackage = {}, pilotState = null) {
 function buildAionPilotMissionPreviewPayload(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
-  const approvalStages = typeof getAionPilotApprovalStagePayload === "function" ? getAionPilotApprovalStagePayload(workPackage, state) : [];
   const workPackage = typeof buildAionPilotWorkPackage === "function"
     ? buildAionPilotWorkPackage(safePlan, state)
     : {};
   const draftText = getAionPilotCurrentMissionDraftText(safePlan, state);
   const draftSteps = getAionPilotApprovalStagePayload(workPackage, state);
+  const approvalStages = draftSteps
+    .filter((step) => step.requires_approval)
+    .map((step) => step.title);
 
   return {
     work_package_schema: "frontend_work_package_v0",
@@ -11333,8 +11335,8 @@ function buildAionPilotMissionPreviewPayload(plan = null, pilotState = null) {
     current_draft: draftText,
     work_package: workPackage,
     draft_steps: draftSteps,
+    approval_stage_details: draftSteps,
     approval_stages: approvalStages,
-    approval_stages: draftSteps.filter((step) => step.requires_approval).map((step) => step.title),
 
     brand_foundation_state: state.brandFoundationState || state.brand_foundation_state || {},
     marketing_form: state.marketingForm || state.marketing_form || {},
@@ -27300,7 +27302,8 @@ function renderMinimalDepartmentSwitcher() {
 
             return `
               <button
-                class="minimal-department-btn live-department-open-btn ${isActive ? "minimal-department-btn-active" : ""}"
+                class="minimal-department-btn ${isActive ? "minimal-department-btn-active" : ""}"
+                data-aion-minimal-department-switch="${escapeHtml(room.key)}"
                 data-department-key="${escapeHtml(room.key)}"
                 data-live-view="${escapeHtml(LIVE_AGENT_VIEWS.STREAM)}"
               >
@@ -27312,6 +27315,34 @@ function renderMinimalDepartmentSwitcher() {
       </div>
     </div>
   `;
+}
+
+
+if (!window.__aionMinimalDepartmentSwitcherFastHandlerInstalled) {
+  window.__aionMinimalDepartmentSwitcherFastHandlerInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-minimal-department-switch]");
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const departmentKey = String(button.dataset.aionMinimalDepartmentSwitch || button.dataset.departmentKey || "")
+      .trim()
+      .toLowerCase();
+
+    if (!departmentKey) return;
+
+    state.selectedLiveDepartmentKey = departmentKey;
+    state.liveAgentsView = LIVE_AGENT_VIEWS.STREAM;
+    state.selectedLiveRunId = null;
+    state.liveAgentsReplayOpen = false;
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+  }, true);
 }
 
 function renderLiveAgentStreamView(selectedRuns, selectedAgentCard) {
