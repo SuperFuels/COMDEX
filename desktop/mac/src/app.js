@@ -1906,7 +1906,10 @@ function renderOperationsFlowSurface() {
     state.operationsFlowViewMode === "spatial" ? "spatial" : "flat";
 
   return `
-    <div class="surface-shell">
+    <div
+      class="surface-shell aion-phase23y-live-agents-white-shell"
+      style="padding-bottom:88px; background:#ffffff; background-color:#ffffff;"
+    >
       <div class="surface-header">
         <div>
           <div class="surface-eyebrow">Aion Business Desktop</div>
@@ -1978,7 +1981,7 @@ function renderBrandFoundationSurface() {
   const governance = getBrandMapSection("governance");
 
   return `
-    <div class="surface-shell">
+    <div class="surface-shell" style="padding-bottom:88px; background:#ffffff;">
       <div class="surface-header">
         <div>
           <div class="surface-eyebrow">Aion Business Desktop</div>
@@ -3078,7 +3081,7 @@ function renderDashboardSurface() {
   const completedSub = `Failed ${queue.failed ?? 0} · Cancelled ${queue.cancelled ?? 0}`;
 
   return `
-    <div class="surface-shell">
+    <div class="surface-shell aion-phase23y-live-agents-white-shell" style="min-height:100vh; padding-bottom:96px; background:#ffffff; background-color:#ffffff;">
       <div class="surface-header">
         <div>
           <div class="surface-eyebrow">Aion Business Desktop</div>
@@ -27384,6 +27387,123 @@ function renderLiveAgentsMarketingWorkspaceTabs() {
   `;
 }
 
+function normaliseAionPilotMarketingWorkspaceText(value = "") {
+  return String(value || "")
+    .replace(/\r\n/g, "\n")
+    .trim();
+}
+
+function classifyAionPilotMarketingArtifact(item = {}) {
+  const text = [
+    item.title,
+    item.output_label,
+    item.output_text,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (text.includes("loading backend mission map")) {
+    return {
+      group: "Runtime",
+      title: "Mission map / runtime preview",
+      order: 0,
+    };
+  }
+
+  if (text.includes("marketing objective") || text.includes("campaign objective")) {
+    return {
+      group: "Strategy",
+      title: "Marketing objective",
+      order: 10,
+    };
+  }
+
+  if (
+    text.includes("target audience") ||
+    text.includes("audience") ||
+    text.includes("offer")
+  ) {
+    return {
+      group: "Strategy",
+      title: "Target audience and offer",
+      order: 20,
+    };
+  }
+
+  if (
+    text.includes("positioning") ||
+    text.includes("core message") ||
+    text.includes("message pillars") ||
+    text.includes("brand story")
+  ) {
+    return {
+      group: "Messaging",
+      title: "Positioning and core message",
+      order: 30,
+    };
+  }
+
+  if (
+    text.includes("channel") ||
+    text.includes("content plan") ||
+    text.includes("content pillar") ||
+    text.includes("content cadence")
+  ) {
+    return {
+      group: "Marketing plan",
+      title: "Channel and content plan",
+      order: 40,
+    };
+  }
+
+  if (
+    text.includes("lead capture") ||
+    text.includes("workflow") ||
+    text.includes("crm") ||
+    text.includes("email sequence")
+  ) {
+    return {
+      group: "Lead flow",
+      title: "Lead capture workflow",
+      order: 50,
+    };
+  }
+
+  if (
+    text.includes("facebook") ||
+    text.includes("instagram") ||
+    text.includes("post") ||
+    text.includes("ad variant") ||
+    text.includes("advert")
+  ) {
+    return {
+      group: "Content assets",
+      title: "Draft content / advert assets",
+      order: 60,
+    };
+  }
+
+  if (
+    text.includes("business plan") ||
+    text.includes("marketing execution") ||
+    text.includes("90-day") ||
+    text.includes("30/60/90")
+  ) {
+    return {
+      group: "Business plan",
+      title: "Business and marketing execution draft",
+      order: 70,
+    };
+  }
+
+  return {
+    group: "Other",
+    title: item.title || item.output_label || "Pilot marketing output",
+    order: 90,
+  };
+}
+
 function getAionPilotMarketingWorkspaceArtifacts() {
   const pilotState = getAionPilotFrontendInteractionState();
   const outputs = Array.isArray(pilotState.step_outputs) ? pilotState.step_outputs : [];
@@ -27407,24 +27527,36 @@ function getAionPilotMarketingWorkspaceArtifacts() {
       return haystack.includes("marketing") ||
         haystack.includes("campaign") ||
         haystack.includes("facebook") ||
-        haystack.includes("ad variant") ||
-        haystack.includes("home fixed");
+        haystack.includes("advert") ||
+        haystack.includes("lead capture") ||
+        haystack.includes("business plan") ||
+        haystack.includes("home fixed") ||
+        haystack.includes("home-fixed");
     })
-    .map((item, index) => ({
-      source: "pilot_output",
-      title: item.title || item.output_label || `Pilot marketing output ${index + 1}`,
-      status: "draft_preview",
-      department: "marketing",
-      output_text: item.output_text || "",
-      artifact_hash: item.artifact_hash || "",
-      receipt_hash: item.receipt_hash || "",
-    }));
+    .map((item, index) => {
+      const classified = classifyAionPilotMarketingArtifact(item);
+      return {
+        source: "pilot_output",
+        group: classified.group,
+        order: classified.order,
+        title: classified.title || item.title || item.output_label || `Pilot marketing output ${index + 1}`,
+        original_title: item.title || item.output_label || "",
+        status: "draft_preview",
+        department: "marketing",
+        output_text: normaliseAionPilotMarketingWorkspaceText(item.output_text || ""),
+        artifact_hash: item.artifact_hash || "",
+        receipt_hash: item.receipt_hash || "",
+      };
+    });
 
   const queuedArtifacts = queue
     .filter((item) => String(item?.department_id || "").toLowerCase() === "marketing")
     .map((item, index) => ({
       source: "tool_execution_queue",
+      group: item.live_external_side_effect === true ? "Blocked live actions" : "Queue",
+      order: item.live_external_side_effect === true ? 100 : 80,
       title: item.title || item.department_capability || `Marketing queue item ${index + 1}`,
+      original_title: item.title || item.department_capability || "",
       status: item.status || "queued",
       department: item.department_id || "marketing",
       output_text: [
@@ -27432,31 +27564,103 @@ function getAionPilotMarketingWorkspaceArtifacts() {
         `Tool mode: ${item.tool_mode || "—"}`,
         `Approval required: ${item.approval_required === true ? "yes" : "no"}`,
         `Live execution allowed: ${item.live_execution_allowed === true ? "yes" : "no"}`,
-      ].join("\\n"),
+      ].join("\n"),
       artifact_hash: item.artifact_hash || item.payload_hash || "",
       receipt_hash: item.receipt_hash || item.tool_execution_item_hash || "",
     }));
 
-  return [...outputArtifacts, ...queuedArtifacts];
+  return [...outputArtifacts, ...queuedArtifacts]
+    .sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+}
+
+function groupAionPilotMarketingArtifacts(artifacts = []) {
+  const groups = [];
+  const byName = new Map();
+
+  artifacts.forEach((artifact) => {
+    const groupName = artifact.group || "Other";
+    if (!byName.has(groupName)) {
+      byName.set(groupName, {
+        group: groupName,
+        order: Number(artifact.order || 0),
+        artifacts: [],
+      });
+      groups.push(byName.get(groupName));
+    }
+
+    byName.get(groupName).artifacts.push(artifact);
+  });
+
+  return groups.sort((a, b) => Number(a.order || 0) - Number(b.order || 0));
+}
+
+function renderAionPilotMarketingArtifactCard(item = {}) {
+  return `
+    <div
+      class="list-item"
+      data-aion-phase23z-pilot-marketing-deliverable-card
+      data-aion-phase23y-pilot-marketing-artifact-card
+      style="
+        background:#ffffff;
+        border:1px solid rgba(15,23,42,0.14);
+        padding:14px 16px;
+      "
+    >
+      <div class="list-item-title">${escapeHtml(item.title)}</div>
+      <div class="list-item-sub">
+        ${escapeHtml(item.department)} · ${escapeHtml(item.status)} · ${escapeHtml(item.source)}
+        ${item.original_title ? ` · ${escapeHtml(item.original_title)}` : ""}
+      </div>
+
+      <pre
+        class="aion-pilot-output-pre"
+        style="
+          white-space:pre-wrap;
+          max-height:220px;
+          overflow:auto;
+          background:#ffffff;
+          border:1px solid rgba(15,23,42,0.10);
+          margin-top:10px;
+        "
+      >${escapeHtml(item.output_text || "No preview text available yet.")}</pre>
+
+      <div class="badge-row" style="margin-top:10px;">
+        <span class="badge">${escapeHtml(item.artifact_hash || "sha256:pending_artifact")}</span>
+        <span class="badge">${escapeHtml(item.receipt_hash || "sha256:pending_receipt")}</span>
+      </div>
+    </div>
+  `;
 }
 
 function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
   const artifacts = getAionPilotMarketingWorkspaceArtifacts();
+  const groupedArtifacts = groupAionPilotMarketingArtifacts(artifacts);
   const pilotState = getAionPilotFrontendInteractionState();
 
-  const cardsHtml = artifacts.length
-    ? artifacts.map((item) => `
-        <div class="list-item" data-aion-phase23y-pilot-marketing-artifact-card>
-          <div class="list-item-title">${escapeHtml(item.title)}</div>
-          <div class="list-item-sub">
-            ${escapeHtml(item.department)} · ${escapeHtml(item.status)} · ${escapeHtml(item.source)}
+  const groupedHtml = groupedArtifacts.length
+    ? groupedArtifacts.map((group) => `
+        <section
+          data-aion-phase23z-pilot-marketing-deliverable-group
+          style="
+            display:grid;
+            gap:10px;
+            margin-top:16px;
+          "
+        >
+          <div style="
+            font-size:12px;
+            font-weight:800;
+            letter-spacing:0.12em;
+            text-transform:uppercase;
+            color:rgba(15,23,42,0.62);
+          ">
+            ${escapeHtml(group.group)}
           </div>
-          <pre class="aion-pilot-output-pre" style="white-space:pre-wrap; max-height:260px; overflow:auto;">${escapeHtml(item.output_text || "No preview text available yet.")}</pre>
-          <div class="badge-row">
-            <span class="badge">${escapeHtml(item.artifact_hash || "sha256:pending_artifact")}</span>
-            <span class="badge">${escapeHtml(item.receipt_hash || "sha256:pending_receipt")}</span>
+
+          <div class="list-wrap">
+            ${group.artifacts.map((item) => renderAionPilotMarketingArtifactCard(item)).join("")}
           </div>
-        </div>
+        </section>
       `).join("")
     : `
       <div class="empty-state" data-aion-phase23y-pilot-marketing-empty>
@@ -27468,21 +27672,20 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
     <div data-aion-phase23y-pilot-marketing-workspace>
       ${renderLiveAgentsMarketingWorkspaceTabs()}
 
-      <div class="panel large-panel">
+      <div class="panel large-panel" style="background:#ffffff;">
         <div class="panel-title">Pilot Marketing workspace</div>
         <div class="helper-text">
-          Marketing work generated by Pilot missions appears here as draft artifacts, queue items, approval cards and proof receipts.
+          Marketing work generated by Pilot missions is grouped here into strategy, messaging, channel plan, lead flow, content assets and approval-blocked live actions.
         </div>
 
         <div class="badge-row" style="margin-top:10px;">
           <span class="badge">Pilot status ${escapeHtml(pilotState.status || "idle")}</span>
           <span class="badge">Safe work ${escapeHtml(pilotState.safe_work_status || "idle")}</span>
           <span class="badge">Artifacts ${escapeHtml(artifacts.length)}</span>
+          <span class="badge">Groups ${escapeHtml(groupedArtifacts.length)}</span>
         </div>
 
-        <div class="list-wrap" style="margin-top:14px;">
-          ${cardsHtml}
-        </div>
+        ${groupedHtml}
       </div>
     </div>
   `;
@@ -27520,63 +27723,105 @@ function renderMarketingManualWorkspaceSurface() {
   `;
 }
 
+function ensureAionPhase23YLiveAgentsWhiteSurfaceStyles() {
+  if (document.getElementById("aion-phase23y-white-live-agents-surface-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-phase23y-white-live-agents-surface-styles";
+  style.textContent = `
+    html,
+    body,
+    #app,
+    .app-shell {
+      background:#ffffff !important;
+      background-color:#ffffff !important;
+    }
+
+    body.aion-phase23y-live-agents-white,
+    body.aion-phase23y-live-agents-white::before,
+    body.aion-phase23y-live-agents-white::after,
+    body.aion-phase23y-live-agents-white #app,
+    body.aion-phase23y-live-agents-white .app-shell,
+    body.aion-phase23y-live-agents-white .surface-shell,
+    body.aion-phase23y-live-agents-white .dashboard-shell,
+    .aion-phase23y-live-agents-white-shell {
+      background:#ffffff !important;
+      background-color:#ffffff !important;
+    }
+
+    .aion-live-agents-pilot-fixed-terminal {
+      background:#ffffff !important;
+      background-color:#ffffff !important;
+    }
+
+    .aion-live-agents-pilot-fixed-terminal,
+    .aion-live-agents-pilot-fixed-terminal * {
+      box-sizing:border-box;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 function renderLiveAgentsPersistentPilotTerminal() {
+  ensureAionPhase23YLiveAgentsWhiteSurfaceStyles();
+
   const pilotState = getAionPilotFrontendInteractionState();
   const latestRequest = pilotState.last_request || "";
 
   return `
     <section
-      class="aion-live-agents-pilot-sticky-terminal"
+      class="aion-live-agents-pilot-fixed-terminal"
       data-aion-phase23y-persistent-pilot-terminal
       style="
-        position:sticky;
+        position:fixed;
+        left:0;
+        right:0;
         bottom:0;
-        z-index:40;
-        margin-top:10px;
-        border-top:1px solid rgba(15,23,42,0.12);
-        background:rgba(255,255,255,0.98);
-        backdrop-filter:blur(8px);
-        padding:8px 12px 10px;
-        box-shadow:0 -6px 14px rgba(15,23,42,0.05);
+        z-index:999;
+        border-top:1px solid rgba(15,23,42,0.14);
+        background:#ffffff;
+        padding:10px 32px 12px;
+        box-shadow:0 -8px 18px rgba(15,23,42,0.08);
       "
     >
       <div style="
+        width:100%;
+        max-width:1680px;
+        margin:0 auto;
         display:grid;
-        grid-template-columns:minmax(0, 1fr) auto;
-        gap:10px;
+        grid-template-columns:minmax(0, 1fr) 150px;
+        gap:12px;
         align-items:end;
       ">
-        <div>
-          <label class="field-label" style="
-            margin:0 0 4px 0;
-            font-size:10px;
-            letter-spacing:0.14em;
-            color:rgba(15,23,42,0.52);
-          ">Ask Pilot</label>
-          <textarea
-            data-aion-phase23y-persistent-pilot-terminal-input
-            class="input input-textarea input-textarea-small"
-            placeholder="Tell Pilot what to do..."
-            style="
-              min-height:44px;
-              max-height:72px;
-              resize:vertical;
-              padding:10px 12px;
-              font-size:14px;
-              line-height:1.35;
-            "
-          >${escapeHtml(latestRequest || "")}</textarea>
-        </div>
+        <textarea
+          data-aion-phase23y-persistent-pilot-terminal-input
+          class="input"
+          placeholder="Tell Pilot what to do..."
+          style="
+            width:100%;
+            height:46px;
+            min-height:46px;
+            max-height:46px;
+            resize:none;
+            padding:11px 12px;
+            font-size:14px;
+            line-height:1.35;
+            background:#ffffff;
+            border:1px solid rgba(15,23,42,0.16);
+          "
+        >${escapeHtml(latestRequest || "")}</textarea>
 
         <button
           type="button"
           class="primary-btn"
           data-aion-phase23y-persistent-pilot-start
           style="
-            min-height:44px;
-            padding:0 20px;
+            height:46px;
+            min-height:46px;
+            padding:0 18px;
             font-size:12px;
             letter-spacing:0.12em;
+            white-space:nowrap;
           "
         >
           Start task
@@ -28511,13 +28756,27 @@ function renderLiveAgentRunRow(run) {
 }
 
 function renderLiveAgentsSurface() {
+  if (typeof document !== "undefined") {
+    document.documentElement.style.background = "#ffffff";
+    document.body.style.background = "#ffffff";
+    document.body.classList.add("aion-phase23y-live-agents-white");
+    const appRoot = document.getElementById("app");
+    if (appRoot) {
+      appRoot.style.background = "#ffffff";
+      appRoot.style.backgroundColor = "#ffffff";
+    }
+  }
+
   const selectedRuns = getRunsForSelectedLiveAgent();
   const selectedAgentCard = getSelectedLiveAgentCard();
   const departmentKey = getSelectedLiveDepartmentKey();
   const departmentLabel = runtimeShared.getDepartmentLabel(departmentKey);
 
   return `
-    <div class="surface-shell">
+    <div
+      class="surface-shell aion-phase23y-live-agents-white-shell"
+      style="min-height:100vh; padding-bottom:96px; background:#ffffff; background-color:#ffffff;"
+    >
       <div class="surface-header surface-header-unified">
         <div class="surface-header-unified-top">
           <div class="surface-header-unified-main">

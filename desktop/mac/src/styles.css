@@ -2,8 +2,8 @@
 :root {
   /* AION Business Brand Kit — FT-inspired, retro, authoritative */
   --aion-black: #000000;
-  --aion-cream: #fff8f0;
-  --aion-cream-soft: #fffaf5;
+  --aion-cream: #ffffff;
+  --aion-cream-soft: #ffffff;
   --aion-salmon: #fff1e5;
   --aion-salmon-dark: #ffd6b8;
   --aion-white: #ffffff;
@@ -2473,8 +2473,8 @@ pre {
 
 :root {
   /* FT sampled background from screenshot: RGB(255,242,229) */
-  --ft-bg: #fff2e5;
-  --ft-bg-soft: #fff7ef;
+  --ft-bg: #ffffff;
+  --ft-bg-soft: #ffffff;
   --ft-tint: #f2ddcc;
   --ft-line: #d8c6b6;
 
@@ -4240,7 +4240,7 @@ pre {
 .operations-agents-surface .aion-workflow-canvas-shell {
   margin: 0 0 18px;
   border: 1px solid rgba(15, 23, 42, 0.12);
-  background: #f6efe6;
+  background: #ffffff;
   overflow: hidden;
   box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
 }
@@ -4253,7 +4253,7 @@ pre {
   gap: 18px;
   padding: 0 18px;
   border-bottom: 1px solid rgba(15, 23, 42, 0.10);
-  background: #fbf6ef;
+  background: #ffffff;
 }
 
 .operations-agents-surface .aion-workflow-title-wrap,
@@ -4298,7 +4298,7 @@ pre {
 
 .operations-agents-surface .aion-workflow-sidebar,
 .operations-agents-surface .aion-workflow-inspector {
-  background: #fbf6ef;
+  background: #ffffff;
   padding: 14px;
 }
 
