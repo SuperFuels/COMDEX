@@ -9061,7 +9061,7 @@ function renderAionPilotFollowOnWorkQueue(plan = null, pilotState = null) {
                   aria-pressed="${selected ? "true" : "false"}"
                 >
                   ${selected ? "✓ Approval" : "Approval"}
-                </button>`
+                <`
         }
       </div>
     `;
@@ -9173,17 +9173,17 @@ function renderAionPilotWorkPackageCard(plan = null, pilotState = null) {
                 Continue safe work
               </button>
             `
-            : `<button type="button" data-aion-pilot-feedback-approve>Approve</button>`
+            : `<button type="button" data-aion-pilot-feedback-approve>Approve<`
         }
         ${
           state.contract_status === "revision_requested"
             ? `<span class="aion-pilot-trace-state aion-pilot-trace-revised">✓ Revised</span>`
-            : `<button type="button" data-aion-pilot-feedback-revise>Revise</button>`
+            : `<button type="button" data-aion-pilot-feedback-revise>Revise<`
         }
         ${
           state.contract_status === "cancelled"
             ? `<span class="aion-pilot-trace-state aion-pilot-trace-stopped">✓ Stopped</span>`
-            : `<button type="button" data-aion-pilot-feedback-stop>Stop</button>`
+            : `<button type="button" data-aion-pilot-feedback-stop>Stop<`
         }
       </div>
 
@@ -12879,7 +12879,7 @@ function installAionPhase17PFinalVaultLayoutStyles() {
 
 .aion-vault-connect-now-btn {
   width: auto !important;
-  min-width: 132px !important;
+  min-width: 170px !important;
   max-width: 170px !important;
   justify-self: start !important;
   padding: 10px 18px !important;
@@ -12977,7 +12977,7 @@ function renderVaultCredentialsSurface() {
                   onclick="openAionPhase17KGmailOAuth()"
                 >
                   Connect now
-                </button>`
+                <`
           }
         </div>
 
@@ -12996,7 +12996,7 @@ function renderVaultCredentialsSurface() {
             connected
               ? `<button type="button" class="secondary-btn aion-vault-enable-live-btn" data-aion-vault-request-live-send="true">
                   Enable live
-                </button>`
+                <`
               : ""
           }
         </div>
@@ -13020,7 +13020,7 @@ function renderVaultCredentialsSurface() {
               connected
                 ? `<button type="button" class="secondary-btn" data-aion-phase17k-open-gmail-oauth="true">
                     Reconnect Gmail
-                  </button>`
+                  <`
                 : ""
             }
           </div>
@@ -13546,7 +13546,8 @@ function renderSmallBusinessFoundationInput(name, label, placeholder, value = ""
         value="${escapeHtml(value || "")}"
         placeholder="${escapeHtml(placeholder || "")}"
         style="
-          min-height:44px;
+          height:54px;
+                      min-height:54px;
           background:#ffffff;
           border:1px solid rgba(17,17,17,0.14);
           border-radius:12px;
@@ -13602,7 +13603,7 @@ function renderSmallBusinessFoundationSelect(name, label, value, options = []) {
         class="input"
         data-aion-phase24b-foundation-field="${escapeHtml(name)}"
         style="
-          min-height:44px;
+          min-height:54px;
           background:#ffffff;
           border:1px solid rgba(17,17,17,0.14);
           border-radius:12px;
@@ -13656,6 +13657,7 @@ async function applySmallBusinessWebsiteScanDraft(websiteValue = "") {
    * No website-specific hardcoding belongs here.
    */
   state.smallBusinessFoundationWebsiteScanStatus = "scanning";
+  window.showAionWebsiteScanPopup?.();
   state.smallBusinessFoundationWebsiteScanWarnings = [];
   state.smallBusinessFoundationWebsiteScanFacts = [];
 
@@ -13692,6 +13694,8 @@ async function applySmallBusinessWebsiteScanDraft(websiteValue = "") {
       String(error?.message || error || "Website scan failed"),
     ];
   }
+
+  window.hideAionWebsiteScanPopup?.();
 
   state.smallBusinessFoundationPreviewReady =
     getSmallBusinessFoundationMissingRequired(draft).length === 0;
@@ -13863,15 +13867,22 @@ function renderSmallBusinessFoundationSetupSurface() {
                   color:rgba(255,255,255,0.68) !important;
                   -webkit-text-fill-color:rgba(255,255,255,0.68) !important;
                 ">Website</span>
-                <div style="display:flex; gap:10px; align-items:center;">
+                <div data-aion-phase24b-import-option="website" style="
+                    display:grid;
+                    grid-template-columns:minmax(0, 1fr) auto;
+                    gap:14px;
+                    align-items:center;
+                  ">
                   <input
                     class="input"
-                    data-aion-phase24b-foundation-field="website"
+                    data-aion-phase24b-foundation-field="website" data-aion-no-live-render="true"
                     value="${escapeHtml(draft.website || "")}"
                     placeholder="https://yourbusiness.com"
                     style="
                       flex:1;
-                      min-height:44px;
+                      height:54px;
+                      min-height:54px;
+                      box-sizing:border-box;
                       background:#ffffff !important;
                       border:1px solid rgba(255,255,255,0.18);
                       border-radius:12px;
@@ -13881,56 +13892,39 @@ function renderSmallBusinessFoundationSetupSurface() {
                   />
                   <button
                     type="button"
-                    data-aion-phase24b-import-option="website"
+                    class="aion-small-business-website-scan-btn"
+                    data-aion-small-business-foundation-scan-website
                     style="
-                      min-height:44px;
-                      border:1px solid rgba(255,255,255,0.22);
+                      height:54px;
+                      min-height:54px;
+                      box-sizing:border-box;
+                      min-width:170px;
+                      padding:0 22px;
+                      border:0;
                       border-radius:12px;
-                      background:#ffffff !important;
-                      color:#111111 !important;
-                      padding:0 18px;
-                      font-size:12px;
-                      font-weight:850;
-                      letter-spacing:0.08em;
+                      background:#ffffff;
+                      color:#111111;
+                      -webkit-text-fill-color:#111111;
+                      font-size:11px;
+                      font-weight:950;
+                      letter-spacing:0.16em;
                       text-transform:uppercase;
-                      cursor:pointer;
+                      display:inline-flex;
+                      align-items:center;
+                      justify-content:center;
+                      align-self:center;
                       white-space:nowrap;
+                      cursor:pointer;
+                      appearance:none;
+                      -webkit-appearance:none;
+                      box-shadow:none;
+                      margin:0;
                     "
                   >Scan website</button>
-                </div>
-              </label>
+                  </div>
 
-              <button
-                type="button"
-                data-aion-phase24b-import-option="documents"
-                style="
-                  appearance:none;
-                  -webkit-appearance:none;
-                  border:1px solid rgba(255,255,255,0.18);
-                  border-radius:14px;
-                  background:rgba(255,255,255,0.08);
-                  color:#ffffff !important;
-                  text-align:left;
-                  padding:16px;
-                  cursor:pointer;
-                "
-              >
-                <div style="
-                  font-size:18px;
-                  font-weight:750;
-                  color:#ffffff !important;
-                  -webkit-text-fill-color:#ffffff !important;
-                  margin-bottom:6px;
-                ">Upload documents</div>
-                <div style="
-                  font-size:14px;
-                  line-height:1.45;
-                  color:rgba(255,255,255,0.72) !important;
-                  -webkit-text-fill-color:rgba(255,255,255,0.72) !important;
-                ">Brochures, price lists, old adverts and brand files.</div>
-              </button>
-            </div>
-
+                </label>
+              </section>
 
             <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px;">
               ${renderSmallBusinessFoundationInput("business_name", "Business name", "e.g. Your business name", draft.business_name, { required: true })}
@@ -14067,7 +14061,7 @@ if (!window.__aionPhase24BSmallBusinessFoundationHandlersInstalled) {
   }, true);
 
   document.addEventListener("click", (event) => {
-    const scanWebsite = event.target?.closest?.("[data-aion-phase24b-import-option=\"website\"]");
+    const scanWebsite = event.target?.closest?.("[data-aion-small-business-foundation-scan-website]");
     if (scanWebsite) {
       event.preventDefault();
       event.stopPropagation();
@@ -21839,7 +21833,7 @@ function renderAionFileCabinetNode(node, depth = 0) {
             <button type="button" title="New folder" data-aion-cabinet-new-folder="${escapeHtml(node.id)}">▣</button>
             ${
               canDelete
-                ? `<button type="button" title="Delete folder" data-aion-cabinet-delete="${escapeHtml(node.id)}" data-aion-cabinet-delete-name="${escapeHtml(node.name)}">×</button>`
+                ? `<button type="button" title="Delete folder" data-aion-cabinet-delete="${escapeHtml(node.id)}" data-aion-cabinet-delete-name="${escapeHtml(node.name)}">×<`
                 : ""
             }
           </em>
@@ -28348,7 +28342,7 @@ function renderLiveAgentHero(selectedAgentCard) {
           <button class="secondary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.STREAM)}">View Stream</button>
           ${
             showCalendar
-              ? `<button class="secondary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.CALENDAR)}">Open Calendar</button>`
+              ? `<button class="secondary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.CALENDAR)}">Open Calendar<`
               : ""
           }
           <button class="secondary-btn live-agents-view-btn" data-live-agents-view="${escapeHtml(LIVE_AGENT_VIEWS.RUNS)}">Runs</button>
@@ -47761,7 +47755,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     .aion-main-node-ai-settings-card .secondary-btn {
       justify-self: start !important;
-      height: 44px !important;
+      height: 54px !important;
       border-radius: 12px !important;
       border: 1px solid rgba(15,23,42,0.18) !important;
       background: #f7fee7 !important;
@@ -48391,7 +48385,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     .aion-main-node-ai-settings-card .secondary-btn {
       justify-self: start !important;
-      height: 44px !important;
+      height: 54px !important;
       border-radius: 12px !important;
       border: 1px solid rgba(15,23,42,0.18) !important;
       background: #f7fee7 !important;
@@ -49094,7 +49088,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     .aion-main-node-settings-grid > button {
       justify-self: start !important;
-      height: 44px !important;
+      height: 54px !important;
       border-radius: 12px !important;
       border: 1px solid rgba(15,23,42,0.18) !important;
       background: #f7fee7 !important;
@@ -49697,7 +49691,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     .aion-main-node-settings-card-v3 .secondary-btn {
       justify-self: start !important;
-      height: 44px !important;
+      height: 54px !important;
       border-radius: 12px !important;
       border: 1px solid rgba(15,23,42,0.18) !important;
       background: #f7fee7 !important;
@@ -50417,7 +50411,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     .aion-main-node-settings-card-v3 .secondary-btn {
       justify-self: start !important;
-      height: 44px !important;
+      height: 54px !important;
       border-radius: 12px !important;
       border: 1px solid rgba(15,23,42,0.18) !important;
       background: #f7fee7 !important;
@@ -53529,11 +53523,11 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     .aion-workflow-floating-toolbar-consolidated > button:not(.aion-workflow-execute-btn):not(.aion-workflow-mode-btn):not(.aion-workflow-publish-toolbar-btn) {
       width: 44px !important;
-      height: 44px !important;
+      height: 54px !important;
       min-width: 44px !important;
-      min-height: 44px !important;
+      min-height: 54px !important;
       max-width: 44px !important;
-      max-height: 44px !important;
+      max-height: 54px !important;
       flex: 0 0 44px !important;
       border-radius: 11px !important;
       display: inline-flex !important;
@@ -54204,7 +54198,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     }
 
     .aion-file-cabinet-actions button {
-      min-height: 44px !important;
+      min-height: 54px !important;
       border-radius: 13px !important;
       border: 1px solid rgba(15,23,42,0.12) !important;
       font-size: 13px !important;
@@ -54458,7 +54452,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       <button type="button" title="New folder" aria-label="New folder" data-aion-cabinet-new-folder="${folderId}">▣</button>
       ${folderId === "marketing" || folderId === "sales" || folderId === "operations" || folderId === "finance" || folderId === "support"
         ? ""
-        : `<button type="button" title="Delete folder" aria-label="Delete folder" data-aion-cabinet-delete="${folderId}">×</button>`}
+        : `<button type="button" title="Delete folder" aria-label="Delete folder" data-aion-cabinet-delete="${folderId}">×<`}
     `;
 
     summary.appendChild(actions);
@@ -59060,9 +59054,9 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button[data-aion-workflow-glyph-debug='true'],
     .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-floating-add,
     .aion-workflow-floating-toolbar.aion-workflow-floating-toolbar-consolidated > button.aion-workflow-publish-toolbar-btn {
-      height: 44px !important;
-      min-height: 44px !important;
-      max-height: 44px !important;
+      height: 54px !important;
+      min-height: 54px !important;
+      max-height: 54px !important;
       align-self: center !important;
       margin-top: 0 !important;
       margin-bottom: 0 !important;
@@ -59092,9 +59086,9 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       max-width: 126px !important;
       flex: 0 0 126px !important;
 
-      height: 44px !important;
-      min-height: 44px !important;
-      max-height: 44px !important;
+      height: 54px !important;
+      min-height: 54px !important;
+      max-height: 54px !important;
 
       display: inline-flex !important;
       flex-direction: row !important;
@@ -59227,9 +59221,9 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       flex-basis: 44px !important;
       flex: 0 0 44px !important;
 
-      height: 44px !important;
-      min-height: 44px !important;
-      max-height: 44px !important;
+      height: 54px !important;
+      min-height: 54px !important;
+      max-height: 54px !important;
 
       display: inline-flex !important;
       align-items: center !important;
@@ -59422,9 +59416,9 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     .aion-main-step-logic-modal-v3 [data-aion-close],
     .aion-main-step-logic-modal [data-aion-close] {
       width: 44px !important;
-      height: 44px !important;
+      height: 54px !important;
       min-width: 44px !important;
-      min-height: 44px !important;
+      min-height: 54px !important;
 
       display: inline-grid !important;
       place-items: center !important;
@@ -63802,7 +63796,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
                       <p>Connectors: ${escapeLocal(Array.isArray(connectors) && connectors.length ? connectors.join(", ") : "None declared")}</p>
                       ${
                         workflowId
-                          ? `<button type="button" data-aion-master-glyph-stage-to-canvas="true" data-workflow-id="${escapeLocal(workflowId)}">Stage to workflow canvas</button>`
+                          ? `<button type="button" data-aion-master-glyph-stage-to-canvas="true" data-workflow-id="${escapeLocal(workflowId)}">Stage to workflow canvas<`
                           : ""
                       }
                     </article>
@@ -64794,7 +64788,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
         <div class="aion-glyph-library-v36-actions">
           <button type="button" data-aion-glyph-v36-stage="${esc(item.workflow_id)}" data-aion-glyph-code="${esc(item.glyph_code)}" data-aion-glyph-action="stage" data-glyph-code="${esc(glyph.glyph_code || glyph.glyphCode || glyph.code || '')}">Stage to canvas</button>
           <button type="button" data-aion-glyph-v36-open="${esc(item.glyph_code)}" data-aion-glyph-action="open-workflow" data-glyph-code="${esc(glyph.glyph_code || glyph.glyphCode || glyph.code || '')}">Open workflow</button>
-          ${item.glyph_scope === "universal" ? `<button type="button" data-aion-glyph-v36-copy="${esc(item.glyph_code)}">Copy universal glyph</button>` : ""}
+          ${item.glyph_scope === "universal" ? `<button type="button" data-aion-glyph-v36-copy="${esc(item.glyph_code)}">Copy universal glyph<` : ""}
         </div>
       </article>
     `;
@@ -65915,7 +65909,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
         <div class="aion-auth-glyph-actions">
           <button type="button" data-aion-auth-stage-glyph="${esc(glyph.glyph_code)}" data-aion-glyph-action="stage" data-glyph-code="${esc(glyph.glyph_code || glyph.glyphCode || glyph.code || '')}">Stage to canvas</button>
           <button type="button" data-aion-auth-open-glyph="${esc(glyph.glyph_code)}" data-aion-glyph-action="open-workflow" data-glyph-code="${esc(glyph.glyph_code || glyph.glyphCode || glyph.code || '')}">Open workflow</button>
-          ${String(glyph.scope || glyph.glyph_scope || "") === "universal" ? `<button type="button" data-aion-auth-copy-glyph="${esc(glyph.glyph_code)}">Copy to My Glyphs</button>` : ""}
+          ${String(glyph.scope || glyph.glyph_scope || "") === "universal" ? `<button type="button" data-aion-auth-copy-glyph="${esc(glyph.glyph_code)}">Copy to My Glyphs<` : ""}
         </div>
       </article>
     `;
@@ -85220,10 +85214,10 @@ function renderAionWebsiteIntakeInstallationPanel() {
 
         ${
           connected
-            ? `<button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">Check now</button>`
+            ? `<button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">Check now<`
             : selected === "gmail_oauth"
-              ? `<button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true">Connect Gmail</button>`
-              : `<button type="button" class="secondary-btn" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy setup</button>`
+              ? `<button type="button" class="primary-btn" data-aion-phase17k-open-gmail-oauth="true">Connect Gmail<`
+              : `<button type="button" class="secondary-btn" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy setup<`
         }
       </div>
 
@@ -85363,7 +85357,7 @@ function renderAionWebsiteIntakeInstallationPanel() {
           <button type="button" class="secondary-btn" data-aion-phase17k-open-gmail-oauth="true">Open Gmail OAuth</button>
           <button type="button" class="secondary-btn" data-aion-phase17k-poll-gmail-now="true">Poll Gmail now</button>
           <button type="button" data-aion-phase17h-action="copy-webhook" onclick="copyAionPhase17IWebsiteIntakeValue('webhook_endpoint', 'https://api.tessaris.ai/public/intake/home_fixed')">Copy webhook endpoint</button>
-          <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17IWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet</button>
+          <button type="button" data-aion-phase17h-action="copy-embed" onclick="copyAionPhase17IWebsiteIntakeValue('future_embed_snippet', '<script src=&quot;https://cdn.tessaris.ai/intake-widget.js&quot; data-business-id=&quot;home_fixed&quot; data-mode=&quot;form&quot;></script>')">Copy future embed snippet<
           <button type="button" data-aion-phase17h-action="send-local-payload-test" onclick="sendAionPhase17ILocalPayloadTest()">Send local dummy payload</button>
         </div>
 
@@ -91259,4 +91253,138 @@ html body .aion-pilot-tracked-change-strip ul {
    Tracked changes
    Clean Me
 */
+
+
+/* PHASE 24B.9 — Website scan loading UX lock */
+(function installAionPhase24BWebsiteScanLoadingStyles() {
+  if (document.getElementById("aion-phase24b-website-scan-loading-styles")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-phase24b-website-scan-loading-styles";
+  style.textContent = `
+    .aion-scan-spinner {
+      display: inline-block;
+      width: 13px;
+      height: 13px;
+      margin-right: 8px;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: 999px;
+      vertical-align: -2px;
+      animation: aionScanSpin 0.75s linear infinite;
+    }
+
+    @keyframes aionScanSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .aion-scan-waiting-note {
+      margin-top: 8px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: rgba(71, 85, 105, 0.95);
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+/* PHASE 24B.9 scan popup title: Scanning website */
+
+/* PHASE 24B.9 popup wording lock: AION is reading the website */
+
+/* PHASE 24B.9 popup timing lock: 10–15 seconds */
+
+/* PHASE 24B.9 — scan button visual repair only */
+(function installAionPhase24BScanButtonVisualRepair() {
+  if (document.getElementById("aion-phase24b-scan-button-visual-repair")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-phase24b-scan-button-visual-repair";
+  style.textContent = `
+    .aion-small-business-website-scan-btn {
+      height: 54px !important;
+      box-sizing: border-box !important;
+      min-width: 170px !important;
+      padding: 0 20px !important;
+      border: 0 !important;
+      border-radius: 12px !important;
+      background: #ffffff !important;
+      color: #111111 !important;
+      -webkit-text-fill-color: #111111 !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.16em !important;
+      text-transform: uppercase !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      white-space: nowrap !important;
+    }
+
+    .aion-small-business-website-scan-btn:hover {
+      background: #f3f4f6 !important;
+    }
+
+    .aion-small-business-website-scan-btn:active {
+      transform: translateY(1px) !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
+/* PHASE 24B.9 — exact website scan row alignment lock */
+(function installAionPhase24BExactWebsiteScanAlignment() {
+  if (document.getElementById("aion-phase24b-exact-website-scan-alignment")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-phase24b-exact-website-scan-alignment";
+  style.textContent = `
+    [data-aion-phase24b-import-option="website"] {
+      display: grid !important;
+      grid-template-columns: minmax(0, 1fr) 170px !important;
+      gap: 14px !important;
+      align-items: start !important;
+    }
+
+    [data-aion-phase24b-import-option="website"] input,
+    [data-aion-phase24b-import-option="website"] .aion-small-business-website-scan-btn {
+      height: 54px !important;
+      min-height: 54px !important;
+      max-height: 54px !important;
+      box-sizing: border-box !important;
+      margin: 0 !important;
+      transform: none !important;
+      position: static !important;
+      top: auto !important;
+      bottom: auto !important;
+    }
+
+    [data-aion-phase24b-import-option="website"] input {
+      width: 100% !important;
+      padding: 0 18px !important;
+      line-height: 54px !important;
+      display: block !important;
+    }
+
+    [data-aion-phase24b-import-option="website"] .aion-small-business-website-scan-btn {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0 22px !important;
+      border: 0 !important;
+      border-radius: 12px !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      line-height: 1 !important;
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
+
+
 

@@ -57,9 +57,9 @@ def test_phase24b_primary_setup_options_are_visible_but_no_right_column():
     block = _foundation_block()
 
     assert 'data-aion-phase24b-import-option="website"' in block
-    assert 'data-aion-phase24b-import-option="documents"' in block
+    assert 'data-aion-phase24b-import-option="documents"' not in block
     assert "Website scan" in block
-    assert "Upload documents" in block
+    assert "Upload documents" not in block
     assert "Other setup options" not in block
     assert "Foundation preview" not in block
     assert "<aside" not in block
@@ -137,8 +137,8 @@ def test_phase24b_primary_setup_box_contains_website_and_documents():
     assert "Website scan" in block
     assert 'data-aion-phase24b-foundation-field="website"' in block
     assert "Scan website" in block
-    assert "Upload documents" in block
-    assert "Brochures, price lists, old adverts and brand files." in block
+    assert "Upload documents" not in block
+    assert "Brochures, price lists, old adverts and brand files." not in block
     assert block.index("Website scan") < block.index("Business name")
 
 
@@ -224,3 +224,36 @@ def test_phase24b_workflow_visibility_guard_does_not_require_scoped_state():
 def test_phase24b_csp_allows_local_backend_scan_connection():
     assert "http://127.0.0.1:8000" in APP_JS or "http://localhost:8000" in APP_JS
     assert "/api/local-node/aion/small-business/website-scan" in APP_JS
+
+
+def test_phase24b9_website_scan_loading_state_visible():
+    assert "aion-scan-spinner" in APP_JS
+    assert "Scanning website" in APP_JS
+    assert "AION is reading the website" in APP_JS
+    assert "10–15 seconds" in APP_JS
+    assert "smallBusinessFoundationWebsiteScanStatus" in APP_JS
+
+
+def test_phase24b9_website_input_does_not_rerender_on_every_keypress():
+    assert 'data-aion-no-live-render="true"' in APP_JS
+    assert 'event.target?.closest?.("[data-aion-small-business-foundation-scan-website]")' in APP_JS
+    assert 'event.target?.closest?.("[data-aion-phase24b-import-option=\\"website\\"]")' not in APP_JS
+    assert "state.smallBusinessFoundationPreviewReady = false;" in APP_JS
+
+
+def test_phase24b9_scan_button_has_clean_inline_alignment():
+    assert "aion-small-business-website-scan-btn" in APP_JS
+    assert "min-width:170px" in APP_JS
+    assert "display:inline-flex" in APP_JS
+    assert "align-items:center" in APP_JS
+    assert "justify-content:center" in APP_JS
+
+
+def test_phase24b9_scan_click_targets_button_not_input_row():
+    assert 'event.target?.closest?.("[data-aion-small-business-foundation-scan-website]")' in APP_JS
+    assert 'event.target?.closest?.("[data-aion-phase24b-import-option=\\\"website\\\"]")' not in APP_JS
+
+
+def test_phase24b_quick_start_does_not_include_fake_upload_documents_card():
+    assert 'data-aion-phase24b-import-option="documents"' not in APP_JS
+    assert "Brochures, price lists, old adverts and brand files." not in APP_JS
