@@ -13621,6 +13621,26 @@ function renderSmallBusinessFoundationSelect(name, label, value, options = []) {
 
 
 
+
+function getAionLocalBackendBaseUrl() {
+  const explicit =
+    window.__AION_BACKEND_BASE_URL ||
+    window.localStorage?.getItem("aion.backendBaseUrl") ||
+    "";
+
+  if (explicit) {
+    return String(explicit).replace(/\/+$/, "");
+  }
+
+  return "http://127.0.0.1:8000";
+}
+
+function buildAionLocalBackendUrl(pathname = "") {
+  const base = getAionLocalBackendBaseUrl();
+  const path = String(pathname || "").replace(/^\/+/, "");
+  return `${base}/${path}`;
+}
+
 async function applySmallBusinessWebsiteScanDraft(websiteValue = "") {
   const draft = getSmallBusinessFoundationDraft();
   const website = String(websiteValue || draft.website || "").trim();
@@ -13642,7 +13662,7 @@ async function applySmallBusinessWebsiteScanDraft(websiteValue = "") {
   if (typeof render === "function") render();
 
   try {
-    const response = await fetch("/api/aion/small-business/website-scan", {
+    const response = await fetch(buildAionLocalBackendUrl("/api/local-node/aion/small-business/website-scan"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ website }),
@@ -83108,80 +83128,34 @@ html body.aion-phase18-ticket-visible .aion-selected-workflow-slim-header-v14 {
 
   function isWorkflowCanvasVisible() {
     /*
-     * Phase 24A.5:
-     * The workflow tab strip is appended to document.body and can survive normal
-     * app renders. Its visibility must follow the active app tab only.
-     * Do not infer visibility from stale workflow DOM.
+     * Guarded because this legacy cleanup function can run outside the closure
+     * where app `state` exists.
      */
-    const stateTab = String(
-      state?.activeTab ||
-      window.desktopStore?.state?.activeTab ||
-      window.desktopStore?.state?.tab ||
-      window.__aionActiveDesktopTab ||
-      ""
-    ).toLowerCase();
+    const safeState =
+      (typeof state !== "undefined" && state) ||
+      window.__aionAppState ||
+      {};
 
-    return (
-      stateTab === "workflow" ||
-      stateTab === "workflow_canvas" ||
-      stateTab === "operations_flow"
-    );
+    const activeTab = safeState.activeTab || safeState.activeTabForChrome || "";
+    return activeTab === "operations_flow" || activeTab === "workflow";
   }
 
   function syncWorkflowVisibilityClass() {
-    ensureStyle();
-    document.body.classList.toggle(
-      "aion-phase19c-workflow-visible",
-      isWorkflowCanvasVisible()
-    );
-  }
-
-  function hideEmptyOrchestratedGlyphsPanel() {
-    const candidates = Array.from(
-      document.querySelectorAll(".aion-boardroom-card, .panel, section, div")
-    );
-
-    for (const el of candidates) {
-      const text = String(el.textContent || "");
-      if (
-        text.includes("Orchestrated Glyphs") &&
-        text.includes("No orchestrated child glyphs attached yet")
-      ) {
-        el.classList.add("aion-phase19c-hidden-empty-orchestrated-glyphs");
-        el.setAttribute("data-aion-phase19c-hidden-empty-orchestrated-glyphs", "true");
-      }
-    }
+    const visible = isWorkflowCanvasVisible();
+    document.body.classList.toggle("aion-phase19c-workflow-visible", visible);
+    document.body.classList.toggle("aion-phase19c-workflow-hidden", !visible);
   }
 
   function syncPhase19CNavigationCleanup() {
     syncWorkflowVisibilityClass();
-    hideEmptyOrchestratedGlyphsPanel();
   }
 
-  document.addEventListener("click", () => {
-    window.setTimeout(syncPhase19CNavigationCleanup, 0);
-    window.setTimeout(syncPhase19CNavigationCleanup, 120);
-  }, true);
-
-  window.addEventListener("aion:workflow-rendered", syncPhase19CNavigationCleanup);
-  window.addEventListener("hashchange", syncPhase19CNavigationCleanup);
-
-  const previousRenderTabs = window.__renderAionGlyphWorkflowTopTabs;
-  if (typeof previousRenderTabs === "function") {
-    window.__renderAionGlyphWorkflowTopTabs = function renderAionGlyphWorkflowTopTabsPhase19C(...args) {
-      const result = previousRenderTabs.apply(this, args);
-      syncPhase19CNavigationCleanup();
-      return result;
-    };
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", syncPhase19CNavigationCleanup);
+  } else {
+    syncPhase19CNavigationCleanup();
   }
 
-  window.__syncAionPhase19CNavigationCleanup = syncPhase19CNavigationCleanup;
-
-  window.setTimeout(syncPhase19CNavigationCleanup, 0);
-  window.setTimeout(syncPhase19CNavigationCleanup, 250);
-  window.setTimeout(syncPhase19CNavigationCleanup, 1000);
-
-  console.log("[AION] Phase 19C workflow canvas navigation cleanup lock installed");
 })();
 
 /*

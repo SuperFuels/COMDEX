@@ -20,12 +20,13 @@ from backend.modules.local_node.contracts_local_node import (
 )
 from backend.modules.local_node.local_node_runtime import LocalNodeRuntime
 from backend.workflow_capsules.aion_a2a_commercial_ticket import (
-from backend.services.aion_mission_mode.business_foundation_llm_extractor import scan_website_with_openai
-from backend.services.aion_mission_mode.website_scan_usage_gate import website_scan_allowed
     home_fixed_plumbing_hourly_ticket,
     home_fixed_roof_discovery_ticket,
 )
 
+
+from backend.services.aion_mission_mode.business_foundation_llm_extractor import scan_website_with_openai
+from backend.services.aion_mission_mode.website_scan_usage_gate import website_scan_allowed
 
 router = APIRouter(prefix="/api/local-node", tags=["local-node"])
 

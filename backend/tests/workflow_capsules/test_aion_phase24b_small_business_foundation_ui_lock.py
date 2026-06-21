@@ -166,7 +166,7 @@ def test_phase24b_additional_information_section_captures_key_details():
 
 def test_phase24b_frontend_scan_calls_backend_extractor_not_hardcoded_business():
     assert "async function applySmallBusinessWebsiteScanDraft" in APP_JS
-    assert "/api/aion/small-business/website-scan" in APP_JS
+    assert "/api/local-node/aion/small-business/website-scan" in APP_JS
     assert "await fetch" in APP_JS
     assert "Object.entries(fields).forEach" in APP_JS
 
@@ -181,7 +181,7 @@ def test_phase24b_frontend_scan_calls_backend_extractor_not_hardcoded_business()
 
 def test_phase24b_frontend_scan_calls_openai_backend_without_business_hardcoding():
     assert "async function applySmallBusinessWebsiteScanDraft" in APP_JS
-    assert "/api/aion/small-business/website-scan" in APP_JS
+    assert "/api/local-node/aion/small-business/website-scan" in APP_JS
     assert "await fetch" in APP_JS
     assert "Object.entries(fields).ForEach" not in APP_JS
     assert "Object.entries(fields).forEach" in APP_JS
@@ -201,3 +201,21 @@ def test_phase24b_generic_small_business_setup_does_not_default_to_home_fixed():
     assert "e.g. Your business name" in block
     assert "\"Home Fixed\"" not in block
     assert "Property maintenance and outdoor living improvements" not in block
+
+
+def test_phase24b_website_scan_uses_local_backend_absolute_url():
+    assert "function getAionLocalBackendBaseUrl" in APP_JS
+    assert "function buildAionLocalBackendUrl" in APP_JS
+    assert "http://127.0.0.1:8000" in APP_JS
+    assert "/api/local-node/aion/small-business/website-scan" in APP_JS
+    assert 'fetch("/api/aion/small-business/website-scan"' not in APP_JS
+    assert "ERR_FILE_NOT_FOUND" not in APP_JS
+
+
+def test_phase24b_workflow_visibility_guard_does_not_require_scoped_state():
+    start = APP_JS.index("function isWorkflowCanvasVisible")
+    end = APP_JS.index("function syncWorkflowVisibilityClass", start)
+    block = APP_JS[start:end]
+
+    assert 'typeof state !== "undefined"' in block
+    assert "window.__aionAppState" in block
