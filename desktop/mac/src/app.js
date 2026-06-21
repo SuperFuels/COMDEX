@@ -230,7 +230,21 @@ function renderBrowserWorkflowBridgePanel() {
         <div>
           <div class="eyebrow">Phase 4A</div>
           <h2>Browser Workflow Operator</h2>
-          <p class="muted" style="margin:10px 0 0; max-width:860px;">
+          <p class="muted" style="
+              appearance:none;
+              -webkit-appearance:none;
+              border:1px solid rgba(17,17,17,0.22);
+              border-radius:12px;
+              background:#ffffff;
+              color:#111111;
+              padding:14px 22px;
+              font-size:13px;
+              font-weight:800;
+              letter-spacing:0.10em;
+              text-transform:uppercase;
+              cursor:pointer;
+              white-space:nowrap;
+            ">
             Teach Aion browser tasks by demonstration. First choose whether Aion should use an isolated workspace browser
             or a browser/profile you explicitly connect.
           </p>
@@ -13023,7 +13037,441 @@ function createAionWorkflowId(prefix = "workflow") {
   return `${prefix}_${ts}_${rand}`;
 }
 
+
+function getAionBusinessEntryMode() {
+  return String(state.businessEntryMode || "").trim();
+}
+
+function setAionBusinessEntryMode(mode) {
+  const value = String(mode || "").trim().toLowerCase();
+  const allowed = new Set([
+    "founder_generate_idea",
+    "founder_build_idea",
+    "small_business_growth",
+  ]);
+
+  if (!allowed.has(value)) return false;
+
+  state.businessEntryMode = value;
+  state.businessEntryModeSelectedAt = new Date().toISOString();
+
+  if (value === "founder_generate_idea") {
+    state.activeTab = "aion_chat";
+  } else if (value === "founder_build_idea") {
+    state.activeTab = "brand_foundation";
+  } else if (value === "small_business_growth") {
+    state.activeTab = "brand_foundation";
+  }
+
+  return true;
+}
+
+function resetAionBusinessEntryMode() {
+  state.businessEntryMode = "";
+  state.businessEntryModeSelectedAt = "";
+  return true;
+}
+
+function renderBusinessEntryModeSelector() {
+  return `
+    <div
+      class="surface-shell aion-business-entry-shell"
+      data-aion-phase24a-business-entry-selector
+      style="
+        min-height:100vh;
+        background:#ffffff;
+        background-color:#ffffff;
+        padding:44px 56px 88px;
+        font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      "
+    >
+      <style>
+        body:has([data-aion-phase24a-business-entry-selector]) #aion-glyph-workflow-top-tabs-v2,
+        body:has([data-aion-phase24a-business-entry-selector]) .aion-workflow-nav-btn,
+        body:has([data-aion-phase24a-business-entry-selector]) .aion-workflow-nav-tabs,
+        body:has([data-aion-phase24a-business-entry-selector]) [data-aion-workflow-nav],
+        body:has([data-aion-phase24a-business-entry-selector]) [data-aion-main-workflow-tab],
+        body:has([data-aion-phase24a-business-entry-selector]) .aion-workflow-tab-strip {
+          display:none !important;
+          visibility:hidden !important;
+          pointer-events:none !important;
+        }
+
+        .aion-business-entry-card {
+          transition:
+            transform 0.18s cubic-bezier(0.19, 1, 0.22, 1),
+            box-shadow 0.18s cubic-bezier(0.19, 1, 0.22, 1),
+            background 0.18s ease;
+        }
+
+        .aion-business-entry-card:hover {
+          transform:translateY(-2px);
+          box-shadow:0 16px 32px rgba(15,23,42,0.16);
+        }
+      </style>
+
+      <div style="
+        max-width:1320px;
+        margin:0 auto;
+      ">
+        <div style="
+          padding-bottom:42px;
+          margin-bottom:34px;
+        ">
+          <div style="
+            font-size:13px;
+            letter-spacing:0.12em;
+            text-transform:uppercase;
+            color:rgba(15,23,42,0.42);
+            font-weight:700;
+            margin-bottom:16px;
+          ">
+            AION Business Desktop
+          </div>
+
+          <h1 style="
+            margin:0;
+            font-size:56px;
+            line-height:1;
+            letter-spacing:-0.04em;
+            font-weight:500;
+            color:#111111;
+          ">
+            What are we building?
+          </h1>
+
+          <p style="
+            margin:22px 0 0;
+            max-width:760px;
+            font-size:24px;
+            line-height:1.45;
+            letter-spacing:-0.02em;
+            color:rgba(17,17,17,0.76);
+            font-weight:400;
+          ">
+            Choose a starting point. AION builds the foundation, then Pilot hands work to you to review.
+          </p>
+        </div>
+
+        <div style="
+          display:grid;
+          grid-template-columns:minmax(0, 1.15fr) minmax(0, 1fr);
+          gap:28px;
+          align-items:stretch;
+        ">
+          <section
+            data-aion-phase24a-founder-mode-section
+            style="
+              border:1px solid rgba(15,23,42,0.12);
+              border-radius:16px;
+              background:#ffffff;
+              padding:34px;
+              min-height:430px;
+              display:flex;
+              flex-direction:column;
+            "
+          >
+            <div style="
+              font-size:13px;
+              letter-spacing:0.16em;
+              text-transform:uppercase;
+              color:rgba(15,23,42,0.52);
+              font-weight:700;
+            ">
+              Founder Mode
+            </div>
+
+            <h2 style="
+              margin:20px 0 0;
+              font-size:36px;
+              line-height:1.08;
+              letter-spacing:-0.035em;
+              font-weight:500;
+              color:#111111;
+            ">
+              Start something new
+            </h2>
+
+            <p style="
+              margin:18px 0 0;
+              color:rgba(17,17,17,0.68);
+              font-size:21px;
+              line-height:1.45;
+              letter-spacing:-0.02em;
+              font-weight:400;
+              max-width:680px;
+            ">
+              For idea-stage founders, early concepts, MVPs and first campaigns.
+            </p>
+
+            <div style="
+              display:grid;
+              grid-template-columns:repeat(2, minmax(0, 1fr));
+              gap:18px;
+              margin-top:auto;
+              padding-top:36px;
+            ">
+              <button
+                type="button"
+                class="aion-business-entry-card"
+                data-aion-business-entry-mode="founder_generate_idea"
+                style="appearance:none;
+              -webkit-appearance:none;
+              border:1px solid rgba(17,17,17,0.22);
+              border-radius:12px;
+              background:#ffffff;
+              color:#111111;
+              padding:14px 22px;
+              font-size:13px;
+              font-weight:800;
+              letter-spacing:0.10em;
+              text-transform:uppercase;
+              cursor:pointer;
+              white-space:nowrap;"
+              >
+                <div style="
+                  font-size:31px;
+                  line-height:1.08;
+                  letter-spacing:-0.04em;
+                  font-weight:500;
+                  max-width:250px;
+                ">
+                  Generate me an idea
+                </div>
+
+                <div style="
+                  margin-top:22px;
+                  font-size:20px;
+                  line-height:1.35;
+                  letter-spacing:-0.02em;
+                  color:rgba(255,255,255,0.68);
+                  font-weight:400;
+                  max-width:280px;
+                ">
+                  AION suggests opportunities and builds the first test plan.
+                </div>
+              </button>
+
+              <button
+                type="button"
+                class="aion-business-entry-card"
+                data-aion-business-entry-mode="founder_build_idea"
+                style="
+                  appearance:none;
+                  -webkit-appearance:none;
+                  border:0;
+                  border-radius:14px;
+                  background:#111111 !important;
+                  background-color:#111111 !important;
+                  color:#ffffff !important;
+                  min-height:250px;
+                  padding:30px;
+                  text-align:left;
+                  cursor:pointer;
+                  display:flex;
+                  flex-direction:column;
+                  justify-content:flex-start;
+                "
+              >
+                <div style="
+                  font-size:31px;
+                  line-height:1.08;
+                  letter-spacing:-0.04em;
+                  font-weight:500;
+                  max-width:250px;
+                ">
+                  I have an idea
+                </div>
+
+                <div style="
+                  margin-top:22px;
+                  font-size:20px;
+                  line-height:1.35;
+                  letter-spacing:-0.02em;
+                  color:rgba(255,255,255,0.68);
+                  font-weight:400;
+                  max-width:280px;
+                ">
+                  Shape the offer, brand, MVP assets and first campaign.
+                </div>
+              </button>
+            </div>
+          </section>
+
+          <section
+            data-aion-phase24a-small-business-mode-section
+            style="
+              border:1px solid rgba(15,23,42,0.12);
+              border-radius:16px;
+              background:#ffffff;
+              padding:34px;
+              min-height:430px;
+              display:flex;
+              flex-direction:column;
+            "
+          >
+            <div style="
+              font-size:13px;
+              letter-spacing:0.16em;
+              text-transform:uppercase;
+              color:rgba(15,23,42,0.52);
+              font-weight:700;
+            ">
+              Small Business Mode
+            </div>
+
+            <h2 style="
+              margin:20px 0 0;
+              font-size:36px;
+              line-height:1.08;
+              letter-spacing:-0.035em;
+              font-weight:500;
+              color:#111111;
+            ">
+              Grow and automate
+            </h2>
+
+            <p style="
+              margin:18px 0 0;
+              color:rgba(17,17,17,0.68);
+              font-size:21px;
+              line-height:1.45;
+              letter-spacing:-0.02em;
+              font-weight:400;
+              max-width:560px;
+            ">
+              For existing businesses with customers, services, revenue, channels, assets or repeatable work.
+            </p>
+
+            <button
+              type="button"
+              class="aion-business-entry-card"
+              data-aion-business-entry-mode="small_business_growth"
+              style="
+                appearance:none;
+                -webkit-appearance:none;
+                border:0;
+                border-radius:14px;
+                background:#111111 !important;
+                background-color:#111111 !important;
+                color:#ffffff !important;
+                width:100%;
+                min-height:250px;
+                margin-top:auto;
+                padding:30px;
+                text-align:left;
+                cursor:pointer;
+                display:flex;
+                flex-direction:column;
+                justify-content:flex-start;
+              "
+            >
+              <div style="
+                font-size:31px;
+                line-height:1.08;
+                letter-spacing:-0.04em;
+                font-weight:500;
+                max-width:300px;
+              ">
+                I have a business
+              </div>
+
+              <div style="
+                margin-top:22px;
+                font-size:20px;
+                line-height:1.35;
+                letter-spacing:-0.02em;
+                color:rgba(255,255,255,0.68);
+                font-weight:400;
+              ">
+                Let’s automate it and grow it.
+              </div>
+            </button>
+          </section>
+        </div>
+
+        <div style="
+          margin-top:42px;
+          border-top:1px solid rgba(15,23,42,0.12);
+          padding-top:24px;
+          display:flex;
+          justify-content:space-between;
+          gap:22px;
+          align-items:center;
+        ">
+          <div style="
+            color:rgba(17,17,17,0.58);
+            font-size:18px;
+            line-height:1.45;
+            letter-spacing:-0.02em;
+          ">
+            Founder and small business modes come first. Medium, large and enterprise modes follow with stronger team, role and integration controls.
+          </div>
+
+          <button
+            type="button"
+            data-aion-business-entry-reset
+            style="
+              appearance:none;
+              -webkit-appearance:none;
+              border:0;
+              background:transparent;
+              color:#111111;
+              font-size:15px;
+              font-weight:700;
+              letter-spacing:0.06em;
+              text-transform:uppercase;
+              cursor:pointer;
+              white-space:nowrap;
+              padding:8px 0;
+            "
+          >
+            Reset start
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+if (!window.__aionPhase24ABusinessEntryHandlersInstalled) {
+  window.__aionPhase24ABusinessEntryHandlersInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const resetButton = event.target?.closest?.("[data-aion-business-entry-reset]");
+    if (resetButton) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      resetAionBusinessEntryMode();
+
+      if (typeof render === "function") {
+        render();
+      }
+      return;
+    }
+
+    const modeButton = event.target?.closest?.("[data-aion-business-entry-mode]");
+    if (!modeButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const selected = String(modeButton.dataset.aionBusinessEntryMode || "").trim();
+    setAionBusinessEntryMode(selected);
+
+    if (typeof render === "function") {
+      render();
+    }
+  }, true);
+}
+
+
 function renderMainSurface() {
+  if (!getAionBusinessEntryMode()) {
+    return renderBusinessEntryModeSelector();
+  }
+
   if (state.activeTab === "vault") {
     return renderVaultCredentialsSurface();
   }
@@ -81918,10 +82366,12 @@ html body.aion-phase18-ticket-visible .aion-selected-workflow-slim-header-v14 {
     style.textContent = `
       body:not(.aion-phase19c-workflow-visible) #aion-glyph-workflow-top-tabs-v2,
       body:not(.aion-phase19c-workflow-visible) [data-aion-workflow-tab-strip='true'],
-      body:not(.aion-phase19c-workflow-visible) .aion-glyph-workflow-top-tabs-v2 {
+      body:not(.aion-phase19c-workflow-visible) .aion-glyph-workflow-top-tabs-v2,
+      body:has([data-aion-phase24a-business-entry-selector]) #aion-glyph-workflow-top-tabs-v2 {
         display: none !important;
         visibility: hidden !important;
         pointer-events: none !important;
+        opacity: 0 !important;
       }
 
       body.aion-phase19c-workflow-visible #aion-glyph-workflow-top-tabs-v2 {
@@ -82002,34 +82452,24 @@ html body.aion-phase18-ticket-visible .aion-selected-workflow-slim-header-v14 {
   }
 
   function isWorkflowCanvasVisible() {
+    /*
+     * Phase 24A.5:
+     * The workflow tab strip is appended to document.body and can survive normal
+     * app renders. Its visibility must follow the active app tab only.
+     * Do not infer visibility from stale workflow DOM.
+     */
     const stateTab = String(
+      state?.activeTab ||
       window.desktopStore?.state?.activeTab ||
       window.desktopStore?.state?.tab ||
       window.__aionActiveDesktopTab ||
       ""
     ).toLowerCase();
 
-    if (
+    return (
       stateTab === "workflow" ||
       stateTab === "workflow_canvas" ||
       stateTab === "operations_flow"
-    ) {
-      return true;
-    }
-
-    const shell = document.querySelector(
-      ".aion-workflow-canvas-shell, [data-aion-workflow-canvas-viewport='true'], .aion-workflow-layout"
-    );
-
-    if (!shell) return false;
-
-    const rect = shell.getBoundingClientRect?.();
-    const style = window.getComputedStyle ? window.getComputedStyle(shell) : null;
-
-    return (
-      (!style || style.display !== "none") &&
-      (!style || style.visibility !== "hidden") &&
-      (!rect || (rect.width > 0 && rect.height > 0))
     );
   }
 
