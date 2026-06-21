@@ -13040,7 +13040,14 @@ function createAionWorkflowId(prefix = "workflow") {
 
 
 function getAionBusinessEntryMode() {
-  return String(state.businessEntryMode || "").trim();
+  const stateValue = String(state.businessEntryMode || "").trim();
+  if (stateValue) return stateValue;
+
+  try {
+    return String(window.localStorage?.getItem("aion.businessEntryMode") || "").trim();
+  } catch {
+    return "";
+  }
 }
 
 function setAionBusinessEntryMode(mode) {
@@ -13056,12 +13063,16 @@ function setAionBusinessEntryMode(mode) {
   state.businessEntryMode = value;
   state.businessEntryModeSelectedAt = new Date().toISOString();
 
+  try {
+    window.localStorage?.setItem("aion.businessEntryMode", value);
+  } catch {}
+
   if (value === "founder_generate_idea") {
     state.activeTab = "aion_chat";
   } else if (value === "founder_build_idea") {
     state.activeTab = "brand_foundation";
   } else if (value === "small_business_growth") {
-    state.activeTab = "brand_foundation";
+    state.activeTab = "small_business_foundation";
   }
 
   return true;
@@ -13070,6 +13081,11 @@ function setAionBusinessEntryMode(mode) {
 function resetAionBusinessEntryMode() {
   state.businessEntryMode = "";
   state.businessEntryModeSelectedAt = "";
+
+  try {
+    window.localStorage?.removeItem("aion.businessEntryMode");
+  } catch {}
+
   return true;
 }
 
@@ -13456,6 +13472,630 @@ if (!window.__aionPhase24ABusinessEntryHandlersInstalled) {
   }, true);
 }
 
+
+function getSmallBusinessFoundationDraft() {
+  state.smallBusinessFoundationDraft =
+    state.smallBusinessFoundationDraft &&
+    typeof state.smallBusinessFoundationDraft === "object"
+      ? state.smallBusinessFoundationDraft
+      : {};
+
+  return state.smallBusinessFoundationDraft;
+}
+
+function normaliseSmallBusinessFoundationDraft(raw = {}) {
+  const draft = raw && typeof raw === "object" ? raw : {};
+
+  return {
+    business_name: String(draft.business_name || "").trim(),
+    website: String(draft.website || "").trim(),
+    business_type: String(draft.business_type || "services").trim().toLowerCase(),
+    industry: String(draft.industry || "").trim(),
+    service_area: String(draft.service_area || "").trim(),
+    primary_goal: String(draft.primary_goal || "get_more_leads").trim().toLowerCase(),
+    social_accounts: String(draft.social_accounts || "").trim(),
+    products_services: String(draft.products_services || "").trim(),
+    target_customers: String(draft.target_customers || "").trim(),
+    revenue_streams: String(draft.revenue_streams || "").trim(),
+    team_size: String(draft.team_size || "").trim(),
+    tone_of_voice: String(draft.tone_of_voice || "").trim(),
+    current_tools: String(draft.current_tools || "").trim(),
+    current_pain_points: String(draft.current_pain_points || "").trim(),
+    growth_goals: String(draft.growth_goals || "").trim(),
+    contact_email: String(draft.contact_email || "").trim(),
+    phone_number: String(draft.phone_number || "").trim(),
+    business_address: String(draft.business_address || "").trim(),
+    opening_hours: String(draft.opening_hours || "").trim(),
+    pricing_notes: String(draft.pricing_notes || "").trim(),
+    brand_notes: String(draft.brand_notes || "").trim(),
+    reviews_or_proof: String(draft.reviews_or_proof || "").trim(),
+    extra_notes: String(draft.extra_notes || "").trim(),
+  };
+}
+
+function getSmallBusinessFoundationMissingRequired(draft = getSmallBusinessFoundationDraft()) {
+  const value = normaliseSmallBusinessFoundationDraft(draft);
+  const required = [
+    ["business_name", "Business name"],
+    ["business_type", "Business type"],
+    ["industry", "Industry"],
+    ["service_area", "Location / service area"],
+    ["primary_goal", "Main goal"],
+  ];
+
+  return required
+    .filter(([key]) => !String(value[key] || "").trim())
+    .map(([, label]) => label);
+}
+
+function renderSmallBusinessFoundationInput(name, label, placeholder, value = "", { required = false } = {}) {
+  return `
+    <label style="display:grid; gap:8px;">
+      <span style="
+        font-size:12px;
+        font-weight:800;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+        color:rgba(17,17,17,0.62);
+      ">
+        ${escapeHtml(label)}${required ? " *" : ""}
+      </span>
+      <input
+        class="input"
+        data-aion-phase24b-foundation-field="${escapeHtml(name)}"
+        value="${escapeHtml(value || "")}"
+        placeholder="${escapeHtml(placeholder || "")}"
+        style="
+          min-height:44px;
+          background:#ffffff;
+          border:1px solid rgba(17,17,17,0.14);
+          border-radius:12px;
+          padding:10px 12px;
+        "
+      />
+    </label>
+  `;
+}
+
+function renderSmallBusinessFoundationTextarea(name, label, placeholder, value = "") {
+  return `
+    <label style="display:grid; gap:8px;">
+      <span style="
+        font-size:12px;
+        font-weight:800;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+        color:rgba(17,17,17,0.62);
+      ">
+        ${escapeHtml(label)}
+      </span>
+      <textarea
+        class="input"
+        data-aion-phase24b-foundation-field="${escapeHtml(name)}"
+        placeholder="${escapeHtml(placeholder || "")}"
+        style="
+          min-height:78px;
+          resize:vertical;
+          background:#ffffff;
+          border:1px solid rgba(17,17,17,0.14);
+          border-radius:12px;
+          padding:10px 12px;
+        "
+      >${escapeHtml(value || "")}</textarea>
+    </label>
+  `;
+}
+
+function renderSmallBusinessFoundationSelect(name, label, value, options = []) {
+  return `
+    <label style="display:grid; gap:8px;">
+      <span style="
+        font-size:12px;
+        font-weight:800;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+        color:rgba(17,17,17,0.62);
+      ">
+        ${escapeHtml(label)} *
+      </span>
+      <select
+        class="input"
+        data-aion-phase24b-foundation-field="${escapeHtml(name)}"
+        style="
+          min-height:44px;
+          background:#ffffff;
+          border:1px solid rgba(17,17,17,0.14);
+          border-radius:12px;
+          padding:10px 12px;
+        "
+      >
+        ${options.map(([key, optionLabel]) => `
+          <option value="${escapeHtml(key)}" ${String(value || "") === key ? "selected" : ""}>
+            ${escapeHtml(optionLabel)}
+          </option>
+        `).join("")}
+      </select>
+    </label>
+  `;
+}
+
+
+
+async function applySmallBusinessWebsiteScanDraft(websiteValue = "") {
+  const draft = getSmallBusinessFoundationDraft();
+  const website = String(websiteValue || draft.website || "").trim();
+  draft.website = website;
+
+  /*
+   * Phase 24B.8:
+   * Real website scan.
+   * Backend fetches public website evidence, sends that evidence to OpenAI server-side,
+   * and returns structured Business Foundation JSON.
+   *
+   * No OpenAI key is exposed to the frontend.
+   * No website-specific hardcoding belongs here.
+   */
+  state.smallBusinessFoundationWebsiteScanStatus = "scanning";
+  state.smallBusinessFoundationWebsiteScanWarnings = [];
+  state.smallBusinessFoundationWebsiteScanFacts = [];
+
+  if (typeof render === "function") render();
+
+  try {
+    const response = await fetch("/api/aion/small-business/website-scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ website }),
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok || payload?.ok === false) {
+      const warnings = payload?.warnings || [payload?.usage_gate?.reason || "Website scan failed"];
+      throw new Error(Array.isArray(warnings) ? warnings.join("; ") : String(warnings));
+    }
+
+    const fields = payload?.extracted_fields || {};
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value === undefined || value === null) return;
+      draft[key] = Array.isArray(value) ? value.join("\n") : String(value);
+    });
+
+    draft.website = fields.website || payload.website || website;
+
+    state.smallBusinessFoundationWebsiteScanWarnings = payload?.warnings || [];
+    state.smallBusinessFoundationWebsiteScanFacts = payload?.source_facts || [];
+    state.smallBusinessFoundationWebsiteScanStatus = "scanned";
+  } catch (error) {
+    state.smallBusinessFoundationWebsiteScanStatus = "scan_failed";
+    state.smallBusinessFoundationWebsiteScanWarnings = [
+      String(error?.message || error || "Website scan failed"),
+    ];
+  }
+
+  state.smallBusinessFoundationPreviewReady =
+    getSmallBusinessFoundationMissingRequired(draft).length === 0;
+
+  return draft;
+}
+
+function renderSmallBusinessFoundationSetupSurface() {
+  const draft = normaliseSmallBusinessFoundationDraft(getSmallBusinessFoundationDraft());
+
+  return `
+    <div
+      class="surface-shell"
+      data-aion-phase24b-small-business-foundation
+      style="
+        min-height:100vh;
+        background:#ffffff;
+        background-color:#ffffff;
+        padding:42px 56px 96px;
+        font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      "
+    >
+      <style data-aion-phase24b-hide-global-chrome>
+        body.aion-phase24a-entry-visible #aion-glyph-workflow-top-tabs-v2,
+        body.aion-phase24a-entry-visible .aion-glyph-top-tab-main,
+        body.aion-phase24a-entry-visible .aion-glyph-top-tab,
+        body.aion-phase24a-entry-visible [data-aion-workflow-tab-strip='true'],
+        body.aion-phase24a-entry-visible [data-aion-workflow-nav],
+        body.aion-phase24a-entry-visible [data-aion-main-workflow-tab],
+        body.aion-phase24a-entry-visible .aion-workflow-tab-strip,
+        body.aion-phase24a-entry-visible .aion-workflow-nav-tabs,
+        body.aion-phase24a-entry-visible .aion-workflow-nav-btn {
+          display:none !important;
+          visibility:hidden !important;
+          pointer-events:none !important;
+          opacity:0 !important;
+        }
+      </style>
+
+      <div style="max-width:1320px; margin:0 auto;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:24px; margin-bottom:28px;">
+          <div>
+            <div style="
+              font-size:13px;
+              letter-spacing:0.14em;
+              text-transform:uppercase;
+              color:rgba(17,17,17,0.46);
+              font-weight:800;
+              margin-bottom:14px;
+            ">
+              Small Business Mode
+            </div>
+
+            <h1 style="
+              margin:0;
+              font-size:48px;
+              line-height:1.04;
+              letter-spacing:-0.04em;
+              font-weight:550;
+              color:#111111;
+            ">
+              Build your business foundation
+            </h1>
+
+            <p style="
+              margin:18px 0 0;
+              max-width:780px;
+              font-size:20px;
+              line-height:1.45;
+              letter-spacing:-0.02em;
+              color:rgba(17,17,17,0.72);
+            ">
+              Give AION the basics now. You can add website scans, documents, socials and brand assets later.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            data-aion-business-entry-reset="true"
+            style="
+              appearance:none;
+              -webkit-appearance:none;
+              border:1px solid rgba(17,17,17,0.22);
+              border-radius:12px;
+              background:#ffffff;
+              color:#111111;
+              padding:12px 18px;
+              font-size:12px;
+              font-weight:800;
+              letter-spacing:0.10em;
+              text-transform:uppercase;
+              cursor:pointer;
+            "
+          >
+            Back
+          </button>
+        </div>
+
+        <div style="
+          display:grid;
+          grid-template-columns:minmax(0, 1fr);
+          gap:26px;
+          align-items:start;
+        ">
+          <section style="
+            width:100%;
+            border:1px solid rgba(17,17,17,0.12);
+            border-radius:18px;
+            background:#ffffff;
+            padding:30px;
+          ">
+            <div style="
+              font-size:14px;
+              font-weight:850;
+              color:#111111;
+              margin-bottom:16px;
+            ">
+              Required quick start
+            </div>
+            <div
+              data-aion-phase24b-primary-setup-box
+              style="
+                width:100%;
+                border-radius:16px;
+                background:#111111 !important;
+                background-color:#111111 !important;
+                color:#ffffff !important;
+                padding:26px 28px;
+                min-height:220px;
+                margin-bottom:24px;
+                display:grid;
+                gap:16px;
+              "
+            >
+              <div style="
+                font-size:12px;
+                letter-spacing:0.14em;
+                text-transform:uppercase;
+                color:rgba(255,255,255,0.66) !important;
+                -webkit-text-fill-color:rgba(255,255,255,0.66) !important;
+                font-weight:850;
+              ">Recommended fastest setup</div>
+
+              <div style="
+                font-size:32px;
+                line-height:1.05;
+                letter-spacing:-0.035em;
+                font-weight:700;
+                color:#ffffff !important;
+                -webkit-text-fill-color:#ffffff !important;
+                background:transparent !important;
+                opacity:1 !important;
+              ">Website scan</div>
+
+              <div style="
+                max-width:620px;
+                font-size:17px;
+                line-height:1.45;
+                color:rgba(255,255,255,0.76) !important;
+                -webkit-text-fill-color:rgba(255,255,255,0.76) !important;
+              ">Paste your website and AION can pre-fill services, tone, location, calls to action and business context for you to check.</div>
+
+              <label style="display:grid; gap:8px; margin-top:4px;">
+                <span style="
+                  font-size:12px;
+                  font-weight:850;
+                  letter-spacing:0.12em;
+                  text-transform:uppercase;
+                  color:rgba(255,255,255,0.68) !important;
+                  -webkit-text-fill-color:rgba(255,255,255,0.68) !important;
+                ">Website</span>
+                <div style="display:flex; gap:10px; align-items:center;">
+                  <input
+                    class="input"
+                    data-aion-phase24b-foundation-field="website"
+                    value="${escapeHtml(draft.website || "")}"
+                    placeholder="https://yourbusiness.com"
+                    style="
+                      flex:1;
+                      min-height:44px;
+                      background:#ffffff !important;
+                      border:1px solid rgba(255,255,255,0.18);
+                      border-radius:12px;
+                      padding:10px 12px;
+                      color:#111111 !important;
+                    "
+                  />
+                  <button
+                    type="button"
+                    data-aion-phase24b-import-option="website"
+                    style="
+                      min-height:44px;
+                      border:1px solid rgba(255,255,255,0.22);
+                      border-radius:12px;
+                      background:#ffffff !important;
+                      color:#111111 !important;
+                      padding:0 18px;
+                      font-size:12px;
+                      font-weight:850;
+                      letter-spacing:0.08em;
+                      text-transform:uppercase;
+                      cursor:pointer;
+                      white-space:nowrap;
+                    "
+                  >Scan website</button>
+                </div>
+              </label>
+
+              <button
+                type="button"
+                data-aion-phase24b-import-option="documents"
+                style="
+                  appearance:none;
+                  -webkit-appearance:none;
+                  border:1px solid rgba(255,255,255,0.18);
+                  border-radius:14px;
+                  background:rgba(255,255,255,0.08);
+                  color:#ffffff !important;
+                  text-align:left;
+                  padding:16px;
+                  cursor:pointer;
+                "
+              >
+                <div style="
+                  font-size:18px;
+                  font-weight:750;
+                  color:#ffffff !important;
+                  -webkit-text-fill-color:#ffffff !important;
+                  margin-bottom:6px;
+                ">Upload documents</div>
+                <div style="
+                  font-size:14px;
+                  line-height:1.45;
+                  color:rgba(255,255,255,0.72) !important;
+                  -webkit-text-fill-color:rgba(255,255,255,0.72) !important;
+                ">Brochures, price lists, old adverts and brand files.</div>
+              </button>
+            </div>
+
+
+            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px;">
+              ${renderSmallBusinessFoundationInput("business_name", "Business name", "e.g. Your business name", draft.business_name, { required: true })}
+              ${renderSmallBusinessFoundationInput("industry", "Industry", "Property maintenance, café, beauty, ecommerce...", draft.industry, { required: true })}
+              ${renderSmallBusinessFoundationSelect("business_type", "Business type", draft.business_type, [
+                ["services", "Services"],
+                ["products", "Products"],
+                ["both", "Products and services"],
+                ["unknown", "Not sure yet"],
+              ])}
+              ${renderSmallBusinessFoundationInput("service_area", "Location / service area", "Almería and Murcia", draft.service_area, { required: true })}
+              ${renderSmallBusinessFoundationSelect("primary_goal", "Main goal", draft.primary_goal, [
+                ["get_more_leads", "Get more leads"],
+                ["automate_work", "Automate repeatable work"],
+                ["improve_operations", "Improve operations"],
+                ["grow_revenue", "Grow revenue"],
+                ["organise_business", "Organise the business"],
+                ["unknown", "Not sure yet"],
+              ])}
+              <div></div>
+            </div>
+
+            <div style="
+              margin-top:24px;
+              padding-top:22px;
+              border-top:1px solid rgba(17,17,17,0.10);
+            ">
+              <div style="
+                font-size:14px;
+                font-weight:850;
+                color:#111111;
+                margin-bottom:12px;
+              ">
+                Optional enrichment
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px;">
+                ${renderSmallBusinessFoundationInput("social_accounts", "Social accounts", "@handle, Facebook page, GBP link", draft.social_accounts)}
+                ${renderSmallBusinessFoundationInput("team_size", "Team size", "1, 2-5, 6-20, 20+", draft.team_size)}
+                ${renderSmallBusinessFoundationTextarea("products_services", "Products / services", "What do you sell or deliver?", draft.products_services)}
+                ${renderSmallBusinessFoundationTextarea("target_customers", "Target customers", "Who buys from you?", draft.target_customers)}
+                ${renderSmallBusinessFoundationTextarea("current_tools", "Current tools", "Website, Facebook, Google Business Profile, Xero, CRM...", draft.current_tools)}
+                ${renderSmallBusinessFoundationTextarea("current_pain_points", "Current pain points", "What is repetitive, slow, messy or blocking growth?", draft.current_pain_points)}
+              </div>
+            </div>
+
+            <div style="
+              margin-top:24px;
+              padding-top:22px;
+              border-top:1px solid rgba(17,17,17,0.10);
+            ">
+              <div style="
+                font-size:14px;
+                font-weight:850;
+                color:#111111;
+                margin-bottom:12px;
+              ">
+                Additional information to keep
+              </div>
+
+              <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px;">
+                ${renderSmallBusinessFoundationInput("contact_email", "Email", "info@yourbusiness.com", draft.contact_email)}
+                ${renderSmallBusinessFoundationInput("phone_number", "Phone number", "+34...", draft.phone_number)}
+                ${renderSmallBusinessFoundationInput("business_address", "Address", "Business address or service base", draft.business_address)}
+                ${renderSmallBusinessFoundationInput("opening_hours", "Opening hours", "Mon–Fri 9:00–17:00", draft.opening_hours)}
+                ${renderSmallBusinessFoundationTextarea("pricing_notes", "Pricing notes", "Prices, call-out fees, packages, estimates, deposits...", draft.pricing_notes)}
+                ${renderSmallBusinessFoundationTextarea("brand_notes", "Branding", "Logo, colours, style, tagline, design notes...", draft.brand_notes)}
+                ${renderSmallBusinessFoundationTextarea("reviews_or_proof", "Reviews / proof", "Testimonials, before/after proof, guarantees, accreditations...", draft.reviews_or_proof)}
+                ${renderSmallBusinessFoundationTextarea("extra_notes", "Anything else", "Anything AION should remember about this business.", draft.extra_notes)}
+              </div>
+            </div>
+
+            <div style="
+              display:flex;
+              gap:12px;
+              align-items:center;
+              flex-wrap:wrap;
+              margin-top:24px;
+            ">
+              <button
+                type="button"
+                class="primary-btn"
+                data-aion-phase24b-generate-foundation
+                style="
+                  min-height:46px;
+                  background:#111111 !important;
+                  background-color:#111111 !important;
+                  color:#ffffff !important;
+                  border-radius:12px;
+                  padding:0 22px;
+                "
+              >
+                Generate foundation
+              </button>
+
+              <span style="font-size:13px; color:rgba(17,17,17,0.58);">
+                Required fields only. Everything else can be improved later.
+              </span>
+            </div>
+          </section>
+
+
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+if (!window.__aionPhase24BSmallBusinessFoundationHandlersInstalled) {
+  window.__aionPhase24BSmallBusinessFoundationHandlersInstalled = true;
+
+  document.addEventListener("input", (event) => {
+    const field = event.target?.closest?.("[data-aion-phase24b-foundation-field]");
+    if (!field) return;
+
+    const key = String(field.getAttribute("data-aion-phase24b-foundation-field") || "").trim();
+    if (!key) return;
+
+    const draft = getSmallBusinessFoundationDraft();
+    draft[key] = field.value || "";
+    state.smallBusinessFoundationPreviewReady = false;
+  }, true);
+
+  document.addEventListener("change", (event) => {
+    const field = event.target?.closest?.("[data-aion-phase24b-foundation-field]");
+    if (!field) return;
+
+    const key = String(field.getAttribute("data-aion-phase24b-foundation-field") || "").trim();
+    if (!key) return;
+
+    const draft = getSmallBusinessFoundationDraft();
+    draft[key] = field.value || "";
+    state.smallBusinessFoundationPreviewReady = false;
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    const scanWebsite = event.target?.closest?.("[data-aion-phase24b-import-option=\"website\"]");
+    if (scanWebsite) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const draft = getSmallBusinessFoundationDraft();
+      document.querySelectorAll("[data-aion-phase24b-foundation-field]").forEach((field) => {
+        const key = String(field.getAttribute("data-aion-phase24b-foundation-field") || "").trim();
+        if (key) draft[key] = field.value || "";
+      });
+
+      applySmallBusinessWebsiteScanDraft(draft.website).then(() => {
+        if (typeof render === "function") render();
+      });
+      return;
+    }
+
+    const generate = event.target?.closest?.("[data-aion-phase24b-generate-foundation]");
+    if (generate) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const draft = getSmallBusinessFoundationDraft();
+      document.querySelectorAll("[data-aion-phase24b-foundation-field]").forEach((field) => {
+        const key = String(field.getAttribute("data-aion-phase24b-foundation-field") || "").trim();
+        if (key) draft[key] = field.value || "";
+      });
+
+      state.smallBusinessFoundationPreviewReady =
+        getSmallBusinessFoundationMissingRequired(draft).length === 0;
+
+      if (typeof render === "function") render();
+      return;
+    }
+
+    const continueButton = event.target?.closest?.("[data-aion-phase24b-continue-departments]");
+    if (continueButton) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      state.activeTab = "live_agents";
+      state.selectedLiveDepartmentKey = "pilot";
+      state.liveAgentsView = LIVE_AGENT_VIEWS?.STREAM || "stream";
+
+      if (typeof render === "function") render();
+    }
+  }, true);
+}
+
 function renderMainSurface() {
   const activeTabForChrome = String(state.activeTab || "").toLowerCase();
 
@@ -13472,8 +14112,19 @@ function renderMainSurface() {
   }
 
 
+
+  const selectedEntryMode = getAionBusinessEntryMode();
+  if (selectedEntryMode === "small_business_growth" && activeTabForChrome !== "small_business_foundation") {
+    state.activeTab = "small_business_foundation";
+  }
+
   if (!getAionBusinessEntryMode()) {
     return renderBusinessEntryModeSelector();
+  }
+
+
+  if (state.activeTab === "small_business_foundation") {
+    return renderSmallBusinessFoundationSetupSurface();
   }
 
 if (state.activeTab === "vault") {

@@ -20,6 +20,8 @@ from backend.modules.local_node.contracts_local_node import (
 )
 from backend.modules.local_node.local_node_runtime import LocalNodeRuntime
 from backend.workflow_capsules.aion_a2a_commercial_ticket import (
+from backend.services.aion_mission_mode.business_foundation_llm_extractor import scan_website_with_openai
+from backend.services.aion_mission_mode.website_scan_usage_gate import website_scan_allowed
     home_fixed_plumbing_hourly_ticket,
     home_fixed_roof_discovery_ticket,
 )
@@ -1869,3 +1871,29 @@ def get_aion_lrm_pilot_context_preview(
         mission_run_id=mission_run_id,
     )
 # END PHASE 21C LOCK
+
+@router.post("/api/aion/small-business/website-scan")
+def api_aion_small_business_website_scan(payload: dict):
+    payload = payload or {}
+    gate = website_scan_allowed(payload)
+
+    if not gate.get("allowed"):
+        return {
+            "ok": False,
+            "usage_gate": gate,
+            "extracted_fields": {},
+            "source_facts": [],
+            "warnings": ["Login or authorised session required before using OpenAI website scan."],
+            "live_external_side_effect": False,
+        }
+
+    website = str(payload.get("website") or "").strip()
+    result = scan_website_with_openai(website)
+    result["usage_gate"] = gate
+    return result
+
+
+@router.post("/aion/small-business/website-scan")
+def aion_small_business_website_scan(payload: dict):
+    return api_aion_small_business_website_scan(payload or {})
+
