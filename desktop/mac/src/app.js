@@ -13072,7 +13072,29 @@ function resetAionBusinessEntryMode() {
   return true;
 }
 
+
 function renderBusinessEntryModeSelector() {
+  document.body.classList.add("aion-phase24a-entry-visible");
+
+  /*
+   * Phase 24A.6:
+   * The workflow canvas tab strip is appended to document.body by the workflow
+   * canvas system, so CSS scoped inside the startup page is not enough.
+   * Remove stale body-level workflow tabs on the startup selector.
+   */
+  document.getElementById("aion-glyph-workflow-top-tabs-v2")?.remove();
+  document
+    .querySelectorAll(
+      [
+        "[data-aion-workflow-tab-strip='true']",
+        "[data-aion-glyph-workflow-top-tabs='true']",
+        ".aion-glyph-workflow-top-tabs",
+        ".aion-master-glyph-workflow-tabs",
+        ".aion-glyph-tabs-strip",
+      ].join(",")
+    )
+    .forEach((el) => el.remove());
+
   return `
     <div
       class="surface-shell aion-business-entry-shell"
@@ -13086,15 +13108,23 @@ function renderBusinessEntryModeSelector() {
       "
     >
       <style>
+        body.aion-phase24a-entry-visible #aion-glyph-workflow-top-tabs-v2,
+        body.aion-phase24a-entry-visible [data-aion-workflow-tab-strip='true'],
+        body.aion-phase24a-entry-visible [data-aion-glyph-workflow-top-tabs='true'],
+        body.aion-phase24a-entry-visible .aion-glyph-workflow-top-tabs,
+        body.aion-phase24a-entry-visible .aion-master-glyph-workflow-tabs,
+        body.aion-phase24a-entry-visible .aion-glyph-tabs-strip,
+        body.aion-phase24a-entry-visible .aion-workflow-nav-btn,
+        body.aion-phase24a-entry-visible .aion-workflow-nav-tabs,
+        body.aion-phase24a-entry-visible [data-aion-workflow-nav],
+        body.aion-phase24a-entry-visible [data-aion-main-workflow-tab],
         body:has([data-aion-phase24a-business-entry-selector]) #aion-glyph-workflow-top-tabs-v2,
-        body:has([data-aion-phase24a-business-entry-selector]) .aion-workflow-nav-btn,
-        body:has([data-aion-phase24a-business-entry-selector]) .aion-workflow-nav-tabs,
-        body:has([data-aion-phase24a-business-entry-selector]) [data-aion-workflow-nav],
-        body:has([data-aion-phase24a-business-entry-selector]) [data-aion-main-workflow-tab],
-        body:has([data-aion-phase24a-business-entry-selector]) .aion-workflow-tab-strip {
+        body:has([data-aion-phase24a-business-entry-selector]) [data-aion-workflow-tab-strip='true'],
+        body:has([data-aion-phase24a-business-entry-selector]) .aion-glyph-workflow-top-tabs {
           display:none !important;
           visibility:hidden !important;
           pointer-events:none !important;
+          opacity:0 !important;
         }
 
         .aion-business-entry-card {
@@ -13135,7 +13165,7 @@ function renderBusinessEntryModeSelector() {
             line-height:1;
             letter-spacing:-0.04em;
             font-weight:500;
-            color:#111111;
+            color:#ffffff !important;
           ">
             What are we building?
           </h1>
@@ -13187,7 +13217,7 @@ function renderBusinessEntryModeSelector() {
               line-height:1.08;
               letter-spacing:-0.035em;
               font-weight:500;
-              color:#111111;
+              color:#ffffff !important;
             ">
               Start something new
             </h2>
@@ -13215,41 +13245,43 @@ function renderBusinessEntryModeSelector() {
                 type="button"
                 class="aion-business-entry-card"
                 data-aion-business-entry-mode="founder_generate_idea"
-                style="appearance:none;
-              -webkit-appearance:none;
-              border:1px solid rgba(17,17,17,0.22);
-              border-radius:12px;
-              background:#ffffff;
-              color:#111111;
-              padding:14px 22px;
-              font-size:13px;
-              font-weight:800;
-              letter-spacing:0.10em;
-              text-transform:uppercase;
-              cursor:pointer;
-              white-space:nowrap;"
+                style="
+                  appearance:none;
+                  -webkit-appearance:none;
+                  border:0;
+                  border-radius:14px;
+                  background:#111111 !important;
+                  background-color:#111111 !important;
+                  color:#ffffff !important;
+                  min-height:250px;
+                  padding:30px;
+                  text-align:left;
+                  cursor:pointer;
+                  display:flex;
+                  flex-direction:column;
+                  justify-content:flex-start;
+                "
               >
-                <div style="
-                  font-size:31px;
-                  line-height:1.08;
-                  letter-spacing:-0.04em;
-                  font-weight:500;
-                  max-width:250px;
+                <span style="font-size:28px; line-height:1; margin-bottom:24px;">☼</span>
+                <strong style="
+                  display:block;
+                  font-size:28px;
+                  line-height:1.1;
+                  letter-spacing:-0.035em;
+                  font-weight:600;
+                  margin-bottom:20px;
                 ">
                   Generate me an idea
-                </div>
-
-                <div style="
-                  margin-top:22px;
-                  font-size:20px;
-                  line-height:1.35;
-                  letter-spacing:-0.02em;
-                  color:rgba(255,255,255,0.68);
+                </strong>
+                <span style="
+                  display:block;
+                  font-size:19px;
+                  line-height:1.45;
+                  color:rgba(255,255,255,0.70);
                   font-weight:400;
-                  max-width:280px;
                 ">
                   AION suggests opportunities and builds the first test plan.
-                </div>
+                </span>
               </button>
 
               <button
@@ -13273,27 +13305,26 @@ function renderBusinessEntryModeSelector() {
                   justify-content:flex-start;
                 "
               >
-                <div style="
-                  font-size:31px;
-                  line-height:1.08;
-                  letter-spacing:-0.04em;
-                  font-weight:500;
-                  max-width:250px;
+                <span style="font-size:28px; line-height:1; margin-bottom:24px;">✎</span>
+                <strong style="
+                  display:block;
+                  font-size:28px;
+                  line-height:1.1;
+                  letter-spacing:-0.035em;
+                  font-weight:600;
+                  margin-bottom:20px;
                 ">
                   I have an idea
-                </div>
-
-                <div style="
-                  margin-top:22px;
-                  font-size:20px;
-                  line-height:1.35;
-                  letter-spacing:-0.02em;
-                  color:rgba(255,255,255,0.68);
+                </strong>
+                <span style="
+                  display:block;
+                  font-size:19px;
+                  line-height:1.45;
+                  color:rgba(255,255,255,0.70);
                   font-weight:400;
-                  max-width:280px;
                 ">
                   Shape the offer, brand, MVP assets and first campaign.
-                </div>
+                </span>
               </button>
             </div>
           </section>
@@ -13326,7 +13357,7 @@ function renderBusinessEntryModeSelector() {
               line-height:1.08;
               letter-spacing:-0.035em;
               font-weight:500;
-              color:#111111;
+              color:#ffffff !important;
             ">
               Grow and automate
             </h2>
@@ -13338,92 +13369,98 @@ function renderBusinessEntryModeSelector() {
               line-height:1.45;
               letter-spacing:-0.02em;
               font-weight:400;
-              max-width:560px;
+              max-width:620px;
             ">
               For existing businesses with customers, services, revenue, channels, assets or repeatable work.
             </p>
 
-            <button
-              type="button"
-              class="aion-business-entry-card"
-              data-aion-business-entry-mode="small_business_growth"
-              style="
-                appearance:none;
-                -webkit-appearance:none;
-                border:0;
-                border-radius:14px;
-                background:#111111 !important;
-                background-color:#111111 !important;
-                color:#ffffff !important;
-                width:100%;
-                min-height:250px;
-                margin-top:auto;
-                padding:30px;
-                text-align:left;
-                cursor:pointer;
-                display:flex;
-                flex-direction:column;
-                justify-content:flex-start;
-              "
-            >
-              <div style="
-                font-size:31px;
-                line-height:1.08;
-                letter-spacing:-0.04em;
-                font-weight:500;
-                max-width:300px;
-              ">
-                I have a business
-              </div>
-
-              <div style="
-                margin-top:22px;
-                font-size:20px;
-                line-height:1.35;
-                letter-spacing:-0.02em;
-                color:rgba(255,255,255,0.68);
-                font-weight:400;
-              ">
-                Let’s automate it and grow it.
-              </div>
-            </button>
+            <div style="
+              margin-top:auto;
+              padding-top:36px;
+            ">
+              <button
+                type="button"
+                class="aion-business-entry-card"
+                data-aion-business-entry-mode="small_business_growth"
+                style="
+                  appearance:none;
+                  -webkit-appearance:none;
+                  border:0;
+                  border-radius:14px;
+                  background:#111111 !important;
+                  background-color:#111111 !important;
+                  color:#ffffff !important;
+                  min-height:250px;
+                  width:100%;
+                  padding:30px;
+                  text-align:left;
+                  cursor:pointer;
+                  display:flex;
+                  flex-direction:column;
+                  justify-content:flex-start;
+                "
+              >
+                <span style="font-size:28px; line-height:1; margin-bottom:24px;">▦</span>
+                <strong style="
+                  display:block;
+                  font-size:28px;
+                  line-height:1.1;
+                  letter-spacing:-0.035em;
+                  font-weight:600;
+                  margin-bottom:20px;
+                ">
+                  I have a business
+                </strong>
+                <span style="
+                  display:block;
+                  font-size:19px;
+                  line-height:1.45;
+                  color:rgba(255,255,255,0.70);
+                  font-weight:400;
+                ">
+                  Let’s automate it and grow it.
+                </span>
+              </button>
+            </div>
           </section>
         </div>
 
         <div style="
-          margin-top:42px;
-          border-top:1px solid rgba(15,23,42,0.12);
+          border-top:1px solid rgba(17,17,17,0.12);
+          margin-top:40px;
           padding-top:24px;
           display:flex;
           justify-content:space-between;
-          gap:22px;
           align-items:center;
+          gap:24px;
         ">
-          <div style="
-            color:rgba(17,17,17,0.58);
-            font-size:18px;
-            line-height:1.45;
-            letter-spacing:-0.02em;
+          <p style="
+            margin:0;
+            color:rgba(17,17,17,0.56);
+            font-size:16px;
+            line-height:1.5;
+            max-width:900px;
           ">
             Founder and small business modes come first. Medium, large and enterprise modes follow with stronger team, role and integration controls.
-          </div>
+          </p>
 
           <button
             type="button"
-            data-aion-business-entry-reset
+            data-aion-business-entry-reset="true"
             style="
               appearance:none;
               -webkit-appearance:none;
-              border:0;
-              background:transparent;
+              border:1px solid rgba(17,17,17,0.22);
+              border-radius:12px;
+              background:#ffffff;
               color:#111111;
-              font-size:15px;
-              font-weight:700;
-              letter-spacing:0.06em;
+              padding:14px 22px;
+              font-size:13px;
+              font-weight:800;
+              letter-spacing:0.10em;
               text-transform:uppercase;
               cursor:pointer;
               white-space:nowrap;
-              padding:8px 0;
             "
           >
             Reset start
@@ -13434,10 +13471,25 @@ function renderBusinessEntryModeSelector() {
   `;
 }
 
+
 if (!window.__aionPhase24ABusinessEntryHandlersInstalled) {
   window.__aionPhase24ABusinessEntryHandlersInstalled = true;
 
   document.addEventListener("click", (event) => {
+    const entryButton = event.target?.closest?.("[data-aion-business-entry-mode]");
+    if (entryButton) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const selected = String(entryButton.getAttribute("data-aion-business-entry-mode") || "").trim();
+      setAionBusinessEntryMode(selected);
+
+      if (typeof render === "function") {
+        render();
+      }
+      return;
+    }
+
     const resetButton = event.target?.closest?.("[data-aion-business-entry-reset]");
     if (resetButton) {
       event.preventDefault();
@@ -13448,26 +13500,16 @@ if (!window.__aionPhase24ABusinessEntryHandlersInstalled) {
       if (typeof render === "function") {
         render();
       }
-      return;
-    }
-
-    const modeButton = event.target?.closest?.("[data-aion-business-entry-mode]");
-    if (!modeButton) return;
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const selected = String(modeButton.dataset.aionBusinessEntryMode || "").trim();
-    setAionBusinessEntryMode(selected);
-
-    if (typeof render === "function") {
-      render();
     }
   }, true);
 }
 
-
 function renderMainSurface() {
+  const activeTabForChrome = String(state.activeTab || "").toLowerCase();
+  document.body.classList.toggle("aion-phase24a-entry-visible", !getAionBusinessEntryMode());
+  document.body.classList.toggle("aion-phase19c-workflow-visible", activeTabForChrome === "operations_flow");
+
+
   if (!getAionBusinessEntryMode()) {
     return renderBusinessEntryModeSelector();
   }

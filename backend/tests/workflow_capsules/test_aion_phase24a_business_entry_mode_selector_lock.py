@@ -120,16 +120,18 @@ def test_phase24a_polished_layout_uses_balanced_two_column_mode_sections():
 def test_phase24a_main_workflow_chrome_is_hidden_on_entry_screen():
     block = _entry_selector_block()
 
-    assert "body:has([data-aion-phase24a-business-entry-selector]) .aion-workflow-nav-btn" in block
-    assert "display:none !important;" in block
+    assert 'document.getElementById("aion-glyph-workflow-top-tabs-v2")?.remove();' in block
+    assert 'document.body.classList.add("aion-phase24a-entry-visible");' in block
 
 
 def test_phase24a_reset_start_is_deemphasised_text_button():
     block = _entry_selector_block()
 
-    assert "background:transparent" in block
     assert "Reset start" in block
     assert "text-transform:uppercase" in block
+    assert "border:1px solid rgba(17,17,17,0.22)" in block
+    assert "border-radius:12px" in block
+    assert "background:#ffffff" in block
 
 
 def test_phase24a_startup_hides_body_appended_workflow_tabbar_by_id():
@@ -154,3 +156,41 @@ def test_phase24a_workflow_tab_visibility_uses_active_app_tab_not_stale_dom():
     assert "Do not infer visibility from stale workflow DOM." in APP_JS
     assert 'stateTab === "operations_flow"' in APP_JS
     assert 'document.querySelector(\n      ".aion-workflow-canvas-shell' not in APP_JS
+
+
+def test_phase24a_founder_generate_button_is_black_again():
+    block = _entry_selector_block()
+    start = block.index('data-aion-business-entry-mode="founder_generate_idea"')
+    end = block.index('data-aion-business-entry-mode="founder_build_idea"', start)
+    button = block[start:end]
+
+    assert "background:#111111 !important;" in button
+    assert "background-color:#111111 !important;" in button
+    assert "color:#ffffff !important;" in button
+    assert "GENERATE ME AN IDEA" not in button
+
+
+def test_phase24a_startup_removes_body_appended_workflow_tabbar():
+    block = _entry_selector_block()
+
+    assert 'document.getElementById("aion-glyph-workflow-top-tabs-v2")?.remove();' in block
+    assert ".aion-glyph-workflow-top-tabs" in block
+    assert ".aion-master-glyph-workflow-tabs" in block
+    assert ".aion-glyph-tabs-strip" in block
+
+
+def test_phase24a_render_main_surface_toggles_chrome_classes_from_active_tab():
+    block = _render_main_surface_block()
+
+    assert 'document.body.classList.toggle("aion-phase24a-entry-visible", !getAionBusinessEntryMode())' in block
+    assert 'document.body.classList.toggle("aion-phase19c-workflow-visible", activeTabForChrome === "operations_flow")' in block
+
+
+def test_phase24a_startup_black_card_titles_are_visible_white():
+    block = _entry_selector_block()
+
+    assert "Generate me an idea" in block
+    assert "I have an idea" in block
+    assert "I have a business" in block
+    assert "color:#ffffff !important;" in block
+    assert "background:#111111 !important;" in block
