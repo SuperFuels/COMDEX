@@ -219,3 +219,8 @@ def test_phase24b_workflow_visibility_guard_does_not_require_scoped_state():
 
     assert 'typeof state !== "undefined"' in block
     assert "window.__aionAppState" in block
+
+
+def test_phase24b_csp_allows_local_backend_scan_connection():
+    assert "http://127.0.0.1:8000" in APP_JS or "http://localhost:8000" in APP_JS
+    assert "/api/local-node/aion/small-business/website-scan" in APP_JS
