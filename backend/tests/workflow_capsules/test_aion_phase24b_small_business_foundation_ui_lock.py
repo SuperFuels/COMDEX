@@ -82,8 +82,8 @@ def test_phase24b_foundation_generates_preview_before_departments():
     assert "data-aion-phase24b-generate-foundation" in APP_JS
     assert "state.smallBusinessFoundationPreviewReady" in APP_JS
     assert "data-aion-phase24b-continue-departments" in APP_JS
-    assert 'state.activeTab = "live_agents";' in APP_JS
-    assert 'state.selectedLiveDepartmentKey = "pilot";' in APP_JS
+    assert 'state.activeTab = "boardroom";' in APP_JS
+    assert 'state.smallBusinessFoundationBoardroomStarted = true;' in APP_JS
 
 
 def test_phase24b_no_live_external_side_effects_in_setup_ui():

@@ -55,8 +55,8 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
   const APP_TABS = [
     { key: "boardroom", label: "Boardroom" },
     { key: "dashboard", label: "Dashboard" },
+    { key: "business_context", label: "Business" },
     { key: "marketing_stream", label: "Marketing Stream" },
-    { key: "brand_foundation", label: "Brand Foundation" },
     { key: "live_agents", label: "Live Agents" },
     { key: "aion_chat", label: "Aion", highlight: true },
     {
@@ -67,6 +67,16 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
     { key: "operations_flow", label: "Operations Flow" },
     { key: "vault", label: "Vault" },
     { key: "local_node", label: "Local Node" },
+  ];
+
+  /*
+   * Phase 24D compatibility:
+   * Business is the visible tab.
+   * brand_foundation remains as the internal Branding surface alias.
+   * Do not add this object to APP_TABS or it creates a second visible tab.
+   */
+  const AION_BUSINESS_CONTEXT_TAB_ALIASES = [
+    { key: "brand_foundation", label: "Branding" },
   ];
 
   const LIVE_AGENT_VIEWS = {
@@ -1968,6 +1978,96 @@ function renderOperationsFlowSurface() {
   `;
 }
 
+
+function renderAionBusinessKeyInformationCard() {
+  const draft = getApprovedSmallBusinessFoundationForBusinessTab();
+  const approved =
+    state.smallBusinessFoundationApproved === true ||
+    !!readAionBusinessFoundationStorage("aion.approvedSmallBusinessFoundation").business_name;
+
+  const boardroomStarted =
+    state.smallBusinessFoundationBoardroomStarted === true ||
+    window.localStorage?.getItem("aion.smallBusinessFoundationBoardroomStarted") === "true";
+
+  const keyRows = [
+    ["Business name", draft.business_name],
+    ["Industry", draft.industry],
+    ["Business type", draft.business_type],
+    ["Service area", draft.service_area],
+    ["Primary goal", draft.primary_goal],
+    ["Website", draft.website],
+    ["Phone", draft.phone_number],
+    ["Email", draft.contact_email],
+    ["Social accounts", draft.social_accounts],
+  ];
+
+  const operatingRows = [
+    ["Products / services", draft.products_services],
+    ["Target customers", draft.target_customers],
+    ["Revenue streams", draft.revenue_streams],
+    ["Team size", draft.team_size],
+    ["Current tools", draft.current_tools],
+    ["Current pain points", draft.current_pain_points],
+    ["Growth goals", draft.growth_goals],
+  ];
+
+  const brandRows = [
+    ["Tone of voice", draft.tone_of_voice],
+    ["Branding notes", draft.brand_notes],
+    ["Reviews / proof", draft.reviews_or_proof],
+    ["Pricing notes", draft.pricing_notes],
+    ["Business address", draft.business_address],
+    ["Opening hours", draft.opening_hours],
+    ["Extra notes", draft.extra_notes],
+  ];
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-business-key-information-card="true"
+      data-aion-business-foundation-source="approved-startup-foundation"
+      style="
+        margin-bottom:18px;
+        border:1px solid rgba(17,17,17,0.10);
+        background:#ffffff;
+      "
+    >
+      <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start; margin-bottom:14px;">
+        <div>
+          <div class="panel-kicker">Business foundation</div>
+          <div class="panel-title">Key business information</div>
+          <p class="muted" style="margin-top:6px;">
+            Pulled from the startup foundation scan/manual setup. This is the context Pilot, departments, agents and Boardroom should use.
+          </p>
+        </div>
+        <div class="status-pill" style="white-space:nowrap;">
+          ${approved ? "Foundation approved" : "Foundation draft"}
+        </div>
+      </div>
+
+      <div class="card-grid">
+        ${renderAionBusinessInfoRows(keyRows)}
+      </div>
+
+      <div class="panel-title" style="margin-top:22px; margin-bottom:10px;">Operating context</div>
+      <div class="card-grid">
+        ${renderAionBusinessInfoRows(operatingRows)}
+      </div>
+
+      <div class="panel-title" style="margin-top:22px; margin-bottom:10px;">Branding and proof</div>
+      <div class="card-grid">
+        ${renderAionBusinessInfoRows(brandRows)}
+      </div>
+
+      <div class="notice" style="margin-top:14px;">
+        Boardroom route: ${boardroomStarted ? "started" : "not started yet"} ·
+        Live actions remain approval-bound.
+      </div>
+    </section>
+  `;
+}
+
+
 function renderBrandFoundationSurface() {
   const foundation = getBrandFoundationState();
   const brandMap = getBrandMap();
@@ -1999,9 +2099,9 @@ function renderBrandFoundationSurface() {
       <div class="surface-header">
         <div>
           <div class="surface-eyebrow">Aion Business Desktop</div>
-          <div class="surface-title">Brand Foundation</div>
+          <div class="surface-title">Business</div>
           <div class="surface-subtitle">
-            A single layered brand document. The AI uses this as the source of truth for messaging, audience, offers, tone, channels, and creative direction.
+            Your business foundation, key operating details and branding. AION uses this as the source of truth for Pilot, departments, Boardroom, agents, messaging, offers, tone, channels and creative direction.
           </div>
         </div>
         <div class="surface-right-meta">
@@ -2015,6 +2115,8 @@ function renderBrandFoundationSurface() {
       <div class="brand-foundation-layout">
         <main class="brand-foundation-main">
           <div class="dashboard-shell">
+            ${renderAionBusinessKeyInformationCard()}
+
             <div class="card-grid">
               ${renderDashboardMetricCard("Workspace", workspaceId, "Desktop-local truth")}
               ${renderDashboardMetricCard(
@@ -2972,6 +3074,7 @@ function renderTopologySummary(topology) {
 
   return `
     <div class="dashboard-shell">
+      ${renderAionBusinessContextMiniCard(departmentKey)}
       <div class="card-grid">
         ${renderDashboardMetricCard("Topology Nodes", nodes.length, "Business graph nodes")}
         ${renderDashboardMetricCard("Topology Edges", edges.length, "Business graph relationships")}
@@ -7168,6 +7271,7 @@ function renderBoardroomDashboardView(snapshot) {
         )}
       </div>
 
+      ${renderAionBusinessContextMiniCard("boardroom")}
       ${renderBoardroomOperatorPresence()}
 
       <!-- Phase 17U: founder demo visible output removed from Boardroom main flow; A2A ticket now renders via Phase 18 -->
@@ -13528,6 +13632,269 @@ function getSmallBusinessFoundationMissingRequired(draft = getSmallBusinessFound
     .map(([, label]) => label);
 }
 
+
+function normaliseAionBusinessId(value = "") {
+  const raw = String(value || "business")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  return raw || "business";
+}
+
+function getApprovedSmallBusinessFoundationContext() {
+  if (
+    state.approvedSmallBusinessFoundation &&
+    typeof state.approvedSmallBusinessFoundation === "object"
+  ) {
+    return normaliseSmallBusinessFoundationDraft(state.approvedSmallBusinessFoundation);
+  }
+
+  try {
+    const stored = window.localStorage?.getItem("aion.approvedSmallBusinessFoundation");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (parsed && typeof parsed === "object") {
+        state.approvedSmallBusinessFoundation = parsed;
+        return normaliseSmallBusinessFoundationDraft(parsed);
+      }
+    }
+  } catch {}
+
+  return normaliseSmallBusinessFoundationDraft(getSmallBusinessFoundationDraft());
+}
+
+function buildBrandingStateFromSmallBusinessFoundation(foundationInput = {}) {
+  const foundation = normaliseSmallBusinessFoundationDraft(foundationInput);
+  const businessName = foundation.business_name || "Business";
+  const brandNotes = foundation.brand_notes || "";
+  const productsServices = foundation.products_services || "";
+  const targetCustomers = foundation.target_customers || "";
+  const toneOfVoice = foundation.tone_of_voice || "";
+  const serviceArea = foundation.service_area || "";
+  const primaryGoal = foundation.primary_goal || "";
+
+  return {
+    business_name: businessName,
+    businessName,
+    objective: foundation.growth_goals || primaryGoal,
+    targetAudience: targetCustomers,
+    offer: productsServices,
+    toneOfVoice,
+    updatedAt: new Date().toISOString(),
+    brandMap: {
+      brandOverview: {
+        brandName: businessName,
+        whatYouDo: productsServices,
+        uniqueValueProposition: foundation.extra_notes || brandNotes,
+      },
+      brandGoals: {
+        objective: foundation.growth_goals || primaryGoal,
+        funnelGoal: primaryGoal,
+        campaignNotes: foundation.current_pain_points || "",
+      },
+      brandPositioning: {
+        positioning: `${businessName} serves ${serviceArea || "its market"} with ${productsServices || "its services"}.`,
+        differentiation: brandNotes,
+        trustSignals: foundation.reviews_or_proof,
+      },
+      brandVoice: {
+        toneOfVoice,
+        communicationStyle: toneOfVoice,
+        doRules: brandNotes,
+        doNotRules: "",
+      },
+      audience: {
+        primaryAudience: targetCustomers,
+        geography: serviceArea,
+        painPoints: foundation.current_pain_points,
+      },
+      productsServices: {
+        productsServices,
+        revenueStreams: foundation.revenue_streams,
+        pricingNotes: foundation.pricing_notes,
+      },
+      platformStrategy: {
+        website: foundation.website,
+        socialAccounts: foundation.social_accounts,
+        currentTools: foundation.current_tools,
+      },
+      governance: {
+        hardRules: "No live external sends, public posts, payments, bookings, deployments, escrow or reputation mutation without exact approval.",
+      },
+    },
+  };
+}
+
+function applySmallBusinessFoundationToBrandingAndBusinessContext(foundationInput = getSmallBusinessFoundationDraft()) {
+  const foundation = normaliseSmallBusinessFoundationDraft(foundationInput);
+  const businessId = normaliseAionBusinessId(foundation.business_name || state.workspaceId || "business");
+  const branding = buildBrandingStateFromSmallBusinessFoundation(foundation);
+
+  state.approvedSmallBusinessFoundation = foundation;
+  state.businessContextFoundation = foundation;
+  state.currentBusinessId = businessId;
+  state.workspaceId = businessId;
+  state.brandFoundationState = {
+    ...(state.brandFoundationState || {}),
+    ...branding,
+    brandMap: {
+      ...((state.brandFoundationState || {}).brandMap || {}),
+      ...(branding.brandMap || {}),
+    },
+  };
+
+  try {
+    window.localStorage?.setItem("aion.approvedSmallBusinessFoundation", JSON.stringify(foundation));
+    window.localStorage?.setItem("aion.businessContextFoundation", JSON.stringify(foundation));
+    window.localStorage?.setItem("aion.currentBusinessId", businessId);
+    window.localStorage?.setItem("aion.brandFoundationState", JSON.stringify(state.brandFoundationState));
+  } catch {}
+
+  return foundation;
+}
+
+function renderBusinessContextField(label, value) {
+  return `
+    <div style="
+      padding:14px;
+      border-radius:14px;
+      border:1px solid rgba(17,17,17,0.08);
+      background:#ffffff;
+      min-height:74px;
+    ">
+      <div style="
+        font-size:11px;
+        font-weight:900;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+        color:rgba(17,17,17,0.48);
+      ">${escapeHtml(label)}</div>
+      <div style="font-size:14px; font-weight:760; margin-top:7px; color:#111111; line-height:1.45;">
+        ${escapeHtml(value || "Not provided")}
+      </div>
+    </div>
+  `;
+}
+
+function renderAionBusinessContextMiniCard(surface = "pilot") {
+  const foundation = getApprovedSmallBusinessFoundationContext();
+  const businessName = foundation.business_name || "Business foundation not approved yet";
+  const serviceArea = foundation.service_area || "No service area";
+  const industry = foundation.industry || "No industry";
+  const goal = foundation.primary_goal || "No goal";
+
+  return `
+    <section
+      class="panel"
+      data-aion-business-context-mini-card
+      data-aion-business-context-surface="${escapeHtml(surface)}"
+      style="margin-bottom:16px;"
+    >
+      <div class="panel-title">Business Context</div>
+      <div class="muted">
+        ${escapeHtml(businessName)} · ${escapeHtml(industry)} · ${escapeHtml(serviceArea)}
+      </div>
+      <div class="badge-row" style="margin-top:10px;">
+        <span class="badge">Goal: ${escapeHtml(goal)}</span>
+        <span class="badge">Source: startup foundation</span>
+        <span class="badge">Shared with Pilot / Boardroom / Departments</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderBusinessContextSurface() {
+  const foundation = getApprovedSmallBusinessFoundationContext();
+  const businessName = foundation.business_name || "Business";
+  const businessId = normaliseAionBusinessId(businessName);
+
+  return `
+    <div
+      class="surface-shell"
+      data-aion-business-context-tab
+      style="min-height:100vh; background:#ffffff; padding-bottom:96px;"
+    >
+      <div class="surface-header">
+        <div>
+          <div class="surface-eyebrow">AION Business Operating System</div>
+          <div class="surface-title">Business</div>
+          <div class="surface-subtitle">
+            This is the approved startup foundation shared into Branding, Boardroom, Pilot and department agents.
+          </div>
+        </div>
+        <div class="surface-right-meta">
+          <div class="surface-pill">BUSINESS CONTEXT</div>
+          <div class="last-refresh">Business ID: ${escapeHtml(businessId)}</div>
+        </div>
+      </div>
+
+      ${renderAppTabs()}
+
+      <div class="dashboard-shell" style="max-width:1320px; margin:0 auto;">
+        <div class="card-grid">
+          ${renderDashboardMetricCard("Business", businessName, "Startup foundation")}
+          ${renderDashboardMetricCard("Industry", foundation.industry || "—", "Business category")}
+          ${renderDashboardMetricCard("Area", foundation.service_area || "—", "Location / service area")}
+          ${renderDashboardMetricCard("Goal", foundation.primary_goal || "—", "Primary objective")}
+        </div>
+
+        <div class="two-col">
+          <section class="panel large-panel" data-aion-business-foundation-summary>
+            <div class="panel-title">Business Foundation</div>
+            <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; margin-top:14px;">
+              ${renderBusinessContextField("Website", foundation.website)}
+              ${renderBusinessContextField("Business type", foundation.business_type)}
+              ${renderBusinessContextField("Services / products", foundation.products_services)}
+              ${renderBusinessContextField("Target customers", foundation.target_customers)}
+              ${renderBusinessContextField("Revenue streams", foundation.revenue_streams)}
+              ${renderBusinessContextField("Current tools", foundation.current_tools)}
+              ${renderBusinessContextField("Pain points", foundation.current_pain_points)}
+              ${renderBusinessContextField("Growth goals", foundation.growth_goals)}
+            </div>
+          </section>
+
+          <section class="panel large-panel" data-aion-branding-context-summary>
+            <div class="panel-title">Branding Context</div>
+            <div style="display:grid; gap:12px; margin-top:14px;">
+              ${renderBusinessContextField("Tone of voice", foundation.tone_of_voice)}
+              ${renderBusinessContextField("Brand notes", foundation.brand_notes)}
+              ${renderBusinessContextField("Reviews / proof", foundation.reviews_or_proof)}
+              ${renderBusinessContextField("Pricing notes", foundation.pricing_notes)}
+            </div>
+            <div class="button-row" style="margin-top:16px;">
+              <button type="button" class="secondary-btn" onclick="state.activeTab='brand_foundation'; render();">
+                Open Branding
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel large-panel" data-aion-department-context-handover>
+          <div class="panel-title">Department Handover Context</div>
+          <div class="muted">
+            Pilot uses this foundation as the map for Marketing, Sales, Finance, Operations, Support and Builder.
+            The model proposes work, but AION routes work through the business-context mission map and approval chain.
+          </div>
+          <div class="card-grid" style="margin-top:14px;">
+            ${["Pilot", "Marketing", "Sales", "Finance", "Operations", "Support", "Builder"]
+              .map((name) => `
+                <div class="card">
+                  <div class="card-label">${escapeHtml(name)}</div>
+                  <div class="card-value">Context linked</div>
+                  <div class="card-sub">Uses approved startup foundation</div>
+                </div>
+              `)
+              .join("")}
+          </div>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
+
 function renderSmallBusinessFoundationInput(name, label, placeholder, value = "", { required = false } = {}) {
   return `
     <label style="display:grid; gap:8px;">
@@ -13664,7 +14031,11 @@ async function applySmallBusinessWebsiteScanDraft(websiteValue = "") {
   if (typeof render === "function") render();
 
   try {
-    const response = await fetch(buildAionLocalBackendUrl("/api/local-node/aion/small-business/website-scan"), {
+    const scanBackendBase =
+      window.__AION_WEBSITE_SCAN_BACKEND_BASE_URL ||
+      "http://127.0.0.1:8000";
+
+    const response = await fetch(`${String(scanBackendBase).replace(/\/+$/, "")}/api/local-node/aion/small-business/website-scan`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ website }),
@@ -13701,6 +14072,189 @@ async function applySmallBusinessWebsiteScanDraft(websiteValue = "") {
     getSmallBusinessFoundationMissingRequired(draft).length === 0;
 
   return draft;
+}
+
+
+function renderSmallBusinessFoundationReviewPanel(draftInput = getSmallBusinessFoundationDraft()) {
+  const draft = normaliseSmallBusinessFoundationDraft(draftInput);
+  const missing = getSmallBusinessFoundationMissingRequired(draft);
+  const approved = state.smallBusinessFoundationApproved === true;
+
+  if (!state.smallBusinessFoundationPreviewReady && !approved) {
+    return "";
+  }
+
+  return `
+    <section
+      data-aion-phase24c-foundation-review
+      style="
+        margin-top:24px;
+        padding:22px;
+        border-radius:18px;
+        border:1px solid rgba(17,17,17,0.12);
+        background:#f8fafc;
+        color:#111111;
+        display:grid;
+        gap:18px;
+      "
+    >
+      <div style="display:flex; justify-content:space-between; gap:18px; align-items:flex-start;">
+        <div>
+          <div style="
+            font-size:12px;
+            font-weight:950;
+            letter-spacing:0.12em;
+            text-transform:uppercase;
+            color:rgba(17,17,17,0.54);
+          ">Foundation review</div>
+          <div style="font-size:24px; font-weight:950; margin-top:6px;">
+            ${escapeHtml(draft.business_name || "Untitled business")}
+          </div>
+          <div style="font-size:13px; color:rgba(17,17,17,0.62); margin-top:4px;">
+            Review this before AION creates the Boardroom foundation.
+          </div>
+        </div>
+
+        <div style="
+          padding:8px 12px;
+          border-radius:999px;
+          background:${approved ? "#dcfce7" : "#fff7ed"};
+          color:${approved ? "#166534" : "#9a3412"};
+          font-size:11px;
+          font-weight:950;
+          letter-spacing:0.10em;
+          text-transform:uppercase;
+        ">
+          ${approved ? "Approved" : "Awaiting approval"}
+        </div>
+      </div>
+
+      ${
+        missing.length
+          ? `<div style="
+              padding:14px 16px;
+              border-radius:14px;
+              background:#fef2f2;
+              color:#991b1b;
+              font-size:13px;
+              font-weight:850;
+            ">Missing required fields: ${escapeHtml(missing.join(", "))}</div>`
+          : ""
+      }
+
+      <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px;">
+        ${[
+          ["Industry", draft.industry],
+          ["Business type", draft.business_type],
+          ["Service area", draft.service_area],
+          ["Primary goal", draft.primary_goal],
+          ["Website", draft.website],
+          ["Phone", draft.phone_number],
+          ["Email", draft.contact_email],
+          ["Social accounts", draft.social_accounts],
+        ]
+          .map(([label, value]) => `
+            <div style="
+              padding:14px;
+              border-radius:14px;
+              background:#ffffff;
+              border:1px solid rgba(17,17,17,0.08);
+              min-height:74px;
+            ">
+              <div style="
+                font-size:11px;
+                font-weight:900;
+                letter-spacing:0.08em;
+                text-transform:uppercase;
+                color:rgba(17,17,17,0.48);
+              ">${escapeHtml(label)}</div>
+              <div style="font-size:14px; font-weight:780; margin-top:7px; color:#111111;">
+                ${escapeHtml(value || "Not provided")}
+              </div>
+            </div>
+          `)
+          .join("")}
+      </div>
+
+      <div style="
+        padding:14px;
+        border-radius:14px;
+        background:#ffffff;
+        border:1px solid rgba(17,17,17,0.08);
+      ">
+        <div style="
+          font-size:11px;
+          font-weight:900;
+          letter-spacing:0.08em;
+          text-transform:uppercase;
+          color:rgba(17,17,17,0.48);
+        ">Brand notes</div>
+        <div style="font-size:14px; line-height:1.5; margin-top:7px; color:#111111;">
+          ${escapeHtml(draft.brand_notes || "No brand notes added yet. Brand assets will live in the Brand Room later.")}
+        </div>
+      </div>
+
+      <div style="display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+        <button
+          type="button"
+          data-aion-phase24c-approve-foundation
+          style="
+            min-height:46px;
+            padding:0 20px;
+            border:0;
+            border-radius:12px;
+            background:#111111;
+            color:#ffffff;
+            font-size:12px;
+            font-weight:950;
+            letter-spacing:0.10em;
+            text-transform:uppercase;
+            cursor:pointer;
+          "
+        >Approve foundation</button>
+
+        <button
+          type="button"
+          data-aion-phase24c-revise-foundation
+          style="
+            min-height:46px;
+            padding:0 20px;
+            border:1px solid rgba(17,17,17,0.16);
+            border-radius:12px;
+            background:#ffffff;
+            color:#111111;
+            font-size:12px;
+            font-weight:900;
+            letter-spacing:0.10em;
+            text-transform:uppercase;
+            cursor:pointer;
+          "
+        >Revise foundation</button>
+
+        ${
+          approved
+            ? `<button
+                type="button"
+                data-aion-phase24b-continue-departments
+                style="
+                  min-height:46px;
+                  padding:0 20px;
+                  border:0;
+                  border-radius:12px;
+                  background:#2563eb;
+                  color:#ffffff;
+                  font-size:12px;
+                  font-weight:950;
+                  letter-spacing:0.10em;
+                  text-transform:uppercase;
+                  cursor:pointer;
+                "
+              >Continue to Boardroom</button>`
+            : ""
+        }
+      </div>
+    </section>
+  `;
 }
 
 function renderSmallBusinessFoundationSetupSurface() {
@@ -13997,6 +14551,8 @@ function renderSmallBusinessFoundationSetupSurface() {
               </div>
             </div>
 
+            ${renderSmallBusinessFoundationReviewPanel(draft)}
+
             <div style="
               display:flex;
               gap:12px;
@@ -14096,21 +14652,89 @@ if (!window.__aionPhase24BSmallBusinessFoundationHandlersInstalled) {
       return;
     }
 
+    const approveFoundation = event.target?.closest?.("[data-aion-phase24c-approve-foundation]");
+    if (approveFoundation) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const draft = getSmallBusinessFoundationDraft();
+      document.querySelectorAll("[data-aion-phase24b-foundation-field]").forEach((field) => {
+        const key = String(field.getAttribute("data-aion-phase24b-foundation-field") || "").trim();
+        if (key) draft[key] = field.value || "";
+      });
+
+      state.smallBusinessFoundationPreviewReady =
+        getSmallBusinessFoundationMissingRequired(draft).length === 0;
+
+      if (state.smallBusinessFoundationPreviewReady) {
+        applySmallBusinessFoundationToBrandingAndBusinessContext(draft);
+      }
+
+      state.smallBusinessFoundationApproved = state.smallBusinessFoundationPreviewReady;
+      state.smallBusinessFoundationApprovedAt = state.smallBusinessFoundationApproved
+        ? new Date().toISOString()
+        : "";
+
+      if (typeof render === "function") render();
+      return;
+    }
+
+    const reviseFoundation = event.target?.closest?.("[data-aion-phase24c-revise-foundation]");
+    if (reviseFoundation) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      state.smallBusinessFoundationApproved = false;
+      state.smallBusinessFoundationApprovedAt = "";
+      state.smallBusinessFoundationPreviewReady = false;
+
+      if (typeof render === "function") render();
+      return;
+    }
+
     const continueButton = event.target?.closest?.("[data-aion-phase24b-continue-departments]");
     if (continueButton) {
       event.preventDefault();
       event.stopPropagation();
 
-      state.activeTab = "live_agents";
-      state.selectedLiveDepartmentKey = "pilot";
-      state.liveAgentsView = LIVE_AGENT_VIEWS?.STREAM || "stream";
+      applySmallBusinessFoundationToBrandingAndBusinessContext(getSmallBusinessFoundationDraft());
+      state.smallBusinessFoundationApproved = true;
+      state.smallBusinessFoundationBoardroomStarted = true;
+      state.activeTab = "boardroom";
+      state.boardroomViewMode = state.boardroomViewMode || "dashboard";
+
+      /*
+       * Phase 24C:
+       * Continue to Boardroom completes the small-business foundation onboarding route.
+       * Keep the business entry mode, but allow Boardroom routing after approval.
+       */
+      try {
+        window.localStorage?.setItem("aion.smallBusinessFoundationBoardroomStarted", "true");
+      } catch {}
+      state.activeTab = "boardroom";
 
       if (typeof render === "function") render();
     }
   }, true);
 }
 
+
+function normaliseAionBusinessTabAlias(tabKey) {
+  const key = String(tabKey || "").trim().toLowerCase();
+  if (
+    key === "business" ||
+    key === "business_profile" ||
+    key === "business_context" ||
+    key === "branding" ||
+    key === "brand"
+  ) {
+    return "brand_foundation";
+  }
+  return tabKey;
+}
+
 function renderMainSurface() {
+  state.activeTab = normaliseAionBusinessTabAlias(state.activeTab);
   const activeTabForChrome = String(state.activeTab || "").toLowerCase();
 
   /*
@@ -14128,7 +14752,15 @@ function renderMainSurface() {
 
 
   const selectedEntryMode = getAionBusinessEntryMode();
-  if (selectedEntryMode === "small_business_growth" && activeTabForChrome !== "small_business_foundation") {
+  const smallBusinessFoundationBoardroomStarted =
+    state.smallBusinessFoundationBoardroomStarted === true ||
+    window.localStorage?.getItem("aion.smallBusinessFoundationBoardroomStarted") === "true";
+
+  if (
+    selectedEntryMode === "small_business_growth" &&
+    smallBusinessFoundationBoardroomStarted !== true &&
+    activeTabForChrome !== "small_business_foundation"
+  ) {
     state.activeTab = "small_business_foundation";
   }
 
@@ -14139,6 +14771,10 @@ function renderMainSurface() {
 
   if (state.activeTab === "small_business_foundation") {
     return renderSmallBusinessFoundationSetupSurface();
+  }
+
+  if (state.activeTab === "business_context") {
+    return renderBusinessContextSurface();
   }
 
 if (state.activeTab === "vault") {
@@ -27941,8 +28577,8 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
     >
       <div class="surface-header" style="padding:0; margin-bottom:18px;">
         <div>
-          <div class="surface-eyebrow">Live Agents / Pilot</div>
-          <div class="surface-title" style="font-size:34px;">Pilot</div>
+          <div class="surface-eyebrow">Live Agents / Aion</div>
+          <div class="surface-title" style="font-size:34px;">Aion</div>
           
         </div>
 
@@ -27953,10 +28589,11 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
       <div class="aion-pilot-panel-kicker">Aion Operator Identity</div>
       <div class="aion-pilot-panel-title">AION Pilot — native AION runtime executor</div>
       <div class="aion-pilot-panel-copy">
-        Plan-gated runtime. External actions remain approval-bound.
+        Plan-gated runtime. No live external side effects without exact approval.
       </div>
     </section>
 
+      ${renderAionBusinessContextMiniCard("pilot")}
       ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
     </section>
   `;
@@ -29711,7 +30348,7 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   const activeView = getLiveAgentsView();
   const departmentKey = getSelectedLiveDepartmentKey();
 
-  if (departmentKey === "pilot") {
+  if (departmentKey === "aion") {
     if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
       return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
     }

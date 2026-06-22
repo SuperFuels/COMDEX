@@ -1874,7 +1874,7 @@ def get_aion_lrm_pilot_context_preview(
 # END PHASE 21C LOCK
 
 @router.post("/api/aion/small-business/website-scan")
-def api_aion_small_business_website_scan(payload: dict):
+async def api_aion_small_business_website_scan(payload: dict):
     payload = payload or {}
     gate = website_scan_allowed(payload)
 
@@ -1889,12 +1889,27 @@ def api_aion_small_business_website_scan(payload: dict):
         }
 
     website = str(payload.get("website") or "").strip()
-    result = scan_website_with_openai(website)
+
+    try:
+        result = scan_website_with_openai(website)
+    except Exception as exc:
+        return {
+            "ok": False,
+            "usage_gate": gate,
+            "extracted_fields": {},
+            "foundation": {},
+            "source_facts": [],
+            "warnings": [str(exc) or "Website scan failed"],
+            "error": "website_scan_failed",
+            "provider": "openai",
+            "live_external_side_effect": False,
+        }
+
     result["usage_gate"] = gate
     return result
 
 
 @router.post("/aion/small-business/website-scan")
-def aion_small_business_website_scan(payload: dict):
-    return api_aion_small_business_website_scan(payload or {})
+async def aion_small_business_website_scan(payload: dict):
+    return await api_aion_small_business_website_scan(payload or {})
 
