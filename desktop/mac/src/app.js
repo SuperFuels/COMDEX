@@ -1979,6 +1979,64 @@ function renderOperationsFlowSurface() {
 }
 
 
+function readAionBusinessFoundationStorage(storageKey) {
+  const key = String(storageKey || "").trim();
+  if (!key) return {};
+
+  try {
+    const raw = window.localStorage?.getItem(key);
+    if (!raw) return {};
+
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? parsed
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+function getApprovedSmallBusinessFoundationForBusinessTab() {
+  if (typeof getEditableBusinessContextFoundation === "function") {
+    return getEditableBusinessContextFoundation();
+  }
+
+  if (typeof getApprovedSmallBusinessFoundationContext === "function") {
+    return getApprovedSmallBusinessFoundationContext();
+  }
+
+  return (
+    state.approvedSmallBusinessFoundation ||
+    state.businessContextFoundation ||
+    state.smallBusinessFoundationDraft ||
+    {}
+  );
+}
+
+function renderAionBusinessInfoRows(rows = []) {
+  const items = Array.isArray(rows) ? rows : [];
+
+  return items
+    .map((item) => {
+      const label = Array.isArray(item)
+        ? item[0]
+        : item?.label;
+      const value = Array.isArray(item)
+        ? item[1]
+        : item?.value;
+
+      return `
+        <div class="card">
+          <div class="card-label">${escapeHtml(label || "")}</div>
+          <div class="card-value" style="font-size:15px;">
+            ${escapeHtml(formatAionBusinessContextValue(value) || "Not provided")}
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
 function renderAionBusinessKeyInformationCard() {
   const draft = getApprovedSmallBusinessFoundationForBusinessTab();
   const approved =

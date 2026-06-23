@@ -36,3 +36,11 @@ def test_department_statuses_are_specific_not_generic_only():
     assert "foundation loaded / no financial model yet" in APP
     assert "foundation loaded / workflow context ready" in APP
     assert "foundation loaded / customer context ready" in APP
+
+def test_business_brand_foundation_subtab_has_business_info_rows_helper():
+    assert "function renderAionBusinessInfoRows(" in APP
+    assert "function renderAionBusinessInfoRows(rows = [])" in APP
+
+def test_business_brand_foundation_subtab_has_business_info_rows_helper():
+    assert "function renderAionBusinessInfoRows(" in APP
+    assert "function renderAionBusinessInfoRows(rows = [])" in APP
