@@ -14000,10 +14000,334 @@ function saveBusinessContextFoundationFromForm({ rerender = false } = {}) {
 }
 
 
+
+function getAionBusinessContextSubtab() {
+  const allowed = new Set([
+    "key_business_info",
+    "brand_foundation",
+    "sales",
+    "marketing",
+    "finance",
+    "operations",
+    "support",
+  ]);
+
+  const stored =
+    state.activeBusinessContextSubtab ||
+    window.localStorage?.getItem("aion.activeBusinessContextSubtab") ||
+    "key_business_info";
+
+  const value = String(stored || "").trim().toLowerCase();
+
+  return allowed.has(value) ? value : "key_business_info";
+}
+
+function setAionBusinessContextSubtab(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  state.activeBusinessContextSubtab = normalized || "key_business_info";
+
+  try {
+    window.localStorage?.setItem("aion.activeBusinessContextSubtab", state.activeBusinessContextSubtab);
+  } catch {}
+
+  return state.activeBusinessContextSubtab;
+}
+
+function renderBusinessContextSubtabs() {
+  const active = getAionBusinessContextSubtab();
+  const tabs = [
+    ["key_business_info", "Key Business Info"],
+    ["brand_foundation", "Brand Foundation"],
+    ["sales", "Sales"],
+    ["marketing", "Marketing"],
+    ["finance", "Finance"],
+    ["operations", "Operations"],
+    ["support", "Support"],
+  ];
+
+  return `
+    <div
+      data-aion-business-context-subtabs
+      style="
+        display:flex;
+        gap:10px;
+        flex-wrap:wrap;
+        margin:0 0 18px;
+        padding:10px;
+        border:1px solid rgba(17,17,17,0.10);
+        background:#ffffff;
+      "
+    >
+      ${tabs
+        .map(([key, label]) => `
+          <button
+            type="button"
+            data-aion-business-context-subtab="${escapeHtml(key)}"
+            style="
+              min-height:40px;
+              padding:0 16px;
+              border:1px solid ${active === key ? "#111111" : "rgba(17,17,17,0.14)"};
+              background:${active === key ? "#111111" : "#ffffff"};
+              color:${active === key ? "#ffffff" : "#111111"};
+              font-size:11px;
+              font-weight:950;
+              letter-spacing:0.10em;
+              text-transform:uppercase;
+              cursor:pointer;
+            "
+          >${escapeHtml(label)}</button>
+        `)
+        .join("")}
+    </div>
+  `;
+}
+
+function renderBusinessBrandFoundationSubtabContent() {
+  /*
+   * Phase 24F:
+   * Reuse the existing Brand Foundation renderer as the source of truth.
+   * Strip the outer Business header/top app tabs so it can sit inside the Business tab.
+   */
+  const html = renderBrandFoundationSurface();
+  const marker = '<div class="brand-foundation-layout">';
+  const start = html.indexOf(marker);
+
+  if (start < 0) {
+    return html;
+  }
+
+  const end = html.lastIndexOf("</div>");
+  return end > start ? html.slice(start, end) : html.slice(start);
+}
+
+function getBusinessDepartmentContextDraft() {
+  state.businessDepartmentContextDraft =
+    state.businessDepartmentContextDraft &&
+    typeof state.businessDepartmentContextDraft === "object"
+      ? state.businessDepartmentContextDraft
+      : {};
+
+  return state.businessDepartmentContextDraft;
+}
+
+function getBusinessDepartmentDefaultStatus(departmentKey) {
+  const key = String(departmentKey || "").toLowerCase();
+
+  const defaults = {
+    sales: "foundation loaded / no active handover yet",
+    marketing: "foundation loaded / task context ready",
+    finance: "foundation loaded / no financial model yet",
+    operations: "foundation loaded / workflow context ready",
+    support: "foundation loaded / customer context ready",
+  };
+
+  return defaults[key] || "foundation loaded / no active handover yet";
+}
+
+function renderBusinessDepartmentContextSubtab(departmentKey, foundation = getEditableBusinessContextFoundation()) {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  const label = key.charAt(0).toUpperCase() + key.slice(1);
+  const drafts = getBusinessDepartmentContextDraft();
+  const current = drafts[key] || {};
+
+  const status = current.status || getBusinessDepartmentDefaultStatus(key);
+  const notes = current.notes || "";
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-business-department-context-tab="${escapeHtml(key)}"
+      style="margin-top:0;"
+    >
+      <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start;">
+        <div>
+          <div class="panel-kicker">${escapeHtml(label)} context</div>
+          <div class="panel-title">${escapeHtml(label)} business function</div>
+          <p class="muted" style="margin-top:6px;">
+            Store the key ${escapeHtml(label.toLowerCase())} information this department should use alongside the approved business foundation.
+          </p>
+        </div>
+        <button
+          type="button"
+          class="primary-btn"
+          data-aion-business-department-context-save
+          style="min-height:42px;"
+        >Save ${escapeHtml(label)} Context</button>
+      </div>
+
+      <div style="display:grid; grid-template-columns:minmax(0, 1fr); gap:18px; margin-top:18px;">
+        <label style="display:grid; gap:8px;">
+          <span class="card-label">Status</span>
+          <input
+            class="input"
+            data-aion-business-department-context-field="status"
+            data-aion-business-department-context-key="${escapeHtml(key)}"
+            value="${escapeHtml(status)}"
+            style="
+              min-height:48px;
+              border:1px solid rgba(17,17,17,0.14);
+              border-radius:12px;
+              padding:10px 12px;
+              background:#ffffff;
+              color:#111111;
+              font-size:14px;
+              font-weight:700;
+            "
+          />
+        </label>
+
+        <label style="display:grid; gap:8px;">
+          <span class="card-label">Department notes</span>
+          <textarea
+            class="input input-textarea"
+            data-aion-business-department-context-field="notes"
+            data-aion-business-department-context-key="${escapeHtml(key)}"
+            placeholder="Add ${escapeHtml(label.toLowerCase())} rules, targets, handover notes, constraints, active priorities, customer notes, pricing rules, or workflow context."
+            style="
+              min-height:190px;
+              border:1px solid rgba(17,17,17,0.14);
+              border-radius:12px;
+              padding:12px;
+              background:#ffffff;
+              color:#111111;
+              font-size:14px;
+              font-weight:700;
+              line-height:1.5;
+              resize:vertical;
+              white-space:pre-wrap;
+            "
+          >${escapeHtml(notes)}</textarea>
+        </label>
+      </div>
+
+      <div class="notice" style="margin-top:18px;">
+        Business foundation loaded for ${escapeHtml(label)} ·
+        Business: ${escapeHtml(foundation.business_name || "Not provided")} ·
+        Industry: ${escapeHtml(foundation.industry || "Not provided")}
+      </div>
+    </section>
+  `;
+}
+
+
 function renderBusinessContextSurface() {
   const foundation = getEditableBusinessContextFoundation();
   const businessName = foundation.business_name || "Business";
   const businessId = normaliseAionBusinessId(businessName);
+  const activeSubtab = getAionBusinessContextSubtab();
+
+  let subtabHtml = "";
+
+  if (activeSubtab === "brand_foundation") {
+    subtabHtml = renderBusinessBrandFoundationSubtabContent();
+  } else if (["sales", "marketing", "finance", "operations", "support"].includes(activeSubtab)) {
+    subtabHtml = renderBusinessDepartmentContextSubtab(activeSubtab, foundation);
+  } else {
+    subtabHtml = `
+      <section class="panel large-panel" data-aion-business-foundation-summary>
+        <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start;">
+          <div>
+            <div class="panel-kicker">Business foundation</div>
+            <div class="panel-title">Editable key business information</div>
+            <p class="muted" style="margin-top:6px;">
+              Edit anything here after the startup scan. Saving updates the live Business context, Branding context, Pilot map and department handover source.
+            </p>
+          </div>
+          <button
+            type="button"
+            class="primary-btn"
+            data-aion-business-context-save
+            style="min-height:42px;"
+          >Save Business Context</button>
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
+          ${renderBusinessContextEditableInput("business_name", "Business name", foundation.business_name, "Business name")}
+          ${renderBusinessContextEditableInput("industry", "Industry", foundation.industry, "Industry / category")}
+          ${renderBusinessContextEditableSelect("business_type", "Business type", foundation.business_type, [
+            ["services", "Services"],
+            ["products", "Products"],
+            ["both", "Products and services"],
+            ["unknown", "Not sure yet"],
+          ])}
+          ${renderBusinessContextEditableInput("service_area", "Location / service area", foundation.service_area, "Location / service area")}
+          ${renderBusinessContextEditableSelect("primary_goal", "Main goal", foundation.primary_goal, [
+            ["get_more_leads", "Get more leads"],
+            ["automate_work", "Automate repeatable work"],
+            ["improve_operations", "Improve operations"],
+            ["grow_revenue", "Grow revenue"],
+            ["organise_business", "Organise the business"],
+            ["unknown", "Not sure yet"],
+          ])}
+          ${renderBusinessContextEditableInput("website", "Website", foundation.website, "https://...")}
+          ${renderBusinessContextEditableInput("phone_number", "Phone", foundation.phone_number, "+34...")}
+          ${renderBusinessContextEditableInput("contact_email", "Email", foundation.contact_email, "info@...")}
+          ${renderBusinessContextEditableInput("business_address", "Address", foundation.business_address, "Business address / base")}
+          ${renderBusinessContextEditableInput("opening_hours", "Opening hours", foundation.opening_hours, "Opening hours")}
+        </div>
+
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
+          ${renderBusinessContextEditableTextarea("social_accounts", "Social accounts", foundation.social_accounts, "Facebook, Instagram, Google Business Profile, X, etc.")}
+          ${renderBusinessContextEditableTextarea("products_services", "Products / services", foundation.products_services, "One service/category per line")}
+          ${renderBusinessContextEditableTextarea("target_customers", "Target customers", foundation.target_customers, "Who buys from this business?")}
+          ${renderBusinessContextEditableTextarea("revenue_streams", "Revenue streams", foundation.revenue_streams, "How does the business make money?")}
+          ${renderBusinessContextEditableTextarea("current_tools", "Current tools", foundation.current_tools, "Website, Facebook, GBP, CRM, Xero, etc.")}
+          ${renderBusinessContextEditableTextarea("current_pain_points", "Pain points", foundation.current_pain_points, "What is repetitive, slow, messy or blocking growth?")}
+          ${renderBusinessContextEditableTextarea("growth_goals", "Growth goals", foundation.growth_goals, "What should AION help improve?")}
+          ${renderBusinessContextEditableTextarea("extra_notes", "Anything else", foundation.extra_notes, "Anything AION should remember.")}
+        </div>
+      </section>
+
+      <section class="panel large-panel" data-aion-branding-context-summary>
+        <div class="panel-kicker">Branding context</div>
+        <div class="panel-title">Editable branding and proof</div>
+        <p class="muted" style="margin-top:6px;">
+          These fields feed the Brand Foundation sub-tab and the content/creative guidance used by Pilot and Marketing.
+        </p>
+
+        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
+          ${renderBusinessContextEditableTextarea("tone_of_voice", "Tone of voice", foundation.tone_of_voice, "Professional, friendly, premium, reassuring...")}
+          ${renderBusinessContextEditableTextarea("brand_notes", "Brand notes", foundation.brand_notes, "Logo, colours, positioning, trust signals, style notes...")}
+          ${renderBusinessContextEditableTextarea("reviews_or_proof", "Reviews / proof", foundation.reviews_or_proof, "Testimonials, ratings, guarantees, accreditations, before/after proof...")}
+          ${renderBusinessContextEditableTextarea("pricing_notes", "Pricing notes", foundation.pricing_notes, "Pricing, deposits, quote process, packages, terms...")}
+        </div>
+
+        <div class="button-row" style="margin-top:16px;">
+          <button type="button" class="primary-btn" data-aion-business-context-save>
+            Save Business Context
+          </button>
+          <button type="button" class="secondary-btn" data-aion-business-context-subtab="brand_foundation">
+            Open Brand Foundation
+          </button>
+        </div>
+      </section>
+
+      <section class="panel large-panel" data-aion-department-context-handover>
+        <div class="panel-title">Department Handover Context</div>
+        <div class="muted">
+          Department function tabs now store context per business function. The model proposes work, but AION routes work through the business-context mission map and approval chain.
+        </div>
+        <div class="card-grid" style="margin-top:14px;">
+          ${[
+            ["Pilot", "foundation loaded / runtime context ready"],
+            ["Marketing", "foundation loaded / task context ready"],
+            ["Sales", "foundation loaded / no active handover yet"],
+            ["Finance", "foundation loaded / no financial model yet"],
+            ["Operations", "foundation loaded / workflow context ready"],
+            ["Support", "foundation loaded / customer context ready"],
+          ]
+            .map(([name, status]) => `
+              <div class="card">
+                <div class="card-label">${escapeHtml(name)}</div>
+                <div class="card-value">Context linked</div>
+                <div class="card-sub">${escapeHtml(status)}</div>
+              </div>
+            `)
+            .join("")}
+        </div>
+      </section>
+    `;
+  }
 
   return `
     <div
@@ -14016,7 +14340,7 @@ function renderBusinessContextSurface() {
           <div class="surface-eyebrow">AION Business Operating System</div>
           <div class="surface-title">Business</div>
           <div class="surface-subtitle">
-            Editable business foundation. This is the approved startup context shared into Branding, Boardroom, Pilot and department agents.
+            Editable business foundation with internal tabs for key business information, brand foundation and department function context.
           </div>
         </div>
         <div class="surface-right-meta">
@@ -14028,106 +14352,14 @@ function renderBusinessContextSurface() {
       ${renderAppTabs()}
 
       <div class="dashboard-shell" style="max-width:1320px; margin:0 auto;">
-        <section class="panel large-panel" data-aion-business-foundation-summary>
-          <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start;">
-            <div>
-              <div class="panel-kicker">Business foundation</div>
-              <div class="panel-title">Editable key business information</div>
-              <p class="muted" style="margin-top:6px;">
-                Edit anything here after the startup scan. Saving updates the live Business context, Branding context, Pilot map and department handover source.
-              </p>
-            </div>
-            <button
-              type="button"
-              class="primary-btn"
-              data-aion-business-context-save
-              style="min-height:42px;"
-            >Save Business Context</button>
-          </div>
-
-          <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
-            ${renderBusinessContextEditableInput("business_name", "Business name", foundation.business_name, "Business name")}
-            ${renderBusinessContextEditableInput("industry", "Industry", foundation.industry, "Industry / category")}
-            ${renderBusinessContextEditableSelect("business_type", "Business type", foundation.business_type, [
-              ["services", "Services"],
-              ["products", "Products"],
-              ["both", "Products and services"],
-              ["unknown", "Not sure yet"],
-            ])}
-            ${renderBusinessContextEditableInput("service_area", "Location / service area", foundation.service_area, "Location / service area")}
-            ${renderBusinessContextEditableSelect("primary_goal", "Main goal", foundation.primary_goal, [
-              ["get_more_leads", "Get more leads"],
-              ["automate_work", "Automate repeatable work"],
-              ["improve_operations", "Improve operations"],
-              ["grow_revenue", "Grow revenue"],
-              ["organise_business", "Organise the business"],
-              ["unknown", "Not sure yet"],
-            ])}
-            ${renderBusinessContextEditableInput("website", "Website", foundation.website, "https://...")}
-            ${renderBusinessContextEditableInput("phone_number", "Phone", foundation.phone_number, "+34...")}
-            ${renderBusinessContextEditableInput("contact_email", "Email", foundation.contact_email, "info@...")}
-            ${renderBusinessContextEditableInput("business_address", "Address", foundation.business_address, "Business address / base")}
-            ${renderBusinessContextEditableInput("opening_hours", "Opening hours", foundation.opening_hours, "Opening hours")}
-          </div>
-
-          <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
-            ${renderBusinessContextEditableTextarea("social_accounts", "Social accounts", foundation.social_accounts, "Facebook, Instagram, Google Business Profile, X, etc.")}
-            ${renderBusinessContextEditableTextarea("products_services", "Products / services", foundation.products_services, "One service/category per line")}
-            ${renderBusinessContextEditableTextarea("target_customers", "Target customers", foundation.target_customers, "Who buys from this business?")}
-            ${renderBusinessContextEditableTextarea("revenue_streams", "Revenue streams", foundation.revenue_streams, "How does the business make money?")}
-            ${renderBusinessContextEditableTextarea("current_tools", "Current tools", foundation.current_tools, "Website, Facebook, GBP, CRM, Xero, etc.")}
-            ${renderBusinessContextEditableTextarea("current_pain_points", "Pain points", foundation.current_pain_points, "What is repetitive, slow, messy or blocking growth?")}
-            ${renderBusinessContextEditableTextarea("growth_goals", "Growth goals", foundation.growth_goals, "What should AION help improve?")}
-            ${renderBusinessContextEditableTextarea("extra_notes", "Anything else", foundation.extra_notes, "Anything AION should remember.")}
-          </div>
-        </section>
-
-        <section class="panel large-panel" data-aion-branding-context-summary>
-          <div class="panel-kicker">Branding context</div>
-          <div class="panel-title">Editable branding and proof</div>
-          <p class="muted" style="margin-top:6px;">
-            These fields feed the Branding section and the content/creative guidance used by Pilot and Marketing.
-          </p>
-
-          <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
-            ${renderBusinessContextEditableTextarea("tone_of_voice", "Tone of voice", foundation.tone_of_voice, "Professional, friendly, premium, reassuring...")}
-            ${renderBusinessContextEditableTextarea("brand_notes", "Brand notes", foundation.brand_notes, "Logo, colours, positioning, trust signals, style notes...")}
-            ${renderBusinessContextEditableTextarea("reviews_or_proof", "Reviews / proof", foundation.reviews_or_proof, "Testimonials, ratings, guarantees, accreditations, before/after proof...")}
-            ${renderBusinessContextEditableTextarea("pricing_notes", "Pricing notes", foundation.pricing_notes, "Pricing, deposits, quote process, packages, terms...")}
-          </div>
-
-          <div class="button-row" style="margin-top:16px;">
-            <button type="button" class="primary-btn" data-aion-business-context-save>
-              Save Business Context
-            </button>
-            <button type="button" class="secondary-btn" data-aion-business-context-open-branding>
-              Open Branding Fields
-            </button>
-          </div>
-        </section>
-
-        <section class="panel large-panel" data-aion-department-context-handover>
-          <div class="panel-title">Department Handover Context</div>
-          <div class="muted">
-            Pilot uses this foundation as the map for Marketing, Sales, Finance, Operations, Support and Builder.
-            The model proposes work, but AION routes work through the business-context mission map and approval chain.
-          </div>
-          <div class="card-grid" style="margin-top:14px;">
-            ${["Pilot", "Marketing", "Sales", "Finance", "Operations", "Support", "Builder"]
-              .map((name) => `
-                <div class="card">
-                  <div class="card-label">${escapeHtml(name)}</div>
-                  <div class="card-value">Context linked</div>
-                  <div class="card-sub">Uses approved startup foundation</div>
-                </div>
-              `)
-              .join("")}
-          </div>
-        </section>
+        ${renderBusinessContextSubtabs()}
+        ${subtabHtml}
       </div>
     </div>
   `;
 }
+
+
 
 
 
@@ -15023,6 +15255,73 @@ if (!window.__aionPhase24EBusinessContextHandlersInstalled) {
       state.activeTab = "brand_foundation";
       if (typeof render === "function") render();
     }
+  }, true);
+}
+
+
+
+/* PHASE 24F — Business internal subtabs */
+if (!window.__aionPhase24FBusinessSubtabsInstalled) {
+  window.__aionPhase24FBusinessSubtabsInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const tab = event.target?.closest?.("[data-aion-business-context-subtab]");
+    if (!tab) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const value = String(tab.getAttribute("data-aion-business-context-subtab") || "").trim();
+    setAionBusinessContextSubtab(value);
+
+    if (typeof render === "function") render();
+  }, true);
+
+  document.addEventListener("input", (event) => {
+    const field = event.target?.closest?.("[data-aion-business-department-context-field]");
+    if (!field) return;
+
+    const departmentKey = String(field.getAttribute("data-aion-business-department-context-key") || "").trim();
+    const fieldKey = String(field.getAttribute("data-aion-business-department-context-field") || "").trim();
+
+    if (!departmentKey || !fieldKey) return;
+
+    const drafts = getBusinessDepartmentContextDraft();
+    drafts[departmentKey] = drafts[departmentKey] && typeof drafts[departmentKey] === "object"
+      ? drafts[departmentKey]
+      : {};
+    drafts[departmentKey][fieldKey] = field.value || "";
+
+    try {
+      window.localStorage?.setItem("aion.businessDepartmentContextDraft", JSON.stringify(drafts));
+    } catch {}
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    const saveButton = event.target?.closest?.("[data-aion-business-department-context-save]");
+    if (!saveButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    document.querySelectorAll("[data-aion-business-department-context-field]").forEach((field) => {
+      const departmentKey = String(field.getAttribute("data-aion-business-department-context-key") || "").trim();
+      const fieldKey = String(field.getAttribute("data-aion-business-department-context-field") || "").trim();
+
+      if (!departmentKey || !fieldKey) return;
+
+      const drafts = getBusinessDepartmentContextDraft();
+      drafts[departmentKey] = drafts[departmentKey] && typeof drafts[departmentKey] === "object"
+        ? drafts[departmentKey]
+        : {};
+      drafts[departmentKey][fieldKey] = field.value || "";
+    });
+
+    try {
+      window.localStorage?.setItem("aion.businessDepartmentContextDraft", JSON.stringify(getBusinessDepartmentContextDraft()));
+    } catch {}
+
+    if (typeof render === "function") render();
   }, true);
 }
 
