@@ -14028,13 +14028,6 @@ function renderBusinessContextSurface() {
       ${renderAppTabs()}
 
       <div class="dashboard-shell" style="max-width:1320px; margin:0 auto;">
-        <div class="card-grid">
-          ${renderDashboardMetricCard("Business", foundation.business_name || "—", "Startup foundation")}
-          ${renderDashboardMetricCard("Industry", foundation.industry || "—", "Business category")}
-          ${renderDashboardMetricCard("Area", foundation.service_area || "—", "Location / service area")}
-          ${renderDashboardMetricCard("Goal", foundation.primary_goal || "—", "Primary objective")}
-        </div>
-
         <section class="panel large-panel" data-aion-business-foundation-summary>
           <div style="display:flex; justify-content:space-between; gap:16px; align-items:flex-start;">
             <div>
