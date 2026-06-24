@@ -29653,6 +29653,7 @@ function renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCar
 
       ${renderAionDepartmentPilotPhase25CPanel(departmentKey)}
       ${renderAionDepartmentPilotPhase25DPanel(departmentKey)}
+      ${renderAionDepartmentPilotPhase25EPanel(departmentKey)}
 
       <div class="two-col">
         <div class="panel large-panel">
@@ -30647,14 +30648,52 @@ function runAionDepartmentPilotNextSafeTask(departmentKey = "") {
     no_live_external_action: true,
   };
 
+  const resultRecord = {
+    id: `${key}_safe_preview_result_${Date.now()}`,
+    department_key: key,
+    task_id: completedTask.id,
+    title: completedTask.title,
+    status: "results_available",
+    result_type: "safe_internal_preview",
+    summary: completedTask.result_summary,
+    created_at: now,
+    no_live_external_action: true,
+  };
+
+  const evidenceRecord = {
+    id: `${key}_safe_preview_evidence_${Date.now()}`,
+    department_key: key,
+    task_id: completedTask.id,
+    evidence_type: "safe_task_result",
+    title: completedTask.title,
+    summary: completedTask.result_summary,
+    receipt_id: receipt.id,
+    created_at: now,
+    provenance: "department_pilot_safe_queue",
+  };
+
+  const existingResults =
+    entry.results && typeof entry.results === "object" && !Array.isArray(entry.results)
+      ? entry.results
+      : {};
+
   const patch = {
     status: nextTasks.some((item) => ["approved", "queued", "ready"].includes(String(item?.status || "").toLowerCase()))
       ? "executing_safe_queue"
       : "safe_queue_complete",
     tasks: nextTasks,
     runs: [...(Array.isArray(entry.runs) ? entry.runs : []), runRecord],
+    results: {
+      ...existingResults,
+      latest_safe_preview: resultRecord,
+      safe_preview_history: [
+        ...(Array.isArray(existingResults.safe_preview_history) ? existingResults.safe_preview_history : []),
+        resultRecord,
+      ],
+    },
+    evidence: [...(Array.isArray(entry.evidence) ? entry.evidence : []), evidenceRecord],
     receipts: [...(Array.isArray(entry.receipts) ? entry.receipts : []), receipt],
-    boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} safe task completed: ${completedTask.title}. No live external action was taken.`,
+    boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} safe task completed: ${completedTask.title}. Results, evidence and receipt were written to the Boardroom feed. No live external action was taken.`,
     active_task_index: nextIndex + 1,
     confidence: "useful",
     alerts: Array.isArray(entry.alerts) ? entry.alerts : [],
@@ -30769,6 +30808,213 @@ if (typeof window !== "undefined") {
   window.getAionDepartmentPilotApprovedTaskQueue = getAionDepartmentPilotApprovedTaskQueue;
   window.getAionDepartmentPilotNextSafeTask = getAionDepartmentPilotNextSafeTask;
   window.runAionDepartmentPilotNextSafeTask = runAionDepartmentPilotNextSafeTask;
+}
+
+
+
+/* PHASE 25E LOCK: Department Results Evidence Boardroom Assessment Feed */
+
+function getAionDepartmentResultEvidenceStatus(entry = {}) {
+  const results = entry.results && typeof entry.results === "object" && !Array.isArray(entry.results)
+    ? entry.results
+    : {};
+  const evidence = Array.isArray(entry.evidence) ? entry.evidence : [];
+  const receipts = Array.isArray(entry.receipts) ? entry.receipts : [];
+  const runs = Array.isArray(entry.runs) ? entry.runs : [];
+
+  if (evidence.length || receipts.length || results.latest_safe_preview) return "results_available";
+  if (runs.length) return "runs_available";
+  if (Array.isArray(entry.tasks) && entry.tasks.length) return "tasks_ready";
+  if (entry.plan && typeof entry.plan === "object" && Object.keys(entry.plan).length) return "plan_ready";
+  if (entry.discovery && typeof entry.discovery === "object" && Object.keys(entry.discovery).length) return "discovery_started";
+  return "missing";
+}
+
+function buildAionDepartmentAssessmentFeed() {
+  const ledger = getAionDepartmentIntelligence();
+  const coverage =
+    typeof getAionBoardroomAssessmentCoverage === "function"
+      ? getAionBoardroomAssessmentCoverage()
+      : { confidence: "none", complete_departments: [], partial_departments: [], missing_departments: [] };
+
+  const departments = AION_DEPARTMENT_KEYS.map((key) => {
+    const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
+    const results = entry.results && typeof entry.results === "object" && !Array.isArray(entry.results)
+      ? entry.results
+      : {};
+    const safeHistory = Array.isArray(results.safe_preview_history) ? results.safe_preview_history : [];
+    const latestResult = results.latest_safe_preview || safeHistory[safeHistory.length - 1] || null;
+    const evidence = Array.isArray(entry.evidence) ? entry.evidence : [];
+    const receipts = Array.isArray(entry.receipts) ? entry.receipts : [];
+    const alerts = Array.isArray(entry.alerts) ? entry.alerts : [];
+
+    return {
+      key,
+      label: runtimeShared.getDepartmentLabel(key),
+      status: entry.status || "needs_discovery",
+      confidence: entry.confidence || "empty",
+      result_status: getAionDepartmentResultEvidenceStatus(entry),
+      summary: entry.boardroom_summary || "No Boardroom summary yet.",
+      latest_result: latestResult,
+      evidence_count: evidence.length,
+      receipt_count: receipts.length,
+      alert_count: alerts.length,
+      last_updated: entry.last_updated || "",
+    };
+  });
+
+  const usefulDepartments = departments.filter((item) =>
+    ["results_available", "runs_available", "tasks_ready", "plan_ready"].includes(item.result_status),
+  );
+
+  return {
+    generated_at: new Date().toISOString(),
+    confidence: coverage.confidence || "none",
+    coverage,
+    departments,
+    useful_departments: usefulDepartments.map((item) => item.key),
+    summary:
+      usefulDepartments.length > 0
+        ? `AION can assess ${usefulDepartments.map((item) => item.label).join(", ")} from department data. Missing departments reduce whole-business confidence.`
+        : "AION needs at least one department discovery, plan or result before a useful business assessment.",
+  };
+}
+
+function renderBoardroomAssessmentFeedPanel() {
+  const feed = buildAionDepartmentAssessmentFeed();
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25e-boardroom-assessment-feed="true"
+      style="background:#ffffff;"
+    >
+      <div class="panel-title">AION Assessment Feed</div>
+      <div class="helper-text">
+        Read-only Boardroom feed from department discovery, plans, safe task results, evidence and receipts.
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderBoardroomMetricCard("Assessment Confidence", feed.confidence, "Current Boardroom coverage")}
+        ${renderBoardroomMetricCard("Useful Departments", feed.useful_departments.length, feed.useful_departments.join(", ") || "none")}
+        ${renderBoardroomMetricCard("Missing Departments", safeArray(feed.coverage.missing_departments).length, safeArray(feed.coverage.missing_departments).join(", ") || "none")}
+        ${renderBoardroomMetricCard("Feed Status", feed.useful_departments.length ? "partial" : "waiting", "No live execution")}
+      </div>
+
+      <div class="list-wrap" style="margin-top:12px;">
+        ${feed.departments.map((item) => `
+          <div class="list-item">
+            <div class="list-item-title">${escapeHtml(item.label)}</div>
+            <div class="list-item-sub">${escapeHtml(item.summary)}</div>
+            <div class="badge-row">
+              ${renderStatusBadge(item.result_status)}
+              <span class="badge">Confidence ${escapeHtml(item.confidence)}</span>
+              <span class="badge">Evidence ${escapeHtml(item.evidence_count)}</span>
+              <span class="badge">Receipts ${escapeHtml(item.receipt_count)}</span>
+              <span class="badge">${escapeHtml(item.last_updated || "not updated")}</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+
+      <div class="notice warning" style="margin-top:12px;">
+        ${escapeHtml(feed.summary)}
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomSpatialAssessmentFeedPanel() {
+  const feed = buildAionDepartmentAssessmentFeed();
+
+  return `
+    <div
+      class="panel large-panel"
+      data-aion-phase25e-spatial-assessment-feed="true"
+      style="background:#ffffff;"
+    >
+      <div class="panel-title">Spatial Seat Assessment Feed</div>
+      <div class="helper-text">
+        Each department seat should reflect its ledger status, evidence count, receipt count and assessment confidence.
+      </div>
+
+      <div class="list-wrap" style="margin-top:12px;">
+        ${feed.departments.map((item) => `
+          <div class="list-item">
+            <div class="list-item-title">${escapeHtml(item.label)} seat</div>
+            <div class="list-item-sub">${escapeHtml(item.summary)}</div>
+            <div class="badge-row">
+              ${renderStatusBadge(item.status)}
+              <span class="badge">Result ${escapeHtml(item.result_status)}</span>
+              <span class="badge">Evidence ${escapeHtml(item.evidence_count)}</span>
+              <span class="badge">Receipts ${escapeHtml(item.receipt_count)}</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderAionDepartmentPilotPhase25EPanel(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  const ledger = getAionDepartmentIntelligence();
+  const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
+  const label = runtimeShared.getDepartmentLabel(key);
+  const results = entry.results && typeof entry.results === "object" && !Array.isArray(entry.results)
+    ? entry.results
+    : {};
+  const history = Array.isArray(results.safe_preview_history) ? results.safe_preview_history : [];
+  const latest = results.latest_safe_preview || history[history.length - 1] || null;
+  const evidence = Array.isArray(entry.evidence) ? entry.evidence : [];
+  const receipts = Array.isArray(entry.receipts) ? entry.receipts : [];
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25e-department-results-evidence="true"
+      data-aion-phase25e-department="${escapeHtml(key)}"
+      style="margin-top:14px; background:#ffffff;"
+    >
+      <div class="panel-title">${escapeHtml(label)} Results / Evidence Feed</div>
+      <div class="helper-text">
+        Safe task outcomes written into the Department Intelligence Ledger for Boardroom and AION assessment.
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderDashboardMetricCard("Result status", getAionDepartmentResultEvidenceStatus(entry), "Boardroom visible")}
+        ${renderDashboardMetricCard("Evidence", evidence.length, "Safe internal proof records")}
+        ${renderDashboardMetricCard("Receipts", receipts.length, "Preview receipts")}
+        ${renderDashboardMetricCard("Latest result", latest?.status || "none", latest?.title || "No completed safe task yet")}
+      </div>
+
+      ${
+        latest
+          ? `
+            <div class="list-item" style="margin-top:12px;">
+              <div class="list-item-title">${escapeHtml(latest.title || "Latest result")}</div>
+              <div class="list-item-sub">${escapeHtml(latest.summary || "No result summary yet.")}</div>
+              <div class="badge-row">
+                ${renderStatusBadge(latest.status || "results_available")}
+                <span class="badge">${escapeHtml(latest.created_at || "not dated")}</span>
+                <span class="badge">No live external action</span>
+              </div>
+            </div>
+          `
+          : `<div class="empty-state" style="margin-top:12px;">No safe task result yet. Run an approved safe queue task to populate this feed.</div>`
+      }
+
+      <div class="notice warning" style="margin-top:12px;">
+        These are internal preview results only. They can inform AION assessment, but they do not publish, spend, send, book, invoice or deploy anything.
+      </div>
+    </section>
+  `;
+}
+
+if (typeof window !== "undefined") {
+  window.getAionDepartmentResultEvidenceStatus = getAionDepartmentResultEvidenceStatus;
+  window.buildAionDepartmentAssessmentFeed = buildAionDepartmentAssessmentFeed;
+  window.renderBoardroomAssessmentFeedPanel = renderBoardroomAssessmentFeedPanel;
 }
 
 
@@ -31695,6 +31941,7 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
 
       ${renderAionDepartmentPilotPhase25CPanel("marketing")}
         ${renderAionDepartmentPilotPhase25DPanel("marketing")}
+        ${renderAionDepartmentPilotPhase25EPanel("marketing")}
     </div>
   `;
 }
