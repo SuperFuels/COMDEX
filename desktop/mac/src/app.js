@@ -13810,6 +13810,10 @@ function applySmallBusinessFoundationToBrandingAndBusinessContext(foundationInpu
     window.localStorage?.setItem("aion.brandFoundationState", JSON.stringify(state.brandFoundationState));
   } catch {}
 
+  if (typeof seedAionDepartmentIntelligenceFromBusinessFoundation === "function") {
+    seedAionDepartmentIntelligenceFromBusinessFoundation(foundation);
+  }
+
   return foundation;
 }
 
@@ -13862,6 +13866,450 @@ function renderAionBusinessContextMiniCard(surface = "pilot") {
     </section>
   `;
 }
+
+
+
+/* PHASE 25A LOCK: Department Intelligence Ledger + Boardroom sync */
+const AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY = "aion.departmentIntelligence";
+const AION_DEPARTMENT_INTELLIGENCE_KEYS = ["marketing", "sales", "finance", "operations", "support"];
+
+function isAionDepartmentRecord(value) {
+  return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function hasAionDepartmentContent(value) {
+  if (value == null) return false;
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "object") {
+    return Object.values(value).some((entry) => hasAionDepartmentContent(entry));
+  }
+  return String(value || "").trim() !== "";
+}
+
+function getAionDepartmentLabel(departmentKey = "") {
+  const labels = {
+    marketing: "Marketing",
+    sales: "Sales",
+    finance: "Finance",
+    operations: "Operations",
+    support: "Support",
+  };
+
+  return labels[String(departmentKey || "").toLowerCase()] || prettify(departmentKey || "Department");
+}
+
+function buildAionDepartmentFoundationContext(departmentKey = "", foundationInput = null) {
+  const foundation =
+    foundationInput && typeof foundationInput === "object"
+      ? foundationInput
+      : typeof getApprovedSmallBusinessFoundationContext === "function"
+        ? getApprovedSmallBusinessFoundationContext()
+        : {};
+
+  const common = {
+    business_name: foundation.business_name || "",
+    industry: foundation.industry || "",
+    service_area: foundation.service_area || "",
+    primary_goal: foundation.primary_goal || "",
+    products_services: foundation.products_services || "",
+    target_customers: foundation.target_customers || "",
+    current_tools: foundation.current_tools || "",
+    current_pain_points: foundation.current_pain_points || "",
+    growth_goals: foundation.growth_goals || "",
+    tone_of_voice: foundation.tone_of_voice || "",
+  };
+
+  const key = String(departmentKey || "").toLowerCase();
+
+  if (key === "marketing") {
+    return {
+      ...common,
+      social_accounts: foundation.social_accounts || "",
+      reviews_or_proof: foundation.reviews_or_proof || "",
+      brand_notes: foundation.brand_notes || "",
+    };
+  }
+
+  if (key === "sales") {
+    return {
+      ...common,
+      pricing_notes: foundation.pricing_notes || "",
+      revenue_streams: foundation.revenue_streams || "",
+    };
+  }
+
+  if (key === "finance") {
+    return {
+      ...common,
+      pricing_notes: foundation.pricing_notes || "",
+      revenue_streams: foundation.revenue_streams || "",
+      budget_notes: foundation.budget_notes || "",
+    };
+  }
+
+  if (key === "operations") {
+    return {
+      ...common,
+      automation_candidates: foundation.automation_candidates || "",
+      repeatable_work: foundation.repeatable_work || "",
+    };
+  }
+
+  if (key === "support") {
+    return {
+      ...common,
+      customer_issues: foundation.customer_issues || "",
+      response_patterns: foundation.response_patterns || "",
+    };
+  }
+
+  return common;
+}
+
+function deriveAionDepartmentConfidence(entry = {}) {
+  if (
+    hasAionDepartmentContent(entry.results) ||
+    hasAionDepartmentContent(entry.spend) ||
+    hasAionDepartmentContent(entry.pipeline) ||
+    hasAionDepartmentContent(entry.conversion) ||
+    hasAionDepartmentContent(entry.evidence) ||
+    hasAionDepartmentContent(entry.receipts) ||
+    hasAionDepartmentContent(entry.runs)
+  ) {
+    return "strong";
+  }
+
+  if (
+    hasAionDepartmentContent(entry.plan) ||
+    hasAionDepartmentContent(entry.tasks) ||
+    hasAionDepartmentContent(entry.budgets) ||
+    hasAionDepartmentContent(entry.workflows)
+  ) {
+    return "useful";
+  }
+
+  if (hasAionDepartmentContent(entry.discovery)) {
+    return "partial";
+  }
+
+  return "empty";
+}
+
+function deriveAionDepartmentStatus(entry = {}) {
+  if (entry.status) return String(entry.status);
+
+  const confidence = deriveAionDepartmentConfidence(entry);
+
+  if (confidence === "strong") return "results_available";
+  if (confidence === "useful") return "plan_ready";
+  if (confidence === "partial") return "ready_to_plan";
+
+  return "needs_discovery";
+}
+
+function normaliseAionDepartmentIntelligenceEntry(departmentKey = "", entry = {}, foundationInput = null) {
+  const source = isAionDepartmentRecord(entry) ? entry : {};
+  const inheritedContext = {
+    ...(isAionDepartmentRecord(source.inherited_context) ? source.inherited_context : {}),
+    ...buildAionDepartmentFoundationContext(departmentKey, foundationInput),
+  };
+
+  const next = {
+    status: source.status || "",
+    discovery: isAionDepartmentRecord(source.discovery) ? source.discovery : {},
+    inherited_context: inheritedContext,
+    plan: isAionDepartmentRecord(source.plan) ? source.plan : {},
+    tasks: Array.isArray(source.tasks) ? source.tasks : [],
+    runs: Array.isArray(source.runs) ? source.runs : [],
+    results: isAionDepartmentRecord(source.results) ? source.results : {},
+    spend: isAionDepartmentRecord(source.spend) ? source.spend : {},
+    evidence: Array.isArray(source.evidence) ? source.evidence : [],
+    receipts: Array.isArray(source.receipts) ? source.receipts : [],
+    boardroom_summary: String(source.boardroom_summary || ""),
+    confidence: String(source.confidence || ""),
+    alerts: Array.isArray(source.alerts) ? source.alerts : [],
+    last_updated: String(source.last_updated || ""),
+  };
+
+  if (departmentKey === "sales") {
+    next.pipeline = isAionDepartmentRecord(source.pipeline) ? source.pipeline : {};
+    next.conversion = isAionDepartmentRecord(source.conversion) ? source.conversion : {};
+  }
+
+  if (departmentKey === "finance") {
+    next.pricing = isAionDepartmentRecord(source.pricing) ? source.pricing : {};
+    next.costs = isAionDepartmentRecord(source.costs) ? source.costs : {};
+    next.budgets = isAionDepartmentRecord(source.budgets) ? source.budgets : {};
+    next.margins = isAionDepartmentRecord(source.margins) ? source.margins : {};
+  }
+
+  if (departmentKey === "operations") {
+    next.workflows = isAionDepartmentRecord(source.workflows) ? source.workflows : {};
+    next.bottlenecks = isAionDepartmentRecord(source.bottlenecks) ? source.bottlenecks : {};
+    next.automation_candidates = isAionDepartmentRecord(source.automation_candidates) ? source.automation_candidates : {};
+  }
+
+  if (departmentKey === "support") {
+    next.customer_issues = isAionDepartmentRecord(source.customer_issues) ? source.customer_issues : {};
+    next.response_patterns = isAionDepartmentRecord(source.response_patterns) ? source.response_patterns : {};
+    next.service_quality = isAionDepartmentRecord(source.service_quality) ? source.service_quality : {};
+  }
+
+  next.confidence = next.confidence || deriveAionDepartmentConfidence(next);
+  next.status = next.status || deriveAionDepartmentStatus(next);
+
+  if (!next.boardroom_summary) {
+    if (next.confidence === "empty") {
+      next.boardroom_summary = `${getAionDepartmentLabel(departmentKey)} still needs scoped discovery.`;
+    } else if (next.confidence === "partial") {
+      next.boardroom_summary = `${getAionDepartmentLabel(departmentKey)} has discovery context but no approved plan/results yet.`;
+    } else if (next.confidence === "useful") {
+      next.boardroom_summary = `${getAionDepartmentLabel(departmentKey)} has a working plan or task queue.`;
+    } else {
+      next.boardroom_summary = `${getAionDepartmentLabel(departmentKey)} has live intelligence/results available.`;
+    }
+  }
+
+  return next;
+}
+
+function normaliseAionDepartmentIntelligence(source = {}, foundationInput = null) {
+  const next = {};
+  const input = isAionDepartmentRecord(source) ? source : {};
+
+  AION_DEPARTMENT_INTELLIGENCE_KEYS.forEach((key) => {
+    next[key] = normaliseAionDepartmentIntelligenceEntry(key, input[key], foundationInput);
+  });
+
+  return next;
+}
+
+function readAionDepartmentIntelligenceStorage() {
+  try {
+    const raw = window.localStorage?.getItem(AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return isAionDepartmentRecord(parsed) ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function getAionDepartmentIntelligence() {
+  const source =
+    isAionDepartmentRecord(state.departmentIntelligence)
+      ? state.departmentIntelligence
+      : readAionDepartmentIntelligenceStorage();
+
+  const normalised = normaliseAionDepartmentIntelligence(source);
+  state.departmentIntelligence = normalised;
+
+  return normalised;
+}
+
+function saveAionDepartmentIntelligence(next = null) {
+  const normalised = normaliseAionDepartmentIntelligence(next || state.departmentIntelligence || {});
+  state.departmentIntelligence = normalised;
+
+  try {
+    window.localStorage?.setItem(AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY, JSON.stringify(normalised));
+  } catch {}
+
+  if (desktopStore && typeof desktopStore.persistCacheSoon === "function") {
+    desktopStore.persistCacheSoon(300);
+  }
+
+  return normalised;
+}
+
+function seedAionDepartmentIntelligenceFromBusinessFoundation(foundationInput = null) {
+  const existing =
+    isAionDepartmentRecord(state.departmentIntelligence)
+      ? state.departmentIntelligence
+      : readAionDepartmentIntelligenceStorage();
+
+  return saveAionDepartmentIntelligence(
+    normaliseAionDepartmentIntelligence(existing, foundationInput),
+  );
+}
+
+function updateAionDepartmentIntelligence(departmentKey = "", patch = {}) {
+  const key = String(departmentKey || "").toLowerCase();
+  if (!AION_DEPARTMENT_INTELLIGENCE_KEYS.includes(key)) {
+    return getAionDepartmentIntelligence();
+  }
+
+  const current = getAionDepartmentIntelligence();
+  const existing = current[key] || {};
+  const nextEntry = {
+    ...existing,
+    ...(isAionDepartmentRecord(patch) ? patch : {}),
+    last_updated: new Date().toISOString(),
+  };
+
+  current[key] = normaliseAionDepartmentIntelligenceEntry(key, nextEntry);
+  return saveAionDepartmentIntelligence(current);
+}
+
+function getAionBoardroomAssessmentCoverage() {
+  const ledger = getAionDepartmentIntelligence();
+  const complete_departments = [];
+  const partial_departments = [];
+  const missing_departments = [];
+
+  AION_DEPARTMENT_INTELLIGENCE_KEYS.forEach((key) => {
+    const entry = ledger[key] || {};
+    const confidence = String(entry.confidence || "empty").toLowerCase();
+    const status = String(entry.status || "").toLowerCase();
+
+    if (
+      confidence === "strong" ||
+      confidence === "full" ||
+      status === "executing" ||
+      status === "results_available" ||
+      status === "approved"
+    ) {
+      complete_departments.push(key);
+      return;
+    }
+
+    if (confidence === "partial" || confidence === "useful" || status === "plan_ready" || status === "ready_to_plan") {
+      partial_departments.push(key);
+      return;
+    }
+
+    missing_departments.push(key);
+  });
+
+  const totalKnown = complete_departments.length + partial_departments.length;
+  const confidence =
+    complete_departments.length === AION_DEPARTMENT_INTELLIGENCE_KEYS.length
+      ? "full"
+      : complete_departments.length >= 3
+        ? "strong"
+        : totalKnown >= 2
+          ? "useful"
+          : totalKnown >= 1
+            ? "partial"
+            : "none";
+
+  const summary =
+    confidence === "full"
+      ? "AION has enough department intelligence for a full business assessment."
+      : totalKnown > 0
+        ? `AION can assess ${[...complete_departments, ...partial_departments].map(getAionDepartmentLabel).join(", ")} now. Missing ${missing_departments.map(getAionDepartmentLabel).join(", ") || "no departments"}.`
+        : "AION needs department discovery before it can perform a useful business assessment.";
+
+  return {
+    complete_departments,
+    partial_departments,
+    missing_departments,
+    confidence,
+    summary,
+  };
+}
+
+function getAionDepartmentIntelligenceSummary() {
+  const ledger = getAionDepartmentIntelligence();
+  const coverage = getAionBoardroomAssessmentCoverage();
+
+  return {
+    ledger,
+    coverage,
+    total_departments: AION_DEPARTMENT_INTELLIGENCE_KEYS.length,
+    complete_count: coverage.complete_departments.length,
+    partial_count: coverage.partial_departments.length,
+    missing_count: coverage.missing_departments.length,
+  };
+}
+
+function renderAionDepartmentIntelligenceRow(departmentKey = "", entry = {}) {
+  const label = getAionDepartmentLabel(departmentKey);
+  const confidence = entry.confidence || "empty";
+  const status = entry.status || "needs_discovery";
+  const lastUpdated = entry.last_updated ? formatDateTime(entry.last_updated) : "Not updated yet";
+  const alerts = Array.isArray(entry.alerts) ? entry.alerts : [];
+
+  return `
+    <div class="list-item" data-aion-department-intelligence-row="${escapeHtml(departmentKey)}">
+      <div class="list-item-main">
+        <div class="list-item-title">${escapeHtml(label)}</div>
+        <div class="list-item-sub">${escapeHtml(entry.boardroom_summary || "No boardroom summary yet.")}</div>
+        ${
+          alerts.length
+            ? `<div class="helper-text">Alerts: ${escapeHtml(alerts.join(" · "))}</div>`
+            : ""
+        }
+      </div>
+      <div class="badge-row">
+        <span class="badge">${escapeHtml(status)}</span>
+        <span class="badge">Confidence: ${escapeHtml(confidence)}</span>
+        <span class="badge">${escapeHtml(lastUpdated)}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderBoardroomDepartmentIntelligencePanel() {
+  const { ledger, coverage } = getAionDepartmentIntelligenceSummary();
+
+  return `
+    <section class="panel large-panel" data-aion-department-intelligence-boardroom="true">
+      <div class="panel-title">Department Intelligence Ledger</div>
+      <div class="helper-text" style="margin-bottom:12px;">
+        Shared context bus for department Pilot discovery, plans, runs, results, evidence and Boardroom assessment.
+      </div>
+
+      <div class="card-grid" style="margin-bottom:14px;">
+        ${renderBoardroomMetricCard("Assessment", coverage.confidence, "Cross-department confidence")}
+        ${renderBoardroomMetricCard("Complete", coverage.complete_departments.length, "Departments with live results")}
+        ${renderBoardroomMetricCard("Partial", coverage.partial_departments.length, "Discovery or plan present")}
+        ${renderBoardroomMetricCard("Missing", coverage.missing_departments.length, "Still needs discovery")}
+      </div>
+
+      <div class="notice">
+        ${escapeHtml(coverage.summary)}
+      </div>
+
+      <div class="list-wrap" style="margin-top:14px;">
+        ${AION_DEPARTMENT_INTELLIGENCE_KEYS.map((key) =>
+          renderAionDepartmentIntelligenceRow(key, ledger[key] || {})
+        ).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomSpatialDepartmentIntelligencePanel() {
+  const { ledger, coverage } = getAionDepartmentIntelligenceSummary();
+
+  return `
+    <div data-aion-spatial-department-intelligence="true" style="margin-top:14px; display:grid; gap:10px;">
+      <div class="helper-text">
+        Spatial seats read the same Department Intelligence Ledger. Assessment confidence: ${escapeHtml(coverage.confidence)}.
+      </div>
+      ${AION_DEPARTMENT_INTELLIGENCE_KEYS.map((key) => {
+        const entry = ledger[key] || {};
+        return `
+          <div class="kv-row" data-aion-spatial-department-intelligence-seat="${escapeHtml(key)}">
+            <span>${escapeHtml(getAionDepartmentLabel(key))}</span>
+            <strong>${escapeHtml(entry.status || "needs_discovery")} · ${escapeHtml(entry.confidence || "empty")}</strong>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+if (typeof window !== "undefined") {
+  window.getAionDepartmentIntelligence = getAionDepartmentIntelligence;
+  window.saveAionDepartmentIntelligence = saveAionDepartmentIntelligence;
+  window.updateAionDepartmentIntelligence = updateAionDepartmentIntelligence;
+  window.getAionDepartmentIntelligenceSummary = getAionDepartmentIntelligenceSummary;
+  window.getAionBoardroomAssessmentCoverage = getAionBoardroomAssessmentCoverage;
+}
+/* END PHASE 25A LOCK: Department Intelligence Ledger + Boardroom sync */
+
 
 
 function formatAionBusinessContextValue(value) {
@@ -14059,36 +14507,95 @@ function saveBusinessContextFoundationFromForm({ rerender = false } = {}) {
 
 
 
-function getAionBusinessContextSubtab() {
-  const allowed = new Set([
-    "key_business_info",
-    "brand_foundation",
-    "sales",
-    "marketing",
-    "finance",
-    "operations",
-    "support",
-  ]);
+const AION_BUSINESS_CONTEXT_SUBTABS = new Set([
+  "key_business_info",
+  "brand_foundation",
+  "sales",
+  "marketing",
+  "finance",
+  "operations",
+  "support",
+]);
 
-  const stored =
-    state.activeBusinessContextSubtab ||
-    window.localStorage?.getItem("aion.activeBusinessContextSubtab") ||
-    "key_business_info";
+function normaliseAionBusinessContextSubtabKey(rawKey) {
+  const key = String(rawKey || "").trim().toLowerCase();
 
-  const value = String(stored || "").trim().toLowerCase();
+  if (
+    key === "key_business_info" ||
+    key === "business_info" ||
+    key === "key-info" ||
+    key === "key_info"
+  ) {
+    return "key_business_info";
+  }
 
-  return allowed.has(value) ? value : "key_business_info";
+  if (
+    key === "brand_foundation" ||
+    key === "branding" ||
+    key === "brand"
+  ) {
+    return "brand_foundation";
+  }
+
+  if (AION_BUSINESS_CONTEXT_SUBTABS.has(key)) {
+    return key;
+  }
+
+  return "key_business_info";
 }
 
-function setAionBusinessContextSubtab(value) {
-  const normalized = String(value || "").trim().toLowerCase();
-  state.activeBusinessContextSubtab = normalized || "key_business_info";
+function getAionBusinessContextSubtab() {
+  return normaliseAionBusinessContextSubtabKey(
+    state.activeBusinessContextSubtab ||
+    state.businessContextActiveSubtab ||
+    window.localStorage?.getItem("aion.activeBusinessContextSubtab") ||
+    "key_business_info",
+  );
+}
+
+function setAionBusinessContextSubtab(rawKey) {
+  const key = normaliseAionBusinessContextSubtabKey(rawKey);
+
+  state.activeTab = "business_context";
+  state.activeBusinessContextSubtab = key;
+  state.businessContextActiveSubtab = key;
 
   try {
-    window.localStorage?.setItem("aion.activeBusinessContextSubtab", state.activeBusinessContextSubtab);
+    window.localStorage?.setItem("aion.activeTab", "business_context");
+    window.localStorage?.setItem("aion.activeBusinessContextSubtab", key);
   } catch {}
 
-  return state.activeBusinessContextSubtab;
+  return key;
+}
+
+function handleAionBusinessContextSubtabClick(event) {
+  const target = event.target?.closest?.("[data-aion-business-context-subtab]");
+  if (!target) return false;
+
+  const key = target.getAttribute("data-aion-business-context-subtab");
+  if (!key) return false;
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  if (typeof event.stopImmediatePropagation === "function") {
+    event.stopImmediatePropagation();
+  }
+
+  setAionBusinessContextSubtab(key);
+
+  if (typeof requestRender === "function") {
+    requestRender("business-context-subtab");
+  } else if (typeof render === "function") {
+    render();
+  }
+
+  return true;
+}
+
+if (!window.__aionBusinessContextSubtabClickLocked) {
+  window.__aionBusinessContextSubtabClickLocked = true;
+  document.addEventListener("click", handleAionBusinessContextSubtabClick, true);
 }
 
 function renderBusinessContextSubtabs() {
@@ -14141,21 +14648,67 @@ function renderBusinessContextSubtabs() {
 }
 
 function renderBusinessBrandFoundationSubtabContent() {
-  /*
-   * Phase 24F:
-   * Reuse the existing Brand Foundation renderer as the source of truth.
-   * Strip the outer Business header/top app tabs so it can sit inside the Business tab.
-   */
-  const html = renderBrandFoundationSurface();
-  const marker = '<div class="brand-foundation-layout">';
-  const start = html.indexOf(marker);
+  const fullHtml = typeof renderBrandFoundationSurface === "function"
+    ? renderBrandFoundationSurface()
+    : "";
 
-  if (start < 0) {
-    return html;
+  if (!fullHtml) {
+    return `
+      <section class="panel large-panel" data-aion-business-brand-foundation-clean-embedded="true">
+        <div class="panel-kicker">Brand Foundation</div>
+        <div class="panel-title">Brand foundation</div>
+        <p class="muted">No brand foundation content is available yet.</p>
+      </section>
+    `;
   }
 
-  const end = html.lastIndexOf("</div>");
-  return end > start ? html.slice(start, end) : html.slice(start);
+  const contentStart = fullHtml.indexOf("1. Brand Overview");
+
+  if (contentStart < 0) {
+    return `
+      <section class="panel large-panel" data-aion-business-brand-foundation-clean-embedded="true">
+        <div class="panel-kicker">Brand Foundation</div>
+        <div class="panel-title">Brand foundation</div>
+        <p class="muted">Brand Overview section was not found.</p>
+      </section>
+    `;
+  }
+
+  /*
+    Important:
+    Do NOT search backwards for "<section" here.
+    The previous section before Brand Overview is the old Key Business Information card.
+    Starting from that section reintroduces the old business summary and metric cards.
+    Start from the actual rendered Brand Section Card panel.
+  */
+  const panelStart = fullHtml.lastIndexOf('<div class="panel large-panel"', contentStart);
+  const start = panelStart >= 0 ? panelStart : contentStart;
+
+  const stopMarkers = [
+    '<div class="panel large-panel" style="margin-top:16px;">',
+    "Save / Recovery",
+    "Save brand foundation",
+    "data-aion-brand-foundation-save",
+  ];
+
+  let stop = fullHtml.length;
+  for (const marker of stopMarkers) {
+    const index = fullHtml.indexOf(marker, start);
+    if (index >= 0 && index < stop) {
+      stop = index;
+    }
+  }
+
+  const sectionHtml = fullHtml.slice(start, stop).trim();
+
+  return `
+    <div
+      data-aion-business-brand-foundation-clean-embedded="true"
+      style="display:grid; gap:16px;"
+    >
+      ${sectionHtml}
+    </div>
+  `;
 }
 
 function getBusinessDepartmentContextDraft() {
@@ -30999,7 +31552,7 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   const activeView = getLiveAgentsView();
   const departmentKey = getSelectedLiveDepartmentKey();
 
-  if (departmentKey === "aion") {
+  if (departmentKey === "aion" || departmentKey === "pilot") {
     if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
       return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
     }
