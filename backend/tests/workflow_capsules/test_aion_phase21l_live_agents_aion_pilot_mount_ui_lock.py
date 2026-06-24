@@ -12,9 +12,10 @@ def test_phase21l_aion_or_pilot_department_routes_to_aion_workspace_surface():
     start = TEXT.index("function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard)")
     end = TEXT.index("function renderLiveAgentRunRow", start)
     block = TEXT[start:end]
-    assert 'if (departmentKey === "aion" || departmentKey === "pilot")' in block
-    assert "return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);" in block
 
+    assert 'if (departmentKey === "aion")' in block
+    assert 'if (departmentKey === "pilot")' in block
+    assert block.count("return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);") >= 2
 
 def test_phase21l_mounts_inside_confirmed_aion_workspace_surface():
     start = TEXT.index("function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard)")

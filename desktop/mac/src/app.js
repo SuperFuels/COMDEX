@@ -8035,7 +8035,8 @@ function getAionPilotFrontendInteractionState() {
 function createAionPilotFrontendDraftMission() {
   const pilotState = getAionPilotFrontendInteractionState();
   const input = document.querySelector("[data-aion-pilot-mission-input]");
-  const requestText = String(input?.value || "").trim() || "Build me a PDF document with X data";
+  const persistentInput = document.querySelector("[data-aion-phase23y-persistent-pilot-terminal-input]");
+  const requestText = String(input?.value || persistentInput?.value || pilotState.last_request || "").trim() || "Build me a PDF document with X data";
 
   pilotState.status = "plan_ready";
   if (applyAionPilotCommandBarRevisionIfActive(requestText)) {
@@ -8045,6 +8046,31 @@ function createAionPilotFrontendDraftMission() {
   pilotState.last_request = requestText;
   pilotState.draft_created = true;
   pilotState.plan = buildAionPilotUniversalPlan(requestText);
+  const activePilotDepartmentScope =
+    typeof getSelectedLiveDepartmentKey === "function"
+      ? normaliseAionDepartmentPilotKey(getSelectedLiveDepartmentKey())
+      : "pilot";
+  pilotState.department_scope = ["aion", "pilot"].includes(activePilotDepartmentScope)
+    ? "pilot"
+    : activePilotDepartmentScope;
+  if (
+    pilotState.department_scope !== "pilot" &&
+    typeof updateAionDepartmentIntelligence === "function"
+  ) {
+    updateAionDepartmentIntelligence(pilotState.department_scope, {
+      status: "plan_ready",
+      plan: {
+        title: pilotState.plan?.title || "Department Pilot plan",
+        task_type: pilotState.plan?.task_type || "general_task",
+        goal: requestText,
+        approval_required: true,
+        live_external_actions_blocked: true,
+        source: "central_pilot_department_scope",
+      },
+      boardroom_summary: `${runtimeShared.getDepartmentLabel(pilotState.department_scope)} Pilot has prepared a scoped plan preview. No live external action has been taken.`,
+      last_updated: new Date().toISOString(),
+    });
+  }
   pilotState.artifact_status = "draft_preview";
   pilotState.artifact_hash = "sha256:frontend_draft_artifact_preview";
   pilotState.receipt_hash = "sha256:frontend_draft_receipt_preview";
@@ -29710,36 +29736,298 @@ function renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCar
   `;
 }
 
+
+/* PHASE 25B LOCK: Department-scoped Live Agent Pilot surfaces */
+
+const AION_DEPARTMENT_PILOT_PROFILES = {
+  marketing: {
+    title: "Marketing Pilot",
+    purpose: "Scoped discovery, campaign planning, content, lead flow and marketing execution previews.",
+    missing: ["social accounts", "current marketing", "offer", "budget", "best customers", "past results"],
+    nextAction: "Run Marketing discovery",
+  },
+  sales: {
+    title: "Sales Pilot",
+    purpose: "Scoped discovery, pipeline, enquiries, conversion, follow-up and sales execution previews.",
+    missing: ["lead sources", "pipeline stages", "conversion rate", "follow-up process", "pricing objections"],
+    nextAction: "Run Sales discovery",
+  },
+  finance: {
+    title: "Finance Pilot",
+    purpose: "Scoped discovery, pricing, cost, budget, margin and finance decision previews.",
+    missing: ["pricing", "costs", "budget", "margin", "cash position", "spend limits"],
+    nextAction: "Run Finance discovery",
+  },
+  operations: {
+    title: "Operations Pilot",
+    purpose: "Scoped discovery, workflows, bottlenecks, fulfilment, automations and delivery previews.",
+    missing: ["core workflows", "bottlenecks", "capacity", "tools", "manual repeat work"],
+    nextAction: "Run Operations discovery",
+  },
+  support: {
+    title: "Support Pilot",
+    purpose: "Scoped discovery, customer issues, response patterns, service quality and support previews.",
+    missing: ["common enquiries", "support channels", "response templates", "complaints", "service gaps"],
+    nextAction: "Run Support discovery",
+  },
+};
+
+function normaliseAionDepartmentPilotKey(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  if (["marketing", "sales", "finance", "operations", "support"].includes(key)) return key;
+  return key || "marketing";
+}
+
+function getAionDepartmentPilotProfile(departmentKey = "") {
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
+  return AION_DEPARTMENT_PILOT_PROFILES[key] || {
+    title: `${runtimeShared.getDepartmentLabel(key)} Pilot`,
+    purpose: "Scoped department discovery, planning and safe execution previews.",
+    missing: ["department context", "goals", "current process", "known results"],
+    nextAction: `Run ${runtimeShared.getDepartmentLabel(key)} discovery`,
+  };
+}
+
+function getAionDepartmentPilotLedgerEntry(departmentKey = "") {
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
+  const ledger =
+    typeof getAionDepartmentIntelligence === "function"
+      ? getAionDepartmentIntelligence()
+      : {};
+  return ledger[key] && typeof ledger[key] === "object" ? ledger[key] : {};
+}
+
+function getAionDepartmentPilotStatus(departmentKey = "") {
+  const entry = getAionDepartmentPilotLedgerEntry(departmentKey);
+  return entry.status || "needs_discovery";
+}
+
+function getAionDepartmentPilotBoardroomSummary(departmentKey = "") {
+  const entry = getAionDepartmentPilotLedgerEntry(departmentKey);
+  return entry.boardroom_summary || "No department intelligence has been captured yet.";
+}
+
+function renderAionDepartmentPilotMissingList(departmentKey = "") {
+  const profile = getAionDepartmentPilotProfile(departmentKey);
+  const entry = getAionDepartmentPilotLedgerEntry(departmentKey);
+  const discovery = entry.discovery && typeof entry.discovery === "object" ? entry.discovery : {};
+  const answered = Object.keys(discovery).filter((key) => String(discovery[key] || "").trim()).length;
+
+  return `
+    <div class="list-wrap" data-aion-department-pilot-missing-list="${escapeHtml(departmentKey)}">
+      ${
+        profile.missing.map((item) => `
+          <div class="list-item">
+            <div class="list-item-title">${escapeHtml(item)}</div>
+            <div class="list-item-sub">
+              ${answered > 0 ? "Discovery has started. This item can be refined by the department Pilot." : "Not captured yet."}
+            </div>
+          </div>
+        `).join("")
+      }
+    </div>
+  `;
+}
+
+function renderAionDepartmentScopedPilotSurface(departmentKey = "", selectedRuns = [], selectedAgentCard = null) {
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
+  const label = runtimeShared.getDepartmentLabel(key);
+  const profile = getAionDepartmentPilotProfile(key);
+  const entry = getAionDepartmentPilotLedgerEntry(key);
+  const status = getAionDepartmentPilotStatus(key);
+  const runs = Array.isArray(selectedRuns) ? selectedRuns : getDepartmentRuns(key);
+  const tasks = Array.isArray(entry.tasks) ? entry.tasks : [];
+  const evidence = Array.isArray(entry.evidence) ? entry.evidence : [];
+  const receipts = Array.isArray(entry.receipts) ? entry.receipts : [];
+  const planReady = entry.plan && typeof entry.plan === "object" && Object.keys(entry.plan).length > 0;
+
+  return `
+    <div
+      class="dashboard-shell"
+      data-aion-department-scoped-pilot="${escapeHtml(key)}"
+      data-aion-phase25b-department-scoped-pilot="true"
+    >
+      <div class="panel large-panel">
+        <div class="surface-eyebrow">Department Pilot</div>
+        <div class="panel-title">${escapeHtml(profile.title)}</div>
+        <div class="helper-text">${escapeHtml(profile.purpose)}</div>
+
+        <div class="badge-row" style="margin-top:12px;">
+          <span class="badge">Department: ${escapeHtml(label)}</span>
+          <span class="badge">Status: ${escapeHtml(status)}</span>
+          <span class="badge">Plan: ${planReady ? "ready" : "missing"}</span>
+          <span class="badge">Runs: ${escapeHtml(runs.length)}</span>
+          <span class="badge">Tasks: ${escapeHtml(tasks.length)}</span>
+        </div>
+
+        <div class="card-grid" style="margin-top:14px;">
+          ${renderDashboardMetricCard("Discovery", entry.discovery ? "started" : "needed", "Scoped to this department")}
+          ${renderDashboardMetricCard("Plan", planReady ? "ready" : "not ready", "Approval before execution")}
+          ${renderDashboardMetricCard("Evidence", evidence.length, "Department proof")}
+          ${renderDashboardMetricCard("Receipts", receipts.length, "Replay / audit")}
+        </div>
+
+        <div class="marketing-form-actions" style="margin-top:14px;">
+          <button
+            type="button"
+            class="primary-btn"
+            data-aion-department-pilot-action="seed_discovery"
+            data-aion-department-pilot-scope="${escapeHtml(key)}"
+          >
+            ${escapeHtml(profile.nextAction)}
+          </button>
+          <button
+            type="button"
+            class="secondary-btn"
+            data-aion-department-pilot-action="build_plan"
+            data-aion-department-pilot-scope="${escapeHtml(key)}"
+          >
+            Build department plan preview
+          </button>
+          <button
+            type="button"
+            class="secondary-btn"
+            data-aion-department-pilot-action="stage_safe_queue"
+            data-aion-department-pilot-scope="${escapeHtml(key)}"
+          >
+            Stage safe execution queue
+          </button>
+        </div>
+
+        <div class="notice warning" style="margin-top:14px;">
+          Scoped Pilot is draft/preview only here. No public post, customer message, payment, booking, advert spend, deployment or live external action is performed without exact approval.
+        </div>
+      </div>
+
+      <div class="two-col">
+        <div class="panel large-panel">
+          <div class="panel-title">Discovery gaps</div>
+          ${renderAionDepartmentPilotMissingList(key)}
+        </div>
+
+        <div class="panel large-panel">
+          <div class="panel-title">Boardroom feed</div>
+          <div class="list-item">
+            <div class="list-item-title">Current summary</div>
+            <div class="list-item-sub">${escapeHtml(getAionDepartmentPilotBoardroomSummary(key))}</div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-title">How this syncs</div>
+            <div class="list-item-sub">
+              Discovery, plan, tasks, evidence and receipts are written into the Department Intelligence Ledger and become readable from the Boardroom.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function applyAionDepartmentPilotAction(departmentKey = "", action = "") {
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
+  const profile = getAionDepartmentPilotProfile(key);
+  const now = new Date().toISOString();
+
+  if (typeof updateAionDepartmentIntelligence !== "function") return;
+
+  if (action === "seed_discovery") {
+    updateAionDepartmentIntelligence(key, {
+      status: "ready_to_plan",
+      discovery: {
+        scope: key,
+        captured_by: "department_pilot",
+        required_inputs: profile.missing,
+        source: "phase25b_department_scoped_pilot",
+      },
+      boardroom_summary: `${profile.title} discovery has started. AION can assess this department partially and will ask for missing inputs before full execution.`,
+      last_updated: now,
+    });
+    return;
+  }
+
+  if (action === "build_plan") {
+    updateAionDepartmentIntelligence(key, {
+      status: "plan_ready",
+      plan: {
+        title: `${profile.title} plan preview`,
+        scope: key,
+        approval_required: true,
+        live_external_actions_blocked: true,
+        source: "phase25b_department_scoped_pilot",
+      },
+      boardroom_summary: `${profile.title} has a draft plan preview ready for approval. No live external action has been taken.`,
+      last_updated: now,
+    });
+    return;
+  }
+
+  if (action === "stage_safe_queue") {
+    updateAionDepartmentIntelligence(key, {
+      status: "execution_queue_staged",
+      tasks: [
+        {
+          title: `${profile.title} safe draft task`,
+          status: "staged_preview",
+          approval_required_before_live_action: true,
+          live_external_actions_blocked: true,
+        },
+      ],
+      receipts: [
+        {
+          type: "preview_receipt",
+          source: "phase25b_department_scoped_pilot",
+          created_at: now,
+        },
+      ],
+      boardroom_summary: `${profile.title} has a staged safe execution queue. AION is stopped before public, financial or external side effects.`,
+      last_updated: now,
+    });
+  }
+}
+
+if (!window.__aionPhase25BDepartmentScopedPilotHandlersInstalled) {
+  window.__aionPhase25BDepartmentScopedPilotHandlersInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const actionButton = event.target?.closest?.("[data-aion-department-pilot-action]");
+    if (!actionButton) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    applyAionDepartmentPilotAction(
+      actionButton.getAttribute("data-aion-department-pilot-scope"),
+      actionButton.getAttribute("data-aion-department-pilot-action"),
+    );
+
+    if (typeof requestRender === "function") {
+      requestRender();
+    }
+  }, true);
+}
+
+if (typeof window !== "undefined") {
+  window.getAionDepartmentPilotProfile = getAionDepartmentPilotProfile;
+  window.renderAionDepartmentScopedPilotSurface = renderAionDepartmentScopedPilotSurface;
+  window.applyAionDepartmentPilotAction = applyAionDepartmentPilotAction;
+}
+
+/* END PHASE 25B LOCK */
+
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
-  return renderGenericDepartmentWorkspaceSurface(
-    "finance",
-    selectedAgentCard,
-    selectedRuns,
-  );
+  return renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard);
 }
 
 function renderSalesWorkspaceSurface(selectedRuns, selectedAgentCard) {
-  return renderGenericDepartmentWorkspaceSurface(
-    "sales",
-    selectedAgentCard,
-    selectedRuns,
-  );
+  return renderAionDepartmentScopedPilotSurface("sales", selectedRuns, selectedAgentCard);
 }
 
 function renderOperationsWorkspaceSurface(selectedRuns, selectedAgentCard) {
-  return renderGenericDepartmentWorkspaceSurface(
-    "operations",
-    selectedAgentCard,
-    selectedRuns,
-  );
+  return renderAionDepartmentScopedPilotSurface("operations", selectedRuns, selectedAgentCard);
 }
 
 function renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard) {
-  return renderGenericDepartmentWorkspaceSurface(
-    "support",
-    selectedAgentCard,
-    selectedRuns,
-  );
+  return renderAionDepartmentScopedPilotSurface("support", selectedRuns, selectedAgentCard);
 }
 
 function renderHRWorkspaceSurface(selectedRuns, selectedAgentCard) {
@@ -30629,6 +30917,7 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
     <div data-aion-phase23y-pilot-marketing-workspace>
       ${renderLiveAgentsMarketingWorkspaceTabs()}
+      ${renderAionDepartmentScopedPilotSurface("marketing", selectedRuns, selectedAgentCard)}
 
       <div class="panel large-panel" style="background:#ffffff;">
         <div class="panel-title">Pilot Marketing workspace</div>
@@ -31552,7 +31841,15 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   const activeView = getLiveAgentsView();
   const departmentKey = getSelectedLiveDepartmentKey();
 
-  if (departmentKey === "aion" || departmentKey === "pilot") {
+  if (departmentKey === "aion") {
+    if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
+      return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
+    }
+
+    return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);
+  }
+
+  if (departmentKey === "pilot") {
     if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
       return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
     }
