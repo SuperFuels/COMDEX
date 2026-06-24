@@ -7330,6 +7330,13 @@ function renderBoardroomDashboardView(snapshot) {
       </div>
 
       ${renderAionBusinessContextMiniCard("boardroom")}
+
+      <div data-aion-phase25j-boardroom-visible-intelligence="true">
+        ${renderBoardroomDepartmentIntelligencePanel()}
+        ${renderBoardroomAssessmentFeedPanel()}
+        ${renderBoardroomCrossDepartmentReviewPanel()}
+      </div>
+
       ${renderBoardroomOperatorPresence()}
 
       <!-- Phase 17U: founder demo visible output removed from Boardroom main flow; A2A ticket now renders via Phase 18 -->
@@ -7401,6 +7408,12 @@ function renderBoardroomSpatialView(snapshot) {
         <div class="spatial-boardroom-shell" style="margin-top:14px;">
           <div id="spatialBoardroomMount" class="spatial-boardroom-mount"></div>
         </div>
+      </div>
+
+      <div data-aion-phase25j-spatial-visible-intelligence="true">
+        ${renderBoardroomSpatialDepartmentIntelligencePanel()}
+        ${renderBoardroomSpatialAssessmentFeedPanel()}
+        ${renderBoardroomSpatialCrossDepartmentReviewPanel()}
       </div>
 
       <div class="panel large-panel">
@@ -30471,7 +30484,12 @@ function renderAionDepartmentPilotMissingList(departmentKey = "") {
   `;
 }
 
-function renderAionDepartmentScopedPilotSurface(departmentKey = "", selectedRuns = [], selectedAgentCard = null) {
+function renderAionDepartmentScopedPilotSurface(
+  departmentKey = "",
+  selectedRuns = [],
+  selectedAgentCard = null,
+  includeWorkflowPanels = true,
+) {
   const key = normaliseAionDepartmentPilotKey(departmentKey);
   const label = runtimeShared.getDepartmentLabel(key);
   const profile = getAionDepartmentPilotProfile(key);
@@ -30483,63 +30501,93 @@ function renderAionDepartmentScopedPilotSurface(departmentKey = "", selectedRuns
   const receipts = Array.isArray(entry.receipts) ? entry.receipts : [];
   const planReady = entry.plan && typeof entry.plan === "object" && Object.keys(entry.plan).length > 0;
 
+  const completion =
+    typeof getAionDepartmentPilotCompletion === "function"
+      ? getAionDepartmentPilotCompletion(key)
+      : { answered: 0, total: 0, missing: [] };
+
+  const approval =
+    typeof getAionDepartmentPilotApprovalState === "function"
+      ? getAionDepartmentPilotApprovalState(key)
+      : { status: "not_requested" };
+
+  const resultStatus =
+    typeof getAionDepartmentResultEvidenceStatus === "function"
+      ? getAionDepartmentResultEvidenceStatus(entry)
+      : "missing";
+
+  const specialistPlan = entry.specialist_plan || entry.plan?.specialist || null;
+  const nextSafeTask =
+    typeof getAionDepartmentPilotNextSafeTask === "function"
+      ? getAionDepartmentPilotNextSafeTask(key)
+      : null;
+
+  const nextInstruction =
+    completion.answered === 0
+      ? `Start with ${label} discovery. Fill the fields below and press “Save discovery to ledger”.`
+      : !planReady
+        ? `Build the ${label} plan draft from the saved discovery.`
+        : approval.status !== "approved"
+          ? `Approve the ${label} plan, then build or run the safe queue.`
+          : nextSafeTask
+            ? `Run the next safe internal ${label} task. It will write results, evidence and receipts back to the Boardroom.`
+            : resultStatus === "results_available"
+              ? `${label} has Boardroom-visible results. Review the Boardroom assessment feed.`
+              : `Build or run the ${label} safe task queue.`;
+
   return `
     <div
       class="dashboard-shell"
       data-aion-department-scoped-pilot="${escapeHtml(key)}"
       data-aion-phase25b-department-scoped-pilot="true"
+      data-aion-phase25j-department-pilot-guided-workflow="true"
     >
-      <div class="panel large-panel">
+      <section class="panel large-panel" style="background:#ffffff;">
         <div class="surface-eyebrow">Department Pilot</div>
         <div class="panel-title">${escapeHtml(profile.title)}</div>
         <div class="helper-text">${escapeHtml(profile.purpose)}</div>
 
-        <div class="badge-row" style="margin-top:12px;">
-          <span class="badge">Department: ${escapeHtml(label)}</span>
-          <span class="badge">Status: ${escapeHtml(status)}</span>
-          <span class="badge">Plan: ${planReady ? "ready" : "missing"}</span>
-          <span class="badge">Runs: ${escapeHtml(runs.length)}</span>
-          <span class="badge">Tasks: ${escapeHtml(tasks.length)}</span>
+        <div class="notice warning" style="margin-top:12px;">
+          <strong>Next step:</strong> ${escapeHtml(nextInstruction)}
         </div>
 
         <div class="card-grid" style="margin-top:14px;">
-          ${renderDashboardMetricCard("Discovery", entry.discovery ? "started" : "needed", "Scoped to this department")}
-          ${renderDashboardMetricCard("Plan", planReady ? "ready" : "not ready", "Approval before execution")}
-          ${renderDashboardMetricCard("Evidence", evidence.length, "Department proof")}
-          ${renderDashboardMetricCard("Receipts", receipts.length, "Replay / audit")}
+          ${renderDashboardMetricCard("1. Discovery", `${completion.answered}/${completion.total}`, "Saved to ledger")}
+          ${renderDashboardMetricCard("2. Plan", planReady ? "ready" : "missing", "Draft only")}
+          ${renderDashboardMetricCard("3. Approval", approval.status || "not requested", "Human gated")}
+          ${renderDashboardMetricCard("4. Safe Queue", tasks.length, nextSafeTask ? "task ready" : "none ready")}
+          ${renderDashboardMetricCard("5. Evidence", evidence.length, "Boardroom proof")}
+          ${renderDashboardMetricCard("6. Receipts", receipts.length, "Replay / audit")}
         </div>
 
-        <div class="marketing-form-actions" style="margin-top:14px;">
-          <button
-            type="button"
-            class="primary-btn"
-            data-aion-department-pilot-action="seed_discovery"
-            data-aion-department-pilot-scope="${escapeHtml(key)}"
-          >
-            ${escapeHtml(profile.nextAction)}
-          </button>
-          <button
-            type="button"
-            class="secondary-btn"
-            data-aion-department-pilot-action="build_plan"
-            data-aion-department-pilot-scope="${escapeHtml(key)}"
-          >
-            Build department plan preview
-          </button>
-          <button
-            type="button"
-            class="secondary-btn"
-            data-aion-department-pilot-action="stage_safe_queue"
-            data-aion-department-pilot-scope="${escapeHtml(key)}"
-          >
-            Stage safe execution queue
-          </button>
+        <div class="list-wrap" style="margin-top:14px;">
+          <div class="list-item">
+            <div class="list-item-title">How this department Pilot works</div>
+            <div class="list-item-sub">
+              Discovery, plan drafts, approvals, safe queue tasks, results, evidence and receipts all write into
+              <code>aion.departmentIntelligence.${escapeHtml(key)}</code>. The Boardroom reads that same ledger.
+            </div>
+          </div>
+          <div class="list-item">
+            <div class="list-item-title">Safety boundary</div>
+            <div class="list-item-sub">
+              This screen does not send, publish, spend, book, invoice, deploy or mutate external systems.
+              It only creates internal previews until exact human approval is added for a specific live action.
+            </div>
+          </div>
         </div>
+      </section>
 
-        <div class="notice warning" style="margin-top:14px;">
-          Scoped Pilot is draft/preview only here. No public post, customer message, payment, booking, advert spend, deployment or live external action is performed without exact approval.
-        </div>
-      </div>
+      ${
+        includeWorkflowPanels
+          ? `
+            ${renderAionDepartmentPilotPhase25CPanel(key)}
+            ${renderAionDepartmentPilotPhase25DPanel(key)}
+            ${renderAionDepartmentPilotPhase25EPanel(key)}
+            ${renderAionDepartmentPilotPhase25FPanel(key)}
+          `
+          : ""
+      }
 
       <div class="two-col">
         <div class="panel large-panel">
@@ -30552,11 +30600,17 @@ function renderAionDepartmentScopedPilotSurface(departmentKey = "", selectedRuns
           <div class="list-item">
             <div class="list-item-title">Current summary</div>
             <div class="list-item-sub">${escapeHtml(getAionDepartmentPilotBoardroomSummary(key))}</div>
+            <div class="badge-row">
+              ${renderStatusBadge(status)}
+              <span class="badge">Result ${escapeHtml(resultStatus)}</span>
+              <span class="badge">Specialist ${specialistPlan ? "ready" : "missing"}</span>
+            </div>
           </div>
           <div class="list-item">
-            <div class="list-item-title">How this syncs</div>
+            <div class="list-item-title">Where to see it working</div>
             <div class="list-item-sub">
-              Discovery, plan, tasks, evidence and receipts are written into the Department Intelligence Ledger and become readable from the Boardroom.
+              Open Boardroom Flat View for the Department Intelligence, Assessment Feed and Cross-Department Review panels.
+              Open Spatial Boardroom for the same department status as spatial seat intelligence.
             </div>
           </div>
         </div>
@@ -30564,6 +30618,8 @@ function renderAionDepartmentScopedPilotSurface(departmentKey = "", selectedRuns
     </div>
   `;
 }
+
+
 
 function applyAionDepartmentPilotAction(departmentKey = "", action = "") {
   const key = normaliseAionDepartmentPilotKey(departmentKey);
