@@ -31330,6 +31330,310 @@ if (typeof window !== "undefined") {
 }
 
 
+
+/* PHASE 25G LOCK: Boardroom Cross-Department Review */
+
+function classifyAionDepartmentCrossReviewState(entry = {}) {
+  const status = String(entry.status || "").toLowerCase();
+  const resultStatus =
+    typeof getAionDepartmentResultEvidenceStatus === "function"
+      ? getAionDepartmentResultEvidenceStatus(entry)
+      : "missing";
+
+  if (
+    resultStatus === "results_available" ||
+    status === "safe_queue_complete" ||
+    status === "specialist_queue_ready"
+  ) {
+    return "complete";
+  }
+
+  if (
+    resultStatus === "runs_available" ||
+    resultStatus === "tasks_ready" ||
+    resultStatus === "plan_ready" ||
+    status.includes("plan") ||
+    status.includes("queue") ||
+    status.includes("discovery")
+  ) {
+    return "partial";
+  }
+
+  return "missing";
+}
+
+function buildAionBoardroomCrossDepartmentReview() {
+  const ledger = getAionDepartmentIntelligence();
+  const feed =
+    typeof buildAionDepartmentAssessmentFeed === "function"
+      ? buildAionDepartmentAssessmentFeed()
+      : null;
+
+  const departments = AION_DEPARTMENT_KEYS.map((key) => {
+    const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
+    const reviewState = classifyAionDepartmentCrossReviewState(entry);
+    const resultStatus =
+      typeof getAionDepartmentResultEvidenceStatus === "function"
+        ? getAionDepartmentResultEvidenceStatus(entry)
+        : "missing";
+    const evidence = Array.isArray(entry.evidence) ? entry.evidence : [];
+    const receipts = Array.isArray(entry.receipts) ? entry.receipts : [];
+    const alerts = Array.isArray(entry.alerts) ? entry.alerts : [];
+
+    return {
+      key,
+      label: runtimeShared.getDepartmentLabel(key),
+      review_state: reviewState,
+      status: entry.status || "needs_discovery",
+      result_status: resultStatus,
+      confidence: entry.confidence || "empty",
+      summary: entry.boardroom_summary || "",
+      evidence_count: evidence.length,
+      receipt_count: receipts.length,
+      alert_count: alerts.length,
+      alerts,
+      last_updated: entry.last_updated || "",
+    };
+  });
+
+  const complete_departments = departments
+    .filter((item) => item.review_state === "complete")
+    .map((item) => item.key);
+
+  const partial_departments = departments
+    .filter((item) => item.review_state === "partial")
+    .map((item) => item.key);
+
+  const missing_departments = departments
+    .filter((item) => item.review_state === "missing")
+    .map((item) => item.key);
+
+  const byKey = Object.fromEntries(departments.map((item) => [item.key, item]));
+  const conflicts = [];
+
+  if (byKey.marketing.review_state !== "missing" && byKey.sales.review_state === "missing") {
+    conflicts.push({
+      id: "marketing_without_sales_followup",
+      severity: "medium",
+      departments: ["marketing", "sales"],
+      summary: "Marketing has activity, but Sales has no follow-up or conversion context. Lead generation should stay cautious until Sales is connected.",
+    });
+  }
+
+  if (byKey.marketing.review_state !== "missing" && byKey.finance.review_state === "missing") {
+    conflicts.push({
+      id: "marketing_without_finance_limits",
+      severity: "medium",
+      departments: ["marketing", "finance"],
+      summary: "Marketing has activity, but Finance has no budget or margin model. Spend recommendations are limited.",
+    });
+  }
+
+  if (byKey.marketing.review_state !== "missing" && byKey.operations.review_state === "missing") {
+    conflicts.push({
+      id: "marketing_without_operations_capacity",
+      severity: "medium",
+      departments: ["marketing", "operations"],
+      summary: "Marketing may create demand, but Operations capacity is unknown. Campaign scale should remain conservative.",
+    });
+  }
+
+  if (byKey.sales.review_state !== "missing" && byKey.finance.review_state === "missing") {
+    conflicts.push({
+      id: "sales_without_margin_model",
+      severity: "low",
+      departments: ["sales", "finance"],
+      summary: "Sales can progress, but Finance has no pricing or margin confirmation. Quote recommendations need finance review.",
+    });
+  }
+
+  if (byKey.support.review_state !== "missing" && byKey.operations.review_state === "missing") {
+    conflicts.push({
+      id: "support_without_operations_feedback",
+      severity: "low",
+      departments: ["support", "operations"],
+      summary: "Support may reveal service issues, but Operations has no workflow or bottleneck context to resolve root causes.",
+    });
+  }
+
+  const opportunities = [];
+
+  if (byKey.marketing.review_state !== "missing" && byKey.sales.review_state !== "missing") {
+    opportunities.push("Connect Marketing lead capture to Sales follow-up and conversion tracking.");
+  }
+
+  if (byKey.finance.review_state !== "missing" && byKey.marketing.review_state !== "missing") {
+    opportunities.push("Use Finance budget and margin data to set safe Marketing spend limits.");
+  }
+
+  if (byKey.operations.review_state !== "missing" && byKey.support.review_state !== "missing") {
+    opportunities.push("Use Support issue patterns to improve Operations workflows.");
+  }
+
+  if (complete_departments.length === 0 && partial_departments.length > 0) {
+    opportunities.push("Complete at least one department queue to give AION stronger evidence for assessment.");
+  }
+
+  const recommended_next_questions = missing_departments.map((key) => {
+    const label = runtimeShared.getDepartmentLabel(key);
+    return `Complete ${label} discovery so the Boardroom can include it in the business assessment.`;
+  });
+
+  const confidence =
+    complete_departments.length === AION_DEPARTMENT_KEYS.length
+      ? "full"
+      : complete_departments.length >= 3
+        ? "strong"
+        : complete_departments.length >= 1 && partial_departments.length >= 1
+          ? "useful"
+          : partial_departments.length >= 1
+            ? "partial"
+            : "none";
+
+  const summary =
+    confidence === "full"
+      ? "AION can produce a full cross-department business assessment."
+      : complete_departments.length || partial_departments.length
+        ? `AION can produce a ${confidence} assessment from available department data. Missing departments reduce confidence.`
+        : "AION needs department discovery, plans or results before cross-department assessment is useful.";
+
+  return {
+    generated_at: new Date().toISOString(),
+    confidence,
+    summary,
+    complete_departments,
+    partial_departments,
+    missing_departments,
+    conflicts,
+    opportunities,
+    recommended_next_questions,
+    departments,
+    source_feed_confidence: feed?.confidence || "none",
+  };
+}
+
+function renderBoardroomCrossDepartmentReviewPanel() {
+  const review = buildAionBoardroomCrossDepartmentReview();
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25g-boardroom-cross-department-review="true"
+      style="background:#ffffff;"
+    >
+      <div class="panel-title">Cross-Department Review</div>
+      <div class="helper-text">
+        Boardroom review across Marketing, Sales, Finance, Operations and Support. This detects gaps, conflicts and opportunities from the Department Intelligence Ledger.
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderBoardroomMetricCard("Cross-Dept Confidence", review.confidence, "AION assessment readiness")}
+        ${renderBoardroomMetricCard("Complete", review.complete_departments.length, review.complete_departments.join(", ") || "none")}
+        ${renderBoardroomMetricCard("Partial", review.partial_departments.length, review.partial_departments.join(", ") || "none")}
+        ${renderBoardroomMetricCard("Missing", review.missing_departments.length, review.missing_departments.join(", ") || "none")}
+      </div>
+
+      <div class="notice warning" style="margin-top:12px;">
+        ${escapeHtml(review.summary)}
+      </div>
+
+      <div class="two-col" style="margin-top:12px;">
+        <div class="panel" style="background:#ffffff;">
+          <div class="panel-title">Conflicts / Risks</div>
+          ${
+            review.conflicts.length
+              ? `
+                <div class="list-wrap">
+                  ${review.conflicts.map((item) => `
+                    <div class="list-item">
+                      <div class="list-item-title">${escapeHtml(item.id)}</div>
+                      <div class="list-item-sub">${escapeHtml(item.summary)}</div>
+                      <div class="badge-row">
+                        <span class="badge">${escapeHtml(item.severity)}</span>
+                        <span class="badge">${escapeHtml(safeArray(item.departments).join(" + "))}</span>
+                      </div>
+                    </div>
+                  `).join("")}
+                </div>
+              `
+              : `<div class="empty-state">No cross-department conflicts detected yet.</div>`
+          }
+        </div>
+
+        <div class="panel" style="background:#ffffff;">
+          <div class="panel-title">Opportunities / Next Questions</div>
+          <div class="list-wrap">
+            ${[
+              ...review.opportunities,
+              ...review.recommended_next_questions,
+            ].map((item) => `
+              <div class="list-item">
+                <div class="list-item-title">${escapeHtml(item)}</div>
+              </div>
+            `).join("") || `<div class="empty-state">No recommendations yet.</div>`}
+          </div>
+        </div>
+      </div>
+
+      <div class="list-wrap" style="margin-top:12px;">
+        ${review.departments.map((item) => `
+          <div class="list-item">
+            <div class="list-item-title">${escapeHtml(item.label)}</div>
+            <div class="list-item-sub">${escapeHtml(item.summary || "No summary yet.")}</div>
+            <div class="badge-row">
+              ${renderStatusBadge(item.review_state)}
+              <span class="badge">Status ${escapeHtml(item.status)}</span>
+              <span class="badge">Result ${escapeHtml(item.result_status)}</span>
+              <span class="badge">Evidence ${escapeHtml(item.evidence_count)}</span>
+              <span class="badge">Receipts ${escapeHtml(item.receipt_count)}</span>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderBoardroomSpatialCrossDepartmentReviewPanel() {
+  const review = buildAionBoardroomCrossDepartmentReview();
+
+  return `
+    <div
+      class="panel large-panel"
+      data-aion-phase25g-spatial-cross-department-review="true"
+      style="background:#ffffff;"
+    >
+      <div class="panel-title">Spatial Cross-Department Review</div>
+      <div class="helper-text">
+        Spatial Boardroom should treat each seat as part of one business system, not isolated department panels.
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderBoardroomMetricCard("Confidence", review.confidence, "Cross-department")}
+        ${renderBoardroomMetricCard("Conflicts", review.conflicts.length, "Detected risks")}
+        ${renderBoardroomMetricCard("Opportunities", review.opportunities.length, "Possible improvements")}
+        ${renderBoardroomMetricCard("Missing", review.missing_departments.length, "Department gaps")}
+      </div>
+
+      <div class="list-wrap" style="margin-top:12px;">
+        ${review.conflicts.map((item) => `
+          <div class="list-item">
+            <div class="list-item-title">${escapeHtml(item.id)}</div>
+            <div class="list-item-sub">${escapeHtml(item.summary)}</div>
+          </div>
+        `).join("") || `<div class="empty-state">No spatial conflict overlay yet.</div>`}
+      </div>
+    </div>
+  `;
+}
+
+if (typeof window !== "undefined") {
+  window.classifyAionDepartmentCrossReviewState = classifyAionDepartmentCrossReviewState;
+  window.buildAionBoardroomCrossDepartmentReview = buildAionBoardroomCrossDepartmentReview;
+  window.renderBoardroomCrossDepartmentReviewPanel = renderBoardroomCrossDepartmentReviewPanel;
+}
+
+
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard);
 }
