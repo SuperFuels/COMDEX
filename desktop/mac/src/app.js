@@ -29651,6 +29651,8 @@ function renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCar
         )}
       </div>
 
+      ${renderAionDepartmentPilotPhase25CPanel(departmentKey)}
+
       <div class="two-col">
         <div class="panel large-panel">
           <div class="panel-title">${escapeHtml(departmentLabel)} Run Queue</div>
@@ -30013,6 +30015,497 @@ if (typeof window !== "undefined") {
 }
 
 /* END PHASE 25B LOCK */
+
+
+/* PHASE 25C LOCK: Department Pilot Discovery Ledger Writeback */
+
+const AION_DEPARTMENT_PILOT_DISCOVERY_TEMPLATES = {
+  marketing: [
+    ["social_accounts", "Social accounts", "Facebook page, Instagram, Google Business, TikTok, X, LinkedIn..."],
+    ["current_marketing", "Current marketing", "What marketing are you doing now?"],
+    ["active_offer", "Current offer", "What are you trying to sell or promote?"],
+    ["monthly_budget", "Monthly budget", "Approx monthly spend or safe budget limit."],
+    ["best_customers", "Best customers", "Who are your best / most profitable customers?"],
+    ["service_areas", "Service areas", "Towns, regions or online markets you cover."],
+    ["past_results", "Past results", "What has worked or failed before?"],
+    ["lead_capture", "Lead capture", "Website form, phone, WhatsApp, Facebook messages, email..."],
+    ["approval_boundary", "Approval boundary", "What must Pilot ask before posting, spending or messaging?"],
+  ],
+  sales: [
+    ["lead_sources", "Lead sources", "Where do enquiries come from?"],
+    ["pipeline_stages", "Pipeline stages", "New lead, quoted, followed up, won, lost..."],
+    ["conversion_rate", "Conversion rate", "Known or estimated conversion rate."],
+    ["follow_up_process", "Follow-up process", "How do you chase enquiries?"],
+    ["pricing_objections", "Pricing objections", "Common objections or reasons leads do not buy."],
+    ["approval_boundary", "Approval boundary", "What must Pilot ask before messaging or changing offers?"],
+  ],
+  finance: [
+    ["pricing", "Pricing", "Rates, package prices, margins or invoice model."],
+    ["costs", "Costs", "Key fixed and variable costs."],
+    ["budget", "Budget", "Monthly safe budget or department limits."],
+    ["margin", "Margin", "Known or target gross margin."],
+    ["cash_position", "Cash position", "Optional cash/runway notes."],
+    ["spend_limits", "Spend limits", "What must Pilot ask before spend or pricing changes?"],
+  ],
+  operations: [
+    ["core_workflows", "Core workflows", "Main delivery/admin processes."],
+    ["bottlenecks", "Bottlenecks", "Where work slows down or gets stuck."],
+    ["capacity", "Capacity", "How much work can the business handle?"],
+    ["tools", "Tools", "Current apps, spreadsheets, systems, suppliers."],
+    ["manual_repeat_work", "Manual repeat work", "Tasks repeated often that could be automated."],
+    ["approval_boundary", "Approval boundary", "What must Pilot ask before changing workflows?"],
+  ],
+  support: [
+    ["common_enquiries", "Common enquiries", "Most common customer questions."],
+    ["support_channels", "Support channels", "Phone, WhatsApp, email, website, socials..."],
+    ["response_templates", "Response templates", "Existing replies or tone rules."],
+    ["complaints", "Complaints", "Common issues, refunds, delays or objections."],
+    ["service_gaps", "Service gaps", "Where support currently fails or gets slow."],
+    ["approval_boundary", "Approval boundary", "What must Pilot ask before replying externally?"],
+  ],
+};
+
+function getAionDepartmentPilotDiscoveryTemplate(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  return AION_DEPARTMENT_PILOT_DISCOVERY_TEMPLATES[key] || [
+    ["department_goal", "Department goal", "What should this department achieve?"],
+    ["current_process", "Current process", "How does this department work today?"],
+    ["known_gaps", "Known gaps", "What is missing, slow or broken?"],
+    ["approval_boundary", "Approval boundary", "What must Pilot ask before taking action?"],
+  ];
+}
+
+function getAionDepartmentLedgerEntry(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  const ledger =
+    typeof getAionDepartmentIntelligence === "function"
+      ? getAionDepartmentIntelligence()
+      : {};
+  return asRecord(ledger[key]) || {};
+}
+
+function normaliseAionDepartmentPilotStatus(entry = {}) {
+  const status = String(entry.status || "").trim();
+  if (status) return status;
+
+  if (entry.tasks && Array.isArray(entry.tasks) && entry.tasks.length) return "queue_ready";
+  if (entry.plan && Object.keys(asRecord(entry.plan) || {}).length) return "plan_ready";
+  if (entry.discovery && Object.keys(asRecord(entry.discovery) || {}).length) return "discovery_ready";
+
+  return "needs_discovery";
+}
+
+function getAionDepartmentPilotCompletion(departmentKey = "") {
+  const template = getAionDepartmentPilotDiscoveryTemplate(departmentKey);
+  const entry = getAionDepartmentLedgerEntry(departmentKey);
+  const discovery = asRecord(entry.discovery) || {};
+
+  const answered = template.filter(([key]) => String(discovery[key] || "").trim()).length;
+  const total = template.length || 1;
+
+  return {
+    answered,
+    total,
+    missing: template
+      .filter(([key]) => !String(discovery[key] || "").trim())
+      .map(([, label]) => label),
+  };
+}
+
+function collectAionDepartmentPilotDiscoveryFromForm(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  const discovery = {};
+
+  document
+    .querySelectorAll(`[data-aion-department-pilot-discovery-field][data-department-key="${key}"]`)
+    .forEach((field) => {
+      const fieldKey = String(field.getAttribute("data-aion-department-pilot-discovery-field") || "").trim();
+      if (!fieldKey) return;
+      discovery[fieldKey] = String(field.value || "").trim();
+    });
+
+  return discovery;
+}
+
+function buildAionDepartmentBoardroomSummary(departmentKey = "", entry = {}) {
+  const label = runtimeShared.getDepartmentLabel(departmentKey);
+  const status = normaliseAionDepartmentPilotStatus(entry);
+  const completion = getAionDepartmentPilotCompletion(departmentKey);
+  const taskCount = Array.isArray(entry.tasks) ? entry.tasks.length : 0;
+  const resultCount = entry.results && typeof entry.results === "object" ? Object.keys(entry.results).length : 0;
+
+  return `${label}: ${status}. Discovery ${completion.answered}/${completion.total}. Tasks ${taskCount}. Results ${resultCount}.`;
+}
+
+function saveAionDepartmentPilotDiscovery(departmentKey = "", options = {}) {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  if (!key) return {};
+
+  const current = getAionDepartmentLedgerEntry(key);
+  const existingDiscovery = asRecord(current.discovery) || {};
+  const nextDiscovery = {
+    ...existingDiscovery,
+    ...collectAionDepartmentPilotDiscoveryFromForm(key),
+  };
+
+  const nextEntry = {
+    ...current,
+    status: "discovery_ready",
+    discovery: nextDiscovery,
+    last_updated: new Date().toISOString(),
+  };
+
+  nextEntry.boardroom_summary = buildAionDepartmentBoardroomSummary(key, nextEntry);
+
+  if (typeof updateAionDepartmentIntelligence === "function") {
+    updateAionDepartmentIntelligence(key, nextEntry);
+  }
+
+  if (options.render !== false && typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return nextEntry;
+}
+
+function buildAionDepartmentPilotPlanDraft(departmentKey = "", options = {}) {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  if (!key) return {};
+
+  const foundation =
+    typeof getApprovedSmallBusinessFoundationContext === "function"
+      ? getApprovedSmallBusinessFoundationContext()
+      : {};
+  const current = options.saveDiscoveryFirst === false
+    ? getAionDepartmentLedgerEntry(key)
+    : saveAionDepartmentPilotDiscovery(key, { render: false });
+
+  const discovery = asRecord(current.discovery) || {};
+  const label = runtimeShared.getDepartmentLabel(key);
+  const businessName = foundation.business_name || foundation.name || state.workspaceId || "the business";
+  const primaryGoal = foundation.primary_goal || "improve business performance";
+
+  const actionItems = getAionDepartmentPilotDiscoveryTemplate(key)
+    .filter(([fieldKey]) => String(discovery[fieldKey] || "").trim())
+    .slice(0, 5)
+    .map(([fieldKey, fieldLabel]) => ({
+      id: `${key}_${fieldKey}_action`,
+      title: `${fieldLabel} follow-up`,
+      detail: String(discovery[fieldKey] || "").trim(),
+      status: "draft_preview",
+      approval_required: true,
+    }));
+
+  const plan = {
+    department: key,
+    title: `${label} Pilot plan`,
+    business_name: businessName,
+    objective: `${label} plan for ${businessName}: ${primaryGoal}`,
+    discovery_used: discovery,
+    action_items: actionItems.length
+      ? actionItems
+      : [
+          {
+            id: `${key}_discovery_required`,
+            title: "Complete discovery before planning",
+            detail: "Pilot needs more department context before creating a useful plan.",
+            status: "blocked_waiting_discovery",
+            approval_required: false,
+          },
+        ],
+    approval_boundary: [
+      "No external sending",
+      "No public posting",
+      "No ad spend",
+      "No booking",
+      "No payment",
+      "No production deploy",
+      "No live system mutation",
+    ],
+    created_at: new Date().toISOString(),
+  };
+
+  const nextEntry = {
+    ...current,
+    status: "plan_ready",
+    plan,
+    last_updated: new Date().toISOString(),
+  };
+
+  nextEntry.boardroom_summary = buildAionDepartmentBoardroomSummary(key, nextEntry);
+
+  if (typeof updateAionDepartmentIntelligence === "function") {
+    updateAionDepartmentIntelligence(key, nextEntry);
+  }
+
+  if (options.render !== false && typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return nextEntry;
+}
+
+function buildAionDepartmentPilotSafeTaskQueue(departmentKey = "", options = {}) {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  if (!key) return {};
+
+  const current = options.buildPlanFirst === false
+    ? getAionDepartmentLedgerEntry(key)
+    : buildAionDepartmentPilotPlanDraft(key, { render: false });
+
+  const plan = asRecord(current.plan) || {};
+  const actions = Array.isArray(plan.action_items) ? plan.action_items : [];
+
+  const tasks = actions.map((item, index) => ({
+    id: item.id || `${key}_safe_task_${index + 1}`,
+    title: item.title || `Safe ${runtimeShared.getDepartmentLabel(key)} task ${index + 1}`,
+    detail: item.detail || "",
+    status: item.status === "blocked_waiting_discovery" ? "blocked_waiting_discovery" : "queued_preview",
+    safety: "internal_preview_only",
+    approval_required: item.approval_required !== false,
+    no_live_side_effects: true,
+    created_at: new Date().toISOString(),
+  }));
+
+  const nextEntry = {
+    ...current,
+    status: "queue_ready",
+    tasks,
+    last_updated: new Date().toISOString(),
+  };
+
+  nextEntry.boardroom_summary = buildAionDepartmentBoardroomSummary(key, nextEntry);
+
+  if (typeof updateAionDepartmentIntelligence === "function") {
+    updateAionDepartmentIntelligence(key, nextEntry);
+  }
+
+  if (options.render !== false && typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return nextEntry;
+}
+
+function renderAionDepartmentPilotDiscoveryPanel(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  const template = getAionDepartmentPilotDiscoveryTemplate(key);
+  const entry = getAionDepartmentLedgerEntry(key);
+  const discovery = asRecord(entry.discovery) || {};
+  const completion = getAionDepartmentPilotCompletion(key);
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25c-department-pilot-discovery="${escapeHtml(key)}"
+      style="background:#ffffff; margin-top:14px;"
+    >
+      <div class="panel-title">${escapeHtml(runtimeShared.getDepartmentLabel(key))} Pilot Discovery</div>
+      <div class="helper-text">
+        Scoped discovery writes directly into <code>aion.departmentIntelligence.${escapeHtml(key)}.discovery</code>
+        and feeds the Boardroom automatically.
+      </div>
+
+      <div class="badge-row" style="margin-top:10px;">
+        <span class="badge">Discovery ${escapeHtml(String(completion.answered))}/${escapeHtml(String(completion.total))}</span>
+        <span class="badge">Status ${escapeHtml(normaliseAionDepartmentPilotStatus(entry))}</span>
+        <span class="badge">Boardroom sync ready</span>
+      </div>
+
+      <div style="display:grid; gap:10px; margin-top:14px;">
+        ${template.map(([fieldKey, label, placeholder]) => `
+          <label style="display:grid; gap:7px;">
+            <span class="card-label">${escapeHtml(label)}</span>
+            <textarea
+              class="input input-textarea input-textarea-small"
+              data-aion-department-pilot-discovery-field="${escapeHtml(fieldKey)}"
+              data-department-key="${escapeHtml(key)}"
+              placeholder="${escapeHtml(placeholder || "")}"
+              rows="2"
+              style="background:#ffffff;"
+            >${escapeHtml(discovery[fieldKey] || "")}</textarea>
+          </label>
+        `).join("")}
+      </div>
+
+      <div class="marketing-form-actions" style="margin-top:14px;">
+        <button
+          type="button"
+          class="secondary-btn"
+          data-aion-phase25c-save-discovery="${escapeHtml(key)}"
+        >
+          Save discovery to ledger
+        </button>
+        <button
+          type="button"
+          class="secondary-btn"
+          data-aion-phase25c-build-plan="${escapeHtml(key)}"
+        >
+          Build department plan draft
+        </button>
+        <button
+          type="button"
+          class="primary-btn"
+          data-aion-phase25c-build-queue="${escapeHtml(key)}"
+        >
+          Build safe task queue
+        </button>
+      </div>
+
+      <div class="notice warning" style="margin-top:12px;">
+        Discovery and queue creation are local preview actions only. Pilot has not posted, sent messages, spent money,
+        booked work, deployed changes or mutated live external systems.
+      </div>
+    </section>
+  `;
+}
+
+function renderAionDepartmentPilotPlanPanel(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  const entry = getAionDepartmentLedgerEntry(key);
+  const plan = asRecord(entry.plan) || {};
+  const actions = Array.isArray(plan.action_items) ? plan.action_items : [];
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25c-department-pilot-plan="${escapeHtml(key)}"
+      style="background:#ffffff; margin-top:14px;"
+    >
+      <div class="panel-title">Department Plan Draft</div>
+      ${
+        Object.keys(plan).length
+          ? `
+            <div class="helper-text">${escapeHtml(plan.objective || "Plan draft ready.")}</div>
+            <div class="list-wrap" style="margin-top:12px;">
+              ${actions.map((item) => `
+                <div class="list-item">
+                  <div class="list-item-title">${escapeHtml(item.title || "Action")}</div>
+                  <div class="list-item-sub">${escapeHtml(item.detail || "")}</div>
+                  <div class="badge-row">
+                    <span class="badge">${escapeHtml(item.status || "draft_preview")}</span>
+                    <span class="badge">${item.approval_required === false ? "No approval needed" : "Approval gated"}</span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : `<div class="empty-state">No ${escapeHtml(runtimeShared.getDepartmentLabel(key))} plan draft yet.</div>`
+      }
+    </section>
+  `;
+}
+
+function renderAionDepartmentPilotSafeQueuePanel(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  const entry = getAionDepartmentLedgerEntry(key);
+  const tasks = Array.isArray(entry.tasks) ? entry.tasks : [];
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25c-department-pilot-safe-queue="${escapeHtml(key)}"
+      style="background:#ffffff; margin-top:14px;"
+    >
+      <div class="panel-title">Safe Task Queue</div>
+      ${
+        tasks.length
+          ? `
+            <div class="list-wrap" style="margin-top:12px;">
+              ${tasks.map((task) => `
+                <div class="list-item">
+                  <div class="list-item-title">${escapeHtml(task.title || "Safe task")}</div>
+                  <div class="list-item-sub">${escapeHtml(task.detail || "")}</div>
+                  <div class="badge-row">
+                    <span class="badge">${escapeHtml(task.status || "queued_preview")}</span>
+                    <span class="badge">${escapeHtml(task.safety || "internal_preview_only")}</span>
+                    <span class="badge">No live side effects</span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : `<div class="empty-state">No safe queue for ${escapeHtml(runtimeShared.getDepartmentLabel(key))} yet.</div>`
+      }
+    </section>
+  `;
+}
+
+function renderAionDepartmentPilotLedgerSyncPanel(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  const entry = getAionDepartmentLedgerEntry(key);
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25c-department-pilot-ledger-sync="${escapeHtml(key)}"
+      style="background:#ffffff; margin-top:14px;"
+    >
+      <div class="panel-title">Boardroom Ledger Sync</div>
+      <div class="helper-text">
+        ${escapeHtml(entry.boardroom_summary || `${runtimeShared.getDepartmentLabel(key)} has not written a Boardroom summary yet.`)}
+      </div>
+      <div class="badge-row" style="margin-top:10px;">
+        <span class="badge">Ledger: aion.departmentIntelligence.${escapeHtml(key)}</span>
+        <span class="badge">Updated ${escapeHtml(formatDateTime(entry.last_updated))}</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderAionDepartmentPilotPhase25CPanel(departmentKey = "") {
+  const key = String(departmentKey || "").trim().toLowerCase();
+  if (!key || key === "aion" || key === "pilot") return "";
+
+  return `
+    <div data-aion-phase25c-department-pilot-ledger-writeback="${escapeHtml(key)}">
+      ${renderAionDepartmentPilotDiscoveryPanel(key)}
+      ${renderAionDepartmentPilotPlanPanel(key)}
+      ${renderAionDepartmentPilotSafeQueuePanel(key)}
+      ${renderAionDepartmentPilotLedgerSyncPanel(key)}
+    </div>
+  `;
+}
+
+if (!window.__aionPhase25CDepartmentPilotDiscoveryHandlersInstalled) {
+  window.__aionPhase25CDepartmentPilotDiscoveryHandlersInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const saveButton = event.target?.closest?.("[data-aion-phase25c-save-discovery]");
+    if (saveButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      saveAionDepartmentPilotDiscovery(saveButton.getAttribute("data-aion-phase25c-save-discovery"));
+      return;
+    }
+
+    const planButton = event.target?.closest?.("[data-aion-phase25c-build-plan]");
+    if (planButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      buildAionDepartmentPilotPlanDraft(planButton.getAttribute("data-aion-phase25c-build-plan"));
+      return;
+    }
+
+    const queueButton = event.target?.closest?.("[data-aion-phase25c-build-queue]");
+    if (queueButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      buildAionDepartmentPilotSafeTaskQueue(queueButton.getAttribute("data-aion-phase25c-build-queue"));
+      return;
+    }
+  }, true);
+}
+
+if (typeof window !== "undefined") {
+  window.getAionDepartmentPilotDiscoveryTemplate = getAionDepartmentPilotDiscoveryTemplate;
+  window.saveAionDepartmentPilotDiscovery = saveAionDepartmentPilotDiscovery;
+  window.buildAionDepartmentPilotPlanDraft = buildAionDepartmentPilotPlanDraft;
+  window.buildAionDepartmentPilotSafeTaskQueue = buildAionDepartmentPilotSafeTaskQueue;
+}
+
+/* END PHASE 25C LOCK */
+
 
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard);
@@ -30934,6 +31427,8 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
 
         ${groupedHtml}
       </div>
+
+      ${renderAionDepartmentPilotPhase25CPanel("marketing")}
     </div>
   `;
 }
