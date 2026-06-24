@@ -8530,12 +8530,383 @@ function renderAionCentralAssessmentHookPanel(plan = null) {
   `;
 }
 
+
+const AION_CENTRAL_APPROVED_BOARDROOM_ACTIONS_STORAGE_KEY = "aion.centralApprovedBoardroomActions";
+const AION_CENTRAL_PILOT_QUEUE_STORAGE_KEY = "aion.centralPilotQueue";
+
+function readAionCentralPilotStorageObject(storageKey = "") {
+  try {
+    const raw = window.localStorage?.getItem(storageKey);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed : {};
+  } catch (_error) {
+    return {};
+  }
+}
+
+function writeAionCentralPilotStorageObject(storageKey = "", value = {}) {
+  try {
+    window.localStorage?.setItem(storageKey, JSON.stringify(value || {}));
+  } catch (_error) {
+    // Local preview storage only.
+  }
+  return value || {};
+}
+
+function getAionCentralApprovedBoardroomActions() {
+  const existing =
+    state.centralApprovedBoardroomActions &&
+    typeof state.centralApprovedBoardroomActions === "object" &&
+    !Array.isArray(state.centralApprovedBoardroomActions)
+      ? state.centralApprovedBoardroomActions
+      : readAionCentralPilotStorageObject(AION_CENTRAL_APPROVED_BOARDROOM_ACTIONS_STORAGE_KEY);
+
+  state.centralApprovedBoardroomActions = existing;
+  return existing;
+}
+
+function saveAionCentralApprovedBoardroomActions(next = {}) {
+  const value = next && typeof next === "object" && !Array.isArray(next) ? next : {};
+  state.centralApprovedBoardroomActions = value;
+  return writeAionCentralPilotStorageObject(AION_CENTRAL_APPROVED_BOARDROOM_ACTIONS_STORAGE_KEY, value);
+}
+
+function getAionCentralPilotQueue() {
+  const existing =
+    state.centralPilotQueue &&
+    typeof state.centralPilotQueue === "object" &&
+    !Array.isArray(state.centralPilotQueue)
+      ? state.centralPilotQueue
+      : readAionCentralPilotStorageObject(AION_CENTRAL_PILOT_QUEUE_STORAGE_KEY);
+
+  state.centralPilotQueue = existing;
+  return existing;
+}
+
+function saveAionCentralPilotQueue(next = {}) {
+  const value = next && typeof next === "object" && !Array.isArray(next) ? next : {};
+  state.centralPilotQueue = value;
+  return writeAionCentralPilotStorageObject(AION_CENTRAL_PILOT_QUEUE_STORAGE_KEY, value);
+}
+
+function approveAionCentralBoardroomAction(actionId = "", sourceHook = null) {
+  const id = String(actionId || "").trim();
+  if (!id) return null;
+
+  const hook = sourceHook || buildAionCentralAssessmentHook("");
+  const actionPlan = asRecord(hook.action_plan) || {};
+  const proposedItems = safeArray(actionPlan.items);
+  const proposed = proposedItems.find((item) => String(item?.id || "") === id);
+
+  if (!proposed) return null;
+
+  const now = new Date().toISOString();
+  const approvedActions = getAionCentralApprovedBoardroomActions();
+
+  const approved = {
+    ...proposed,
+    id,
+    status: "approved",
+    approved_at: now,
+    approved_by: "human_operator",
+    source: proposed.source || "central_aion_assessment_hook",
+    approval_required: true,
+    no_live_external_action: true,
+  };
+
+  approvedActions[id] = approved;
+  saveAionCentralApprovedBoardroomActions(approvedActions);
+
+  const queue = buildAionCentralApprovedPilotQueue({ render: false });
+  saveAionCentralPilotQueue(queue);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return approved;
+}
+
+function buildAionCentralApprovedPilotQueue(options = {}) {
+  const approvedActions = getAionCentralApprovedBoardroomActions();
+  const existingQueue = getAionCentralPilotQueue();
+  const now = new Date().toISOString();
+
+  const tasks = Object.values(approvedActions).map((action, index) => {
+    const existing = existingQueue[action.id] || {};
+    return {
+      ...existing,
+      id: action.id || `central_approved_action_${index + 1}`,
+      title: action.title || `Approved Boardroom action ${index + 1}`,
+      source: action.source || "central_aion_assessment_hook",
+      departments: safeArray(action.departments),
+      severity: action.severity || "",
+      status: existing.status || "approved_safe_preview",
+      safety: "internal_preview_only",
+      approval_boundary: "no_live_external_side_effects",
+      approval_required: true,
+      no_live_external_action: true,
+      approved_at: action.approved_at || now,
+      updated_at: now,
+    };
+  });
+
+  const nextQueue = Object.fromEntries(tasks.map((task) => [task.id, task]));
+  saveAionCentralPilotQueue(nextQueue);
+
+  if (options.render !== false && typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return nextQueue;
+}
+
+function getAionCentralPilotNextApprovedTask() {
+  const queue = getAionCentralPilotQueue();
+  return Object.values(queue).find((item) => {
+    const status = String(item?.status || "").toLowerCase();
+    return status === "approved_safe_preview" || status === "queued_safe_preview";
+  }) || null;
+}
+
+function runAionCentralPilotApprovedTask(taskId = "") {
+  const queue = getAionCentralPilotQueue();
+  const id = String(taskId || "").trim() || String(getAionCentralPilotNextApprovedTask()?.id || "");
+  if (!id || !queue[id]) return null;
+
+  const now = new Date().toISOString();
+  const task = queue[id];
+
+  const completedTask = {
+    ...task,
+    status: "completed_preview",
+    completed_at: now,
+    updated_at: now,
+    result_summary: `${task.title || "Approved Boardroom action"} completed as a guarded internal preview. No live external action was taken.`,
+  };
+
+  queue[id] = completedTask;
+  saveAionCentralPilotQueue(queue);
+
+  safeArray(task.departments).forEach((departmentKey) => {
+    const key = normaliseAionDepartmentKey(departmentKey);
+    if (!key) return;
+
+    const ledger = getAionDepartmentIntelligence();
+    const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
+    const existingResults =
+      entry.results && typeof entry.results === "object" && !Array.isArray(entry.results)
+        ? entry.results
+        : {};
+
+    const resultRecord = {
+      id: `${key}_${id}_central_result`,
+      department_key: key,
+      central_task_id: id,
+      title: completedTask.title,
+      status: "results_available",
+      result_type: "central_boardroom_action_preview",
+      summary: completedTask.result_summary,
+      created_at: now,
+      no_live_external_action: true,
+    };
+
+    const evidenceRecord = {
+      id: `${key}_${id}_central_evidence`,
+      department_key: key,
+      central_task_id: id,
+      evidence_type: "central_boardroom_action_result",
+      title: completedTask.title,
+      summary: completedTask.result_summary,
+      created_at: now,
+      provenance: "central_aion_assessment_hook",
+    };
+
+    const receiptRecord = {
+      id: `${key}_${id}_central_receipt`,
+      department_key: key,
+      central_task_id: id,
+      receipt_type: "central_safe_internal_preview",
+      status: "draft_receipt",
+      created_at: now,
+      no_live_external_action: true,
+    };
+
+    updateAionDepartmentIntelligence(key, {
+      status: "central_action_preview_complete",
+      results: {
+        ...existingResults,
+        latest_central_preview: resultRecord,
+        central_preview_history: [
+          ...(Array.isArray(existingResults.central_preview_history) ? existingResults.central_preview_history : []),
+          resultRecord,
+        ],
+      },
+      evidence: [...(Array.isArray(entry.evidence) ? entry.evidence : []), evidenceRecord],
+      receipts: [...(Array.isArray(entry.receipts) ? entry.receipts : []), receiptRecord],
+      boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} received central AION approved action result: ${completedTask.title}. No live external action was taken.`,
+      confidence: "useful",
+      last_updated: now,
+    });
+  });
+
+  const pilotState =
+    typeof getAionPilotFrontendInteractionState === "function"
+      ? getAionPilotFrontendInteractionState()
+      : null;
+
+  if (pilotState) {
+    pilotState.status = "central_approved_task_completed";
+    pilotState.central_pilot_queue = queue;
+    pilotState.stream_events = [
+      ...(Array.isArray(pilotState.stream_events) ? pilotState.stream_events : []),
+      {
+        type: "central_approved_boardroom_action",
+        label: "Approved Boardroom action completed",
+        detail: completedTask.result_summary,
+        status: "completed_preview",
+      },
+    ];
+  }
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return completedTask;
+}
+
+function renderAionCentralApprovedBoardroomActionsPanel(plan = null) {
+  const safePlan = plan || buildAionPilotUniversalPlan("");
+  const hook =
+    safePlan.central_aion_assessment_hook ||
+    buildAionCentralAssessmentHook(safePlan.goal || "");
+
+  const actionPlan = asRecord(hook.action_plan) || {};
+  const proposals = safeArray(actionPlan.items);
+  const approvedActions = getAionCentralApprovedBoardroomActions();
+  const queue = getAionCentralPilotQueue();
+  const nextTask = getAionCentralPilotNextApprovedTask();
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25i-central-approved-boardroom-actions="true"
+      style="background:#ffffff; margin-top:14px;"
+    >
+      <div class="panel-title">Approved Boardroom Actions</div>
+      <div class="helper-text">
+        Convert AION recommendations into guarded Central Pilot internal-preview tasks. Human approval is required before queue creation.
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderDashboardMetricCard("Proposals", proposals.length, "From AION assessment")}
+        ${renderDashboardMetricCard("Approved", Object.keys(approvedActions).length, "Human approved")}
+        ${renderDashboardMetricCard("Central Queue", Object.keys(queue).length, "Safe internal preview")}
+        ${renderDashboardMetricCard("Next Task", nextTask?.title || "None", "No live side effects")}
+      </div>
+
+      <div class="list-wrap" style="margin-top:12px;">
+        ${
+          proposals.length
+            ? proposals.map((item) => {
+                const id = String(item?.id || "");
+                const approved = !!approvedActions[id];
+                return `
+                  <div class="list-item">
+                    <div class="list-item-title">${escapeHtml(item.title || id || "AION recommendation")}</div>
+                    <div class="list-item-sub">Source: ${escapeHtml(item.source || "central_aion_assessment_hook")}</div>
+                    <div class="badge-row">
+                      ${renderStatusBadge(approved ? "approved" : "proposed")}
+                      <span class="badge">${escapeHtml(item.severity || "normal")}</span>
+                      <span class="badge">${escapeHtml(safeArray(item.departments).join(" + ") || "central")}</span>
+                      <button
+                        type="button"
+                        class="secondary-btn"
+                        data-aion-phase25i-approve-boardroom-action="${escapeHtml(id)}"
+                        ${approved ? "disabled" : ""}
+                      >
+                        ${approved ? "Approved" : "Approve action"}
+                      </button>
+                    </div>
+                  </div>
+                `;
+              }).join("")
+            : `<div class="empty-state">No AION action proposals yet.</div>`
+        }
+      </div>
+
+      <div class="marketing-form-actions" style="margin-top:12px;">
+        <button
+          type="button"
+          class="primary-btn"
+          data-aion-phase25i-build-central-queue="true"
+          ${Object.keys(approvedActions).length ? "" : "disabled"}
+        >
+          Build guarded Central Pilot queue
+        </button>
+        <button
+          type="button"
+          class="secondary-btn"
+          data-aion-phase25i-run-central-task="${escapeHtml(nextTask?.id || "")}"
+          ${nextTask ? "" : "disabled"}
+        >
+          Run next approved safe task
+        </button>
+      </div>
+
+      <div class="notice warning" style="margin-top:12px;">
+        Safety: this executes internal preview tasks only. It does not send, publish, spend, book, invoice, deploy or mutate external systems.
+      </div>
+    </section>
+  `;
+}
+
+if (!window.__aionPhase25ICentralBoardroomActionHandlersInstalled) {
+  window.__aionPhase25ICentralBoardroomActionHandlersInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const approveButton = event.target?.closest?.("[data-aion-phase25i-approve-boardroom-action]");
+    if (approveButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      approveAionCentralBoardroomAction(approveButton.getAttribute("data-aion-phase25i-approve-boardroom-action"));
+      return;
+    }
+
+    const buildQueueButton = event.target?.closest?.("[data-aion-phase25i-build-central-queue]");
+    if (buildQueueButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      buildAionCentralApprovedPilotQueue();
+      return;
+    }
+
+    const runButton = event.target?.closest?.("[data-aion-phase25i-run-central-task]");
+    if (runButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      runAionCentralPilotApprovedTask(runButton.getAttribute("data-aion-phase25i-run-central-task"));
+    }
+  }, true);
+}
+
+
 if (typeof window !== "undefined") {
   window.buildAionCentralAssessmentInputBundle = buildAionCentralAssessmentInputBundle;
   window.buildAionCentralBusinessAssessment = buildAionCentralBusinessAssessment;
   window.buildAionCentralApprovalRequiredActionPlan = buildAionCentralApprovalRequiredActionPlan;
   window.buildAionCentralPilotExecutionQueueProposal = buildAionCentralPilotExecutionQueueProposal;
   window.buildAionCentralAssessmentHook = buildAionCentralAssessmentHook;
+  window.getAionCentralApprovedBoardroomActions = getAionCentralApprovedBoardroomActions;
+  window.saveAionCentralApprovedBoardroomActions = saveAionCentralApprovedBoardroomActions;
+  window.getAionCentralPilotQueue = getAionCentralPilotQueue;
+  window.saveAionCentralPilotQueue = saveAionCentralPilotQueue;
+  window.approveAionCentralBoardroomAction = approveAionCentralBoardroomAction;
+  window.buildAionCentralApprovedPilotQueue = buildAionCentralApprovedPilotQueue;
+  window.getAionCentralPilotNextApprovedTask = getAionCentralPilotNextApprovedTask;
+  window.runAionCentralPilotApprovedTask = runAionCentralPilotApprovedTask;
 }
 
 
@@ -31973,6 +32344,7 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
 
       ${renderAionBusinessContextMiniCard("pilot")}
       ${renderAionCentralAssessmentHookPanel(getAionPilotCockpitSnapshot()?.pilot_state?.plan)}
+      ${renderAionCentralApprovedBoardroomActionsPanel(getAionPilotCockpitSnapshot()?.pilot_state?.plan)}
       ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
     </section>
   `;
