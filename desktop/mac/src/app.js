@@ -29652,6 +29652,7 @@ function renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCar
       </div>
 
       ${renderAionDepartmentPilotPhase25CPanel(departmentKey)}
+      ${renderAionDepartmentPilotPhase25DPanel(departmentKey)}
 
       <div class="two-col">
         <div class="panel large-panel">
@@ -30505,6 +30506,270 @@ if (typeof window !== "undefined") {
 }
 
 /* END PHASE 25C LOCK */
+
+
+
+/* PHASE 25D LOCK: Department Plan Approval + Safe Queue Execution */
+
+function getAionDepartmentPilotApprovalState(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  const ledger = getAionDepartmentIntelligence();
+  const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
+  return {
+    status: entry.plan_approval_status || "not_requested",
+    approved_at: entry.plan_approved_at || "",
+    approved_by: entry.plan_approved_by || "",
+    active_task_index: Number.isFinite(Number(entry.active_task_index))
+      ? Number(entry.active_task_index)
+      : 0,
+  };
+}
+
+function approveAionDepartmentPilotPlan(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  if (!key) return null;
+
+  const plan =
+    typeof buildAionDepartmentPilotPlanDraft === "function"
+      ? buildAionDepartmentPilotPlanDraft(key)
+      : {};
+
+  const queue =
+    typeof buildAionDepartmentPilotSafeTaskQueue === "function"
+      ? buildAionDepartmentPilotSafeTaskQueue(key)
+      : [];
+
+  const now = new Date().toISOString();
+
+  const taskQueue = queue.map((item, index) => ({
+    id: item.id || `${key}_safe_task_${index + 1}`,
+    title: item.title || item.label || `Safe task ${index + 1}`,
+    status: item.status || "approved",
+    type: item.type || "safe_internal_preview",
+    approval_boundary: item.approval_boundary || "no_live_external_side_effects",
+    created_at: item.created_at || now,
+    updated_at: now,
+  }));
+
+  const patch = {
+    status: "plan_approved",
+    plan,
+    tasks: taskQueue,
+    plan_approval_status: "approved",
+    plan_approved_at: now,
+    plan_approved_by: "human_operator",
+    active_task_index: 0,
+    boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} plan approved. ${taskQueue.length} safe internal task(s) ready for preview execution.`,
+    confidence: taskQueue.length ? "useful" : "partial",
+    alerts: [],
+    last_updated: now,
+  };
+
+  updateAionDepartmentIntelligence(key, patch);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return patch;
+}
+
+function getAionDepartmentPilotApprovedTaskQueue(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  const ledger = getAionDepartmentIntelligence();
+  const entry = ledger[key] || {};
+  return Array.isArray(entry.tasks) ? entry.tasks : [];
+}
+
+function getAionDepartmentPilotNextSafeTask(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  const queue = getAionDepartmentPilotApprovedTaskQueue(key);
+  return queue.find((item) => {
+    const status = String(item?.status || "").toLowerCase();
+    return status === "approved" || status === "queued" || status === "ready";
+  }) || null;
+}
+
+function runAionDepartmentPilotNextSafeTask(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  if (!key) return null;
+
+  const ledger = getAionDepartmentIntelligence();
+  const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
+  const queue = Array.isArray(entry.tasks) ? entry.tasks : [];
+  const now = new Date().toISOString();
+
+  const nextIndex = queue.findIndex((item) => {
+    const status = String(item?.status || "").toLowerCase();
+    return status === "approved" || status === "queued" || status === "ready";
+  });
+
+  if (nextIndex < 0) {
+    const patch = {
+      status: "safe_queue_complete",
+      boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} has no remaining approved safe internal preview tasks.`,
+      last_updated: now,
+    };
+    updateAionDepartmentIntelligence(key, patch);
+    if (typeof requestRender === "function") requestRender();
+    return patch;
+  }
+
+  const task = queue[nextIndex] || {};
+  const completedTask = {
+    ...task,
+    status: "completed_preview",
+    completed_at: now,
+    updated_at: now,
+    result_summary: `${task.title || "Safe task"} completed as an internal preview. No live external action was taken.`,
+  };
+
+  const nextTasks = queue.map((item, index) => (index === nextIndex ? completedTask : item));
+
+  const runRecord = {
+    id: `${key}_safe_preview_run_${Date.now()}`,
+    department_key: key,
+    title: completedTask.title,
+    status: "completed_preview",
+    source: "department_pilot_safe_queue",
+    created_at: now,
+    updated_at: now,
+    safety_boundary: "no_live_external_side_effects",
+  };
+
+  const receipt = {
+    id: `${key}_safe_preview_receipt_${Date.now()}`,
+    department_key: key,
+    task_id: completedTask.id,
+    receipt_type: "safe_internal_preview",
+    status: "draft_receipt",
+    created_at: now,
+    no_live_external_action: true,
+  };
+
+  const patch = {
+    status: nextTasks.some((item) => ["approved", "queued", "ready"].includes(String(item?.status || "").toLowerCase()))
+      ? "executing_safe_queue"
+      : "safe_queue_complete",
+    tasks: nextTasks,
+    runs: [...(Array.isArray(entry.runs) ? entry.runs : []), runRecord],
+    receipts: [...(Array.isArray(entry.receipts) ? entry.receipts : []), receipt],
+    boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} safe task completed: ${completedTask.title}. No live external action was taken.`,
+    active_task_index: nextIndex + 1,
+    confidence: "useful",
+    alerts: Array.isArray(entry.alerts) ? entry.alerts : [],
+    last_updated: now,
+  };
+
+  updateAionDepartmentIntelligence(key, patch);
+
+  if (typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return patch;
+}
+
+function renderAionDepartmentPilotPhase25DPanel(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  const label = runtimeShared.getDepartmentLabel(key);
+  const approval = getAionDepartmentPilotApprovalState(key);
+  const queue = getAionDepartmentPilotApprovedTaskQueue(key);
+  const nextTask = getAionDepartmentPilotNextSafeTask(key);
+  const completed = queue.filter((item) => String(item?.status || "").toLowerCase() === "completed_preview").length;
+  const pending = queue.length - completed;
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25d-department-pilot-safe-queue="true"
+      data-aion-phase25d-department="${escapeHtml(key)}"
+      style="margin-top:14px; background:#ffffff;"
+    >
+      <div class="panel-title">${escapeHtml(label)} Plan Approval + Safe Queue</div>
+      <div class="helper-text">
+        Approve the department plan, then run safe internal preview tasks. This does not send, publish, spend, book, deploy or mutate external systems.
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderDashboardMetricCard("Plan approval", approval.status, "Human-gated")}
+        ${renderDashboardMetricCard("Safe tasks", queue.length, `${completed} done · ${pending} pending`)}
+        ${renderDashboardMetricCard("Next safe task", nextTask?.title || "None", "Preview only")}
+        ${renderDashboardMetricCard("Live actions", "blocked", "Exact approval required")}
+      </div>
+
+      <div class="marketing-form-actions" style="margin-top:12px;">
+        <button
+          type="button"
+          class="primary-btn"
+          data-aion-phase25d-approve-plan="${escapeHtml(key)}"
+        >
+          Approve ${escapeHtml(label)} plan
+        </button>
+        <button
+          type="button"
+          class="secondary-btn"
+          data-aion-phase25d-run-safe-task="${escapeHtml(key)}"
+          ${nextTask ? "" : "disabled"}
+        >
+          Run next safe task
+        </button>
+      </div>
+
+      ${
+        queue.length
+          ? `
+            <div class="list-wrap" style="margin-top:12px;">
+              ${queue.map((task) => `
+                <div class="list-item">
+                  <div class="list-item-title">${escapeHtml(task.title || task.id || "Safe task")}</div>
+                  <div class="list-item-sub">${escapeHtml(task.result_summary || task.approval_boundary || "Safe internal preview task")}</div>
+                  <div class="badge-row">
+                    ${renderStatusBadge(task.status || "approved")}
+                    <span class="badge">${escapeHtml(task.type || "safe_internal_preview")}</span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : `<div class="empty-state" style="margin-top:12px;">No approved safe queue yet. Approve the department plan to create one.</div>`
+      }
+
+      <div class="notice warning" style="margin-top:12px;">
+        Safety: no emails, posts, ads, payments, bookings, invoices, deployments or external writes are performed by this panel.
+      </div>
+    </section>
+  `;
+}
+
+if (!window.__aionPhase25DDepartmentPilotHandlersInstalled) {
+  window.__aionPhase25DDepartmentPilotHandlersInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const approveButton = event.target?.closest?.("[data-aion-phase25d-approve-plan]");
+    if (approveButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      approveAionDepartmentPilotPlan(approveButton.getAttribute("data-aion-phase25d-approve-plan"));
+      return;
+    }
+
+    const runButton = event.target?.closest?.("[data-aion-phase25d-run-safe-task]");
+    if (runButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      runAionDepartmentPilotNextSafeTask(runButton.getAttribute("data-aion-phase25d-run-safe-task"));
+    }
+  }, true);
+}
+
+if (typeof window !== "undefined") {
+  window.getAionDepartmentPilotApprovalState = getAionDepartmentPilotApprovalState;
+  window.approveAionDepartmentPilotPlan = approveAionDepartmentPilotPlan;
+  window.getAionDepartmentPilotApprovedTaskQueue = getAionDepartmentPilotApprovedTaskQueue;
+  window.getAionDepartmentPilotNextSafeTask = getAionDepartmentPilotNextSafeTask;
+  window.runAionDepartmentPilotNextSafeTask = runAionDepartmentPilotNextSafeTask;
+}
 
 
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
@@ -31429,6 +31694,7 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
       </div>
 
       ${renderAionDepartmentPilotPhase25CPanel("marketing")}
+        ${renderAionDepartmentPilotPhase25DPanel("marketing")}
     </div>
   `;
 }
