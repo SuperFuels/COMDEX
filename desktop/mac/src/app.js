@@ -29654,6 +29654,7 @@ function renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCar
       ${renderAionDepartmentPilotPhase25CPanel(departmentKey)}
       ${renderAionDepartmentPilotPhase25DPanel(departmentKey)}
       ${renderAionDepartmentPilotPhase25EPanel(departmentKey)}
+      ${renderAionDepartmentPilotPhase25FPanel(departmentKey)}
 
       <div class="two-col">
         <div class="panel large-panel">
@@ -31018,6 +31019,317 @@ if (typeof window !== "undefined") {
 }
 
 
+
+/* PHASE 25F LOCK: Department-specific Pilot Expansion */
+
+const AION_DEPARTMENT_PILOT_SPECIALIST_PLAYBOOKS = {
+  marketing: {
+    title: "Marketing Specialist Pilot",
+    objective: "Create campaigns, content, advert previews, lead tracking and proof-led marketing plans.",
+    specialist_fields: ["social_accounts", "current_marketing", "active_offer", "monthly_budget", "best_customers", "service_areas", "past_results", "lead_capture"],
+    outputs: ["campaign_draft", "content_calendar", "advert_preview", "lead_tracking_plan", "proof_assets"],
+    task_templates: [
+      ["marketing_campaign_draft", "Draft campaign concept", "Create a safe internal campaign concept from discovery."],
+      ["marketing_content_calendar", "Draft content calendar", "Prepare a draft content rhythm and post ideas."],
+      ["marketing_ad_preview", "Prepare advert preview", "Prepare advert copy/creative direction without publishing or spending."],
+      ["marketing_lead_tracking", "Prepare lead tracking plan", "Prepare local lead tracking fields and follow-up handoff."],
+    ],
+  },
+  sales: {
+    title: "Sales Specialist Pilot",
+    objective: "Map pipeline, follow-up, quote handling, objections and conversion tracking.",
+    specialist_fields: ["lead_sources", "pipeline_stages", "conversion_rate", "follow_up_process", "pricing_objections"],
+    outputs: ["pipeline_map", "follow_up_sequence", "quote_workflow", "conversion_review"],
+    task_templates: [
+      ["sales_pipeline_map", "Map pipeline", "Create a safe internal sales pipeline map."],
+      ["sales_follow_up_sequence", "Draft follow-up sequence", "Prepare follow-up steps without sending messages."],
+      ["sales_quote_workflow", "Draft quote workflow", "Prepare quote workflow and approval checkpoints."],
+      ["sales_conversion_review", "Prepare conversion review", "Prepare conversion notes and missing metrics."],
+    ],
+  },
+  finance: {
+    title: "Finance Specialist Pilot",
+    objective: "Review pricing, costs, budgets, margins and safe spend boundaries.",
+    specialist_fields: ["pricing", "costs", "budget", "margin", "cash_position", "spend_limits"],
+    outputs: ["pricing_review", "cost_map", "budget_rules", "margin_notes"],
+    task_templates: [
+      ["finance_pricing_review", "Prepare pricing review", "Create a safe internal pricing review."],
+      ["finance_cost_map", "Prepare cost map", "Create a draft cost map from discovery."],
+      ["finance_budget_rules", "Draft budget rules", "Prepare budget guardrails and approval limits."],
+      ["finance_margin_notes", "Prepare margin notes", "Prepare margin observations and missing data."],
+    ],
+  },
+  operations: {
+    title: "Operations Specialist Pilot",
+    objective: "Map workflows, bottlenecks, tools, capacity and automation candidates.",
+    specialist_fields: ["core_workflows", "bottlenecks", "capacity", "tools", "manual_repeat_work"],
+    outputs: ["workflow_map", "bottleneck_review", "automation_candidates", "capacity_notes"],
+    task_templates: [
+      ["operations_workflow_map", "Map workflows", "Create a safe internal workflow map."],
+      ["operations_bottleneck_review", "Review bottlenecks", "Prepare bottleneck notes and risk points."],
+      ["operations_automation_candidates", "List automation candidates", "Prepare automation candidates without changing systems."],
+      ["operations_capacity_notes", "Prepare capacity notes", "Prepare capacity assumptions and missing data."],
+    ],
+  },
+  support: {
+    title: "Support Specialist Pilot",
+    objective: "Map enquiries, response templates, complaints, service gaps and quality signals.",
+    specialist_fields: ["common_enquiries", "support_channels", "response_templates", "complaints", "service_gaps"],
+    outputs: ["support_map", "response_templates", "service_quality_review", "issue_patterns"],
+    task_templates: [
+      ["support_enquiry_map", "Map common enquiries", "Create a safe internal support enquiry map."],
+      ["support_response_templates", "Draft response templates", "Prepare response templates without sending messages."],
+      ["support_quality_review", "Prepare quality review", "Prepare service quality notes and missing signals."],
+      ["support_issue_patterns", "Identify issue patterns", "Prepare common issue patterns and escalation points."],
+    ],
+  },
+};
+
+function getAionDepartmentPilotSpecialistPlaybook(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  return AION_DEPARTMENT_PILOT_SPECIALIST_PLAYBOOKS[key] || {
+    title: `${runtimeShared.getDepartmentLabel(key)} Specialist Pilot`,
+    objective: "Create a safe specialist plan for this department.",
+    specialist_fields: [],
+    outputs: ["department_plan"],
+    task_templates: [
+      [`${key}_specialist_plan`, "Prepare specialist plan", "Create a safe internal department specialist plan."],
+    ],
+  };
+}
+
+function buildAionDepartmentPilotSpecialistDraft(departmentKey = "", options = {}) {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  if (!key) return null;
+
+  const now = new Date().toISOString();
+  const playbook = getAionDepartmentPilotSpecialistPlaybook(key);
+  const entry = getAionDepartmentLedgerEntry(key);
+  const discovery = asRecord(entry.discovery) || {};
+  const existingPlan = asRecord(entry.plan) || {};
+
+  const populatedFields = safeArray(playbook.specialist_fields)
+    .filter((fieldKey) => String(discovery[fieldKey] || "").trim())
+    .map((fieldKey) => ({
+      key: fieldKey,
+      value: String(discovery[fieldKey] || "").trim(),
+    }));
+
+  const specialistPlan = {
+    department: key,
+    title: playbook.title,
+    objective: playbook.objective,
+    populated_fields: populatedFields,
+    missing_fields: safeArray(playbook.specialist_fields).filter((fieldKey) => !String(discovery[fieldKey] || "").trim()),
+    planned_outputs: safeArray(playbook.outputs),
+    task_templates: safeArray(playbook.task_templates).map(([id, title, detail]) => ({
+      id,
+      title,
+      detail,
+      status: "draft_preview",
+      type: "specialist_department_task",
+      approval_required: true,
+      no_live_external_action: true,
+    })),
+    safety_boundary: [
+      "internal_preview_only",
+      "approval_required_before_external_action",
+      "no_public_posting",
+      "no_external_messages",
+      "no_ad_spend",
+      "no_booking",
+      "no_payment",
+      "no_live_system_mutation",
+    ],
+    created_at: now,
+  };
+
+  const patch = {
+    status: "specialist_plan_ready",
+    plan: {
+      ...existingPlan,
+      specialist: specialistPlan,
+    },
+    specialist_plan: specialistPlan,
+    boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} specialist plan ready. ${populatedFields.length} discovery field(s) used. ${specialistPlan.missing_fields.length} field(s) still missing.`,
+    confidence: populatedFields.length >= 3 ? "useful" : populatedFields.length ? "partial" : "empty",
+    alerts: specialistPlan.missing_fields.length
+      ? [`${runtimeShared.getDepartmentLabel(key)} specialist plan has missing discovery fields.`]
+      : [],
+    last_updated: now,
+  };
+
+  updateAionDepartmentIntelligence(key, patch);
+
+  if (options.render !== false && typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return patch;
+}
+
+function buildAionDepartmentPilotSpecialistSafeQueue(departmentKey = "", options = {}) {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  if (!key) return null;
+
+  const now = new Date().toISOString();
+  const specialistPatch = buildAionDepartmentPilotSpecialistDraft(key, { render: false });
+  const entry = getAionDepartmentLedgerEntry(key);
+  const existingTasks = Array.isArray(entry.tasks) ? entry.tasks : [];
+  const specialistPlan = specialistPatch.specialist_plan || {};
+  const taskTemplates = Array.isArray(specialistPlan.task_templates) ? specialistPlan.task_templates : [];
+
+  const specialistTasks = taskTemplates.map((task, index) => ({
+    id: task.id || `${key}_specialist_task_${index + 1}`,
+    title: task.title || `Specialist task ${index + 1}`,
+    detail: task.detail || "",
+    status: "approved",
+    type: task.type || "specialist_department_task",
+    safety: "internal_preview_only",
+    approval_boundary: "no_live_external_side_effects",
+    approval_required: true,
+    no_live_external_action: true,
+    created_at: now,
+    updated_at: now,
+  }));
+
+  const existingSpecialistIds = new Set(specialistTasks.map((task) => task.id));
+  const retainedTasks = existingTasks.filter((task) => !existingSpecialistIds.has(task.id));
+
+  const patch = {
+    status: "specialist_queue_ready",
+    tasks: [...retainedTasks, ...specialistTasks],
+    boardroom_summary: `${runtimeShared.getDepartmentLabel(key)} specialist queue ready with ${specialistTasks.length} safe internal preview task(s).`,
+    confidence: specialistTasks.length ? "useful" : "partial",
+    last_updated: now,
+  };
+
+  updateAionDepartmentIntelligence(key, patch);
+
+  if (options.render !== false && typeof requestRender === "function") {
+    requestRender();
+  }
+
+  return patch;
+}
+
+function renderAionDepartmentPilotPhase25FPanel(departmentKey = "") {
+  const key = normaliseAionDepartmentKey(departmentKey);
+  const label = runtimeShared.getDepartmentLabel(key);
+  const playbook = getAionDepartmentPilotSpecialistPlaybook(key);
+  const entry = getAionDepartmentLedgerEntry(key);
+  const specialistPlan = asRecord(entry.specialist_plan) || asRecord(asRecord(entry.plan || {}).specialist) || {};
+  const specialistTasks = Array.isArray(entry.tasks)
+    ? entry.tasks.filter((task) => String(task?.type || "") === "specialist_department_task")
+    : [];
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25f-department-specialist-pilot="true"
+      data-aion-phase25f-department="${escapeHtml(key)}"
+      style="margin-top:14px; background:#ffffff;"
+    >
+      <div class="panel-title">${escapeHtml(playbook.title || `${label} Specialist Pilot`)}</div>
+      <div class="helper-text">
+        ${escapeHtml(playbook.objective || "Specialist department mode.")}
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderDashboardMetricCard("Specialist status", entry.status || "needs_discovery", "Department-specific")}
+        ${renderDashboardMetricCard("Planned outputs", safeArray(playbook.outputs).length, safeArray(playbook.outputs).join(", ") || "none")}
+        ${renderDashboardMetricCard("Specialist tasks", specialistTasks.length, "Safe internal preview")}
+        ${renderDashboardMetricCard("Live actions", "blocked", "Exact approval required")}
+      </div>
+
+      <div class="marketing-form-actions" style="margin-top:12px;">
+        <button
+          type="button"
+          class="secondary-btn"
+          data-aion-phase25f-build-specialist-plan="${escapeHtml(key)}"
+        >
+          Build ${escapeHtml(label)} specialist plan
+        </button>
+        <button
+          type="button"
+          class="primary-btn"
+          data-aion-phase25f-build-specialist-queue="${escapeHtml(key)}"
+        >
+          Build ${escapeHtml(label)} specialist queue
+        </button>
+      </div>
+
+      ${
+        Object.keys(specialistPlan).length
+          ? `
+            <div class="list-item" style="margin-top:12px;">
+              <div class="list-item-title">${escapeHtml(specialistPlan.title || "Specialist plan")}</div>
+              <div class="list-item-sub">${escapeHtml(specialistPlan.objective || "")}</div>
+              <div class="badge-row">
+                <span class="badge">Fields used ${escapeHtml(String(safeArray(specialistPlan.populated_fields).length))}</span>
+                <span class="badge">Missing ${escapeHtml(String(safeArray(specialistPlan.missing_fields).length))}</span>
+                <span class="badge">Preview only</span>
+              </div>
+            </div>
+          `
+          : `<div class="empty-state" style="margin-top:12px;">No ${escapeHtml(label)} specialist plan yet.</div>`
+      }
+
+      ${
+        specialistTasks.length
+          ? `
+            <div class="list-wrap" style="margin-top:12px;">
+              ${specialistTasks.map((task) => `
+                <div class="list-item">
+                  <div class="list-item-title">${escapeHtml(task.title || task.id || "Specialist task")}</div>
+                  <div class="list-item-sub">${escapeHtml(task.detail || "")}</div>
+                  <div class="badge-row">
+                    ${renderStatusBadge(task.status || "approved")}
+                    <span class="badge">${escapeHtml(task.safety || "internal_preview_only")}</span>
+                    <span class="badge">No live external action</span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : ""
+      }
+
+      <div class="notice warning" style="margin-top:12px;">
+        Specialist Pilot expansion is still guarded. It creates internal plans, queues and previews only.
+      </div>
+    </section>
+  `;
+}
+
+if (!window.__aionPhase25FDepartmentSpecialistHandlersInstalled) {
+  window.__aionPhase25FDepartmentSpecialistHandlersInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const planButton = event.target?.closest?.("[data-aion-phase25f-build-specialist-plan]");
+    if (planButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      buildAionDepartmentPilotSpecialistDraft(planButton.getAttribute("data-aion-phase25f-build-specialist-plan"));
+      return;
+    }
+
+    const queueButton = event.target?.closest?.("[data-aion-phase25f-build-specialist-queue]");
+    if (queueButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      buildAionDepartmentPilotSpecialistSafeQueue(queueButton.getAttribute("data-aion-phase25f-build-specialist-queue"));
+    }
+  }, true);
+}
+
+if (typeof window !== "undefined") {
+  window.getAionDepartmentPilotSpecialistPlaybook = getAionDepartmentPilotSpecialistPlaybook;
+  window.buildAionDepartmentPilotSpecialistDraft = buildAionDepartmentPilotSpecialistDraft;
+  window.buildAionDepartmentPilotSpecialistSafeQueue = buildAionDepartmentPilotSpecialistSafeQueue;
+}
+
+
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard);
 }
@@ -31942,6 +32254,7 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
       ${renderAionDepartmentPilotPhase25CPanel("marketing")}
         ${renderAionDepartmentPilotPhase25DPanel("marketing")}
         ${renderAionDepartmentPilotPhase25EPanel("marketing")}
+        ${renderAionDepartmentPilotPhase25FPanel("marketing")}
     </div>
   `;
 }
