@@ -8109,6 +8109,12 @@ function createAionPilotFrontendDraftMission() {
       detail: "No send, deploy, payment, post, booking or escrow without exact approval",
       status: "blocked",
     },
+    {
+      type: "central_aion_assessment_hook",
+      label: "AION assessment hook prepared",
+      detail: `Assessment confidence ${universalPlan.central_business_assessment?.confidence || "none"} · action proposals ${(universalPlan.central_execution_queue_proposal || []).length}`,
+      status: "proposal_only",
+    },
   ];
 
 
@@ -8281,8 +8287,264 @@ function classifyAionPilotUniversalTask(requestText = "") {
   };
 }
 
+
+/* PHASE 25H LOCK: Central AION Assessment Hook */
+
+function buildAionCentralAssessmentInputBundle(requestText = "") {
+  const foundation =
+    typeof getApprovedSmallBusinessFoundationContext === "function"
+      ? getApprovedSmallBusinessFoundationContext()
+      : {};
+
+  const departmentIntelligence =
+    typeof getAionDepartmentIntelligence === "function"
+      ? getAionDepartmentIntelligence()
+      : {};
+
+  const boardroomSnapshot =
+    typeof getBoardroomSnapshot === "function"
+      ? getBoardroomSnapshot()
+      : {};
+
+  const boardroomRuntime =
+    typeof getBoardroomRuntime === "function"
+      ? getBoardroomRuntime()
+      : {};
+
+  const assessmentFeed =
+    typeof buildAionDepartmentAssessmentFeed === "function"
+      ? buildAionDepartmentAssessmentFeed()
+      : {};
+
+  const crossDepartmentReview =
+    typeof buildAionBoardroomCrossDepartmentReview === "function"
+      ? buildAionBoardroomCrossDepartmentReview()
+      : {};
+
+  const departmentEvidence = {};
+  const departmentReceipts = {};
+  const departmentRuns = {};
+
+  AION_DEPARTMENT_KEYS.forEach((departmentKey) => {
+    const entry = departmentIntelligence[departmentKey] || {};
+    departmentEvidence[departmentKey] = Array.isArray(entry.evidence) ? entry.evidence : [];
+    departmentReceipts[departmentKey] = Array.isArray(entry.receipts) ? entry.receipts : [];
+    departmentRuns[departmentKey] = Array.isArray(entry.runs) ? entry.runs : [];
+  });
+
+  return {
+    request_text: String(requestText || "").trim(),
+    business_foundation: foundation,
+    department_intelligence: departmentIntelligence,
+    boardroom_snapshot: boardroomSnapshot,
+    boardroom_runtime: boardroomRuntime,
+    department_assessment_feed: assessmentFeed,
+    cross_department_review: crossDepartmentReview,
+    department_evidence: departmentEvidence,
+    department_receipts: departmentReceipts,
+    department_runs: departmentRuns,
+    runtime_runs: safeArray(boardroomRuntime.runs),
+    runtime_approvals: safeArray(boardroomRuntime.approvals),
+    generated_at: new Date().toISOString(),
+    safety_boundary: [
+      "assessment_only",
+      "proposal_only",
+      "approval_required_before_execution",
+      "no_live_external_side_effects",
+    ],
+  };
+}
+
+function buildAionCentralBusinessAssessment(inputBundle = {}) {
+  const foundation = asRecord(inputBundle.business_foundation) || {};
+  const crossReview = asRecord(inputBundle.cross_department_review) || {};
+  const feed = asRecord(inputBundle.department_assessment_feed) || {};
+  const conflicts = safeArray(crossReview.conflicts);
+  const missing = safeArray(crossReview.missing_departments);
+  const partial = safeArray(crossReview.partial_departments);
+  const complete = safeArray(crossReview.complete_departments);
+
+  const confidence = crossReview.confidence || feed.confidence || "none";
+  const businessName =
+    foundation.business_name ||
+    foundation.name ||
+    foundation.trading_name ||
+    state.workspaceId ||
+    "the business";
+
+  const recommendations = [
+    ...safeArray(crossReview.opportunities),
+    ...safeArray(crossReview.recommended_next_questions),
+  ];
+
+  return {
+    title: `AION assessment for ${businessName}`,
+    business_name: businessName,
+    confidence,
+    scope:
+      confidence === "full"
+        ? "full_business"
+        : complete.length || partial.length
+          ? "partial_business"
+          : "insufficient_data",
+    complete_departments: complete,
+    partial_departments: partial,
+    missing_departments: missing,
+    conflicts,
+    recommendations,
+    summary:
+      crossReview.summary ||
+      (complete.length || partial.length
+        ? `AION can produce a ${confidence} assessment from available department intelligence.`
+        : "AION needs department discovery, plans or results before a useful business assessment."),
+    created_at: new Date().toISOString(),
+    no_live_external_action: true,
+  };
+}
+
+function buildAionCentralApprovalRequiredActionPlan(inputBundle = {}, assessment = {}) {
+  const recommendations = safeArray(assessment.recommendations);
+  const conflicts = safeArray(assessment.conflicts);
+
+  const recommendationItems = recommendations.map((item, index) => ({
+    id: `central_recommendation_${index + 1}`,
+    title: String(item || `Recommendation ${index + 1}`),
+    source: "cross_department_review",
+    approval_required: true,
+    status: "proposal_only",
+    no_live_external_action: true,
+  }));
+
+  const conflictItems = conflicts.map((item, index) => ({
+    id: item.id || `central_conflict_${index + 1}`,
+    title: item.summary || item.id || `Conflict ${index + 1}`,
+    source: "cross_department_conflict",
+    severity: item.severity || "medium",
+    departments: safeArray(item.departments),
+    approval_required: true,
+    status: "proposal_only",
+    no_live_external_action: true,
+  }));
+
+  return {
+    status: "approval_required",
+    source: "central_aion_assessment_hook",
+    items: [...conflictItems, ...recommendationItems],
+    approval_boundary: [
+      "No emails",
+      "No public posts",
+      "No ad spend",
+      "No bookings",
+      "No payments",
+      "No invoices",
+      "No deployments",
+      "No external writes",
+    ],
+    created_at: new Date().toISOString(),
+  };
+}
+
+function buildAionCentralPilotExecutionQueueProposal(actionPlan = {}) {
+  const items = safeArray(actionPlan.items);
+
+  return items.map((item, index) => ({
+    id: item.id || `central_pilot_proposed_task_${index + 1}`,
+    title: item.title || `Central Pilot proposed task ${index + 1}`,
+    source: item.source || "central_aion_assessment_hook",
+    status: "waiting_human_approval",
+    safety: "proposal_only",
+    approval_required: true,
+    no_live_external_action: true,
+  }));
+}
+
+function buildAionCentralAssessmentHook(requestText = "") {
+  const inputBundle = buildAionCentralAssessmentInputBundle(requestText);
+  const assessment = buildAionCentralBusinessAssessment(inputBundle);
+  const actionPlan = buildAionCentralApprovalRequiredActionPlan(inputBundle, assessment);
+  const executionQueueProposal = buildAionCentralPilotExecutionQueueProposal(actionPlan);
+
+  return {
+    input_bundle: inputBundle,
+    assessment,
+    action_plan: actionPlan,
+    execution_queue_proposal: executionQueueProposal,
+    status: "assessment_ready",
+    created_at: new Date().toISOString(),
+  };
+}
+
+function renderAionCentralAssessmentHookPanel(plan = null) {
+  const safePlan = plan || buildAionPilotUniversalPlan("");
+  const hook =
+    safePlan.central_aion_assessment_hook ||
+    buildAionCentralAssessmentHook(safePlan.goal || "");
+
+  const assessment = asRecord(hook.assessment) || {};
+  const actionPlan = asRecord(hook.action_plan) || {};
+  const queue = safeArray(hook.execution_queue_proposal);
+  const conflicts = safeArray(assessment.conflicts);
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25h-central-assessment-hook="true"
+      style="background:#ffffff;"
+    >
+      <div class="panel-title">Central AION Assessment Hook</div>
+      <div class="helper-text">
+        Central AION reads the business foundation, Department Intelligence Ledger, Boardroom snapshot, runs, evidence, receipts and cross-department review before proposing any action.
+      </div>
+
+      <div class="card-grid" style="margin-top:12px;">
+        ${renderDashboardMetricCard("Assessment", assessment.confidence || "none", assessment.scope || "not ready")}
+        ${renderDashboardMetricCard("Conflicts", conflicts.length, "Cross-department risks")}
+        ${renderDashboardMetricCard("Action Plan", safeArray(actionPlan.items).length, actionPlan.status || "proposal_only")}
+        ${renderDashboardMetricCard("Pilot Queue", queue.length, "Waiting approval")}
+      </div>
+
+      <div class="notice warning" style="margin-top:12px;">
+        ${escapeHtml(assessment.summary || "AION assessment is waiting for department data.")}
+      </div>
+
+      ${
+        queue.length
+          ? `
+            <div class="list-wrap" style="margin-top:12px;">
+              ${queue.map((item) => `
+                <div class="list-item">
+                  <div class="list-item-title">${escapeHtml(item.title || "Proposed task")}</div>
+                  <div class="list-item-sub">Central Pilot proposal. Human approval required before any execution.</div>
+                  <div class="badge-row">
+                    ${renderStatusBadge(item.status || "waiting_human_approval")}
+                    <span class="badge">${escapeHtml(item.safety || "proposal_only")}</span>
+                    <span class="badge">No live external action</span>
+                  </div>
+                </div>
+              `).join("")}
+            </div>
+          `
+          : `<div class="empty-state" style="margin-top:12px;">No central execution queue proposal yet.</div>`
+      }
+    </section>
+  `;
+}
+
+if (typeof window !== "undefined") {
+  window.buildAionCentralAssessmentInputBundle = buildAionCentralAssessmentInputBundle;
+  window.buildAionCentralBusinessAssessment = buildAionCentralBusinessAssessment;
+  window.buildAionCentralApprovalRequiredActionPlan = buildAionCentralApprovalRequiredActionPlan;
+  window.buildAionCentralPilotExecutionQueueProposal = buildAionCentralPilotExecutionQueueProposal;
+  window.buildAionCentralAssessmentHook = buildAionCentralAssessmentHook;
+}
+
+
 function buildAionPilotUniversalPlan(requestText = "") {
   const task = classifyAionPilotUniversalTask(requestText);
+  const centralAssessmentHook =
+    typeof buildAionCentralAssessmentHook === "function"
+      ? buildAionCentralAssessmentHook(requestText)
+      : null;
 
   return {
     task_type: task.task_type,
@@ -8306,6 +8568,10 @@ function buildAionPilotUniversalPlan(requestText = "") {
       "Mutating live memory, templates, reputation or provider state",
     ],
     risk_flags: task.risk_flags,
+    central_aion_assessment_hook: centralAssessmentHook,
+    central_business_assessment: centralAssessmentHook?.assessment || null,
+    central_action_plan: centralAssessmentHook?.action_plan || null,
+    central_execution_queue_proposal: centralAssessmentHook?.execution_queue_proposal || [],
     contract_status: "draft_contract",
   };
 }
@@ -31706,6 +31972,7 @@ function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
     </section>
 
       ${renderAionBusinessContextMiniCard("pilot")}
+      ${renderAionCentralAssessmentHookPanel(getAionPilotCockpitSnapshot()?.pilot_state?.plan)}
       ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
     </section>
   `;
