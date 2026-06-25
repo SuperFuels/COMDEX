@@ -56,7 +56,7 @@ def test_phase25g_uses_department_intelligence_and_assessment_feed():
     assert "getAionDepartmentIntelligence()" in block
     assert "buildAionDepartmentAssessmentFeed" in block
     assert "getAionDepartmentResultEvidenceStatus" in block
-    assert "AION_DEPARTMENT_KEYS.map" in block
+    assert "getAionCoreDepartmentKeys().map" in block
 
 
 def test_phase25g_boardroom_flat_mount_exists():

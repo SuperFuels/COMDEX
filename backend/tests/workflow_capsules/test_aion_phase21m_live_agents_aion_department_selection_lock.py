@@ -30,7 +30,7 @@ def test_phase21m_department_selection_does_not_force_agent_card_first():
 
 def test_phase21m_live_agents_body_routes_aion_to_aion_workspace():
     assert 'if (departmentKey === "aion")' in APP
-    assert "return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);" in APP
+    assert "return renderAionWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in APP
 
 
 def test_phase21m_click_handler_calls_set_workspace_and_selection():

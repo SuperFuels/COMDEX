@@ -7330,6 +7330,7 @@ function renderBoardroomDashboardView(snapshot) {
       </div>
 
       ${renderAionBusinessContextMiniCard("boardroom")}
+      ${renderAionProviderCouncilPanel()}
 
       <div data-aion-phase25j-boardroom-visible-intelligence="true">
         ${renderBoardroomDepartmentIntelligencePanel()}
@@ -8338,7 +8339,7 @@ function buildAionCentralAssessmentInputBundle(requestText = "") {
   const departmentReceipts = {};
   const departmentRuns = {};
 
-  AION_DEPARTMENT_KEYS.forEach((departmentKey) => {
+  getAionCoreDepartmentKeys().forEach((departmentKey) => {
     const entry = departmentIntelligence[departmentKey] || {};
     departmentEvidence[departmentKey] = Array.isArray(entry.evidence) ? entry.evidence : [];
     departmentReceipts[departmentKey] = Array.isArray(entry.receipts) ? entry.receipts : [];
@@ -8703,7 +8704,7 @@ function runAionCentralPilotApprovedTask(taskId = "") {
   saveAionCentralPilotQueue(queue);
 
   safeArray(task.departments).forEach((departmentKey) => {
-    const key = normaliseAionDepartmentKey(departmentKey);
+    const key = normaliseAionDepartmentPilotKey(departmentKey);
     if (!key) return;
 
     const ledger = getAionDepartmentIntelligence();
@@ -14547,6 +14548,12 @@ function renderAionBusinessContextMiniCard(surface = "pilot") {
 
 /* PHASE 25A LOCK: Department Intelligence Ledger + Boardroom sync */
 const AION_DEPARTMENT_INTELLIGENCE_STORAGE_KEY = "aion.departmentIntelligence";
+
+
+function getAionCoreDepartmentKeys() {
+  return ["marketing", "sales", "finance", "operations", "support"];
+}
+
 const AION_DEPARTMENT_INTELLIGENCE_KEYS = ["marketing", "sales", "finance", "operations", "support"];
 
 function isAionDepartmentRecord(value) {
@@ -14926,32 +14933,397 @@ function renderAionDepartmentIntelligenceRow(departmentKey = "", entry = {}) {
   `;
 }
 
-function renderBoardroomDepartmentIntelligencePanel() {
-  const { ledger, coverage } = getAionDepartmentIntelligenceSummary();
+
+/* PHASE 25J UX LOCK: AI Council + Compact Department Ledger */
+
+function formatAionDepartmentStatusForUser(status = "", resultStatus = "") {
+  const rawStatus = String(status || "").toLowerCase();
+  const rawResult = String(resultStatus || "").toLowerCase();
+
+  if (rawResult === "results_available" || rawStatus === "central_action_preview_complete") {
+    return "Results active";
+  }
+
+  if (rawStatus === "ready_to_plan" || rawStatus === "plan_ready" || rawResult === "plan_ready") {
+    return "Discovery active";
+  }
+
+  if (rawStatus.includes("queue")) {
+    return "Queue ready";
+  }
+
+  if (rawStatus === "needs_discovery" || rawResult === "missing" || !rawStatus) {
+    return "Not set up";
+  }
+
+  return prettify(rawStatus);
+}
+
+function getAionDepartmentNextActionLabel(departmentKey = "", entry = {}) {
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
+  const status = String(entry.status || "").toLowerCase();
+  const resultStatus =
+    typeof getAionDepartmentResultEvidenceStatus === "function"
+      ? getAionDepartmentResultEvidenceStatus(entry)
+      : "missing";
+
+  if (resultStatus === "results_available") return "Review";
+  if (status === "ready_to_plan" || status === "plan_ready") return "Continue";
+  if (key === "sales") return "Set up";
+  if (key === "finance") return "Set up";
+  if (key === "operations") return "Set up";
+  if (key === "support") return "Set up";
+  if (key === "marketing") return "Set up";
+  return "Set up";
+}
+
+function getAionProviderCouncilState() {
+  const hasStoredKey = (providerKey) => {
+    try {
+      const possibleKeys = [
+        `aion.provider.${providerKey}.apiKey`,
+        `aion.${providerKey}.apiKey`,
+        `${providerKey}_api_key`,
+        `${providerKey.toUpperCase()}_API_KEY`,
+      ];
+      return possibleKeys.some((storageKey) => !!String(window.localStorage?.getItem(storageKey) || "").trim());
+    } catch (_error) {
+      return false;
+    }
+  };
+
+  const defaultProvider =
+    String(window.localStorage?.getItem("aion.defaultReasoningProvider") || "gemma")
+      .trim()
+      .toLowerCase() || "gemma";
+
+  return [
+    {
+      key: "aion",
+      label: "AION",
+      status: "always_on",
+      role: "Business brain",
+      sub: "always on",
+      symbol: "∞",
+      removable: false,
+      default_llm: false,
+    },
+    {
+      key: "gemma",
+      label: "Gemma",
+      status: "connected",
+      role: "Free local LLM",
+      sub: defaultProvider === "gemma" ? "default reasoning" : "connected",
+      symbol: "G",
+      removable: true,
+      default_llm: defaultProvider === "gemma",
+    },
+    {
+      key: "openai",
+      label: "OpenAI",
+      status: hasStoredKey("openai") ? "connected" : "add_key",
+      role: "External LLM",
+      sub: defaultProvider === "openai" ? "default reasoning" : hasStoredKey("openai") ? "connected" : "add key",
+      symbol: "O",
+      removable: false,
+      default_llm: defaultProvider === "openai",
+    },
+    {
+      key: "claude",
+      label: "Claude",
+      status: hasStoredKey("claude") ? "connected" : "add_key",
+      role: "External LLM",
+      sub: defaultProvider === "claude" ? "default reasoning" : hasStoredKey("claude") ? "connected" : "add key",
+      symbol: "C",
+      removable: false,
+      default_llm: defaultProvider === "claude",
+    },
+    {
+      key: "gemini",
+      label: "Gemini",
+      status: hasStoredKey("gemini") ? "connected" : "add_key",
+      role: "External LLM",
+      sub: defaultProvider === "gemini" ? "default reasoning" : hasStoredKey("gemini") ? "connected" : "add key",
+      symbol: "Ge",
+      removable: false,
+      default_llm: defaultProvider === "gemini",
+    },
+    {
+      key: "grok",
+      label: "Grok",
+      status: hasStoredKey("grok") ? "connected" : "add_key",
+      role: "External LLM",
+      sub: defaultProvider === "grok" ? "default reasoning" : hasStoredKey("grok") ? "connected" : "add key",
+      symbol: "X",
+      removable: false,
+      default_llm: defaultProvider === "grok",
+    },
+  ];
+}
+
+
+if (!window.__aionProviderCouncilHandlersInstalled) {
+  window.__aionProviderCouncilHandlersInstalled = true;
+
+  document.addEventListener("click", (event) => {
+    const defaultButton = event.target?.closest?.("[data-aion-provider-council-default]");
+    if (defaultButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const providerKey = String(defaultButton.getAttribute("data-aion-provider-council-default") || "").trim().toLowerCase();
+      if (providerKey) {
+        window.localStorage?.setItem("aion.defaultReasoningProvider", providerKey);
+        if (typeof requestRender === "function") requestRender();
+      }
+      return;
+    }
+
+    const removeButton = event.target?.closest?.("[data-aion-provider-council-remove]");
+    if (removeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const providerKey = String(removeButton.getAttribute("data-aion-provider-council-remove") || "").trim().toLowerCase();
+      if (providerKey === "gemma") {
+        window.localStorage?.setItem("aion.gemma.disabled", "true");
+        if (window.localStorage?.getItem("aion.defaultReasoningProvider") === "gemma") {
+          window.localStorage?.setItem("aion.defaultReasoningProvider", "aion");
+        }
+        if (typeof requestRender === "function") requestRender();
+      }
+      return;
+    }
+
+    const addKeyButton = event.target?.closest?.("[data-aion-provider-council-add-key], [data-aion-provider-council-add-model]");
+    if (addKeyButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      state.providerSettingsPanelOpen = true;
+      if (typeof requestRender === "function") requestRender();
+    }
+  }, true);
+}
+
+
+function buildAionCompactDepartmentStatusRows() {
+  const ledger = getAionDepartmentIntelligence();
+  return getAionCoreDepartmentKeys().map((key) => {
+    const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
+    const resultStatus =
+      typeof getAionDepartmentResultEvidenceStatus === "function"
+        ? getAionDepartmentResultEvidenceStatus(entry)
+        : "missing";
+
+    const userStatus = formatAionDepartmentStatusForUser(entry.status, resultStatus);
+
+    return {
+      key,
+      label: getAionDepartmentLabel(key),
+      user_status: userStatus,
+      next_action: getAionDepartmentNextActionLabel(key, entry),
+      active: userStatus !== "Not set up",
+      updated: entry.last_updated || "",
+    };
+  });
+}
+
+function renderAionProviderCouncilPanel() {
+  const providers = getAionProviderCouncilState();
+  const connected = providers.filter((provider) =>
+    ["always_on", "connected"].includes(String(provider.status || "")),
+  ).length;
+  const defaultLlm = providers.find((provider) => provider.default_llm) || providers.find((provider) => provider.key === "gemma");
 
   return `
-    <section class="panel large-panel" data-aion-department-intelligence-boardroom="true">
-      <div class="panel-title">Department Intelligence Ledger</div>
-      <div class="helper-text" style="margin-bottom:12px;">
-        Shared context bus for department Pilot discovery, plans, runs, results, evidence and Boardroom assessment.
+    <section
+      data-aion-phase25j-provider-council="true"
+      style="
+        margin:18px 0;
+        padding:22px 24px 24px;
+        background:#fbfaf6;
+        border:1px solid rgba(17,17,17,0.10);
+        color:#111111;
+      "
+    >
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:18px; margin-bottom:16px;">
+        <div>
+          <div class="panel-title">AI Council</div>
+          <div class="helper-text">
+            AION is the business brain. Gemma is the free local default LLM. Connect paid/API models and choose a stronger default when available.
+          </div>
+        </div>
+        <div class="badge-row" style="justify-content:flex-end;">
+          <span class="badge">${escapeHtml(connected)} connected</span>
+          <span class="badge">Default LLM: ${escapeHtml(defaultLlm?.label || "Gemma")}</span>
+          <button
+            type="button"
+            class="secondary-btn"
+            data-aion-provider-council-add-model="true"
+            style="padding:7px 10px; border-radius:999px;"
+          >
+            + Add model
+          </button>
+        </div>
       </div>
 
-      <div class="card-grid" style="margin-bottom:14px;">
-        ${renderBoardroomMetricCard("Assessment", coverage.confidence, "Cross-department confidence")}
-        ${renderBoardroomMetricCard("Complete", coverage.complete_departments.length, "Departments with live results")}
-        ${renderBoardroomMetricCard("Partial", coverage.partial_departments.length, "Discovery or plan present")}
-        ${renderBoardroomMetricCard("Missing", coverage.missing_departments.length, "Still needs discovery")}
+      <div style="display:grid; grid-template-columns:repeat(6,minmax(120px,1fr)); gap:12px;">
+        ${providers.map((provider) => {
+          const active = ["always_on", "connected"].includes(String(provider.status || ""));
+          const isAion = provider.key === "aion";
+          const isDefault = provider.default_llm === true;
+          return `
+            <div
+              data-aion-provider-council-seat="${escapeHtml(provider.key)}"
+              style="
+                min-height:126px;
+                border-radius:14px;
+                border:1px solid ${isAion || isDefault ? "rgba(37,99,235,0.45)" : active ? "rgba(17,17,17,0.16)" : "rgba(17,17,17,0.10)"};
+                border-style:${active ? "solid" : "dashed"};
+                background:${isAion || isDefault ? "rgba(59,130,246,0.06)" : active ? "#ffffff" : "rgba(17,17,17,0.025)"};
+                opacity:${active ? "1" : "0.58"};
+                display:grid;
+                align-content:center;
+                justify-items:center;
+                text-align:center;
+                padding:14px 10px;
+              "
+            >
+              <div
+                style="
+                  width:42px;
+                  height:42px;
+                  border-radius:999px;
+                  display:grid;
+                  place-items:center;
+                  background:${isAion || isDefault ? "rgba(59,130,246,0.16)" : "rgba(17,17,17,0.04)"};
+                  border:1px solid ${isAion || isDefault ? "rgba(37,99,235,0.40)" : "rgba(17,17,17,0.14)"};
+                  color:${isAion || isDefault ? "#2563eb" : "rgba(17,17,17,0.68)"};
+                  font-size:15px;
+                  font-weight:900;
+                  margin-bottom:8px;
+                "
+              >
+                ${escapeHtml(provider.symbol)}
+              </div>
+              <div style="font-size:17px; font-weight:850; color:#111111;">${escapeHtml(provider.label)}</div>
+              <div style="font-size:13px; color:${isAion || isDefault ? "#2563eb" : "rgba(17,17,17,0.58)"}; margin-top:3px; font-weight:700;">
+                ${escapeHtml(provider.sub)}
+              </div>
+              <div style="font-size:12px; color:rgba(17,17,17,0.48); margin-top:4px;">
+                ${escapeHtml(provider.role)}
+              </div>
+              ${
+                provider.key !== "aion"
+                  ? `
+                    <div class="badge-row" style="justify-content:center; margin-top:8px;">
+                      ${
+                        provider.status === "connected"
+                          ? `<button type="button" class="secondary-btn" data-aion-provider-council-default="${escapeHtml(provider.key)}" style="padding:5px 8px; font-size:11px;">Make default</button>`
+                          : `<button type="button" class="secondary-btn" data-aion-provider-council-add-key="${escapeHtml(provider.key)}" style="padding:5px 8px; font-size:11px;">Add key</button>`
+                      }
+                      ${
+                        provider.removable
+                          ? `<button type="button" class="secondary-btn" data-aion-provider-council-remove="${escapeHtml(provider.key)}" style="padding:5px 8px; font-size:11px;">Remove</button>`
+                          : ""
+                      }
+                    </div>
+                  `
+                  : ""
+              }
+            </div>
+          `;
+        }).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderCompactDepartmentStatusBoard() {
+  const rows = buildAionCompactDepartmentStatusRows();
+  const active = rows.filter((row) => row.active).length;
+  const inactive = rows.length - active;
+
+  return `
+    <div
+      data-aion-phase25j-compact-department-status-board="true"
+      style="margin-top:18px;"
+    >
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; gap:12px; margin-bottom:12px;">
+        <div>
+          <div style="font-size:13px; letter-spacing:0.16em; text-transform:uppercase; color:rgba(17,17,17,0.48); font-weight:850;">
+            Department Intelligence Ledger
+          </div>
+          <div style="font-size:16px; color:rgba(17,17,17,0.68); margin-top:6px;">
+            Shared context the council assesses before any department plan runs.
+          </div>
+        </div>
+        <div style="font-size:15px; color:rgba(17,17,17,0.58); font-weight:800;">
+          ${escapeHtml(active)} active · ${escapeHtml(inactive)} not started
+        </div>
       </div>
 
-      <div class="notice">
-        ${escapeHtml(coverage.summary)}
+      <div style="display:grid; grid-template-columns:repeat(5,minmax(150px,1fr)); gap:12px;">
+        ${rows.map((row) => `
+          <div
+            data-aion-compact-department-card="${escapeHtml(row.key)}"
+            style="
+              min-height:104px;
+              border-radius:12px;
+              background:${row.active ? "#f8f5ee" : "#f3f1eb"};
+              border:1px solid rgba(17,17,17,0.10);
+              border-left:4px solid ${row.active ? "#3b82f6" : "rgba(17,17,17,0.16)"};
+              padding:16px 18px;
+              display:grid;
+              align-content:start;
+              gap:7px;
+            "
+          >
+            <div style="font-size:18px; font-weight:900; color:#111111;">${escapeHtml(row.label)}</div>
+            <div style="font-size:15px; color:${row.active ? "#2563eb" : "rgba(17,17,17,0.50)"}; font-weight:750;">
+              ${escapeHtml(row.user_status)}
+            </div>
+            <div style="font-size:13px; color:rgba(17,17,17,0.55);">
+              ${escapeHtml(row.updated ? "Updated today" : "Not started")}
+            </div>
+            ${
+              row.active
+                ? ""
+                : `<button type="button" class="secondary-btn live-department-open-btn" data-department-key="${escapeHtml(row.key)}" data-live-view="${escapeHtml(LIVE_AGENT_VIEWS.STREAM)}" style="justify-self:start; margin-top:4px; padding:7px 12px;">Set up</button>`
+            }
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderBoardroomDepartmentIntelligencePanel() {
+  const { coverage } = getAionDepartmentIntelligenceSummary();
+  const useful = [
+    ...safeArray(coverage.complete_departments),
+    ...safeArray(coverage.partial_departments),
+  ].map(getAionDepartmentLabel);
+
+  return `
+    <section
+      class="panel large-panel"
+      data-aion-phase25a-boardroom-department-intelligence="true"
+      style="background:#ffffff;"
+    >
+      <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+        <div>
+          <div class="panel-title">Business Readiness</div>
+          <div class="helper-text">
+            ${escapeHtml(
+              useful.length
+                ? `AION can review ${useful.join(", ")}. Connect the remaining departments for a full business assessment.`
+                : "Set up at least one department so AION can start assessing the business.",
+            )}
+          </div>
+        </div>
+        <div class="status-pill">${escapeHtml(coverage.confidence)} confidence</div>
       </div>
 
-      <div class="list-wrap" style="margin-top:14px;">
-        ${AION_DEPARTMENT_INTELLIGENCE_KEYS.map((key) =>
-          renderAionDepartmentIntelligenceRow(key, ledger[key] || {})
-        ).join("")}
-      </div>
+      ${renderCompactDepartmentStatusBoard()}
     </section>
   `;
 }
@@ -31207,7 +31579,7 @@ if (typeof window !== "undefined") {
 /* PHASE 25D LOCK: Department Plan Approval + Safe Queue Execution */
 
 function getAionDepartmentPilotApprovalState(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   const ledger = getAionDepartmentIntelligence();
   const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
   return {
@@ -31221,7 +31593,7 @@ function getAionDepartmentPilotApprovalState(departmentKey = "") {
 }
 
 function approveAionDepartmentPilotPlan(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   if (!key) return null;
 
   const plan =
@@ -31270,14 +31642,14 @@ function approveAionDepartmentPilotPlan(departmentKey = "") {
 }
 
 function getAionDepartmentPilotApprovedTaskQueue(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   const ledger = getAionDepartmentIntelligence();
   const entry = ledger[key] || {};
   return Array.isArray(entry.tasks) ? entry.tasks : [];
 }
 
 function getAionDepartmentPilotNextSafeTask(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   const queue = getAionDepartmentPilotApprovedTaskQueue(key);
   return queue.find((item) => {
     const status = String(item?.status || "").toLowerCase();
@@ -31286,7 +31658,7 @@ function getAionDepartmentPilotNextSafeTask(departmentKey = "") {
 }
 
 function runAionDepartmentPilotNextSafeTask(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   if (!key) return null;
 
   const ledger = getAionDepartmentIntelligence();
@@ -31404,7 +31776,7 @@ function runAionDepartmentPilotNextSafeTask(departmentKey = "") {
 }
 
 function renderAionDepartmentPilotPhase25DPanel(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   const label = runtimeShared.getDepartmentLabel(key);
   const approval = getAionDepartmentPilotApprovalState(key);
   const queue = getAionDepartmentPilotApprovedTaskQueue(key);
@@ -31531,7 +31903,7 @@ function buildAionDepartmentAssessmentFeed() {
       ? getAionBoardroomAssessmentCoverage()
       : { confidence: "none", complete_departments: [], partial_departments: [], missing_departments: [] };
 
-  const departments = AION_DEPARTMENT_KEYS.map((key) => {
+  const departments = getAionCoreDepartmentKeys().map((key) => {
     const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
     const results = entry.results && typeof entry.results === "object" && !Array.isArray(entry.results)
       ? entry.results
@@ -31651,7 +32023,7 @@ function renderBoardroomSpatialAssessmentFeedPanel() {
 }
 
 function renderAionDepartmentPilotPhase25EPanel(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   const ledger = getAionDepartmentIntelligence();
   const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
   const label = runtimeShared.getDepartmentLabel(key);
@@ -31779,7 +32151,7 @@ const AION_DEPARTMENT_PILOT_SPECIALIST_PLAYBOOKS = {
 };
 
 function getAionDepartmentPilotSpecialistPlaybook(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   return AION_DEPARTMENT_PILOT_SPECIALIST_PLAYBOOKS[key] || {
     title: `${runtimeShared.getDepartmentLabel(key)} Specialist Pilot`,
     objective: "Create a safe specialist plan for this department.",
@@ -31792,7 +32164,7 @@ function getAionDepartmentPilotSpecialistPlaybook(departmentKey = "") {
 }
 
 function buildAionDepartmentPilotSpecialistDraft(departmentKey = "", options = {}) {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   if (!key) return null;
 
   const now = new Date().toISOString();
@@ -31862,7 +32234,7 @@ function buildAionDepartmentPilotSpecialistDraft(departmentKey = "", options = {
 }
 
 function buildAionDepartmentPilotSpecialistSafeQueue(departmentKey = "", options = {}) {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   if (!key) return null;
 
   const now = new Date().toISOString();
@@ -31907,7 +32279,7 @@ function buildAionDepartmentPilotSpecialistSafeQueue(departmentKey = "", options
 }
 
 function renderAionDepartmentPilotPhase25FPanel(departmentKey = "") {
-  const key = normaliseAionDepartmentKey(departmentKey);
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
   const label = runtimeShared.getDepartmentLabel(key);
   const playbook = getAionDepartmentPilotSpecialistPlaybook(key);
   const entry = getAionDepartmentLedgerEntry(key);
@@ -32033,21 +32405,60 @@ function classifyAionDepartmentCrossReviewState(entry = {}) {
       ? getAionDepartmentResultEvidenceStatus(entry)
       : "missing";
 
+  const discovery = entry.discovery && typeof entry.discovery === "object" ? entry.discovery : {};
+  const plan = entry.plan && typeof entry.plan === "object" ? entry.plan : {};
+  const tasks = Array.isArray(entry.tasks) ? entry.tasks : [];
+  const runs = Array.isArray(entry.runs) ? entry.runs : [];
+  const evidence = Array.isArray(entry.evidence) ? entry.evidence : [];
+  const receipts = Array.isArray(entry.receipts) ? entry.receipts : [];
+  const results = entry.results && typeof entry.results === "object" ? entry.results : {};
+
+  const hasDiscovery = Object.keys(discovery).some((key) => String(discovery[key] || "").trim());
+  const hasPlan = Object.keys(plan).length > 0 || !!entry.specialist_plan;
+  const hasQueue = tasks.length > 0;
+  const hasRuns = runs.length > 0;
+  const hasEvidence = evidence.length > 0 || receipts.length > 0;
+  const hasResults = Object.keys(results).length > 0 || resultStatus === "results_available";
+
   if (
-    resultStatus === "results_available" ||
+    !hasDiscovery &&
+    !hasPlan &&
+    !hasQueue &&
+    !hasRuns &&
+    !hasEvidence &&
+    !hasResults
+  ) {
+    return "missing";
+  }
+
+  if (
+    status === "needs_discovery" &&
+    !hasPlan &&
+    !hasQueue &&
+    !hasRuns &&
+    !hasEvidence &&
+    !hasResults
+  ) {
+    return "missing";
+  }
+
+  if (
+    hasResults ||
+    hasEvidence ||
     status === "safe_queue_complete" ||
-    status === "specialist_queue_ready"
+    status === "central_action_preview_complete"
   ) {
     return "complete";
   }
 
   if (
-    resultStatus === "runs_available" ||
-    resultStatus === "tasks_ready" ||
+    hasDiscovery ||
+    hasPlan ||
+    hasQueue ||
+    hasRuns ||
     resultStatus === "plan_ready" ||
-    status.includes("plan") ||
-    status.includes("queue") ||
-    status.includes("discovery")
+    resultStatus === "tasks_ready" ||
+    resultStatus === "runs_available"
   ) {
     return "partial";
   }
@@ -32062,7 +32473,7 @@ function buildAionBoardroomCrossDepartmentReview() {
       ? buildAionDepartmentAssessmentFeed()
       : null;
 
-  const departments = AION_DEPARTMENT_KEYS.map((key) => {
+  const departments = getAionCoreDepartmentKeys().map((key) => {
     const entry = ledger[key] || normaliseAionDepartmentIntelligenceEntry(key, {});
     const reviewState = classifyAionDepartmentCrossReviewState(entry);
     const resultStatus =
@@ -32173,7 +32584,7 @@ function buildAionBoardroomCrossDepartmentReview() {
   });
 
   const confidence =
-    complete_departments.length === AION_DEPARTMENT_KEYS.length
+    complete_departments.length === getAionCoreDepartmentKeys().length
       ? "full"
       : complete_departments.length >= 3
         ? "strong"
@@ -34161,68 +34572,83 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   const activeView = getLiveAgentsView();
   const departmentKey = getSelectedLiveDepartmentKey();
 
+  /*
+   * PHASE 25J HOTFIX:
+   * The Live Agents department tab is the source of truth for department scope.
+   * Do not let a stale selectedAgentCard from another department render Finance inside Marketing,
+   * Sales inside Operations, etc.
+   */
+  const scopedSelectedAgentCard =
+    selectedAgentCard && typeof selectedAgentCard === "object"
+      ? {
+          ...selectedAgentCard,
+          departmentKey,
+          department: departmentKey,
+        }
+      : selectedAgentCard;
+
   if (departmentKey === "aion") {
     if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
-      return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
+      return renderDepartmentApprovalsSurface(departmentKey, scopedSelectedAgentCard);
     }
 
-    return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);
+    return renderAionWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "pilot") {
     if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
-      return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
+      return renderDepartmentApprovalsSurface(departmentKey, scopedSelectedAgentCard);
     }
 
-    return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);
+    return renderAionWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (activeView === LIVE_AGENT_VIEWS.APPROVALS) {
-    return renderDepartmentApprovalsSurface(departmentKey, selectedAgentCard);
+    return renderDepartmentApprovalsSurface(departmentKey, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "marketing") {
     if (activeView === LIVE_AGENT_VIEWS.CALENDAR) {
-      return renderLiveAgentCalendarView(selectedRuns, selectedAgentCard);
+      return renderLiveAgentCalendarView(selectedRuns, scopedSelectedAgentCard);
     }
 
     if (activeView === LIVE_AGENT_VIEWS.RUNS) {
-      return renderLiveAgentRunsView(selectedRuns, selectedAgentCard);
+      return renderLiveAgentRunsView(selectedRuns, scopedSelectedAgentCard);
     }
 
     if (activeView === LIVE_AGENT_VIEWS.SETTINGS) {
-      return renderLiveAgentSettingsView(selectedAgentCard);
+      return renderLiveAgentSettingsView(scopedSelectedAgentCard);
     }
 
     if (getLiveAgentsMarketingWorkspaceMode() === "manual") {
       return renderMarketingManualWorkspaceSurface();
     }
 
-    return renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard);
+    return renderPilotMarketingWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (activeView === LIVE_AGENT_VIEWS.SETTINGS) {
-    return renderLiveAgentSettingsView(selectedAgentCard);
+    return renderLiveAgentSettingsView(scopedSelectedAgentCard);
   }
 
   if (activeView === LIVE_AGENT_VIEWS.RUNS) {
-    return renderLiveAgentRunsView(selectedRuns, selectedAgentCard);
+    return renderLiveAgentRunsView(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "finance") {
-    return renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard);
+    return renderFinanceWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "sales") {
-    return renderSalesWorkspaceSurface(selectedRuns, selectedAgentCard);
+    return renderSalesWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "operations") {
-    return renderOperationsWorkspaceSurface(selectedRuns, selectedAgentCard);
+    return renderOperationsWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "support") {
-    return renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard);
+    return renderSupportWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "builder") {
