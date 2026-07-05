@@ -351,3 +351,17 @@ backend/models/all-MiniLM-L6-v2/**
 
 # Local desktop app backup snapshots
 desktop/mac/src/app.before-node-editor-cleanup.*.js
+
+# Local secrets / env
+.env.local
+backend/.env.local
+backend/env.local
+desktop/mac/.env
+desktop/mac/.env.local
+desktop/mac/env.local
+# Local backups / scratch
+*.before_*
+*.before-*
+*.after-*
+desktop/mac/src/app.js.before*
+desktop/mac/src/app.js.after*

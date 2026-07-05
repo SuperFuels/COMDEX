@@ -57,6 +57,7 @@ USER_USABLE_ARTIFACT_TYPES = {
     "mission_receipt",
     "evidence_bundle",
     "export",
+    "boardroom_session",
 }
 
 

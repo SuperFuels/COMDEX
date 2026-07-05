@@ -47,6 +47,7 @@ os.environ.setdefault("DATA_ROOT", DATA_DIR)
 from fastapi import FastAPI, APIRouter, Request, HTTPException, WebSocket, WebSocketDisconnect
 from backend.api.workflow_architect_router import router as workflow_architect_router
 from backend.api.vault_router import router as vault_router
+from backend.api.boardroom_provider_router import router as boardroom_provider_router
 from backend.api import workflow_capsule_router
 from backend.api import workflow_glyph_router
 from fastapi.middleware.cors import CORSMiddleware
@@ -256,6 +257,7 @@ app.include_router(workflow_capsule_router.router)
 app.include_router(workflow_glyph_router.router)
 app.include_router(workflow_architect_router)
 app.include_router(vault_router)
+app.include_router(boardroom_provider_router)
 
 RUNTIME_DIR = Path(".runtime").resolve()
 
@@ -1683,6 +1685,67 @@ async def proxy_control(ws: WebSocket):
     await _ws_proxy(ws, "ws://127.0.0.1:8004/ws/control", "Control")
 
 # ── 21) Run via Uvicorn when executed directly
+
+# AION O3B: preview-safe business endpoint fallbacks for desktop demo runtime.
+# These endpoints are read-only and exist to prevent 404 console noise during the
+# founder demo when the desktop UI asks for registered business preview metadata.
+@app.get("/api/aion/business/brand-foundation/{business_id}")
+def aion_business_brand_foundation_preview_endpoint(business_id: str):
+    safe_business_id = str(business_id or "business_not_registered").strip() or "business_not_registered"
+    safe_name = safe_business_id.replace("_", " ").replace("-", " ").title()
+
+    return {
+        "schema_version": "aion.business_brand_foundation_preview.v1",
+        "status": "preview_ready",
+        "business_id": safe_business_id,
+        "business_name": safe_name,
+        "identity_source": "registered_business_information_or_business_container",
+        "brand_foundation": {
+            "positioning": "Registered business preview foundation.",
+            "tone": "professional",
+            "audience": "customers and operators",
+            "preview_only": True,
+        },
+        "safety_profile": {
+            "preview_only": True,
+            "read_only": True,
+            "no_live_side_effects": True,
+            "no_booking_created": True,
+            "no_payment_created": True,
+            "no_customer_message_sent": True,
+        },
+    }
+
+
+@app.get("/api/aion/business/boardroom/{business_id}")
+def aion_business_boardroom_preview_endpoint(business_id: str):
+    safe_business_id = str(business_id or "business_not_registered").strip() or "business_not_registered"
+    safe_name = safe_business_id.replace("_", " ").replace("-", " ").title()
+
+    return {
+        "schema_version": "aion.business_boardroom_preview.v1",
+        "status": "preview_ready",
+        "business_id": safe_business_id,
+        "business_name": safe_name,
+        "identity_source": "registered_business_information_or_business_container",
+        "boardroom": {
+            "mode": "preview",
+            "central_pilot": "existing_central_pilot",
+            "department_pilots": ["marketing", "sales", "finance", "operations", "support"],
+            "goal_loop_preview_ready": True,
+            "preview_only": True,
+        },
+        "safety_profile": {
+            "preview_only": True,
+            "read_only": True,
+            "no_live_side_effects": True,
+            "no_booking_created": True,
+            "no_payment_created": True,
+            "no_customer_message_sent": True,
+        },
+    }
+
+
 if __name__ == "__main__":
     uvicorn.run(
         "backend.main:app",
@@ -1786,3 +1849,178 @@ def verify_snapshot(steps: int = 1024, dt_ms: int = 16, spec_version: str = "v1"
 
     append_ledger(cert)
     return cert
+
+
+# BEGIN AION O19K ELEVENLABS VOICE BRIDGE LOCK
+# Safe backend TTS bridge for AION onboarding voice.
+# - API key stays server-side.
+# - Frontend never receives ELEVENLABS_API_KEY.
+# - Browser speechSynthesis remains frontend fallback.
+import json as _aion_o19k_json
+import os as _aion_o19k_os
+import urllib.error as _aion_o19k_urllib_error
+import urllib.request as _aion_o19k_urllib_request
+
+try:
+    from fastapi import Request as _AionO19KFastAPIRequest
+    from fastapi import Response as _AionO19KFastAPIResponse
+except Exception:  # pragma: no cover
+    _AionO19KFastAPIRequest = None
+    _AionO19KFastAPIResponse = None
+
+
+_AION_O19K_DEFAULT_ELEVENLABS_VOICE_ID = "onwK4e9ZLuTAKqWW03F9"
+_AION_O19K_DEFAULT_ELEVENLABS_MODEL_ID = "eleven_multilingual_v2"
+
+
+def _aion_o19k_env(name: str, default: str = "") -> str:
+    """Read env first, then common local env files without printing secrets."""
+    value = _aion_o19k_os.getenv(name)
+    if value:
+        return value.strip().strip('"').strip("'")
+
+    for env_path in (
+        "env.local",
+        ".env",
+        ".env.local",
+        "backend/env.local",
+        "backend/.env",
+        "backend/.env.local",
+        "desktop/mac/env.local",
+        "desktop/mac/.env",
+        "desktop/mac/.env.local",
+    ):
+        try:
+            p = _aion_o19k_os.path.abspath(env_path)
+            if not _aion_o19k_os.path.exists(p):
+                continue
+            with open(p, "r", encoding="utf-8") as handle:
+                for raw in handle:
+                    line = raw.strip()
+                    if not line or line.startswith("#") or "=" not in line:
+                        continue
+                    key, val = line.split("=", 1)
+                    if key.strip() == name:
+                        return val.strip().strip('"').strip("'")
+        except Exception:
+            continue
+
+    return default
+
+
+def _aion_o19k_json_response(payload: dict, status_code: int = 200):
+    return _AionO19KFastAPIResponse(
+        content=_aion_o19k_json.dumps(payload),
+        status_code=status_code,
+        media_type="application/json",
+    )
+
+
+if "app" in globals() and _AionO19KFastAPIRequest is not None and _AionO19KFastAPIResponse is not None:
+    @app.post("/api/aion/voice/tts")
+    async def aion_o19k_elevenlabs_voice_tts(request: _AionO19KFastAPIRequest):
+        body = await request.json()
+        text = str(body.get("text") or "").strip()
+
+        if not text:
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "missing_text",
+            }, 400)
+
+        # Keep requests sane for onboarding voice. Long scripts can be chunked later.
+        text = text[:4200]
+
+        api_key = _aion_o19k_env("ELEVENLABS_API_KEY", "")
+        voice_id = str(
+            body.get("voice_id")
+            or _aion_o19k_env("AION_ELEVENLABS_VOICE_ID", "")
+            or _aion_o19k_env("ELEVENLABS_VOICE_ID", "")
+            or _AION_O19K_DEFAULT_ELEVENLABS_VOICE_ID
+        ).strip()
+
+        model_id = str(
+            body.get("model_id")
+            or _aion_o19k_env("ELEVENLABS_MODEL_ID", "")
+            or _AION_O19K_DEFAULT_ELEVENLABS_MODEL_ID
+        ).strip()
+
+        if not api_key:
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "missing_ELEVENLABS_API_KEY",
+                "voice_id": voice_id,
+                "model_id": model_id,
+            }, 503)
+
+        payload = {
+            "text": text,
+            "model_id": model_id,
+            "voice_settings": {
+                "stability": float(body.get("stability", 0.48)),
+                "similarity_boost": float(body.get("similarity_boost", 0.82)),
+                "style": float(body.get("style", 0.18)),
+                "use_speaker_boost": bool(body.get("use_speaker_boost", True)),
+            },
+        }
+
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
+        req = _aion_o19k_urllib_request.Request(
+            url,
+            data=_aion_o19k_json.dumps(payload).encode("utf-8"),
+            method="POST",
+            headers={
+                "xi-api-key": api_key,
+                "accept": "audio/mpeg",
+                "content-type": "application/json",
+            },
+        )
+
+        try:
+            with _aion_o19k_urllib_request.urlopen(req, timeout=45) as response:
+                audio = response.read()
+
+            return _AionO19KFastAPIResponse(
+                content=audio,
+                media_type="audio/mpeg",
+                headers={
+                    "x-aion-voice-provider": "elevenlabs",
+                    "x-aion-voice-id": voice_id,
+                    "x-aion-voice-model": model_id,
+                },
+            )
+
+        except _aion_o19k_urllib_error.HTTPError as error:
+            try:
+                detail = error.read().decode("utf-8", errors="ignore")[:500]
+            except Exception:
+                detail = ""
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "elevenlabs_http_error",
+                "status": int(getattr(error, "code", 500) or 500),
+                "detail": detail,
+                "voice_id": voice_id,
+                "model_id": model_id,
+            }, 502)
+
+        except Exception as error:
+            return _aion_o19k_json_response({
+                "ok": False,
+                "provider": "elevenlabs",
+                "fallback": "browser_speech",
+                "reason": "elevenlabs_request_failed",
+                "detail": str(error)[:500],
+                "voice_id": voice_id,
+                "model_id": model_id,
+            }, 502)
+
+    print("[AION] O19K ElevenLabs voice bridge route installed")
+# END AION O19K ELEVENLABS VOICE BRIDGE LOCK
+

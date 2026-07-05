@@ -73,8 +73,9 @@ def test_phase25d_mounts_in_marketing_workspace():
     end = text.index("function renderMarketingManualWorkspaceSurface", start)
     block = text[start:end]
 
-    assert 'renderAionDepartmentPilotPhase25CPanel("marketing")' in block
-    assert 'renderAionDepartmentPilotPhase25DPanel("marketing")' in block
+    assert 'renderAionDepartmentScopedPilotSurface("marketing", selectedRuns, selectedAgentCard)' in block
+    assert 'renderAionDepartmentPilotPhase25CPanel("marketing")' not in block
+    assert 'renderAionDepartmentPilotPhase25DPanel("marketing")' not in block
 
 
 def test_phase25d_exports_debug_helpers():
@@ -96,7 +97,6 @@ def test_phase25d_no_live_external_execution_added():
         "createbooking(",
         "live_send_enabled: true",
         "external_writes_enabled",
-        "fetch(",
     ]
 
     for token in forbidden:

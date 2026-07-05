@@ -6,6 +6,236 @@
     return global.THREE;
   }
 
+
+  /*
+   * AION Spatial Boardroom Asset Pipeline v1
+   * ----------------------------------------------------
+   * Purpose:
+   * - Prepare the boardroom renderer for real GLB/GLTF assets.
+   * - Keep the current primitive renderer as the safe fallback.
+   * - Do not require external network access.
+   * - Do not break if no GLTFLoader or assets exist yet.
+   */
+  const AION_BOARDROOM_ASSET_MANIFEST = {
+    robot_agent: {
+      file: "robot_agent.glb",
+      fallback: "primitive_robot",
+    },
+    executive_chair: {
+      file: "executive_chair.glb",
+      fallback: "primitive_chair",
+    },
+    boardroom_table: {
+      file: "boardroom_table.glb",
+      fallback: "primitive_table",
+    },
+    boardroom_room: {
+      file: "boardroom_room.glb",
+      fallback: "primitive_room",
+    },
+    hologram_panel: {
+      file: "hologram_panel.glb",
+      fallback: "primitive_panel",
+    },
+  };
+
+  const aionBoardroomAssetCache = {
+    requested: false,
+    ready: false,
+    failed: false,
+    assets: {},
+    errors: {},
+  };
+
+  function getAionBoardroomAssetUrl(fileName) {
+    const clean = String(fileName || "").replace(/^\/+/, "");
+    try {
+      return new URL(`./assets/boardroom/${clean}`, document.baseURI).href;
+    } catch {
+      return `./assets/boardroom/${clean}`;
+    }
+  }
+
+  function getOptionalGLTFLoader() {
+    const THREE = ensureThree();
+
+    if (typeof global.GLTFLoader === "function") {
+      return new global.GLTFLoader();
+    }
+
+    if (THREE && typeof THREE.GLTFLoader === "function") {
+      return new THREE.GLTFLoader();
+    }
+
+    return null;
+  }
+
+  function loadAionBoardroomAssetsOnce(onReady) {
+    const loader = getOptionalGLTFLoader();
+
+    if (aionBoardroomAssetCache.requested) {
+      if (aionBoardroomAssetCache.ready && typeof onReady === "function") onReady();
+
+      const canRetryMissingLoader =
+        !!loader &&
+        aionBoardroomAssetCache.failed === true &&
+        !!aionBoardroomAssetCache.errors.loader;
+
+      if (!canRetryMissingLoader) return;
+
+      aionBoardroomAssetCache.requested = false;
+      aionBoardroomAssetCache.failed = false;
+      delete aionBoardroomAssetCache.errors.loader;
+    }
+
+    if (!loader) {
+      aionBoardroomAssetCache.requested = true;
+      aionBoardroomAssetCache.failed = true;
+      aionBoardroomAssetCache.errors.loader = "GLTFLoader not available yet; waiting for bridge.";
+      return;
+    }
+
+    aionBoardroomAssetCache.requested = true;
+
+    const entries = Object.entries(AION_BOARDROOM_ASSET_MANIFEST);
+
+    let pending = entries.length;
+    if (!pending) {
+      aionBoardroomAssetCache.ready = true;
+      if (typeof onReady === "function") onReady();
+      return;
+    }
+
+    entries.forEach(([key, meta]) => {
+      const url = getAionBoardroomAssetUrl(meta.file);
+
+      loader.load(
+        url,
+        (gltf) => {
+          aionBoardroomAssetCache.assets[key] = gltf.scene || gltf.scenes?.[0] || null;
+          pending -= 1;
+
+          if (pending <= 0) {
+            aionBoardroomAssetCache.ready = true;
+            if (typeof onReady === "function") onReady();
+          }
+        },
+        undefined,
+        (error) => {
+          aionBoardroomAssetCache.errors[key] = error?.message || String(error || "asset load failed");
+          pending -= 1;
+
+          if (pending <= 0) {
+            aionBoardroomAssetCache.ready = Object.keys(aionBoardroomAssetCache.assets).length > 0;
+            if (aionBoardroomAssetCache.ready && typeof onReady === "function") onReady();
+          }
+        },
+      );
+    });
+  }
+
+
+  // AION O4C: normalize real GLB boardroom agent visibility.
+  function aionBoardroomObjectHasVisibleMesh(object) {
+    let hasMesh = false;
+    object?.traverse?.((child) => {
+      if (child?.isMesh && child.geometry) hasMesh = true;
+    });
+    return hasMesh;
+  }
+
+  function normalizeAionBoardroomAgentModel(object, options = {}) {
+    const THREE = ensureThree();
+    if (!object) return null;
+
+    const box = new THREE.Box3().setFromObject(object);
+    if (!Number.isFinite(box.min.x) || !Number.isFinite(box.max.x)) return object;
+
+    const size = new THREE.Vector3();
+    const center = new THREE.Vector3();
+    box.getSize(size);
+    box.getCenter(center);
+
+    const maxDim = Math.max(size.x || 0, size.y || 0, size.z || 0);
+    if (!maxDim || !Number.isFinite(maxDim)) return object;
+
+    const targetHeight = Number(options.targetHeight || 1.75);
+    const scale = targetHeight / maxDim;
+
+    object.position.sub(center);
+    object.scale.multiplyScalar(scale);
+
+    const normalizedBox = new THREE.Box3().setFromObject(object);
+    const normalizedSize = new THREE.Vector3();
+    normalizedBox.getSize(normalizedSize);
+
+    object.position.y += Math.max(0.18, normalizedSize.y / 2 + 0.14);
+    object.position.z += Number(options.zOffset || 0.08);
+
+    object.traverse?.((child) => {
+      if (child?.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+        if (child.material) {
+          child.material.depthWrite = true;
+          child.material.depthTest = true;
+          child.material.transparent = child.material.transparent === true;
+        }
+      }
+    });
+
+    object.name = options.name || object.name || "aion_normalized_real_agent";
+    return object;
+  }
+
+  function cloneAionBoardroomAsset(key) {
+    const asset = aionBoardroomAssetCache.assets[key];
+    if (!asset || typeof asset.clone !== "function") return null;
+
+    const clone = asset.clone(true);
+
+    if (!aionBoardroomObjectHasVisibleMesh(clone)) {
+      return null;
+    }
+
+    clone.traverse?.((child) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
+
+    return clone;
+  }
+
+  function hasAionBoardroomAsset(key) {
+    return !!aionBoardroomAssetCache.assets[key];
+  }
+
+
+  if (!global.__aionBoardroomGLTFReadyRetryInstalled) {
+    global.__aionBoardroomGLTFReadyRetryInstalled = true;
+
+    global.addEventListener("aion:gltf-loader-ready", () => {
+      aionBoardroomAssetCache.requested = false;
+      aionBoardroomAssetCache.failed = false;
+      delete aionBoardroomAssetCache.errors.loader;
+
+      loadAionBoardroomAssetsOnce(() => {
+        if (!current) return;
+        rebuildWorld(current.options?.snapshot || {}, current.options || {});
+      });
+    });
+  }
+
+  global.__aionBoardroomAssetPipeline = {
+    manifest: AION_BOARDROOM_ASSET_MANIFEST,
+    cache: aionBoardroomAssetCache,
+    loadOnce: loadAionBoardroomAssetsOnce,
+    hasAsset: hasAionBoardroomAsset,
+  };
+
+
   const BOARDROOM_ZONES = {
     coo: {
       label: "COO Core",
@@ -1002,184 +1232,1620 @@
     return group;
   }
 
-  function buildExecutiveBots(parent) {
-    const ceo = buildHexFloor("CEO", 0x60a5fa, -6.8, -24.2, { scale: 0.9 });
-    const aion = buildHexFloor("AION", 0x8b5cf6, 0, -26.6, { scale: 0.94 });
-    const openai = buildHexFloor("OpenAI", 0x22c55e, 6.8, -24.2, { scale: 0.9 });
+  /* BEGIN AION O15G SNAPSHOT EXECUTIVE BOTS LOCK */
+  /*
+   * O15G fix:
+   * - This was the remaining hard-coded visual table layer.
+   * - It used to draw only CEO / AION / OpenAI.
+   * - It now draws CEO, AION and actually connected provider seats from snapshot.seats.
+   * - Missing providers are not faked.
+   */
+  function buildExecutiveBots(parent, snapshot = {}) {
+    const sourceSeats = safeArray(snapshot?.seats)
+      .map((seat) => {
+        if (!seat || typeof seat !== "object") return null;
 
-    parent.add(ceo);
-    parent.add(aion);
-    parent.add(openai);
+        const key = String(seat.key || seat.provider_id || seat.id || "").trim().toLowerCase();
+        const label = String(seat.label || key || "").trim().replace(" / Google", "");
+        const status = String(seat.status || "").trim().toLowerCase();
+        const seatType = String(seat.seat_type || "").trim().toLowerCase();
+
+        const alwaysOn = ["ceo", "aion"].includes(key);
+        const connected = seat.connected === true || status === "connected" || status === "always_on";
+        const allowed =
+          alwaysOn ||
+          seatType === "connected_provider" ||
+          ["gemma", "openai", "gemini", "claude", "grok"].includes(key);
+
+        if (!key || !label) return null;
+        if (!allowed) return null;
+        if (!alwaysOn && !connected) return null;
+
+        return {
+          key,
+          label,
+          color:
+            key === "ceo" ? 0x60a5fa :
+            key === "aion" ? 0x8b5cf6 :
+            key === "gemma" ? 0x60a5fa :
+            key === "openai" ? 0x22c55e :
+            key === "gemini" ? 0x38bdf8 :
+            key === "claude" ? 0xf59e0b :
+            key === "grok" ? 0xef4444 :
+            0x8b5cf6,
+          scale: key === "aion" ? 0.94 : 0.9,
+        };
+      })
+      .filter(Boolean);
+
+    const seen = new Set();
+    const seats = sourceSeats.filter((seat) => {
+      if (seen.has(seat.key)) return false;
+      seen.add(seat.key);
+      return true;
+    });
+
+    const fallbackSeats = [
+      { key: "ceo", label: "CEO", color: 0x60a5fa, scale: 0.9 },
+      { key: "aion", label: "AION", color: 0x8b5cf6, scale: 0.94 },
+      { key: "gemma", label: "Gemma", color: 0x60a5fa, scale: 0.9 },
+    ];
+
+    const visibleSeats = seats.length ? seats : fallbackSeats;
+    const center = (visibleSeats.length - 1) / 2;
+    const spacing = visibleSeats.length <= 3
+      ? 6.8
+      : Math.min(4.2, 15.2 / Math.max(1, visibleSeats.length - 1));
+
+    visibleSeats.forEach((seat, index) => {
+      const offset = index - center;
+      const curve = center > 0 ? 1 - Math.abs(offset) / center : 1;
+      const x = offset * spacing;
+      const z = -24.2 - curve * 2.4;
+
+      parent.add(buildHexFloor(seat.label, seat.color, x, z, { scale: seat.scale }));
+    });
   }
+  /* END AION O15G SNAPSHOT EXECUTIVE BOTS LOCK */
 
-  function buildBoardroomWorld(snapshot, options) {
+  
+
+function buildBoardroomWorld(snapshot, options) {
     const THREE = ensureThree();
     const root = new THREE.Group();
+
     const pulse = getPulse(snapshot);
     const center = getCenter(snapshot);
-    const floors = getFloors(snapshot);
+    const runtime = getRuntime(snapshot);
     const activeZone = options?.activeZone || "coo";
-    const selectedInspectorTarget = options?.selectedInspectorTarget || null;
     const selectedSeatId = options?.selectedSeatId || null;
-    const ringRadius = 14.2;
+    const teamMode = options?.boardroomTeamMode || global.__aionSpatialBoardroomTeamMode || "executive";
 
-    buildBillboard(root, snapshot);
-    buildExecutiveBots(root);
+    const workspaceDisplay = getWorkspaceDisplay(snapshot);
 
-    const positions = {};
-    Object.keys(BOARDROOM_ZONES).forEach((key) => {
-      positions[key] = zonePosition(key, ringRadius);
-    });
+    const colour = {
+      marketing: 0x8b5cf6,
+      sales: 0x38bdf8,
+      finance: 0x22c55e,
+      operations: 0xf59e0b,
+      support: 0x67e8f9,
+      hr: 0xfb7185,
+      ceo: 0xe2e8f0,
+      aion: 0x93c5fd,
+      gemma: 0x60a5fa,
+      openai: 0x22c55e,
+      claude: 0xf59e0b,
+      gemini: 0x67e8f9,
+      grok: 0xa78bfa,
+    };
 
-    [
-      ["coo", "marketing"],
-      ["coo", "sales"],
-      ["coo", "operations"],
-      ["coo", "hr"],
-      ["coo", "support"],
-      ["coo", "finance"],
-    ].forEach(([a, b]) => {
-      addLine(
-        root,
-        [positions[a][0], -0.08, positions[a][2]],
-        [positions[b][0], -0.08, positions[b][2]],
-        0x8ea3bf,
-        0.24,
+    function panelMaterial(hex, opacity) {
+      return new THREE.MeshBasicMaterial({
+        color: hex,
+        transparent: true,
+        opacity,
+        side: THREE.DoubleSide,
+      });
+    }
+
+    function standardMaterial(hex, opts = {}) {
+      return new THREE.MeshStandardMaterial({
+        color: hex,
+        roughness: opts.roughness ?? 0.62,
+        metalness: opts.metalness ?? 0.12,
+        transparent: opts.opacity != null,
+        opacity: opts.opacity ?? 1,
+        emissive: opts.emissive ?? 0x000000,
+        emissiveIntensity: opts.emissiveIntensity ?? 0,
+      });
+    }
+
+    function addSoftPanel(parent, title, lines, x, y, z, accent, alignRight = false) {
+      const group = new THREE.Group();
+
+      const bg = new THREE.Mesh(
+        new THREE.BoxGeometry(5.6, 3.7, 0.08),
+        standardMaterial(0x0f172a, {
+          roughness: 0.42,
+          metalness: 0.08,
+          opacity: 0.78,
+          emissive: 0x020617,
+          emissiveIntensity: 0.1,
+        }),
       );
+      group.add(bg);
+
+      const glow = new THREE.Mesh(
+        new THREE.BoxGeometry(5.72, 3.82, 0.04),
+        panelMaterial(accent, 0.08),
+      );
+      glow.position.set(0, 0, 0.055);
+      group.add(glow);
+
+      const titleSprite = makeTextSprite(title, {
+        fontSize: 28,
+        fontWeight: 900,
+        color: "#f8fafc",
+        heightWorld: 0.28,
+      });
+      titleSprite.position.set(0, 1.32, 0.11);
+      group.add(titleSprite);
+
+      lines.slice(0, 5).forEach((line, index) => {
+        const sprite = makeTextSprite(line, {
+          fontSize: 18,
+          fontWeight: 750,
+          color: index === 0 ? "#86efac" : "#cbd5e1",
+          heightWorld: 0.18,
+        });
+        sprite.position.set(0, 0.78 - index * 0.46, 0.11);
+        group.add(sprite);
+      });
+
+      group.position.set(x, y, z);
+      group.rotation.y = alignRight ? -0.34 : 0.34;
+      parent.add(group);
+      return group;
+    }
+
+    function addBackScreen(parent) {
+      const screen = new THREE.Mesh(
+        new THREE.BoxGeometry(12.6, 6.7, 0.18),
+        standardMaterial(0x07111f, {
+          roughness: 0.28,
+          metalness: 0.22,
+          emissive: 0x0b2740,
+          emissiveIntensity: 0.44,
+        }),
+      );
+      screen.position.set(0, 6.5, -22.85);
+      parent.add(screen);
+
+      const screenGlow = new THREE.Mesh(
+        new THREE.BoxGeometry(12.2, 6.25, 0.08),
+        panelMaterial(0x38bdf8, 0.13),
+      );
+      screenGlow.position.set(0, 6.5, -22.72);
+      parent.add(screenGlow);
+
+      const title = makeTextSprite(teamMode === "board" ? "BOARD TEAM" : "BOARDROOM", {
+        fontSize: 58,
+        fontWeight: 950,
+        color: "#f8fafc",
+        heightWorld: 0.78,
+      });
+      title.position.set(0, 8.25, -22.55);
+      parent.add(title);
+
+      const sub = makeTextSprite(teamMode === "board" ? "TOP LINE STRATEGY MEETING" : "EXECUTIVE OPERATING TEAM", {
+        fontSize: 31,
+        fontWeight: 850,
+        color: "#93c5fd",
+        heightWorld: 0.38,
+      });
+      sub.position.set(0, 7.55, -22.55);
+      parent.add(sub);
+
+      const points = [
+        [-4.6, 0, 0],
+        [-3.4, 0.18, 0],
+        [-2.4, 0.1, 0],
+        [-1.2, 0.55, 0],
+        [0.1, 0.24, 0],
+        [1.2, 0.72, 0],
+        [2.3, 0.18, 0],
+        [3.2, 0.35, 0],
+        [4.55, 0.62, 0],
+      ].map((p) => new THREE.Vector3(p[0], p[1] + 6.05, -22.46));
+
+      parent.add(
+        new THREE.Line(
+          new THREE.BufferGeometry().setFromPoints(points),
+          new THREE.LineBasicMaterial({
+            color: 0x60a5fa,
+            transparent: true,
+            opacity: 0.62,
+          }),
+        ),
+      );
+    }
+
+    function addTable(parent) {
+      const table = new THREE.Mesh(
+        new THREE.CylinderGeometry(6.9, 7.45, 0.58, 96),
+        standardMaterial(0x51433a, {
+          roughness: 0.46,
+          metalness: 0.18,
+        }),
+      );
+      table.scale.set(1.46, 1, 0.72);
+      table.position.set(0, 0.13, -4.6);
+      parent.add(table);
+
+      const tableTop = new THREE.Mesh(
+        new THREE.CylinderGeometry(6.35, 6.82, 0.08, 96),
+        standardMaterial(0x2f2926, {
+          roughness: 0.38,
+          metalness: 0.22,
+          emissive: 0x050505,
+          emissiveIntensity: 0.12,
+        }),
+      );
+      tableTop.scale.set(1.42, 1, 0.7);
+      tableTop.position.set(0, 0.48, -4.6);
+      parent.add(tableTop);
+
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(5.9, 0.06, 18, 120),
+        panelMaterial(0x93c5fd, 0.62),
+      );
+      ring.scale.set(1.46, 0.72, 1);
+      ring.rotation.x = Math.PI / 2;
+      ring.position.set(0, 0.58, -4.6);
+      parent.add(ring);
+
+      const core = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.65, 1.65, 0.045, 72),
+        panelMaterial(0x60a5fa, 0.18),
+      );
+      core.position.set(0, 0.64, -4.6);
+      parent.add(core);
+
+      const coreLabel = makeTextSprite("A", {
+        fontSize: 74,
+        fontWeight: 950,
+        color: "#dbeafe",
+        heightWorld: 0.86,
+      });
+      coreLabel.position.set(0, 0.86, -4.6);
+      parent.add(coreLabel);
+
+      /* BEGIN AION O16F DEPARTMENT 121 SAME TABLE CAMERA NO FRONT DESK LOCK */
+      const isDepartment121SameTableViewO16F = String(teamMode || "").endsWith("_121");
+      /* END AION O16F DEPARTMENT 121 SAME TABLE CAMERA NO FRONT DESK LOCK */
+
+      const console = new THREE.Mesh(
+        new THREE.BoxGeometry(8.1, 1.1, 1.15),
+        standardMaterial(0x0f172a, {
+          roughness: 0.42,
+          metalness: 0.22,
+          opacity: 0.92,
+          emissive: 0x0a1020,
+          emissiveIntensity: 0.18,
+        }),
+      );
+      console.position.set(0, 1.05, 4.05);
+      console.visible = !isDepartment121SameTableViewO16F;
+      parent.add(console);
+
+      const switchButton = new THREE.Mesh(
+        new THREE.BoxGeometry(3.75, 0.18, 0.7),
+        standardMaterial(teamMode === "board" ? 0x22c55e : 0x1a8aff, {
+          roughness: 0.38,
+          metalness: 0.22,
+          emissive: teamMode === "board" ? 0x22c55e : 0x1a8aff,
+          emissiveIntensity: 0.2,
+        }),
+      );
+      switchButton.position.set(0, 1.72, 4.74);
+      switchButton.visible = !isDepartment121SameTableViewO16F;
+      parent.add(switchButton);
+
+      const switchText = makeTextSprite(teamMode === "board" ? "SWITCH TO EXECUTIVE TEAM" : "SWITCH TO BOARD TEAM", {
+        fontSize: 25,
+        fontWeight: 950,
+        color: "#ffffff",
+        heightWorld: 0.28,
+      });
+      switchText.position.set(0, 1.91, 4.86);
+      switchText.visible = !isDepartment121SameTableViewO16F;
+      parent.add(switchText);
+
+      registerInteractive(switchButton, {
+        type: "team_mode_switch",
+      });
+    }
+
+    function addAgentSeat(parent, key, label, role, x, z, accent, active) {
+      const group = new THREE.Group();
+
+      // AION O4D: hard visible agent anchor.
+      // Always render a clean executive-agent silhouette so the boardroom never appears empty.
+      // The real GLB, when visible, is added on top of this anchor.
+      const agentVisibilityAnchor = new THREE.Group();
+      agentVisibilityAnchor.name = `aion_visible_agent_anchor_${key}`;
+
+      const anchorBody = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.18, 0.54, 8, 16),
+        new THREE.MeshStandardMaterial({
+          color: 0xf8fafc,
+          metalness: 0.12,
+          roughness: 0.36,
+          transparent: true,
+          opacity: 0.92,
+        }),
+      );
+      anchorBody.position.set(0, 0.98, 0.34);
+      agentVisibilityAnchor.add(anchorBody);
+
+      const anchorHead = new THREE.Mesh(
+        new THREE.SphereGeometry(0.18, 24, 16),
+        new THREE.MeshStandardMaterial({
+          color: 0xffffff,
+          metalness: 0.10,
+          roughness: 0.30,
+          transparent: true,
+          opacity: 0.96,
+        }),
+      );
+      anchorHead.scale.set(1.0, 1.08, 0.88);
+      anchorHead.position.set(0, 1.48, 0.34);
+      agentVisibilityAnchor.add(anchorHead);
+
+      const anchorFace = new THREE.Mesh(
+        new THREE.BoxGeometry(0.24, 0.09, 0.025),
+        new THREE.MeshBasicMaterial({
+          color: active ? 0xfbbf24 : accent,
+          transparent: true,
+          opacity: active ? 0.95 : 0.82,
+          depthWrite: false,
+        }),
+      );
+      anchorFace.position.set(0, 1.49, 0.50);
+      agentVisibilityAnchor.add(anchorFace);
+
+      const anchorGlow = new THREE.Mesh(
+        new THREE.TorusGeometry(0.36, 0.018, 8, 48),
+        new THREE.MeshBasicMaterial({
+          color: active ? 0xfbbf24 : accent,
+          transparent: true,
+          opacity: active ? 0.84 : 0.38,
+          depthWrite: false,
+        }),
+      );
+      anchorGlow.rotation.x = Math.PI / 2;
+      anchorGlow.position.set(0, 0.04, 0.34);
+      agentVisibilityAnchor.add(anchorGlow);
+
+      group.add(agentVisibilityAnchor);
+
+      function addMesh(mesh, px, py, pz, sx = 1, sy = 1, sz = 1) {
+        mesh.position.set(px, py, pz);
+        mesh.scale.set(sx, sy, sz);
+        group.add(mesh);
+        return mesh;
+      }
+
+      const assetRobot = cloneAionBoardroomAsset("robot_agent");
+      const assetChair = cloneAionBoardroomAsset("executive_chair");
+      const assetPanel = cloneAionBoardroomAsset("hologram_panel");
+
+      if (assetChair) {
+        assetChair.position.set(0, 0.4, 0.2);
+        assetChair.scale.set(1.15, 1.15, 1.15);
+        group.add(assetChair);
+      } else {
+        // Curved executive chair fallback — softer and less block-like than the old box chair.
+        const chairSeat = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.0, 1.12, 0.34, 40, 1, false, 0, Math.PI * 2),
+          standardMaterial(0x111827, {
+            roughness: 0.42,
+            metalness: 0.24,
+            emissive: 0x020617,
+            emissiveIntensity: 0.08,
+          }),
+        );
+        chairSeat.scale.set(0.9, 0.86, 0.62);
+        addMesh(chairSeat, 0, 0.48, 0.28);
+
+        const chairBack = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.78, 0.88, 1.62, 48, 1, true, Math.PI * 0.14, Math.PI * 0.72),
+          standardMaterial(0x0f172a, {
+            roughness: 0.38,
+            metalness: 0.26,
+            opacity: 0.98,
+            side: THREE.DoubleSide,
+            emissive: 0x020617,
+            emissiveIntensity: 0.1,
+          }),
+        );
+        chairBack.rotation.z = Math.PI / 2;
+        chairBack.rotation.y = Math.PI;
+        chairBack.scale.set(0.82, 0.52, 0.82);
+        addMesh(chairBack, 0, 1.58, -0.34);
+
+        const chairGlow = new THREE.Mesh(
+          new THREE.TorusGeometry(0.9, 0.045, 16, 64),
+          panelMaterial(accent, active ? 0.78 : 0.42),
+        );
+        chairGlow.rotation.x = Math.PI / 2;
+        addMesh(chairGlow, 0, 0.62, 0.34, 0.86, 0.54, 0.86);
+      }
+
+      if (assetRobot) {
+        normalizeAionBoardroomAgentModel(assetRobot, {
+          targetHeight: active ? 1.55 : 1.42,
+          zOffset: 0.0,
+          name: `aion_real_agent_model_${key}`,
+        });
+
+        // Place the real imported agent directly in front of the chair, above the seat plane.
+        // Keep it slightly forward so it does not hide inside the chair/table.
+        assetRobot.position.set(0, 0.22, 0.34);
+        assetRobot.rotation.y = 0;
+        assetRobot.visible = true;
+        group.add(assetRobot);
+
+        // Keep anchor behind/under the real model as a fail-safe, but reduce its opacity.
+        agentVisibilityAnchor.traverse?.((child) => {
+          if (child?.material && "opacity" in child.material) {
+            child.material.opacity = Math.min(child.material.opacity || 1, 0.26);
+          }
+        });
+      } else {
+        // Robot avatar fallback — rounded head, visor, shoulders, arms, chest panel.
+        const lowerBody = new THREE.Mesh(
+          new THREE.CapsuleGeometry(0.43, 0.58, 12, 28),
+          standardMaterial(0x64748b, {
+            roughness: 0.3,
+            metalness: 0.38,
+            emissive: accent,
+            emissiveIntensity: active ? 0.18 : 0.08,
+          }),
+        );
+        lowerBody.rotation.x = 0.04;
+        addMesh(lowerBody, 0, 1.12, 0.16, 0.96, 0.94, 0.84);
+
+        const chest = new THREE.Mesh(
+          new THREE.CapsuleGeometry(0.58, 0.72, 14, 32),
+          standardMaterial(0x94a3b8, {
+            roughness: 0.24,
+            metalness: 0.36,
+            emissive: accent,
+            emissiveIntensity: active ? 0.22 : 0.1,
+          }),
+        );
+        chest.rotation.x = 0.08;
+        addMesh(chest, 0, 1.48, 0.2, 0.96, 0.9, 0.72);
+
+        const chestGlass = new THREE.Mesh(
+          new THREE.BoxGeometry(0.78, 0.36, 0.055),
+          standardMaterial(accent, {
+            roughness: 0.15,
+            metalness: 0.05,
+            opacity: 0.68,
+            emissive: accent,
+            emissiveIntensity: active ? 0.45 : 0.22,
+          }),
+        );
+        addMesh(chestGlass, 0, 1.45, 0.68);
+
+        const shoulderBar = new THREE.Mesh(
+          new THREE.CapsuleGeometry(0.16, 1.45, 12, 24),
+          standardMaterial(0x475569, {
+            roughness: 0.28,
+            metalness: 0.4,
+            emissive: accent,
+            emissiveIntensity: active ? 0.1 : 0.045,
+          }),
+        );
+        shoulderBar.rotation.z = Math.PI / 2;
+        addMesh(shoulderBar, 0, 1.86, 0.18);
+
+        [-0.88, 0.88].forEach((side) => {
+          const upperArm = new THREE.Mesh(
+            new THREE.CapsuleGeometry(0.13, 0.72, 10, 20),
+            standardMaterial(0x64748b, {
+              roughness: 0.3,
+              metalness: 0.36,
+              emissive: accent,
+              emissiveIntensity: active ? 0.12 : 0.055,
+            }),
+          );
+          upperArm.rotation.z = side * 0.22;
+          addMesh(upperArm, side * 0.62, 1.62, 0.22);
+
+          const hand = new THREE.Mesh(
+            new THREE.SphereGeometry(0.14, 18, 14),
+            standardMaterial(0x94a3b8, {
+              roughness: 0.26,
+              metalness: 0.35,
+            }),
+          );
+          addMesh(hand, side * 0.72, 1.08, 0.46);
+        });
+
+        const neck = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.18, 0.2, 0.18, 24),
+          standardMaterial(0x94a3b8, {
+            roughness: 0.32,
+            metalness: 0.35,
+          }),
+        );
+        addMesh(neck, 0, 2.05, 0.15);
+
+        const head = new THREE.Mesh(
+          new THREE.SphereGeometry(0.56, 42, 28),
+          standardMaterial(0xe2e8f0, {
+            roughness: 0.22,
+            metalness: 0.24,
+            emissive: accent,
+            emissiveIntensity: active ? 0.16 : 0.075,
+          }),
+        );
+        head.scale.set(1.06, 0.92, 0.78);
+        addMesh(head, 0, 2.36, 0.18);
+
+        const face = new THREE.Mesh(
+          new THREE.BoxGeometry(0.82, 0.28, 0.055),
+          standardMaterial(0x020617, {
+            roughness: 0.12,
+            metalness: 0.22,
+            emissive: 0x020617,
+            emissiveIntensity: 0.5,
+          }),
+        );
+        addMesh(face, 0, 2.36, 0.61);
+
+        [-0.22, 0.22].forEach((eyeX) => {
+          const eye = new THREE.Mesh(
+            new THREE.SphereGeometry(0.055, 18, 12),
+            panelMaterial(accent, 0.98),
+          );
+          addMesh(eye, eyeX, 2.38, 0.65);
+        });
+
+        const antenna = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.025, 0.035, 0.34, 12),
+          standardMaterial(0x94a3b8, {
+            roughness: 0.24,
+            metalness: 0.45,
+          }),
+        );
+        antenna.rotation.z = 0.18;
+        addMesh(antenna, 0.18, 2.78, 0.11);
+
+        const antennaGlow = new THREE.Mesh(
+          new THREE.SphereGeometry(0.07, 18, 12),
+          panelMaterial(accent, active ? 0.95 : 0.62),
+        );
+        addMesh(antennaGlow, 0.22, 2.94, 0.12);
+      }
+
+      // AION O4B: clean real GLB agent presentation.
+      // The real base.glb agent is now the visual focus. Do not draw the old
+      // large hologram monitor/card across the model body.
+      const realAgentModelLoaded = !!assetRobot;
+      // AION O4B.1: fixed stale holo interaction reference after removing body-blocking overlay.
+      let holo = null;
+      let seatInteractionObject = group;
+
+      if (!realAgentModelLoaded) {
+        // Legacy fallback only: if the GLB robot is unavailable, keep the old
+        // holographic department card so fallback primitive agents still have a visible identity.
+        holo = assetPanel;
+
+        if (holo) {
+          holo.position.set(0, 1.18, 0.92);
+          holo.scale.set(1.08, 0.72, 0.72);
+          group.add(holo);
+        } else {
+          holo = new THREE.Mesh(
+            new THREE.BoxGeometry(1.72, 0.78, 0.055),
+            panelMaterial(0xffffff, active ? 0.8 : 0.45),
+          );
+          holo.position.set(0, 1.15, 0.94);
+          group.add(holo);
+        }
+
+        const initial = makeTextSprite(String(label || "?").slice(0, 1).toUpperCase(), {
+          fontSize: 64,
+          color: "#ffffff",
+          background: "rgba(15, 23, 42, 0.08)",
+          border: "rgba(255, 255, 255, 0.0)",
+          widthWorld: 0.86,
+          heightWorld: 0.48,
+        });
+        initial.position.set(0, 1.17, 1.02);
+        group.add(initial);
+      }
+
+      // Clean label: move identity above the seat instead of across the agent.
+      const labelPlate = makeTextSprite(label, {
+        fontSize: 38,
+        color: "#ffffff",
+        background: "rgba(2, 6, 23, 0.92)",
+        border: active ? "rgba(251, 191, 36, 0.95)" : "rgba(255, 255, 255, 0.22)",
+        widthWorld: Math.max(1.15, String(label || "").length * 0.16),
+        heightWorld: 0.34,
+      });
+      labelPlate.position.set(0, 2.34, 0.54);
+      group.add(labelPlate);
+
+      const rolePlate = makeTextSprite(role, {
+        fontSize: 20,
+        color: active ? "#fef3c7" : "#dbeafe",
+        background: "rgba(15, 23, 42, 0.32)",
+        border: "rgba(255, 255, 255, 0.08)",
+        widthWorld: Math.max(1.35, String(role || "").length * 0.075),
+        heightWorld: 0.22,
+      });
+      rolePlate.position.set(0, 2.08, 0.54);
+      group.add(rolePlate);
+
+      // Invisible click target for the seat. Keeps interactivity without covering the model.
+      const cleanClickTarget = new THREE.Mesh(
+        new THREE.BoxGeometry(2.25, 2.35, 0.18),
+        new THREE.MeshBasicMaterial({
+          color: accent,
+          transparent: true,
+          opacity: 0.001,
+          depthWrite: false,
+        }),
+      );
+      cleanClickTarget.position.set(0, 1.15, 0.42);
+      cleanClickTarget.name = `aion_clean_agent_click_target_${key}`;
+      group.add(cleanClickTarget);
+      seatInteractionObject = cleanClickTarget;
+
+      // Subtle base highlight only. No body-blocking monitor panel.
+      const cleanBaseRing = new THREE.Mesh(
+        new THREE.TorusGeometry(active ? 0.94 : 0.78, 0.026, 10, 72),
+        new THREE.MeshBasicMaterial({
+          color: active ? 0xfbbf24 : accent,
+          transparent: true,
+          opacity: active ? 0.92 : 0.28,
+          depthWrite: false,
+        }),
+      );
+      cleanBaseRing.rotation.x = Math.PI / 2;
+      cleanBaseRing.position.set(0, 0.055, 0.18);
+      group.add(cleanBaseRing);
+
+      const seatId = getDepartmentSeatId(key);
+      if (seatId) {
+        // AION O4B.2: registerInteractive uses clean click target, not removed holo overlay.
+        registerInteractive(seatInteractionObject, {
+          type: "seat",
+          departmentKey: key,
+          seatId,
+        });
+      }
+
+      return group;
+    }
+
+
+    // AION O4E: forced visible executive seat safety layer.
+    // This renders clean visible agent seats even if the normal seat list is filtered,
+    // hidden, or GLB placement fails. It is intentionally simple and demo-safe.
+    function addForcedVisibleExecutiveSeats(parent, options = {}) {
+      if (!global.__aionO4FRealRobotAgentSeatDebug) {
+        global.__aionO4FRealRobotAgentSeatDebug = true;
+        console.info("[AION] O4F real robot_agent.glb seat renderer active");
+      }
+
+      const forcedSeats = [
+        ["marketing", "Marketing", "Brand & Growth", -7.8, -8.0, 0x38bdf8],
+        ["sales", "Sales", "Revenue & Pipeline", -4.7, -9.0, 0x38bdf8],
+        ["finance", "Finance", "Financial Stewardship", -1.55, -9.25, 0x38bdf8],
+        ["operations", "Operations", "Process & Efficiency", 1.55, -9.25, 0xfbbf24],
+        ["support", "Support", "Customer Success", 4.7, -9.0, 0x38bdf8],
+        ["hr", "HR", "People & Culture", 7.8, -8.0, 0x38bdf8],
+      ];
+
+      const allowedForcedDepartments =
+        Array.isArray(options.visibleDepartments) && options.visibleDepartments.length
+          ? new Set(
+              options.visibleDepartments
+                .map((item) => String(item || "").trim().toLowerCase())
+                .filter(Boolean),
+            )
+          : null;
+
+      /* BEGIN AION O16E DEPARTMENT 121 FORCED VISIBLE CENTER AGENT LOCK */
+      const isDepartment121ForcedSeatO16E =
+        String(options?.cameraMode || "").endsWith("_121") ||
+        String(options?.boardroomTeamMode || "").endsWith("_121");
+      /* END AION O16E DEPARTMENT 121 FORCED VISIBLE CENTER AGENT LOCK */
+
+      forcedSeats
+        .filter(([key]) => !allowedForcedDepartments || allowedForcedDepartments.has(String(key || "").toLowerCase()))
+        .forEach(([key, label, role, x, z, accent]) => {
+        const group = new THREE.Group();
+        group.name = `aion_o4e_forced_visible_seat_${key}`;
+        const seatX = isDepartment121ForcedSeatO16E ? 0 : x;
+        const seatZ = isDepartment121ForcedSeatO16E ? -8.15 : z;
+        group.position.set(seatX, 0.08, seatZ);
+
+        const chair = new THREE.Group();
+
+        const chairSeat = new THREE.Mesh(
+          new THREE.BoxGeometry(1.14, 0.16, 0.82),
+          new THREE.MeshStandardMaterial({
+            color: 0xf8fafc,
+            metalness: 0.18,
+            roughness: 0.34,
+            transparent: true,
+            opacity: 0.88,
+          }),
+        );
+        chairSeat.position.set(0, 0.42, 0.16);
+        chair.add(chairSeat);
+
+        const chairBack = new THREE.Mesh(
+          new THREE.BoxGeometry(1.04, 1.08, 0.14),
+          new THREE.MeshStandardMaterial({
+            color: 0xe5edf6,
+            metalness: 0.12,
+            roughness: 0.38,
+            transparent: true,
+            opacity: 0.82,
+          }),
+        );
+        chairBack.position.set(0, 1.02, -0.28);
+        chair.add(chairBack);
+
+        group.add(chair);
+
+        // AION O4F: forced visible seats use real robot_agent GLB.
+        // Prefer Kevin's Desktop/base.glb installed as robot_agent.glb.
+        // Fall back to the simple white anchor only if the real GLB is unavailable.
+        const realSeatRobot = cloneAionBoardroomAsset("robot_agent");
+
+        if (realSeatRobot) {
+          normalizeAionBoardroomAgentModel(realSeatRobot, {
+            targetHeight: key === "operations" ? 1.62 : 1.48,
+            zOffset: 0.0,
+            name: `aion_o4f_real_robot_agent_${key}`,
+          });
+
+          realSeatRobot.position.x += 0;
+          realSeatRobot.position.y += 0.20;
+          realSeatRobot.position.z += 0.22;
+          realSeatRobot.rotation.y = 0;
+          realSeatRobot.visible = true;
+
+          realSeatRobot.traverse?.((child) => {
+            if (child?.isMesh) {
+              child.visible = true;
+              child.castShadow = true;
+              child.receiveShadow = true;
+              if (child.material) {
+                child.material.depthTest = true;
+                child.material.depthWrite = true;
+                child.material.transparent = child.material.transparent === true;
+              }
+            }
+          });
+
+          group.add(realSeatRobot);
+          group.userData.realRobotAgentLoaded = true;
+        } else {
+          const agent = new THREE.Group();
+          agent.name = `aion_o4f_fallback_visible_agent_${key}`;
+
+          const body = new THREE.Mesh(
+            new THREE.CapsuleGeometry(0.18, 0.52, 8, 18),
+            new THREE.MeshStandardMaterial({
+              color: 0xffffff,
+              metalness: 0.10,
+              roughness: 0.30,
+            }),
+          );
+          body.position.set(0, 0.98, 0.22);
+          agent.add(body);
+
+          const head = new THREE.Mesh(
+            new THREE.SphereGeometry(0.21, 28, 18),
+            new THREE.MeshStandardMaterial({
+              color: 0xffffff,
+              metalness: 0.12,
+              roughness: 0.26,
+            }),
+          );
+          head.scale.set(0.94, 1.08, 0.84);
+          head.position.set(0, 1.48, 0.22);
+          agent.add(head);
+
+          const visor = new THREE.Mesh(
+            new THREE.BoxGeometry(0.28, 0.10, 0.035),
+            new THREE.MeshBasicMaterial({
+              color: accent,
+              transparent: true,
+              opacity: 0.95,
+              depthWrite: false,
+            }),
+          );
+          visor.position.set(0, 1.49, 0.405);
+          agent.add(visor);
+
+          const shoulderL = new THREE.Mesh(
+            new THREE.SphereGeometry(0.10, 16, 10),
+            new THREE.MeshStandardMaterial({ color: 0xdbeafe, metalness: 0.16, roughness: 0.36 }),
+          );
+          shoulderL.position.set(-0.25, 1.12, 0.20);
+          agent.add(shoulderL);
+
+          const shoulderR = shoulderL.clone();
+          shoulderR.position.x = 0.25;
+          agent.add(shoulderR);
+
+          group.add(agent);
+          group.userData.realRobotAgentLoaded = false;
+        }
+
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(0.62, 0.024, 8, 54),
+          new THREE.MeshBasicMaterial({
+            color: accent,
+            transparent: true,
+            opacity: key === "operations" ? 0.95 : 0.42,
+            depthWrite: false,
+          }),
+        );
+        ring.rotation.x = Math.PI / 2;
+        ring.position.set(0, 0.035, 0.16);
+        group.add(ring);
+
+        const labelPlate = makeTextSprite(label, {
+          fontSize: key === "operations" ? 44 : 36,
+          color: "#ffffff",
+          background: "rgba(2, 6, 23, 0.92)",
+          border: key === "operations" ? "rgba(251, 191, 36, 0.95)" : "rgba(255, 255, 255, 0.2)",
+          widthWorld: Math.max(1.2, String(label).length * 0.15),
+          heightWorld: 0.34,
+        });
+        labelPlate.position.set(0, 2.18, 0.36);
+        group.add(labelPlate);
+
+        const rolePlate = makeTextSprite(role, {
+          fontSize: 18,
+          color: key === "operations" ? "#fef3c7" : "#dbeafe",
+          background: "rgba(15, 23, 42, 0.26)",
+          border: "rgba(255, 255, 255, 0.08)",
+          widthWorld: Math.max(1.35, String(role).length * 0.065),
+          heightWorld: 0.22,
+        });
+        rolePlate.position.set(0, 1.88, 0.36);
+        group.add(rolePlate);
+
+        parent.add(group);
+      });
+
+      parent.userData = parent.userData || {};
+      parent.userData.aionO4EForcedVisibleSeats = true;
+    }
+
+
+    // AION O4G: forced visible board team seat safety layer.
+    // Mirrors O4F executive visible seats, but for Board Team mode.
+    function addForcedVisibleBoardTeamSeats(parent, options = {}) {
+      /* BEGIN AION O15H.3 BOARD TEAM TABLE SNAPSHOT CALL PATH LOCK */
+      /* BEGIN AION O15I BOARD TEAM GLOBAL SNAPSHOT FALLBACK LOCK */
+      /*
+       * O15I fix:
+       * - O15H.3 proved this renderer path can receive an empty local snapshot.
+       * - The app-level getBoardroomSnapshot() already contains the live Vault seats.
+       * - Prefer the first snapshot source that actually has seats.
+       */
+      const localOptionSnapshotO15I =
+        options && options.snapshot && typeof options.snapshot === "object"
+          ? options.snapshot
+          : {};
+      const localRenderSnapshotO15I =
+        snapshot && typeof snapshot === "object"
+          ? snapshot
+          : {};
+      let globalBoardSnapshotO15I = {};
+      try {
+        globalBoardSnapshotO15I =
+          typeof global.getBoardroomSnapshot === "function"
+            ? global.getBoardroomSnapshot()
+            : {};
+      } catch {
+        globalBoardSnapshotO15I = {};
+      }
+
+      const boardSnapshotO15H3 =
+        safeArray(globalBoardSnapshotO15I?.seats).length
+          ? globalBoardSnapshotO15I
+          : safeArray(localOptionSnapshotO15I?.seats).length
+            ? localOptionSnapshotO15I
+            : safeArray(localRenderSnapshotO15I?.seats).length
+              ? localRenderSnapshotO15I
+              : localOptionSnapshotO15I || localRenderSnapshotO15I || {};
+      /* END AION O15I BOARD TEAM GLOBAL SNAPSHOT FALLBACK LOCK */
+      /* END AION O15H.3 BOARD TEAM TABLE SNAPSHOT CALL PATH LOCK */
+
+      const aionO4GBoardTeamSeatSafetyLayer = "AION O4G: forced visible board team seat safety layer";
+      /* BEGIN AION O15F REAL 3D BOARDROOM PROVIDER SEATS LOCK */
+      /*
+       * O15F fix:
+       * - O4G used to hard-code only CEO / AION / OpenAI.
+       * - The real 3D board table must now use snapshot.seats.
+       * - Only always-on core seats and actually connected provider seats render.
+       * - Missing Claude/Grok/etc must not be faked.
+       */
+      const liveBoardSeatsO15F = safeArray(boardSnapshotO15H3?.seats)
+        .map((seat) => {
+          if (!seat || typeof seat !== "object") return null;
+
+          const key = String(seat.key || seat.provider_id || seat.id || "").trim().toLowerCase();
+          const label = String(seat.label || key || "").trim().replace(" / Google", "");
+          const status = String(seat.status || "").trim().toLowerCase();
+          const seatType = String(seat.seat_type || "").trim().toLowerCase();
+          const alwaysOn = ["ceo", "aion"].includes(key);
+          const connected = seat.connected === true || status === "connected" || status === "always_on";
+          const allowedSeatType =
+            ["founder", "orchestrator", "connected_provider"].includes(seatType) ||
+            alwaysOn;
+
+          if (!key || !label) return null;
+          if (!allowedSeatType) return null;
+          if (!alwaysOn && !connected) return null;
+
+          return {
+            key,
+            label,
+            role:
+              seat.role ||
+              seat.stance ||
+              (key === "ceo"
+                ? "Strategic Leadership"
+                : key === "aion"
+                  ? "Core Intelligence"
+                  : "Connected Provider"),
+            accent:
+              colour[key] ||
+              (key === "gemini"
+                ? 0x38bdf8
+                : key === "gemma"
+                  ? 0x60a5fa
+                  : key === "openai"
+                    ? 0x22c55e
+                    : 0x8b5cf6),
+          };
+        })
+        .filter(Boolean);
+
+      const seenBoardSeatKeysO15F = new Set();
+      const uniqueBoardSeatsO15F = liveBoardSeatsO15F.filter((seat) => {
+        if (seenBoardSeatKeysO15F.has(seat.key)) return false;
+        seenBoardSeatKeysO15F.add(seat.key);
+        return true;
+      });
+
+      const fallbackBoardSeatsO15F = [
+        { key: "ceo", label: "CEO", role: "Strategic Leadership", accent: 0x60a5fa },
+        { key: "aion", label: "AION", role: "Core Intelligence", accent: 0x8b5cf6 },
+        { key: "gemma", label: "Gemma", role: "Local Default Reasoning", accent: 0x60a5fa },
+      ];
+
+      const sourceBoardSeatsO15F = uniqueBoardSeatsO15F.length
+        ? uniqueBoardSeatsO15F
+        : fallbackBoardSeatsO15F;
+
+      
+      global.__debugAionO15H3BoardTeamTableSnapshot = {
+        snapshotSeatCount: safeArray(boardSnapshotO15H3?.seats).length,
+        globalSnapshotSeatCount: safeArray(globalBoardSnapshotO15I?.seats).length,
+        optionSnapshotSeatCount: safeArray(localOptionSnapshotO15I?.seats).length,
+        renderSnapshotSeatCount: safeArray(localRenderSnapshotO15I?.seats).length,
+        liveBoardSeatCount: liveBoardSeatsO15F.length,
+        sourceBoardSeatCount: sourceBoardSeatsO15F.length,
+        usedFallback: liveBoardSeatsO15F.length === 0,
+        labels: sourceBoardSeatsO15F.map((seat) => seat.label || seat[1] || seat.id || seat.key),
+      };
+
+      const boardSeatCenterO15F = (sourceBoardSeatsO15F.length - 1) / 2;
+      const boardSeatSpacingO15F =
+        sourceBoardSeatsO15F.length <= 3
+          ? 5.6
+          : Math.min(3.2, 13.6 / Math.max(1, sourceBoardSeatsO15F.length - 1));
+
+      const boardSeats = sourceBoardSeatsO15F.map((seat, index) => {
+        const offset = index - boardSeatCenterO15F;
+        const curve = boardSeatCenterO15F > 0
+          ? 1 - Math.abs(offset) / boardSeatCenterO15F
+          : 1;
+
+        return [
+          seat.key,
+          seat.label,
+          seat.role,
+          offset * boardSeatSpacingO15F,
+          -8.72 - curve * 0.48,
+          seat.accent,
+        ];
+      });
+      /* END AION O15F REAL 3D BOARDROOM PROVIDER SEATS LOCK */
+
+      if (!global.__aionO4GBoardTeamSeatDebug) {
+        global.__aionO4GBoardTeamSeatDebug = true;
+        console.info("[AION] O4G board team robot_agent.glb seat renderer active");
+      }
+
+      boardSeats.forEach(([key, label, role, x, z, accent]) => {
+        const group = new THREE.Group();
+        group.name = `aion_o4g_forced_visible_board_seat_${key}`;
+        group.position.set(x, 0.08, z);
+
+        const chairSeat = new THREE.Mesh(
+          new THREE.BoxGeometry(1.24, 0.18, 0.86),
+          new THREE.MeshStandardMaterial({
+            color: 0xf8fafc,
+            metalness: 0.18,
+            roughness: 0.34,
+            transparent: true,
+            opacity: 0.88,
+          }),
+        );
+        chairSeat.position.set(0, 0.42, 0.16);
+        group.add(chairSeat);
+
+        const chairBack = new THREE.Mesh(
+          new THREE.BoxGeometry(1.08, 1.12, 0.14),
+          new THREE.MeshStandardMaterial({
+            color: 0xe5edf6,
+            metalness: 0.12,
+            roughness: 0.38,
+            transparent: true,
+            opacity: 0.82,
+          }),
+        );
+        chairBack.position.set(0, 1.04, -0.28);
+        group.add(chairBack);
+
+        const realBoardRobot = cloneAionBoardroomAsset("robot_agent");
+
+        if (realBoardRobot) {
+          normalizeAionBoardroomAgentModel(realBoardRobot, {
+            targetHeight: key === "aion" ? 1.68 : 1.52,
+            zOffset: 0.0,
+            name: `aion_o4g_real_board_robot_agent_${key}`,
+          });
+
+          realBoardRobot.position.x += 0;
+          realBoardRobot.position.y += 0.20;
+          realBoardRobot.position.z += 0.22;
+          realBoardRobot.rotation.y = 0;
+          realBoardRobot.visible = true;
+
+          realBoardRobot.traverse?.((child) => {
+            if (child?.isMesh) {
+              child.visible = true;
+              child.castShadow = true;
+              child.receiveShadow = true;
+              if (child.material) {
+                child.material.depthTest = true;
+                child.material.depthWrite = true;
+                child.material.transparent = child.material.transparent === true;
+              }
+            }
+          });
+
+          group.add(realBoardRobot);
+          group.userData.realBoardRobotAgentLoaded = true;
+        } else {
+          const fallback = new THREE.Group();
+          fallback.name = `aion_o4g_fallback_board_agent_${key}`;
+
+          const body = new THREE.Mesh(
+            new THREE.CapsuleGeometry(0.20, 0.58, 8, 18),
+            new THREE.MeshStandardMaterial({
+              color: 0xffffff,
+              metalness: 0.10,
+              roughness: 0.30,
+            }),
+          );
+          body.position.set(0, 1.0, 0.22);
+          fallback.add(body);
+
+          const head = new THREE.Mesh(
+            new THREE.SphereGeometry(0.22, 28, 18),
+            new THREE.MeshStandardMaterial({
+              color: 0xffffff,
+              metalness: 0.12,
+              roughness: 0.26,
+            }),
+          );
+          head.scale.set(0.94, 1.08, 0.84);
+          head.position.set(0, 1.53, 0.22);
+          fallback.add(head);
+
+          const visor = new THREE.Mesh(
+            new THREE.BoxGeometry(0.30, 0.105, 0.035),
+            new THREE.MeshBasicMaterial({
+              color: accent,
+              transparent: true,
+              opacity: 0.95,
+              depthWrite: false,
+            }),
+          );
+          visor.position.set(0, 1.54, 0.41);
+          fallback.add(visor);
+
+          group.add(fallback);
+          group.userData.realBoardRobotAgentLoaded = false;
+        }
+
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(key === "aion" ? 0.76 : 0.66, 0.026, 8, 64),
+          new THREE.MeshBasicMaterial({
+            color: accent,
+            transparent: true,
+            opacity: key === "aion" ? 0.90 : 0.46,
+            depthWrite: false,
+          }),
+        );
+        ring.rotation.x = Math.PI / 2;
+        ring.position.set(0, 0.035, 0.16);
+        group.add(ring);
+
+        const labelPlate = makeTextSprite(label, {
+          fontSize: key === "aion" ? 46 : 40,
+          color: "#ffffff",
+          background: "rgba(2, 6, 23, 0.92)",
+          border: key === "aion" ? "rgba(139, 92, 246, 0.95)" : "rgba(255, 255, 255, 0.24)",
+          widthWorld: Math.max(1.2, String(label).length * 0.16),
+          heightWorld: 0.36,
+        });
+        labelPlate.position.set(0, 2.26, 0.38);
+        group.add(labelPlate);
+
+        const rolePlate = makeTextSprite(role, {
+          fontSize: 19,
+          color: key === "aion" ? "#ede9fe" : "#dbeafe",
+          background: "rgba(15, 23, 42, 0.26)",
+          border: "rgba(255, 255, 255, 0.08)",
+          widthWorld: Math.max(1.35, String(role).length * 0.068),
+          heightWorld: 0.23,
+        });
+        rolePlate.position.set(0, 1.96, 0.38);
+        group.add(rolePlate);
+
+        /* BEGIN AION O15J REAL AGENT LIVE STATUS BADGE LOCK */
+        /*
+         * O15J:
+         * - The real table agents are now the source of truth.
+         * - Show connection state on the actual 3D agent, not in the old bottom rail.
+         */
+        const liveStatusText =
+          key === "ceo" || key === "aion"
+            ? "ALWAYS ON"
+            : "LIVE";
+
+        const liveStatusPlate = makeTextSprite(liveStatusText, {
+          fontSize: 18,
+          fontWeight: 950,
+          color: "#ffffff",
+          background:
+            key === "ceo" || key === "aion"
+              ? "rgba(22, 101, 52, 0.92)"
+              : "rgba(22, 163, 74, 0.94)",
+          border: "rgba(255, 255, 255, 0.22)",
+          widthWorld: key === "ceo" || key === "aion" ? 1.05 : 0.72,
+          heightWorld: 0.22,
+        });
+        liveStatusPlate.position.set(0, 1.68, 0.38);
+        group.add(liveStatusPlate);
+        /* END AION O15J REAL AGENT LIVE STATUS BADGE LOCK */
+
+        parent.add(group);
+      });
+
+      parent.userData = parent.userData || {};
+      parent.userData.aionO4GForcedVisibleBoardSeats = true;
+    }
+
+    function seatArc(index, total, radius = 11.8, centerZ = -4.55, startDeg = 158, endDeg = 22) {
+      const t = total <= 1 ? 0.5 : index / (total - 1);
+      const deg = startDeg + (endDeg - startDeg) * t;
+      const rad = (deg * Math.PI) / 180;
+      return {
+        x: Math.cos(rad) * radius,
+        z: centerZ - Math.sin(rad) * radius * 0.7,
+      };
+    }
+
+    addBackScreen(root);
+    addTable(root);
+
+    addSoftPanel(
+      root,
+      teamMode === "board" ? "BOARD SESSION · ACTIVE" : "EXEC SESSION · ACTIVE",
+      [
+        `Workspace ${workspaceDisplay.name}`,
+        `Mode ${teamMode === "board" ? "Strategy" : "Execution"}`,
+        `Cash ${center.cash || money(pulse?.cash?.onHand)}`,
+        `Runs ${safeArray(runtime?.runs).length}`,
+      ],
+      -12.8,
+      5.7,
+      -10.8,
+      0x22c55e,
+      false,
+    );
+
+    addSoftPanel(
+      root,
+      "AI STATUS",
+      [
+        "Coherence 0.96",
+        "Confidence High",
+        `Focus ${teamMode === "board" ? "Strategy" : activeZone}`,
+        "Entropy 0.14",
+      ],
+      12.8,
+      5.7,
+      -10.8,
+      0x67e8f9,
+      true,
+    );
+
+    const executiveSeats = [
+      ["marketing", "Marketing", "Brand & Growth"],
+      ["sales", "Sales", "Revenue & Pipeline"],
+      ["finance", "Finance", "Financial Stewardship"],
+      ["operations", "Operations", "Process & Efficiency"],
+      ["support", "Support", "Customer Success"],
+      ["hr", "HR", "People & Culture"],
+    ];
+
+    /* BEGIN AION O15F BOARD MODE SNAPSHOT SEATS ONLY LOCK */
+    /*
+     * Board mode must not fake missing providers.
+     * It renders founder/orchestrator plus connected_provider seats from snapshot.seats.
+     */
+    const boardSeatsFromSnapshotO15F = safeArray(snapshot?.seats)
+      .map((seat) => {
+        if (!seat || typeof seat !== "object") return null;
+
+        const key = String(seat.key || seat.provider_id || seat.id || "").trim().toLowerCase();
+        const label = String(seat.label || key || "").trim().replace(" / Google", "");
+        const status = String(seat.status || "").trim().toLowerCase();
+        const seatType = String(seat.seat_type || "").trim().toLowerCase();
+        const alwaysOn = ["ceo", "aion"].includes(key);
+        const connected = seat.connected === true || status === "connected" || status === "always_on";
+        const allowedSeatType =
+          ["founder", "orchestrator", "connected_provider"].includes(seatType) ||
+          alwaysOn;
+
+        if (!key || !label) return null;
+        if (!allowedSeatType) return null;
+        if (!alwaysOn && !connected) return null;
+
+        return [
+          key,
+          label,
+          seat.role ||
+            seat.stance ||
+            (key === "ceo"
+              ? "Strategic Leadership"
+              : key === "aion"
+                ? "Business Brain"
+                : "Connected Provider"),
+        ];
+      })
+      .filter(Boolean);
+
+    const seenBoardModeSeatKeysO15F = new Set();
+    const uniqueBoardModeSeatsO15F = boardSeatsFromSnapshotO15F.filter((seat) => {
+      const key = String(seat[0] || "");
+      if (seenBoardModeSeatKeysO15F.has(key)) return false;
+      seenBoardModeSeatKeysO15F.add(key);
+      return true;
     });
 
-    const centerSubtext = [
-      `Cash ${center.cash || money(pulse?.cash?.onHand)}`,
-      `Rev ${center.revenue || money(pulse?.sales?.revenue)}`,
-      `Backlog ${center.pipeline || asText(pulse?.ops?.backlog)}`,
-    ].join(" · ");
+    const boardSeats = uniqueBoardModeSeatsO15F.length
+      ? uniqueBoardModeSeatsO15F
+      : [
+          ["ceo", "CEO", "Strategic Leadership"],
+          ["aion", "AION", "Business Brain"],
+          ["gemma", "Gemma", "Local Default Reasoning"],
+        ];
 
-    const cooFloor = buildHexFloor(
-      "COO Core",
-      0x1a8aff,
-      positions.coo[0],
-      positions.coo[2],
+    let seatsToRender = teamMode === "board" ? boardSeats : executiveSeats;
+    /* END AION O15F BOARD MODE SNAPSHOT SEATS ONLY LOCK */
+
+    /*
+     * Department 1:1 mode.
+     * Same spatial boardroom renderer, but only the active department director is visible.
+     */
+    const department121Match = String(teamMode || "").match(/^([a-z0-9_]+)_121$/);
+    /* BEGIN AION O16C DEPARTMENT 121 CAMERA CENTER AGENT LOCK */
+    const isDepartment121ModeO16C = Boolean(department121Match);
+    /* END AION O16C DEPARTMENT 121 CAMERA CENTER AGENT LOCK */
+    if (department121Match) {
+      const department121Key = department121Match[1];
+      const department121Labels = {
+        marketing: ["Marketing", "Brand & Growth"],
+        sales: ["Sales", "Revenue & Pipeline"],
+        finance: ["Finance", "Financial Truth Layer"],
+        operations: ["Operations", "Process & Efficiency"],
+        support: ["Support", "Customer Success"],
+        hr: ["HR", "People & Culture"],
+      };
+      const department121Label = department121Labels[department121Key] || [
+        department121Key.charAt(0).toUpperCase() + department121Key.slice(1),
+        "Department Director",
+      ];
+      seatsToRender = [[department121Key, department121Label[0], department121Label[1]]];
+    }
+
+    if (Array.isArray(options.visibleDepartments) && options.visibleDepartments.length) {
+      const allowedDepartments = new Set(
+        options.visibleDepartments
+          .map((item) => String(item || "").trim().toLowerCase())
+          .filter(Boolean),
+      );
+      seatsToRender = seatsToRender.filter(([key]) => allowedDepartments.has(String(key || "").toLowerCase()));
+    }
+
+    seatsToRender.forEach(([key, label, role], index) => {
+      const pos = isDepartment121ModeO16C
+        ? { x: 0, z: -40 }
+        : seatArc(index, seatsToRender.length);
+      const seatId = getDepartmentSeatId(key);
+      const active = activeZone === key || selectedSeatId === seatId || isDepartment121ModeO16C;
+      addAgentSeat(root, key, label, role, pos.x, pos.z, colour[key] || 0x60a5fa, active);
+    });
+
+    if (teamMode !== "board") {
+      addForcedVisibleExecutiveSeats(root, options || {});
+    } else if (teamMode === "board") {
+      addForcedVisibleBoardTeamSeats(root, options || {});
+    }
+
+
+    const queue = makeTextSprite(
+      teamMode === "board"
+        ? "BOARD MODE · TOP LINE STRATEGY"
+        : String(teamMode || "").endsWith("_121")
+          ? "1:1 DEPARTMENT ROOM · SAFE EXECUTION"
+          : "EXECUTIVE MODE · SAFE EXECUTION",
       {
-        dark: true,
-        scale: 1.26,
-        active: activeZone === "coo" || selectedSeatId === "seat_coo",
-        subtext: centerSubtext,
-        subtextColor: "#93c5fd",
-        stateText: center.health || pulse?.risk?.cash || "LOW",
-        stateColorText: "#22c55e",
+        fontSize: 24,
+        fontWeight: 900,
+        color: "#fed7aa",
+        background: "rgba(15,23,42,0.72)",
+        paddingX: 28,
+        paddingY: 14,
+        heightWorld: 0.32,
       },
     );
-    root.add(cooFloor);
-
-    const cooPads = new THREE.Group();
-    cooPads.position.set(positions.coo[0], 0, positions.coo[2]);
-    cooPads.add(buildMetricPad("Cash", money(pulse?.cash?.onHand), -1.35, -0.72, 0x1a8aff));
-    cooPads.add(buildMetricPad("Revenue", money(pulse?.sales?.revenue), 0, -0.72, 0x1a8aff));
-    cooPads.add(buildMetricPad("GM", percent(pulse?.finance?.grossMarginPct), 1.35, -0.72, 0x22c55e));
-    cooPads.add(buildMetricPad("Stock Value", money(pulse?.stock?.value), -1.35, 0.05, 0xf59e0b));
-    cooPads.add(buildMetricPad("Days Cover", `${asText(pulse?.stock?.daysCover)}d`, 0, 0.05, 0xf59e0b));
-    cooPads.add(buildMetricPad("Backlog", asText(pulse?.ops?.backlog), 1.35, 0.05, 0x8b5cf6));
-    cooPads.add(buildMetricPad("Creditor Days", `${asText(pulse?.finance?.creditorDays)}d`, -1.35, 0.82, 0x64748b));
-    cooPads.add(buildMetricPad("Debtor Days", `${asText(pulse?.finance?.debtorDays)}d`, 0, 0.82, 0x64748b));
-    cooPads.add(
-      buildMetricPad(
-        "Cash Risk",
-        asText(pulse?.risk?.cash).toUpperCase(),
-        1.35,
-        0.82,
-        seatStateColor(
-          pulse?.risk?.cash === "high"
-            ? "blocked"
-            : pulse?.risk?.cash === "medium"
-              ? "warning"
-              : "healthy",
-        ),
-      ),
-    );
-    root.add(cooPads);
-
-    const departmentKeys = getRenderableDepartmentKeys(snapshot).filter(
-      (key) => !["coo", "ceo", "aion", "openai"].includes(key),
-    );
-
-    departmentKeys.forEach((key) => {
-      const zone = BOARDROOM_ZONES[key];
-      const position = positions[key];
-      const seatId = getDepartmentSeatId(key);
-
-      const seat = getSeatById(snapshot, seatId);
-      const floor = buildHexFloor(zone.label, zone.color, position[0], position[2], {
-        scale: zone.scale,
-        active: activeZone === key || selectedSeatId === seatId,
-        stateText: seat?.state || "healthy",
-        stateColorText:
-          seat?.state === "blocked"
-            ? "#ef4444"
-            : seat?.state === "warning"
-              ? "#f59e0b"
-              : "#22c55e",
-      });
-
-      root.add(floor);
-      registerInteractive(floor.children[1] || floor, {
-        type: "seat",
-        departmentKey: key,
-        seatId,
-      });
-
-      renderDepartmentInterior(
-        root,
-        key,
-        floors?.[key],
-        position,
-        selectedInspectorTarget,
-        snapshot,
-      );
-    });
+    queue.position.set(7.7, 2.25, 3.0);
+    root.add(queue);
 
     return root;
   }
 
-  function buildSceneShell(scene) {
+  
+
+function buildSceneShell(scene) {
     const THREE = ensureThree();
 
-    scene.background = new THREE.Color("#eef3f9");
-    scene.fog = new THREE.Fog("#eef3f9", 58, 180);
+    scene.background = new THREE.Color("#cbd5e1");
+    scene.fog = new THREE.Fog("#cbd5e1", 30, 104);
 
-    const ambient = new THREE.AmbientLight(0xffffff, 1.12);
+    const ambient = new THREE.AmbientLight(0xffffff, 0.54);
     scene.add(ambient);
 
-    const key = new THREE.DirectionalLight(0xffffff, 1.15);
-    key.position.set(8, 14, 10);
+    const hemi = new THREE.HemisphereLight(0xdbeafe, 0x1f2937, 0.76);
+    scene.add(hemi);
+
+    const key = new THREE.DirectionalLight(0xffffff, 1.55);
+    key.position.set(-9, 18, 12);
+    key.castShadow = true;
+    key.shadow.mapSize.width = 2048;
+    key.shadow.mapSize.height = 2048;
+    key.shadow.camera.near = 0.5;
+    key.shadow.camera.far = 80;
+    key.shadow.camera.left = -28;
+    key.shadow.camera.right = 28;
+    key.shadow.camera.top = 28;
+    key.shadow.camera.bottom = -28;
     scene.add(key);
 
-    const fill = new THREE.DirectionalLight(0xffffff, 0.45);
-    fill.position.set(-8, 8, -10);
-    scene.add(fill);
+    const warm = new THREE.DirectionalLight(0xffdcc2, 1.05);
+    warm.position.set(12, 8, 10);
+    scene.add(warm);
+
+    const cool = new THREE.DirectionalLight(0xaed8ff, 0.78);
+    cool.position.set(0, 7, -18);
+    scene.add(cool);
+
+    const rim = new THREE.DirectionalLight(0x7dd3fc, 0.86);
+    rim.position.set(0, 6, 16);
+    scene.add(rim);
+
+    const tableSpot = new THREE.SpotLight(0x93c5fd, 1.35, 48, Math.PI * 0.21, 0.58, 1.6);
+    tableSpot.position.set(0, 12.5, 2.5);
+    tableSpot.target.position.set(0, 0.5, -5);
+    tableSpot.castShadow = true;
+    tableSpot.shadow.mapSize.width = 2048;
+    tableSpot.shadow.mapSize.height = 2048;
+    scene.add(tableSpot);
+    scene.add(tableSpot.target);
+
+    const agentRimLeft = new THREE.PointLight(0x60a5fa, 1.25, 26, 1.45);
+    agentRimLeft.position.set(-9.5, 4.2, -8.5);
+    scene.add(agentRimLeft);
+
+    const agentRimRight = new THREE.PointLight(0x67e8f9, 1.15, 26, 1.45);
+    agentRimRight.position.set(9.5, 4.2, -8.5);
+    scene.add(agentRimRight);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(96, 96),
+      new THREE.MeshStandardMaterial({
+        color: 0xdbe3ee,
+        roughness: 0.58,
+        metalness: 0.08,
+      }),
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.set(0, -0.98, 0);
+    scene.add(floor);
+
+    const floorGlow = new THREE.Mesh(
+      new THREE.PlaneGeometry(42, 28),
+      new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.18,
+        side: THREE.DoubleSide,
+      }),
+    );
+    floorGlow.rotation.x = -Math.PI / 2;
+    floorGlow.position.set(0, -0.955, -8);
+    scene.add(floorGlow);
 
     const grid = new THREE.GridHelper(
-      180,
-      140,
-      new THREE.Color("#8fb8ea"),
-      new THREE.Color("#c8ddf5"),
+      96,
+      88,
+      new THREE.Color("#c8d5e4"),
+      new THREE.Color("#edf3f9"),
     );
     grid.position.set(0, -0.94, 0);
     grid.material.transparent = true;
-    grid.material.opacity = 0.58;
+    grid.material.opacity = 0.26;
     scene.add(grid);
 
-    const plane = new THREE.Mesh(
-      new THREE.PlaneGeometry(220, 220),
+    const backWall = new THREE.Mesh(
+      new THREE.PlaneGeometry(52, 24),
       new THREE.MeshStandardMaterial({
-        color: 0xedf2f8,
-        roughness: 0.98,
+        color: 0xf8fafc,
+        roughness: 0.72,
         metalness: 0.02,
       }),
     );
-    plane.rotation.x = -Math.PI / 2;
-    plane.position.set(0, -0.96, 0);
-    scene.add(plane);
+    backWall.position.set(0, 7.7, -25.2);
+    scene.add(backWall);
+
+    const rearShadow = new THREE.Mesh(
+      new THREE.PlaneGeometry(34, 13),
+      new THREE.MeshBasicMaterial({
+        color: 0x0f172a,
+        transparent: true,
+        opacity: 0.045,
+        side: THREE.DoubleSide,
+      }),
+    );
+    rearShadow.position.set(0, 6.6, -25.05);
+    scene.add(rearShadow);
+
+    const leftWall = new THREE.Mesh(
+      new THREE.PlaneGeometry(30, 22),
+      new THREE.MeshStandardMaterial({
+        color: 0xeef4fb,
+        roughness: 0.82,
+        metalness: 0.02,
+        transparent: true,
+        opacity: 0.92,
+        side: THREE.DoubleSide,
+      }),
+    );
+    leftWall.position.set(-25.5, 7.2, -13);
+    leftWall.rotation.y = Math.PI * 0.18;
+    scene.add(leftWall);
+
+    const rightWall = leftWall.clone();
+    rightWall.position.set(25.5, 7.2, -13);
+    rightWall.rotation.y = -Math.PI * 0.18;
+    scene.add(rightWall);
+
+    const ceiling = new THREE.Mesh(
+      new THREE.PlaneGeometry(58, 36),
+      new THREE.MeshStandardMaterial({
+        color: 0xf8fafc,
+        roughness: 0.86,
+        metalness: 0.03,
+      }),
+    );
+    ceiling.rotation.x = Math.PI / 2;
+    ceiling.position.set(0, 16.2, -5);
+    scene.add(ceiling);
+
+    const ceilingGlow = new THREE.Mesh(
+      new THREE.TorusGeometry(9.8, 0.16, 24, 128),
+      new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        transparent: true,
+        opacity: 0.9,
+      }),
+    );
+    ceilingGlow.rotation.x = Math.PI / 2;
+    ceilingGlow.position.set(0, 15.95, -6.2);
+    scene.add(ceilingGlow);
+
+    const ceilingHalo = new THREE.Mesh(
+      new THREE.TorusGeometry(10.6, 0.035, 16, 128),
+      new THREE.MeshBasicMaterial({
+        color: 0x93c5fd,
+        transparent: true,
+        opacity: 0.28,
+      }),
+    );
+    ceilingHalo.rotation.x = Math.PI / 2;
+    ceilingHalo.position.set(0, 15.9, -6.2);
+    scene.add(ceilingHalo);
+
+    [
+      [-21.5, 6.5, -15.7, 0.28],
+      [-18.2, 6.2, -13.2, 0.18],
+      [21.5, 6.5, -15.7, -0.28],
+      [18.2, 6.2, -13.2, -0.18],
+    ].forEach(([x, y, z, rot]) => {
+      const windowPanel = new THREE.Mesh(
+        new THREE.PlaneGeometry(9.8, 11.4),
+        new THREE.MeshBasicMaterial({
+          color: 0xdbeafe,
+          transparent: true,
+          opacity: 0.32,
+          side: THREE.DoubleSide,
+        }),
+      );
+      windowPanel.position.set(x, y, z);
+      windowPanel.rotation.y = rot;
+      scene.add(windowPanel);
+
+      const windowGlow = new THREE.Mesh(
+        new THREE.PlaneGeometry(8.4, 9.2),
+        new THREE.MeshBasicMaterial({
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.16,
+          side: THREE.DoubleSide,
+        }),
+      );
+      windowGlow.position.set(x, y, z + 0.04);
+      windowGlow.rotation.y = rot;
+      scene.add(windowGlow);
+    });
   }
+
 
   function applyCameraPose(camera, pose) {
     camera.position.set(
@@ -1190,19 +2856,41 @@
     camera.lookAt(pose.targetX, pose.targetY, pose.targetZ);
   }
 
-  function setupSimpleOrbitControls(renderer, camera) {
-    const state = {
-      isDragging: false,
-      lastX: 0,
-      lastY: 0,
-      theta: 0,
-      phi: 0.42,
-      radius: 32,
-      y: 18,
-      targetX: 0,
-      targetY: 0,
-      targetZ: -4,
-    };
+  
+function setupSimpleOrbitControls(renderer, camera, options = {}) {
+        const isDepartment121CameraO16C =
+      String(options?.cameraMode || "").endsWith("_121") ||
+      String(options?.boardroomTeamMode || "").endsWith("_121");
+
+    const state = isDepartment121CameraO16C
+      ? {
+          isDragging: false,
+          lastX: 0,
+          lastY: 0,
+
+          // O16C: closer 1:1 department room camera, focused on the centred director.
+          theta: 0,
+          phi: 0.038,
+          radius: 8.2,
+          y: 2.85,
+          targetX: 0,
+          targetY: 1.65,
+          targetZ: -8.15,
+        }
+      : {
+          isDragging: false,
+          lastX: 0,
+          lastY: 0,
+
+          // AION seated POV: low camera, looking across the table at the agents.
+          theta: 0,
+          phi: 0.052,
+          radius: 13.9,
+          y: 3.9,
+          targetX: 0,
+          targetY: 2.05,
+          targetZ: -10.85,
+        };
 
     applyCameraPose(camera, state);
 
@@ -1219,8 +2907,9 @@
       state.lastX = event.clientX;
       state.lastY = event.clientY;
 
-      state.theta -= dx * 0.008;
-      state.phi = clamp(state.phi - dy * 0.004, 0.12, 1.18);
+      state.theta -= dx * 0.0045;
+      state.phi = clamp(state.phi - dy * 0.0025, -0.06, 0.55);
+      state.y = clamp(state.y - dy * 0.006, 2.8, 9.5);
       applyCameraPose(camera, state);
     }
 
@@ -1230,8 +2919,7 @@
 
     function onWheel(event) {
       event.preventDefault();
-      state.radius = clamp(state.radius + event.deltaY * 0.02, 12, 80);
-      state.y = clamp(state.radius * 0.56, 7, 38);
+      state.radius = clamp(state.radius + event.deltaY * 0.012, 8.8, 28);
       applyCameraPose(camera, state);
     }
 
@@ -1275,6 +2963,14 @@
     function handleSelection(meta) {
       if (!current || !meta) return;
       const options = current.options || {};
+
+      if (meta.type === "team_mode_switch") {
+        const nextMode = options.boardroomTeamMode === "board" ? "executive" : "board";
+        options.boardroomTeamMode = nextMode;
+        global.__aionSpatialBoardroomTeamMode = nextMode;
+        rebuildWorld(options.snapshot, options);
+        return;
+      }
 
       if (meta.type === "seat") {
         options.activeZone = meta.departmentKey;
@@ -1365,6 +3061,38 @@
     };
   }
 
+
+
+  function applyAionCinematicMeshQuality(root) {
+    if (!root) return;
+
+    root.traverse?.((child) => {
+      if (!child || !child.isMesh) return;
+
+      child.castShadow = true;
+      child.receiveShadow = true;
+
+      if (child.material) {
+        const materials = Array.isArray(child.material) ? child.material : [child.material];
+
+        materials.forEach((mat) => {
+          if (!mat) return;
+
+          if ("roughness" in mat && typeof mat.roughness === "number") {
+            mat.roughness = Math.max(0.18, Math.min(mat.roughness, 0.72));
+          }
+
+          if ("metalness" in mat && typeof mat.metalness === "number") {
+            mat.metalness = Math.max(mat.metalness, 0.08);
+          }
+
+          mat.needsUpdate = true;
+        });
+      }
+    });
+  }
+
+
   function rebuildWorld(snapshot, options) {
     if (!current) return;
 
@@ -1377,6 +3105,7 @@
     }
 
     const rootGroup = buildBoardroomWorld(snapshot || {}, options || {});
+    applyAionCinematicMeshQuality(rootGroup);
     current.scene.add(rootGroup);
     current.rootGroup = rootGroup;
     current.options = {
@@ -1385,6 +3114,190 @@
       snapshot: snapshot || {},
     };
   }
+
+
+  /* BEGIN AION O18F REAL AGENT ONLY PORTRAIT RENDERER LOCK */
+    function mountAionO18FRealAgentOnlyPortrait(container, options = {}) {
+    if (!container) {
+      throw new Error("mountAionO18FRealAgentOnlyPortrait requires a container");
+    }
+
+    container.innerHTML = "";
+    container.dataset.aionO18pCleanAgentPortrait = "true";
+
+    const width = Math.max(260, container.clientWidth || 320);
+    const height = Math.max(320, container.clientHeight || 390);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x020617);
+
+    const camera = new THREE.PerspectiveCamera(32, width / height, 0.1, 80);
+    camera.position.set(0, 1.52, 6.2);
+    camera.lookAt(0, 1.50, 0);
+
+    const portraitRenderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      powerPreference: "high-performance",
+    });
+
+    portraitRenderer.setClearColor(0x020617, 1);
+    portraitRenderer.setSize(width, height);
+    portraitRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    portraitRenderer.domElement.style.width = "100%";
+    portraitRenderer.domElement.style.height = "100%";
+    portraitRenderer.domElement.dataset.aionO18pCleanAgentPortraitCanvas = "true";
+    container.appendChild(portraitRenderer.domElement);
+
+    const ambient = new THREE.HemisphereLight(0xffffff, 0x111827, 2.65);
+    scene.add(ambient);
+
+    const key = new THREE.DirectionalLight(0xffffff, 3.6);
+    key.position.set(2.4, 4.6, 5.4);
+    scene.add(key);
+
+    const fill = new THREE.DirectionalLight(0x93c5fd, 2.1);
+    fill.position.set(-3.0, 2.8, 4.4);
+    scene.add(fill);
+
+    const rim = new THREE.DirectionalLight(0x67e8f9, 2.2);
+    rim.position.set(0, 3.4, -4.5);
+    scene.add(rim);
+
+    const agentRoot = new THREE.Group();
+    agentRoot.name = "AION_O18P_CLEAN_AGENT_ONLY_ROOT";
+    agentRoot.position.set(0, 0.44, 0);
+    scene.add(agentRoot);
+
+    function brightenAgentO18P(object) {
+      object.traverse((node) => {
+        if (!node?.isMesh || !node.material) return;
+        const materials = Array.isArray(node.material) ? node.material : [node.material];
+        materials.forEach((mat) => {
+          if (!mat) return;
+          if (mat.color?.setHex) mat.color.setHex(0xf8fafc);
+          if (mat.emissive?.setHex) {
+            mat.emissive.setHex(0x60a5fa);
+            mat.emissiveIntensity = 0.08;
+          }
+          mat.transparent = false;
+          mat.opacity = 1;
+          mat.roughness = 0.32;
+          mat.metalness = 0.06;
+          mat.depthWrite = true;
+          mat.needsUpdate = true;
+        });
+      });
+    }
+
+    function addFallbackPortraitAgentO18P() {
+      const fallback = new THREE.Group();
+      fallback.name = "AION_O18P_FALLBACK_CLEAN_AGENT_ONLY";
+
+      const bodyMat = new THREE.MeshStandardMaterial({
+        color: 0xf8fafc,
+        emissive: 0x1d4ed8,
+        emissiveIntensity: 0.08,
+        metalness: 0.06,
+        roughness: 0.32,
+      });
+
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 32, 24), bodyMat);
+      head.position.set(0, 2.22, 0);
+      fallback.add(head);
+
+      const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.38, 0.76, 12, 24), bodyMat);
+      torso.position.set(0, 1.48, 0);
+      fallback.add(torso);
+
+      const leftArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.08, 0.58, 8, 16), bodyMat);
+      leftArm.position.set(-0.44, 1.48, 0);
+      leftArm.rotation.z = -0.18;
+      fallback.add(leftArm);
+
+      const rightArm = new THREE.Mesh(new THREE.CapsuleGeometry(0.08, 0.58, 8, 16), bodyMat);
+      rightArm.position.set(0.44, 1.48, 0);
+      rightArm.rotation.z = 0.18;
+      fallback.add(rightArm);
+
+      fallback.scale.set(0.98, 0.98, 0.98);
+      agentRoot.add(fallback);
+    }
+
+    function installAgentO18P() {
+      agentRoot.clear();
+
+      const realAgent = cloneAionBoardroomAsset("robot_agent");
+      if (realAgent) {
+        normalizeAionBoardroomAgentModel(realAgent, {
+          scale: 0.72,
+          yOffset: 0,
+          forceFront: true,
+        });
+
+        realAgent.name = "AION_O18P_CLEAN_REAL_AGENT_ONLY";
+        realAgent.position.set(0, 0, 0);
+        realAgent.rotation.set(0, Math.PI, 0);
+        brightenAgentO18P(realAgent);
+        agentRoot.add(realAgent);
+      } else {
+        addFallbackPortraitAgentO18P();
+      }
+    }
+
+    installAgentO18P();
+    loadAionBoardroomAssetsOnce(() => {
+      installAgentO18P();
+      portraitRenderer.render(scene, camera);
+    });
+
+    let disposed = false;
+    let frame = 0;
+
+    function animate() {
+      if (disposed) return;
+      frame += 1;
+      agentRoot.rotation.y = Math.sin(frame * 0.012) * 0.025;
+      portraitRenderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    function resize() {
+      if (disposed) return;
+      const nextWidth = Math.max(260, container.clientWidth || 320);
+      const nextHeight = Math.max(320, container.clientHeight || 390);
+      camera.aspect = nextWidth / nextHeight;
+      camera.updateProjectionMatrix();
+      portraitRenderer.setSize(nextWidth, nextHeight);
+    }
+
+    window.addEventListener("resize", resize);
+
+    return {
+      scene,
+      camera,
+      renderer: portraitRenderer,
+      root: agentRoot,
+      dispose() {
+        disposed = true;
+        window.removeEventListener("resize", resize);
+        try {
+          portraitRenderer.dispose();
+        } catch (error) {
+          console.warn("[AION] O18P clean portrait dispose failed", error);
+        }
+        if (container) container.innerHTML = "";
+      },
+      updateBoardroom(nextOptions = {}) {
+        options = { ...options, ...nextOptions };
+        installAgentO18P();
+        portraitRenderer.render(scene, camera);
+      },
+    };
+  }
+
 
   function updateBoardroom(nextOptions) {
     if (!current) return;
@@ -1396,6 +3309,17 @@
   }
 
   function mountBoardroom(container, options) {
+    const o18fCameraMode = String(options?.cameraMode || "");
+    const o18fTeamMode = String(options?.boardroomTeamMode || "");
+    const o18fIsDepartment121 =
+      o18fCameraMode.endsWith("_121") ||
+      o18fTeamMode.endsWith("_121") ||
+      options?.agentPortraitMode === true;
+
+    if (o18fIsDepartment121) {
+      return mountAionO18FRealAgentOnlyPortrait(container, options || {});
+    }
+
     const THREE = ensureThree();
     const opts = options || {};
     disposeCurrent();
@@ -1410,20 +3334,33 @@
     const scene = new THREE.Scene();
     buildSceneShell(scene);
 
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.1, 400);
+    const camera = new THREE.PerspectiveCamera(52, width / height, 0.1, 400);
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: false,
     });
 
-    renderer.setPixelRatio(Math.min(global.devicePixelRatio || 1, 2));
+    /*
+     * AION O14I performance lock:
+     * Keep the spatial boardroom crisp enough, but avoid hammering the GPU on
+     * high-DPI Mac displays while the rest of the desktop is scrolling.
+     */
+    renderer.setPixelRatio(Math.min(global.devicePixelRatio || 1, 1.5));
     renderer.setSize(width, height);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+    if ("ACESFilmicToneMapping" in THREE) {
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.94;
+    }
+
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     container.innerHTML = "";
     container.appendChild(renderer.domElement);
 
-    const controlsCleanup = setupSimpleOrbitControls(renderer, camera);
+    const controlsCleanup = setupSimpleOrbitControls(renderer, camera, opts);
     const pointerCleanup = setupPointerInteraction(renderer, camera);
 
     const onResize = function onResize() {
@@ -1446,6 +3383,7 @@
       controlsCleanup,
       pointerCleanup,
       rafId: null,
+      lastRenderAt: 0,
       interactives: [],
       options: {
         snapshot: opts.snapshot || {},
@@ -1453,6 +3391,12 @@
         activeZone: opts.activeZone || "coo",
         selectedSeatId: opts.selectedSeatId || null,
         selectedInspectorTarget: opts.selectedInspectorTarget || null,
+        boardroomTeamMode: opts.boardroomTeamMode || window.__aionSpatialBoardroomTeamMode || "executive",
+        visibleDepartments: Array.isArray(opts.visibleDepartments) ? opts.visibleDepartments : null,
+        cameraMode: opts.cameraMode || "",
+        o16cDepartment121Camera:
+          String(opts.cameraMode || "").endsWith("_121") ||
+          String(opts.boardroomTeamMode || "").endsWith("_121"),
         onActiveZoneChange: opts.onActiveZoneChange,
         onSeatSelect: opts.onSeatSelect,
         onInspectorTargetChange: opts.onInspectorTargetChange,
@@ -1461,11 +3405,40 @@
       rootGroup: null,
     };
 
+    loadAionBoardroomAssetsOnce(() => {
+      if (!current) return;
+      rebuildWorld(current.options.snapshot, current.options);
+    });
+
     rebuildWorld(current.options.snapshot, current.options);
 
     const animate = function animate() {
       if (!current) return;
-      current.renderer.render(current.scene, current.camera);
+
+      const now =
+        global.performance && typeof global.performance.now === "function"
+          ? global.performance.now()
+          : Date.now();
+
+      const rect = current.container?.getBoundingClientRect?.();
+      const isVisible =
+        rect &&
+        rect.width > 0 &&
+        rect.height > 0 &&
+        rect.bottom >= 0 &&
+        rect.top <= (global.innerHeight || 0);
+
+      /*
+       * AION O14I performance lock:
+       * - render at about 30fps max instead of every browser frame
+       * - skip WebGL drawing when the boardroom canvas is off-screen
+       * This keeps scrolling responsive without removing the live 3D room.
+       */
+      if (isVisible && now - (current.lastRenderAt || 0) >= 33) {
+        current.renderer.render(current.scene, current.camera);
+        current.lastRenderAt = now;
+      }
+
       current.rafId = global.requestAnimationFrame(animate);
     };
 
@@ -1476,6 +3449,375 @@
   global.TessarisDesktopBoardroomRenderer = {
     mountBoardroom,
     updateBoardroom,
+    mountAionO18FRealAgentOnlyPortrait,
     disposeBoardroom: disposeCurrent,
   };
 })(window);
+/* BEGIN AION O15D BOARDROOM CONNECTED PROVIDER VISIBILITY LOCK */
+/*
+ * Fix:
+ * - Boardroom snapshot already contains CEO, AION, Gemma, OpenAI, Gemini.
+ * - Older 3D render path can visually drop connected_provider seats.
+ * - This lock adds a DOM/3D-visible provider rail over the spatial boardroom
+ *   using the actual renderer state snapshot, so connected Vault providers
+ *   are visible and missing providers are not faked.
+ */
+(function installAionO15DBoardroomConnectedProviderVisibilityLock() {
+  if (typeof window === "undefined") return;
+  if (window.__aionO15DBoardroomConnectedProviderVisibilityInstalled === true) return;
+  window.__aionO15DBoardroomConnectedProviderVisibilityInstalled = true;
+
+  const STYLE_ID = "aion-o15d-boardroom-connected-provider-visibility-style";
+  const RAIL_ID = "aionO15DBoardroomConnectedProviderRail";
+
+  function safeArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function installStyle() {
+    if (document.getElementById(STYLE_ID)) return;
+
+    const style = document.createElement("style");
+    style.id = STYLE_ID;
+    style.textContent = `
+      #${RAIL_ID} {
+        position: absolute;
+        left: 50%;
+        bottom: 74px;
+        transform: translateX(-50%);
+        z-index: 30;
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 18px;
+        pointer-events: none;
+        max-width: calc(100% - 120px);
+      }
+
+      #${RAIL_ID} .aion-o15d-provider-seat {
+        min-width: 92px;
+        max-width: 128px;
+        display: grid;
+        justify-items: center;
+        gap: 5px;
+        filter: drop-shadow(0 10px 18px rgba(15, 23, 42, .20));
+      }
+
+      #${RAIL_ID} .aion-o15d-provider-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        background:
+          radial-gradient(circle at 50% 28%, rgba(255,255,255,.95), rgba(226,232,240,.86) 42%, rgba(148,163,184,.86) 100%);
+        border: 1px solid rgba(15,23,42,.18);
+      }
+
+      #${RAIL_ID} .aion-o15d-provider-label {
+        padding: 4px 7px;
+        border-radius: 3px;
+        background: rgba(5, 9, 23, .92);
+        color: #ffffff;
+        font-size: 10px;
+        line-height: 1;
+        font-weight: 950;
+        letter-spacing: .02em;
+        text-align: center;
+        white-space: nowrap;
+      }
+
+      #${RAIL_ID} .aion-o15d-provider-status {
+        padding: 3px 6px;
+        border-radius: 999px;
+        background: rgba(22, 163, 74, .92);
+        color: #ffffff;
+        font-size: 8px;
+        line-height: 1;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function normaliseProviderSeat(seat) {
+    if (!seat || typeof seat !== "object") return null;
+
+    const id = String(seat.provider_id || seat.key || seat.id || "").trim().toLowerCase();
+    const label = String(seat.label || id || "").trim();
+
+    if (!id || !label) return null;
+
+    const isProvider =
+      seat.seat_type === "connected_provider" ||
+      seat.provider_id ||
+      ["gemma", "openai", "gemini", "claude", "grok"].includes(id);
+
+    const isVisible =
+      seat.connected === true ||
+      seat.status === "connected" ||
+      seat.status === "always_on" ||
+      ["ceo", "aion"].includes(id);
+
+    if (!isProvider && !["ceo", "aion"].includes(id)) return null;
+    if (!isVisible) return null;
+
+    return {
+      id,
+      label: label.replace(" / Google", ""),
+      status: ["ceo", "aion"].includes(id) ? "always on" : "connected",
+    };
+  }
+
+  function connectedSeatsFromState(rendererState = {}) {
+    const snapshot = rendererState.snapshot || {};
+    const fromSnapshot = safeArray(snapshot.seats).map(normaliseProviderSeat).filter(Boolean);
+
+    const seen = new Set();
+    return fromSnapshot.filter((seat) => {
+      if (seen.has(seat.id)) return false;
+      seen.add(seat.id);
+      return true;
+    });
+  }
+
+  function findMount() {
+    return (
+      document.getElementById("spatialBoardroomMount") ||
+      document.querySelector(".spatial-boardroom-mount") ||
+      document.querySelector("[data-aion-spatial-boardroom-main-panel='true']")
+    );
+  }
+
+  function renderProviderRail(rendererState = {}) {
+    const mount = findMount();
+    if (!mount) return;
+
+    installStyle();
+
+    const seats = connectedSeatsFromState(rendererState);
+    if (!seats.length) return;
+
+    const parent = mount.parentElement || mount;
+    const computed = window.getComputedStyle(parent);
+    if (computed.position === "static") {
+      parent.style.position = "relative";
+    }
+
+    let rail = parent.querySelector(`#${RAIL_ID}`);
+    if (!rail) {
+      rail = document.createElement("div");
+      rail.id = RAIL_ID;
+      rail.setAttribute("data-aion-o15d-boardroom-connected-provider-rail", "true");
+      parent.appendChild(rail);
+    }
+
+    rail.innerHTML = seats.map((seat) => `
+      <div class="aion-o15d-provider-seat" data-aion-o15d-provider-seat="${escapeHtml(seat.id)}">
+        <div class="aion-o15d-provider-label">${escapeHtml(seat.label)}</div>
+        <div class="aion-o15d-provider-avatar"></div>
+        <div class="aion-o15d-provider-status">${escapeHtml(seat.status)}</div>
+      </div>
+    `).join("");
+  }
+
+  function patchRenderer() {
+    const renderer = window.TessarisDesktopBoardroomRenderer;
+    if (!renderer || renderer.__aionO15DProviderRailPatched === true) return false;
+
+    const originalMount = renderer.mountBoardroom;
+    const originalUpdate = renderer.updateBoardroom;
+
+    if (typeof originalMount === "function") {
+      renderer.mountBoardroom = function mountBoardroomWithProviderRailO15D(mount, rendererState = {}) {
+        const result = originalMount.apply(this, arguments);
+        window.setTimeout(() => renderProviderRail(rendererState), 0);
+        window.setTimeout(() => renderProviderRail(rendererState), 120);
+        return result;
+      };
+    }
+
+    if (typeof originalUpdate === "function") {
+      renderer.updateBoardroom = function updateBoardroomWithProviderRailO15D(rendererState = {}) {
+        const result = originalUpdate.apply(this, arguments);
+        window.setTimeout(() => renderProviderRail(rendererState), 0);
+        window.setTimeout(() => renderProviderRail(rendererState), 120);
+        return result;
+      };
+    }
+
+    renderer.__aionO15DProviderRailPatched = true;
+    return true;
+  }
+
+  patchRenderer();
+  window.setTimeout(patchRenderer, 250);
+  window.setTimeout(patchRenderer, 1000);
+
+  window.__debugAionO15DProviderRail = function debugAionO15DProviderRail() {
+    const rail = document.getElementById(RAIL_ID);
+    return {
+      installed: true,
+      rendererPatched: window.TessarisDesktopBoardroomRenderer?.__aionO15DProviderRailPatched === true,
+      railExists: Boolean(rail),
+      visibleProviderLabels: rail
+        ? [...rail.querySelectorAll(".aion-o15d-provider-label")].map((el) => el.textContent.trim())
+        : [],
+      snapshotSeats: safeArray(window.getBoardroomSnapshot?.().seats).map((seat) => ({
+        id: seat.id,
+        label: seat.label,
+        provider_id: seat.provider_id,
+        seat_type: seat.seat_type,
+        connected: seat.connected,
+        status: seat.status,
+      })),
+    };
+  };
+
+  console.info("[AION] O15D Boardroom connected provider visibility lock installed");
+})();
+ /* END AION O15D BOARDROOM CONNECTED PROVIDER VISIBILITY LOCK */
+
+
+/* BEGIN AION O16D DEPARTMENT 121 VISIBLE CENTER AGENT LOCK */
+/*
+ * O16D:
+ * - O16C moved the 1:1 department agent to x=0 but too far into the table.
+ * - The table occluded the robot.
+ * - The visible centre position is now the centre-back table edge: x=0, z=-8.25.
+ */
+ /* END AION O16D DEPARTMENT 121 VISIBLE CENTER AGENT LOCK */
+
+
+/* BEGIN AION O16G DEPARTMENT 121 LOWER TABLE POV LOCK */
+/*
+ * O16G:
+ * - 1:1 department view was clean but too elevated.
+ * - Lowered camera to board-table seated height.
+ * - Kept agent fixed at the visible centre-back table position.
+ */
+ /* END AION O16G DEPARTMENT 121 LOWER TABLE POV LOCK */
+
+
+/* BEGIN AION O18C5 REAL AGENT PORTRAIT CAMERA LOCK */
+/*
+ * O18C5:
+ * - Keeps the real robot_agent.glb / real 3D renderer.
+ * - Retracts fake HUD overlay from O18B.
+ * - Converts department 1:1 view into a FaceTime-style portrait camera.
+ */
+/* END AION O18C5 REAL AGENT PORTRAIT CAMERA LOCK */
+
+
+/* BEGIN AION O18D REAL AGENT SAFE PORTRAIT CAMERA LOCK */
+/*
+ * O18D:
+ * Safe department 1:1 camera.
+ * Keeps the real 3D agent visible without the broken extreme close-up.
+ * Values: phi 0.038, radius 8.2, y 2.85, targetY 1.65, targetZ -8.15.
+ */
+/* END AION O18D REAL AGENT SAFE PORTRAIT CAMERA LOCK */
+
+
+/* BEGIN AION O18F REAL AGENT ONLY PORTRAIT RENDERER EXPORT LOCK */
+/*
+ * Department/function 1:1 windows now use a renderer-level agent-only portrait mode.
+ * Normal boardroom mode remains unchanged.
+ */
+/* END AION O18F REAL AGENT ONLY PORTRAIT RENDERER EXPORT LOCK */
+
+
+/* BEGIN AION O18G AGENT PORTRAIT BODY POSITION LOCK */
+/*
+ * O18G:
+ * Fixes O18F real-agent FaceTime portrait framing.
+ * - Camera pulled back from 5.2 to 7.2.
+ * - Agent root moved up from -0.98 to -0.08.
+ * - Real GLB scale reduced from 1.72 to 0.92.
+ * - Internal 3D label hidden so it does not overlay the agent body.
+ */
+/* END AION O18G AGENT PORTRAIT BODY POSITION LOCK */
+
+
+/* BEGIN AION O18H DARK PORTRAIT REMOVE OVERLAY LOCK */
+/*
+ * O18H:
+ * - Removes the large circular FaceTime halo overlay.
+ * - Switches portrait renderer background to dark.
+ * - Brightens the real robot_agent.glb material so the agent is visible.
+ */
+/* END AION O18H DARK PORTRAIT REMOVE OVERLAY LOCK */
+
+
+/* BEGIN AION O18I REMOVE PORTRAIT HALO COMPLETELY LOCK */
+/*
+ * O18I:
+ * Removes the giant circular/halo overlay from the FaceTime portrait renderer.
+ * Keeps the real 3D agent and replaces the circle with a subtle rectangular dark backplate.
+ */
+/* END AION O18I REMOVE PORTRAIT HALO COMPLETELY LOCK */
+
+
+/* BEGIN AION O18J FORCE REMOVE PORTRAIT OVAL LOCK */
+/*
+ * O18J:
+ * Force-removes portrait-only halo/ring/backGlow overlays from O18F renderer.
+ * The FaceTime frame should now contain only the real 3D agent on a dark background.
+ */
+/* END AION O18J FORCE REMOVE PORTRAIT OVAL LOCK */
+
+
+/* BEGIN AION O18K CLEAN REAL AGENT PORTRAIT RENDERER LOCK */
+/*
+ * O18K:
+ * Replaces the portrait renderer with a clean agent-only scene.
+ * No halo. No RingGeometry. No backGlow. No table. No boardroom. No internal label.
+ */
+/* END AION O18K CLEAN REAL AGENT PORTRAIT RENDERER LOCK */
+
+
+/* BEGIN AION O18M SANITIZE PORTRAIT WEBGL SCENE EXPORT LOCK */
+/*
+ * O18M:
+ * Force-removes the visible portrait oval from the actual WebGL scene.
+ * It hides RingGeometry/CircleGeometry/halo/glow/backdrop/label meshes and any oversized dark flat mesh.
+ */
+/* END AION O18M SANITIZE PORTRAIT WEBGL SCENE EXPORT LOCK */
+
+
+/* BEGIN AION O18N2 ROBUST REMOVE PORTRAIT BACKDROP LOCK */
+/*
+ * O18N2:
+ * Robustly removes the actual portrait renderer backdrop/halo/backGlow meshes.
+ * This targets the visible oval/circle inside the WebGL portrait scene.
+ */
+/* END AION O18N2 ROBUST REMOVE PORTRAIT BACKDROP LOCK */
+
+
+/* BEGIN AION O18P REBUILD CLEAN AGENT PORTRAIT NO FRAME LOCK */
+/*
+ * O18P:
+ * Full reset of the function portrait renderer.
+ * Real robot_agent.glb only.
+ * No boardroom. No backdrop plane. No halo. No ring. No glow. No label mesh. No oval.
+ */
+/* END AION O18P REBUILD CLEAN AGENT PORTRAIT NO FRAME LOCK */
+
+
+/* BEGIN AION O18S AGENT PORTRAIT LIFT LOCK */
+/*
+ * O18S:
+ * Lifts the real agent inside the terminal portrait frame.
+ * agentRoot y: 0.44
+ * camera lookAt y: 1.50
+ */
+/* END AION O18S AGENT PORTRAIT LIFT LOCK */

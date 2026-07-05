@@ -171,3 +171,53 @@ def gmail_status(
         "dry_run_only": True,
         "external_writes_enabled": False,
     }
+
+
+# AION PATCH: Vault AI Provider Keys v1
+class AiProviderKeySaveRequest(BaseModel):
+    api_key: str
+    model: Optional[str] = None
+
+
+@router.get("/ai-providers")
+def list_ai_providers() -> Dict[str, Any]:
+    from backend.modules.vault.ai_provider_key_store import list_ai_provider_public_records
+
+    return {
+        "ok": True,
+        **list_ai_provider_public_records(),
+    }
+
+
+@router.post("/ai-providers/{provider_id}")
+def save_ai_provider_key(provider_id: str, payload: AiProviderKeySaveRequest) -> Dict[str, Any]:
+    from backend.modules.vault.ai_provider_key_store import set_ai_provider_key
+
+    try:
+        record = set_ai_provider_key(
+            provider_id=provider_id,
+            api_key=payload.api_key,
+            model=payload.model,
+        )
+    except ValueError as exc:
+        return {
+            "ok": False,
+            "error": str(exc),
+        }
+
+    return {
+        "ok": True,
+        "provider": record,
+    }
+
+
+@router.delete("/ai-providers/{provider_id}")
+def delete_ai_provider(provider_id: str) -> Dict[str, Any]:
+    from backend.modules.vault.ai_provider_key_store import delete_ai_provider_key
+
+    return {
+        "ok": True,
+        "provider": delete_ai_provider_key(provider_id),
+    }
+# END AION PATCH: Vault AI Provider Keys v1
+

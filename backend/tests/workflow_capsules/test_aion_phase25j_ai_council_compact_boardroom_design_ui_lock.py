@@ -22,18 +22,20 @@ def test_ai_council_visual_design_exists():
 
     assert 'data-aion-phase25j-provider-council="true"' in block
     assert 'data-aion-provider-council-seat="${escapeHtml(provider.key)}"' in block
-    assert "data-aion-provider-council-add-model" in block
+    assert "data-aion-provider-council-add-selected-model" in block
 
-    for label in ["Aion", "Claude", "OpenAI", "Gemini", "Grok", "Add model"]:
-        assert label in TEXT
+    for label in ["Aion", "Claude", "OpenAI", "Gemini", "Grok", "+ add"]:
+        assert label in TEXT or label.lower() in TEXT.lower()
 
 
-def test_ai_council_is_mounted_before_department_readiness():
-    block = block_between("function renderBoardroomDashboardView", "function openDepartmentWorkspaceFromBoardroom")
+def test_ai_council_is_mounted_as_top_boardroom_panel():
+    block = block_between("function renderBoardroomSurface", "function renderBoardroomAgentGrid")
 
     assert "renderAionProviderCouncilPanel()" in block
-    assert "renderBoardroomDepartmentIntelligencePanel()" in block
-    assert block.index("renderAionProviderCouncilPanel()") < block.index("renderBoardroomDepartmentIntelligencePanel()")
+    assert "boardroom-view-toggle" in block
+    assert "surface-header" in block
+    assert block.index("renderAionProviderCouncilPanel()") < block.index("renderAppTabs()")
+    assert block.index("boardroom-view-toggle") < block.index("surface-header")
 
 
 def test_compact_department_board_replaces_sprawling_debug_list():
@@ -54,14 +56,13 @@ def test_department_status_copy_is_user_friendly():
     assert "Results active" in block
 
 
-def test_business_readiness_panel_is_clean_wrapper():
-    block = function_block("renderBoardroomDepartmentIntelligencePanel")
+def test_business_readiness_panel_removed_from_department_ledger_wrapper():
+    block = block_between("function renderBoardroomDepartmentIntelligencePanel", "function renderBoardroomSpatialDepartmentIntelligencePanel")
 
-    assert "Business Readiness" in block
+    assert "Business Readiness" not in block
+    assert "Connect the remaining departments" not in block
     assert "renderCompactDepartmentStatusBoard()" in block
-    assert "ready_to_plan" not in block
-    assert "needs_discovery" not in block
-    assert "Confidence: empty" not in block
+    assert "renderBoardroomPulseSummaryStrip()" in block
 
 
 def test_no_live_external_execution_added_by_design_panel():

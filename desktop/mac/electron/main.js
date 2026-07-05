@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, globalShortcut, Menu } = require("electron");
 const path = require("path");
 const fs = require("fs");
 const { spawn } = require("child_process");
@@ -1238,3 +1238,102 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
+
+
+/* BEGIN AION D1 DEVTOOLS SHORTCUT REPAIR */
+function installAionD1DevToolsShortcutRepair() {
+  function toggleFocusedDevTools() {
+    const focused = BrowserWindow.getFocusedWindow();
+    const win = focused || BrowserWindow.getAllWindows()[0];
+
+    if (!win || win.isDestroyed()) {
+      return false;
+    }
+
+    if (win.webContents.isDevToolsOpened()) {
+      win.webContents.closeDevTools();
+    } else {
+      win.webContents.openDevTools({ mode: "detach" });
+    }
+
+    return true;
+  }
+
+  app.whenReady().then(() => {
+    try {
+      globalShortcut.unregister("CommandOrControl+Alt+I");
+      globalShortcut.unregister("F12");
+    } catch {}
+
+    try {
+      globalShortcut.register("CommandOrControl+Alt+I", toggleFocusedDevTools);
+      globalShortcut.register("F12", toggleFocusedDevTools);
+    } catch (error) {
+      console.warn("[AION] D1 DevTools globalShortcut failed", error);
+    }
+
+    try {
+      const menu = Menu.buildFromTemplate([
+        {
+          label: "Tessaris",
+          submenu: [
+            { role: "about" },
+            { type: "separator" },
+            {
+              label: "Toggle DevTools",
+              accelerator: "CommandOrControl+Alt+I",
+              click: toggleFocusedDevTools,
+            },
+            {
+              label: "Open DevTools Detached",
+              accelerator: "F12",
+              click: toggleFocusedDevTools,
+            },
+            { type: "separator" },
+            { role: "quit" },
+          ],
+        },
+        {
+          label: "Edit",
+          submenu: [
+            { role: "undo" },
+            { role: "redo" },
+            { type: "separator" },
+            { role: "cut" },
+            { role: "copy" },
+            { role: "paste" },
+            { role: "selectAll" },
+          ],
+        },
+        {
+          label: "View",
+          submenu: [
+            { role: "reload" },
+            { role: "forceReload" },
+            {
+              label: "Toggle DevTools",
+              accelerator: "CommandOrControl+Alt+I",
+              click: toggleFocusedDevTools,
+            },
+            { type: "separator" },
+            { role: "resetZoom" },
+            { role: "zoomIn" },
+            { role: "zoomOut" },
+            { type: "separator" },
+            { role: "togglefullscreen" },
+          ],
+        },
+      ]);
+
+      Menu.setApplicationMenu(menu);
+    } catch (error) {
+      console.warn("[AION] D1 DevTools menu install failed", error);
+    }
+
+    console.info("[AION] D1 DevTools shortcut repair installed");
+  });
+}
+
+installAionD1DevToolsShortcutRepair();
+/* END AION D1 DEVTOOLS SHORTCUT REPAIR */
+

@@ -72,7 +72,9 @@ def test_phase25j_boardroom_flat_visibly_mounts_intelligence_near_top():
     assert "renderBoardroomDepartmentIntelligencePanel()" in block
     assert "renderBoardroomAssessmentFeedPanel()" in block
     assert "renderBoardroomCrossDepartmentReviewPanel()" in block
-    assert block.index("renderAionBusinessContextMiniCard") < block.index("renderBoardroomDepartmentIntelligencePanel")
+    assert "renderAionProviderCouncilPanel()" not in block
+    assert "renderBoardroomPulseSummaryStrip(snapshot)" not in block
+    assert block.index("renderBoardroomDepartmentIntelligencePanel") < block.index("renderBoardroomAssessmentFeedPanel")
     assert block.index("renderBoardroomCrossDepartmentReviewPanel") < block.index("renderBoardroomOperatorPresence")
 
 

@@ -31,7 +31,9 @@
       "!**/*.bak_*",
       "!**/*.backup",
       "!**/*.orig",
-      "!**/.DS_Store"
+      "!**/.DS_Store",
+      "src/assets/**/*",
+      "public/**/*"
     ],
     "extraMetadata": {
       "main": "electron/main.js"

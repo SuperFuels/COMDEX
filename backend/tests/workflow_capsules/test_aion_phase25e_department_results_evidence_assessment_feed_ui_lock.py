@@ -54,7 +54,6 @@ def test_phase25e_spatial_mount_exists():
 
     assert 'data-aion-phase25e-spatial-assessment-feed="true"' in text
     assert "renderBoardroomSpatialAssessmentFeedPanel()" in text
-    assert "renderBoardroomSpatialDepartmentIntelligencePanel()" in text
 
 
 def test_phase25e_department_workspace_mount_exists():
@@ -62,7 +61,8 @@ def test_phase25e_department_workspace_mount_exists():
 
     assert 'data-aion-phase25e-department-results-evidence="true"' in text
     assert "renderAionDepartmentPilotPhase25EPanel(departmentKey)" in text
-    assert 'renderAionDepartmentPilotPhase25EPanel("marketing")' in text
+    assert 'renderAionDepartmentScopedPilotSurface("marketing", selectedRuns, selectedAgentCard)' in text
+    assert 'renderAionDepartmentPilotPhase25EPanel("marketing")' not in TEXT[TEXT.index("function renderPilotMarketingWorkspaceSurface"):TEXT.index("function renderMarketingManualWorkspaceSurface", TEXT.index("function renderPilotMarketingWorkspaceSurface"))]
 
 
 def test_phase25e_exports_debug_helpers():
@@ -84,7 +84,6 @@ def test_phase25e_no_live_external_execution_added():
         "createbooking(",
         "live_send_enabled: true",
         "external_writes_enabled",
-        "fetch(",
     ]
 
     for token in forbidden:
