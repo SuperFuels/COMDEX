@@ -1,0 +1,778 @@
+{
+  "ok": true,
+  "phase": "O23A",
+  "purpose": "discover_local_voice_assets_for_future_app_bundle",
+  "runtime": {
+    "executable": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/bin/python",
+    "version": "3.12.13 (main, Mar  3 2026, 12:39:30) [Clang 17.0.0 (clang-1700.6.4.2)]",
+    "version_info": [
+      3,
+      12,
+      13
+    ],
+    "platform": "macOS-15.5-arm64-arm-64bit",
+    "site_packages": [
+      "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages"
+    ],
+    "usersite": "/Users/kevinrobinson/Library/Python/3.12/lib/python/site-packages"
+  },
+  "modules": {
+    "kokoro": {
+      "module": "kokoro",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/kokoro/__init__.py",
+      "submodule_search_locations": [
+        "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/kokoro"
+      ]
+    },
+    "soundfile": {
+      "module": "soundfile",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/soundfile.py",
+      "submodule_search_locations": []
+    },
+    "faster_whisper": {
+      "module": "faster_whisper",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/faster_whisper/__init__.py",
+      "submodule_search_locations": [
+        "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/faster_whisper"
+      ]
+    },
+    "ctranslate2": {
+      "module": "ctranslate2",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/ctranslate2/__init__.py",
+      "submodule_search_locations": [
+        "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/ctranslate2"
+      ]
+    },
+    "av": {
+      "module": "av",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/av/__init__.py",
+      "submodule_search_locations": [
+        "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/av"
+      ]
+    },
+    "torch": {
+      "module": "torch",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/torch/__init__.py",
+      "submodule_search_locations": [
+        "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/torch"
+      ]
+    },
+    "spacy": {
+      "module": "spacy",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/spacy/__init__.py",
+      "submodule_search_locations": [
+        "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/spacy"
+      ]
+    },
+    "numpy": {
+      "module": "numpy",
+      "found": true,
+      "origin": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/numpy/__init__.py",
+      "submodule_search_locations": [
+        "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/numpy"
+      ]
+    }
+  },
+  "assets": {
+    "kokoro_model": [
+      {
+        "path": "/Users/kevinrobinson/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/kokoro-v1_0.pth",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 327212226,
+        "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4",
+        "search_root": "/Users/kevinrobinson/.cache/huggingface/hub"
+      }
+    ],
+    "kokoro_voice_af_heart": [
+      {
+        "path": "/Users/kevinrobinson/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/voices/af_heart.pt",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 523425,
+        "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff",
+        "search_root": "/Users/kevinrobinson/.cache/huggingface/hub"
+      }
+    ],
+    "kokoro_config": [
+      {
+        "path": "/Users/kevinrobinson/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/config.json",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2351,
+        "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f",
+        "search_root": "/Users/kevinrobinson/.cache/huggingface/hub"
+      },
+      {
+        "path": "/Users/kevinrobinson/.cache/huggingface/hub/models--Systran--faster-whisper-base/snapshots/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66/config.json",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2309,
+        "sha256": "56a6d8110d311f19c8f0471e562832c7527f146b567275bfca59fcf7c184da9a",
+        "search_root": "/Users/kevinrobinson/.cache/huggingface/hub"
+      }
+    ],
+    "spacy_en_core_web_sm": [
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/en_core_web_sm-3.8.0.dist-info",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/en_core_web_sm",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/en_core_web_sm/en_core_web_sm-3.8.0",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      }
+    ],
+    "whisper_base": [
+      {
+        "path": "/Users/kevinrobinson/.cache/huggingface/hub/models--Systran--faster-whisper-base",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/.cache/huggingface/hub"
+      },
+      {
+        "path": "/Users/kevinrobinson/.cache/huggingface/hub/.locks/models--Systran--faster-whisper-base",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/.cache/huggingface/hub"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.runtime/COMDEX_MOVE/data/aion_games/phase22e37_child_base_well_memory.json",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 4353,
+        "sha256": "a548351df31f3f0328e7b06c1ed193fab0e3b3bdabd2618898779eed126a8431",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.runtime"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.runtime/COMDEX_MOVE/data/aion_games/full_chess_level2_22e36_baseline_live_rematch_recovery_7PgbHGoR.json",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 25241,
+        "sha256": "841320a2424c0f4bd4f740279526e4838d8414a5f1fcabd756de3b3263a71ca0",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.runtime"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/mpmath/ctx_base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 15985,
+        "sha256": "adf8e67ccc80e79c7c47f716148354c165531257d99b2c797ab28375ab92115c",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/torch/_opaque_base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 462,
+        "sha256": "df542d181832f8804c03b65998df03d9a025bd6d6fef0e9c3b89898586d0a89c",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/torch/_streambase.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 435,
+        "sha256": "3402997d5f81859db6272b7fdd54031f59b841074855ce06f15bd406467dc09f",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/tokenization_utils_base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 183764,
+        "sha256": "f86fc8ce6ad86bcbb4bad93b84b3cde9f7b93b516703b5d220889c66bbdd7b5a",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/image_processing_base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 23128,
+        "sha256": "51731815eabec82f7bfa1996ccf9c8077f03d9452b33231516b2cf3a1c8ed174",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/num2words/base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 10022,
+        "sha256": "52356f1717f7c3927c15f15ec42f670635bfa2f322ed0ebca6ab48791d5249b4",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/urllib3/_base_connection.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 5580,
+        "sha256": "1f37121077b1803ad152beb48cd9e20762908ddc3ded279d0f996e45f1ed0978",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 54550,
+        "sha256": "d1bebf9c226242d99491dc4bead14ac55c7cbeff0090b64e7d19084b6cc65c27",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/tests/test_base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2706,
+        "sha256": "add847739e9b857b66e4d9cdf41487c2be9cebd52accc22d650ce5c3602c74c7",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/__pycache__/base.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 51919,
+        "sha256": "27e3ce38c9b2caf4d8a5b2b7d624d9980279e11cc34a07c830aff2cbd9ae8e0e",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/setuptools/_distutils/compilers/C/tests/__pycache__/test_base.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 4032,
+        "sha256": "36e4482247b26d8bc35277d1ebb47395cec21de116c74b3d771a7dfe22e605e2",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/urllib3/__pycache__/_base_connection.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 6876,
+        "sha256": "df6c2b9c41e41499967986dc9240711b3edb5099c46fd3e1416a88372129eb78",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/torchgen/api/types/types_base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 7171,
+        "sha256": "bfc2acde10816470d667e2bbb5594d228c2a575c0b2a7057f9b8084c31b31fb1",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/torchgen/api/types/__pycache__/types_base.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 10805,
+        "sha256": "b3f681c90a18038aede2b4da92e4b7966f7133856a6f405f0386655c162ea8e3",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/num2words/__pycache__/base.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 13893,
+        "sha256": "f9e8d3e87da281ebf6c5f024a10ffeb37a2d08aa3f00dfab2b2bdd506eba10fc",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/quantizers/base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 13608,
+        "sha256": "414e14c3c1f953e73ba857627a83774b71c6f71c24b991d9665f9954f5324458",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/exporters/base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 7939,
+        "sha256": "22c80c8423fcbead1f09a457f2f984c29b96738a57ad9ab56a58559bd9317e15",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/pipelines/base.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 58739,
+        "sha256": "5643b26eadc6902008dae5196f6f5dc170670acd0643bd9039d81b1a2300efed",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/__pycache__/image_processing_base.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 22859,
+        "sha256": "b92e5839e18bc1d918a65154cc5d0628f1f9f7669cb7c79c8498c9198746997f",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/__pycache__/tokenization_utils_base.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 172402,
+        "sha256": "523bbc3246880bf0402d09b1a8dd8da8167106a920731b8642e6ef27084ef15d",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/agent-base",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/base64-js",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/src/app.js.bak-glyph-api-base-file-url-fix",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2041280,
+        "sha256": "71674b0fd8e1fb7a635bd53e09eefa276204a967c0c9049c0f763ccda6837e79",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/src/assets/boardroom/robot_agent.glb.before_base_agent_20260630_154651.bak",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 4192,
+        "sha256": "6153e694e36f428b8a23206e6d5cc98927557a45eb11724b5974ddb85771c404",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/assets/boardroom/robot_agent.glb.before_base_agent_20260630_154651.bak",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 4192,
+        "sha256": "6153e694e36f428b8a23206e6d5cc98927557a45eb11724b5974ddb85771c404",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/public/assets/boardroom/robot_agent.glb.before_base_agent_20260630_154651.bak",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 4192,
+        "sha256": "6153e694e36f428b8a23206e6d5cc98927557a45eb11724b5974ddb85771c404",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseIsArguments.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 488,
+        "sha256": "71a59dc09c35dedcbee7ed71f5eae03e8a9b0251516ed098f28cdb6e28d0b816",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseInverter.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 736,
+        "sha256": "fd69c5bba6a7b7f42427c4e148a283fb0a95ee2dbe224199aa944136eca23ede",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseEach.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 455,
+        "sha256": "d5e014823a4dd111149247d9f5921c172247c460cfa19db3c257926537ad1e00",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseMap.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 668,
+        "sha256": "7787722e7cd97155c5cf3e6d09ce7c2599fab924424d527b0b4705306ff04dae",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseAssign.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 470,
+        "sha256": "88c05474e3ee06e4d3e3531f4df2403718c47447827bfc3d5d735344b60db968",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseClamp.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 571,
+        "sha256": "cf85272f27502a0c808e3d5b79713214018b893e7ddd02a4bc55fd137c0546c7",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseFilter.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 590,
+        "sha256": "cc817c4fce14c09a765f6ee71e790930d1fac5a44b7ade7604e11b97976e8f73",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseIsDate.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 504,
+        "sha256": "1ce47b8310f9000ea4aa9fad1c847fb728b289e51a794de0d9a6ea0fac49eff6",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseIsArrayBuffer.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 504,
+        "sha256": "c526bfb1ea2d63d05e03e8694789ca6855319f2ad19501cff235392f8b738311",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseLodash.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 178,
+        "sha256": "a53c8b4383d2fc7564db703c83cce4a462da10eac356fdd5a77a0f82b4133e50",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseLt.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 354,
+        "sha256": "66854d33e10ee86969f206173cb0d37f2c67f2f8566c7d48dce17f400c53ec90",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseWhile.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 933,
+        "sha256": "8d25d09663040086d16864b180ed9b04fa02c0d19b6a0d9ff97cd49a8d8be818",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseToString.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 1154,
+        "sha256": "02703516b1d594c96987c84f7d016411d0ed7825bec23280fb974e86db178fc8",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/node_modules/lodash/_baseIsMatch.js",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 1765,
+        "sha256": "cab17bf58d85e518955c73d983384a130c48cd0e233f38e4498123239325ee4b",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      }
+    ],
+    "whisper_small": [
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_det",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/blenderbot_small",
+        "exists": true,
+        "is_file": false,
+        "is_dir": true,
+        "size_bytes": null,
+        "sha256": null,
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_det/configuration_pp_ocrv6_small_det.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 4210,
+        "sha256": "580a627167964c68966ac6f1a3f2e473cb039aee5bb7b96c4714795f048e8b55",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_det/modular_pp_ocrv6_small_det.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 6529,
+        "sha256": "49c62deb35f34929c296125259ac5bb79c1b998ece09f5be021b93e9aaf69376",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_det/modeling_pp_ocrv6_small_det.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 12537,
+        "sha256": "606d37da7ce07e4916a7f9e75f64a206c17b3925c26a2ecb30270ba12376a6b7",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/modular_pp_ocrv6_small_rec.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 8364,
+        "sha256": "bfe9d92a6e0b86fda05b56d4b7bcffe765ec34f1f027e7b11e8e524d067b23c0",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/modeling_pp_ocrv6_small_rec.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 15325,
+        "sha256": "496606bda667fe61a14f2636b3c4475aa38d404c7fa17488320b6b64f705f7bd",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/configuration_pp_ocrv6_small_rec.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2912,
+        "sha256": "757b9d5b339194f7811b43663e6af7ecff2c97b2c4de039e6c353a7a0ae80beb",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/image_processing_pp_ocrv6_small_rec.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 8259,
+        "sha256": "9693f5506055245d4f1ca4b9e6e78e42cc8750ffb994637d4ea5cbe0195d0e55",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/blenderbot_small/modeling_blenderbot_small.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 40891,
+        "sha256": "068c86fb05d7b17b8e79d02cc8682c2e1f3c23a4b559ad99221390dced2b1475",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/blenderbot_small/configuration_blenderbot_small.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2655,
+        "sha256": "a1f6eb7002e9a553209a4700e8345472f203cea6b898e013f04b3df334a0a287",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/blenderbot_small/tokenization_blenderbot_small.py",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 7944,
+        "sha256": "47b31e64182449a3805ddeff4c3764e2c3812226d8af3378c44945f32e064be4",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/blenderbot_small/__pycache__/modeling_blenderbot_small.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 44517,
+        "sha256": "200cbb95da5b08de51653718bd10611ab2b0080d012363bfb0d51fdf5e506110",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/blenderbot_small/__pycache__/tokenization_blenderbot_small.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 11023,
+        "sha256": "1259d51e53b284212e8e3c44c9aef375a4bbe5163865cf78e9ef1e7bf07973c0",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/blenderbot_small/__pycache__/configuration_blenderbot_small.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2988,
+        "sha256": "78ab67e6204ba344fcddcaa5ecfdc9d25b6393c6cb95e566b20cb77376cb5ef4",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/__pycache__/configuration_pp_ocrv6_small_rec.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 2294,
+        "sha256": "1259f4bc3884bd12298cca64a3c0a2bac53810f5b5069d3bfc351e95feae834b",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/__pycache__/modular_pp_ocrv6_small_rec.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 8601,
+        "sha256": "5abcc4fdb2857cac804113d7565d066ee927226b7158ff8dd38d68085aa65452",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/__pycache__/image_processing_pp_ocrv6_small_rec.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 7335,
+        "sha256": "eba83460603f07ba3c18385d503099cc739c531fdff20d5c9cdb3149b80d394b",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/transformers/models/pp_ocrv6_small_rec/__pycache__/modeling_pp_ocrv6_small_rec.cpython-312.pyc",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 19385,
+        "sha256": "fce97d9f964cf5871459964eae18cf4fc82d9e0ef0040d1849ea0b9189e53bb5",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/.venv_voice"
+      },
+      {
+        "path": "/Users/kevinrobinson/dev/COMDEX/desktop/mac/src/app.before_small_business_foundation_renderer_shim_20260628.bak",
+        "exists": true,
+        "is_file": true,
+        "is_dir": false,
+        "size_bytes": 3551400,
+        "sha256": "1a1af0bf43d318437f11caf8237dbeaa795fa3e48405969293334ffe21f7a0cb",
+        "search_root": "/Users/kevinrobinson/dev/COMDEX/desktop/mac"
+      }
+    ]
+  },
+  "required_summary": {
+    "python_3_12_runtime": true,
+    "kokoro_package": true,
+    "soundfile_package": true,
+    "faster_whisper_package": true,
+    "ctranslate2_package": true,
+    "av_package": true,
+    "torch_package": true,
+    "spacy_package": true,
+    "kokoro_model_found": true,
+    "kokoro_voice_af_heart_found": true,
+    "kokoro_config_found": true,
+    "spacy_en_core_web_sm_found": true,
+    "whisper_base_or_small_found": true
+  },
+  "packaging_targets": {
+    "bundle_root": "Tessaris.app/Contents/Resources/voice",
+    "python_runtime": "Tessaris.app/Contents/Resources/voice/python/bin/python",
+    "kokoro_root": "Tessaris.app/Contents/Resources/voice/kokoro",
+    "kokoro_model": "Tessaris.app/Contents/Resources/voice/kokoro/kokoro-v1_0.pth",
+    "kokoro_voice_af_heart": "Tessaris.app/Contents/Resources/voice/kokoro/voices/af_heart.pt",
+    "kokoro_config": "Tessaris.app/Contents/Resources/voice/kokoro/config.json",
+    "spacy_model": "Tessaris.app/Contents/Resources/voice/spacy/en_core_web_sm",
+    "whisper_model_root": "Tessaris.app/Contents/Resources/voice/whisper/base",
+    "manifest": "Tessaris.app/Contents/Resources/voice/manifest.json"
+  },
+  "download_policy": {
+    "packaged_mode_hidden_huggingface_downloads_allowed": false,
+    "packaged_mode_hidden_spacy_downloads_allowed": false,
+    "packaged_mode_hidden_elevenlabs_fallback_allowed": false,
+    "development_cache_discovery_only": true
+  },
+  "business_context_hardcoded": false
+}
