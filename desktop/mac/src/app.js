@@ -141870,7 +141870,7 @@ if (typeof window !== "undefined") {
  * - does not call ElevenLabs or browser speech
  */
 
-const AION_O21E_STT_ENDPOINT = "/api/aion/voice/stt";
+const AION_O21E_STT_ENDPOINT = "http://127.0.0.1:8080/api/aion/voice/stt";
 const AION_O21E_MIC_STATE_KEY = "__aionO21ELiveMicTranscriptState";
 
 function getAionO21ELiveMicTranscriptState() {
@@ -143582,4 +143582,540 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
   };
 
   console.log("[AION] O25D startup conversation foundation UX installed");
+})();
+
+
+/*
+ * AION O25F — Automatic Local Voice Business Foundation Conversation Loop
+ *
+ * Product rule:
+ * - The user clicks an entry button.
+ * - AION opens the conversation, speaks first, writes its own words to transcript,
+ *   records the user's reply through local STT, captures the answer into the
+ *   Business Foundation draft, then asks the next schema-driven question.
+ * - The transcript is the user-facing surface. Debug/readiness panels stay hidden.
+ * - The app must not reopen the conversation on fresh launch because of stale storage.
+ */
+(function installAionO25FAutomaticLocalVoiceFoundationConversationLoop() {
+  if (window.__aionO25FAutomaticLocalVoiceFoundationConversationInstalled) return;
+  window.__aionO25FAutomaticLocalVoiceFoundationConversationInstalled = true;
+
+  const VERSION = "aion.o25f.automatic_local_voice_foundation_conversation.v0.1";
+  const SESSION_OPEN_KEY = "aion.o25f.intentionalConversationOpen.v1";
+  const SESSION_INTRO_KEY = "aion.o25f.openingIntroSpoken.v1";
+  const STORAGE_OPEN_KEY = "aion.o20c.conversationOpen";
+  const STORAGE_MODE_KEY = "aion.o20c.conversationMode";
+  const TTS_ENDPOINT = "http://127.0.0.1:8080/api/aion/voice/tts";
+
+  const OPENING_INTRO_EXISTING_BUSINESS = [
+    "Welcome to AION.",
+    "Tessaris is a local business operating system. Your business data stays on your machine, inside your business workspace.",
+    "This is not a normal chatbot. AION helps map how your business actually works, build your Business Foundation, create your Business Map, activate the Boardroom, and route deeper work to specialist pilots for sales, marketing, finance, operations, and support.",
+    "I will not guess how you operate. We are going to build your Business Twin through a simple conversation. You talk, I record the transcript, and I capture the useful business facts into the foundation draft in the background.",
+    "Once the picture is strong enough, your AI Boardroom can review the business, challenge missing information, and recommend what to automate or improve next.",
+    "Let us start simply. What is the business called, and what are you hoping AION can help you achieve?"
+  ].join(" ");
+
+  function safeText(value) {
+    return String(value == null ? "" : value);
+  }
+
+  function isFoundationConversationVisible() {
+    return !!document.querySelector("[data-aion-o25e-voice-terminal-only='true']");
+  }
+
+  function getCurrentEntryMode() {
+    try {
+      return (
+        window.localStorage?.getItem(STORAGE_MODE_KEY) ||
+        window.localStorage?.getItem("aion.businessEntryMode.v1") ||
+        window.__aionO20COpeningMode ||
+        "start_with_aion"
+      );
+    } catch {
+      return "start_with_aion";
+    }
+  }
+
+  function isExistingBusinessMode(mode = getCurrentEntryMode()) {
+    const value = safeText(mode).toLowerCase();
+    return (
+      value === "small_business_growth" ||
+      value === "existing_business" ||
+      value === "i_have_a_business" ||
+      value === "have_business" ||
+      value.includes("business")
+    );
+  }
+
+  function clearStaleConversationOpenOnFreshLaunch() {
+    try {
+      const userOpenedThisSession = window.sessionStorage?.getItem(SESSION_OPEN_KEY) === "true";
+      const storageOpen = window.localStorage?.getItem(STORAGE_OPEN_KEY) === "true";
+      if (storageOpen && !userOpenedThisSession) {
+        window.localStorage?.removeItem(STORAGE_OPEN_KEY);
+        window.localStorage?.removeItem(STORAGE_MODE_KEY);
+        window.localStorage?.removeItem("aion.o20c.conversation_open");
+        window.localStorage?.removeItem("aion.o20c.conversation_mode");
+        window.__aionO20COpeningMode = "";
+        if (typeof window.requestRender === "function") {
+          setTimeout(() => window.requestRender(), 0);
+        }
+      }
+    } catch {}
+  }
+
+  clearStaleConversationOpenOnFreshLaunch();
+
+  function markIntentionalConversationOpen(mode) {
+    try {
+      window.sessionStorage?.setItem(SESSION_OPEN_KEY, "true");
+      window.localStorage?.setItem(STORAGE_MODE_KEY, safeText(mode || "small_business_growth"));
+      window.__aionO20COpeningMode = safeText(mode || "small_business_growth");
+    } catch {}
+  }
+
+  document.addEventListener("click", (event) => {
+    const opener = event.target?.closest?.("[data-aion-o20c-open-conversation]");
+    if (!opener) return;
+    const mode = opener.getAttribute("data-aion-o20c-open-conversation") || "small_business_growth";
+    markIntentionalConversationOpen(mode);
+    setTimeout(beginAionO25FAutomaticConversation, 120);
+    setTimeout(beginAionO25FAutomaticConversation, 650);
+  }, true);
+
+  function getVoiceState() {
+    try {
+      return typeof window.getAionO21ELiveMicTranscriptState === "function"
+        ? window.getAionO21ELiveMicTranscriptState()
+        : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function getBridgeState() {
+    try {
+      return typeof window.__debugAionO25CBusinessFoundationVoiceDiscoveryBridge === "function"
+        ? window.__debugAionO25CBusinessFoundationVoiceDiscoveryBridge()
+        : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function extractNextQuestion() {
+    const bridge = getBridgeState();
+    const question = bridge?.next_question;
+    if (typeof question === "string" && question.trim()) return question.trim();
+    if (question && typeof question === "object") {
+      return (
+        question.question ||
+        question.prompt ||
+        question.text ||
+        question.label ||
+        ""
+      ).trim();
+    }
+    if (typeof window.buildAionO25BNextBestFoundationQuestion === "function") {
+      try {
+        const generated = window.buildAionO25BNextBestFoundationQuestion(bridge?.draft || {});
+        if (typeof generated === "string" && generated.trim()) return generated.trim();
+        if (generated && typeof generated === "object") {
+          return String(generated.question || generated.prompt || generated.text || "").trim();
+        }
+      } catch {}
+    }
+    return "Tell me what your business does, who it serves, and how it currently makes money.";
+  }
+
+  function appendTranscript(text, speaker, meta = {}) {
+    if (typeof window.appendAionO21ETranscript !== "function") return null;
+    return window.appendAionO21ETranscript(text, {
+      ...meta,
+      speaker,
+      role: speaker,
+      source: meta.source || (speaker === "aion" ? "aion_local_voice" : "user_voice"),
+      o25f_foundation_conversation: true,
+    });
+  }
+
+  async function speakAion(text, meta = {}) {
+    const message = safeText(text).trim();
+    if (!message) return { ok: false, reason: "empty_message" };
+
+    appendTranscript(message, "aion", { ...meta, skip_o25f_next_question: true });
+
+    window.__aionO25FVoiceRuntimeState = {
+      ...(window.__aionO25FVoiceRuntimeState || {}),
+      speaking: true,
+      last_spoken_text: message,
+      last_tts_error: "",
+    };
+    syncAionO25FTerminal();
+
+    try {
+      const response = await fetch(TTS_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: message, voice: "af_heart", format: "wav" }),
+      });
+
+      if (!response.ok) {
+        const errText = await response.text().catch(() => "");
+        throw new Error(`TTS ${response.status}: ${errText.slice(0, 240)}`);
+      }
+
+      const contentType = response.headers.get("content-type") || "";
+      let audioBlob = null;
+
+      if (contentType.includes("application/json")) {
+        const payload = await response.json();
+        if (payload.audio_base64) {
+          const binary = atob(payload.audio_base64);
+          const bytes = new Uint8Array(binary.length);
+          for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+          audioBlob = new Blob([bytes], { type: payload.mime_type || "audio/wav" });
+        } else if (payload.audio_url) {
+          const audioResponse = await fetch(payload.audio_url);
+          audioBlob = await audioResponse.blob();
+        } else {
+          throw new Error("TTS JSON did not include audio_base64 or audio_url");
+        }
+      } else {
+        audioBlob = await response.blob();
+      }
+
+      const url = URL.createObjectURL(audioBlob);
+      const audio = new Audio(url);
+      window.__aionO25FCurrentAudio = audio;
+
+      await new Promise((resolve) => {
+        audio.onended = resolve;
+        audio.onerror = resolve;
+        audio.play().catch(resolve);
+      });
+
+      try { URL.revokeObjectURL(url); } catch {}
+
+      window.__aionO25FVoiceRuntimeState = {
+        ...(window.__aionO25FVoiceRuntimeState || {}),
+        speaking: false,
+        last_tts_ok: true,
+      };
+      syncAionO25FTerminal();
+      return { ok: true };
+    } catch (error) {
+      window.__aionO25FVoiceRuntimeState = {
+        ...(window.__aionO25FVoiceRuntimeState || {}),
+        speaking: false,
+        last_tts_ok: false,
+        last_tts_error: String(error?.message || error),
+      };
+      syncAionO25FTerminal();
+      console.warn("[AION O25F] local TTS failed; transcript still captured", error);
+      return { ok: false, error: String(error?.message || error) };
+    }
+  }
+
+  function stopAionSpeaking() {
+    try {
+      if (window.__aionO25FCurrentAudio) {
+        window.__aionO25FCurrentAudio.pause();
+        window.__aionO25FCurrentAudio.currentTime = 0;
+      }
+    } catch {}
+    window.__aionO25FVoiceRuntimeState = {
+      ...(window.__aionO25FVoiceRuntimeState || {}),
+      speaking: false,
+    };
+    syncAionO25FTerminal();
+  }
+
+  let nextQuestionTimer = null;
+
+  function queueNextQuestionAfterUserTurn() {
+    if (nextQuestionTimer) clearTimeout(nextQuestionTimer);
+    nextQuestionTimer = setTimeout(() => {
+      const question = extractNextQuestion();
+      const last = window.__aionO25FLastAskedQuestion || "";
+      if (!question || question === last) return;
+      window.__aionO25FLastAskedQuestion = question;
+      speakAion(question, { source: "aion_schema_driven_next_question" });
+    }, 350);
+  }
+
+  function patchTranscriptForAutomaticNextQuestions() {
+    if (window.__aionO25FTranscriptAutoQuestionPatched) return;
+    if (typeof window.appendAionO21ETranscript !== "function") return;
+
+    window.__aionO25FTranscriptAutoQuestionPatched = true;
+    const originalAppend = window.appendAionO21ETranscript;
+
+    window.appendAionO21ETranscript = function appendAionO25FAutoQuestionTranscript(text, meta = {}) {
+      const result = originalAppend.call(this, text, meta);
+      const speaker = safeText(meta.speaker || meta.role || "").toLowerCase();
+      const source = safeText(meta.source || "").toLowerCase();
+      const isAion = speaker === "aion" || speaker === "assistant" || source.includes("aion_local_voice");
+      const skip = meta.skip_o25f_next_question === true;
+
+      if (!isAion && !skip && safeText(text).trim()) {
+        queueNextQuestionAfterUserTurn();
+      }
+
+      setTimeout(syncAionO25FTerminal, 60);
+      setTimeout(syncAionO25FTerminal, 450);
+      return result;
+    };
+  }
+
+  function getRows() {
+    const voice = getVoiceState();
+    const rows = Array.isArray(voice.transcripts) ? voice.transcripts : [];
+    if (rows.length) return rows;
+
+    return [{
+      id: "opening_placeholder",
+      speaker: "aion",
+      text: "Click I have a business and I will start the Business Foundation conversation.",
+      source: "placeholder",
+    }];
+  }
+
+  function escapeHtml(value) {
+    return safeText(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function renderTerminal() {
+    const voice = getVoiceState();
+    const runtime = window.__aionO25FVoiceRuntimeState || {};
+    const recording = voice.recording === true;
+    const speaking = runtime.speaking === true;
+    const rows = getRows();
+
+    return `
+      <section class="aion-o25f-terminal" data-aion-o25e-voice-terminal-only="true" data-aion-o25f-auto-voice-terminal="true">
+        <div class="aion-o25f-top">
+          <div>
+            <div class="aion-o25f-kicker">AION voice conversation</div>
+            <h2>Business Foundation Conversation</h2>
+          </div>
+          <div class="aion-o25f-orb ${speaking ? "is-speaking" : ""} ${recording ? "is-listening" : ""}" data-aion-o25f-orb="true">∞</div>
+        </div>
+
+        <div class="aion-o25f-transcript" data-aion-o25e-transcript-log="true" data-aion-o25f-transcript="true">
+          ${rows.map((row) => {
+            const speaker = safeText(row.speaker || row.role || "user").toLowerCase();
+            const isAion = speaker === "aion" || speaker === "assistant";
+            return `
+              <article class="aion-o25f-row ${isAion ? "is-aion" : "is-user"}">
+                <div class="aion-o25f-speaker">${isAion ? "AION" : "YOU"}</div>
+                <div class="aion-o25f-message">${escapeHtml(row.text || "")}</div>
+              </article>
+            `;
+          }).join("")}
+        </div>
+
+        <div class="aion-o25f-controls">
+          <button type="button" data-aion-o25f-reply="true">${recording ? "Listening..." : "Reply to AION"}</button>
+          <button type="button" data-aion-o25f-stop="true">Stop talking</button>
+          <div class="aion-o25f-voicebar ${recording || speaking ? "is-active" : ""}" aria-label="AION voice activity">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <form class="aion-o25f-typed" data-aion-o25f-typed-form="true">
+          <input type="text" data-aion-o25f-typed-input="true" placeholder="Type here while testing, or use Reply to AION..." />
+          <button type="submit">Send</button>
+        </form>
+
+        <div class="aion-o25f-status">
+          Local voice runtime · transcript captured into Business Foundation draft · preview only
+          ${runtime.last_tts_error ? `<span class="aion-o25f-error"> · voice playback needs runtime check</span>` : ""}
+        </div>
+      </section>
+    `;
+  }
+
+  function installStyles() {
+    if (document.getElementById("aion-o25f-style")) return;
+    const style = document.createElement("style");
+    style.id = "aion-o25f-style";
+    style.textContent = `
+      .aion-o25f-terminal {
+        max-width: 1120px;
+        margin: 26px auto;
+        padding: 28px;
+        border: 1px solid rgba(15,23,42,0.08);
+        border-radius: 30px;
+        background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(240,253,250,0.58));
+        box-shadow: 0 24px 80px rgba(15,23,42,0.08);
+      }
+      .aion-o25f-top { display:flex; justify-content:space-between; gap:24px; align-items:flex-start; }
+      .aion-o25f-kicker {
+        font-size:11px; letter-spacing:0.42em; text-transform:uppercase; color:#6aaec3; font-weight:900;
+      }
+      .aion-o25f-terminal h2 {
+        margin:10px 0 18px; font-size:clamp(42px, 6vw, 74px); line-height:0.92; letter-spacing:-0.075em; color:#070b1d;
+      }
+      .aion-o25f-orb {
+        width:78px; height:78px; border-radius:999px; display:flex; align-items:center; justify-content:center;
+        color:#35f2b2; font-size:32px; font-weight:900;
+        background: radial-gradient(circle at 35% 30%, #f8ffff, #667085 42%, #111827 78%);
+        box-shadow:0 0 0 16px rgba(45,212,191,0.12), 0 18px 42px rgba(15,23,42,0.24);
+      }
+      .aion-o25f-orb.is-speaking, .aion-o25f-orb.is-listening { animation:aionO25FOrb 1.1s ease-in-out infinite; }
+      @keyframes aionO25FOrb { 0%,100%{transform:scale(1)} 50%{transform:scale(1.055)} }
+      .aion-o25f-transcript {
+        min-height:400px; max-height:520px; overflow:auto; border-radius:24px; padding:22px;
+        border:1px solid rgba(15,23,42,0.08); background:rgba(248,250,252,0.74);
+      }
+      .aion-o25f-row { max-width:76%; margin:0 0 22px; padding:18px 20px; border-radius:18px; box-shadow:0 16px 38px rgba(15,23,42,0.07); }
+      .aion-o25f-row.is-aion { background:white; color:#071024; }
+      .aion-o25f-row.is-user { margin-left:auto; background:#070b1d; color:white; }
+      .aion-o25f-speaker { font-size:11px; letter-spacing:0.18em; font-weight:900; margin-bottom:10px; opacity:0.72; }
+      .aion-o25f-message { font-size:16px; line-height:1.5; }
+      .aion-o25f-controls { display:flex; align-items:center; gap:22px; margin:22px 0 16px; }
+      .aion-o25f-controls button, .aion-o25f-typed button {
+        border:0; background:transparent; color:#071024; font-size:16px; font-weight:900; cursor:pointer;
+      }
+      .aion-o25f-voicebar { display:flex; gap:6px; align-items:center; height:38px; min-width:150px; padding:0 18px; border-radius:999px; background:#f1f5f9; }
+      .aion-o25f-voicebar span { width:6px; height:14px; border-radius:999px; background:#cbd5e1; }
+      .aion-o25f-voicebar.is-active span { background:#071024; animation:aionO25FBar 0.82s ease-in-out infinite; }
+      .aion-o25f-voicebar.is-active span:nth-child(2){animation-delay:.08s}
+      .aion-o25f-voicebar.is-active span:nth-child(3){animation-delay:.16s}
+      .aion-o25f-voicebar.is-active span:nth-child(4){animation-delay:.24s}
+      .aion-o25f-voicebar.is-active span:nth-child(5){animation-delay:.32s}
+      @keyframes aionO25FBar { 0%,100%{height:8px;opacity:.55} 50%{height:24px;opacity:1} }
+      .aion-o25f-typed { display:flex; gap:16px; align-items:center; }
+      .aion-o25f-typed input {
+        flex:1; border:1px solid rgba(15,23,42,.12); border-radius:999px; padding:17px 20px; font-size:15px; outline:none; background:white;
+      }
+      .aion-o25f-status { margin-top:14px; color:#64748b; font-size:13px; }
+      .aion-o25f-error { color:#b45309; }
+      [data-aion-o25f-auto-voice-terminal='true'] [data-aion-o21e-live-mic-panel],
+      [data-aion-o25f-auto-voice-terminal='true'] [data-aion-o21f-business-twin-voice-binding] { display:none !important; }
+    `;
+    document.head.appendChild(style);
+  }
+
+  let syncing = false;
+
+  function syncAionO25FTerminal() {
+    if (syncing) return;
+    syncing = true;
+    try {
+      installStyles();
+      const existing =
+        document.querySelector("[data-aion-o25f-auto-voice-terminal='true']") ||
+        document.querySelector("[data-aion-o25e-voice-terminal-only='true']");
+      if (!existing) return;
+
+      const wrapper = document.createElement("div");
+      wrapper.innerHTML = renderTerminal().trim();
+      existing.replaceWith(wrapper.firstElementChild);
+
+      const transcript = document.querySelector("[data-aion-o25f-transcript='true']");
+      if (transcript) transcript.scrollTop = transcript.scrollHeight;
+    } finally {
+      syncing = false;
+    }
+  }
+
+  async function beginAionO25FAutomaticConversation() {
+    patchTranscriptForAutomaticNextQuestions();
+    syncAionO25FTerminal();
+
+    if (!isFoundationConversationVisible()) return;
+
+    const alreadySpoken = window.sessionStorage?.getItem(SESSION_INTRO_KEY) === "true";
+    if (alreadySpoken) return;
+
+    const mode = getCurrentEntryMode();
+    if (!isExistingBusinessMode(mode) && mode !== "start_with_aion") return;
+
+    try { window.sessionStorage?.setItem(SESSION_INTRO_KEY, "true"); } catch {}
+    window.__aionO25FLastAskedQuestion = "";
+    await speakAion(OPENING_INTRO_EXISTING_BUSINESS, {
+      source: "aion_opening_business_foundation_intro",
+      opening_intro: true,
+    });
+  }
+
+  document.addEventListener("click", async (event) => {
+    const reply = event.target?.closest?.("[data-aion-o25f-reply='true']");
+    if (reply) {
+      event.preventDefault();
+      patchTranscriptForAutomaticNextQuestions();
+      if (typeof window.startAionO21ELiveMicTranscriptCapture === "function") {
+        await window.startAionO21ELiveMicTranscriptCapture();
+      }
+      setTimeout(syncAionO25FTerminal, 80);
+      setTimeout(syncAionO25FTerminal, 600);
+      return;
+    }
+
+    const stop = event.target?.closest?.("[data-aion-o25f-stop='true']");
+    if (stop) {
+      event.preventDefault();
+      stopAionSpeaking();
+      if (typeof window.stopAionO21ELiveMicTranscriptCapture === "function") {
+        await window.stopAionO21ELiveMicTranscriptCapture();
+      }
+      setTimeout(syncAionO25FTerminal, 80);
+    }
+  }, true);
+
+  document.addEventListener("submit", (event) => {
+    const form = event.target?.closest?.("[data-aion-o25f-typed-form='true']");
+    if (!form) return;
+    event.preventDefault();
+    const input = form.querySelector("[data-aion-o25f-typed-input='true']");
+    const value = safeText(input?.value || "").trim();
+    if (!value) return;
+    if (input) input.value = "";
+    appendTranscript(value, "user", { source: "typed_ux_test" });
+    setTimeout(syncAionO25FTerminal, 80);
+  }, true);
+
+  document.addEventListener("aion:o25e-terminal-rendered", () => {
+    setTimeout(syncAionO25FTerminal, 0);
+    setTimeout(beginAionO25FAutomaticConversation, 180);
+  });
+
+  setTimeout(clearStaleConversationOpenOnFreshLaunch, 0);
+  setTimeout(clearStaleConversationOpenOnFreshLaunch, 300);
+  setTimeout(() => {
+    patchTranscriptForAutomaticNextQuestions();
+    syncAionO25FTerminal();
+    beginAionO25FAutomaticConversation();
+  }, 700);
+
+  window.syncAionO25FTerminal = syncAionO25FTerminal;
+  window.beginAionO25FAutomaticConversation = beginAionO25FAutomaticConversation;
+  window.speakAionO25FBusinessFoundation = speakAion;
+  window.stopAionO25FBusinessFoundationSpeech = stopAionSpeaking;
+  window.__debugAionO25FAutomaticLocalVoiceFoundationConversation = function () {
+    return {
+      installed: true,
+      version: VERSION,
+      session_open: window.sessionStorage?.getItem(SESSION_OPEN_KEY) === "true",
+      stale_local_open: window.localStorage?.getItem(STORAGE_OPEN_KEY) === "true",
+      intro_spoken: window.sessionStorage?.getItem(SESSION_INTRO_KEY) === "true",
+      current_entry_mode: getCurrentEntryMode(),
+      terminal_present: !!document.querySelector("[data-aion-o25f-auto-voice-terminal='true']"),
+      stt_endpoint_absolute: true,
+      tts_endpoint: TTS_ENDPOINT,
+      bridge_state: getBridgeState(),
+      voice_state: getVoiceState(),
+      runtime_state: window.__aionO25FVoiceRuntimeState || {},
+      transcript_auto_question_patched: window.__aionO25FTranscriptAutoQuestionPatched === true,
+    };
+  };
+
+  console.log("[AION] O25F automatic local voice foundation conversation installed");
 })();
