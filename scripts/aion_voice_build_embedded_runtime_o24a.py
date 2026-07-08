@@ -1,3 +1,4 @@
+# AION O24A LOCK: embedded app runtime candidate builder.
 from __future__ import annotations
 
 import json

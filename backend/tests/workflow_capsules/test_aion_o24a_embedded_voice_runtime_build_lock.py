@@ -1,3 +1,4 @@
+# AION O24A LOCK: verifies embedded app runtime candidate builder.
 from pathlib import Path
 import json
 
