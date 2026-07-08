@@ -51,10 +51,10 @@ def rel(path: Path) -> str:
         return str(path)
 
 
-def run(cmd: list[str], env: dict[str, str] | None = None) -> dict:
+def run(cmd: list[str], env: dict[str, str] | None = None, cwd: Path = ROOT) -> dict:
     proc = subprocess.run(
         cmd,
-        cwd=str(ROOT),
+        cwd=str(cwd),
         env=env,
         text=True,
         stdout=subprocess.PIPE,
@@ -194,7 +194,9 @@ print(json.dumps({{
     "imports": imports,
 }}))
 """
-    return parse_json_from_result(run([str(APP_PYTHON), "-c", code], env=app_worker_environment()))
+    return parse_json_from_result(
+        run([str(APP_PYTHON), "-c", code], env=app_worker_environment(), cwd=APP_RUNTIME_ROOT)
+    )
 
 
 def app_local_worker_probe() -> dict:
@@ -202,6 +204,7 @@ def app_local_worker_probe() -> dict:
         run(
             [str(APP_PYTHON), str(APP_WORKER), "aion-o23i-bundle-probe"],
             env=app_worker_environment(),
+            cwd=APP_RUNTIME_ROOT,
         )
     )
 
