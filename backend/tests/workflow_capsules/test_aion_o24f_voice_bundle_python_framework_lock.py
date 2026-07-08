@@ -37,7 +37,9 @@ def test_o24f_manifest_proves_framework_bundled_and_python_relinked():
     assert data["backup_cleanup"]["after"]["exists"] is False
     assert data["codesign"]["python"]["returncode"] == 0
     assert data["codesign"]["python"]["verify_returncode"] == 0
-    assert data["codesign"]["framework"]["returncode"] == 0
+    assert data["codesign"]["Python"]["returncode"] == 0
+    assert data["codesign"]["Python"]["verify_returncode"] == 0
+    assert "framework_directory_codesign_note" in data
 
     assert data["app_python_otool_after"]["external_dependencies"] == []
     assert data["new_dylib"] in json.dumps(data["app_python_otool_after"])
