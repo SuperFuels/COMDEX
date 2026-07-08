@@ -142361,101 +142361,22 @@ function getAionO21FBusinessTwinVoiceAnswerState() {
 }
 
 function classifyAionO21FVoiceAnswerField(text) {
-  const clean = String(text || "").trim();
-  const lower = clean.toLowerCase();
-
-  if (!clean) return "unknown";
-
-  if (
-    lower.includes("my business is") ||
-    lower.includes("business is called") ||
-    lower.includes("company is called") ||
-    lower.includes("we are called") ||
-    lower.includes("it's called")
-  ) {
-    return "business_name";
+  if (typeof window !== "undefined" && typeof window.applyAionO25BVoiceTurnToFoundationDraft === "function") {
+    try {
+      const packet = window.applyAionO25BVoiceTurnToFoundationDraft({
+        speaker: "user",
+        text: String(text || ""),
+        entry_mode: window.__aionO20COpeningMode || window.localStorage?.getItem("aion.o20c.mode") || "existing_business",
+        source: "local_stt_transcript",
+      });
+      return packet?.last_turn?.mapped_field || packet?.next_question?.target_field || "general_business_context";
+    } catch {}
   }
-
-  if (
-    lower.includes("we do") ||
-    lower.includes("we offer") ||
-    lower.includes("services") ||
-    lower.includes("configured service") ||
-    lower.includes("service delivery") ||
-    lower.includes("maintenance") ||
-    lower.includes("renovation") ||
-    lower.includes("service") ||
-    lower.includes("roof")
-  ) {
-    return "services";
-  }
-
-  if (
-    lower.includes("we are based") ||
-    lower.includes("based in") ||
-    lower.includes("located in") ||
-    lower.includes("cover") ||
-    lower.includes("area") ||
-    lower.includes("configured operating region") ||
-    lower.includes("configured operating region") ||
-    lower.includes("configured operating region") ||
-    lower.includes("configured operating region") ||
-    lower.includes("configured operating region")
-  ) {
-    return "location";
-  }
-
-  if (
-    lower.includes("customers") ||
-    lower.includes("clients") ||
-    lower.includes("homeowners") ||
-    lower.includes("landlords") ||
-    lower.includes("business owners") ||
-    lower.includes("target")
-  ) {
-    return "target_customers";
-  }
-
-  if (
-    lower.includes("goal") ||
-    lower.includes("want to") ||
-    lower.includes("need to") ||
-    lower.includes("trying to") ||
-    lower.includes("increase") ||
-    lower.includes("generate") ||
-    lower.includes("grow")
-  ) {
-    return "current_goal";
-  }
-
-  if (
-    lower.includes("idea") ||
-    lower.includes("new business") ||
-    lower.includes("startup") ||
-    lower.includes("launch")
-  ) {
-    return "idea_mode_answer";
-  }
-
   return "general_business_context";
 }
 
 function normaliseAionO21FVoiceAnswerValue(field, text) {
-  let value = String(text || "").trim();
-
-  if (field === "business_name") {
-    value = value
-      .replace(/^my business is\s+/i, "")
-      .replace(/^the business is\s+/i, "")
-      .replace(/^business is called\s+/i, "")
-      .replace(/^my company is called\s+/i, "")
-      .replace(/^company is called\s+/i, "")
-      .replace(/^we are called\s+/i, "")
-      .replace(/^it's called\s+/i, "")
-      .trim();
-  }
-
-  return value || String(text || "").trim();
+  return String(text || "").trim();
 }
 
 function bindAionO21FTranscriptToBusinessTwinAnswer(transcriptItemOrText) {
@@ -142476,75 +142397,155 @@ function bindAionO21FTranscriptToBusinessTwinAnswer(transcriptItemOrText) {
     };
   }
 
-  const field = classifyAionO21FVoiceAnswerField(clean);
-  const value = normaliseAionO21FVoiceAnswerValue(field, clean);
+  const entryMode =
+    window.__aionO20COpeningMode ||
+    window.localStorage?.getItem("aion.o20c.mode") ||
+    window.localStorage?.getItem("aion.businessTwinSetup.entryRoute.v1") ||
+    "existing_business";
+
+  if (typeof window.applyAionO25BVoiceTurnToFoundationDraft !== "function") {
+    state.last_error = "o25b_foundation_voice_controller_not_loaded";
+    state.status = "controller_missing";
+    return {
+      ok: false,
+      reason: "o25b_foundation_voice_controller_not_loaded",
+      state,
+    };
+  }
+
+  let packet = null;
+  try {
+    packet = window.applyAionO25BVoiceTurnToFoundationDraft({
+      speaker: "user",
+      text: clean,
+      entry_mode: entryMode,
+      source: "local_stt_transcript",
+      transcript_id:
+        typeof transcriptItemOrText === "object" && transcriptItemOrText
+          ? transcriptItemOrText.id || null
+          : null,
+    });
+  } catch (error) {
+    state.last_error = "o25b_foundation_voice_binding_failed";
+    state.last_error_message = String(error && error.message ? error.message : error);
+    state.status = "binding_error";
+    return {
+      ok: false,
+      reason: "o25b_foundation_voice_binding_failed",
+      error: state.last_error_message,
+      state,
+    };
+  }
+
+  const mappedField =
+    packet?.last_turn?.mapped_field ||
+    packet?.next_question?.target_field ||
+    "general_business_context";
+
+  const value =
+    packet?.foundation_draft?.[mappedField] ||
+    clean;
 
   const binding = {
-    id: `o21f_binding_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    id: `o25c_foundation_binding_${Date.now()}_${Math.random().toString(16).slice(2)}`,
     route: AION_O21F_STARTUP_ROUTE,
-    field,
+    field: mappedField,
     value,
     raw_text: clean,
     source: "local_stt_transcript",
+    controller: "aion_business_foundation_voice_controller",
+    controller_version: window.AION_BUSINESS_FOUNDATION_VOICE_CONTROLLER_VERSION || "unknown",
+    packet_version: packet?.version || null,
+    next_question: packet?.next_question || null,
+    readiness: packet?.readiness || null,
     approval_required: true,
     external_actions_allowed: false,
+    live_execution_allowed: false,
     created_at: new Date().toISOString(),
   };
 
-  state.answers[field] = value;
+  state.answers[mappedField] = value;
   state.pending_review.push(binding);
   state.transcript_bindings.push(binding);
   state.last_bound_text = clean;
-  state.status = "pending_human_review";
+  state.last_discovery_packet = packet;
+  state.status = "foundation_discovery_pending_review";
+  state.controller = "o25b_business_foundation_voice_controller";
+  state.external_actions_allowed = false;
+  state.live_execution_allowed = false;
+  state.business_context_hijack_allowed = false;
 
-  if (typeof window !== "undefined") {
-    window.__aionBusinessTwinVoiceDraft = {
-      route: AION_O21F_STARTUP_ROUTE,
-      approval_required: true,
-      answers: { ...state.answers },
-      pending_review_count: state.pending_review.length,
-      external_actions_allowed: false,
-    };
-  }
+  window.__aionBusinessFoundationVoiceDiscoveryPacket = packet;
+  window.__aionBusinessFoundationVoiceDraft = {
+    route: AION_O21F_STARTUP_ROUTE,
+    approval_required: true,
+    foundation_draft: { ...(packet?.foundation_draft || {}) },
+    readiness: packet?.readiness || null,
+    next_question: packet?.next_question || null,
+    transcript_count: packet?.transcript_count || 0,
+    external_actions_allowed: false,
+    live_execution_allowed: false,
+  };
+
+  window.__aionBusinessTwinVoiceDraft = {
+    route: AION_O21F_STARTUP_ROUTE,
+    approval_required: true,
+    answers: { ...state.answers },
+    pending_review_count: state.pending_review.length,
+    external_actions_allowed: false,
+    live_execution_allowed: false,
+    migrated_to_business_foundation_voice_controller: true,
+  };
 
   syncAionO21FBusinessTwinVoiceBindingPanel();
 
   return {
     ok: true,
     binding,
+    packet,
     state,
   };
 }
 
 function renderAionO21FBusinessTwinVoiceBindingPanel() {
   const state = getAionO21FBusinessTwinVoiceAnswerState();
-  const fields = Object.entries(state.answers || {});
+  const packet = state.last_discovery_packet || window.__aionBusinessFoundationVoiceDiscoveryPacket || null;
+  const draft = packet?.foundation_draft || window.__aionBusinessFoundationVoiceDraft?.foundation_draft || {};
+  const fields = Object.entries(draft || {}).filter(([, value]) => String(value || "").trim());
   const pendingCount = (state.pending_review || []).length;
+  const nextQuestion = packet?.next_question?.text || "AION will ask the next schema-driven discovery question.";
+  const readinessScore = packet?.readiness?.readiness_score ?? 0;
 
   return `
     <section class="aion-o21f-business-twin-voice-binding" data-aion-o21f-business-twin-voice-binding>
       <div class="aion-o21f-binding-head">
         <div>
-          <div class="aion-o21f-binding-title">Business Twin voice answers</div>
-          <div class="aion-o21f-binding-subtitle">Route: ${AION_O21F_STARTUP_ROUTE} · approval required</div>
+          <div class="aion-o21f-binding-title">Business Foundation voice discovery</div>
+          <div class="aion-o21f-binding-subtitle">Route: ${AION_O21F_STARTUP_ROUTE} · schema-driven · approval required</div>
         </div>
         <div class="aion-o21f-binding-pill">Pending review: ${pendingCount}</div>
       </div>
       <div class="aion-o21f-binding-safety">
-        No external actions · no business_context hijack · human approval required
+        No external actions · no live execution · answers are captured as a Business Foundation draft
+      </div>
+      <div class="aion-o21f-binding-safety" data-aion-o25c-next-question="true">
+        Next: ${escapeHtml(nextQuestion)}
+      </div>
+      <div class="aion-o21f-binding-safety" data-aion-o25c-readiness="true">
+        Foundation readiness: ${escapeHtml(String(readinessScore))}%
       </div>
       <div class="aion-o21f-binding-fields" data-aion-o21f-binding-fields>
         ${
           fields.length
             ? fields
                 .map(([field, value]) => `
-                  <div class="aion-o21f-binding-field" data-aion-o21f-binding-field="${field}">
-                    <span>${field}</span>
+                  <div class="aion-o21f-binding-field" data-aion-o21f-binding-field="${escapeHtml(field)}">
+                    <span>${escapeHtml(field)}</span>
                     <strong>${escapeHtml(String(value || ""))}</strong>
                   </div>
                 `)
                 .join("")
-            : `<div class="aion-o21f-binding-empty">Speak an answer and it will appear here as a draft.</div>`
+            : `<div class="aion-o21f-binding-empty">Start the conversation. AION will capture the answers into the Business Foundation draft.</div>`
         }
       </div>
     </section>
@@ -142697,3 +142698,43 @@ setTimeout(() => {
 // Browser SpeechRecognition runtime calls are disabled for AION live mic.
 // Live mic STT must post audio chunks to /api/aion/voice/stt and use the local worker bridge.
 window.__aionO22FBrowserSpeechRuntimeDisabled = true;
+
+/* ============================================================
+ * AION O25C — Business Foundation Voice Discovery Bridge Lock
+ * ------------------------------------------------------------
+ * Clean bridge from startup voice transcript to the O25B
+ * schema-driven Business Foundation discovery controller.
+ *
+ * This does not create another overlay, does not call external
+ * providers, and does not execute.
+ * ============================================================ */
+(function installAionO25CBusinessFoundationVoiceDiscoveryBridge() {
+  if (typeof window === "undefined") return;
+  if (window.__aionO25CBusinessFoundationVoiceDiscoveryBridgeInstalled) return;
+  window.__aionO25CBusinessFoundationVoiceDiscoveryBridgeInstalled = true;
+
+  window.__debugAionO25CBusinessFoundationVoiceDiscoveryBridge = function () {
+    const packet = window.__aionBusinessFoundationVoiceDiscoveryPacket || null;
+    return {
+      installed: true,
+      controller_loaded: typeof window.applyAionO25BVoiceTurnToFoundationDraft === "function",
+      controller_version: window.AION_BUSINESS_FOUNDATION_VOICE_CONTROLLER_VERSION || null,
+      transcript_patch_installed: window.__aionO21FPatchedTranscriptBinding === true,
+      packet_version: packet?.version || null,
+      entry_mode: packet?.entry_mode || window.__aionO20COpeningMode || null,
+      transcript_count: packet?.transcript_count || 0,
+      readiness: packet?.readiness || null,
+      next_question: packet?.next_question || null,
+      safety: {
+        preview_only: true,
+        external_actions_allowed: false,
+        live_execution_allowed: false,
+        hard_coded_business_answers_allowed: false,
+        creates_overlay: false,
+      },
+    };
+  };
+
+  console.log("[AION] O25C Business Foundation voice discovery bridge installed");
+})();
+
