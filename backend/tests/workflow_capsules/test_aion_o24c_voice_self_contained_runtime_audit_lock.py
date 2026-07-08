@@ -17,7 +17,7 @@ def test_o24c_script_exists_and_documents_self_contained_runtime_audit():
     assert "must_replace_symlinked_python_with_relocatable_or_embedded_python" in text
 
 
-def test_o24c_manifest_records_release_blocker_for_symlinked_python():
+def test_o24c_manifest_records_self_contained_runtime_release_blockers():
     assert MANIFEST.exists(), "Run scripts/aion_voice_self_contained_runtime_audit_o24c.py first."
 
     data = json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -30,8 +30,17 @@ def test_o24c_manifest_records_release_blocker_for_symlinked_python():
     assert data["packaged_readiness"]["ok"] is True
 
     assert data["release_ready"] is False
-    assert "app_python_is_symlink" in data["release_blockers"]
-    assert "app_python_resolves_to_external_runtime" in data["release_blockers"]
+    assert data["release_blockers"], "O24C should record remaining release blockers until full runtime self-containment is complete."
+
+    # Before O24E, the expected blocker was the Python symlink itself.
+    # After O24E, the executable is materialized, so the remaining blocker is external runtime/framework linkage or backup symlinks.
+    blocker_blob = json.dumps(data["release_blockers"])
+    assert (
+        "app_python_is_symlink" in blocker_blob
+        or "app_python_resolves_to_external_runtime" in blocker_blob
+        or "voice_bundle_contains_external_symlinks" in blocker_blob
+        or "external_native_dependencies_present" in blocker_blob
+    )
 
     assert data["required_fix"]["must_replace_symlinked_python_with_relocatable_or_embedded_python"] is True
     assert data["required_fix"]["must_not_resolve_to_homebrew_or_dev_machine_runtime"] is True
