@@ -8,6 +8,7 @@ import sys
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
+from backend.modules.aion_voice.voice_download_policy import build_voice_download_policy_env
 from typing import Any
 
 
@@ -116,6 +117,11 @@ def voice_worker_script() -> Path:
     return repo_root() / "scripts" / "aion_voice_worker.py"
 
 
+
+def voice_worker_environment() -> dict[str, str]:
+    return build_voice_download_policy_env(os.environ)
+
+
 def call_voice_worker(mode: str, request: dict[str, Any], timeout: int = 120) -> VoiceWorkerResult:
     python_path = default_voice_python()
     worker_path = voice_worker_script()
@@ -197,6 +203,7 @@ def synthesize_with_worker(text: str, voice: str = "af_heart", sample_rate: int 
             "sample_rate": sample_rate,
             "business_context_hardcoded": False,
         },
+        env=voice_worker_environment()
     )
 
 

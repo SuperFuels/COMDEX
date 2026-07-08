@@ -1,5 +1,13 @@
 from __future__ import annotations
 
+
+# AION O23H: apply no-hidden-downloads policy before provider imports.
+try:
+    from backend.modules.aion_voice.voice_download_policy import apply_voice_download_policy
+    apply_voice_download_policy()
+except Exception:
+    pass
+
 import argparse
 import base64
 import json
