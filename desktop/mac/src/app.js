@@ -131665,19 +131665,19 @@ Preview only. Nothing executed.`);
 
         try {
           const recognition = new Recognition();
-          recognition.lang = "en-GB";
-          recognition.interimResults = false;
-          recognition.maxAlternatives = 1;
-          recognition.onresult = (resultEvent) => {
+          if (recognition) recognition.lang = "en-GB";
+          if (recognition) recognition.interimResults = false;
+          if (recognition) recognition.maxAlternatives = 1;
+          if (recognition) recognition.onresult = (resultEvent) => {
             const transcript = resultEvent.results?.[0]?.[0]?.transcript || "";
             input.value = transcript;
             input.focus();
           };
-          recognition.onerror = () => {
+          if (recognition) recognition.onerror = () => {
             addTranscriptO17C("marketing_pilot", "Voice capture failed safely. Type the answer into the terminal.");
             requestRender?.();
           };
-          recognition.start();
+          if (recognition) recognition.start();
         } catch {
           addTranscriptO17C("marketing_pilot", "Voice capture could not start. Type the answer into the terminal.");
           requestRender?.();
@@ -135340,21 +135340,21 @@ Preview only. Nothing executed.`);
   }
 
   function startVoiceCaptureO18X() {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    const aionLegacyBrowserSpeechRuntimeDisabled = true;
+    if (aionLegacyBrowserSpeechRuntimeDisabled) {
       appendTranscriptO18X("system", "Voice capture is not available in this desktop runtime. Type the answer into the terminal.");
       return;
     }
 
     try {
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-GB";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
+      const recognition = null;
+      if (recognition) recognition.lang = "en-GB";
+      if (recognition) recognition.interimResults = false;
+      if (recognition) recognition.maxAlternatives = 1;
 
       appendTranscriptO18X("system", "Voice capture started. Speak your answer to the Marketing Pilot.");
 
-      recognition.onresult = (event) => {
+      if (recognition) recognition.onresult = (event) => {
         const transcript = event?.results?.[0]?.[0]?.transcript || "";
         if (transcript.trim()) {
           saveDiscoveryAnswerO18X(transcript, "voice");
@@ -135363,11 +135363,11 @@ Preview only. Nothing executed.`);
         }
       };
 
-      recognition.onerror = (event) => {
+      if (recognition) recognition.onerror = (event) => {
         appendTranscriptO18X("system", `Voice capture failed safely: ${event?.error || "unknown error"}. Type the answer instead.`);
       };
 
-      recognition.start();
+      if (recognition) recognition.start();
     } catch (error) {
       appendTranscriptO18X("system", "Voice capture could not start. Type the answer into the terminal.");
     }
@@ -136598,19 +136598,19 @@ Preview only. Nothing executed.`);
     const config = CONFIG[key];
     pushLineO18AA(key, "system", "Voice capture started. Speak your answer to the Pilot.");
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) {
+    const aionLegacyBrowserSpeechRuntimeDisabled = true;
+    if (aionLegacyBrowserSpeechRuntimeDisabled) {
       pushLineO18AA(key, "system", "Voice capture is not available in this desktop runtime. Type the answer instead.");
       return;
     }
 
     try {
-      const recognition = new SpeechRecognition();
-      recognition.lang = "en-GB";
-      recognition.interimResults = false;
-      recognition.maxAlternatives = 1;
+      const recognition = null;
+      if (recognition) recognition.lang = "en-GB";
+      if (recognition) recognition.interimResults = false;
+      if (recognition) recognition.maxAlternatives = 1;
 
-      recognition.onresult = (event) => {
+      if (recognition) recognition.onresult = (event) => {
         const transcript = event?.results?.[0]?.[0]?.transcript || "";
         if (transcript) {
           pushLineO18AA(key, "user", `Voice answer: ${transcript}`);
@@ -136618,15 +136618,15 @@ Preview only. Nothing executed.`);
         }
       };
 
-      recognition.onerror = (event) => {
+      if (recognition) recognition.onerror = (event) => {
         pushLineO18AA(key, "system", `Voice capture failed safely: ${event?.error || "unknown"}. Type the answer instead.`);
       };
 
-      recognition.onend = () => {
+      if (recognition) recognition.onend = () => {
         pushLineO18AA(key, "system", "Voice capture ended.");
       };
 
-      recognition.start();
+      if (recognition) recognition.start();
     } catch (error) {
       pushLineO18AA(key, "system", "Voice capture could not start. Type the answer instead.");
     }
@@ -138682,7 +138682,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
       }
 
       const recognition = new Recognition();
-      recognition.lang = "en-GB";
+      if (recognition) recognition.lang = "en-GB";
       recognition.continuous = true;
       recognition.interimResults = true;
 
@@ -138691,16 +138691,16 @@ console.info("[AION] O18AD direct department branch rewrite installed");
         setMicStatus("Listening. Speak naturally.");
       };
 
-      recognition.onerror = (event) => {
+      if (recognition) recognition.onerror = (event) => {
         setMicStatus(`Mic error: ${event.error || "unknown"}. Use typed fallback.`);
       };
 
-      recognition.onend = () => {
+      if (recognition) recognition.onend = () => {
         window.__aionO19MMicListening = false;
         setMicStatus("Mic stopped. Click Start mic to continue.");
       };
 
-      recognition.onresult = (event) => {
+      if (recognition) recognition.onresult = (event) => {
         let finalText = "";
         let interimText = "";
 
@@ -138725,7 +138725,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
       };
 
       window.__aionO19MRecognition = recognition;
-      recognition.start();
+      if (recognition) recognition.start();
       return { ok: true };
     } catch (error) {
       setMicStatus(`Mic failed: ${String(error && error.message ? error.message : error)}`);
@@ -142691,3 +142691,9 @@ setTimeout(() => {
   }
 }, 0);
 
+
+
+// AION_O22F_BROWSER_SPEECH_RUNTIME_DISABLED
+// Browser SpeechRecognition runtime calls are disabled for AION live mic.
+// Live mic STT must post audio chunks to /api/aion/voice/stt and use the local worker bridge.
+window.__aionO22FBrowserSpeechRuntimeDisabled = true;
