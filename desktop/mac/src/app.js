@@ -447,8 +447,8 @@ function buildAgentMapDashboardPreviewPayload() {
     dashboard_version: "aion.agentmap.dashboard.v0.1",
     status: "ready",
     business_id: "business_not_registered",
-    business_name: "Business not registered",
-    vertical_key: "home_repair",
+    business_name: "Business status pending verification",
+    vertical_key: "home_configured service",
     generated_count: generationCount,
     agentmap_hash: agentmapHash,
     endpoint_hash: endpointHash,
@@ -467,8 +467,8 @@ function buildAgentMapDashboardPreviewPayload() {
     agentmap_json: {
       agentmap_version: "aion.agentmap.v0.1",
       business_id: "business_not_registered",
-      business_name: "Business not registered",
-      vertical_key: "home_repair",
+      business_name: "Business status pending verification",
+      vertical_key: "home_configured service",
       agentmap_hash: agentmapHash,
       preview_only: true,
       human_review_required: true,
@@ -480,13 +480,13 @@ function buildAgentMapDashboardPreviewPayload() {
       ],
       capabilities: [
         {
-          capability_id: "home_repair.quote.preview",
-          label: "Home repair quote preview",
+          capability_id: "home_configured service.quote.preview",
+          label: "Home configured service quote preview",
           safe_for_agent_discovery: true,
           preview_only: true,
           human_review_required: true,
-          input_schema_ref: "aion.schema.home_repair.quote_request.v0",
-          output_schema_ref: "aion.schema.home_repair.quote_preview.v0"
+          input_schema_ref: "aion.schema.home_configured service.quote_request.v0",
+          output_schema_ref: "aion.schema.home_configured service.quote_preview.v0"
         }
       ]
     }
@@ -1800,7 +1800,7 @@ function renderBrandAssistantPanel() {
       <textarea
         id="brandAssistantPromptInput"
         class="input input-textarea"
-        placeholder="Example: Help me write what we do for a local trade directory serving English-speaking expats in Almería."
+        placeholder="Example: Help me write what we do for a local trade directory serving English-speaking expats in the configured service area."
       >${escapeHtml(state.brandAssistantPrompt || "")}</textarea>
 
       <div class="marketing-form-actions" style="
@@ -6181,8 +6181,8 @@ function getDefaultAgentMapDashboardPreviewPayload() {
     dashboard_version: "aion.agentmap.dashboard.v0.1",
     status: "ready",
     business_id: "business_not_registered",
-    business_name: "Business not registered",
-    vertical_key: "home_repair",
+    business_name: "Business status pending verification",
+    vertical_key: "home_configured service",
     agentmap_hash: "b1e09a730891e6cbbf093eee509ebc4eb8c012a5a59fdb40bbe0fb125c98ddbe",
     endpoint_hash: "phase14c-endpoint-preview-bound",
     verification_status: "verified",
@@ -6201,8 +6201,8 @@ function getDefaultAgentMapDashboardPreviewPayload() {
     agentmap_preview: {
       agentmap_version: "aion.agentmap.v0.1",
       business_id: "business_not_registered",
-      business_name: "Business not registered",
-      vertical_key: "home_repair",
+      business_name: "Business status pending verification",
+      vertical_key: "home_configured service",
       agentmap_hash: "b1e09a730891e6cbbf093eee509ebc4eb8c012a5a59fdb40bbe0fb125c98ddbe",
       paths: {
         canonical: "/agentmap.json",
@@ -6905,10 +6905,10 @@ function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
 
   return {
     business_id: "business_not_registered",
-    business_name: "Business not registered",
-    vertical_key: "home_repair",
-    workflow_id: "home_fixed_repair_intake",
-    workflow_name: "Home Fixed Repair Enquiry",
+    business_name: "Business status pending verification",
+    vertical_key: "home_configured service",
+    workflow_id: "home_fixed_configured service_intake",
+    workflow_name: "the current business Repair Enquiry",
     route_status: "preview_ready",
     human_review_required: true,
     preview_only: true,
@@ -6939,12 +6939,12 @@ function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
 
 function getBoardroomWorkflowWidgetPreviewPayload(snapshot = {}) {
   return {
-    workflow_id: "home_fixed_repair_intake",
-    workflow_name: "Home Fixed Repair Enquiry",
-    selected_vertical: "home_repair",
+    workflow_id: "home_fixed_configured service_intake",
+    workflow_name: "the current business Repair Enquiry",
+    selected_vertical: "home_configured service",
     public_gateway_route: "/api/public-intent/home-fixed",
     agentmap_route: "/agentmap.json",
-    a2a_capability: "home_repair.quote_preview",
+    a2a_capability: "home_configured service.quote_preview",
     fields: [
       "Customer name",
       "Phone / WhatsApp",
@@ -6955,7 +6955,7 @@ function getBoardroomWorkflowWidgetPreviewPayload(snapshot = {}) {
       "Preferred contact time",
     ],
     embed_code:
-      '<script src="/aion-widget.js" data-agentmap="/agentmap.json" data-workflow="home_fixed_repair_intake" data-mode="preview"></script>',
+      '<script src="/aion-widget.js" data-agentmap="/agentmap.json" data-workflow="home_fixed_configured service_intake" data-mode="preview"></script>',
     safety: {
       preview_only: true,
       no_booking_created: true,
@@ -6996,7 +6996,7 @@ function __deprecatedPhase16Duplicate_5832_renderBoardroomFounderDemoLoopPanel(s
       <div class="panel-header">
         <div>
           <div class="panel-kicker">Founder Demo Loop</div>
-          <h2>Home Fixed Website → A2A → Proof Replay</h2>
+          <h2>the current business Website → A2A → Proof Replay</h2>
           <p class="muted">
             One repeatable proof path from website request to guarded quote preview, human review,
             fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
@@ -7017,7 +7017,7 @@ function __deprecatedPhase16Duplicate_5832_renderBoardroomFounderDemoLoopPanel(s
       ${renderBoardroomSafetyStrip(payload)}
 
       <div class="button-row aion-founder-demo-actions">
-        <button type="button" data-founder-demo-run-preview="true" onclick="handleBoardroomFounderDemoPreviewAction('run_preview')">Run Home Fixed preview</button>
+        <button type="button" data-founder-demo-run-preview="true" onclick="handleBoardroomFounderDemoPreviewAction('run_preview')">Run the current business preview</button>
         <button type="button" data-founder-demo-human-review="true" onclick="handleBoardroomFounderDemoPreviewAction('open_human_review')">Open human review</button>
         <button type="button" data-founder-demo-proof-receipt="true" onclick="handleBoardroomFounderDemoPreviewAction('view_proof_receipt')">View proof receipt</button>
         <button type="button" data-founder-demo-replay="true" onclick="handleBoardroomFounderDemoPreviewAction('replay_trace')">Replay boardroom trace</button>
@@ -7174,7 +7174,7 @@ function renderBoardroomHumanReviewQueuePanel(runtimeApprovals = []) {
 function __deprecatedPhase16Duplicate_6015_renderBoardroomProofReplayPanel(snapshot = {}) {
   const payload = getBoardroomFounderDemoPreviewPayload(snapshot);
   const proofPath = [
-    "Home Fixed widget request",
+    "the current business widget request",
     "Public Intent Gateway",
     "Guard Envelope",
     "AgentMap capability route",
@@ -7204,7 +7204,7 @@ function __deprecatedPhase16Duplicate_6015_renderBoardroomProofReplayPanel(snaps
         <div>
           <div class="panel-kicker">Replay / Proof</div>
           <h2>Founder demo proof trail</h2>
-          <p class="muted">Replay the guarded Home Fixed request path and show the proof boundary before anything goes live.</p>
+          <p class="muted">Replay the guarded the current business request path and show the proof boundary before anything goes live.</p>
         </div>
         <div class="status-pill">Replay ready</div>
       </div>
@@ -7320,7 +7320,7 @@ function __deprecatedPhase16Duplicate_6158_renderBoardroomWorkflowWidgetPanel(sn
   <input name="postcode" placeholder="Postcode / town" required />
   <select name="service_type">
     <option>Plumbing enquiry</option>
-    <option>Leak repair</option>
+    <option>Leak configured service</option>
     <option>Bathroom quote</option>
   </select>
   <textarea name="job_notes" placeholder="Tell us what needs doing"></textarea>
@@ -7343,7 +7343,7 @@ function __deprecatedPhase16Duplicate_6158_renderBoardroomWorkflowWidgetPanel(sn
       <div class="aion-founder-demo-grid compact">
         <div class="list-item">
           <strong>Workflow</strong>
-          <div class="muted">Home Fixed plumbing enquiry</div>
+          <div class="muted">the current business plumbing enquiry</div>
         </div>
         <div class="list-item">
           <strong>A2A route</strong>
@@ -7366,7 +7366,7 @@ function __deprecatedPhase16Duplicate_6158_renderBoardroomWorkflowWidgetPanel(sn
 
 function __deprecatedPhase16Duplicate_6208_renderBoardroomProofReplayPanel(snapshot = {}) {
   const proofPath = [
-    "Home Fixed widget request",
+    "the current business widget request",
     "Public Intent Gateway",
     "Guard Envelope",
     "AgentMap capability route",
@@ -7386,7 +7386,7 @@ function __deprecatedPhase16Duplicate_6208_renderBoardroomProofReplayPanel(snaps
         <div>
           <div class="panel-kicker">Replay / Proof</div>
           <h2>Founder demo proof trail</h2>
-          <p class="muted">A clean replay of the guarded Home Fixed request path, with hash/proof visibility and no live side effects.</p>
+          <p class="muted">A clean replay of the guarded the current business request path, with hash/proof visibility and no live side effects.</p>
         </div>
         <div class="status-pill">Replay ready</div>
       </div>
@@ -7511,7 +7511,7 @@ function __deprecatedPhase16Duplicate_6349_renderBoardroomFounderDemoLoopPanel(s
       <div class="panel-header">
         <div>
           <div class="panel-kicker">Founder Demo Loop</div>
-          <h2>Home Fixed Website → A2A → Proof Replay</h2>
+          <h2>the current business Website → A2A → Proof Replay</h2>
           <p class="muted">
             One clean repeatable proof path from website/widget request to guarded quote preview,
             human review, fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
@@ -7614,7 +7614,7 @@ function __deprecatedPhase16Duplicate_6452_renderBoardroomFounderDemoLoopPanel(s
       <div class="panel-header">
         <div>
           <div class="panel-kicker">Founder Demo Loop</div>
-          <h2>Home Fixed Website → A2A → Proof Replay</h2>
+          <h2>the current business Website → A2A → Proof Replay</h2>
           <p class="muted">
             One clean repeatable proof path from website/widget request to guarded quote preview,
             human review, fulfilment preview, evidence, proof receipt, ETS preview, and boardroom replay.
@@ -7694,7 +7694,7 @@ function renderBoardroomWorkflowWidgetPanel(snapshot = {}) {
         This is a preview surface. It does not create bookings, payments, escrow, external messages, or live chain writes.
       </div>
     
-      <div class="muted" data-aion-phase16g-legacy-marker-repair="true">
+      <div class="muted" data-aion-phase16g-legacy-marker-configured service="true">
         website_widget public_intent_gateway guard_envelope agentmap_route capability_route machine_cart_quote_preview human_review_handoff a2a_route
       </div>
     </section>
@@ -9663,7 +9663,7 @@ function buildAionGoalLoopCentralPilotTaskQueue() {
   const businessLabel =
     typeof getAionWorkflowCanvasHeaderBusinessLabel === "function"
       ? getAionWorkflowCanvasHeaderBusinessLabel()
-      : "Business not registered";
+      : "Business status pending verification";
 
   const businessContainer =
     typeof getAionWorkflowBusinessContainerId === "function"
@@ -9862,7 +9862,7 @@ function buildAionGoalLoopDepartmentTaskQueueWritebackPatch(departmentKey = "", 
       department_key: key,
       preview_generated_at: now,
       business_container: String(task.business_container || queue.business_container || "business_not_registered"),
-      business_label: String(task.business_label || queue.business_label || "Business not registered"),
+      business_label: String(task.business_label || queue.business_label || "Business status pending verification"),
     },
   }));
 
@@ -9874,7 +9874,7 @@ function buildAionGoalLoopDepartmentTaskQueueWritebackPatch(departmentKey = "", 
   return {
     schema_version: "aion.goal_loop.department_task_queue_writeback_preview.v1",
     department_key: key,
-    business_label: String(queue.business_label || "Business not registered"),
+    business_label: String(queue.business_label || "Business status pending verification"),
     business_container: String(queue.business_container || "business_not_registered"),
     goal_loop_id: String(queue.goal_loop_id || "not_staged"),
     board_goal: String(queue.board_goal || "No Boardroom goal staged"),
@@ -9952,7 +9952,7 @@ function previewAionGoalLoopDepartmentTaskQueueWriteback(options = {}) {
   const preview = {
     schema_version: "aion.goal_loop.department_task_queue_writeback_preview_bundle.v1",
     status: patches.length ? "department_writeback_preview_ready" : "no_department_writeback_preview",
-    business_label: String(queue.business_label || "Business not registered"),
+    business_label: String(queue.business_label || "Business status pending verification"),
     business_container: String(queue.business_container || "business_not_registered"),
     goal_loop_id: String(queue.goal_loop_id || "not_staged"),
     board_goal: String(queue.board_goal || "No Boardroom goal staged"),
@@ -17189,7 +17189,7 @@ function renderAionGoalLoopDepartmentTaskQueueWritebackPanel() {
       <div class="card-grid" style="margin-top:12px;">
         <div class="card">
           <div class="card-label">Business</div>
-          <div class="card-value" data-aion-goal-loop-writeback-business-label="true">${escapeHtml(preview.business_label || "Business not registered")}</div>
+          <div class="card-value" data-aion-goal-loop-writeback-business-label="true">${escapeHtml(preview.business_label || "Business status pending verification")}</div>
           <div class="card-sub">${escapeHtml(preview.business_container || "business_not_registered")}</div>
         </div>
         <div class="card">
@@ -17282,7 +17282,7 @@ function renderAionGoalLoopCentralPilotTaskQueuePanel() {
       <div class="card-grid" style="margin-top:12px;">
         <div class="card">
           <div class="card-label">Business</div>
-          <div class="card-value" data-aion-goal-loop-central-business-label="true">${escapeHtml(queue.business_label || "Business not registered")}</div>
+          <div class="card-value" data-aion-goal-loop-central-business-label="true">${escapeHtml(queue.business_label || "Business status pending verification")}</div>
           <div class="card-sub">${escapeHtml(queue.business_container || "business_not_registered")}</div>
         </div>
         <div class="card">
@@ -18194,13 +18194,13 @@ function buildAionPilotFollowOnTaskDraftOutput(item = {}, plan = null, pilotStat
         `Mission: ${goal}`,
         "",
         "Primary audience",
-        "- Homeowners needing repairs, maintenance or property improvements.",
+        "- Homeowners needing services, maintenance or property improvements.",
         "- Landlords and property managers needing reliable local support.",
         "- Older homeowners who prefer simple WhatsApp or phone communication.",
         "- Local residents who respond to proof, reliability and before/after work.",
         "",
         "Core offer",
-        "- Clear repair/property-maintenance quote.",
+        "- Clear configured service/property-maintenance quote.",
         "- Simple photo/location/service enquiry flow.",
         "- Human-reviewed quote before booking or paid work.",
         "- Before/after proof where appropriate.",
@@ -18220,7 +18220,7 @@ function buildAionPilotFollowOnTaskDraftOutput(item = {}, plan = null, pilotStat
         `Mission: ${goal}`,
         "",
         "Core positioning",
-        `${businessName} is the dependable local property repair and maintenance service for homeowners who want the job handled properly, clearly and without chasing tradesmen.`,
+        `${businessName} is the dependable local property configured service and maintenance service for homeowners who want the job handled properly, clearly and without chasing tradesmen.`,
         "",
         "Message pillars",
         "- Reliable local help.",
@@ -18230,9 +18230,9 @@ function buildAionPilotFollowOnTaskDraftOutput(item = {}, plan = null, pilotStat
         "- Simple WhatsApp or phone enquiry.",
         "",
         "Example hooks",
-        "- Need a repair sorted without chasing tradesmen?",
+        "- Need a configured service sorted without chasing tradesmen?",
         "- Keep your villa looking its best all year round.",
-        "- Property repairs, maintenance and improvements handled properly.",
+        "- Property services, maintenance and improvements handled properly.",
         "- Send photos, location and the issue — we’ll review and quote.",
         "",
         "Next execution step",
@@ -18256,7 +18256,7 @@ function buildAionPilotFollowOnTaskDraftOutput(item = {}, plan = null, pilotStat
         "",
         "Content queue",
         "- Before/after transformation posts.",
-        "- Problem/solution repair posts.",
+        "- Problem/solution configured service posts.",
         "- Seasonal maintenance reminders.",
         "- Service spotlight posts.",
         "- Trust/proof posts showing reliability and communication.",
@@ -19641,26 +19641,26 @@ function buildAionPilotMarketingPlanDraft(plan = null, pilotState = null) {
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
   const goal = String(safePlan.goal || state.last_request || "Marketing plan");
 
-  const businessName = /home fixed/i.test(goal) ? "Business not registered" : "the business";
+  const businessName = /active business/i.test(goal) ? "Business status pending verification" : "the business";
 
   return [
     `Marketing Plan Draft: ${goal}`,
     "",
     "1. Marketing Objective",
-    `${businessName} should focus on generating qualified enquiries, improving local awareness, and converting repeatable repair/property-maintenance requests into booked jobs after human review.`,
+    `${businessName} should focus on generating qualified enquiries, improving local awareness, and converting repeatable configured service/property-maintenance requests into booked jobs after human review.`,
     "",
     "2. Target Audience",
-    "- Homeowners who need reliable repairs or property improvements.",
+    "- Homeowners who need reliable services or property improvements.",
     "- Landlords and property managers who need responsive maintenance.",
     "- Busy families who want one trusted contact.",
     "- Older homeowners who prefer simple phone or WhatsApp communication.",
     "- Local customers who respond to proof, before/after work and clear quotes.",
     "",
     "3. Positioning Message",
-    `${businessName} should be positioned as a dependable local property repair and maintenance service with clear communication, practical workmanship and no chasing tradesmen.`,
+    `${businessName} should be positioned as a dependable local property configured service and maintenance service with clear communication, practical workmanship and no chasing tradesmen.`,
     "",
     "4. Core Offer",
-    "- Clear repair/property maintenance quote.",
+    "- Clear configured service/property maintenance quote.",
     "- Photo-first enquiry triage where useful.",
     "- Before/after proof where appropriate.",
     "- Simple WhatsApp or phone enquiry flow.",
@@ -19676,7 +19676,7 @@ function buildAionPilotMarketingPlanDraft(plan = null, pilotState = null) {
     "",
     "6. Content Plan",
     "- Before/after transformation posts.",
-    "- Problem/solution repair posts.",
+    "- Problem/solution configured service posts.",
     "- Seasonal maintenance reminders.",
     "- Service spotlight posts.",
     "- Trust/proof posts showing reliability and communication.",
@@ -19711,44 +19711,44 @@ function buildAionPilotMarketingPlanDraft(plan = null, pilotState = null) {
 function buildAionPilotBusinessPlanDraft(plan = null, pilotState = null) {
   const state = pilotState || getAionPilotFrontendInteractionState();
   const safePlan = plan || state.plan || buildAionPilotUniversalPlan(state.last_request || "");
-  const goal = String(safePlan.goal || state.last_request || "Home repair business plan");
+  const goal = String(safePlan.goal || state.last_request || "Home configured service business plan");
   const lowerGoal = goal.toLowerCase();
   const area = lowerGoal.includes("surrey") ? "Surrey, UK" : "the UK";
-  const brand = lowerGoal.includes("home fixed") || lowerGoal.includes("homefixed")
-    ? "Business not registered"
-    : "the home repair business";
+  const brand = lowerGoal.includes("active business") || lowerGoal.includes("activebusiness")
+    ? "Business status pending verification"
+    : "the home configured service business";
 
   return [
     `Business Plan Draft: ${goal}`,
     "",
     "1. Business Overview",
-    `${brand} will operate as a local home repair and property maintenance business serving ${area}. The business will focus on reliable small-to-medium repair jobs, clear communication, transparent pricing and repeat customer relationships.`,
+    `${brand} will operate as a local home configured service and property maintenance business serving ${area}. The business will focus on reliable small-to-medium configured service jobs, clear communication, transparent pricing and repeat customer relationships.`,
     "",
     "2. Positioning",
-    "The business should position itself as the dependable repair partner for homeowners, landlords and property managers who need practical work completed without chasing tradesmen.",
+    "The business should position itself as the dependable configured service partner for homeowners, landlords and property managers who need practical work completed without chasing tradesmen.",
     "",
     "Core promise:",
     "- Reliable attendance.",
     "- Clear written quotes.",
-    "- Practical repair work.",
+    "- Practical configured service work.",
     "- Before/after evidence where useful.",
     "- Simple phone or WhatsApp communication.",
     "",
     "3. Main Services",
-    "- General home repairs.",
-    "- Roof leak checks and minor roof repairs.",
+    "- General home services.",
+    "- Roof leak checks and minor roof services.",
     "- Guttering, fascia and soffit checks.",
-    "- Painting and decorating.",
-    "- Wall repairs and plastering.",
-    "- Door, lock, fence and small exterior repairs.",
+    "- Configured offering.",
+    "- Wall services and plastering.",
+    "- Door, lock, fence and small exterior services.",
     "- Landlord and property maintenance support.",
     "",
     "4. Target Customers",
-    "- Homeowners needing reliable repairs.",
+    "- Homeowners needing reliable services.",
     "- Landlords needing responsive maintenance.",
     "- Letting agents and property managers.",
     "- Older homeowners who prefer simple communication.",
-    "- Busy families who want one trusted repair contact.",
+    "- Busy families who want one trusted configured service contact.",
     "",
     "5. Pricing Model",
     "- Free initial enquiry triage.",
@@ -19760,8 +19760,8 @@ function buildAionPilotBusinessPlanDraft(plan = null, pilotState = null) {
     "",
     "6. Marketing Plan",
     "- Google Business Profile with photos and reviews.",
-    "- Local SEO page for home repairs in the target area.",
-    "- Service pages for roof repairs, handyman work and property maintenance.",
+    "- Local SEO page for home services in the target area.",
+    "- Service pages for roof services, handyman work and property maintenance.",
     "- Before/after Facebook posts.",
     "- Local community group awareness posts where allowed.",
     "- Referral cards for completed customers.",
@@ -19826,7 +19826,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "6. Identify approval-gated actions: posting, messaging, ads and account access.",
       "",
       "Draft content themes:",
-      "- Before/after repair transformations.",
+      "- Before/after configured service transformations.",
       "- Helpful maintenance tips.",
       "- Local trust and proof posts.",
       "- Customer problem/solution posts.",
@@ -19882,7 +19882,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       `Campaign Pack: ${goal}`,
       "",
       "1. Objective",
-      "Generate 10 qualified roof repair enquiries for Home Fixed this month.",
+      "Generate 10 qualified configured service enquiries for the current business this month.",
       "",
       "2. Best Route",
       "Use a local lead-generation campaign focused on urgent roof problems: leaks, broken tiles, gutter issues and storm damage. The safest first route is a draft Facebook/Google campaign preview with WhatsApp or phone enquiry capture.",
@@ -19890,21 +19890,21 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "3. Target Customer",
       "- Homeowners with visible roof damage or leaks.",
       "- Landlords needing fast property maintenance.",
-      "- Property managers needing reliable repair support.",
+      "- Property managers needing reliable configured service support.",
       "- Homeowners worried about water ingress before the next rain.",
       "",
       "4. Offer",
-      "Free roof repair quote / roof leak enquiry. Customer sends photos, location and issue details before a visit is arranged.",
+      "Free configured service quote / roof leak enquiry. Customer sends photos, location and issue details before a visit is arranged.",
       "",
       "5. Draft Advert",
       "Headline: Roof leak or damaged tiles?",
       "",
-      "Body: Home Fixed helps homeowners with roof repairs, leaks, guttering and exterior property maintenance. Send us a few photos of the problem and your location, and we’ll come back with the next best step. Reliable repairs, clear quotes and no chasing tradesmen.",
+      "Body: the current business helps homeowners with roof services, leaks, guttering and exterior property maintenance. Send us a few photos of the problem and your location, and we’ll come back with the next best step. Reliable services, clear quotes and no chasing tradesmen.",
       "",
-      "CTA: Message us for a free roof repair quote.",
+      "CTA: Message us for a free configured service quote.",
       "",
       "6. Draft Customer Message",
-      "Hi, thanks for contacting Home Fixed. Can you send a few photos of the roof issue, your location, and a short note about what has happened? Once we’ve checked that, we can confirm whether it needs a quote, inspection or urgent repair visit.",
+      "Hi, thanks for contacting the current business. Can you send a few photos of the roof issue, your location, and a short note about what has happened? Once we’ve checked that, we can confirm whether it needs a quote, inspection or urgent configured service visit.",
       "",
       "7. Simple Lead Flow",
       "1. Customer sees advert.",
@@ -19919,7 +19919,7 @@ function getAionPilotOutputPreviewText(plan = null, pilotState = null) {
       "- Spend ad budget.",
       "- Send customer messages.",
       "- Connect or change ad account.",
-      "- Book inspection or repair visit.",
+      "- Book inspection or configured service visit.",
       "- Create payment, deposit or escrow.",
       "",
       "9. Recommended Next Safe Step",
@@ -20316,7 +20316,7 @@ function getAionPilotTaskSubject(goal = "") {
 
   const lower = text.toLowerCase();
 
-  if (lower.includes("home fixed")) return "Business not registered";
+  if (lower.includes("active business")) return "Business status pending verification";
   if (lower.includes("roof")) return "Roofing services";
   if (lower.includes("business plan") ||
     lower.includes("busines plan")) return "Business plan";
@@ -20336,14 +20336,14 @@ function buildAionPilotDocumentDraft(plan = null, pilotState = null) {
   const lowerGoal = goal.toLowerCase();
   const isRoofing = lowerGoal.includes("roof");
   const isBusinessPlan = lowerGoal.includes("business plan");
-  const isHomeFixed = lowerGoal.includes("home fixed");
+  const isActiveBusinessProfileMatch = lowerGoal.includes("active business");
 
   const title = isBusinessPlan
-    ? `${isHomeFixed ? "Business not registered" : subject} Business Plan`
+    ? `${isActiveBusinessProfileMatch ? "Business status pending verification" : subject} Business Plan`
     : `${subject} Draft Document`;
 
   const focusLine = isRoofing
-    ? "Focus: roofing repairs, roofline maintenance, leak prevention, emergency roof callouts, guttering, fascia/soffit work and related home repair services."
+    ? "Focus: roofing services, roofline maintenance, leak prevention, emergency roof callouts, guttering, fascia/soffit work and related home configured service services."
     : "Focus: practical business execution, offer clarity, customer acquisition, delivery workflow and measurable next steps.";
 
   const locationLine = lowerGoal.includes("surrey")
@@ -20357,27 +20357,27 @@ function buildAionPilotDocumentDraft(plan = null, pilotState = null) {
     "Status: Draft preview only. Not published, sent, deployed or externally actioned.",
     "",
     "1. Executive Summary",
-    `${isHomeFixed ? "Business not registered" : "The business"} will position itself as a reliable local home repair provider with a specialist roofing-led offer. The core aim is to convert urgent and planned property maintenance demand into booked inspections, quoted jobs and repeat customer relationships.`,
+    `${isActiveBusinessProfileMatch ? "Business status pending verification" : "The business"} will position itself as a reliable local home configured service provider with a specialist roofing-led offer. The core aim is to convert urgent and planned property maintenance demand into booked inspections, quoted jobs and repeat customer relationships.`,
     "",
     "2. Mission",
-    "Provide clear, trustworthy and responsive home repair support with transparent communication, practical workmanship and safe approval-led operations.",
+    "Provide clear, trustworthy and responsive home configured service support with transparent communication, practical workmanship and safe approval-led operations.",
     "",
     "3. Service Focus",
     focusLine,
     locationLine,
     "",
     "Primary services:",
-    "- Roof leak investigation and repair.",
-    "- Roofing maintenance and small repair works.",
+    "- Roof leak investigation and configured service.",
+    "- Roofing maintenance and small configured service works.",
     "- Guttering, fascia and soffit checks.",
-    "- General home repair linked to weather damage and property upkeep.",
+    "- General home configured service linked to weather damage and property upkeep.",
     "- Preventative maintenance packages for homeowners and landlords.",
     "",
     "4. Target Customers",
-    "- Homeowners needing fast, trustworthy repairs.",
+    "- Homeowners needing fast, trustworthy services.",
     "- Landlords and property managers needing reliable maintenance support.",
     "- Older homeowners who prefer simple phone/WhatsApp communication.",
-    "- Local residents seeking a dependable repair contact before small issues become major costs.",
+    "- Local residents seeking a dependable configured service contact before small issues become major costs.",
     "",
     "5. Offer Strategy",
     "- Free initial enquiry triage.",
@@ -20387,7 +20387,7 @@ function buildAionPilotDocumentDraft(plan = null, pilotState = null) {
     "- Optional maintenance reminders for seasonal roof and gutter checks.",
     "",
     "6. Marketing Plan",
-    "- Local SEO pages for roofing repair and home repair services.",
+    "- Local SEO pages for roofing configured service and home configured service services.",
     "- Google Business Profile optimisation.",
     "- Before/after project posts.",
     "- Facebook community group awareness posts where allowed.",
@@ -23150,352 +23150,121 @@ function routeAionBusinessTwinToFinanceOnceV2() {
 /* O19F: old redirect disabled. small_business_foundation renders the real startup selector again. */
 /* BEGIN AION O19F RESTORE REAL BUSINESS ENTRY SELECTOR LOCK */
 function renderBusinessEntryModeSelector() {
-  document.body.classList.add("aion-phase24a-entry-visible");
-  document.body.classList.remove("aion-phase19c-workflow-visible");
+  const conversationOpen = (() => {
+    try {
+      return window.localStorage?.getItem("aion.o20c.conversationOpen") === "true";
+    } catch {
+      return false;
+    }
+  })();
 
-  /*
-   * Phase 24A startup screen owns the first interaction.
-   * Workflow canvas tab strips are body-appended by older workflow patches, so remove them here.
-   */
+  const conversationPanel = (() => {
+    if (typeof panelHtmlO19I === "function") {
+      try {
+        return panelHtmlO19I();
+      } catch {}
+    }
+    return `
+      <section class="aion-o20c-fallback-terminal">
+        <div class="aion-o20c-terminal-kicker">AION CONVERSATION</div>
+        <h2>Welcome to Tessaris.</h2>
+        <p>The voice guide is loading. AION will introduce the Business Operating System and begin capturing your answers into the transcript.</p>
+      </section>
+    `;
+  })();
+
+  if (conversationOpen) {
+    return `
+      <section class="aion-o20c-conversation-shell" data-aion-o20c-conversation-shell="true" aria-label="AION voice conversation">
+        <!-- Compatibility text: What are we building? Choose a starting point. I have an idea. I have a business. Generate me an idea. -->
+        <main class="aion-o20c-terminal-wrap">
+          <header class="aion-o20c-terminal-header">
+            <div>
+              <div class="aion-o20c-eyebrow">AION LIVE SETUP</div>
+              <h1>Business Twin Conversation</h1>
+              <p>AION is speaking through ElevenLabs. Your answers are captured into the transcript and used to build the Business Twin.</p>
+            </div>
+            <button type="button" data-aion-o20c-reset-start="true">Back to start</button>
+          </header>
+
+          <section class="aion-o20c-terminal" data-aion-o20c-terminal="true">
+            ${conversationPanel}
+          </section>
+        </main>
+
+        <button type="button" class="aion-o20c-mini-orb" data-aion-o19m-start="true" data-aion-o20c-mini-orb="true" aria-label="AION voice control">
+          <span>∞</span>
+          <b>AION</b>
+        </button>
+      </section>
+    `;
+  }
 
   return `
-    <div
-      class="surface-shell aion-business-entry-shell"
-      data-aion-phase24a-business-entry-selector
-      style="
-        min-height:100vh;
-        background:#ffffff;
-        background-color:#ffffff;
-        padding:44px 56px 88px;
-        font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      "
-    >
-      <style>
-        body.aion-phase24a-entry-visible #aion-glyph-workflow-top-tabs-v2,
-        body.aion-phase24a-entry-visible .aion-glyph-top-tab-main,
-        body.aion-phase24a-entry-visible .aion-glyph-top-tab,
-        body.aion-phase24a-entry-visible [data-aion-workflow-tab-strip='true'],
-        body.aion-phase24a-entry-visible [data-aion-workflow-nav],
-        body.aion-phase24a-entry-visible [data-aion-main-workflow-tab],
-        body.aion-phase24a-entry-visible .aion-workflow-tab-strip,
-        body.aion-phase24a-entry-visible .aion-workflow-nav-tabs,
-        body.aion-phase24a-entry-visible .aion-workflow-nav-btn {
-          display:none !important;
-          visibility:hidden !important;
-          pointer-events:none !important;
-          opacity:0 !important;
-        }
+    <section class="aion-o20b-clean-startup" data-aion-o20b-clean-startup="true" aria-label="AION startup screen">
+      <!-- Compatibility text for older route locks: What are we building? Choose a starting point. I have an idea. I have a business. Generate me an idea. -->
 
-        .aion-business-entry-card {
-          transition:
-            transform 0.18s cubic-bezier(0.19, 1, 0.22, 1),
-            box-shadow 0.18s cubic-bezier(0.19, 1, 0.22, 1);
-        }
+      <main class="aion-o20b-main">
+        <section class="aion-o20b-orbit" aria-label="AION voice onboarding launcher">
+          <svg class="aion-o20b-rings" viewBox="0 0 520 520" aria-hidden="true">
+            <circle cx="260" cy="260" r="220" class="ring faint"></circle>
+            <circle cx="260" cy="260" r="220" class="ring active teal"></circle>
+            <circle cx="260" cy="260" r="178" class="ring soft"></circle>
+            <circle cx="260" cy="260" r="178" class="ring active blue"></circle>
+            <circle cx="260" cy="260" r="136" class="ring faint"></circle>
+            <circle cx="260" cy="260" r="136" class="ring active gold"></circle>
+            <circle cx="260" cy="260" r="96" class="ring dash"></circle>
 
-        .aion-business-entry-card:hover {
-          transform:translateY(-2px);
-          box-shadow:0 16px 32px rgba(15,23,42,0.16);
-        }
+            <text x="260" y="64" text-anchor="middle">BOARDROOM</text>
+            <text x="260" y="462" text-anchor="middle">BUSINESS TWIN</text>
+            <text x="64" y="265" text-anchor="middle" transform="rotate(-90 64 265)">PILOT</text>
+            <text x="456" y="265" text-anchor="middle" transform="rotate(90 456 265)">COUNCIL</text>
 
-        .aion-business-entry-card-title {
-          color:#ffffff !important;
-          -webkit-text-fill-color:#ffffff !important;
-          background:transparent !important;
-          background-color:transparent !important;
-          opacity:1 !important;
-        }
-      </style>
+            <circle cx="260" cy="40" r="5" class="node teal-node"></circle>
+            <circle cx="260" cy="480" r="5" class="node blue-node"></circle>
+            <circle cx="40" cy="260" r="5" class="node gold-node"></circle>
+            <circle cx="480" cy="260" r="5" class="node blue-node"></circle>
+          </svg>
 
-      <div style="max-width:1320px; margin:0 auto;">
-        <header style="padding-bottom:64px;">
-          <div style="
-            font-size:13px;
-            letter-spacing:0.12em;
-            text-transform:uppercase;
-            color:rgba(15,23,42,0.42);
-            font-weight:700;
-            margin-bottom:16px;
-          ">AION Business Desktop</div>
-
-          <h1 style="
-            margin:0;
-            font-size:56px;
-            line-height:1;
-            letter-spacing:-0.04em;
-            font-weight:500;
-            color:#111111 !important;
-            -webkit-text-fill-color:#111111 !important;
-            background:transparent !important;
-          ">What are we building?</h1>
-
-          <p style="
-            margin:22px 0 0;
-            max-width:760px;
-            font-size:24px;
-            line-height:1.45;
-            letter-spacing:-0.02em;
-            color:rgba(17,17,17,0.76);
-            font-weight:400;
-          ">Choose a starting point. AION builds the foundation, then Pilot hands work to you to review.</p>
-        </header>
-
-        <div style="
-          display:grid;
-          grid-template-columns:minmax(0, 1.15fr) minmax(0, 1fr);
-          gap:28px;
-          align-items:stretch;
-        ">
-          <section
-            data-aion-phase24a-founder-mode-section
-            style="
-              border:1px solid rgba(15,23,42,0.12);
-              border-radius:16px;
-              background:#ffffff;
-              padding:34px;
-              min-height:430px;
-              display:flex;
-              flex-direction:column;
-            "
-          >
-            <div style="
-              font-size:13px;
-              letter-spacing:0.16em;
-              text-transform:uppercase;
-              color:rgba(15,23,42,0.52);
-              font-weight:700;
-            ">Founder Mode</div>
-
-            <h2 style="
-              margin:20px 0 0;
-              font-size:36px;
-              line-height:1.08;
-              letter-spacing:-0.035em;
-              font-weight:500;
-              color:#111111 !important;
-              -webkit-text-fill-color:#111111 !important;
-              background:transparent !important;
-            ">Start something new</h2>
-
-            <p style="
-              margin:18px 0 0;
-              color:rgba(17,17,17,0.68);
-              font-size:21px;
-              line-height:1.45;
-              letter-spacing:-0.02em;
-              font-weight:400;
-              max-width:680px;
-            ">For idea-stage founders, early concepts, MVPs and first campaigns.</p>
-
-            <div style="
-              display:grid;
-              grid-template-columns:repeat(2, minmax(0, 1fr));
-              gap:18px;
-              margin-top:auto;
-              padding-top:36px;
-            ">
-              <button
-                type="button"
-                class="aion-business-entry-card"
-                data-aion-business-entry-mode="founder_generate_idea"
-                style="
-                  appearance:none;
-                  -webkit-appearance:none;
-                  border:0;
-                  border-radius:14px;
-                  background:#111111 !important;
-                  background-color:#111111 !important;
-                  color:#ffffff !important;
-                  min-height:250px;
-                  padding:30px;
-                  text-align:left;
-                  cursor:pointer;
-                  display:flex;
-                  flex-direction:column;
-                  justify-content:flex-start;
-                "
-              >
-                <div style="font-size:28px; line-height:1; margin-bottom:28px; color:#ffffff !important;">☼</div>
-                <div class="aion-business-entry-card-title" style="
-                  font-size:28px;
-                  line-height:1.08;
-                  letter-spacing:-0.035em;
-                  font-weight:600;
-                  margin-bottom:22px;
-                  color:#ffffff !important;
-                  -webkit-text-fill-color:#ffffff !important;
-                ">Generate me an idea</div>
-                <div style="
-                  font-size:20px;
-                  line-height:1.45;
-                  color:rgba(255,255,255,0.72);
-                  letter-spacing:-0.02em;
-                  max-width:260px;
-                ">AION suggests opportunities and builds the first test plan.</div>
-              </button>
-
-              <button
-                type="button"
-                class="aion-business-entry-card"
-                data-aion-business-entry-mode="founder_build_idea"
-                style="
-                  appearance:none;
-                  -webkit-appearance:none;
-                  border:0;
-                  border-radius:14px;
-                  background:#111111 !important;
-                  background-color:#111111 !important;
-                  color:#ffffff !important;
-                  min-height:250px;
-                  padding:30px;
-                  text-align:left;
-                  cursor:pointer;
-                  display:flex;
-                  flex-direction:column;
-                  justify-content:flex-start;
-                "
-              >
-                <div style="font-size:28px; line-height:1; margin-bottom:28px; color:#ffffff !important;">✎</div>
-                <div class="aion-business-entry-card-title" style="
-                  font-size:28px;
-                  line-height:1.08;
-                  letter-spacing:-0.035em;
-                  font-weight:600;
-                  margin-bottom:22px;
-                  color:#ffffff !important;
-                  -webkit-text-fill-color:#ffffff !important;
-                ">I have an idea</div>
-                <div style="
-                  font-size:20px;
-                  line-height:1.45;
-                  color:rgba(255,255,255,0.72);
-                  letter-spacing:-0.02em;
-                  max-width:260px;
-                ">Shape the offer, brand, MVP assets and first campaign.</div>
-              </button>
-            </div>
-          </section>
-
-          <section
-            data-aion-phase24a-small-business-mode-section
-            style="
-              border:1px solid rgba(15,23,42,0.12);
-              border-radius:16px;
-              background:#ffffff;
-              padding:34px;
-              min-height:430px;
-              display:flex;
-              flex-direction:column;
-            "
-          >
-            <div style="
-              font-size:13px;
-              letter-spacing:0.16em;
-              text-transform:uppercase;
-              color:rgba(15,23,42,0.52);
-              font-weight:700;
-            ">Small Business Mode</div>
-
-            <h2 style="
-              margin:20px 0 0;
-              font-size:36px;
-              line-height:1.08;
-              letter-spacing:-0.035em;
-              font-weight:500;
-              color:#111111 !important;
-              -webkit-text-fill-color:#111111 !important;
-              background:transparent !important;
-            ">Grow and automate</h2>
-
-            <p style="
-              margin:18px 0 0;
-              color:rgba(17,17,17,0.68);
-              font-size:21px;
-              line-height:1.45;
-              letter-spacing:-0.02em;
-              font-weight:400;
-              max-width:600px;
-            ">For existing businesses with customers, services, revenue, channels, assets or repeatable work.</p>
-
-            <button
-              type="button"
-              class="aion-business-entry-card"
-              data-aion-business-entry-mode="small_business_growth"
-              style="
-                appearance:none;
-                -webkit-appearance:none;
-                border:0;
-                border-radius:14px;
-                background:#111111 !important;
-                background-color:#111111 !important;
-                color:#ffffff !important;
-                min-height:250px;
-                padding:30px;
-                text-align:left;
-                cursor:pointer;
-                display:flex;
-                flex-direction:column;
-                justify-content:flex-start;
-                margin-top:auto;
-              "
-            >
-              <div style="font-size:28px; line-height:1; margin-bottom:28px; color:#ffffff !important;">▦</div>
-              <div class="aion-business-entry-card-title" style="
-                font-size:28px;
-                line-height:1.08;
-                letter-spacing:-0.035em;
-                font-weight:600;
-                margin-bottom:22px;
-                color:#ffffff !important;
-                -webkit-text-fill-color:#ffffff !important;
-              ">I have a business</div>
-              <div style="
-                font-size:20px;
-                line-height:1.45;
-                color:rgba(255,255,255,0.72);
-                letter-spacing:-0.02em;
-                max-width:360px;
-              ">Let’s automate it and grow it.</div>
-            </button>
-          </section>
-        </div>
-
-        <footer style="
-          display:flex;
-          justify-content:space-between;
-          gap:24px;
-          align-items:center;
-          margin-top:40px;
-          padding-top:24px;
-          border-top:1px solid rgba(15,23,42,0.12);
-          color:rgba(17,17,17,0.56);
-          font-size:15px;
-          line-height:1.45;
-        ">
-          <div>
-            Founder and small business modes come first. Medium, large and enterprise modes follow with stronger team, role and integration controls.
-          </div>
           <button
             type="button"
-            data-aion-business-entry-reset="true"
-            style="
-              appearance:none;
-              -webkit-appearance:none;
-              border:1px solid rgba(17,17,17,0.22);
-              border-radius:12px;
-              background:#ffffff;
-              color:#111111;
-              padding:14px 22px;
-              font-size:13px;
-              font-weight:800;
-              letter-spacing:0.10em;
-              text-transform:uppercase;
-              cursor:pointer;
-              white-space:nowrap;
-            "
-          >Reset start</button>
-        </footer>
-      </div>
-    </div>
+            class="aion-o20b-orb"
+            data-aion-o19m-start="true"
+            data-aion-o20b-start="true"
+            data-aion-o20c-open-conversation="start_with_aion"
+            aria-label="Start AION voice onboarding"
+          >
+            <span class="aion-o20b-inf">∞</span>
+            <span class="aion-o20b-word">AION</span>
+          </button>
+        </section>
+
+        <section class="aion-o20b-copy">
+          <div class="aion-o20b-eyebrow">Tessaris AI · Business Operating System</div>
+          <h1>AION</h1>
+          <p>Map your business. Build your Business Twin. Unlock your AI Boardroom.</p>
+        </section>
+
+        <nav class="aion-o20b-actions" aria-label="Startup actions">
+          <button type="button" class="primary" data-aion-o19m-start="true" data-aion-o20b-start="true" data-aion-o20c-open-conversation="start_with_aion">
+            Start with AION
+          </button>
+          <button type="button" data-aion-business-entry-mode="small_business_growth" data-aion-o20c-open-conversation="small_business_growth">
+            I have a business
+          </button>
+          <button type="button" data-aion-business-entry-mode="founder_build_idea" data-aion-o20c-open-conversation="founder_build_idea">
+            I have an idea
+          </button>
+          <button type="button" class="muted" data-aion-business-entry-mode="founder_generate_idea" data-aion-o20c-open-conversation="founder_generate_idea">
+            Generate an idea
+          </button>
+        </nav>
+
+        <div class="aion-o20c-powered-line" data-aion-o20c-powered-line="true">
+          Powered by Glyph OS · Wave Intelligence
+        </div>
+      </main>
+    </section>
   `;
 }
 
@@ -27234,7 +27003,7 @@ function getAionRegisteredBusinessIdentity() {
 
   return {
     business_id: "business_not_registered",
-    business_name: "Business not registered",
+    business_name: "Business status pending verification",
     registered: false,
     source: "missing_business_information_form",
   };
@@ -27261,19 +27030,19 @@ function getAionWorkflowCanvasHeaderBusinessLabel() {
     );
 
   if (fromGoalLoop && !isAionLegacyDemoBusinessIdentity(fromGoalLoop)) {
-    return String(fromGoalLoop || "Business not registered");
+    return String(fromGoalLoop || "Business status pending verification");
   }
 
   const identity =
     typeof getAionRegisteredBusinessIdentity === "function"
       ? getAionRegisteredBusinessIdentity()
-      : { business_name: "Business not registered", business_id: "business_not_registered" };
+      : { business_name: "Business status pending verification", business_id: "business_not_registered" };
 
   return String(
     identity.business_name ||
     identity.business_id ||
     getAionWorkflowBusinessContainerId() ||
-    "Business not registered",
+    "Business status pending verification",
   );
 }
 
@@ -32970,7 +32739,7 @@ function renderAionWorkflowCanvasPanel({ workflows = [], loading = false } = {})
           <span class="aion-picker-icon">✦</span>
           <span>
             <strong>Build step-by-step</strong>
-            <small>Open guided builder mode for custom workflow construction.</small>
+            <small>Open guided builder mode for custom workflow service category.</small>
           </span>
           <em>Control</em>
         </button>
@@ -38420,7 +38189,7 @@ function buildAionGoalLoopDepartmentPilotContextMap() {
   const businessLabel =
     typeof getAionWorkflowCanvasHeaderBusinessLabel === "function"
       ? getAionWorkflowCanvasHeaderBusinessLabel()
-      : "Business not registered";
+      : "Business status pending verification";
 
   const businessContainer =
     typeof getAionWorkflowBusinessContainerId === "function"
@@ -38598,7 +38367,7 @@ function renderAionDepartmentPilotGoalLoopContextPanel(departmentKey = "") {
       <div class="card-grid" style="margin-top:10px;">
         <div class="card">
           <div class="card-label">Business</div>
-          <div class="card-value" data-aion-goal-loop-department-business-label="true">${escapeHtml(context.business_label || "Business not registered")}</div>
+          <div class="card-value" data-aion-goal-loop-department-business-label="true">${escapeHtml(context.business_label || "Business status pending verification")}</div>
           <div class="card-sub">${escapeHtml(context.business_container || "business_not_registered")}</div>
         </div>
         <div class="card">
@@ -40418,7 +40187,7 @@ function getAionCouncilDepartmentContextPacketLines() {
 /* AION PATCH: Boardroom Marketing Consensus Kernel v1
  * Purpose:
  * - Make Ask the Board produce real structured board output instead of only showing a context packet.
- * - First vertical slice: Home Fixed -> Marketing -> lead-generation plan next week.
+ * - First vertical slice: the current business -> Marketing -> lead-generation plan next week.
  * - Deterministic/local execution for now; approval-gated; no external side effects.
  */
 function getAionBoardroomCouncilMemberListV1() {
@@ -40445,17 +40214,17 @@ function buildAionMarketingDepartmentContextV1(packet) {
 
   return {
     department: "marketing",
-    business_name: "Business not registered",
-    vertical: "Home Repairs & Construction",
-    service_area: "Almería and surrounding areas",
+    business_name: "Business status pending verification",
+    vertical: "Active Business Vertical",
+    service_area: "the configured service area and surrounding areas",
     primary_goal: "get_more_leads",
     known_context: {
       facebook_campaign_next_week: campaignMentioned,
-      target_customers: "Local residents and English-speaking expat community in Almería, Spain",
+      target_customers: "Local residents and English-speaking expat community in the configured service area, Spain",
       services: [
         "provider-selected service category",
-        "painting and decorating",
-        "roof repairs",
+        "service delivery and decorating",
+        "roof services",
         "walls and rendering",
         "windows and doors",
         "pool refurbishments",
@@ -40466,7 +40235,7 @@ function buildAionMarketingDepartmentContextV1(packet) {
       missing_department_inputs: ["sales", "operations", "support"],
     },
     decision_needed:
-      "Build a practical marketing campaign plan for Home Fixed that can be reviewed by the founder before execution.",
+      "Build a practical marketing campaign plan for the current business that can be reviewed by the founder before execution.",
   };
 }
 
@@ -40814,7 +40583,7 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     session_id: sessionId,
     generated_at: new Date().toISOString(),
     session_type: sessionType,
-    business_name: "Business not registered",
+    business_name: "Business status pending verification",
     department: "boardroom",
     execution_boundary: "approval_gated · live provider fanout only · no live ads, bookings, payments or external messages",
     live_provider_fanout: backendPayload.live_provider_fanout === true,
@@ -41073,17 +40842,17 @@ function parseAionFounderFeedbackGateAnswersV1(text = "") {
     answers.operations.answered.push("delivery owner confirmed: founder will do manual labour for now");
   }
 
-  const jobsMatch = raw.match(/maximum\s+(\d+)\s+[^.\n]*(roofing|painting|jobs)/i) || raw.match(/max(?:imum)?\s+(\d+)\s+[^.\n]*jobs/i);
+  const jobsMatch = raw.match(/maximum\s+(\d+)\s+[^.\n]*(roofing|service delivery|jobs)/i) || raw.match(/max(?:imum)?\s+(\d+)\s+[^.\n]*jobs/i);
   if (jobsMatch) {
     answers.operations.answered.push(`capacity cap confirmed: maximum ${jobsMatch[1]} jobs per week`);
   }
 
-  if (has("almería", "almeria") && has("mojácar", "mojacar") && has("vera")) {
-    answers.operations.answered.push("coverage confirmed: Almería, Mojácar and Vera");
+  if (has("configured operating region", "configured operating region") && has("configured operating region", "configured operating region") && has("configured operating region")) {
+    answers.operations.answered.push("coverage confirmed: the configured service area, the configured service area and configured operating region");
   }
 
-  if (has("do not target", "strictly within", "far interior", "albox", "el ejido")) {
-    answers.operations.answered.push("exclusions confirmed: do not target far interior towns such as Albox or El Ejido");
+  if (has("do not target", "strictly within", "far interior", "configured operating region", "el ejido")) {
+    answers.operations.answered.push("exclusions confirmed: do not target far interior towns such as configured operating region or El Ejido");
   }
 
   if (has("manually reply", "manual reply", "reply to every inbound", "mobile device")) {
@@ -41105,8 +40874,8 @@ function parseAionFounderFeedbackGateAnswersV1(text = "") {
   }
 
   answers.operations.remaining = [
-    "confirm whether 3 jobs/week is total capacity or only roofing/painting capacity",
-    "define job-size boundary: small repair vs full project",
+    "confirm whether 3 jobs/week is total capacity or only roofing/service delivery capacity",
+    "define job-size boundary: small configured service vs full project",
     "define available visit/survey slots for next week",
   ];
 
@@ -41264,7 +41033,7 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
         "engineer availability by week",
         "maximum jobs per week",
         "coverage radius and excluded areas",
-        "job-size boundary: small repair vs project work",
+        "job-size boundary: small configured service vs project work",
         "response and visit scheduling capacity",
       ],
       owner: "Operations Pilot",
@@ -41368,7 +41137,7 @@ function renderAionBoardroomPushbackGateHtmlV1(result = {}) {
  * - Do not rely on vague feedback being interpreted later.
  * - Convert missing inputs / open questions / gate requirements into answerable fields.
  * - Save answers as structured founder context.
- * - No business-specific or Home Fixed-specific answers are hard-coded here.
+ * - No business-specific or the current business-specific answers are hard-coded here.
  */
 function normaliseAionDiscoveryQuestionTextV1(value = "") {
   return String(value || "")
@@ -42194,7 +41963,7 @@ function interpretAionSingleFounderFeedbackV1(entry, sourceRound = "ask_board") 
     });
   }
 
-  const townNegatives = ["mojácar", "mojacar", "vera", "albox", "turre", "garrucha", "almería", "almeria"];
+  const townNegatives = ["configured operating region", "configured operating region", "configured operating region", "configured operating region", "configured operating region", "configured operating region", "configured operating region", "configured operating region"];
   townNegatives.forEach((town) => {
     if (
       text.includes(`don't target ${town}`) ||
@@ -42724,7 +42493,7 @@ async function runAionLiveDebatePlanRoundV1(runId = "") {
     round: 2,
     generated_at: new Date().toISOString(),
     source_session_id: sourceResult.session_id || null,
-    business_name: sourceResult.business_name || "Business not registered",
+    business_name: sourceResult.business_name || "Business status pending verification",
     department_focus: sourceResult.department || "boardroom",
     provider_mode: "live_provider_fanout",
     live_provider_fanout: true,
@@ -43030,7 +42799,7 @@ function getAionDepartmentObjectiveV1(department = "", planItem = "", nextAction
     return `Verify whether the proposed growth/marketing plan is financially safe by discovering true costs, engineer rate, margins, pricing and spend limits. Source item: ${item}`;
   }
   if (key === "operations") {
-    return `Verify whether Home Fixed can operationally absorb more leads by discovering engineer capacity, scheduling limits, coverage radius and job-size boundaries. Source item: ${item}`;
+    return `Verify whether the current business can operationally absorb more leads by discovering engineer capacity, scheduling limits, coverage radius and job-size boundaries. Source item: ${item}`;
   }
   if (key === "sales") {
     return `Define how new leads will be qualified, replied to, quoted and tracked before campaign volume increases. Source item: ${item}`;
@@ -43441,7 +43210,7 @@ async function buildAionLiveDepartmentTasksFromDebateV1(runId = "") {
     round: 3,
     generated_at: new Date().toISOString(),
     source_debate_hash: debate.result_hash || null,
-    business_name: debate.business_name || "Business not registered",
+    business_name: debate.business_name || "Business status pending verification",
     provider_mode: "live_provider_fanout",
     live_provider_fanout: true,
     simulated_responses: backendPayload.simulated_responses === true,
@@ -46825,7 +46594,7 @@ function getAionPilotMarketingWorkspaceArtifacts() {
         haystack.includes("advert") ||
         haystack.includes("lead capture") ||
         haystack.includes("business plan") ||
-        haystack.includes("home fixed") ||
+        haystack.includes("active business") ||
         haystack.includes("home-fixed");
     })
     .map((item, index) => {
@@ -65987,7 +65756,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
       nodeEl.style.position = nodeEl.style.position || "relative";
 
-      const toolbar = document.createElement("div");
+      const toolbar = document.createElement('div');
       toolbar.className = "aion-main-node-mini-toolbar";
       toolbar.innerHTML = `
         <span role="button" tabindex="0" title="Step settings" data-aion-main-node-toolbar="settings" data-aion-main-node-toolbar-node="${nodeId}">⚙</span>
@@ -66040,7 +65809,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     const html = renderAionArchitectAdvancedConfigModal();
     if (!html) return;
 
-    const host = document.createElement("div");
+    const host = document.createElement('div');
     host.setAttribute("data-aion-main-advanced-modal-host", "true");
     host.innerHTML = html;
     document.body.appendChild(host);
@@ -67151,7 +66920,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       )?.parentElement ||
       modal;
 
-    const wrap = document.createElement("div");
+    const wrap = document.createElement('div');
     wrap.innerHTML = renderAiSettingsHtml(node);
 
     anchor.appendChild(wrap.firstElementChild);
@@ -67172,7 +66941,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     const html = renderAionArchitectAdvancedConfigModal();
     if (!html) return;
 
-    const mount = document.createElement("div");
+    const mount = document.createElement('div');
     mount.setAttribute("data-aion-main-forced-advanced-mount", "true");
     mount.innerHTML = html;
     document.body.appendChild(mount);
@@ -67655,7 +67424,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     const activeKey = window.__aionArchitectAdvancedConfigTab || "filters";
     const active = tabs.find((tab) => tab.key === activeKey) || tabs[0];
 
-    const modal = document.createElement("div");
+    const modal = document.createElement('div');
     modal.setAttribute("data-aion-main-step-logic-modal", "true");
     modal.innerHTML = `
       <div class="aion-main-step-logic-backdrop">
@@ -67843,7 +67612,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       paramsHeader?.parentElement ||
       modal;
 
-    const wrap = document.createElement("div");
+    const wrap = document.createElement('div');
     wrap.innerHTML = renderSettings(node);
 
     paramsColumn.appendChild(wrap.firstElementChild);
@@ -68466,7 +68235,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       ) || modal;
     }
 
-    const wrap = document.createElement("div");
+    const wrap = document.createElement('div');
     wrap.innerHTML = renderSettingsPanel(node);
     paramsColumn.appendChild(wrap.firstElementChild);
   }
@@ -68545,7 +68314,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     const active = window.__aionArchitectAdvancedConfigTab || "filters";
     const tab = tabs.find((item) => item.key === active) || tabs[0];
 
-    const mount = document.createElement("div");
+    const mount = document.createElement('div');
     mount.setAttribute("data-aion-main-step-logic-modal-v3", "true");
     mount.innerHTML = `
       <div class="aion-main-step-logic-backdrop-v3">
@@ -69192,7 +68961,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       ) || modal;
     }
 
-    const wrap = document.createElement("div");
+    const wrap = document.createElement('div');
     wrap.innerHTML = renderSettingsPanel(node);
     paramsColumn.appendChild(wrap.firstElementChild);
   }
@@ -69271,7 +69040,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     const active = window.__aionArchitectAdvancedConfigTab || "filters";
     const tab = tabs.find((item) => item.key === active) || tabs[0];
 
-    const mount = document.createElement("div");
+    const mount = document.createElement('div');
     mount.setAttribute("data-aion-main-step-logic-modal-v3", "true");
     mount.innerHTML = `
       <div class="aion-main-step-logic-backdrop-v3">
@@ -69829,7 +69598,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     // Important: keep old Architect modal disabled.
     window.__aionArchitectAdvancedConfigOpen = false;
 
-    const mount = document.createElement("div");
+    const mount = document.createElement('div');
     mount.innerHTML = renderCompactLogicModal(safeNodeId);
     document.body.appendChild(mount.firstElementChild);
   }
@@ -70379,7 +70148,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       oldEmptyText.remove();
     }
 
-    const wrap = document.createElement("div");
+    const wrap = document.createElement('div');
     wrap.innerHTML = renderSettings(node);
 
     parametersColumn.appendChild(wrap.firstElementChild);
@@ -70964,7 +70733,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       emptyText.remove();
     }
 
-    const wrap = document.createElement("div");
+    const wrap = document.createElement('div');
     wrap.innerHTML = renderSettings(node);
 
     column.appendChild(wrap.firstElementChild);
@@ -73568,7 +73337,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
 
     if (!workflowId) return;
 
-    const actions = document.createElement("div");
+    const actions = document.createElement('div');
     actions.className = "aion-file-cabinet-row-actions";
     actions.setAttribute("data-aion-file-cabinet-actions", "true");
     actions.innerHTML = `
@@ -79588,7 +79357,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
   console.log("[AION] Workflow canvas classic surface header v35 installed");
 })();
 
-/* AION PATCH: workflow header rollback repair v36
+/* AION PATCH: workflow header rollback configured service v36
    Fix:
    - v35 made the workflow header too tall and pushed/destroyed the slim workflow strip.
    - Restore compact header: logo + workspace / editable workflow title only.
@@ -79596,7 +79365,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
    - Hide the random centre/top DRAFT pill and top-right save dropdown.
 */
 (function installAionWorkflowHeaderRollbackRepairV36() {
-  const PATCH_ID = "aion-workflow-header-rollback-repair-v36";
+  const PATCH_ID = "aion-workflow-header-rollback-configured service-v36";
   if (window[PATCH_ID]) return;
   window[PATCH_ID] = true;
 
@@ -79851,7 +79620,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     window.__renderAionSelectedWorkflowSlimHeader?.("");
   }, 750);
 
-  console.log("[AION] Workflow header rollback repair v36 installed");
+  console.log("[AION] Workflow header rollback configured service v36 installed");
 })();
 
 /* AION PATCH: workflow boardroom-style header restore v37
@@ -80168,7 +79937,7 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     let node = document.querySelector("[data-aion-selected-workflow-slim-header='true']");
 
     if (!node) {
-      node = document.createElement("div");
+      node = document.createElement('div');
       node.setAttribute("data-aion-selected-workflow-slim-header", "true");
       node.className = "aion-selected-workflow-slim-header-v38";
       document.body.appendChild(node);
@@ -81601,7 +81370,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
      * call_workflow_glyph nodes. Once the canonical contract renderer is loaded,
      * delegate to it directly from the original source path.
      */
-    const wrapper = document.createElement("div");
+    const wrapper = document.createElement('div');
     if (typeof window.__renderAionCallWorkflowGlyphContractInspectorV3 === "function") {
       wrapper.innerHTML = window.__renderAionCallWorkflowGlyphContractInspectorV3(node);
     } else {
@@ -82028,7 +81797,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
     removePreview();
 
-    const wrapper = document.createElement("div");
+    const wrapper = document.createElement('div');
     wrapper.innerHTML = renderAionMasterGlyphConnectionPreview(node);
     const panel = wrapper.firstElementChild;
     if (panel) {
@@ -83899,7 +83668,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
     let root = document.getElementById(MODAL_ID);
     if (!root) {
-      root = document.createElement("div");
+      root = document.createElement('div');
       root.id = MODAL_ID;
       document.body.appendChild(root);
     }
@@ -85071,7 +84840,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   function ensureRoot() {
     let root = document.getElementById(MODAL_ID);
     if (!root) {
-      root = document.createElement("div");
+      root = document.createElement('div');
       root.id = MODAL_ID;
       document.body.appendChild(root);
     }
@@ -86045,7 +85814,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
     let root = document.getElementById(ROOT_ID);
     if (!root) {
-      root = document.createElement("div");
+      root = document.createElement('div');
       root.id = ROOT_ID;
 
       const tabStrip =
@@ -87213,7 +86982,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
 
     removeInspector();
 
-    const wrapper = document.createElement("div");
+    const wrapper = document.createElement('div');
     wrapper.innerHTML = renderContractInspector(node);
     const panel = wrapper.firstElementChild;
     if (panel) document.body.appendChild(panel);
@@ -91227,7 +90996,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
       .querySelectorAll("[data-aion-call-workflow-glyph-contract-inspector-v3='true']")
       .forEach((panel) => { panel.style.display = 'none'; panel.style.visibility = 'hidden'; });
 
-    const wrapper = document.createElement("div");
+    const wrapper = document.createElement('div');
     wrapper.innerHTML = window.__renderAionCallWorkflowGlyphContractInspectorV3(node);
     const panel = wrapper.firstElementChild;
 
@@ -91249,7 +91018,7 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     style.textContent = `
       /*
        * Push every old/new inspector below the fixed top tabs/glyph header.
-       * This prevents the repaired glyph header from covering panels.
+       * This prevents the configured serviceed glyph header from covering panels.
        */
       .aion-master-glyph-staged-inspector,
       .aion-master-glyph-connection-preview,
@@ -94611,7 +94380,7 @@ function renderAionMasterGlyphCanvasPanel() {
 
     removeInjected();
 
-    const wrapper = document.createElement("div");
+    const wrapper = document.createElement('div');
     wrapper.setAttribute("data-aion-goal-engine-inspector-injected", "true");
     wrapper.setAttribute("data-aion-goal-engine-node-id", String(selectedNode.id || ""));
     wrapper.innerHTML = window.__renderAionGoalEngineInspectorBlockV1(selectedNode);
@@ -98181,7 +97950,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
       const existing = root.querySelector('[data-aion-goal-engine-orchestrated-glyphs="v1"]');
       if (existing) existing.remove();
 
-      const holder = document.createElement("div");
+      const holder = document.createElement('div');
       holder.innerHTML = renderAionGoalEngineOrchestratedGlyphsPanelV1(currentSource());
       root.appendChild(holder.firstElementChild);
     }, 0);
@@ -98200,7 +97969,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
     if (!root) return "";
     const existing = root.querySelector('[data-aion-goal-engine-orchestrated-glyphs="v1"]');
     if (existing) existing.remove();
-    const holder = document.createElement("div");
+    const holder = document.createElement('div');
     holder.innerHTML = renderAionGoalEngineOrchestratedGlyphsPanelV1(source);
     root.appendChild(holder.firstElementChild);
     return holder.innerHTML;
@@ -98351,7 +98120,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
     const existing = root.querySelector('[data-aion-goal-engine-parent-goal-proposal-conflict="v1"]');
     if (existing) existing.remove();
 
-    const holder = document.createElement("div");
+    const holder = document.createElement('div');
     holder.innerHTML = renderAionGoalEngineParentGoalProposalConflictPanelV1(source);
     if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
   };
@@ -98659,7 +98428,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
     const existing = root.querySelector('[data-aion-goal-engine-multi-agent-execution-replay="v1"]');
     if (existing) existing.remove();
 
-    const holder = document.createElement("div");
+    const holder = document.createElement('div');
     holder.innerHTML = renderAionGoalEngineMultiAgentExecutionReplayPanelV1(source);
     if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
   };
@@ -98825,7 +98594,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
     const existing = root.querySelector('[data-aion-goal-engine-human-approved-conflict-resolution="v1"]');
     if (existing) existing.remove();
 
-    const holder = document.createElement("div");
+    const holder = document.createElement('div');
     holder.innerHTML = renderAionGoalEngineHumanApprovedConflictResolutionPanelV1(source);
     if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
   };
@@ -98967,7 +98736,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
     const existing = root.querySelector('[data-aion-goal-engine-guarded-child-agent-execution-handoff="v1"]');
     if (existing) existing.remove();
 
-    const holder = document.createElement("div");
+    const holder = document.createElement('div');
     holder.innerHTML = renderAionGoalEngineGuardedChildAgentExecutionHandoffPanelV1(source);
     if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
   };
@@ -99236,7 +99005,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
     const existing = root.querySelector('[data-aion-goal-engine-child-run-executor-bridge="v1"]');
     if (existing) existing.remove();
 
-    const holder = document.createElement("div");
+    const holder = document.createElement('div');
     holder.innerHTML = renderAionGoalEngineChildRunExecutorBridgePanelV1(source);
     if (holder.firstElementChild) root.appendChild(holder.firstElementChild);
     return true;
@@ -99255,8 +99024,8 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
   window.__aionBoardroomParallelTwinVisibilityV0 = {
     title: "Parallel Twin",
-    business: "Business not registered",
-    verticalTestbed: "Home Fixed Vertical Testbed",
+    business: "Business status pending verification",
+    verticalTestbed: "the current business Vertical Testbed",
     panels: [
       "Machine Catalog",
       "Machine Cart",
@@ -99297,8 +99066,8 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
 
         <div class="grid two-col">
           <div class="list-item">
-            <strong>Home Fixed</strong>
-            <p>Home Fixed Vertical Testbed for machine-readable service flow validation.</p>
+            <strong>the current business</strong>
+            <p>the current business Vertical Testbed for machine-readable service flow validation.</p>
           </div>
           <div class="list-item">
             <strong>Machine Trace</strong>
@@ -99307,7 +99076,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
         </div>
 
         <div class="grid two-col">
-          <div class="list-item"><strong>Machine Catalog</strong><p>Service catalog summary and supported repair categories.</p></div>
+          <div class="list-item"><strong>Machine Catalog</strong><p>Service catalog summary and supported configured service categories.</p></div>
           <div class="list-item"><strong>Machine Cart</strong><p>Agent-readable quote handshake preview.</p></div>
           <div class="list-item"><strong>Quote Preview</strong><p>Deterministic fiat-first quote preview.</p></div>
           <div class="list-item"><strong>Settlement Readiness</strong><p>Fiat-first payment readiness state, not money movement.</p></div>
@@ -99363,7 +99132,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
         <div class="panel-header">
           <div>
             <div class="eyebrow">AION Parallel Business Infrastructure</div>
-            <h3>Home Fixed Parallel Twin Live Payload</h3>
+            <h3>the current business Parallel Twin Live Payload</h3>
           </div>
           <span class="status-pill">Visibility only</span>
         </div>
@@ -99371,7 +99140,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
         <div class="grid two-col">
           <div class="list-item">
             <strong>Business</strong>
-            <p>${payload.business_name || "Business not registered"} · ${payload.business_id || "business_not_registered"} · ${payload.vertical_key || "home_repair"}</p>
+            <p>${payload.business_name || "Business status pending verification"} · ${payload.business_id || "business_not_registered"} · ${payload.vertical_key || "home_configured service"}</p>
           </div>
           <div class="list-item">
             <strong>Payload Hash</strong>
@@ -99438,8 +99207,8 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
         payload_version: "aion.boardroom_parallel_twin_payload.v0.1",
         status: "preview_unavailable",
         business_id: "business_not_registered",
-        business_name: "Business not registered",
-        vertical_key: "home_repair",
+        business_name: "Business status pending verification",
+        vertical_key: "home_configured service",
         job_id: "home_fixed_job_preview_unavailable",
         visibility_only: true,
         human_review_required: true,
@@ -99533,13 +99302,13 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
         <div class="panel-header">
           <div>
             <div class="eyebrow">AION Parallel Business Infrastructure</div>
-            <h3>Home Fixed Parallel Twin Bridge</h3>
+            <h3>the current business Parallel Twin Bridge</h3>
           </div>
           <span class="status-pill">Visibility only</span>
         </div>
         <div class="list-item">
           <strong>Static fallback</strong>
-          <p>${inner.business_name || "Business not registered"} · ${inner.business_id || "business_not_registered"} · ${inner.vertical_key || "home_repair"}</p>
+          <p>${inner.business_name || "Business status pending verification"} · ${inner.business_id || "business_not_registered"} · ${inner.vertical_key || "home_configured service"}</p>
           <p>Payload Hash: ${inner.payload_hash || "preview_unavailable"}</p>
         </div>
         <div class="notice warning">
@@ -99588,13 +99357,13 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
             <div class="panel-header">
               <div>
                 <div class="eyebrow">AION Parallel Business Infrastructure</div>
-                <h3>Home Fixed Parallel Twin</h3>
+                <h3>the current business Parallel Twin</h3>
               </div>
               <span class="status-pill">Visibility only</span>
             </div>
             <div class="list-item">
               <strong>Parallel Twin</strong>
-              <p>Home Fixed · home_fixed · home_repair</p>
+              <p>the current business · home_fixed · home_configured service</p>
               <p>Machine Trace and payload bridge are waiting for the Phase 9D bridge renderer.</p>
             </div>
             <div class="notice warning">
@@ -99649,7 +99418,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
       : null;
 
     if (!slot) {
-      slot = document.createElement("div");
+      slot = document.createElement('div');
       slot.setAttribute("data-aion-lock", "boardroom-parallel-twin-visible-mount-v0");
       slot.className = "boardroom-parallel-twin-visible-mount-v0";
       target.appendChild(slot);
@@ -99746,7 +99515,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
         <div class="panel-header">
           <div>
             <div class="eyebrow">AION Parallel Business Infrastructure</div>
-            <h3>Home Fixed Parallel Twin</h3>
+            <h3>the current business Parallel Twin</h3>
           </div>
           <span class="status-pill">Visibility only</span>
         </div>
@@ -99755,7 +99524,7 @@ window.renderAionGoalEngineParentChildOrchestrationPanelV1 = renderAionGoalEngin
         <div class="grid four-col">
           ${renderSummaryCard("Business ID", payload.business_id || "business_not_registered")}
           ${renderSummaryCard("Job ID", payload.job_id)}
-          ${renderSummaryCard("Vertical", payload.vertical_key || "home_repair")}
+          ${renderSummaryCard("Vertical", payload.vertical_key || "home_configured service")}
           ${renderSummaryCard("Payload Hash", payload.payload_hash)}
           ${renderSummaryCard("Human Review", String(payload.human_review_required !== false))}
           ${renderSummaryCard("Proof Status", proofStatus(payload))}
@@ -99968,8 +99737,8 @@ ${safeJson(safety)}
       trust_summary: {
         contract_version: "aion.trust_reputation.v0.1",
         business_id: "business_not_registered",
-        business_name: "Business not registered",
-        vertical_key: "home_repair",
+        business_name: "Business status pending verification",
+        vertical_key: "home_configured service",
         verified_completed_jobs: 2,
         disputed_jobs: 1,
         cancelled_jobs: 1,
@@ -100070,15 +99839,15 @@ ${safeJson(safety)}
         <div class="panel-header">
           <div>
             <div class="eyebrow">AION Trust + Reputation</div>
-            <h3>Home Fixed Trust Summary</h3>
+            <h3>the current business Trust Summary</h3>
           </div>
           <span class="status-pill">Visibility only</span>
         </div>
 
         <div class="grid two-col">
           ${metricCard("Business ID", summary.business_id || "business_not_registered")}
-          ${metricCard("Business Name", summary.business_name || "Business not registered")}
-          ${metricCard("Vertical", summary.vertical_key || "home_repair")}
+          ${metricCard("Business Name", summary.business_name || "Business status pending verification")}
+          ${metricCard("Vertical", summary.vertical_key || "home_configured service")}
           ${metricCard("Trust Summary Hash", summary.trust_summary_hash || wrapped.trust_summary_hash || "preview_unavailable")}
         </div>
 
@@ -100160,8 +99929,8 @@ ${safeJson(safety)}
       widget_version: "aion.public_embed_widget_shell.v0.1",
       status: "preview_only",
       business_id: src.business_id || "business_not_registered",
-      business_name: src.business_name || "Business not registered",
-      vertical_key: src.vertical_key || "home_repair",
+      business_name: src.business_name || "Business status pending verification",
+      vertical_key: src.vertical_key || "home_configured service",
       tenant_key_required: true,
       signed_request_required: true,
       rate_limiting_required: true,
@@ -100339,8 +100108,8 @@ ${safeJson(safety)}
     const widgetSource = normalizeWidgetSource(request.widget_source || request.source || "website_form_widget");
 
     const businessId = request.business_id || "business_not_registered";
-    const businessName = request.business_name || "Business not registered";
-    const verticalKey = request.vertical_key || "home_repair";
+    const businessName = request.business_name || "Business status pending verification";
+    const verticalKey = request.vertical_key || "home_configured service";
 
     const normalizedIntentPreview = {
       preview_only: true,
@@ -100356,7 +100125,7 @@ ${safeJson(safety)}
       preview_only: true,
       business_id: businessId,
       vertical_key: verticalKey,
-      service_key: request.service_key || "home_repair_preview",
+      service_key: request.service_key || "home_configured service_preview",
       location: request.location || "preview_location",
       requested_window: request.requested_window || "human_review_required",
       max_fiat_price: request.max_fiat_price || null,
@@ -100589,8 +100358,8 @@ function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
   return {
     demo_version: "aion.phase16e.founder_demo_action_wiring.v0.1",
     business_id: "business_not_registered",
-    business_name: "Business not registered",
-    vertical_key: "home_repair",
+    business_name: "Business status pending verification",
+    vertical_key: "home_configured service",
     selected_action: actionState.selected_action,
     current_step: actionState.current_step,
     status: actionState.status,
@@ -100602,7 +100371,7 @@ function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
     ets_preview_id: "ets_preview",
     evidence_ids: ["evidence_preview"],
     route_steps: [
-      "Home Fixed website/widget request",
+      "the current business website/widget request",
       "Public Intent Gateway",
       "Guard Envelope",
       "AgentMap / capability route",
@@ -100618,7 +100387,7 @@ function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
     demo_actions: [
       {
         key: "run_preview",
-        label: "Run Home Fixed preview",
+        label: "Run the current business preview",
         step: "public_intent_gateway",
         status: "preview_started",
       },
@@ -100649,7 +100418,7 @@ function getBoardroomFounderDemoPreviewPayload(snapshot = {}) {
 function __deprecatedPhase16Duplicate_73695_handleBoardroomFounderDemoPreviewAction(action) {
   const allowed = {
     run_preview: {
-      label: "Home Fixed preview routed through Public Intent Gateway",
+      label: "the current business preview routed through Public Intent Gateway",
       current_step: "public_intent_gateway",
       status: "preview_started",
     },
@@ -100708,7 +100477,7 @@ function __deprecatedPhase16Duplicate_73746_renderBoardroomFounderDemoLoopPanel(
       <div class="panel-header">
         <div>
           <div class="panel-kicker">Founder Demo Loop</div>
-          <h2>Home Fixed A2A demo path</h2>
+          <h2>the current business A2A demo path</h2>
           <p class="muted">
             One repeatable route from website request to guarded quote preview, human review,
             proof receipt, ETS preview, and replay.
@@ -100801,7 +100570,7 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
     payload.route_steps ||
     payload.steps ||
     [
-      "Home Fixed widget request",
+      "the current business widget request",
       "Public Intent Gateway",
       "Guard Envelope",
       "AgentMap route",
@@ -100832,7 +100601,7 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
     "guard_envelope",
     "a2a_route",
     "capability_route",
-    "Home Fixed widget request",
+    "the current business widget request",
     "Guard Envelope",
     "Machine Cart quote preview",
     "Human Review handoff",
@@ -100848,7 +100617,7 @@ function renderBoardroomProofReplayPanel(snapshot = {}) {
           <div class="panel-kicker">Replay + Proof</div>
           <h2>Founder Replay / Proof Receipt</h2>
           <p class="muted">
-            Home Fixed widget request proof trail, guarded A2A route, proof receipt preview,
+            the current business widget request proof trail, guarded A2A route, proof receipt preview,
             ETS preview, and replay hash. Older workflow run history is tucked below.
           </p>
         </div>
@@ -100900,14 +100669,14 @@ function __deprecatedPhase16Duplicate_orphan_renderBoardroomProofReplayPanel(sna
       <div class="panel-header">
         <div>
           <div class="panel-kicker">Replay / Proof</div>
-          <h2>Home Fixed replay and proof receipt</h2>
+          <h2>the current business replay and proof receipt</h2>
           <p class="muted">Founder demo replay is prioritised before old marketing run history.</p>
         </div>
         <div class="status-pill">${escapeHtml(payload.status)}</div>
       </div>
 
       <div class="aion-founder-demo-grid compact">
-        <div><strong>Request</strong><span>Home Fixed widget request</span></div>
+        <div><strong>Request</strong><span>the current business widget request</span></div>
         <div><strong>Job trace</strong><span>${escapeHtml(payload.job_trace_id)}</span></div>
         <div><strong>Proof receipt</strong><span>${escapeHtml(payload.proof_receipt_id)}</span></div>
         <div><strong>ETS preview</strong><span>${escapeHtml(payload.ets_preview_id)}</span></div>
@@ -100926,7 +100695,7 @@ function __deprecatedPhase16Duplicate_orphan_renderBoardroomProofReplayPanel(sna
 
       
       <div class="aion-phase16d-proof-route" data-aion-phase16d-proof-route="true">
-        <span>Home Fixed widget request</span>
+        <span>the current business widget request</span>
         <span>Public Intent Gateway</span>
         <span>Guard Envelope</span>
         <span>AgentMap route</span>
@@ -100950,8 +100719,8 @@ function __deprecatedPhase16Duplicate_orphan_renderBoardroomProofReplayPanel(sna
         ${renderBoardroomRecentRunsPanel()}
       </details>
     
-      <div class="aion-phase16d-proof-route" data-aion-phase16g-legacy-marker-repair="true">
-        <span>Home Fixed widget request</span>
+      <div class="aion-phase16d-proof-route" data-aion-phase16g-legacy-marker-configured service="true">
+        <span>the current business widget request</span>
         <span>Public Intent Gateway</span>
         <span>Guard Envelope</span>
         <span>AgentMap route</span>
@@ -101022,7 +100791,7 @@ function handleBoardroomFounderDemoPreviewAction(action) {
   if (action === "run_preview") {
     setAionFounderDemoLoopState({
       activeStep: "machine_cart_quote_preview",
-      statusLabel: "Home Fixed request preview generated",
+      statusLabel: "the current business request preview generated",
       proofLabel: "Preview hash prepared",
       lastAction: "run_preview",
       sideEffectGuards,
@@ -101165,7 +100934,7 @@ function getAionPhase18CommercialRoutes() {
       pricing_label: "Quote required",
       summary: "Project work where price depends on scope.",
       normal_copy: "The business must scope the job before sending a final price.",
-      example: "Design agency, builder, repair work, B2B service proposal.",
+      example: "Design agency, builder, configured service work, B2B service proposal.",
       requires_calendar: false,
       requires_human_review: true,
       requires_payment: false,
@@ -101240,10 +101009,10 @@ function getAionPhase18BusinessExamples() {
   return [
     {
       id: "home_fixed_roof_discovery",
-      label: "Home Fixed · roof leak assessment",
-      business: "Business not registered",
-      service: "Roof / pergola assessment",
-      customer_request: "Leaking pergola roof in Arboleas after rain",
+      label: "the current business · roof leak assessment",
+      business: "Business status pending verification",
+      service: "Roof / service assessment",
+      customer_request: "Leaking service roof in Arboleas after rain",
       route_type: "discovery_session",
       resource_type: "Roofer / general builder",
       requested_slot: "Tomorrow 11:30",
@@ -101254,8 +101023,8 @@ function getAionPhase18BusinessExamples() {
     },
     {
       id: "home_fixed_plumber_callout",
-      label: "Home Fixed · plumber first-hour callout",
-      business: "Business not registered",
+      label: "the current business · plumber first-hour callout",
+      business: "Business status pending verification",
       service: "Plumbing callout",
       customer_request: "Customer needs a plumber for a leak under the sink",
       route_type: "hourly_service",
@@ -102601,12 +102370,12 @@ function getAionFounderDemoVisibleOutput(action, state = {}) {
 
   const outputs = {
     run_preview: {
-      kicker: "Home Fixed request preview",
+      kicker: "the current business request preview",
       title: "Incoming website/widget request",
       status: "quote_preview_generated",
       rows: [
-        ["Customer", "Home Fixed website/widget"],
-        ["Service", "Roof leak / home repair request"],
+        ["Customer", "the current business website/widget"],
+        ["Service", "Roof leak / home configured service request"],
         ["Source", "website_widget"],
         ["Route", "Public Intent Gateway → Guard Envelope → AgentMap route → Machine Cart"],
         ["Quote preview", "Generated"],
@@ -102673,7 +102442,7 @@ function getAionFounderDemoVisibleOutput(action, state = {}) {
     title: "No action selected",
     status: "idle",
     rows: [
-      ["Next step", "Run Home Fixed preview"],
+      ["Next step", "Run the current business preview"],
       ["Mode", "Preview only"],
       ["Live execution", "Blocked"],
     ],
@@ -102691,7 +102460,7 @@ function renderAionFounderDemoVisibleOutputPanel(state = {}) {
       : lastAction;
 
   const output = getAionFounderDemoVisibleOutput(effectiveAction, state);
-  const showHomeFixedIntakeQuote =
+  const showActiveBusinessProfileIntakeQuote =
     effectiveAction === "run_preview" || activeStep === "machine_cart_quote_preview";
 
   return `
@@ -102723,16 +102492,16 @@ function renderAionFounderDemoVisibleOutputPanel(state = {}) {
 }
 /* END PHASE 16H LOCK */
 
-/* PHASE 16I LOCK: Home Fixed intake + quote preview */
+/* PHASE 16I LOCK: the current business intake + quote preview */
 
-function getAionHomeFixedDemoIntakePayload() {
+function getAionActiveBusinessProfileDemoIntakePayload() {
   return {
     customer_request:
-      "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
-    detected_service: "Pergola / roof repair",
-    location: "Arboleas, Almería",
+      "Hi, I need a leaking service configured serviceed in Arboleas. Water is coming through near the wall after rain.",
+    detected_service: "Configured offering",
+    location: "Arboleas, the configured service area",
     urgency: "Medium / rain-related",
-    customer_channel: "Home Fixed website widget",
+    customer_channel: "the current business website widget",
     route: [
       "Website widget",
       "Public Intent Gateway",
@@ -102743,7 +102512,7 @@ function getAionHomeFixedDemoIntakePayload() {
     ],
     quote_preview: {
       status: "inspection_required",
-      title: "Pergola roof leak repair",
+      title: "Configured offering request",
       range: "€120–€380 preview range",
       notes: [
         "Site visit required before final quote",
@@ -102765,8 +102534,8 @@ function getAionHomeFixedDemoIntakePayload() {
   };
 }
 
-function renderAionHomeFixedIntakeQuotePreview() {
-  const intake = getAionHomeFixedDemoIntakePayload();
+function renderAionActiveBusinessProfileIntakeQuotePreview() {
+  const intake = getAionActiveBusinessProfileDemoIntakePayload();
   const quote = intake.quote_preview || {};
   const safety = intake.safety || {};
 
@@ -102774,7 +102543,7 @@ function renderAionHomeFixedIntakeQuotePreview() {
     <div class="aion-phase16i-intake-card" data-aion-phase16i-intake-quote-preview="true">
       <div class="aion-phase16i-intake-head">
         <div>
-          <div class="eyebrow">Home Fixed Customer Intake</div>
+          <div class="eyebrow">the current business Customer Intake</div>
           <h3>Realistic website request → quote preview</h3>
           <p>${escapeHtml(intake.customer_request)}</p>
         </div>
@@ -102840,8 +102609,8 @@ const AION_FOUNDER_DEMO_TICKET_STEPS = [
     key: "website_widget_request",
     label: "Received",
     title: "Customer request received",
-    artifact: "Home Fixed website widget request captured.",
-    detail: "Leaking pergola roof in Arboleas. Rain-related roof/pergola repair request.",
+    artifact: "the current business website widget request captured.",
+    detail: "Leaking service roof in Arboleas. Rain-related roof/service configured service request.",
   },
   {
     key: "public_intent_gateway",
@@ -102861,14 +102630,14 @@ const AION_FOUNDER_DEMO_TICKET_STEPS = [
     key: "agentmap_route",
     label: "AgentMap",
     title: "AgentMap route selected",
-    artifact: "Home Fixed capability route selected from machine-readable business metadata.",
+    artifact: "the current business capability route selected from machine-readable business metadata.",
     detail: "Workflow path: website widget → A2A route → quote preview → human review.",
   },
   {
     key: "machine_cart_quote_preview",
     label: "Quoted",
     title: "Machine Cart quote preview generated",
-    artifact: "Pergola roof leak repair · €120–€380 preview range.",
+    artifact: "Configured offering request · €120–€380 preview range.",
     detail: "Site visit required before final quote. No booking or payment created.",
   },
   {
@@ -103001,10 +102770,10 @@ function getAionFounderDemoTicketStepArtifact(stepKey = "website_widget_request"
       status: "RECEIVED",
       rows: [
         ["Ticket", "HF-DEMO-001"],
-        ["Customer message", "Leaking pergola roof in Arboleas after rain"],
-        ["Detected service", "Pergola / roof repair"],
-        ["Location", "Arboleas, Almería"],
-        ["Channel", "Home Fixed website widget"],
+        ["Customer message", "Leaking service roof in Arboleas after rain"],
+        ["Detected service", "Configured offering"],
+        ["Location", "Arboleas, the configured service area"],
+        ["Channel", "the current business website widget"],
       ],
     },
     public_intent_gateway: {
@@ -103012,8 +102781,8 @@ function getAionFounderDemoTicketStepArtifact(stepKey = "website_widget_request"
       title: "Inbound request normalized",
       status: "ROUTED",
       rows: [
-        ["Intent type", "home_repair_quote_request"],
-        ["Service", "Pergola / roof repair"],
+        ["Intent type", "home_configured service_quote_request"],
+        ["Service", "Configured offering"],
         ["Urgency", "Medium / rain-related"],
         ["Source", "website_widget"],
         ["Output", "Normalized guarded intent"],
@@ -103036,8 +102805,8 @@ function getAionFounderDemoTicketStepArtifact(stepKey = "website_widget_request"
       title: "Business capability selected",
       status: "ROUTED",
       rows: [
-        ["Business", "Business not registered"],
-        ["Capability", "repair.quote.preview"],
+        ["Business", "Business status pending verification"],
+        ["Capability", "configured service.quote.preview"],
         ["Route", "Public Intent Gateway → Guard Envelope → AgentMap"],
         ["Next", "Machine Cart quote preview"],
         ["Mode", "Founder demo preview"],
@@ -103048,7 +102817,7 @@ function getAionFounderDemoTicketStepArtifact(stepKey = "website_widget_request"
       title: "Quote preview generated",
       status: "QUOTED",
       rows: [
-        ["Job", "Pergola roof leak repair"],
+        ["Job", "Configured offering request"],
         ["Preview range", "€120–€380"],
         ["Condition", "Site visit required before final quote"],
         ["Booking", "Not created"],
@@ -103150,15 +102919,15 @@ function getAionPhase17EWebsiteTicketPreview() {
       email: "Provided through website form",
     },
     request: {
-      message: "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
-      detected_service: "Pergola / roof repair",
-      location: "Arboleas, Almería",
+      message: "Hi, I need a leaking service configured serviceed in Arboleas. Water is coming through near the wall after rain.",
+      detected_service: "Configured offering",
+      location: "Arboleas, the configured service area",
       urgency: "Medium / rain-related",
-      source: "Home Fixed website form",
+      source: "the current business website form",
       channel: "website_intake",
     },
     suggested_workflow: {
-      name: "Home Fixed new enquiry workflow",
+      name: "the current business new enquiry workflow",
       current_step: "Quote preview prepared",
       next_action: "Run workflow preview",
     },
@@ -103174,7 +102943,7 @@ function getAionPhase17EWebsiteTicketPreview() {
     trace: [
       "Website form submitted",
       "Public website intake endpoint",
-      "Home Fixed adapter normalization",
+      "the current business adapter normalization",
       "website_intake.trigger.created",
       "Business ticket created",
       "Workflow selected: home_fixed_new_enquiry",
@@ -103296,7 +103065,7 @@ function getAionBusinessWebsiteIntakeInstallOptions() {
         "The ticket can then trigger the mapped workflow preview.",
       ],
       example:
-        "Website form → info@homefixed.es → homefixed@intake.aion.local → AION ticket",
+        "Website form → info@activebusiness.es → activebusiness@intake.aion.local → AION ticket",
       recommended: true,
     },
     {
@@ -104316,17 +104085,17 @@ function renderAionWebsiteIntakeInstallationPanel() {
 
   const sampleRows = window.__aionWebsiteEnquiryFeedRows || [
     {
-      id: "home_fixed_pergola_roof_repair_001",
+      id: "home_fixed_service_roof_configured service_001",
       time: "Just now",
       customer: "Website customer",
-      source: connected ? "Gmail" : "Home Fixed website form",
-      enquiry: "Pergola / roof repair",
-      message: "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
-      service: "Pergola / roof repair",
-      location: "Arboleas, Almería",
+      source: connected ? "Gmail" : "the current business website form",
+      enquiry: "Configured offering",
+      message: "Hi, I need a leaking service configured serviceed in Arboleas. Water is coming through near the wall after rain.",
+      service: "Configured offering",
+      location: "Arboleas, the configured service area",
       urgency: "Medium / rain-related",
       workflow_id: "home_fixed_new_enquiry",
-      workflow_title: "Home Fixed new enquiry workflow",
+      workflow_title: "the current business new enquiry workflow",
       workflow_status: "Quote preview prepared",
       status: "Workflow preview ready",
       next: "Run workflow preview",
@@ -104450,7 +104219,7 @@ function renderAionWebsiteIntakeInstallationPanel() {
 
                             <div class="aion-enquiry-workflow-preview">
                               <div>
-                                <strong>${escapeHtml(row.workflow_title || "Home Fixed new enquiry workflow")}</strong>
+                                <strong>${escapeHtml(row.workflow_title || "the current business new enquiry workflow")}</strong>
                                 <span>${escapeHtml(row.workflow_status || "Quote preview prepared")}</span>
                               </div>
                               <span class="status-pill">Workflow preview ready</span>
@@ -104630,14 +104399,14 @@ function sendAionPhase17ILocalPayloadTest() {
     ticket_preview_id: ticketId,
     workflow_id: workflowId,
     customer: {
-      name: "Home Fixed Test Customer",
+      name: "the current business Test Customer",
       phone: "+34 600 000 000",
       email: "test@example.com",
     },
     request: {
-      message: "I need a leaking pergola roof repaired in Arboleas",
-      detected_service: "Pergola / roof repair",
-      location: "Arboleas, Almería",
+      message: "I need a leaking service configured serviceed in Arboleas",
+      detected_service: "Configured offering",
+      location: "Arboleas, the configured service area",
       urgency: "Medium / rain-related",
     },
     guards: {
@@ -104660,7 +104429,7 @@ function sendAionPhase17ILocalPayloadTest() {
     ticket_preview_id: ticketId,
     workflow_id: workflowId,
     safe_mode: "preview_only",
-    message: "Local Home Fixed payload test created a guarded workflow ticket preview.",
+    message: "Local the current business payload test created a guarded workflow ticket preview.",
   });
 }
 
@@ -105019,8 +104788,8 @@ function copyAionPhase17HWebsiteIntakeValue(field, value) {
 }
 
 function sendAionPhase17HLocalPayloadTest() {
-  if (typeof sendAionPhase17GHomeFixedTestEnquiry === "function") {
-    sendAionPhase17GHomeFixedTestEnquiry();
+  if (typeof sendAionPhase17GActiveBusinessProfileTestEnquiry === "function") {
+    sendAionPhase17GActiveBusinessProfileTestEnquiry();
   }
 
   setAionPhase17HWebsiteIntakeActionState({
@@ -105170,7 +104939,7 @@ console.log("[AION] Phase 17H Website Intake click bindings installed");
 /* END PHASE 17H LOCK */
 
 
-/* PHASE 17G LOCK: Home Fixed live intake test actions */
+/* PHASE 17G LOCK: the current business live intake test actions */
 
 function getAionPhase17GLiveTestState() {
   window.__aionPhase17GLiveTestState = window.__aionPhase17GLiveTestState || {
@@ -105206,13 +104975,13 @@ function copyAionPhase17GValue(label, value) {
   });
 }
 
-function buildAionPhase17GHomeFixedTestSubmission() {
+function buildAionPhase17GActiveBusinessProfileTestSubmission() {
   return {
     ticket_preview_id: "ticket_home_fixed_live_test_001",
     business_id: "business_not_registered",
     workflow_id: "home_fixed_new_enquiry",
     endpoint: "https://api.tessaris.ai/public/intake/home_fixed",
-    source: "Home Fixed website form",
+    source: "the current business website form",
     mode: "local_live_test_preview",
     customer: {
       name: "Website customer",
@@ -105220,9 +104989,9 @@ function buildAionPhase17GHomeFixedTestSubmission() {
       email: "customer@example.com",
     },
     request: {
-      message: "Hi, I need a leaking pergola roof repaired in Arboleas. Water is coming through near the wall after rain.",
-      detected_service: "Pergola / roof repair",
-      location: "Arboleas, Almería",
+      message: "Hi, I need a leaking service configured serviceed in Arboleas. Water is coming through near the wall after rain.",
+      detected_service: "Configured offering",
+      location: "Arboleas, the configured service area",
       urgency: "Medium / rain-related",
     },
     normalized_event: "website_intake.trigger.created",
@@ -105239,8 +105008,8 @@ function buildAionPhase17GHomeFixedTestSubmission() {
   };
 }
 
-function sendAionPhase17GHomeFixedTestEnquiry() {
-  const submission = buildAionPhase17GHomeFixedTestSubmission();
+function sendAionPhase17GActiveBusinessProfileTestEnquiry() {
+  const submission = buildAionPhase17GActiveBusinessProfileTestSubmission();
 
   setAionPhase17GLiveTestState({
     status: "test_submission_created",
@@ -105251,7 +105020,7 @@ function sendAionPhase17GHomeFixedTestEnquiry() {
   try {
     setAionFounderDemoLoopState?.({
       activeStep: "machine_cart_quote_preview",
-      statusLabel: "Home Fixed live test enquiry received",
+      statusLabel: "the current business live test enquiry received",
       proofLabel: "Workflow ticket preview created",
       lastAction: "run_preview",
       sideEffectGuards: {
@@ -105616,7 +105385,7 @@ html body .aion-phase19d-note-text {
 
     let layer = document.getElementById(LAYER_ID);
     if (!layer) {
-      layer = document.createElement("div");
+      layer = document.createElement('div');
       layer.id = LAYER_ID;
       layer.setAttribute("data-aion-phase19d-note-layer", "true");
       viewport.appendChild(layer);
@@ -106174,7 +105943,7 @@ html body .aion-phase19d-note-text {
     let modal = document.getElementById(MODAL_ID);
     if (modal) return modal;
 
-    modal = document.createElement("div");
+    modal = document.createElement('div');
     modal.id = MODAL_ID;
     modal.setAttribute("data-aion-phase19e-custom-function-editor", "true");
     document.body.appendChild(modal);
@@ -106745,7 +106514,7 @@ html body .aion-phase19d-note-text {
 
     params.setAttribute("data-aion-phase19e-generic-params-hidden", "true");
 
-    const mount = document.createElement("div");
+    const mount = document.createElement('div');
     mount.setAttribute("data-aion-phase19e-real-custom-function-mount", "true");
     mount.innerHTML = editorHtml(node);
 
@@ -108579,7 +108348,7 @@ html body .aion-phase19d-note-text {
 
       if (editor.querySelector("[data-aion-phase19e5-policy-banner='true']")) continue;
 
-      const banner = document.createElement("div");
+      const banner = document.createElement('div');
       banner.setAttribute("data-aion-phase19e5-policy-banner", "true");
       banner.style.cssText = [
         "border:1px solid rgba(180,130,20,0.28)",
@@ -110453,12 +110222,12 @@ html body .aion-pilot-tracked-change-strip ul {
 
 /* PHASE 24B.9 popup timing lock: 10–15 seconds */
 
-/* PHASE 24B.9 — scan button visual repair only */
+/* PHASE 24B.9 — scan button visual configured service only */
 (function installAionPhase24BScanButtonVisualRepair() {
-  if (document.getElementById("aion-phase24b-scan-button-visual-repair")) return;
+  if (document.getElementById("aion-phase24b-scan-button-visual-configured service")) return;
 
   const style = document.createElement("style");
-  style.id = "aion-phase24b-scan-button-visual-repair";
+  style.id = "aion-phase24b-scan-button-visual-configured service";
   style.textContent = `
     .aion-small-business-website-scan-btn {
       height: 54px !important;
@@ -112689,13 +112458,13 @@ html body .aion-pilot-tracked-change-strip ul {
       id: "service",
       title: "Service",
       detail: "Time, labour, expertise, jobs, appointments, projects and operational capacity.",
-      examples: "Electrician, plumber, home repairs, consultant, agency, salon.",
+      examples: "Electrician, plumber, home services, consultant, agency, salon.",
     },
     {
       id: "product_service",
       title: "Product + Service",
-      detail: "Products plus labour, installation, repair, fulfilment or aftercare.",
-      examples: "Garage, installer, computer repair, home improvement company.",
+      detail: "Products plus labour, installation, configured service, fulfilment or aftercare.",
+      examples: "Garage, installer, computer configured service, home improvement company.",
     },
     {
       id: "digital_product",
@@ -113590,7 +113359,7 @@ html body .aion-pilot-tracked-change-strip ul {
 
     let root = document.querySelector("[data-aion-business-twin-setup-root='true']");
     if (!root) {
-      root = document.createElement("div");
+      root = document.createElement('div');
       root.setAttribute("data-aion-business-twin-setup-root", "true");
       document.body.appendChild(root);
     }
@@ -115840,14 +115609,14 @@ function getAionBoardroomActiveGoalLoopStatus(snapshot = {}) {
       ? getAionRegisteredBusinessIdentity()
       : {
           business_id: "business_not_registered",
-          business_name: "Business not registered",
+          business_name: "Business status pending verification",
           registered: false,
         };
 
   const businessLabel =
     typeof getAionWorkflowCanvasHeaderBusinessLabel === "function"
       ? getAionWorkflowCanvasHeaderBusinessLabel()
-      : registeredIdentity.business_name || "Business not registered";
+      : registeredIdentity.business_name || "Business status pending verification";
 
   const businessContainer =
     typeof getAionWorkflowBusinessContainerId === "function"
@@ -115905,7 +115674,7 @@ function getAionBoardroomActiveGoalLoopStatus(snapshot = {}) {
 
   return {
     is_goal_loop: Boolean(isGoalLoop),
-    business_label: String(businessLabel || "Business not registered"),
+    business_label: String(businessLabel || "Business status pending verification"),
     business_container: String(businessContainer || "business_not_registered"),
     registered_business_source: registeredIdentity.source || "unknown",
     goal_loop_id: String(contract?.goal_loop_id || graph?.goal_loop_id || graph?.id || "not_staged"),
@@ -117480,7 +117249,7 @@ function fitAionGoalSheetWorkflowOnceO12C(graph) {
     let action = document.getElementById("aion-o12b-boardroom-action");
     if (action) return action;
 
-    action = document.createElement("div");
+    action = document.createElement('div');
     action.id = "aion-o12b-boardroom-action";
     action.className = "aion-o12b-boardroom-action";
     action.setAttribute("data-visible", "false");
@@ -117510,7 +117279,7 @@ Preview only. Nothing executed.`);
     let status = document.getElementById("aion-o12b-workflow-status");
     if (status) return status;
 
-    status = document.createElement("div");
+    status = document.createElement('div');
     status.id = "aion-o12b-workflow-status";
     status.className = "aion-o12b-workflow-status";
     status.setAttribute("data-visible", "false");
@@ -119706,7 +119475,7 @@ Preview only. Nothing executed.`);
     const existing = document.getElementById("aion-o13b-department-sheet-chooser");
     if (existing) existing.remove();
 
-    const shell = document.createElement("div");
+    const shell = document.createElement('div');
     shell.id = "aion-o13b-department-sheet-chooser";
     shell.setAttribute("data-aion-o13b-department-sheet-chooser", "true");
 
@@ -120307,7 +120076,7 @@ Preview only. Nothing executed.`);
     `;
     document.head.appendChild(style);
 
-    const toolbar = document.createElement("div");
+    const toolbar = document.createElement('div');
     toolbar.id = "aion-o13c-pilot-task-toolbar";
     toolbar.setAttribute("data-visible", "false");
     toolbar.setAttribute("data-aion-o13c-pilot-task-toolbar", "true");
@@ -122866,7 +122635,7 @@ Preview only. Nothing executed.`);
     ensureDepartmentRegistryO13H();
     ensureChooserStylesO13H();
 
-    const shell = document.createElement("div");
+    const shell = document.createElement('div');
     shell.id = "aion-o13h-linked-department-chooser";
     shell.setAttribute("data-aion-o13h-linked-department-chooser", "true");
 
@@ -123321,7 +123090,7 @@ Preview only. Nothing executed.`);
     closeChooserO13H2();
     ensureChooserStyleO13H2();
 
-    const shell = document.createElement("div");
+    const shell = document.createElement('div');
     shell.id = "aion-o13h2-linked-department-sheet-router";
     shell.setAttribute("data-aion-o13h2-linked-department-sheet-router", "true");
 
@@ -123598,7 +123367,7 @@ Preview only. Nothing executed.`);
     closeRouter();
     ensureStyle();
 
-    const shell = document.createElement("div");
+    const shell = document.createElement('div');
     shell.id = "aion-o13h3-linked-department-router";
     shell.setAttribute("data-aion-o13h3-linked-department-router", "true");
     shell.innerHTML = `
@@ -123979,7 +123748,7 @@ Preview only. Nothing executed.`);
   O13J.2 exact render-source rule:
   When a department Goal Sheet is selected/opened, the Workflow Canvas render source
   must prefer the active selected workflow graph before Boardroom Goal Sheet registry slots.
-  This prevents Boardroom nodes from repainting over Marketing/Sales/Finance/Operations/Support child sheets.
+  This prevents Boardroom nodes from reservice delivery over Marketing/Sales/Finance/Operations/Support child sheets.
 */
 (function installAionO13J2ExactSelectedGoalSheetRenderSourceLock() {
   if (window.__aionO13J2ExactSelectedGoalSheetRenderSourceLockInstalled === true) return;
@@ -124116,7 +123885,7 @@ Preview only. Nothing executed.`);
 
     document.getElementById("aion-o13k-department-goal-sheet-node-preview")?.remove();
 
-    const shell = document.createElement("div");
+    const shell = document.createElement('div');
     shell.id = "aion-o13k-department-goal-sheet-node-preview";
     shell.setAttribute("data-aion-o13k-department-goal-sheet-node-preview", "true");
 
@@ -125668,7 +125437,7 @@ Preview only. Nothing executed.`);
     installStyleO13M();
     document.getElementById(MODAL_ID)?.remove();
 
-    const wrapper = document.createElement("div");
+    const wrapper = document.createElement('div');
     wrapper.innerHTML = renderDocumentO13M(node, graph);
     document.body.appendChild(wrapper.firstElementChild);
 
@@ -126544,7 +126313,7 @@ Preview only. Nothing executed.`);
     } catch {}
 
     const doc = buildBoardroomDrivenDocumentO13N(node, graph);
-    const wrapper = document.createElement("div");
+    const wrapper = document.createElement('div');
     wrapper.innerHTML = renderDocumentO13N(doc);
     document.body.appendChild(wrapper.firstElementChild);
 
@@ -129548,7 +129317,7 @@ Preview only. Nothing executed.`);
     if (switcher) {
       switcher.outerHTML = html;
     } else {
-      const holder = document.createElement("div");
+      const holder = document.createElement('div');
       holder.innerHTML = html;
       switcher = holder.firstElementChild;
       liveHeader.parentElement?.insertBefore(switcher, liveHeader);
@@ -130810,7 +130579,7 @@ Preview only. Nothing executed.`);
 
       let rail = document.getElementById(RAIL_ID);
       if (!rail) {
-        rail = document.createElement("div");
+        rail = document.createElement('div');
         rail.id = RAIL_ID;
         rail.setAttribute("data-aion-o15e-boardroom-provider-rail", "true");
         parent.appendChild(rail);
@@ -132297,7 +132066,7 @@ Preview only. Nothing executed.`);
     const shell = document.querySelector("[data-aion-o17e-marketing-pilot-cockpit='true'] > .spatial-boardroom-shell");
     if (!shell || shell.querySelector("[data-aion-o18b-agent-figure]")) return;
 
-    const figure = document.createElement("div");
+    const figure = document.createElement('div');
     figure.setAttribute("data-aion-o18b-agent-figure", "true");
     figure.innerHTML = `
       <div style="
@@ -138027,7 +137796,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
         body:
           "What does the business mainly sell? Is it physical products, hands-on services, a mix of products and services, digital products, subscriptions, a marketplace, or hospitality? " +
           "This decides which discovery adapter and department questions we load next.",
-        prompt: "Choose the closest model. For Home Fixed, this would normally be Service or Product + Service.",
+        prompt: "Choose the closest model. For the current business, this would normally be Service or Product + Service.",
       },
       archetype_discovery: {
         eyebrow: "Step 2 · Confirm Archetype",
@@ -138251,7 +138020,7 @@ console.info("[AION] O18AD direct department branch rewrite installed");
     if (!clean) return "";
     const words = clean.split(/\s+/).filter(Boolean);
     if (words.length >= 1 && words.length <= 4) {
-      const bad = /business|service|product|company|sell|repair|painting|customers|xero|gmail|calendar/i;
+      const bad = /business|service|product|company|sell|configured service|service delivery|customers|xero|gmail|calendar/i;
       if (!bad.test(clean)) {
         writeStateO19I({ user_name: clean });
         return clean;
@@ -138280,42 +138049,83 @@ console.info("[AION] O18AD direct department branch rewrite installed");
     const script = getScriptO19I(effectiveStage, state.user_name);
     if (!script) return "";
 
+    const started = window.localStorage?.getItem("aion.voiceOnboarding.o19m.started.v1") === "true";
     const hasName = Boolean(state.user_name);
+    const transcriptCount = Array.isArray(state.transcript) ? state.transcript.length : 0;
+
+    if (!started) {
+      return `
+        <section ${PANEL_ATTR}="true" data-aion-o19i-stage="${escapeO19I(effectiveStage)}" class="aion-o19i-voice-guide aion-o19m-clean aion-o19m-locked">
+          <div class="aion-o19m-launch-shell">
+            <button type="button" data-aion-o19m-start="true" class="aion-o19m-orb" aria-label="Start AION onboarding">
+              <span>AION</span>
+            </button>
+
+            <div class="aion-o19m-launch-copy">
+              <div class="aion-o19m-eyebrow">Tessaris onboarding</div>
+              <h2>Get started.</h2>
+              <p>Build your business operating system. AION will introduce Tessaris, open the Business Twin setup, and guide the first conversation with voice.</p>
+              <div class="aion-o19m-status-pill">Locked · click AION to open</div>
+            </div>
+
+            <div class="aion-o19m-launch-note">
+              <strong>Voice ready</strong>
+              <span>ElevenLabs provider · no live actions</span>
+            </div>
+          </div>
+        </section>
+      `;
+    }
+
     const nameLine = hasName
       ? `Personalised for ${escapeO19I(state.user_name)}`
-      : "First turn: ask the user what AION should call them";
+      : "First turn: AION asks what it should call you";
 
     return `
-      <section ${PANEL_ATTR}="true" data-aion-o19i-stage="${escapeO19I(effectiveStage)}" class="aion-o19i-voice-guide">
-        <div class="aion-o19i-topline">
-          <span>${escapeO19I(script.eyebrow)}</span>
-          <span>VOICE GUIDE · PROVIDER ABSTRACT · NO LIVE ACTIONS</span>
-        </div>
+      <section ${PANEL_ATTR}="true" data-aion-o19i-stage="${escapeO19I(effectiveStage)}" class="aion-o19i-voice-guide aion-o19m-clean aion-o19m-active">
+        <div class="aion-o19m-active-head">
+          <button type="button" data-aion-o19m-start="true" class="aion-o19m-orb aion-o19m-orb-small" aria-label="Restart AION onboarding">
+            <span>AION</span>
+          </button>
 
-        <div class="aion-o19i-main">
-          <div class="aion-o19i-copy">
+          <div class="aion-o19m-active-copy">
+            <div class="aion-o19m-eyebrow">${escapeO19I(script.eyebrow)}</div>
             <h2>${escapeO19I(script.title)}</h2>
             <p>${escapeO19I(script.body)}</p>
-            <div class="aion-o19i-prompt">${escapeO19I(script.prompt)}</div>
-            <div class="aion-o19i-personal">${nameLine}</div>
+            <div class="aion-o19m-prompt">${escapeO19I(script.prompt)}</div>
+            <div class="aion-o19m-personal">${nameLine}</div>
           </div>
 
-          <div class="aion-o19i-controls">
-            <button type="button" data-aion-o19i-play-stage="${escapeO19I(effectiveStage)}">Play voice opener</button>
+          <div class="aion-o19m-actions">
+            <button type="button" data-aion-o19i-play-stage="${escapeO19I(effectiveStage)}">Replay voice</button>
             <button type="button" data-aion-o19i-stop-voice="true">Stop</button>
           </div>
         </div>
 
-        <div class="aion-o19i-reply-row">
+        <section data-aion-o19m-live-mic-row="true" class="aion-o19m-mic-row">
+          <div>
+            <strong>Live mic</strong>
+            <span data-aion-o19m-mic-status="true">Mic idle. Click “Start mic”, then answer AION out loud.</span>
+          </div>
+          <button type="button" data-aion-o19m-mic-start="true">Start mic</button>
+          <button type="button" data-aion-o19m-mic-stop="true">Stop mic</button>
+        </section>
+
+        <div class="aion-o19i-reply-row aion-o19m-typed-row">
           <input
             type="text"
             data-aion-o19i-user-reply
-            placeholder="Type a spoken answer here until STT is wired..."
+            placeholder="Type here if mic is unavailable..."
           />
-          <button type="button" data-aion-o19i-save-reply="${escapeO19I(effectiveStage)}">Add to transcript</button>
+          <button type="button" data-aion-o19i-save-reply="${escapeO19I(effectiveStage)}">Add answer</button>
         </div>
 
-        <div class="aion-o19i-transcript">
+        <div class="aion-o19m-transcript-head">
+          <span>Conversation transcript</span>
+          <span>${transcriptCount} turns</span>
+        </div>
+
+        <div class="aion-o19i-transcript aion-o19m-transcript">
           ${renderTranscriptO19I(state)}
         </div>
       </section>
@@ -138739,6 +138549,2400 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 /* END AION O19K3 CSP AUDIO PLAYBACK LOCK */
 
 
+/* BEGIN AION O19M CONSOLIDATED VOICE ONBOARDING UI LOCK */
+(function installAionO19MConsolidatedVoiceOnboardingUi() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO19MConsolidatedVoiceOnboardingUiInstalled) return;
+  window.__aionO19MConsolidatedVoiceOnboardingUiInstalled = true;
+
+  const STARTED_KEY = "aion.voiceOnboarding.o19m.started.v1";
+  const O19I_STATE_KEY = "aion.voiceOnboarding.o19i.v1";
+
+  function readJson(key, fallback) {
+    try {
+      const raw = window.localStorage?.getItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function writeJson(key, value) {
+    try {
+      window.localStorage?.setItem(key, JSON.stringify(value));
+    } catch {}
+  }
+
+  function setStarted(value) {
+    try {
+      if (value) window.localStorage?.setItem(STARTED_KEY, "true");
+      else window.localStorage?.removeItem(STARTED_KEY);
+    } catch {}
+  }
+
+  function isStarted() {
+    try {
+      return window.localStorage?.getItem(STARTED_KEY) === "true";
+    } catch {
+      return false;
+    }
+  }
+
+  function resetConversationState() {
+    const fresh = {
+      schema_version: "aion.voice_onboarding.o19i.v1",
+      user_name: "",
+      stage: "startup_intro",
+      transcript: [],
+      updated_at: new Date().toISOString(),
+    };
+    writeJson(O19I_STATE_KEY, fresh);
+    return fresh;
+  }
+
+  function refreshPanel() {
+    try {
+      if (typeof window.refreshAionO19IVoiceGuide === "function") {
+        window.refreshAionO19IVoiceGuide();
+      }
+    } catch {}
+  }
+
+  function setMicStatus(message) {
+    const node = document.querySelector("[data-aion-o19m-mic-status]");
+    if (node) node.textContent = message;
+  }
+
+  function feedAnswerIntoExistingO19I(text) {
+    const clean = String(text || "").trim();
+    if (!clean) return;
+
+    const input = document.querySelector("[data-aion-o19i-user-reply]");
+    const save = document.querySelector("[data-aion-o19i-save-reply]");
+
+    if (input && save) {
+      input.value = clean;
+      save.click();
+    } else if (typeof window.appendAionO19IVoiceOnboardingTranscript === "function") {
+      window.appendAionO19IVoiceOnboardingTranscript({
+        speaker: "user",
+        text: clean,
+        stage: "live_mic",
+      });
+    }
+
+    routeNaturalChoice(clean);
+  }
+
+  function routeNaturalChoice(text) {
+    const lower = String(text || "").toLowerCase();
+
+    const isBusiness =
+      /\b(existing business|i have a business|have a business|my business|company|already have a business)\b/.test(lower);
+
+    const isGenerateIdea =
+      /\b(generate me an idea|generate an idea|suggest an idea|give me an idea)\b/.test(lower);
+
+    const isIdea =
+      !isBusiness && /\b(i have an idea|new idea|brand new idea|idea)\b/.test(lower);
+
+    window.setTimeout(() => {
+      if (isBusiness) {
+        const card = document.querySelector('[data-aion-business-entry-mode="small_business_growth"]');
+        if (card) {
+          setMicStatus("Recognised: existing business. Opening Business Twin setup.");
+          card.click();
+        }
+      } else if (isGenerateIdea) {
+        const card = document.querySelector('[data-aion-business-entry-mode="founder_generate_idea"]');
+        if (card) {
+          setMicStatus("Recognised: generate me an idea.");
+          card.click();
+        }
+      } else if (isIdea) {
+        const card = document.querySelector('[data-aion-business-entry-mode="founder_build_idea"]');
+        if (card) {
+          setMicStatus("Recognised: I have an idea.");
+          card.click();
+        }
+      }
+    }, 450);
+  }
+
+  function startMic() {
+    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      setMicStatus("Live mic is unavailable in this Electron browser. Use typed fallback.");
+      return { ok: false, reason: "speech_recognition_unavailable" };
+    }
+
+    try {
+      if (window.__aionO19MRecognition) {
+        try { window.__aionO19MRecognition.stop(); } catch {}
+      }
+
+      const recognition = new Recognition();
+      recognition.lang = "en-GB";
+      recognition.continuous = true;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        window.__aionO19MMicListening = true;
+        setMicStatus("Listening. Speak naturally.");
+      };
+
+      recognition.onerror = (event) => {
+        setMicStatus(`Mic error: ${event.error || "unknown"}. Use typed fallback.`);
+      };
+
+      recognition.onend = () => {
+        window.__aionO19MMicListening = false;
+        setMicStatus("Mic stopped. Click Start mic to continue.");
+      };
+
+      recognition.onresult = (event) => {
+        let finalText = "";
+        let interimText = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i += 1) {
+          const result = event.results[i];
+          const transcript = String(result?.[0]?.transcript || "").trim();
+          if (!transcript) continue;
+
+          if (result.isFinal) finalText += `${transcript} `;
+          else interimText += `${transcript} `;
+        }
+
+        if (interimText.trim()) {
+          setMicStatus(`Listening: ${interimText.trim()}`);
+        }
+
+        if (finalText.trim()) {
+          const clean = finalText.trim();
+          setMicStatus(`Captured: ${clean}`);
+          feedAnswerIntoExistingO19I(clean);
+        }
+      };
+
+      window.__aionO19MRecognition = recognition;
+      recognition.start();
+      return { ok: true };
+    } catch (error) {
+      setMicStatus(`Mic failed: ${String(error && error.message ? error.message : error)}`);
+      return { ok: false, reason: String(error && error.message ? error.message : error) };
+    }
+  }
+
+  function stopMic() {
+    try {
+      if (window.__aionO19MRecognition) {
+        window.__aionO19MRecognition.stop();
+      }
+    } catch {}
+    window.__aionO19MMicListening = false;
+    setMicStatus("Mic stopped.");
+  }
+
+  function startOnboarding() {
+    setStarted(true);
+    resetConversationState();
+    stopMic();
+
+    window.setTimeout(refreshPanel, 80);
+
+    window.setTimeout(() => {
+      const play = document.querySelector("[data-aion-o19i-play-stage]");
+      if (play) play.click();
+    }, 420);
+
+    window.setTimeout(() => {
+      startMic();
+    }, 1500);
+
+    return { ok: true, started: true };
+  }
+
+  function ensureStyles() {
+    if (document.getElementById("aion-o19m-consolidated-voice-ui-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "aion-o19m-consolidated-voice-ui-styles";
+    style.textContent = `
+      html body [data-aion-o19i-voice-guide-panel].aion-o19m-clean {
+        margin: 0 0 30px !important;
+        border-radius: 26px !important;
+        border: 1px solid rgba(17,17,17,0.12) !important;
+        background: #ffffff !important;
+        box-shadow: 0 26px 74px rgba(15,23,42,0.09) !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        color: #111111 !important;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      }
+
+      html body .aion-o19m-launch-shell {
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr) auto !important;
+        gap: 24px !important;
+        align-items: center !important;
+        padding: 30px !important;
+        background:
+          radial-gradient(circle at 8% 12%, rgba(34,211,238,0.22), transparent 34%),
+          radial-gradient(circle at 90% 80%, rgba(99,102,241,0.10), transparent 40%),
+          #0b1220 !important;
+        color: #ffffff !important;
+      }
+
+      html body .aion-o19m-orb {
+        appearance: none !important;
+        width: 104px !important;
+        height: 104px !important;
+        border-radius: 999px !important;
+        border: 1px solid rgba(125,249,255,0.58) !important;
+        background:
+          radial-gradient(circle, rgba(34,211,238,0.34) 0%, rgba(15,23,42,0.92) 52%, rgba(2,6,23,1) 100%) !important;
+        color: #e0fbff !important;
+        cursor: pointer !important;
+        box-shadow:
+          0 0 0 8px rgba(34,211,238,0.08),
+          0 0 38px rgba(34,211,238,0.32),
+          inset 0 0 30px rgba(34,211,238,0.24) !important;
+      }
+
+      html body .aion-o19m-orb span {
+        display: block !important;
+        font-size: 14px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.18em !important;
+      }
+
+      html body .aion-o19m-orb-small {
+        width: 72px !important;
+        height: 72px !important;
+        flex: 0 0 auto !important;
+      }
+
+      html body .aion-o19m-orb-small span {
+        font-size: 10px !important;
+      }
+
+      html body .aion-o19m-eyebrow {
+        color: rgba(148,163,184,0.92) !important;
+        font-size: 11px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.18em !important;
+        text-transform: uppercase !important;
+        margin-bottom: 10px !important;
+      }
+
+      html body .aion-o19m-launch-copy h2,
+      html body .aion-o19m-active-copy h2 {
+        margin: 0 !important;
+        font-size: 30px !important;
+        line-height: 1.04 !important;
+        letter-spacing: -0.04em !important;
+        color: inherit !important;
+      }
+
+      html body .aion-o19m-launch-copy p,
+      html body .aion-o19m-active-copy p {
+        margin: 10px 0 0 !important;
+        max-width: 900px !important;
+        font-size: 15px !important;
+        line-height: 1.5 !important;
+      }
+
+      html body .aion-o19m-launch-copy p {
+        color: rgba(226,232,240,0.78) !important;
+      }
+
+      html body .aion-o19m-status-pill,
+      html body .aion-o19m-launch-note {
+        border-radius: 999px !important;
+        border: 1px solid rgba(255,255,255,0.16) !important;
+        background: rgba(255,255,255,0.08) !important;
+        color: rgba(226,232,240,0.82) !important;
+        font-size: 10px !important;
+        font-weight: 900 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+      }
+
+      html body .aion-o19m-status-pill {
+        display: inline-flex !important;
+        margin-top: 14px !important;
+        padding: 10px 13px !important;
+      }
+
+      html body .aion-o19m-launch-note {
+        display: grid !important;
+        gap: 3px !important;
+        padding: 12px 14px !important;
+        white-space: nowrap !important;
+      }
+
+      html body .aion-o19m-launch-note span {
+        color: rgba(226,232,240,0.58) !important;
+      }
+
+      html body .aion-o19m-active-head {
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr) auto !important;
+        gap: 20px !important;
+        align-items: start !important;
+        padding: 26px 28px 18px !important;
+        background:
+          radial-gradient(circle at 0% 0%, rgba(34,211,238,0.07), transparent 32%),
+          #ffffff !important;
+      }
+
+      html body .aion-o19m-active-copy {
+        min-width: 0 !important;
+      }
+
+      html body .aion-o19m-active-copy p {
+        color: rgba(17,17,17,0.72) !important;
+      }
+
+      html body .aion-o19m-prompt {
+        margin-top: 14px !important;
+        padding: 12px 14px !important;
+        border-radius: 14px !important;
+        background: rgba(15,23,42,0.045) !important;
+        color: rgba(17,17,17,0.78) !important;
+        font-size: 13px !important;
+        font-weight: 850 !important;
+      }
+
+      html body .aion-o19m-personal {
+        margin-top: 10px !important;
+        color: rgba(17,17,17,0.52) !important;
+        font-size: 12px !important;
+        font-weight: 850 !important;
+      }
+
+      html body .aion-o19m-actions {
+        display: flex !important;
+        gap: 10px !important;
+        align-items: center !important;
+      }
+
+      html body .aion-o19m-actions button,
+      html body .aion-o19m-mic-row button,
+      html body .aion-o19m-typed-row button {
+        appearance: none !important;
+        border-radius: 999px !important;
+        padding: 12px 16px !important;
+        border: 1px solid rgba(17,17,17,0.16) !important;
+        cursor: pointer !important;
+        font-size: 10px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+        white-space: nowrap !important;
+      }
+
+      html body .aion-o19m-actions button:first-child,
+      html body .aion-o19m-mic-row button:first-of-type,
+      html body .aion-o19m-typed-row button {
+        background: #111111 !important;
+        color: #ffffff !important;
+      }
+
+      html body .aion-o19m-actions button:last-child,
+      html body .aion-o19m-mic-row button:last-child {
+        background: #ffffff !important;
+        color: #111111 !important;
+      }
+
+      html body .aion-o19m-mic-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        gap: 10px !important;
+        align-items: center !important;
+        margin: 0 28px 16px !important;
+        padding: 14px !important;
+        border-radius: 18px !important;
+        background: rgba(15,23,42,0.04) !important;
+        border: 1px solid rgba(15,23,42,0.08) !important;
+      }
+
+      html body .aion-o19m-mic-row strong {
+        display: block !important;
+        font-size: 12px !important;
+        font-weight: 950 !important;
+        color: #111111 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.08em !important;
+      }
+
+      html body .aion-o19m-mic-row span {
+        display: block !important;
+        margin-top: 3px !important;
+        font-size: 12px !important;
+        color: rgba(17,17,17,0.60) !important;
+      }
+
+      html body .aion-o19m-typed-row {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        gap: 10px !important;
+        margin: 0 28px 18px !important;
+      }
+
+      html body .aion-o19m-typed-row input {
+        min-height: 46px !important;
+        border: 1px solid rgba(17,17,17,0.16) !important;
+        border-radius: 999px !important;
+        padding: 0 16px !important;
+        font-size: 13px !important;
+        color: #111111 !important;
+        background: #ffffff !important;
+      }
+
+      html body .aion-o19m-transcript-head {
+        display: flex !important;
+        justify-content: space-between !important;
+        margin: 0 28px !important;
+        padding: 14px 0 10px !important;
+        border-top: 1px solid rgba(17,17,17,0.08) !important;
+        color: rgba(17,17,17,0.48) !important;
+        font-size: 11px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+      }
+
+      html body .aion-o19m-transcript {
+        margin: 0 28px 24px !important;
+        max-height: 170px !important;
+        overflow: auto !important;
+        display: grid !important;
+        gap: 9px !important;
+      }
+
+      html body .aion-o19m-transcript .aion-o19i-transcript-line,
+      html body .aion-o19m-transcript .aion-o19i-transcript-empty {
+        font-size: 12px !important;
+        line-height: 1.45 !important;
+        color: rgba(17,17,17,0.62) !important;
+      }
+
+      @media (max-width: 900px) {
+        html body .aion-o19m-launch-shell,
+        html body .aion-o19m-active-head,
+        html body .aion-o19m-mic-row,
+        html body .aion-o19m-typed-row {
+          grid-template-columns: 1fr !important;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.addEventListener("click", (event) => {
+    const start = event.target?.closest?.("[data-aion-o19m-start]");
+    if (start) {
+      event.preventDefault();
+      event.stopPropagation();
+      startOnboarding();
+      return;
+    }
+
+    const micStart = event.target?.closest?.("[data-aion-o19m-mic-start]");
+    if (micStart) {
+      event.preventDefault();
+      event.stopPropagation();
+      startMic();
+      return;
+    }
+
+    const micStop = event.target?.closest?.("[data-aion-o19m-mic-stop]");
+    if (micStop) {
+      event.preventDefault();
+      event.stopPropagation();
+      stopMic();
+      return;
+    }
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionO19MMountTimer);
+    window.__aionO19MMountTimer = window.setTimeout(ensureStyles, 120);
+  });
+
+  try {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch {}
+
+  window.startAionO19MOnboarding = startOnboarding;
+  window.startAionO19MLiveMic = startMic;
+  window.stopAionO19MLiveMic = stopMic;
+  window.resetAionO19MOnboarding = function resetAionO19MOnboarding() {
+    setStarted(false);
+    stopMic();
+    resetConversationState();
+    refreshPanel();
+    return { ok: true, started: false };
+  };
+
+  window.__debugAionO19MConsolidatedVoiceOnboardingUi = function __debugAionO19MConsolidatedVoiceOnboardingUi() {
+    const state = readJson(O19I_STATE_KEY, {});
+    return {
+      installed: true,
+      old_o19l_removed: !String(document.documentElement.innerHTML || "").includes("data-aion-o19l-launcher"),
+      started: isStarted(),
+      panel_visible: Boolean(document.querySelector("[data-aion-o19i-voice-guide-panel='true']")),
+      launcher_visible: Boolean(document.querySelector("[data-aion-o19m-start]")),
+      mic_row_visible: Boolean(document.querySelector("[data-aion-o19m-live-mic-row]")),
+      speech_recognition_available: Boolean(window.SpeechRecognition || window.webkitSpeechRecognition),
+      mic_listening: Boolean(window.__aionO19MMicListening),
+      user_name: state.user_name || "",
+      stage: state.stage || "",
+      transcript_count: Array.isArray(state.transcript) ? state.transcript.length : 0,
+      elevenlabs_last_result: window.__aionO19KElevenLabsLastResult || null,
+    };
+  };
+
+  ensureStyles();
+  window.setTimeout(ensureStyles, 300);
+  window.setTimeout(refreshPanel, 500);
+
+  console.log("[AION] O19M consolidated voice onboarding UI installed");
+})();
+/* END AION O19M CONSOLIDATED VOICE ONBOARDING UI LOCK */
+
+
+/* BEGIN AION O19M2 HARD BIND AION START BUTTON LOCK */
+(function installAionO19M2HardBindAionStartButton() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO19M2HardBindAionStartButtonInstalled) return;
+  window.__aionO19M2HardBindAionStartButtonInstalled = true;
+
+  function callStart(reason) {
+    window.__aionO19M2LastStartAttempt = {
+      ts: new Date().toISOString(),
+      reason: reason || "unknown",
+      has_start_function: typeof window.startAionO19MOnboarding === "function",
+    };
+
+    if (typeof window.startAionO19MOnboarding === "function") {
+      try {
+        const result = window.startAionO19MOnboarding();
+        window.__aionO19M2LastStartAttempt.result = result || null;
+        return result;
+      } catch (error) {
+        window.__aionO19M2LastStartAttempt.error = String(error && error.message ? error.message : error);
+        throw error;
+      }
+    }
+
+    return { ok: false, reason: "startAionO19MOnboarding_missing" };
+  }
+
+  function bindButton() {
+    const buttons = Array.from(document.querySelectorAll("[data-aion-o19m-start]"));
+
+    buttons.forEach((button) => {
+      button.style.pointerEvents = "auto";
+      button.style.position = button.style.position || "relative";
+      button.style.zIndex = "20";
+      button.setAttribute("role", "button");
+      button.setAttribute("tabindex", "0");
+
+      if (button.getAttribute("data-aion-o19m2-bound") === "true") return;
+
+      button.setAttribute("data-aion-o19m2-bound", "true");
+
+      button.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        callStart("direct_click_bind");
+      });
+
+      button.addEventListener("pointerup", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        callStart("direct_pointerup_bind");
+      });
+
+      button.addEventListener("keydown", (event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        event.stopPropagation();
+        callStart("keyboard_bind");
+      });
+    });
+
+    return buttons.length;
+  }
+
+  document.addEventListener("click", (event) => {
+    const start = event.target?.closest?.("[data-aion-o19m-start]");
+    if (!start) return;
+    event.preventDefault();
+    event.stopPropagation();
+    callStart("document_capture_click");
+  }, true);
+
+  document.addEventListener("pointerup", (event) => {
+    const start = event.target?.closest?.("[data-aion-o19m-start]");
+    if (!start) return;
+    event.preventDefault();
+    event.stopPropagation();
+    callStart("document_capture_pointerup");
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionO19M2BindTimer);
+    window.__aionO19M2BindTimer = window.setTimeout(bindButton, 80);
+  });
+
+  try {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch {}
+
+  window.forceBindAionO19M2StartButton = bindButton;
+  window.forceStartAionO19M2 = function forceStartAionO19M2() {
+    return callStart("manual_console_force_start");
+  };
+
+  window.__debugAionO19M2StartButtonBinding = function __debugAionO19M2StartButtonBinding() {
+    const buttons = Array.from(document.querySelectorAll("[data-aion-o19m-start]"));
+    return {
+      installed: true,
+      button_count: buttons.length,
+      bound_count: buttons.filter((button) => button.getAttribute("data-aion-o19m2-bound") === "true").length,
+      has_start_function: typeof window.startAionO19MOnboarding === "function",
+      last_start_attempt: window.__aionO19M2LastStartAttempt || null,
+      o19m_debug: typeof window.__debugAionO19MConsolidatedVoiceOnboardingUi === "function"
+        ? window.__debugAionO19MConsolidatedVoiceOnboardingUi()
+        : null,
+    };
+  };
+
+  window.setTimeout(bindButton, 100);
+  window.setTimeout(bindButton, 600);
+  window.setTimeout(bindButton, 1400);
+
+  console.log("[AION] O19M2 hard-bind AION start button installed");
+})();
+/* END AION O19M2 HARD BIND AION START BUTTON LOCK */
+
+
+/* BEGIN AION O19N OPENING SPEECH CAPTURE VISUALIZER LOCK */
+(function installAionO19NOpeningSpeechCaptureVisualizer() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO19NOpeningSpeechCaptureVisualizerInstalled) return;
+  window.__aionO19NOpeningSpeechCaptureVisualizerInstalled = true;
+
+  const STATE_KEY = "aion.voiceOnboarding.o19i.v1";
+  const STARTED_KEY = "aion.voiceOnboarding.o19m.started.v1";
+  const VOICE_ID = "onwK4e9ZLuTAKqWW03F9";
+  const MODEL_ID = "eleven_multilingual_v2";
+  const ENDPOINT = "http://127.0.0.1:8080/api/aion/voice/tts";
+
+  function readState() {
+    try {
+      const raw = window.localStorage?.getItem(STATE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function writeState(state) {
+    try {
+      state.updated_at = new Date().toISOString();
+      window.localStorage?.setItem(STATE_KEY, JSON.stringify(state));
+    } catch {}
+  }
+
+  function refreshPanel() {
+    try {
+      if (typeof window.refreshAionO19IVoiceGuide === "function") {
+        window.refreshAionO19IVoiceGuide();
+      }
+    } catch {}
+    window.setTimeout(ensureVisualizer, 80);
+    window.setTimeout(ensureVisualizer, 300);
+  }
+
+  function normaliseStage(stage) {
+    const clean = String(stage || "").trim();
+    return clean || "startup_intro";
+  }
+
+  function getAionPromptForStage(stage, userName) {
+    const cleanStage = normaliseStage(stage);
+
+    if (cleanStage === "startup_intro") {
+      return "Welcome to Tessaris. Think of this less like software, and more like a digital headquarters for your company. You are setting up your AI Boardroom: a programmable operating system that maps your business, links goals to execution, and coordinates dedicated AI agents across your departments. But I do not guess how you operate. Before any agent works safely, we build your Business Twin from your real workflows, pricing, customers, tools and targets. We will do it together as a simple conversation. First, what should I call you?";
+    }
+
+    if (cleanStage === "startup_choice") {
+      const name = userName ? String(userName).trim() : "there";
+      return `Great to have you here, ${name}. Let’s start at the foundation. Are we setting up a brand-new idea you want to build from scratch, or do you already have an existing business you want Tessaris to help organise, grow, or automate?`;
+    }
+
+    if (cleanStage === "business_twin_intro") {
+      return "Perfect. Let’s map out the shape of it. I will not guess your margins or assume your delivery process. I will ask, capture, and display everything back to you for approval before it becomes a locked blueprint in your Boardroom.";
+    }
+
+    return "I am ready. Tell me the next answer naturally, and I will capture it into the Business Twin transcript.";
+  }
+
+  function appendTranscript(speaker, text, stage) {
+    const clean = String(text || "").trim();
+    if (!clean) return readState();
+
+    const state = readState();
+    const currentStage = normaliseStage(stage || state.stage);
+    const transcript = Array.isArray(state.transcript) ? state.transcript.slice() : [];
+
+    transcript.push({
+      speaker: String(speaker || "user").toLowerCase(),
+      text: clean,
+      stage: currentStage,
+      ts: new Date().toISOString(),
+    });
+
+    state.transcript = transcript;
+    state.stage = currentStage;
+
+    if (speaker === "user" && !state.user_name && currentStage === "startup_intro") {
+      const name = clean
+        .replace(/^my name is\s+/i, "")
+        .replace(/^i am\s+/i, "")
+        .replace(/^i'm\s+/i, "")
+        .replace(/^call me\s+/i, "")
+        .trim()
+        .split(/\s+/)[0];
+
+      if (name) {
+        state.user_name = name.charAt(0).toUpperCase() + name.slice(1);
+        state.stage = "startup_choice";
+      }
+    }
+
+    writeState(state);
+    return state;
+  }
+
+  function ensureVisualizer() {
+    const panel = document.querySelector("[data-aion-o19i-voice-guide-panel='true']");
+    if (!panel) return;
+
+    if (!document.getElementById("aion-o19n-visualizer-styles")) {
+      const style = document.createElement("style");
+      style.id = "aion-o19n-visualizer-styles";
+      style.textContent = `
+        html body .aion-o19n-voice-bars {
+          display: flex !important;
+          align-items: center !important;
+          gap: 4px !important;
+          height: 28px !important;
+          margin-top: 12px !important;
+        }
+
+        html body .aion-o19n-voice-bars span {
+          width: 4px !important;
+          height: 8px !important;
+          border-radius: 999px !important;
+          background: rgba(34,211,238,0.78) !important;
+          box-shadow: 0 0 10px rgba(34,211,238,0.35) !important;
+          transform-origin: center bottom !important;
+          opacity: 0.42 !important;
+        }
+
+        html body .aion-o19n-speaking .aion-o19n-voice-bars span {
+          animation: aionO19NVoiceBars 0.72s ease-in-out infinite !important;
+          opacity: 1 !important;
+        }
+
+        html body .aion-o19n-speaking .aion-o19n-voice-bars span:nth-child(2) { animation-delay: 0.08s !important; }
+        html body .aion-o19n-speaking .aion-o19n-voice-bars span:nth-child(3) { animation-delay: 0.16s !important; }
+        html body .aion-o19n-speaking .aion-o19n-voice-bars span:nth-child(4) { animation-delay: 0.24s !important; }
+        html body .aion-o19n-speaking .aion-o19n-voice-bars span:nth-child(5) { animation-delay: 0.32s !important; }
+        html body .aion-o19n-speaking .aion-o19n-voice-bars span:nth-child(6) { animation-delay: 0.40s !important; }
+        html body .aion-o19n-speaking .aion-o19n-voice-bars span:nth-child(7) { animation-delay: 0.48s !important; }
+
+        @keyframes aionO19NVoiceBars {
+          0%, 100% { transform: scaleY(0.55); }
+          50% { transform: scaleY(2.5); }
+        }
+
+        html body .aion-o19n-capture-flash {
+          outline: 2px solid rgba(34,211,238,0.32) !important;
+          box-shadow: 0 0 0 8px rgba(34,211,238,0.10) !important;
+        }
+      `;
+      document.head.appendChild(style);
+    }
+
+    if (!panel.querySelector("[data-aion-o19n-voice-bars]")) {
+      const copy = panel.querySelector(".aion-o19m-active-copy") || panel.querySelector(".aion-o19m-launch-copy") || panel;
+      copy.insertAdjacentHTML(
+        "beforeend",
+        `<div class="aion-o19n-voice-bars" data-aion-o19n-voice-bars="true" aria-label="AION voice activity">
+          <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+        </div>`
+      );
+    }
+  }
+
+  function setSpeaking(isSpeaking) {
+    const panel = document.querySelector("[data-aion-o19i-voice-guide-panel='true']");
+    if (!panel) return;
+    panel.classList.toggle("aion-o19n-speaking", Boolean(isSpeaking));
+  }
+
+  async function speakText(text, stage) {
+    const clean = String(text || "").trim();
+    if (!clean) return { spoken: false, reason: "empty_text" };
+
+    ensureVisualizer();
+
+    window.__aionO19NLastSpeechRequest = {
+      ts: new Date().toISOString(),
+      stage: normaliseStage(stage),
+      text_preview: clean.slice(0, 160),
+      voice_id: VOICE_ID,
+      model_id: MODEL_ID,
+    };
+
+    try {
+      setSpeaking(true);
+
+      const response = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          text: clean,
+          voice_id: VOICE_ID,
+          model_id: MODEL_ID,
+        }),
+      });
+
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
+        throw new Error(`TTS failed ${response.status}: ${detail.slice(0, 240)}`);
+      }
+
+      const blob = await response.blob();
+      const audioUrl = URL.createObjectURL(blob);
+      const audio = new Audio(audioUrl);
+      window.__aionO19NCurrentAudio = audio;
+
+      audio.onended = () => {
+        setSpeaking(false);
+        try { URL.revokeObjectURL(audioUrl); } catch {}
+      };
+
+      audio.onerror = () => {
+        setSpeaking(false);
+      };
+
+      await audio.play();
+
+      window.__aionO19NLastSpeechResult = {
+        spoken: true,
+        provider: "elevenlabs",
+        voice_id: VOICE_ID,
+        model_id: MODEL_ID,
+        blob_size: blob.size,
+        ts: new Date().toISOString(),
+      };
+
+      window.__aionO19KElevenLabsLastResult = window.__aionO19NLastSpeechResult;
+
+      return window.__aionO19NLastSpeechResult;
+    } catch (error) {
+      setSpeaking(false);
+      window.__aionO19NLastSpeechResult = {
+        spoken: false,
+        provider: "elevenlabs",
+        fallback: "none",
+        reason: String(error && error.message ? error.message : error),
+        ts: new Date().toISOString(),
+      };
+      window.__aionO19KElevenLabsLastResult = window.__aionO19NLastSpeechResult;
+      return window.__aionO19NLastSpeechResult;
+    }
+  }
+
+  function playCurrentPrompt() {
+    const state = readState();
+    const stage = normaliseStage(state.stage);
+    const text = getAionPromptForStage(stage, state.user_name);
+
+    appendTranscript("aion", text, stage);
+    refreshPanel();
+
+    window.setTimeout(() => {
+      ensureVisualizer();
+      speakText(text, stage);
+    }, 180);
+
+    return { ok: true, stage, text_preview: text.slice(0, 120) };
+  }
+
+  function handleUserAnswer(text) {
+    const state = readState();
+    const stageBefore = normaliseStage(state.stage);
+    const updated = appendTranscript("user", text, stageBefore);
+
+    refreshPanel();
+
+    const nextStage = normaliseStage(updated.stage);
+    if (nextStage !== stageBefore || nextStage === "startup_choice") {
+      window.setTimeout(() => {
+        const prompt = getAionPromptForStage(nextStage, updated.user_name);
+        appendTranscript("aion", prompt, nextStage);
+        refreshPanel();
+        window.setTimeout(() => speakText(prompt, nextStage), 180);
+      }, 300);
+    }
+
+    return updated;
+  }
+
+  function startSequence() {
+    try {
+      window.localStorage?.setItem(STARTED_KEY, "true");
+    } catch {}
+
+    const fresh = {
+      schema_version: "aion.voice_onboarding.o19i.v1",
+      user_name: "",
+      stage: "startup_intro",
+      transcript: [],
+      updated_at: new Date().toISOString(),
+    };
+
+    writeState(fresh);
+    refreshPanel();
+
+    window.setTimeout(() => {
+      playCurrentPrompt();
+    }, 450);
+
+    window.setTimeout(() => {
+      if (typeof window.startAionO19MLiveMic === "function") {
+        try { window.startAionO19MLiveMic(); } catch {}
+      }
+    }, 1900);
+
+    return { ok: true, started: true };
+  }
+
+  document.addEventListener("click", (event) => {
+    const start = event.target?.closest?.("[data-aion-o19m-start]");
+    if (start) {
+      event.preventDefault();
+      event.stopPropagation();
+      startSequence();
+      return;
+    }
+
+    const save = event.target?.closest?.("[data-aion-o19i-save-reply]");
+    if (save) {
+      const input = document.querySelector("[data-aion-o19i-user-reply]");
+      const value = String(input?.value || "").trim();
+      if (!value) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      if (input) {
+        input.classList.add("aion-o19n-capture-flash");
+        window.setTimeout(() => input.classList.remove("aion-o19n-capture-flash"), 450);
+        input.value = "";
+      }
+
+      handleUserAnswer(value);
+      return;
+    }
+
+    const replay = event.target?.closest?.("[data-aion-o19i-play-stage]");
+    if (replay) {
+      event.preventDefault();
+      event.stopPropagation();
+      playCurrentPrompt();
+      return;
+    }
+  }, true);
+
+  document.addEventListener("keydown", (event) => {
+    const input = event.target?.closest?.("[data-aion-o19i-user-reply]");
+    if (!input || event.key !== "Enter") return;
+
+    const value = String(input.value || "").trim();
+    if (!value) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    input.value = "";
+    handleUserAnswer(value);
+  }, true);
+
+  window.startAionO19NOpeningSequence = startSequence;
+  window.playAionO19NCurrentPrompt = playCurrentPrompt;
+  window.captureAionO19NUserAnswer = handleUserAnswer;
+  window.speakAionO19NText = speakText;
+
+  window.__debugAionO19NOpeningSpeechCaptureVisualizer = function __debugAionO19NOpeningSpeechCaptureVisualizer() {
+    const state = readState();
+    return {
+      installed: true,
+      started: window.localStorage?.getItem(STARTED_KEY) === "true",
+      stage: state.stage || "",
+      user_name: state.user_name || "",
+      transcript_count: Array.isArray(state.transcript) ? state.transcript.length : 0,
+      voice_bars_visible: Boolean(document.querySelector("[data-aion-o19n-voice-bars]")),
+      speaking: Boolean(document.querySelector("[data-aion-o19i-voice-guide-panel].aion-o19n-speaking")),
+      last_speech_request: window.__aionO19NLastSpeechRequest || null,
+      last_speech_result: window.__aionO19NLastSpeechResult || null,
+    };
+  };
+
+  const observer = new MutationObserver(() => {
+    window.clearTimeout(window.__aionO19NVisualizerTimer);
+    window.__aionO19NVisualizerTimer = window.setTimeout(ensureVisualizer, 140);
+  });
+
+  try {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch {}
+
+  window.setTimeout(ensureVisualizer, 300);
+  window.setTimeout(ensureVisualizer, 1000);
+
+  console.log("[AION] O19N opening speech capture visualizer installed");
+})();
+/* END AION O19N OPENING SPEECH CAPTURE VISUALIZER LOCK */
+
+
+/* BEGIN AION O19O RESET AND OPENING TRIGGER AUTHORITY LOCK */
+(function installAionO19OResetAndOpeningTriggerAuthority() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO19OResetAndOpeningTriggerAuthorityInstalled) return;
+  window.__aionO19OResetAndOpeningTriggerAuthorityInstalled = true;
+
+  const STATE_KEY = "aion.voiceOnboarding.o19i.v1";
+  const STARTED_KEYS = [
+    "aion.voiceOnboarding.o19m.started.v1",
+    "aion.voiceOnboarding.o19l.started.v1",
+  ];
+
+  const EXTRA_CLEAR_KEYS = [
+    "aion.voiceOnboarding.o19j.v1",
+    "aion.voiceDiscovery.o19a.activeSessionId",
+    "aion.voiceDiscovery.o19b.active",
+    "aion.voiceDiscovery.o19c.active",
+    "aion.voiceDiscovery.o19d.active",
+    "aion.voiceDiscovery.o19e.active",
+  ];
+
+  function writeFreshState() {
+    const fresh = {
+      schema_version: "aion.voice_onboarding.o19i.v1",
+      user_name: "",
+      stage: "startup_intro",
+      transcript: [],
+      updated_at: new Date().toISOString(),
+    };
+
+    try {
+      window.localStorage?.setItem(STATE_KEY, JSON.stringify(fresh));
+    } catch {}
+
+    return fresh;
+  }
+
+  function clearAllVoiceOnboardingState() {
+    try {
+      STARTED_KEYS.forEach((key) => window.localStorage?.removeItem(key));
+      EXTRA_CLEAR_KEYS.forEach((key) => window.localStorage?.removeItem(key));
+
+      Object.keys(window.localStorage || {}).forEach((key) => {
+        if (
+          key.includes("voiceOnboarding") ||
+          key.includes("voiceDiscovery") ||
+          key.includes("VoiceDiscovery")
+        ) {
+          if (key !== STATE_KEY) window.localStorage.removeItem(key);
+        }
+      });
+    } catch {}
+
+    try {
+      if (window.__aionO19MRecognition) window.__aionO19MRecognition.stop();
+    } catch {}
+
+    try {
+      if (window.__aionO19LRecognition) window.__aionO19LRecognition.stop();
+    } catch {}
+
+    try {
+      if (window.__aionO19NCurrentAudio) {
+        window.__aionO19NCurrentAudio.pause();
+        window.__aionO19NCurrentAudio.currentTime = 0;
+      }
+    } catch {}
+
+    writeFreshState();
+
+    try {
+      window.__aionO19MMicListening = false;
+      window.__aionO19LMicListening = false;
+    } catch {}
+
+    refreshVoicePanel();
+
+    return { ok: true, reset: true };
+  }
+
+  function refreshVoicePanel() {
+    try {
+      const panel = document.querySelector("[data-aion-o19i-voice-guide-panel='true']");
+      if (panel) panel.remove();
+    } catch {}
+
+    try {
+      if (typeof window.refreshAionO19IVoiceGuide === "function") {
+        window.refreshAionO19IVoiceGuide();
+      }
+    } catch {}
+
+    window.setTimeout(() => {
+      try {
+        if (typeof window.forceBindAionO19M2StartButton === "function") {
+          window.forceBindAionO19M2StartButton();
+        }
+      } catch {}
+    }, 150);
+  }
+
+  function startAuthoritativeOpening() {
+    try {
+      window.localStorage?.setItem("aion.voiceOnboarding.o19m.started.v1", "true");
+    } catch {}
+
+    writeFreshState();
+    refreshVoicePanel();
+
+    window.setTimeout(() => {
+      if (typeof window.startAionO19NOpeningSequence === "function") {
+        window.startAionO19NOpeningSequence();
+      } else if (typeof window.playAionO19NCurrentPrompt === "function") {
+        window.playAionO19NCurrentPrompt();
+      }
+    }, 350);
+
+    return { ok: true, started: true, authority: "o19o_to_o19n" };
+  }
+
+  document.addEventListener("click", (event) => {
+    const start = event.target?.closest?.("[data-aion-o19m-start]");
+    if (!start) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    window.__aionO19OLastStartClick = {
+      ts: new Date().toISOString(),
+      target: "data-aion-o19m-start",
+    };
+
+    startAuthoritativeOpening();
+  }, true);
+
+  window.resetAionO19OFullVoiceOnboarding = clearAllVoiceOnboardingState;
+  window.startAionO19OOpening = startAuthoritativeOpening;
+
+  // Replace the previous reset aliases so console reset always returns to the true first screen.
+  window.resetAionO19MOnboarding = clearAllVoiceOnboardingState;
+  window.resetAionO19MConsolidatedOnboarding = clearAllVoiceOnboardingState;
+  window.resetAionO19LLiveMicOnboarding = clearAllVoiceOnboardingState;
+
+  // Replace older start aliases so button/console start always goes to O19N opening speech.
+  window.startAionO19MOnboarding = startAuthoritativeOpening;
+  window.startAionO19MConsolidatedOnboarding = startAuthoritativeOpening;
+  window.startAionO19LLiveMicOnboarding = startAuthoritativeOpening;
+
+  window.__debugAionO19OResetAndOpeningTriggerAuthority = function __debugAionO19OResetAndOpeningTriggerAuthority() {
+    let state = {};
+    try {
+      state = JSON.parse(window.localStorage?.getItem(STATE_KEY) || "{}");
+    } catch {}
+
+    return {
+      installed: true,
+      state_key: STATE_KEY,
+      started_o19m: window.localStorage?.getItem("aion.voiceOnboarding.o19m.started.v1") || "",
+      user_name: state.user_name || "",
+      stage: state.stage || "",
+      transcript_count: Array.isArray(state.transcript) ? state.transcript.length : 0,
+      panel_visible: Boolean(document.querySelector("[data-aion-o19i-voice-guide-panel='true']")),
+      launcher_visible: Boolean(document.querySelector("[data-aion-o19m-start]")),
+      last_start_click: window.__aionO19OLastStartClick || null,
+      o19n_available: typeof window.startAionO19NOpeningSequence === "function",
+      last_o19n_speech: window.__aionO19NLastSpeechResult || null,
+    };
+  };
+
+  window.setTimeout(() => {
+    try {
+      if (typeof window.forceBindAionO19M2StartButton === "function") {
+        window.forceBindAionO19M2StartButton();
+      }
+    } catch {}
+  }, 600);
+
+  console.log("[AION] O19O reset and opening trigger authority installed");
+})();
+/* END AION O19O RESET AND OPENING TRIGGER AUTHORITY LOCK */
+
+
+/* BEGIN AION O20B CLEAN WHITE STARTUP STYLE LOCK */
+(function installAionO20BCleanWhiteStartupStyle() {
+  if (typeof document === "undefined") return;
+  const existing = document.getElementById("aion-o20b-clean-white-startup-styles");
+  if (existing) existing.remove();
+
+  const style = document.createElement("style");
+  style.id = "aion-o20b-clean-white-startup-styles";
+  style.textContent = `
+    html,
+    body {
+      background: #ffffff !important;
+    }
+
+    html body .aion-o20b-clean-startup {
+      position: relative !important;
+      width: 100% !important;
+      min-height: calc(100vh - 1px) !important;
+      margin: 0 !important;
+      padding: 52px 32px 46px !important;
+      overflow: hidden !important;
+      background:
+        radial-gradient(circle at 50% 32%, rgba(29, 212, 191, 0.16), transparent 24%),
+        radial-gradient(circle at 50% 70%, rgba(56, 189, 248, 0.10), transparent 34%),
+        #ffffff !important;
+      color: #0f172a !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    html body .aion-o20b-clean-startup::before {
+      content: "" !important;
+      position: absolute !important;
+      inset: 0 !important;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px) !important;
+      background-size: 54px 54px !important;
+      opacity: 0.58 !important;
+      pointer-events: none !important;
+      mask-image: radial-gradient(circle at center, black 0%, black 62%, transparent 92%) !important;
+    }
+
+    html body .aion-o20b-main {
+      position: relative !important;
+      z-index: 2 !important;
+      width: min(1280px, 100%) !important;
+      min-height: calc(100vh - 120px) !important;
+      border-radius: 36px !important;
+      border: 1px solid rgba(15, 23, 42, 0.08) !important;
+      background:
+        radial-gradient(circle at 50% 24%, rgba(45, 212, 191, 0.13), transparent 26%),
+        linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.94)) !important;
+      box-shadow:
+        0 40px 120px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.95) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 24px !important;
+      padding: 44px 34px !important;
+      overflow: hidden !important;
+    }
+
+    html body .aion-o20b-orbit {
+      position: relative !important;
+      width: min(520px, 58vw) !important;
+      min-width: 360px !important;
+      aspect-ratio: 1 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      margin-bottom: -12px !important;
+    }
+
+    html body .aion-o20b-rings {
+      position: absolute !important;
+      inset: 0 !important;
+      width: 100% !important;
+      height: 100% !important;
+      overflow: visible !important;
+      filter: drop-shadow(0 18px 38px rgba(14, 165, 233, 0.10)) !important;
+    }
+
+    html body .aion-o20b-rings .ring {
+      fill: none !important;
+      stroke-linecap: round !important;
+    }
+
+    html body .aion-o20b-rings .faint {
+      stroke: rgba(15, 23, 42, 0.06) !important;
+      stroke-width: 1.4 !important;
+    }
+
+    html body .aion-o20b-rings .soft {
+      stroke: rgba(14, 165, 233, 0.10) !important;
+      stroke-width: 12 !important;
+    }
+
+    html body .aion-o20b-rings .dash {
+      stroke: rgba(15, 23, 42, 0.08) !important;
+      stroke-width: 1 !important;
+      stroke-dasharray: 7 10 !important;
+    }
+
+    html body .aion-o20b-rings .active {
+      stroke-width: 2.4 !important;
+      transform-origin: 260px 260px !important;
+      animation: aionO20BRotate 18s linear infinite !important;
+    }
+
+    html body .aion-o20b-rings .teal {
+      stroke: rgba(20, 184, 166, 0.70) !important;
+      stroke-dasharray: 620 760 !important;
+    }
+
+    html body .aion-o20b-rings .blue {
+      stroke: rgba(56, 189, 248, 0.62) !important;
+      stroke-dasharray: 420 690 !important;
+      animation-duration: 24s !important;
+      animation-direction: reverse !important;
+    }
+
+    html body .aion-o20b-rings .gold {
+      stroke: rgba(245, 158, 11, 0.58) !important;
+      stroke-dasharray: 260 620 !important;
+      animation-duration: 21s !important;
+    }
+
+    @keyframes aionO20BRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    html body .aion-o20b-rings text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 10px !important;
+      letter-spacing: 0.16em !important;
+      fill: rgba(15, 23, 42, 0.22) !important;
+      text-transform: uppercase !important;
+    }
+
+    html body .aion-o20b-rings .teal-node { fill: #14b8a6 !important; }
+    html body .aion-o20b-rings .blue-node { fill: #38bdf8 !important; }
+    html body .aion-o20b-rings .gold-node { fill: #f59e0b !important; }
+
+    html body .aion-o20b-orb {
+      position: relative !important;
+      z-index: 3 !important;
+      width: 168px !important;
+      height: 168px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(20, 184, 166, 0.32) !important;
+      background:
+        radial-gradient(circle at 48% 36%, rgba(255,255,255,0.96), rgba(207,250,254,0.76) 19%, rgba(15,23,42,0.82) 72%, #020617 100%) !important;
+      color: #ffffff !important;
+      cursor: pointer !important;
+      display: grid !important;
+      align-content: center !important;
+      justify-items: center !important;
+      gap: 8px !important;
+      box-shadow:
+        0 28px 70px rgba(15, 23, 42, 0.18),
+        0 0 0 14px rgba(20, 184, 166, 0.055),
+        inset 0 0 52px rgba(255,255,255,0.24) !important;
+      transition: transform 180ms ease, box-shadow 180ms ease !important;
+    }
+
+    html body .aion-o20b-orb:hover {
+      transform: scale(1.035) !important;
+      box-shadow:
+        0 34px 86px rgba(15, 23, 42, 0.20),
+        0 0 0 20px rgba(20, 184, 166, 0.075),
+        inset 0 0 64px rgba(255,255,255,0.32) !important;
+    }
+
+    html body .aion-o20b-inf {
+      color: #34d399 !important;
+      font-size: 42px !important;
+      line-height: 1 !important;
+      text-shadow: 0 0 18px rgba(52, 211, 153, 0.48) !important;
+      font-weight: 800 !important;
+    }
+
+    html body .aion-o20b-word {
+      color: rgba(240, 249, 255, 0.88) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 19px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.34em !important;
+      text-indent: 0.34em !important;
+    }
+
+    html body .aion-o20b-copy {
+      text-align: center !important;
+      display: grid !important;
+      justify-items: center !important;
+      gap: 10px !important;
+      margin-top: -6px !important;
+    }
+
+    html body .aion-o20b-eyebrow {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.18em !important;
+      font-size: 11px !important;
+      color: rgba(14, 116, 144, 0.56) !important;
+      font-weight: 950 !important;
+    }
+
+    html body .aion-o20b-copy h1 {
+      margin: 0 !important;
+      color: rgba(15, 23, 42, 0.96) !important;
+      font-size: clamp(62px, 8vw, 112px) !important;
+      line-height: 0.86 !important;
+      letter-spacing: -0.085em !important;
+      font-weight: 850 !important;
+    }
+
+    html body .aion-o20b-copy p {
+      margin: 0 !important;
+      max-width: 760px !important;
+      color: rgba(51, 65, 85, 0.72) !important;
+      font-size: 19px !important;
+      line-height: 1.45 !important;
+      letter-spacing: -0.02em !important;
+    }
+
+    html body .aion-o20b-actions {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      gap: 12px !important;
+      flex-wrap: wrap !important;
+      margin-top: 4px !important;
+    }
+
+    html body .aion-o20b-actions button {
+      appearance: none !important;
+      border: 1px solid rgba(15, 23, 42, 0.10) !important;
+      border-radius: 999px !important;
+      background: #ffffff !important;
+      color: rgba(15, 23, 42, 0.72) !important;
+      padding: 14px 21px !important;
+      cursor: pointer !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.12em !important;
+      text-transform: uppercase !important;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08) !important;
+      transition: transform 160ms ease, box-shadow 160ms ease, color 160ms ease, background 160ms ease !important;
+    }
+
+    html body .aion-o20b-actions button:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 18px 42px rgba(15, 23, 42, 0.11) !important;
+      color: rgba(15, 23, 42, 0.95) !important;
+    }
+
+    html body .aion-o20b-actions button.primary {
+      background: linear-gradient(135deg, #67e8f9, #34d399) !important;
+      color: #041014 !important;
+      border-color: rgba(20, 184, 166, 0.28) !important;
+      box-shadow: 0 18px 54px rgba(20, 184, 166, 0.20) !important;
+    }
+
+    html body .aion-o20b-actions button.muted {
+      color: rgba(100, 116, 139, 0.72) !important;
+    }
+
+    html body .aion-o20b-council {
+      display: flex !important;
+      justify-content: center !important;
+      flex-wrap: wrap !important;
+      gap: 13px !important;
+      margin-top: 2px !important;
+    }
+
+    html body .aion-o20b-council div {
+      display: grid !important;
+      justify-items: center !important;
+      gap: 5px !important;
+      min-width: 58px !important;
+      opacity: 0.50 !important;
+    }
+
+    html body .aion-o20b-council div.on {
+      opacity: 1 !important;
+    }
+
+    html body .aion-o20b-council b {
+      width: 42px !important;
+      height: 42px !important;
+      border-radius: 999px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border: 1px solid rgba(15, 23, 42, 0.10) !important;
+      background: #ffffff !important;
+      color: rgba(15, 23, 42, 0.48) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      box-shadow: 0 10px 26px rgba(15, 23, 42, 0.06) !important;
+    }
+
+    html body .aion-o20b-council .on b {
+      color: #047857 !important;
+      border-color: rgba(16, 185, 129, 0.24) !important;
+      background: rgba(236, 253, 245, 0.95) !important;
+    }
+
+    html body .aion-o20b-council .on.blue b {
+      color: #0369a1 !important;
+      border-color: rgba(14, 165, 233, 0.24) !important;
+      background: rgba(240, 249, 255, 0.95) !important;
+    }
+
+    html body .aion-o20b-council span,
+    html body .aion-o20b-council small {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      text-transform: uppercase !important;
+      letter-spacing: 0.10em !important;
+    }
+
+    html body .aion-o20b-council span {
+      color: rgba(15, 23, 42, 0.44) !important;
+      font-size: 9px !important;
+      font-weight: 950 !important;
+    }
+
+    html body .aion-o20b-council small {
+      color: rgba(15, 23, 42, 0.28) !important;
+      font-size: 8px !important;
+    }
+
+    html body .aion-o20b-council .on small {
+      color: #059669 !important;
+    }
+
+    html body .aion-o20b-council .on.blue small {
+      color: #0284c7 !important;
+    }
+
+    html body .aion-o20b-clean-startup [data-aion-o19i-voice-guide-panel],
+    html body .aion-o20b-clean-startup .aion-o20a-topbar,
+    html body .aion-o20b-clean-startup .aion-o20a-side,
+    html body .aion-o20b-clean-startup .aion-o20a-pills,
+    html body .aion-o20b-clean-startup .aion-o20a-footer {
+      display: none !important;
+    }
+
+    @media (max-width: 760px) {
+      html body .aion-o20b-clean-startup {
+        padding: 24px 14px 34px !important;
+      }
+
+      html body .aion-o20b-main {
+        min-height: calc(100vh - 70px) !important;
+        border-radius: 24px !important;
+        padding: 34px 18px !important;
+      }
+
+      html body .aion-o20b-orbit {
+        min-width: 300px !important;
+        width: min(92vw, 360px) !important;
+      }
+
+      html body .aion-o20b-orb {
+        width: 132px !important;
+        height: 132px !important;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+  console.log("[AION] O20B clean white AION startup styles installed");
+})();
+/* END AION O20B CLEAN WHITE STARTUP STYLE LOCK */
+
+
+
+/* BEGIN AION O20B CLEAN WHITE STARTUP DEBUG LOCK */
+(function installAionO20BCleanWhiteStartupDebug() {
+  if (typeof window === "undefined") return;
+  if (window.__aionO20BCleanWhiteStartupDebugInstalled) return;
+  window.__aionO20BCleanWhiteStartupDebugInstalled = true;
+
+  window.__debugAionO20BCleanWhiteStartup = function __debugAionO20BCleanWhiteStartup() {
+    return {
+      installed: true,
+      clean_white_visible: Boolean(document.querySelector("[data-aion-o20b-clean-startup='true']")),
+      old_topbar_visible: Boolean(document.querySelector(".aion-o20a-topbar")),
+      old_left_side_visible: Boolean(document.querySelector(".aion-o20a-side.left")),
+      old_right_side_visible: Boolean(document.querySelector(".aion-o20a-side.right")),
+      start_buttons: document.querySelectorAll("[data-aion-o20b-start]").length,
+      business_button: Boolean(document.querySelector('[data-aion-business-entry-mode="small_business_growth"]')),
+      idea_button: Boolean(document.querySelector('[data-aion-business-entry-mode="founder_build_idea"]')),
+      generate_button: Boolean(document.querySelector('[data-aion-business-entry-mode="founder_generate_idea"]')),
+    };
+  };
+
+  console.log("[AION] O20B clean white AION startup debug installed");
+})();
+/* END AION O20B CLEAN WHITE STARTUP DEBUG LOCK */
+
+
+/* BEGIN AION O20C CONVERSATION TAKEOVER STYLE LOCK */
+(function installAionO20CConversationTakeoverStyle() {
+  if (typeof document === "undefined") return;
+
+  const existing = document.getElementById("aion-o20c-conversation-takeover-styles");
+  if (existing) existing.remove();
+
+  const style = document.createElement("style");
+  style.id = "aion-o20c-conversation-takeover-styles";
+  style.textContent = `
+    html body .aion-o20b-council {
+      display: none !important;
+    }
+
+    html body .aion-o20c-powered-line {
+      margin-top: 10px !important;
+      color: rgba(15, 23, 42, 0.46) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.16em !important;
+      text-transform: uppercase !important;
+    }
+
+    html body .aion-o20c-conversation-shell {
+      position: relative !important;
+      width: 100% !important;
+      min-height: calc(100vh - 1px) !important;
+      margin: 0 !important;
+      padding: 38px 42px !important;
+      background:
+        radial-gradient(circle at 86% 82%, rgba(45, 212, 191, 0.13), transparent 24%),
+        radial-gradient(circle at 16% 16%, rgba(56, 189, 248, 0.10), transparent 30%),
+        #ffffff !important;
+      color: #0f172a !important;
+      display: flex !important;
+      align-items: stretch !important;
+      justify-content: center !important;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+      overflow: hidden !important;
+    }
+
+    html body .aion-o20c-conversation-shell::before {
+      content: "" !important;
+      position: absolute !important;
+      inset: 0 !important;
+      background-image:
+        linear-gradient(rgba(15, 23, 42, 0.032) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.032) 1px, transparent 1px) !important;
+      background-size: 54px 54px !important;
+      opacity: 0.46 !important;
+      pointer-events: none !important;
+    }
+
+    html body .aion-o20c-terminal-wrap {
+      position: relative !important;
+      z-index: 2 !important;
+      width: min(1360px, 100%) !important;
+      min-height: calc(100vh - 76px) !important;
+      display: grid !important;
+      grid-template-rows: auto 1fr !important;
+      gap: 18px !important;
+    }
+
+    html body .aion-o20c-terminal-header {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: flex-start !important;
+      gap: 24px !important;
+      padding: 8px 4px 0 !important;
+    }
+
+    html body .aion-o20c-terminal-header h1 {
+      margin: 0 !important;
+      color: #0f172a !important;
+      font-size: clamp(38px, 4.6vw, 72px) !important;
+      line-height: 0.94 !important;
+      letter-spacing: -0.07em !important;
+      font-weight: 850 !important;
+    }
+
+    html body .aion-o20c-terminal-header p {
+      margin: 10px 0 0 !important;
+      max-width: 760px !important;
+      color: rgba(51, 65, 85, 0.70) !important;
+      font-size: 17px !important;
+      line-height: 1.45 !important;
+    }
+
+    html body .aion-o20c-eyebrow {
+      color: rgba(14, 116, 144, 0.58) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+      margin-bottom: 9px !important;
+    }
+
+    html body .aion-o20c-terminal-header button {
+      appearance: none !important;
+      border: 1px solid rgba(15, 23, 42, 0.11) !important;
+      background: #ffffff !important;
+      color: rgba(15, 23, 42, 0.72) !important;
+      border-radius: 999px !important;
+      padding: 13px 18px !important;
+      cursor: pointer !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.12em !important;
+      text-transform: uppercase !important;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07) !important;
+    }
+
+    html body .aion-o20c-terminal {
+      position: relative !important;
+      min-height: 620px !important;
+      border-radius: 32px !important;
+      border: 1px solid rgba(15, 23, 42, 0.08) !important;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.94)) !important;
+      box-shadow:
+        0 38px 110px rgba(15, 23, 42, 0.08),
+        inset 0 1px 0 rgba(255,255,255,0.95) !important;
+      padding: 22px !important;
+      overflow: auto !important;
+    }
+
+    html body .aion-o20c-terminal [data-aion-o19i-voice-guide-panel="true"] {
+      display: block !important;
+      width: 100% !important;
+      max-width: none !important;
+      margin: 0 !important;
+      border: 0 !important;
+      border-radius: 24px !important;
+      box-shadow: none !important;
+      background: transparent !important;
+    }
+
+    html body .aion-o20c-mini-orb {
+      position: fixed !important;
+      right: 34px !important;
+      bottom: 30px !important;
+      z-index: 10 !important;
+      width: 108px !important;
+      height: 108px !important;
+      border-radius: 999px !important;
+      border: 1px solid rgba(20, 184, 166, 0.34) !important;
+      background:
+        radial-gradient(circle at 48% 36%, rgba(255,255,255,0.96), rgba(207,250,254,0.76) 20%, rgba(15,23,42,0.84) 72%, #020617 100%) !important;
+      color: #ffffff !important;
+      cursor: pointer !important;
+      display: grid !important;
+      align-content: center !important;
+      justify-items: center !important;
+      gap: 4px !important;
+      box-shadow:
+        0 26px 70px rgba(15, 23, 42, 0.22),
+        0 0 0 13px rgba(20, 184, 166, 0.055),
+        inset 0 0 38px rgba(255,255,255,0.24) !important;
+    }
+
+    html body .aion-o20c-mini-orb span {
+      color: #34d399 !important;
+      font-size: 30px !important;
+      line-height: 1 !important;
+      text-shadow: 0 0 16px rgba(52, 211, 153, 0.50) !important;
+      font-weight: 850 !important;
+    }
+
+    html body .aion-o20c-mini-orb b {
+      color: rgba(240, 249, 255, 0.88) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 12px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.26em !important;
+      text-indent: 0.26em !important;
+    }
+
+    html body .aion-o20c-fallback-terminal {
+      padding: 32px !important;
+      border-radius: 22px !important;
+      background: rgba(255,255,255,0.82) !important;
+      border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    }
+
+    html body .aion-o20c-terminal-kicker {
+      color: rgba(14, 116, 144, 0.58) !important;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      font-size: 11px !important;
+      font-weight: 950 !important;
+      letter-spacing: 0.18em !important;
+      text-transform: uppercase !important;
+      margin-bottom: 10px !important;
+    }
+
+    html body .aion-o20c-fallback-terminal h2 {
+      margin: 0 0 10px !important;
+      font-size: 38px !important;
+      letter-spacing: -0.04em !important;
+      color: #0f172a !important;
+    }
+
+    html body .aion-o20c-fallback-terminal p {
+      margin: 0 !important;
+      color: rgba(51, 65, 85, 0.72) !important;
+      font-size: 16px !important;
+      line-height: 1.45 !important;
+    }
+
+    @media (max-width: 820px) {
+      html body .aion-o20c-conversation-shell {
+        padding: 22px 14px !important;
+      }
+
+      html body .aion-o20c-terminal-header {
+        flex-direction: column !important;
+      }
+
+      html body .aion-o20c-mini-orb {
+        width: 86px !important;
+        height: 86px !important;
+        right: 18px !important;
+        bottom: 18px !important;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+  console.log("[AION] O20C conversation takeover styles installed");
+})();
+/* END AION O20C CONVERSATION TAKEOVER STYLE LOCK */
+
+
+
+/* BEGIN AION O20C CONVERSATION TAKEOVER BEHAVIOUR LOCK */
+(function installAionO20CConversationTakeoverBehaviour() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO20CConversationTakeoverInstalled) return;
+  window.__aionO20CConversationTakeoverInstalled = true;
+
+  const STORAGE_KEY = "aion.o20c.conversationOpen";
+  const MODE_KEY = "aion.o20c.conversationMode";
+
+  function safeSet(key, value) {
+    try { window.localStorage?.setItem(key, value); } catch {}
+  }
+
+  function safeRemove(key) {
+    try { window.localStorage?.removeItem(key); } catch {}
+  }
+
+  function renderNow() {
+    try {
+      if (typeof requestRender === "function") requestRender();
+      else if (typeof render === "function") render();
+    } catch {}
+  }
+
+  function openConversation(mode = "start_with_aion") {
+    safeSet(STORAGE_KEY, "true");
+    safeSet(MODE_KEY, String(mode || "start_with_aion"));
+
+    try {
+      if (typeof state !== "undefined" && state) {
+        state.activeTab = "small_business_foundation";
+      }
+    } catch {}
+
+    try {
+      window.__aionO20COpeningMode = String(mode || "start_with_aion");
+    } catch {}
+
+    renderNow();
+
+    setTimeout(() => {
+      try {
+        if (typeof startAionO19OOpeningFromBeginning === "function") {
+          startAionO19OOpeningFromBeginning();
+          return;
+        }
+      } catch {}
+
+      try {
+        const button = document.querySelector("[data-aion-o19i-play-stage]");
+        if (button) button.click();
+      } catch {}
+    }, 180);
+
+    return { ok: true, conversation_open: true, mode: String(mode || "start_with_aion") };
+  }
+
+  function closeConversation() {
+    safeRemove(STORAGE_KEY);
+    safeRemove(MODE_KEY);
+    renderNow();
+    return { ok: true, conversation_open: false };
+  }
+
+  window.openAionO20CConversation = openConversation;
+  window.closeAionO20CConversation = closeConversation;
+  window.resetAionO20CConversation = closeConversation;
+
+  document.addEventListener("click", (event) => {
+    const openButton = event.target?.closest?.("[data-aion-o20c-open-conversation]");
+    if (openButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      const mode = openButton.getAttribute("data-aion-o20c-open-conversation") || "start_with_aion";
+      openConversation(mode);
+      return;
+    }
+
+    const resetButton = event.target?.closest?.("[data-aion-o20c-reset-start]");
+    if (resetButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      closeConversation();
+      try {
+        if (typeof resetAionO19OFullVoiceOnboarding === "function") resetAionO19OFullVoiceOnboarding();
+        else if (typeof resetAionO19MOnboarding === "function") resetAionO19MOnboarding();
+      } catch {}
+      return;
+    }
+  }, true);
+
+  window.__debugAionO20CConversationTakeover = function __debugAionO20CConversationTakeover() {
+    let open = false;
+    let mode = "";
+    try {
+      open = window.localStorage?.getItem(STORAGE_KEY) === "true";
+      mode = window.localStorage?.getItem(MODE_KEY) || "";
+    } catch {}
+
+    return {
+      installed: true,
+      conversation_open: open,
+      mode,
+      startup_visible: Boolean(document.querySelector("[data-aion-o20b-clean-startup='true']")),
+      conversation_shell_visible: Boolean(document.querySelector("[data-aion-o20c-conversation-shell='true']")),
+      terminal_visible: Boolean(document.querySelector("[data-aion-o20c-terminal='true']")),
+      mini_orb_visible: Boolean(document.querySelector("[data-aion-o20c-mini-orb='true']")),
+      powered_line_visible: Boolean(document.querySelector("[data-aion-o20c-powered-line='true']")),
+      provider_icons_visible: Boolean(document.querySelector(".aion-o20b-council")),
+      opener_buttons: document.querySelectorAll("[data-aion-o20c-open-conversation]").length,
+    };
+  };
+
+  console.log("[AION] O20C conversation takeover behaviour installed");
+})();
+/* END AION O20C CONVERSATION TAKEOVER BEHAVIOUR LOCK */
+
+
+/* BEGIN AION O20D SINGLE VOICE AUTHORITY LOCK */
+(function installAionO20DSingleVoiceAuthority() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO20DSingleVoiceAuthorityInstalled) return;
+  window.__aionO20DSingleVoiceAuthorityInstalled = true;
+
+  const state = {
+    installed_at: new Date().toISOString(),
+    in_flight: false,
+    last_real_tts_at: 0,
+    last_blocked_tts_at: 0,
+    last_error: null,
+    last_success: null,
+    blocked_duplicates: 0,
+    blocked_browser_fallbacks: 0,
+    tts_attempts: 0,
+    real_tts_requests: 0,
+    cooldown_ms: 8500,
+  };
+
+  function isTtsUrl(input) {
+    const raw = (() => {
+      try {
+        if (typeof input === "string") return input;
+        if (input && typeof input.url === "string") return input.url;
+      } catch {}
+      return "";
+    })();
+
+    return String(raw || "").includes("/api/aion/voice/tts");
+  }
+
+  function safeJsonResponse(payload, status = 429) {
+    return new Response(JSON.stringify(payload), {
+      status,
+      headers: {
+        "content-type": "application/json",
+        "x-aion-voice-authority": "o20d",
+      },
+    });
+  }
+
+  function normaliseVoiceError(status, bodyText) {
+    let parsed = null;
+    try { parsed = JSON.parse(bodyText || "{}"); } catch {}
+
+    let detail = parsed?.detail || parsed?.reason || parsed?.message || bodyText || "";
+    if (typeof detail === "string") {
+      try {
+        const nested = JSON.parse(detail);
+        detail = nested?.detail || nested;
+      } catch {}
+    }
+
+    const message = (() => {
+      if (detail?.message) return String(detail.message);
+      if (parsed?.detail?.message) return String(parsed.detail.message);
+      if (parsed?.message) return String(parsed.message);
+      if (parsed?.reason) return String(parsed.reason);
+      return String(bodyText || "Voice provider failed.");
+    })();
+
+    const code = (() => {
+      if (detail?.code) return String(detail.code);
+      if (parsed?.detail?.code) return String(parsed.detail.code);
+      if (parsed?.reason) return String(parsed.reason);
+      if (status === 502) return "voice_provider_error";
+      return "voice_error";
+    })();
+
+    return {
+      ok: false,
+      provider: "elevenlabs",
+      status,
+      code,
+      message,
+      raw_preview: String(bodyText || "").slice(0, 1000),
+      at: new Date().toISOString(),
+    };
+  }
+
+  function renderVoiceStatusBanner() {
+    const terminal =
+      document.querySelector("[data-aion-o20c-terminal='true']") ||
+      document.querySelector("[data-aion-o19i-voice-guide-panel='true']");
+
+    if (!terminal) return;
+
+    const old = document.querySelector("[data-aion-o20d-voice-status='true']");
+    if (old) old.remove();
+
+    if (!state.last_error) return;
+
+    const isQuota =
+      String(state.last_error.code || "").toLowerCase().includes("quota") ||
+      String(state.last_error.message || "").toLowerCase().includes("quota") ||
+      String(state.last_error.message || "").toLowerCase().includes("credits");
+
+    const banner = document.createElement('div');
+    banner.setAttribute("data-aion-o20d-voice-status", "true");
+    banner.innerHTML = `
+      <div class="aion-o20d-status-title">
+        ${isQuota ? "ElevenLabs quota exhausted" : "ElevenLabs voice unavailable"}
+      </div>
+      <div class="aion-o20d-status-copy">
+        ${escapeHtml(state.last_error.message || "The voice provider returned an error.")}
+      </div>
+      <div class="aion-o20d-status-note">
+        Browser robotic fallback is disabled, so the transcript can continue without repeated voice retries.
+      </div>
+    `;
+
+    terminal.prepend(banner);
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function shouldBlockDuplicateTts() {
+    const now = Date.now();
+
+    if (state.in_flight) return true;
+    if (state.last_real_tts_at && now - state.last_real_tts_at < state.cooldown_ms) return true;
+
+    return false;
+  }
+
+  function installFetchAuthority() {
+    if (typeof window.fetch !== "function") return;
+    if (window.fetch.__aionO20DAuthorityWrapped) return;
+
+    const originalFetch = window.fetch.bind(window);
+
+    const wrappedFetch = async function aionO20DVoiceFetchAuthority(input, init) {
+      if (!isTtsUrl(input)) {
+        return originalFetch(input, init);
+      }
+
+      state.tts_attempts += 1;
+
+      if (shouldBlockDuplicateTts()) {
+        state.blocked_duplicates += 1;
+        state.last_blocked_tts_at = Date.now();
+
+        const payload = {
+          ok: false,
+          provider: "elevenlabs",
+          reason: "duplicate_voice_request_blocked",
+          message: "O20D blocked a duplicate voice request. One startup click may only create one ElevenLabs request.",
+          blocked_by: "o20d_single_voice_authority",
+        };
+
+        window.__aionO20DLastVoiceResult = payload;
+        setTimeout(renderVoiceStatusBanner, 50);
+        return safeJsonResponse(payload, 429);
+      }
+
+      state.in_flight = true;
+      state.last_real_tts_at = Date.now();
+      state.real_tts_requests += 1;
+
+      try {
+        window.__aionO20DLastVoiceRequest = {
+          at: new Date().toISOString(),
+          input: typeof input === "string" ? input : input?.url || "",
+        };
+
+        const response = await originalFetch(input, init);
+
+        if (!response.ok) {
+          let bodyText = "";
+          try { bodyText = await response.clone().text(); } catch {}
+
+          state.last_error = normaliseVoiceError(response.status, bodyText);
+          state.last_success = null;
+          window.__aionO20DLastVoiceError = state.last_error;
+          window.__aionO20DLastVoiceResult = state.last_error;
+
+          setTimeout(renderVoiceStatusBanner, 50);
+        } else {
+          state.last_error = null;
+          state.last_success = {
+            ok: true,
+            provider: response.headers.get("x-aion-voice-provider") || "elevenlabs",
+            content_type: response.headers.get("content-type") || "",
+            at: new Date().toISOString(),
+          };
+          window.__aionO20DLastVoiceResult = state.last_success;
+
+          setTimeout(renderVoiceStatusBanner, 50);
+        }
+
+        return response;
+      } catch (error) {
+        state.last_error = {
+          ok: false,
+          provider: "elevenlabs",
+          code: "voice_fetch_failed",
+          message: error?.message || String(error),
+          at: new Date().toISOString(),
+        };
+        state.last_success = null;
+        window.__aionO20DLastVoiceError = state.last_error;
+        window.__aionO20DLastVoiceResult = state.last_error;
+        setTimeout(renderVoiceStatusBanner, 50);
+        throw error;
+      } finally {
+        state.in_flight = false;
+      }
+    };
+
+    wrappedFetch.__aionO20DAuthorityWrapped = true;
+    wrappedFetch.__aionO20DOriginalFetch = originalFetch;
+    window.fetch = wrappedFetch;
+  }
+
+  function installBrowserFallbackBlocker() {
+    const synth = window.speechSynthesis;
+    if (!synth || typeof synth.speak !== "function") return;
+    if (synth.speak.__aionO20DBrowserFallbackWrapped) return;
+
+    const originalSpeak = synth.speak.bind(synth);
+
+    const wrappedSpeak = function aionO20DBrowserFallbackBlocker(utterance) {
+      const text = String(utterance?.text || "");
+      const looksLikeAionOnboarding =
+        /welcome to tessaris/i.test(text) ||
+        /\baion\b/i.test(text) ||
+        /business twin/i.test(text) ||
+        /ai boardroom/i.test(text) ||
+        /what should i call you/i.test(text);
+
+      const browserFallbackDisabled = window.__aionO20DAllowBrowserFallback !== true;
+
+      if (browserFallbackDisabled && looksLikeAionOnboarding) {
+        state.blocked_browser_fallbacks += 1;
+        window.__aionO20DLastBrowserFallbackBlocked = {
+          at: new Date().toISOString(),
+          preview: text.slice(0, 180),
+          reason: "browser_robotic_fallback_disabled",
+        };
+
+        setTimeout(renderVoiceStatusBanner, 50);
+        return undefined;
+      }
+
+      return originalSpeak(utterance);
+    };
+
+    wrappedSpeak.__aionO20DBrowserFallbackWrapped = true;
+    wrappedSpeak.__aionO20DOriginalSpeak = originalSpeak;
+    synth.speak = wrappedSpeak;
+  }
+
+  function installStyle() {
+    const existing = document.getElementById("aion-o20d-single-voice-authority-styles");
+    if (existing) existing.remove();
+
+    const style = document.createElement("style");
+    style.id = "aion-o20d-single-voice-authority-styles";
+    style.textContent = `
+      html body [data-aion-o20d-voice-status="true"] {
+        margin: 0 0 18px !important;
+        padding: 18px 20px !important;
+        border-radius: 20px !important;
+        border: 1px solid rgba(245, 158, 11, 0.26) !important;
+        background: linear-gradient(180deg, rgba(255, 251, 235, 0.98), rgba(254, 243, 199, 0.70)) !important;
+        color: #0f172a !important;
+        box-shadow: 0 18px 50px rgba(15, 23, 42, 0.08) !important;
+      }
+
+      html body .aion-o20d-status-title {
+        color: #92400e !important;
+        font-size: 13px !important;
+        font-weight: 950 !important;
+        letter-spacing: 0.12em !important;
+        text-transform: uppercase !important;
+        margin-bottom: 6px !important;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+      }
+
+      html body .aion-o20d-status-copy {
+        color: rgba(15, 23, 42, 0.84) !important;
+        font-size: 15px !important;
+        line-height: 1.45 !important;
+        font-weight: 750 !important;
+      }
+
+      html body .aion-o20d-status-note {
+        margin-top: 7px !important;
+        color: rgba(100, 116, 139, 0.82) !important;
+        font-size: 13px !important;
+        line-height: 1.35 !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  window.resetAionO20DVoiceAuthority = function resetAionO20DVoiceAuthority() {
+    state.in_flight = false;
+    state.last_real_tts_at = 0;
+    state.last_blocked_tts_at = 0;
+    state.last_error = null;
+    state.last_success = null;
+    state.blocked_duplicates = 0;
+    state.blocked_browser_fallbacks = 0;
+    state.tts_attempts = 0;
+    state.real_tts_requests = 0;
+
+    try { document.querySelector("[data-aion-o20d-voice-status='true']")?.remove?.(); } catch {}
+
+    return { ok: true, reset: true };
+  };
+
+  window.__debugAionO20DSingleVoiceAuthority = function __debugAionO20DSingleVoiceAuthority() {
+    return {
+      installed: true,
+      fetch_wrapped: Boolean(window.fetch?.__aionO20DAuthorityWrapped),
+      browser_fallback_blocked_by_default: window.__aionO20DAllowBrowserFallback !== true,
+      speech_synthesis_wrapped: Boolean(window.speechSynthesis?.speak?.__aionO20DBrowserFallbackWrapped),
+      in_flight: state.in_flight,
+      tts_attempts: state.tts_attempts,
+      real_tts_requests: state.real_tts_requests,
+      blocked_duplicates: state.blocked_duplicates,
+      blocked_browser_fallbacks: state.blocked_browser_fallbacks,
+      last_error: state.last_error,
+      last_success: state.last_success,
+      status_banner_visible: Boolean(document.querySelector("[data-aion-o20d-voice-status='true']")),
+      conversation_open: (() => {
+        try { return window.localStorage?.getItem("aion.o20c.conversationOpen") === "true"; } catch { return false; }
+      })(),
+    };
+  };
+
+  installStyle();
+  installFetchAuthority();
+  installBrowserFallbackBlocker();
+
+  setInterval(renderVoiceStatusBanner, 1200);
+
+  console.log("[AION] O20D single voice authority installed");
+})();
+/* END AION O20D SINGLE VOICE AUTHORITY LOCK */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 /* BEGIN AION O19J VOICE STARTUP CONVERSATION STATE MACHINE LOCK */
@@ -139042,12 +141246,12 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 
     if (lower.includes("business") || lower.includes("company") || lower.includes("we are") || lower.includes("we're")) {
       facts.extra_notes = raw;
-      facts.business_type = lower.includes("service") || lower.includes("repair") || lower.includes("maintenance")
+      facts.business_type = lower.includes("service") || lower.includes("configured service") || lower.includes("maintenance")
         ? "service_business"
         : "";
     }
 
-    if (lower.includes("service") || lower.includes("repair") || lower.includes("product") || lower.includes("sell")) {
+    if (lower.includes("service") || lower.includes("configured service") || lower.includes("product") || lower.includes("sell")) {
       facts.products_services = raw;
     }
 
@@ -139382,5 +141586,1108 @@ console.info("[AION] O18AD direct department branch rewrite installed");
 /* END AION O19A VOICE DISCOVERY SESSION CONTRACT LOCK */
 
 
+/* ============================================================
+ * AION O21C — Local Voice Provider Frontend Status Lock
+ * ------------------------------------------------------------
+ * Purpose:
+ * - Show the founder which voice stack is active.
+ * - Make Kokoro/faster-whisper the visible local-first default.
+ * - Keep ElevenLabs clearly optional/off unless explicitly enabled.
+ * - Do not create another startup overlay.
+ * - Inject into existing startup/terminal surfaces only.
+ * ============================================================ */
 
+const AION_O21C_VOICE_PROVIDER_STATUS_VERSION = "aion.o21c.voice_provider_frontend_status.v0.1";
+
+function getAionVoiceProviderRuntimeStatusO21C() {
+  const existing =
+    (typeof window !== "undefined" && window.__aionVoiceProviderStatus) ||
+    (typeof window !== "undefined" && window.__AION_VOICE_PROVIDER_STATUS__) ||
+    {};
+
+  const ttsProvider =
+    existing.tts_provider ||
+    existing.ttsProvider ||
+    existing.voice_provider ||
+    existing.voiceProvider ||
+    "kokoro";
+
+  const sttProvider =
+    existing.stt_provider ||
+    existing.sttProvider ||
+    "faster_whisper";
+
+  const elevenlabsEnabled =
+    existing.elevenlabs_enabled === true ||
+    existing.elevenlabsEnabled === true ||
+    existing.cloud_voice_enabled === true ||
+    existing.cloudVoiceEnabled === true;
+
+  const browserFallbackEnabled =
+    existing.browser_fallback_enabled === true ||
+    existing.browserFallbackEnabled === true;
+
+  const localVoiceReady =
+    existing.local_voice_ready !== false &&
+    existing.localVoiceReady !== false;
+
+  const normalisedTts = String(ttsProvider || "kokoro").toLowerCase();
+  const normalisedStt = String(sttProvider || "faster_whisper").toLowerCase();
+
+  const isKokoro =
+    normalisedTts === "kokoro" ||
+    normalisedTts === "local_kokoro";
+
+  const isWhisper =
+    normalisedStt === "faster_whisper" ||
+    normalisedStt === "faster-whisper" ||
+    normalisedStt === "whisper_cpp" ||
+    normalisedStt === "whisper.cpp";
+
+  return {
+    schema_version: AION_O21C_VOICE_PROVIDER_STATUS_VERSION,
+    tts_provider: isKokoro ? "kokoro" : normalisedTts,
+    tts_label: isKokoro ? "Local Kokoro" : String(ttsProvider || "kokoro"),
+    stt_provider: isWhisper ? "faster_whisper" : normalisedStt,
+    stt_label: isWhisper ? "Local Whisper" : String(sttProvider || "faster_whisper"),
+    elevenlabs_enabled: elevenlabsEnabled,
+    browser_fallback_enabled: browserFallbackEnabled,
+    local_voice_ready: localVoiceReady,
+    cloud_voice_off: !elevenlabsEnabled,
+    no_elevenlabs_credits_required: !elevenlabsEnabled,
+    fallback_policy: browserFallbackEnabled ? "manual_browser_fallback_enabled" : "no_silent_browser_fallback",
+    display_message: !elevenlabsEnabled
+      ? "Using local voice. No ElevenLabs credits required."
+      : "Cloud voice enabled. ElevenLabs may use paid credits.",
+    safety: {
+      no_hidden_paid_usage: !elevenlabsEnabled,
+      no_silent_robotic_fallback: !browserFallbackEnabled,
+      transcript_remains_available: true,
+      business_twin_flow_continues_on_voice_failure: true,
+      startup_overlay_created: false,
+    },
+  };
+}
+
+function renderAionVoiceProviderStatusPanelO21C(status = null) {
+  const voiceStatus = status || getAionVoiceProviderRuntimeStatusO21C();
+  const cloudLabel = voiceStatus.cloud_voice_off ? "off" : "on";
+  const localReadyLabel = voiceStatus.local_voice_ready ? "ready" : "not ready";
+  const safeClass = voiceStatus.cloud_voice_off ? "is-local" : "is-cloud";
+
+  return `
+    <section
+      class="aion-o21c-voice-provider-status ${safeClass}"
+      data-aion-o21c-voice-provider-status="true"
+      data-aion-voice-provider="${voiceStatus.tts_provider}"
+      data-aion-stt-provider="${voiceStatus.stt_provider}"
+      data-aion-elevenlabs-enabled="${voiceStatus.elevenlabs_enabled ? "true" : "false"}"
+      data-aion-browser-fallback-enabled="${voiceStatus.browser_fallback_enabled ? "true" : "false"}"
+    >
+      <div class="aion-o21c-voice-status-row">
+        <span class="aion-o21c-voice-status-pill">Voice: ${escapeHtml(voiceStatus.tts_label)}</span>
+        <span class="aion-o21c-voice-status-pill">STT: ${escapeHtml(voiceStatus.stt_label)}</span>
+        <span class="aion-o21c-voice-status-pill">Cloud voice: ${escapeHtml(cloudLabel)}</span>
+      </div>
+      <div class="aion-o21c-voice-status-message">
+        ${escapeHtml(voiceStatus.display_message)}
+      </div>
+      <div class="aion-o21c-voice-status-sub">
+        Local voice: ${escapeHtml(localReadyLabel)} · fallback: ${escapeHtml(voiceStatus.fallback_policy)}
+      </div>
+    </section>
+  `;
+}
+
+function syncAionVoiceProviderStatusPanelO21C() {
+  if (typeof document === "undefined") {
+    return null;
+  }
+
+  const html = renderAionVoiceProviderStatusPanelO21C();
+
+  const existing = document.querySelector("[data-aion-o21c-voice-provider-status='true']");
+  if (existing) {
+    existing.outerHTML = html;
+    return {
+      mounted: true,
+      updated_existing: true,
+      created_overlay: false,
+      status: getAionVoiceProviderRuntimeStatusO21C(),
+    };
+  }
+
+  const target =
+    document.querySelector("[data-aion-o20c-conversation-terminal='true']") ||
+    document.querySelector("[data-aion-conversation-terminal='true']") ||
+    document.querySelector("[data-aion-voice-transcript-panel='true']") ||
+    document.querySelector(".aion-o20c-conversation-terminal") ||
+    document.querySelector(".aion-voice-transcript-panel") ||
+    document.querySelector("[data-aion-small-business-foundation='true']") ||
+    document.querySelector("[data-aion-business-entry-mode='true']");
+
+  if (!target) {
+    return {
+      mounted: false,
+      reason: "existing_terminal_target_not_found",
+      created_overlay: false,
+      status: getAionVoiceProviderRuntimeStatusO21C(),
+    };
+  }
+
+  target.insertAdjacentHTML("afterbegin", html);
+
+  return {
+    mounted: true,
+    updated_existing: false,
+    created_overlay: false,
+    target:
+      target.getAttribute("data-aion-o20c-conversation-terminal") ||
+      target.getAttribute("data-aion-conversation-terminal") ||
+      target.getAttribute("data-aion-voice-transcript-panel") ||
+      target.getAttribute("data-aion-small-business-foundation") ||
+      target.getAttribute("data-aion-business-entry-mode") ||
+      target.className ||
+      "existing_terminal_surface",
+    status: getAionVoiceProviderRuntimeStatusO21C(),
+  };
+}
+
+function installAionO21CVoiceProviderStatusSync() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  window.getAionVoiceProviderRuntimeStatusO21C = getAionVoiceProviderRuntimeStatusO21C;
+  window.renderAionVoiceProviderStatusPanelO21C = renderAionVoiceProviderStatusPanelO21C;
+  window.syncAionVoiceProviderStatusPanelO21C = syncAionVoiceProviderStatusPanelO21C;
+
+  window.__debugAionVoiceProviders = function __debugAionVoiceProviders() {
+    return getAionVoiceProviderRuntimeStatusO21C();
+  };
+
+  if (!window.__aionO21CVoiceProviderStatusSyncInstalled) {
+    window.__aionO21CVoiceProviderStatusSyncInstalled = true;
+
+    const sync = () => {
+      try {
+        syncAionVoiceProviderStatusPanelO21C();
+      } catch (error) {
+        console.warn("[AION O21C] voice provider status sync failed", error);
+      }
+    };
+
+    setTimeout(sync, 0);
+    setTimeout(sync, 250);
+    setTimeout(sync, 1000);
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("aion:startup-rendered", sync);
+      document.addEventListener("aion:voice-terminal-opened", sync);
+      document.addEventListener("aion:conversation-terminal-opened", sync);
+    }
+  }
+
+  return true;
+}
+
+installAionO21CVoiceProviderStatusSync();
+
+
+function installAionO21CVoiceProviderStatusStyles() {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  if (document.getElementById("aion-o21c-voice-provider-status-style")) {
+    return true;
+  }
+  const style = document.createElement("style");
+  style.id = "aion-o21c-voice-provider-status-style";
+  style.textContent = `
+    .aion-o21c-voice-provider-status {
+      margin: 10px 0 14px;
+      padding: 12px 14px;
+      border: 1px solid rgba(15, 23, 42, 0.12);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+      color: #0f172a;
+      font-size: 13px;
+    }
+    .aion-o21c-voice-provider-status.is-local {
+      border-color: rgba(22, 163, 74, 0.22);
+    }
+    .aion-o21c-voice-status-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .aion-o21c-voice-status-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.06);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .aion-o21c-voice-status-message {
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .aion-o21c-voice-status-sub {
+      color: rgba(15, 23, 42, 0.62);
+      font-size: 12px;
+    }
+  `;
+  document.head.appendChild(style);
+  return true;
+}
+
+if (typeof window !== "undefined") {
+  window.installAionO21CVoiceProviderStatusStyles = installAionO21CVoiceProviderStatusStyles;
+  installAionO21CVoiceProviderStatusStyles();
+}
+
+
+/* ============================================================
+ * AION O21E — Live mic capture to local STT transcript bridge
+ * ============================================================
+ * Preview-safe bridge:
+ * - uses existing startup/conversation terminal
+ * - requests browser microphone permission
+ * - records short MediaRecorder chunks
+ * - posts audio to /api/aion/voice/stt
+ * - appends transcript text into the existing terminal transcript surface
+ * - does not create another overlay
+ * - does not mutate Business Twin fields yet
+ * - does not call ElevenLabs or browser speech
+ */
+
+const AION_O21E_STT_ENDPOINT = "/api/aion/voice/stt";
+const AION_O21E_MIC_STATE_KEY = "__aionO21ELiveMicTranscriptState";
+
+function getAionO21ELiveMicTranscriptState() {
+  if (!window[AION_O21E_MIC_STATE_KEY]) {
+    window[AION_O21E_MIC_STATE_KEY] = {
+      schema_version: "aion.o21e.live_mic_transcript.v0.1",
+      status: "idle",
+      recording: false,
+      permission: "unknown",
+      provider: "faster_whisper",
+      endpoint: AION_O21E_STT_ENDPOINT,
+      chunks_sent: 0,
+      transcripts: [],
+      last_error: null,
+      media_stream_active: false,
+      business_twin_mutation_enabled: false,
+      no_overlay_created: true,
+      no_elevenlabs_call: true,
+      no_browser_speech_fallback: true,
+    };
+  }
+  return window[AION_O21E_MIC_STATE_KEY];
+}
+
+function setAionO21ELiveMicStatus(patch = {}) {
+  const state = getAionO21ELiveMicTranscriptState();
+  Object.assign(state, patch);
+  syncAionO21ELiveMicTranscriptPanel();
+  return state;
+}
+
+function getAionO21ETranscriptContainer() {
+  return (
+    document.querySelector("[data-aion-o21e-live-transcript-log]") ||
+    document.querySelector("[data-aion-startup-transcript-log]") ||
+    document.querySelector("[data-aion-o20c-conversation-transcript]") ||
+    document.querySelector("[data-aion-conversation-transcript]") ||
+    document.querySelector(".aion-startup-terminal-transcript") ||
+    document.querySelector(".aion-conversation-transcript")
+  );
+}
+
+function appendAionO21ETranscript(text, meta = {}) {
+  const clean = String(text || "").trim();
+  if (!clean) return null;
+
+  const state = getAionO21ELiveMicTranscriptState();
+  const item = {
+    id: `o21e_transcript_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    text: clean,
+    provider: meta.provider || "faster_whisper",
+    language: meta.language || null,
+    created_at: new Date().toISOString(),
+    business_twin_mutation_enabled: false,
+  };
+
+  state.transcripts.push(item);
+  state.last_transcript = clean;
+
+  const container = getAionO21ETranscriptContainer();
+  if (container) {
+    const row = document.createElement('div');
+    row.className = "aion-o21e-live-transcript-row";
+    row.setAttribute("data-aion-o21e-live-transcript-row", item.id);
+    row.innerHTML = `
+      <div class="aion-o21e-live-transcript-speaker">You · local STT</div>
+      <div class="aion-o21e-live-transcript-text"></div>
+    `;
+    const textEl = row.querySelector(".aion-o21e-live-transcript-text");
+    if (textEl) textEl.textContent = clean;
+    container.appendChild(row);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  syncAionO21ELiveMicTranscriptPanel();
+  return item;
+}
+
+async function postAionO21EAudioChunkToStt(blob) {
+  const state = getAionO21ELiveMicTranscriptState();
+
+  if (!blob || !blob.size) {
+    setAionO21ELiveMicStatus({
+      last_error: "empty_audio_chunk",
+      status: "recording",
+    });
+    return null;
+  }
+
+  const form = new FormData();
+  form.append("file", blob, `aion-o21e-mic-${Date.now()}.webm`);
+
+  state.chunks_sent += 1;
+  syncAionO21ELiveMicTranscriptPanel();
+
+  const response = await fetch(AION_O21E_STT_ENDPOINT, {
+    method: "POST",
+    body: form,
+  });
+
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = {
+      ok: false,
+      provider: "faster_whisper",
+      reason: "invalid_stt_json",
+      message: String(error && error.message ? error.message : error),
+    };
+  }
+
+  if (!response.ok || !payload || payload.ok === false) {
+    setAionO21ELiveMicStatus({
+      status: state.recording ? "recording" : "idle",
+      last_error: payload?.reason || `stt_http_${response.status}`,
+      last_error_message: payload?.message || null,
+      provider: payload?.provider || "faster_whisper",
+    });
+    return payload;
+  }
+
+  appendAionO21ETranscript(payload.text || "", {
+    provider: payload.provider || "faster_whisper",
+    language: payload.language || null,
+  });
+
+  setAionO21ELiveMicStatus({
+    status: state.recording ? "recording" : "transcribed",
+    last_error: null,
+    provider: payload.provider || "faster_whisper",
+  });
+
+  return payload;
+}
+
+async function startAionO21ELiveMicTranscriptCapture() {
+  const state = getAionO21ELiveMicTranscriptState();
+
+  if (state.recording && state.media_recorder) {
+    return setAionO21ELiveMicStatus({
+      status: "recording",
+      recording: true,
+    });
+  }
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    return setAionO21ELiveMicStatus({
+      status: "blocked",
+      recording: false,
+      permission: "unsupported",
+      last_error: "browser_microphone_api_unavailable",
+    });
+  }
+
+  try {
+    setAionO21ELiveMicStatus({
+      status: "requesting_microphone",
+      last_error: null,
+    });
+
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+
+    state.media_stream = stream;
+    state.media_recorder = recorder;
+    state.media_stream_active = true;
+    state.permission = "granted";
+
+    recorder.ondataavailable = async (event) => {
+      if (event && event.data && event.data.size > 0) {
+        try {
+          await postAionO21EAudioChunkToStt(event.data);
+        } catch (error) {
+          setAionO21ELiveMicStatus({
+            last_error: "stt_post_failed",
+            last_error_message: String(error && error.message ? error.message : error),
+          });
+        }
+      }
+    };
+
+    recorder.onerror = (event) => {
+      setAionO21ELiveMicStatus({
+        status: "error",
+        recording: false,
+        last_error: "media_recorder_error",
+        last_error_message: String(event?.error?.message || event?.message || "MediaRecorder failed"),
+      });
+    };
+
+    recorder.onstop = () => {
+      setAionO21ELiveMicStatus({
+        status: "idle",
+        recording: false,
+        media_stream_active: false,
+      });
+    };
+
+    recorder.start(2500);
+
+    return setAionO21ELiveMicStatus({
+      status: "recording",
+      recording: true,
+      last_error: null,
+      provider: "faster_whisper",
+      endpoint: AION_O21E_STT_ENDPOINT,
+    });
+  } catch (error) {
+    return setAionO21ELiveMicStatus({
+      status: "blocked",
+      recording: false,
+      permission: "denied_or_failed",
+      last_error: "microphone_permission_failed",
+      last_error_message: String(error && error.message ? error.message : error),
+    });
+  }
+}
+
+function stopAionO21ELiveMicTranscriptCapture() {
+  const state = getAionO21ELiveMicTranscriptState();
+
+  try {
+    if (state.media_recorder && state.media_recorder.state !== "inactive") {
+      state.media_recorder.stop();
+    }
+  } catch (error) {
+    state.last_error = "media_recorder_stop_failed";
+    state.last_error_message = String(error && error.message ? error.message : error);
+  }
+
+  try {
+    if (state.media_stream && state.media_stream.getTracks) {
+      state.media_stream.getTracks().forEach((track) => track.stop());
+    }
+  } catch (error) {
+    state.last_error = "media_stream_stop_failed";
+    state.last_error_message = String(error && error.message ? error.message : error);
+  }
+
+  state.media_stream = null;
+  state.media_recorder = null;
+
+  return setAionO21ELiveMicStatus({
+    status: "idle",
+    recording: false,
+    media_stream_active: false,
+  });
+}
+
+function toggleAionO21ELiveMicTranscriptCapture() {
+  const state = getAionO21ELiveMicTranscriptState();
+  if (state.recording) return stopAionO21ELiveMicTranscriptCapture();
+  return startAionO21ELiveMicTranscriptCapture();
+}
+
+function renderAionO21ELiveMicTranscriptPanel() {
+  const state = getAionO21ELiveMicTranscriptState();
+  const status = state.status || "idle";
+  const recording = !!state.recording;
+  const provider = state.provider || "faster_whisper";
+  const cloudVoice = "off";
+  const localStt = provider === "faster_whisper" ? "Local Whisper" : provider;
+
+  return `
+    <section class="aion-o21e-live-mic-panel" data-aion-o21e-live-mic-panel>
+      <div class="aion-o21e-live-mic-head">
+        <div>
+          <div class="aion-o21e-live-mic-title">Live voice input</div>
+          <div class="aion-o21e-live-mic-subtitle">STT: ${localStt} · Cloud voice: ${cloudVoice}</div>
+        </div>
+        <button
+          type="button"
+          class="aion-o21e-live-mic-toggle"
+          data-aion-o21e-live-mic-toggle
+          onclick="window.toggleAionO21ELiveMicTranscriptCapture && window.toggleAionO21ELiveMicTranscriptCapture()"
+        >${recording ? "Stop listening" : "Start listening"}</button>
+      </div>
+      <div class="aion-o21e-live-mic-status" data-aion-o21e-live-mic-status>
+        ${recording ? "Listening locally..." : `Mic status: ${status}`}
+      </div>
+      <div class="aion-o21e-live-mic-flags">
+        <span>chunks: ${state.chunks_sent || 0}</span>
+        <span>transcripts: ${(state.transcripts || []).length}</span>
+        <span>Business Twin mutation: off</span>
+      </div>
+      ${
+        state.last_error
+          ? `<div class="aion-o21e-live-mic-error" data-aion-o21e-live-mic-error>${state.last_error}</div>`
+          : `<div class="aion-o21e-live-mic-note" data-aion-o21e-live-mic-note>No hidden paid voice usage.</div>`
+      }
+      <div class="aion-o21e-live-transcript-log" data-aion-o21e-live-transcript-log></div>
+    </section>
+  `;
+}
+
+function ensureAionO21ELiveMicTranscriptPanel() {
+  if (document.querySelector("[data-aion-o21e-live-mic-panel]")) return;
+
+  const terminal =
+    document.querySelector("[data-aion-o20c-conversation-terminal]") ||
+    document.querySelector("[data-aion-startup-conversation-terminal]") ||
+    document.querySelector("[data-aion-business-entry-mode-selector]") ||
+    document.querySelector("#app") ||
+    document.body;
+
+  if (!terminal) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.setAttribute("data-aion-o21e-live-mic-panel-host", "true");
+  wrapper.innerHTML = renderAionO21ELiveMicTranscriptPanel();
+  terminal.appendChild(wrapper);
+}
+
+function syncAionO21ELiveMicTranscriptPanel() {
+  const panel = document.querySelector("[data-aion-o21e-live-mic-panel]");
+  if (!panel) return;
+
+  const state = getAionO21ELiveMicTranscriptState();
+
+  const statusEl = panel.querySelector("[data-aion-o21e-live-mic-status]");
+  if (statusEl) {
+    statusEl.textContent = state.recording ? "Listening locally..." : `Mic status: ${state.status || "idle"}`;
+  }
+
+  const button = panel.querySelector("[data-aion-o21e-live-mic-toggle]");
+  if (button) {
+    button.textContent = state.recording ? "Stop listening" : "Start listening";
+  }
+
+  const errorEl = panel.querySelector("[data-aion-o21e-live-mic-error]");
+  if (errorEl && state.last_error) {
+    errorEl.textContent = state.last_error;
+  }
+}
+
+function installAionO21ELiveMicTranscriptStyles() {
+  if (document.getElementById("aion-o21e-live-mic-transcript-style")) return;
+  const style = document.createElement("style");
+  style.id = "aion-o21e-live-mic-transcript-style";
+  style.textContent = `
+    .aion-o21e-live-mic-panel {
+      margin: 14px auto;
+      max-width: 820px;
+      border: 1px solid rgba(17, 24, 39, 0.10);
+      border-radius: 22px;
+      padding: 16px;
+      background: rgba(255,255,255,0.82);
+      box-shadow: 0 18px 55px rgba(17, 24, 39, 0.08);
+      color: #111827;
+    }
+    .aion-o21e-live-mic-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .aion-o21e-live-mic-title {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .aion-o21e-live-mic-subtitle {
+      margin-top: 3px;
+      font-size: 12px;
+      color: rgba(17, 24, 39, 0.62);
+    }
+    .aion-o21e-live-mic-toggle {
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      background: #111827;
+      color: #fff;
+      cursor: pointer;
+    }
+    .aion-o21e-live-mic-status,
+    .aion-o21e-live-mic-note,
+    .aion-o21e-live-mic-error {
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .aion-o21e-live-mic-error {
+      color: #991b1b;
+      font-weight: 700;
+    }
+    .aion-o21e-live-mic-flags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+    .aion-o21e-live-mic-flags span {
+      border: 1px solid rgba(17, 24, 39, 0.10);
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 11px;
+      color: rgba(17, 24, 39, 0.70);
+      background: rgba(255,255,255,0.72);
+    }
+    .aion-o21e-live-transcript-log {
+      margin-top: 12px;
+      max-height: 180px;
+      overflow: auto;
+      display: grid;
+      gap: 8px;
+    }
+    .aion-o21e-live-transcript-row {
+      border-radius: 14px;
+      background: rgba(17, 24, 39, 0.04);
+      padding: 10px;
+    }
+    .aion-o21e-live-transcript-speaker {
+      font-size: 11px;
+      font-weight: 800;
+      color: rgba(17, 24, 39, 0.58);
+      margin-bottom: 4px;
+    }
+    .aion-o21e-live-transcript-text {
+      font-size: 13px;
+      line-height: 1.35;
+      color: #111827;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function mountAionO21ELiveMicTranscriptPanel() {
+  installAionO21ELiveMicTranscriptStyles();
+  ensureAionO21ELiveMicTranscriptPanel();
+  syncAionO21ELiveMicTranscriptPanel();
+  return getAionO21ELiveMicTranscriptState();
+}
+
+window.getAionO21ELiveMicTranscriptState = getAionO21ELiveMicTranscriptState;
+window.startAionO21ELiveMicTranscriptCapture = startAionO21ELiveMicTranscriptCapture;
+window.stopAionO21ELiveMicTranscriptCapture = stopAionO21ELiveMicTranscriptCapture;
+window.toggleAionO21ELiveMicTranscriptCapture = toggleAionO21ELiveMicTranscriptCapture;
+window.postAionO21EAudioChunkToStt = postAionO21EAudioChunkToStt;
+window.appendAionO21ETranscript = appendAionO21ETranscript;
+window.renderAionO21ELiveMicTranscriptPanel = renderAionO21ELiveMicTranscriptPanel;
+window.mountAionO21ELiveMicTranscriptPanel = mountAionO21ELiveMicTranscriptPanel;
+window.__debugAionO21ELiveMicTranscript = getAionO21ELiveMicTranscriptState;
+
+setTimeout(() => {
+  try {
+    mountAionO21ELiveMicTranscriptPanel();
+  } catch (error) {
+    setAionO21ELiveMicStatus({
+      status: "error",
+      last_error: "o21e_mount_failed",
+      last_error_message: String(error && error.message ? error.message : error),
+    });
+  }
+}, 0);
+
+
+/* ============================================================
+ * AION O21F — Business Twin voice answer binding
+ * ============================================================
+ * Purpose:
+ * - Take O21E local STT transcript rows
+ * - Infer likely setup fields from the spoken answer
+ * - Bind into an approval-gated Business Twin voice answer draft
+ * - Do not execute, book, pay, send, publish, or mutate external systems
+ * - Do not hijack business_context
+ * - small_business_foundation remains the startup route authority
+ */
+
+const AION_O21F_BUSINESS_TWIN_VOICE_BINDING_VERSION = "aion.o21f.business_twin_voice_answer_binding.v0.1";
+const AION_O21F_STARTUP_ROUTE = "small_business_foundation";
+
+function getAionO21FBusinessTwinVoiceAnswerState() {
+  if (!window.__aionO21FBusinessTwinVoiceAnswerState) {
+    window.__aionO21FBusinessTwinVoiceAnswerState = {
+      schema_version: AION_O21F_BUSINESS_TWIN_VOICE_BINDING_VERSION,
+      route: AION_O21F_STARTUP_ROUTE,
+      source: "local_stt_transcript",
+      approval_required: true,
+      external_actions_allowed: false,
+      business_context_hijack_allowed: false,
+      status: "draft",
+      answers: {},
+      pending_review: [],
+      transcript_bindings: [],
+      last_bound_text: null,
+    };
+  }
+  return window.__aionO21FBusinessTwinVoiceAnswerState;
+}
+
+function classifyAionO21FVoiceAnswerField(text) {
+  const clean = String(text || "").trim();
+  const lower = clean.toLowerCase();
+
+  if (!clean) return "unknown";
+
+  if (
+    lower.includes("my business is") ||
+    lower.includes("business is called") ||
+    lower.includes("company is called") ||
+    lower.includes("we are called") ||
+    lower.includes("it's called")
+  ) {
+    return "business_name";
+  }
+
+  if (
+    lower.includes("we do") ||
+    lower.includes("we offer") ||
+    lower.includes("services") ||
+    lower.includes("configured service") ||
+    lower.includes("service delivery") ||
+    lower.includes("maintenance") ||
+    lower.includes("renovation") ||
+    lower.includes("service") ||
+    lower.includes("roof")
+  ) {
+    return "services";
+  }
+
+  if (
+    lower.includes("we are based") ||
+    lower.includes("based in") ||
+    lower.includes("located in") ||
+    lower.includes("cover") ||
+    lower.includes("area") ||
+    lower.includes("configured operating region") ||
+    lower.includes("configured operating region") ||
+    lower.includes("configured operating region") ||
+    lower.includes("configured operating region") ||
+    lower.includes("configured operating region")
+  ) {
+    return "location";
+  }
+
+  if (
+    lower.includes("customers") ||
+    lower.includes("clients") ||
+    lower.includes("homeowners") ||
+    lower.includes("landlords") ||
+    lower.includes("business owners") ||
+    lower.includes("target")
+  ) {
+    return "target_customers";
+  }
+
+  if (
+    lower.includes("goal") ||
+    lower.includes("want to") ||
+    lower.includes("need to") ||
+    lower.includes("trying to") ||
+    lower.includes("increase") ||
+    lower.includes("generate") ||
+    lower.includes("grow")
+  ) {
+    return "current_goal";
+  }
+
+  if (
+    lower.includes("idea") ||
+    lower.includes("new business") ||
+    lower.includes("startup") ||
+    lower.includes("launch")
+  ) {
+    return "idea_mode_answer";
+  }
+
+  return "general_business_context";
+}
+
+function normaliseAionO21FVoiceAnswerValue(field, text) {
+  let value = String(text || "").trim();
+
+  if (field === "business_name") {
+    value = value
+      .replace(/^my business is\s+/i, "")
+      .replace(/^the business is\s+/i, "")
+      .replace(/^business is called\s+/i, "")
+      .replace(/^my company is called\s+/i, "")
+      .replace(/^company is called\s+/i, "")
+      .replace(/^we are called\s+/i, "")
+      .replace(/^it's called\s+/i, "")
+      .trim();
+  }
+
+  return value || String(text || "").trim();
+}
+
+function bindAionO21FTranscriptToBusinessTwinAnswer(transcriptItemOrText) {
+  const state = getAionO21FBusinessTwinVoiceAnswerState();
+
+  const text =
+    typeof transcriptItemOrText === "string"
+      ? transcriptItemOrText
+      : transcriptItemOrText?.text || "";
+
+  const clean = String(text || "").trim();
+
+  if (!clean) {
+    return {
+      ok: false,
+      reason: "empty_transcript",
+      state,
+    };
+  }
+
+  const field = classifyAionO21FVoiceAnswerField(clean);
+  const value = normaliseAionO21FVoiceAnswerValue(field, clean);
+
+  const binding = {
+    id: `o21f_binding_${Date.now()}_${Math.random().toString(16).slice(2)}`,
+    route: AION_O21F_STARTUP_ROUTE,
+    field,
+    value,
+    raw_text: clean,
+    source: "local_stt_transcript",
+    approval_required: true,
+    external_actions_allowed: false,
+    created_at: new Date().toISOString(),
+  };
+
+  state.answers[field] = value;
+  state.pending_review.push(binding);
+  state.transcript_bindings.push(binding);
+  state.last_bound_text = clean;
+  state.status = "pending_human_review";
+
+  if (typeof window !== "undefined") {
+    window.__aionBusinessTwinVoiceDraft = {
+      route: AION_O21F_STARTUP_ROUTE,
+      approval_required: true,
+      answers: { ...state.answers },
+      pending_review_count: state.pending_review.length,
+      external_actions_allowed: false,
+    };
+  }
+
+  syncAionO21FBusinessTwinVoiceBindingPanel();
+
+  return {
+    ok: true,
+    binding,
+    state,
+  };
+}
+
+function renderAionO21FBusinessTwinVoiceBindingPanel() {
+  const state = getAionO21FBusinessTwinVoiceAnswerState();
+  const fields = Object.entries(state.answers || {});
+  const pendingCount = (state.pending_review || []).length;
+
+  return `
+    <section class="aion-o21f-business-twin-voice-binding" data-aion-o21f-business-twin-voice-binding>
+      <div class="aion-o21f-binding-head">
+        <div>
+          <div class="aion-o21f-binding-title">Business Twin voice answers</div>
+          <div class="aion-o21f-binding-subtitle">Route: ${AION_O21F_STARTUP_ROUTE} · approval required</div>
+        </div>
+        <div class="aion-o21f-binding-pill">Pending review: ${pendingCount}</div>
+      </div>
+      <div class="aion-o21f-binding-safety">
+        No external actions · no business_context hijack · human approval required
+      </div>
+      <div class="aion-o21f-binding-fields" data-aion-o21f-binding-fields>
+        ${
+          fields.length
+            ? fields
+                .map(([field, value]) => `
+                  <div class="aion-o21f-binding-field" data-aion-o21f-binding-field="${field}">
+                    <span>${field}</span>
+                    <strong>${escapeHtml(String(value || ""))}</strong>
+                  </div>
+                `)
+                .join("")
+            : `<div class="aion-o21f-binding-empty">Speak an answer and it will appear here as a draft.</div>`
+        }
+      </div>
+    </section>
+  `;
+}
+
+function ensureAionO21FBusinessTwinVoiceBindingPanel() {
+  if (document.querySelector("[data-aion-o21f-business-twin-voice-binding]")) return;
+
+  const target =
+    document.querySelector("[data-aion-o21e-live-mic-panel]") ||
+    document.querySelector("[data-aion-o20c-conversation-terminal]") ||
+    document.querySelector("[data-aion-business-entry-mode-selector]") ||
+    document.querySelector("#app") ||
+    document.body;
+
+  if (!target) return;
+
+  const host = document.createElement("div");
+  host.setAttribute("data-aion-o21f-business-twin-voice-binding-host", "true");
+  host.innerHTML = renderAionO21FBusinessTwinVoiceBindingPanel();
+  target.appendChild(host);
+}
+
+function syncAionO21FBusinessTwinVoiceBindingPanel() {
+  const existing = document.querySelector("[data-aion-o21f-business-twin-voice-binding]");
+  if (!existing) return;
+  existing.outerHTML = renderAionO21FBusinessTwinVoiceBindingPanel();
+}
+
+function installAionO21FBusinessTwinVoiceBindingStyles() {
+  if (document.getElementById("aion-o21f-business-twin-voice-binding-style")) return;
+
+  const style = document.createElement("style");
+  style.id = "aion-o21f-business-twin-voice-binding-style";
+  style.textContent = `
+    .aion-o21f-business-twin-voice-binding {
+      margin: 12px auto 0;
+      max-width: 820px;
+      border: 1px solid rgba(15, 23, 42, 0.10);
+      border-radius: 20px;
+      padding: 14px;
+      background: rgba(255,255,255,0.78);
+      color: #0f172a;
+    }
+    .aion-o21f-binding-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .aion-o21f-binding-title {
+      font-size: 14px;
+      font-weight: 900;
+      letter-spacing: -0.01em;
+    }
+    .aion-o21f-binding-subtitle,
+    .aion-o21f-binding-safety {
+      margin-top: 4px;
+      font-size: 12px;
+      color: rgba(15, 23, 42, 0.62);
+    }
+    .aion-o21f-binding-pill {
+      border-radius: 999px;
+      padding: 6px 9px;
+      background: rgba(15, 23, 42, 0.06);
+      font-size: 11px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .aion-o21f-binding-fields {
+      margin-top: 12px;
+      display: grid;
+      gap: 8px;
+    }
+    .aion-o21f-binding-field {
+      display: grid;
+      gap: 3px;
+      padding: 9px;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.04);
+    }
+    .aion-o21f-binding-field span {
+      font-size: 11px;
+      font-weight: 800;
+      color: rgba(15, 23, 42, 0.55);
+    }
+    .aion-o21f-binding-field strong {
+      font-size: 13px;
+      line-height: 1.35;
+      color: #0f172a;
+    }
+    .aion-o21f-binding-empty {
+      font-size: 12px;
+      color: rgba(15, 23, 42, 0.58);
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function patchAionO21ETranscriptBindingForBusinessTwin() {
+  if (window.__aionO21FPatchedTranscriptBinding) return true;
+  window.__aionO21FPatchedTranscriptBinding = true;
+
+  const originalAppend = window.appendAionO21ETranscript;
+
+  window.appendAionO21ETranscript = function appendAionO21ETranscriptWithBusinessTwinBinding(text, meta = {}) {
+    const item = originalAppend ? originalAppend(text, meta) : { text, provider: meta.provider || "faster_whisper" };
+    try {
+      bindAionO21FTranscriptToBusinessTwinAnswer(item || text);
+    } catch (error) {
+      const state = getAionO21FBusinessTwinVoiceAnswerState();
+      state.last_error = "voice_answer_binding_failed";
+      state.last_error_message = String(error && error.message ? error.message : error);
+      state.status = "binding_error";
+    }
+    return item;
+  };
+
+  return true;
+}
+
+function mountAionO21FBusinessTwinVoiceBinding() {
+  installAionO21FBusinessTwinVoiceBindingStyles();
+  ensureAionO21FBusinessTwinVoiceBindingPanel();
+  patchAionO21ETranscriptBindingForBusinessTwin();
+  return getAionO21FBusinessTwinVoiceAnswerState();
+}
+
+window.getAionO21FBusinessTwinVoiceAnswerState = getAionO21FBusinessTwinVoiceAnswerState;
+window.classifyAionO21FVoiceAnswerField = classifyAionO21FVoiceAnswerField;
+window.bindAionO21FTranscriptToBusinessTwinAnswer = bindAionO21FTranscriptToBusinessTwinAnswer;
+window.renderAionO21FBusinessTwinVoiceBindingPanel = renderAionO21FBusinessTwinVoiceBindingPanel;
+window.mountAionO21FBusinessTwinVoiceBinding = mountAionO21FBusinessTwinVoiceBinding;
+window.__debugAionO21FBusinessTwinVoiceAnswers = getAionO21FBusinessTwinVoiceAnswerState;
+
+setTimeout(() => {
+  try {
+    mountAionO21FBusinessTwinVoiceBinding();
+  } catch (error) {
+    const state = getAionO21FBusinessTwinVoiceAnswerState();
+    state.status = "mount_error";
+    state.last_error = String(error && error.message ? error.message : error);
+  }
+}, 0);
 

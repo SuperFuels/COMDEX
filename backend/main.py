@@ -1860,6 +1860,7 @@ import json as _aion_o19k_json
 import os as _aion_o19k_os
 import urllib.error as _aion_o19k_urllib_error
 import urllib.request as _aion_o19k_urllib_request
+from backend.modules.aion_voice.api import router as aion_voice_router
 
 try:
     from fastapi import Request as _AionO19KFastAPIRequest
@@ -2023,4 +2024,22 @@ if "app" in globals() and _AionO19KFastAPIRequest is not None and _AionO19KFastA
 
     print("[AION] O19K ElevenLabs voice bridge route installed")
 # END AION O19K ELEVENLABS VOICE BRIDGE LOCK
+
+# AION O21A/O21B local-first voice provider router
+# Keep the new provider router authoritative even if an older ElevenLabs-only
+# route was registered earlier in this file.
+AION_VOICE_PROVIDER_ROUTE_PATHS = {
+    "/api/aion/voice/tts",
+    "/api/aion/voice/stt",
+    "/api/aion/voice/providers",
+}
+try:
+    app.router.routes = [
+        route
+        for route in app.router.routes
+        if getattr(route, "path", None) not in AION_VOICE_PROVIDER_ROUTE_PATHS
+    ]
+except Exception:
+    pass
+app.include_router(aion_voice_router)
 
