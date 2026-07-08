@@ -1,0 +1,60 @@
+{
+  "ok": true,
+  "phase": "O23B_O23C_O23D",
+  "purpose": "stage_app_local_voice_assets_for_future_tessaris_app_bundle",
+  "bundle_root": "desktop/mac/voice_bundle_staging/voice",
+  "source_discovery_manifest": "desktop/mac/voice/manifest.o23a.json",
+  "copied": {
+    "kokoro_model": {
+      "source": "/Users/kevinrobinson/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/kokoro-v1_0.pth",
+      "target": "desktop/mac/voice_bundle_staging/voice/kokoro/kokoro-v1_0.pth",
+      "size_bytes": 327212226,
+      "sha256": "496dba118d1a58f5f3db2efc88dbdc216e0483fc89fe6e47ee1f2c53f18ad1e4"
+    },
+    "kokoro_voice_af_heart": {
+      "source": "/Users/kevinrobinson/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/voices/af_heart.pt",
+      "target": "desktop/mac/voice_bundle_staging/voice/kokoro/voices/af_heart.pt",
+      "size_bytes": 523425,
+      "sha256": "0ab5709b8ffab19bfd849cd11d98f75b60af7733253ad0d67b12382a102cb4ff"
+    },
+    "kokoro_config": {
+      "source": "/Users/kevinrobinson/.cache/huggingface/hub/models--hexgrad--Kokoro-82M/snapshots/f3ff3571791e39611d31c381e3a41a3af07b4987/config.json",
+      "target": "desktop/mac/voice_bundle_staging/voice/kokoro/config.json",
+      "size_bytes": 2351,
+      "sha256": "5abb01e2403b072bf03d04fde160443e209d7a0dad49a423be15196b9b43c17f"
+    },
+    "spacy_en_core_web_sm": {
+      "source": "/Users/kevinrobinson/dev/COMDEX/.venv_voice/lib/python3.12/site-packages/en_core_web_sm",
+      "target": "desktop/mac/voice_bundle_staging/voice/spacy/en_core_web_sm",
+      "file_count": 28,
+      "total_bytes": 15241693,
+      "tree_sha256": "b6796d715746acbda0729ab4557b8a1f53429e6c89ba3f9b800d7622d1e34288"
+    },
+    "faster_whisper_base": {
+      "source": "/Users/kevinrobinson/.cache/huggingface/hub/models--Systran--faster-whisper-base/snapshots/ebe41f70d5b6dfa9166e2c581c45c9c0cfc57b66",
+      "target": "desktop/mac/voice_bundle_staging/voice/whisper/base",
+      "file_count": 4,
+      "total_bytes": 147882941,
+      "tree_sha256": "cba67e8a8db5544588b0fbb482ab0202071a25ce0835b8d4ee76e7feac5659d7"
+    }
+  },
+  "expected_packaged_paths": {
+    "app_voice_root": "Tessaris.app/Contents/Resources/voice",
+    "kokoro_model": "Tessaris.app/Contents/Resources/voice/kokoro/kokoro-v1_0.pth",
+    "kokoro_config": "Tessaris.app/Contents/Resources/voice/kokoro/config.json",
+    "kokoro_voice_af_heart": "Tessaris.app/Contents/Resources/voice/kokoro/voices/af_heart.pt",
+    "spacy_model": "Tessaris.app/Contents/Resources/voice/spacy/en_core_web_sm",
+    "whisper_base": "Tessaris.app/Contents/Resources/voice/whisper/base",
+    "python_runtime": "Tessaris.app/Contents/Resources/voice/python/bin/python",
+    "manifest": "Tessaris.app/Contents/Resources/voice/manifest.json"
+  },
+  "download_policy": {
+    "packaged_mode_hidden_huggingface_downloads_allowed": false,
+    "packaged_mode_hidden_spacy_downloads_allowed": false,
+    "packaged_mode_hidden_elevenlabs_fallback_allowed": false,
+    "staging_contains_required_model_assets": true
+  },
+  "python_runtime_bundled_in_this_step": false,
+  "python_runtime_next_step": "O23E",
+  "business_context_hardcoded": false
+}
