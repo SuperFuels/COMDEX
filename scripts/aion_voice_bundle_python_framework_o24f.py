@@ -226,6 +226,55 @@ def remove_backup_symlinks() -> dict:
     }
 
 
+
+def codesign_runtime() -> dict:
+    # O24F.2: install_name_tool mutates Mach-O binaries on macOS.
+    # Without ad-hoc re-signing, macOS can terminate the relocated Python with SIGKILL (-9).
+    targets = [
+        BUNDLED_FRAMEWORK_DYLIB,
+        APP_PYTHON,
+        APP_PYTHON3,
+        APP_PYTHON312,
+    ]
+
+    results = {}
+
+    # Sign the framework directory first, then the direct executables.
+    framework_result = run(
+        [
+            "codesign",
+            "--force",
+            "--deep",
+            "--sign",
+            "-",
+            str(BUNDLED_FRAMEWORK),
+        ]
+    )
+
+    results["framework"] = {
+        "target": rel(BUNDLED_FRAMEWORK),
+        "returncode": framework_result["returncode"],
+        "stdout_tail": framework_result["stdout_tail"],
+        "stderr_tail": framework_result["stderr_tail"],
+    }
+
+    for target in targets:
+        result = run(["codesign", "--force", "--sign", "-", str(target)])
+        verify = run(["codesign", "--verify", "--verbose=2", str(target)])
+
+        results[target.name] = {
+            "target": rel(target),
+            "returncode": result["returncode"],
+            "stdout_tail": result["stdout_tail"],
+            "stderr_tail": result["stderr_tail"],
+            "verify_returncode": verify["returncode"],
+            "verify_stdout_tail": verify["stdout_tail"],
+            "verify_stderr_tail": verify["stderr_tail"],
+        }
+
+    return results
+
+
 def python_probe() -> dict:
     code = """
 import importlib.util
@@ -297,6 +346,7 @@ def main() -> int:
     framework = copy_framework()
     backup_cleanup = remove_backup_symlinks()
     relink = relink_python_binaries()
+    codesign = codesign_runtime()
 
     py_probe = python_probe()
     readiness = packaged_readiness_probe()
@@ -347,6 +397,7 @@ def main() -> int:
         "framework": framework,
         "backup_cleanup": backup_cleanup,
         "relink": relink,
+        "codesign": codesign,
         "app_python_otool_after": app_python_otool,
         "python_probe": py_probe,
         "packaged_readiness": {
@@ -382,6 +433,7 @@ def main() -> int:
 
     checks = [
         BUNDLED_FRAMEWORK_DYLIB.exists(),
+        all(item.get("returncode") == 0 and item.get("verify_returncode", 0) == 0 for item in codesign.values()),
         app_python_otool["external_dependencies"] == [],
         NEW_DYLIB in json.dumps(app_python_otool),
         OLD_DYLIB not in json.dumps(app_python_otool),

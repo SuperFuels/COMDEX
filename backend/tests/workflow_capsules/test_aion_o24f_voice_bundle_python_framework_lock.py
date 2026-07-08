@@ -13,6 +13,8 @@ def test_o24f_script_exists_and_documents_framework_relink_contract():
     assert "O24F" in text
     assert "bundle_python_framework_and_relink_app_python" in text
     assert "install_name_tool" in text
+    assert "codesign_runtime" in text
+    assert "codesign" in text
     assert "@executable_path/../Frameworks/Python.framework/Versions/3.12/Python" in text
     assert ".o24e_symlink_backups" in text
     assert "aion_voice_relocation_hardening_o24b.py" in text
@@ -33,6 +35,9 @@ def test_o24f_manifest_proves_framework_bundled_and_python_relinked():
     assert data["framework"]["bundled_framework_dylib_exists"] is True
 
     assert data["backup_cleanup"]["after"]["exists"] is False
+    assert data["codesign"]["python"]["returncode"] == 0
+    assert data["codesign"]["python"]["verify_returncode"] == 0
+    assert data["codesign"]["framework"]["returncode"] == 0
 
     assert data["app_python_otool_after"]["external_dependencies"] == []
     assert data["new_dylib"] in json.dumps(data["app_python_otool_after"])
