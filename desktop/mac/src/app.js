@@ -142698,6 +142698,545 @@ setTimeout(() => {
 
 
 // AION_O22F_BROWSER_SPEECH_RUNTIME_DISABLED
+
+/* ============================================================
+ * AION O25E — Terminal-only Foundation Voice UX Lock
+ * ------------------------------------------------------------
+ * Purpose:
+ * - Replace the visible debug-heavy onboarding surface with a
+ *   simple voice conversation terminal.
+ * - The user sees transcript, talk/stop controls, AION speaking
+ *   state, and a typed fallback.
+ * - Foundation discovery, readiness, next-question planning and
+ *   draft capture continue silently behind the UX.
+ * - No ElevenLabs wording.
+ * - No live execution.
+ * - No external actions.
+ * ============================================================ */
+
+(function installAionO25ETerminalOnlyFoundationVoiceUX() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO25ETerminalOnlyFoundationVoiceUXInstalled) return;
+  window.__aionO25ETerminalOnlyFoundationVoiceUXInstalled = true;
+
+  const VERSION = "aion.o25e.terminal_only_foundation_voice_ux.v0.1";
+
+  function escapeO25E(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function getO25EBridgeState() {
+    try {
+      if (
+        typeof window.__debugAionO25CBusinessFoundationVoiceDiscoveryBridge === "function"
+      ) {
+        const debug = window.__debugAionO25CBusinessFoundationVoiceDiscoveryBridge();
+        if (debug && typeof debug === "object") return debug;
+      }
+    } catch {}
+
+    return {
+      installed: true,
+      entry_mode: window.__aionO20COpeningMode || "start_with_aion",
+      transcript_count: 0,
+      readiness: { readiness_score: 0 },
+      next_question: {
+        question: "What are you looking to achieve with AION?",
+      },
+    };
+  }
+
+  function getO25EVoiceState() {
+    try {
+      if (typeof window.getAionO21ELiveMicTranscriptState === "function") {
+        return window.getAionO21ELiveMicTranscriptState();
+      }
+    } catch {}
+
+    return {
+      status: "idle",
+      recording: false,
+      transcripts: [],
+      last_error: null,
+    };
+  }
+
+  function getO25ETranscriptRows() {
+    const voice = getO25EVoiceState();
+    const transcriptRows = [];
+
+    transcriptRows.push({
+      speaker: "AION",
+      source: "aion_opening",
+      text:
+        "Welcome to AION. I can help map your business, build your Business Foundation, create your Business Map, activate the Boardroom, and route deeper discovery to the right department pilots. What are you looking to achieve?",
+    });
+
+    const items = Array.isArray(voice.transcripts) ? voice.transcripts : [];
+    items.forEach((item) => {
+      const text = String(item && item.text ? item.text : item || "").trim();
+      if (!text) return;
+      transcriptRows.push({
+        speaker: "You",
+        source: item.provider || item.source || "local_stt",
+        text,
+      });
+    });
+
+    const bridge = getO25EBridgeState();
+    const nextQuestion =
+      bridge &&
+      bridge.next_question &&
+      String(bridge.next_question.question || bridge.next_question.text || "").trim();
+
+    if (nextQuestion && transcriptRows.length > 1) {
+      transcriptRows.push({
+        speaker: "AION",
+        source: "next_question",
+        text: nextQuestion,
+      });
+    }
+
+    return transcriptRows;
+  }
+
+  function renderAionO25ETerminalOnlyVoiceConversation() {
+    const voice = getO25EVoiceState();
+    const rows = getO25ETranscriptRows();
+    const recording = !!voice.recording;
+
+    return `
+      <section
+        class="aion-o25e-voice-terminal"
+        data-aion-o25e-voice-terminal-only="true"
+        data-aion-o20c-conversation-terminal="true"
+        data-aion-conversation-terminal="true"
+      >
+        <header class="aion-o25e-voice-terminal-top">
+          <div>
+            <div class="aion-o25e-kicker">AION VOICE CONVERSATION</div>
+            <h2>Business Foundation Conversation</h2>
+          </div>
+          <div
+            class="aion-o25e-speaking-orb ${recording ? "is-listening" : ""}"
+            data-aion-o25e-speaking-orb="true"
+            aria-label="${recording ? "AION is listening" : "AION ready"}"
+          >
+            <span>∞</span>
+          </div>
+        </header>
+
+        <div
+          class="aion-o25e-transcript"
+          data-aion-o25e-transcript-log="true"
+          data-aion-o20c-conversation-transcript="true"
+          data-aion-conversation-transcript="true"
+          data-aion-startup-transcript-log="true"
+          aria-label="AION conversation transcript"
+        >
+          ${rows
+            .map(
+              (row) => `
+                <div class="aion-o25e-transcript-row ${row.speaker === "AION" ? "is-aion" : "is-user"}">
+                  <div class="aion-o25e-speaker">${escapeO25E(row.speaker)}</div>
+                  <div class="aion-o25e-message">${escapeO25E(row.text)}</div>
+                </div>
+              `
+            )
+            .join("")}
+        </div>
+
+        <div class="aion-o25e-voice-controls" data-aion-o25e-voice-controls="true">
+          <button
+            type="button"
+            class="aion-o25e-talk"
+            data-aion-o25e-talk-toggle="true"
+          >
+            ${recording ? "Listening..." : "Reply to AION"}
+          </button>
+
+          <button
+            type="button"
+            class="aion-o25e-stop"
+            data-aion-o25e-stop-talking="true"
+          >
+            Stop talking
+          </button>
+
+          <div class="aion-o25e-voice-bar ${recording ? "is-active" : ""}" data-aion-o25e-voice-bar="true">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+        </div>
+
+        <form class="aion-o25e-typed-fallback" data-aion-o25e-typed-form="true">
+          <input
+            type="text"
+            data-aion-o25e-typed-input="true"
+            placeholder="Type here while testing, or use Reply to AION..."
+            autocomplete="off"
+          />
+          <button type="submit">Send</button>
+        </form>
+
+        <div class="aion-o25e-status-line" data-aion-o25e-status-line="true">
+          Local voice runtime · transcript captured into Business Foundation draft · preview only
+        </div>
+      </section>
+    `;
+  }
+
+  function syncAionO25ETerminalOnlyVoiceConversation() {
+    const shell = document.querySelector("[data-aion-o20c-conversation-shell='true']");
+    if (!shell) return false;
+
+    const terminal =
+      shell.querySelector("[data-aion-o20c-terminal='true']") ||
+      shell.querySelector(".aion-o20c-terminal");
+
+    if (!terminal) return false;
+
+    const heading = shell.querySelector(".aion-o20c-terminal-header h1");
+    if (heading) heading.textContent = "Business Foundation Conversation";
+
+    const sub = shell.querySelector(".aion-o20c-terminal-header p");
+    if (sub) {
+      sub.textContent =
+        "AION will guide the setup conversation. The transcript becomes the Business Foundation draft.";
+    }
+
+    terminal.innerHTML = renderAionO25ETerminalOnlyVoiceConversation();
+
+    try {
+      terminal.dispatchEvent(new CustomEvent("aion:o25e-terminal-rendered", { bubbles: true }));
+      document.dispatchEvent(new CustomEvent("aion:o25e-terminal-rendered"));
+    } catch {}
+
+    return true;
+  }
+
+  async function handleO25ETalkToggle() {
+    try {
+      if (typeof window.toggleAionO21ELiveMicTranscriptCapture === "function") {
+        await window.toggleAionO21ELiveMicTranscriptCapture();
+      }
+    } catch (error) {
+      console.warn("[AION O25E] talk toggle failed", error);
+    }
+    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 50);
+    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 500);
+  }
+
+  async function handleO25EStopTalking() {
+    try {
+      if (typeof window.stopAionO21ELiveMicTranscriptCapture === "function") {
+        await window.stopAionO21ELiveMicTranscriptCapture();
+      }
+    } catch (error) {
+      console.warn("[AION O25E] stop talking failed", error);
+    }
+    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 50);
+  }
+
+  function handleO25ETypedSubmit(event) {
+    event.preventDefault();
+    const input = event.target?.querySelector?.("[data-aion-o25e-typed-input='true']");
+    const text = String(input?.value || "").trim();
+    if (!text) return;
+
+    if (typeof window.appendAionO21ETranscript === "function") {
+      window.appendAionO21ETranscript(text, {
+        provider: "typed_fallback",
+        source: "typed_fallback",
+      });
+    }
+
+    if (input) input.value = "";
+    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 50);
+  }
+
+  function installO25EStyles() {
+    if (document.getElementById("aion-o25e-terminal-only-style")) return;
+
+    const style = document.createElement("style");
+    style.id = "aion-o25e-terminal-only-style";
+    style.textContent = `
+      [data-aion-o20c-conversation-shell='true'] .aion-o20c-terminal-header {
+        display: none !important;
+      }
+
+      [data-aion-o20c-conversation-shell='true'] .aion-o20c-terminal {
+        min-height: calc(100vh - 90px) !important;
+        padding: 0 !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+
+      .aion-o25e-voice-terminal {
+        width: min(1120px, calc(100vw - 76px));
+        min-height: calc(100vh - 96px);
+        margin: 28px auto;
+        display: grid;
+        grid-template-rows: auto 1fr auto auto auto;
+        gap: 16px;
+        border: 1px solid rgba(15, 23, 42, 0.10);
+        border-radius: 30px;
+        padding: 26px;
+        background:
+          radial-gradient(circle at 90% 8%, rgba(45, 212, 191, 0.10), transparent 32%),
+          rgba(255, 255, 255, 0.92);
+        box-shadow: 0 28px 90px rgba(15, 23, 42, 0.10);
+        color: #0f172a;
+      }
+
+      .aion-o25e-voice-terminal-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+      }
+
+      .aion-o25e-kicker {
+        color: #7bb8cc;
+        letter-spacing: 0.28em;
+        font-size: 11px;
+        font-weight: 900;
+        margin-bottom: 8px;
+      }
+
+      .aion-o25e-voice-terminal h2 {
+        margin: 0;
+        font-size: clamp(34px, 5vw, 72px);
+        letter-spacing: -0.065em;
+        line-height: 0.95;
+      }
+
+      .aion-o25e-speaking-orb {
+        width: 76px;
+        height: 76px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        color: #35f2bf;
+        font-size: 32px;
+        font-weight: 900;
+        background:
+          radial-gradient(circle at 40% 35%, rgba(255,255,255,0.88), rgba(15,23,42,0.82) 58%, #0f172a);
+        box-shadow: 0 0 0 12px rgba(45, 212, 191, 0.10), 0 18px 48px rgba(15,23,42,0.20);
+      }
+
+      .aion-o25e-speaking-orb.is-listening {
+        animation: aionO25EPulse 1.1s ease-in-out infinite;
+      }
+
+      @keyframes aionO25EPulse {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 0 10px rgba(45,212,191,0.10), 0 18px 48px rgba(15,23,42,0.20); }
+        50% { transform: scale(1.035); box-shadow: 0 0 0 18px rgba(45,212,191,0.18), 0 18px 54px rgba(15,23,42,0.24); }
+      }
+
+      .aion-o25e-transcript {
+        min-height: 420px;
+        max-height: calc(100vh - 330px);
+        overflow: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid rgba(15,23,42,0.08);
+        border-radius: 24px;
+        background: rgba(248, 250, 252, 0.86);
+      }
+
+      .aion-o25e-transcript-row {
+        max-width: 76%;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: #ffffff;
+        box-shadow: 0 10px 28px rgba(15,23,42,0.06);
+      }
+
+      .aion-o25e-transcript-row.is-aion {
+        align-self: flex-start;
+        border-top-left-radius: 6px;
+      }
+
+      .aion-o25e-transcript-row.is-user {
+        align-self: flex-end;
+        border-top-right-radius: 6px;
+        background: #0f172a;
+        color: #ffffff;
+      }
+
+      .aion-o25e-speaker {
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        opacity: 0.58;
+        margin-bottom: 6px;
+      }
+
+      .aion-o25e-message {
+        font-size: 15px;
+        line-height: 1.48;
+      }
+
+      .aion-o25e-voice-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      .aion-o25e-talk,
+      .aion-o25e-stop,
+      .aion-o25e-typed-fallback button {
+        border: 0;
+        border-radius: 999px;
+        padding: 13px 18px;
+        font-weight: 900;
+        cursor: pointer;
+      }
+
+      .aion-o25e-talk {
+        background: #0f172a;
+        color: #ffffff;
+      }
+
+      .aion-o25e-stop {
+        background: rgba(15,23,42,0.08);
+        color: #0f172a;
+      }
+
+      .aion-o25e-voice-bar {
+        height: 42px;
+        min-width: 180px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 0 12px;
+        border-radius: 999px;
+        background: rgba(15,23,42,0.05);
+      }
+
+      .aion-o25e-voice-bar span {
+        width: 5px;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(15,23,42,0.28);
+      }
+
+      .aion-o25e-voice-bar.is-active span {
+        animation: aionO25EBar 0.8s ease-in-out infinite;
+      }
+
+      .aion-o25e-voice-bar.is-active span:nth-child(2) { animation-delay: 0.08s; }
+      .aion-o25e-voice-bar.is-active span:nth-child(3) { animation-delay: 0.16s; }
+      .aion-o25e-voice-bar.is-active span:nth-child(4) { animation-delay: 0.24s; }
+      .aion-o25e-voice-bar.is-active span:nth-child(5) { animation-delay: 0.32s; }
+
+      @keyframes aionO25EBar {
+        0%, 100% { height: 9px; }
+        50% { height: 30px; }
+      }
+
+      .aion-o25e-typed-fallback {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+
+      .aion-o25e-typed-fallback input {
+        border: 1px solid rgba(15,23,42,0.12);
+        border-radius: 999px;
+        padding: 14px 16px;
+        font-size: 15px;
+        outline: none;
+        background: #ffffff;
+      }
+
+      .aion-o25e-status-line {
+        font-size: 12px;
+        color: rgba(15,23,42,0.52);
+      }
+
+      [data-aion-o25e-voice-terminal-only='true'] [data-aion-o21c-voice-provider-status],
+      [data-aion-o25e-voice-terminal-only='true'] [data-aion-o21e-live-mic-panel],
+      [data-aion-o25e-voice-terminal-only='true'] [data-aion-o21f-business-twin-voice-binding] {
+        display: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  document.addEventListener("click", (event) => {
+    const talk = event.target?.closest?.("[data-aion-o25e-talk-toggle='true']");
+    if (talk) {
+      event.preventDefault();
+      handleO25ETalkToggle();
+      return;
+    }
+
+    const stop = event.target?.closest?.("[data-aion-o25e-stop-talking='true']");
+    if (stop) {
+      event.preventDefault();
+      handleO25EStopTalking();
+    }
+  }, true);
+
+  document.addEventListener("submit", (event) => {
+    const form = event.target?.closest?.("[data-aion-o25e-typed-form='true']");
+    if (form) handleO25ETypedSubmit(event);
+  }, true);
+
+  function scheduleSync() {
+    installO25EStyles();
+    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 0);
+    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 150);
+    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 600);
+  }
+
+  document.addEventListener("aion:startup-rendered", scheduleSync);
+  document.addEventListener("aion:conversation-terminal-opened", scheduleSync);
+  document.addEventListener("aion:o25d-startup-conversation-rendered", scheduleSync);
+
+  const observer = new MutationObserver(() => {
+    const shell = document.querySelector("[data-aion-o20c-conversation-shell='true']");
+    const terminalOnly = document.querySelector("[data-aion-o25e-voice-terminal-only='true']");
+    if (shell && !terminalOnly) scheduleSync();
+  });
+
+  try {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch {}
+
+  window.renderAionO25ETerminalOnlyVoiceConversation = renderAionO25ETerminalOnlyVoiceConversation;
+  window.syncAionO25ETerminalOnlyVoiceConversation = syncAionO25ETerminalOnlyVoiceConversation;
+  window.__debugAionO25ETerminalOnlyFoundationVoiceUX = function () {
+    return {
+      installed: true,
+      version: VERSION,
+      terminal_present: !!document.querySelector("[data-aion-o25e-voice-terminal-only='true']"),
+      transcript_present: !!document.querySelector("[data-aion-o25e-transcript-log='true']"),
+      talk_control_present: !!document.querySelector("[data-aion-o25e-talk-toggle='true']"),
+      stop_control_present: !!document.querySelector("[data-aion-o25e-stop-talking='true']"),
+      typed_fallback_present: !!document.querySelector("[data-aion-o25e-typed-form='true']"),
+      bridge_state: getO25EBridgeState(),
+      voice_state: getO25EVoiceState(),
+      visible_text_contains_elevenlabs: /ElevenLabs/i.test(document.body?.innerText || ""),
+    };
+  };
+
+  scheduleSync();
+  console.log("[AION] O25E terminal-only Foundation voice UX installed");
+})();
+
 // Browser SpeechRecognition runtime calls are disabled for AION live mic.
 // Live mic STT must post audio chunks to /api/aion/voice/stt and use the local worker bridge.
 window.__aionO22FBrowserSpeechRuntimeDisabled = true;
