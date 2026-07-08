@@ -1,0 +1,309 @@
+from __future__ import annotations
+
+import argparse
+import base64
+import json
+import tempfile
+import time
+from pathlib import Path
+from typing import Any
+
+
+DEFAULT_SAMPLE_RATE = 24000
+DEFAULT_KOKORO_REPO = "hexgrad/Kokoro-82M"
+DEFAULT_KOKORO_VOICE = "af_heart"
+DEFAULT_WHISPER_MODEL = "base"
+
+
+def _json_out(payload: dict[str, Any]) -> int:
+    print(json.dumps(payload, indent=2))
+    return 0 if payload.get("ok") else 1
+
+
+def _first_present(*values):
+    for value in values:
+        if value is not None:
+            return value
+    return None
+
+
+def _audio_len(audio) -> int:
+    if audio is None:
+        return 0
+    try:
+        return int(len(audio))
+    except Exception:
+        pass
+    try:
+        return int(audio.numel())
+    except Exception:
+        return 0
+
+
+def _to_numpy_audio(audio):
+    if audio is None:
+        return None
+    try:
+        import torch
+        if isinstance(audio, torch.Tensor):
+            return audio.detach().cpu().numpy()
+    except Exception:
+        pass
+    return audio
+
+
+def _extract_kokoro_item(item):
+    if isinstance(item, (tuple, list)) and len(item) >= 3:
+        return item[0], item[1], item[2]
+
+    if isinstance(item, dict):
+        audio = _first_present(item.get("audio"), item.get("wav"), item.get("samples"))
+        gs = _first_present(item.get("graphemes"), item.get("text"), item.get("gs"), "")
+        ps = _first_present(item.get("phonemes"), item.get("ps"), "")
+        return gs, ps, audio
+
+    audio = _first_present(
+        getattr(item, "audio", None),
+        getattr(item, "wav", None),
+        getattr(item, "samples", None),
+    )
+    gs = _first_present(
+        getattr(item, "graphemes", None),
+        getattr(item, "text", None),
+        getattr(item, "gs", None),
+        "",
+    )
+    ps = _first_present(
+        getattr(item, "phonemes", None),
+        getattr(item, "ps", None),
+        "",
+    )
+    return gs, ps, audio
+
+
+def run_tts(request: dict[str, Any]) -> dict[str, Any]:
+    started = time.time()
+    text = str(request.get("text") or "").strip()
+    voice = str(request.get("voice") or DEFAULT_KOKORO_VOICE).strip()
+    sample_rate = int(request.get("sample_rate") or DEFAULT_SAMPLE_RATE)
+    repo_id = str(request.get("repo_id") or DEFAULT_KOKORO_REPO).strip()
+
+    if not text:
+        return {
+            "ok": False,
+            "provider": "kokoro",
+            "stage": "validate",
+            "error": "Missing text for TTS.",
+        }
+
+    try:
+        from kokoro import KPipeline
+        import numpy as np
+        import soundfile as sf
+    except Exception as exc:
+        return {
+            "ok": False,
+            "provider": "kokoro",
+            "stage": "import",
+            "error": repr(exc),
+        }
+
+    try:
+        pipeline = KPipeline(lang_code="a", repo_id=repo_id)
+        generator = pipeline(text, voice=voice)
+
+        chunks = []
+        debug_items = []
+
+        for index, item in enumerate(generator):
+            gs, ps, audio = _extract_kokoro_item(item)
+            audio_np = _to_numpy_audio(audio)
+
+            debug_items.append({
+                "index": index,
+                "item_type": type(item).__name__,
+                "audio_type": type(audio).__name__ if audio is not None else None,
+                "audio_len": _audio_len(audio),
+                "numpy_audio_type": type(audio_np).__name__ if audio_np is not None else None,
+                "numpy_audio_len": _audio_len(audio_np),
+                "graphemes_preview": str(gs)[:160],
+                "phonemes_preview": str(ps)[:160],
+            })
+
+            if audio_np is not None and _audio_len(audio_np) > 0:
+                chunks.append(audio_np)
+
+        if not chunks:
+            return {
+                "ok": False,
+                "provider": "kokoro",
+                "stage": "synthesis",
+                "error": "Kokoro returned no extractable audio chunks.",
+                "debug": debug_items,
+            }
+
+        audio = chunks[0] if len(chunks) == 1 else np.concatenate(chunks)
+
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+
+        try:
+            sf.write(str(tmp_path), audio, sample_rate)
+            wav_bytes = tmp_path.read_bytes()
+        finally:
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+
+        if len(wav_bytes) < 1000:
+            return {
+                "ok": False,
+                "provider": "kokoro",
+                "stage": "synthesis",
+                "error": f"Generated WAV too small: {len(wav_bytes)} bytes.",
+            }
+
+        return {
+            "ok": True,
+            "provider": "kokoro",
+            "voice": voice,
+            "sample_rate": sample_rate,
+            "mime_type": "audio/wav",
+            "audio_base64": base64.b64encode(wav_bytes).decode("ascii"),
+            "size_bytes": len(wav_bytes),
+            "elapsed_seconds": round(time.time() - started, 3),
+            "business_context_hardcoded": False,
+            "debug": {
+                "chunks": len(chunks),
+                "items": debug_items,
+            },
+        }
+
+    except Exception as exc:
+        return {
+            "ok": False,
+            "provider": "kokoro",
+            "stage": "synthesis",
+            "error": repr(exc),
+        }
+
+
+def run_stt(request: dict[str, Any]) -> dict[str, Any]:
+    started = time.time()
+    audio_b64 = str(request.get("audio_base64") or "")
+    filename = str(request.get("filename") or "audio.wav")
+    model_name = str(request.get("model") or DEFAULT_WHISPER_MODEL)
+
+    if not audio_b64:
+        return {
+            "ok": False,
+            "provider": "faster-whisper",
+            "stage": "validate",
+            "error": "Missing audio_base64 for STT.",
+        }
+
+    try:
+        from faster_whisper import WhisperModel
+    except Exception as exc:
+        return {
+            "ok": False,
+            "provider": "faster-whisper",
+            "stage": "import",
+            "error": repr(exc),
+        }
+
+    try:
+        suffix = Path(filename).suffix or ".wav"
+
+        with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+            tmp_path = Path(tmp.name)
+            tmp.write(base64.b64decode(audio_b64))
+
+        try:
+            model = WhisperModel(
+                model_name,
+                device=str(request.get("device") or "auto"),
+                compute_type=str(request.get("compute_type") or "int8"),
+            )
+
+            segments_iter, info = model.transcribe(
+                str(tmp_path),
+                beam_size=int(request.get("beam_size") or 5),
+                vad_filter=bool(request.get("vad_filter") or False),
+            )
+
+            segments = []
+            transcript_parts = []
+
+            for segment in segments_iter:
+                text = (segment.text or "").strip()
+                if text:
+                    transcript_parts.append(text)
+                segments.append({
+                    "start": round(float(segment.start), 3),
+                    "end": round(float(segment.end), 3),
+                    "text": text,
+                })
+
+            transcript = " ".join(transcript_parts).strip()
+
+            return {
+                "ok": True,
+                "provider": "faster-whisper",
+                "model": model_name,
+                "language": getattr(info, "language", None),
+                "language_probability": round(float(getattr(info, "language_probability", 0.0)), 4),
+                "duration": round(float(getattr(info, "duration", 0.0)), 3),
+                "text": transcript,
+                "segments": segments,
+                "elapsed_seconds": round(time.time() - started, 3),
+                "business_context_hardcoded": False,
+            }
+        finally:
+            try:
+                tmp_path.unlink()
+            except Exception:
+                pass
+
+    except Exception as exc:
+        return {
+            "ok": False,
+            "provider": "faster-whisper",
+            "stage": "transcription",
+            "error": repr(exc),
+        }
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="AION local voice worker")
+    parser.add_argument("mode", choices=["tts", "stt"])
+    parser.add_argument("--request", required=True, help="Path to JSON request")
+    args = parser.parse_args()
+
+    request_path = Path(args.request)
+    try:
+        request = json.loads(request_path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        return _json_out({
+            "ok": False,
+            "stage": "request",
+            "error": repr(exc),
+            "request_path": str(request_path),
+        })
+
+    if args.mode == "tts":
+        return _json_out(run_tts(request))
+
+    if args.mode == "stt":
+        return _json_out(run_stt(request))
+
+    return _json_out({
+        "ok": False,
+        "stage": "mode",
+        "error": f"Unsupported mode: {args.mode}",
+    })
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
