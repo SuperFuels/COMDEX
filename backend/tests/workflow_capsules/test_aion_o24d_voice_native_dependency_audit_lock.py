@@ -33,7 +33,15 @@ def test_o24d_manifest_records_external_dependency_release_blocker():
 
     assert data["release_ready"] is False
     assert "external_native_dependencies_present" in data["release_blockers"]
-    assert "app_python_symlink_present" in data["release_blockers"]
+
+    # Before O24E, the app Python itself was a symlink.
+    # After O24E, the executable is materialized, but its native framework dependency
+    # can still point at Homebrew until the framework is bundled/relinked.
+    blocker_blob = json.dumps(data["release_blockers"])
+    assert (
+        "app_python_symlink_present" in blocker_blob
+        or "external_native_dependencies_present" in blocker_blob
+    )
 
     assert data["external_dependency_count"] > 0
     blob = json.dumps(data["external_dependency_records"])
