@@ -23164,11 +23164,14 @@ function renderBusinessEntryModeSelector() {
         return panelHtmlO19I();
       } catch {}
     }
+    if (typeof renderAionO25DBusinessFoundationConversationPanel === "function") {
+      return renderAionO25DBusinessFoundationConversationPanel();
+    }
     return `
-      <section class="aion-o20c-fallback-terminal">
+      <section class="aion-o20c-fallback-terminal" data-aion-o25d-foundation-terminal="true">
         <div class="aion-o20c-terminal-kicker">AION CONVERSATION</div>
         <h2>Welcome to Tessaris.</h2>
-        <p>The voice guide is loading. AION will introduce the Business Operating System and begin capturing your answers into the transcript.</p>
+        <p>AION will explain the Business Operating System, ask the starter questions, and capture answers into the Business Foundation draft.</p>
       </section>
     `;
   })();
@@ -23181,13 +23184,13 @@ function renderBusinessEntryModeSelector() {
           <header class="aion-o20c-terminal-header">
             <div>
               <div class="aion-o20c-eyebrow">AION LIVE SETUP</div>
-              <h1>Business Twin Conversation</h1>
-              <p>AION is speaking through ElevenLabs. Your answers are captured into the transcript and used to build the Business Twin.</p>
+              <h1>Business Foundation Conversation</h1>
+              <p>AION is using the local voice runtime where available. Your answers are captured into the transcript and used to build the Business Foundation canvas, Business Map, and Boardroom readiness profile.</p>
             </div>
             <button type="button" data-aion-o20c-reset-start="true">Back to start</button>
           </header>
 
-          <section class="aion-o20c-terminal" data-aion-o20c-terminal="true">
+          <section class="aion-o20c-terminal" data-aion-o20c-terminal="true" data-aion-o20c-conversation-terminal="true" data-aion-startup-conversation-terminal="true" data-aion-business-foundation-terminal="true">
             ${conversationPanel}
           </section>
         </main>
@@ -142738,3 +142741,306 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
   console.log("[AION] O25C Business Foundation voice discovery bridge installed");
 })();
 
+
+
+/* ============================================================
+ * AION O25D — Startup Conversation Foundation UX Lock
+ * ------------------------------------------------------------
+ * Turns the startup conversation from a placeholder into the
+ * visible Business Foundation discovery terminal.
+ *
+ * This is still preview-safe:
+ * - no live execution
+ * - no external actions
+ * - no hidden provider call
+ * - no hard-coded business answers
+ * - schema-driven discovery via O25B controller
+ * ============================================================ */
+
+(function installAionO25DStartupConversationFoundationUXLock() {
+  if (typeof window === "undefined") return;
+  if (window.__aionO25DStartupConversationFoundationUXInstalled) return;
+  window.__aionO25DStartupConversationFoundationUXInstalled = true;
+
+  const ENTRY_MODE_KEY = "aion.o20c.mode";
+
+  function safeEscapeO25D(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function getAionO25DEntryMode() {
+    try {
+      return (
+        window.__aionO20COpeningMode ||
+        window.localStorage?.getItem(ENTRY_MODE_KEY) ||
+        window.localStorage?.getItem("aion.businessTwinSetup.entryRoute.v1") ||
+        "start_with_aion"
+      );
+    } catch {
+      return "start_with_aion";
+    }
+  }
+
+  function normaliseAionO25DEntryMode(mode = "") {
+    const clean = String(mode || "").trim().toLowerCase();
+    if (clean === "small_business_growth" || clean === "existing_business" || clean === "i_have_a_business") return "existing_business";
+    if (clean === "founder_build_idea" || clean === "idea" || clean === "i_have_an_idea") return "idea";
+    if (clean === "founder_generate_idea" || clean === "generate_idea") return "generate_idea";
+    return "start_with_aion";
+  }
+
+  function getAionO25DEntryModeLabel(mode = getAionO25DEntryMode()) {
+    const normalised = normaliseAionO25DEntryMode(mode);
+    if (normalised === "existing_business") return "Existing business";
+    if (normalised === "idea") return "Business idea";
+    if (normalised === "generate_idea") return "Generate an idea";
+    return "Guided start";
+  }
+
+  function buildAionO25DStarterPacket() {
+    const entryMode = normaliseAionO25DEntryMode(getAionO25DEntryMode());
+
+    if (window.__aionBusinessFoundationVoiceDiscoveryPacket) {
+      return window.__aionBusinessFoundationVoiceDiscoveryPacket;
+    }
+
+    try {
+      if (typeof window.buildAionO25BBusinessFoundationDiscoveryPacket === "function") {
+        const packet = window.buildAionO25BBusinessFoundationDiscoveryPacket({
+          entry_mode: entryMode,
+          source: "startup_conversation_terminal",
+        });
+        window.__aionBusinessFoundationVoiceDiscoveryPacket = packet;
+        return packet;
+      }
+    } catch {}
+
+    try {
+      if (typeof window.createAionBusinessFoundationVoiceDiscoveryState === "function") {
+        const packet = window.createAionBusinessFoundationVoiceDiscoveryState({
+          entry_mode: entryMode,
+          source: "startup_conversation_terminal",
+        });
+        window.__aionBusinessFoundationVoiceDiscoveryPacket = packet;
+        return packet;
+      }
+    } catch {}
+
+    return {
+      version: "aion.o25d.startup_conversation_foundation_ux.fallback",
+      entry_mode: entryMode,
+      transcript_count: 0,
+      foundation_draft: {},
+      next_question: {
+        text: "What are you looking to achieve with AION?",
+        target_field: "desired_outcome",
+        schema_driven: true,
+      },
+      readiness: {
+        readiness_score: 0,
+        status: "starter",
+      },
+      safety: {
+        preview_only: true,
+        external_actions_allowed: false,
+        live_execution_allowed: false,
+      },
+    };
+  }
+
+  window.renderAionO25DBusinessFoundationConversationPanel = function renderAionO25DBusinessFoundationConversationPanel() {
+    const packet = buildAionO25DStarterPacket();
+    const entryLabel = getAionO25DEntryModeLabel(packet.entry_mode || getAionO25DEntryMode());
+    const nextQuestion = packet?.next_question?.text || "What are you looking to achieve with AION?";
+    const readinessScore = packet?.readiness?.readiness_score ?? 0;
+    const transcriptCount = packet?.transcript_count ?? 0;
+
+    const voiceStatus =
+      typeof renderAionVoiceProviderStatusPanelO21C === "function"
+        ? renderAionVoiceProviderStatusPanelO21C()
+        : "";
+
+    const micPanel =
+      typeof renderAionO21ELiveMicTranscriptPanel === "function"
+        ? renderAionO21ELiveMicTranscriptPanel()
+        : `
+          <section class="aion-o21e-live-mic-panel" data-aion-o21e-live-mic-panel>
+            <div class="aion-o21e-live-mic-head">
+              <div>
+                <div class="aion-o21e-live-mic-title">Live voice input</div>
+                <div class="aion-o21e-live-mic-subtitle">Local STT panel loading</div>
+              </div>
+            </div>
+            <div class="aion-o21e-live-transcript-log" data-aion-o21e-live-transcript-log></div>
+          </section>
+        `;
+
+    const bindingPanel =
+      typeof renderAionO21FBusinessTwinVoiceBindingPanel === "function"
+        ? renderAionO21FBusinessTwinVoiceBindingPanel()
+        : "";
+
+    return `
+      <section class="aion-o25d-foundation-terminal" data-aion-o25d-foundation-terminal="true">
+        <div class="aion-o25d-foundation-intro">
+          <div class="aion-o20c-terminal-kicker">AION CONVERSATION</div>
+          <h2>Welcome to Tessaris.</h2>
+          <p>
+            AION is a serious business operating system. It can map your business, build your Business Foundation,
+            create a Business Map, activate the Boardroom, and route deeper discovery to Marketing, Sales, Finance,
+            Operations and Support pilots.
+          </p>
+          <p>
+            Start by telling AION what you want to achieve, whether this is an existing business, an idea, or something
+            you want AION to help you generate.
+          </p>
+        </div>
+
+        <div class="aion-o25d-starter-row" data-aion-o25d-starter-row="true">
+          <button type="button" data-aion-o25d-entry-mode="existing_business">I have a business</button>
+          <button type="button" data-aion-o25d-entry-mode="idea">I have an idea</button>
+          <button type="button" data-aion-o25d-entry-mode="generate_idea">Generate an idea</button>
+        </div>
+
+        <section class="aion-o25d-discovery-card" data-aion-o25d-discovery-card="true">
+          <div class="aion-o25d-discovery-meta">
+            <span>Mode: ${safeEscapeO25D(entryLabel)}</span>
+            <span>Transcript turns: ${safeEscapeO25D(String(transcriptCount))}</span>
+            <span>Foundation readiness: ${safeEscapeO25D(String(readinessScore))}%</span>
+          </div>
+          <div class="aion-o25d-next-question" data-aion-o25d-next-question="true">
+            <strong>Next question</strong>
+            <p>${safeEscapeO25D(nextQuestion)}</p>
+          </div>
+          <div class="aion-o25d-safety-line">
+            Preview only · no live execution · no external actions · schema-driven Business Foundation discovery
+          </div>
+        </section>
+
+        ${voiceStatus}
+        ${micPanel}
+
+        <section class="aion-o25d-typed-fallback" data-aion-o25d-typed-fallback="true">
+          <label for="aion-o25d-typed-answer">Type an answer for UX testing</label>
+          <div class="aion-o25d-typed-row">
+            <textarea id="aion-o25d-typed-answer" data-aion-o25d-typed-answer placeholder="Example: I have an existing business and I want AION to map it, understand the departments, and help me improve sales and operations."></textarea>
+            <button type="button" data-aion-o25d-submit-typed-answer="true">Add to transcript</button>
+          </div>
+        </section>
+
+        ${bindingPanel}
+
+        <section class="aion-o25d-business-map-note" data-aion-o25d-business-map-note="true">
+          <strong>Where this goes next</strong>
+          <p>
+            These opening answers become the Business Foundation draft. The Boardroom can then assess readiness and
+            delegate more granular discovery to the department pilots instead of guessing.
+          </p>
+        </section>
+      </section>
+    `;
+  };
+
+  function refreshAionO25DConversationSurface() {
+    try {
+      if (typeof requestRender === "function") requestRender();
+      else if (typeof render === "function") render();
+    } catch {}
+    setTimeout(() => {
+      try {
+        if (typeof mountAionO21ELiveMicTranscriptPanel === "function") mountAionO21ELiveMicTranscriptPanel();
+        if (typeof mountAionO21FBusinessTwinVoiceBinding === "function") mountAionO21FBusinessTwinVoiceBinding();
+        if (typeof syncAionVoiceProviderStatusPanelO21C === "function") syncAionVoiceProviderStatusPanelO21C();
+      } catch {}
+    }, 0);
+  }
+
+  document.addEventListener("click", (event) => {
+    const modeButton = event.target?.closest?.("[data-aion-o25d-entry-mode]");
+    if (modeButton) {
+      const mode = normaliseAionO25DEntryMode(modeButton.getAttribute("data-aion-o25d-entry-mode") || "");
+      try {
+        window.__aionO20COpeningMode = mode;
+        window.localStorage?.setItem(ENTRY_MODE_KEY, mode);
+        window.localStorage?.setItem("aion.businessTwinSetup.entryRoute.v1", mode);
+      } catch {}
+
+      try {
+        if (typeof window.applyAionO25BVoiceTurnToFoundationDraft === "function") {
+          window.__aionBusinessFoundationVoiceDiscoveryPacket =
+            window.applyAionO25BVoiceTurnToFoundationDraft({
+              speaker: "user",
+              text:
+                mode === "existing_business"
+                  ? "I have an existing business."
+                  : mode === "idea"
+                    ? "I have a business idea."
+                    : "I want AION to help me generate a business idea.",
+              entry_mode: mode,
+              source: "startup_choice",
+            });
+        }
+      } catch {}
+
+      refreshAionO25DConversationSurface();
+      return;
+    }
+
+    const submit = event.target?.closest?.("[data-aion-o25d-submit-typed-answer]");
+    if (submit) {
+      const input = document.querySelector("[data-aion-o25d-typed-answer]");
+      const value = String(input?.value || "").trim();
+      if (!value) return;
+
+      try {
+        if (typeof window.appendAionO21ETranscript === "function") {
+          window.appendAionO21ETranscript(value, {
+            provider: "typed_ux_test",
+            source: "typed_ux_test",
+          });
+        } else if (typeof window.applyAionO25BVoiceTurnToFoundationDraft === "function") {
+          window.__aionBusinessFoundationVoiceDiscoveryPacket =
+            window.applyAionO25BVoiceTurnToFoundationDraft({
+              speaker: "user",
+              text: value,
+              entry_mode: normaliseAionO25DEntryMode(getAionO25DEntryMode()),
+              source: "typed_ux_test",
+            });
+        }
+        input.value = "";
+      } catch (error) {
+        console.warn("[AION O25D] typed answer failed", error);
+      }
+
+      refreshAionO25DConversationSurface();
+    }
+  });
+
+  window.__debugAionO25DStartupConversationFoundationUX = function __debugAionO25DStartupConversationFoundationUX() {
+    const packet = buildAionO25DStarterPacket();
+    return {
+      installed: true,
+      terminal_present: !!document.querySelector("[data-aion-o25d-foundation-terminal='true']"),
+      conversation_terminal_present: !!document.querySelector("[data-aion-o20c-conversation-terminal='true']"),
+      controller_loaded: typeof window.applyAionO25BVoiceTurnToFoundationDraft === "function",
+      entry_mode: normaliseAionO25DEntryMode(getAionO25DEntryMode()),
+      packet_version: packet?.version || null,
+      next_question: packet?.next_question || null,
+      readiness: packet?.readiness || null,
+      safety: {
+        preview_only: true,
+        external_actions_allowed: false,
+        live_execution_allowed: false,
+        no_hard_coded_business_answers: true,
+      },
+    };
+  };
+
+  console.log("[AION] O25D startup conversation foundation UX installed");
+})();
