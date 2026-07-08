@@ -170,7 +170,7 @@ import sys
 from pathlib import Path
 
 runtime_root = Path({str(APP_RUNTIME_ROOT)!r}).resolve()
-repo_root = Path({str(ROOT)!r}).resolve()
+repo_backend_source = Path({str(REPO_AION_VOICE)!r}).resolve()
 
 worker_imports = {REQUIRED_WORKER_IMPORTS!r}
 voice_imports = {REQUIRED_VOICE_IMPORTS!r}
@@ -180,17 +180,19 @@ imports = {{}}
 for name in worker_imports + voice_imports:
     spec = importlib.util.find_spec(name)
     origin = getattr(spec, "origin", None) if spec else None
+    resolved_origin = Path(origin).resolve() if origin else None
     imports[name] = {{
         "found": spec is not None,
         "origin": origin,
-        "inside_app_runtime": bool(origin and str(Path(origin).resolve()).startswith(str(runtime_root))) if name.startswith("backend.") else None,
-        "inside_repo": bool(origin and str(Path(origin).resolve()).startswith(str(repo_root))) if name.startswith("backend.") else None,
+        "inside_app_runtime": bool(resolved_origin and str(resolved_origin).startswith(str(runtime_root))) if name.startswith("backend.") else None,
+        "inside_repo": bool(resolved_origin and str(resolved_origin).startswith(str(repo_backend_source))) if name.startswith("backend.") else None,
     }}
 
 print(json.dumps({{
     "executable": sys.executable,
     "version_info": list(sys.version_info[:3]),
     "runtime_root": str(runtime_root),
+    "repo_backend_source": str(repo_backend_source),
     "imports": imports,
 }}))
 """
