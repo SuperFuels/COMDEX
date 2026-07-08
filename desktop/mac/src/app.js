@@ -142709,7 +142709,7 @@ setTimeout(() => {
  *   state, and a typed fallback.
  * - Foundation discovery, readiness, next-question planning and
  *   draft capture continue silently behind the UX.
- * - No ElevenLabs wording.
+ * - No paid cloud voice branding in the terminal.
  * - No live execution.
  * - No external actions.
  * ============================================================ */
@@ -143229,7 +143229,7 @@ setTimeout(() => {
       typed_fallback_present: !!document.querySelector("[data-aion-o25e-typed-form='true']"),
       bridge_state: getO25EBridgeState(),
       voice_state: getO25EVoiceState(),
-      visible_text_contains_elevenlabs: /ElevenLabs/i.test(document.body?.innerText || ""),
+      visible_text_contains_paid_cloud_voice_branding: /ElevenLabs/i.test(document.body?.innerText || ""),
     };
   };
 

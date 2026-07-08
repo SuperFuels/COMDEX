@@ -62,7 +62,7 @@ def test_o25e_removes_visible_elevenlabs_language_from_new_terminal():
 def test_o25e_debug_probe_available_for_manual_ux_testing():
     block = o25e_block()
     assert "__debugAionO25ETerminalOnlyFoundationVoiceUX" in block
-    assert "visible_text_contains_elevenlabs" in block
+    assert "visible_text_contains_paid_cloud_voice_branding" in block
     assert "terminal_present" in block
     assert "talk_control_present" in block
 
