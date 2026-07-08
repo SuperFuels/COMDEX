@@ -144119,3 +144119,343 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
   console.log("[AION] O25F automatic local voice foundation conversation installed");
 })();
+
+
+/*
+ * AION O25G — Single Authority Voice Onboarding UX Lock
+ * Purpose:
+ * - Stop legacy Business Twin Setup v1 fighting the voice onboarding.
+ * - Keep start screen clean until the user chooses a path.
+ * - When "I have a business" is clicked, open only the voice terminal.
+ * - Label AION transcript rows as AION, not YOU.
+ * - Use absolute local backend endpoint for STT from file:// Electron renderer.
+ * - No fake external action, no paid cloud voice branding, no live execution.
+ */
+(function installAionO25GSingleAuthorityVoiceOnboardingUXLock() {
+  if (window.__aionO25GSingleAuthorityVoiceOnboardingUXInstalled) return;
+  window.__aionO25GSingleAuthorityVoiceOnboardingUXInstalled = true;
+
+  const VERSION = "aion.o25g.single_authority_voice_onboarding_ux.v0.1";
+  const CONVERSATION_OPEN_KEY = "aion.o20c.conversationOpen";
+  const CONVERSATION_MODE_KEY = "aion.o20c.conversationMode";
+  const LOCAL_STT_ENDPOINT = "http://127.0.0.1:8080/api/aion/voice/stt";
+
+  function safeText(node) {
+    try { return String(node?.innerText || node?.textContent || ""); } catch { return ""; }
+  }
+
+  function isLegacyBusinessTwinSetupNode(node) {
+    const txt = safeText(node);
+    return (
+      /AION does not guess your business/i.test(txt) ||
+      /Start Business Twin Setup/i.test(txt) ||
+      /Continue in Limited Context Mode/i.test(txt) ||
+      /Step 1\s*·\s*Business Classifier/i.test(txt) ||
+      /Step 3\s*·\s*Evidence and Connector Map/i.test(txt) ||
+      /Create Business Twin Draft/i.test(txt)
+    );
+  }
+
+  function removeLegacyBusinessTwinSetupSurfaces() {
+    try {
+      const candidates = Array.from(document.querySelectorAll("main, section, article, aside, dialog, div"));
+      for (const node of candidates) {
+        if (!node || node === document.body || node === document.documentElement) continue;
+        if (!isLegacyBusinessTwinSetupNode(node)) continue;
+
+        const txt = safeText(node);
+        const looksLikeWholeApp =
+          /Business Foundation Conversation/i.test(txt) &&
+          /Reply to AION/i.test(txt);
+
+        if (looksLikeWholeApp) continue;
+
+        const rect = node.getBoundingClientRect?.();
+        const isLargeLegacySurface =
+          !rect ||
+          rect.width > 420 ||
+          rect.height > 220 ||
+          /AION does not guess your business/i.test(txt);
+
+        if (isLargeLegacySurface) {
+          node.setAttribute("data-aion-o25g-legacy-business-twin-removed", "true");
+          node.remove();
+        }
+      }
+    } catch (error) {
+      console.warn("[AION O25G] legacy setup cleanup failed", error);
+    }
+  }
+
+  function clearStaleVoiceConversationState() {
+    try {
+      window.sessionStorage?.removeItem("aion.o25f.introSpoken.v1");
+      window.sessionStorage?.removeItem("aion.o25f.autoStarted.v1");
+      window.__aionO25FLastAskedQuestion = "";
+      window.__aionO25FVoiceRuntimeState = {
+        ...(window.__aionO25FVoiceRuntimeState || {}),
+        speaking: false,
+        starting_audio_request: false,
+      };
+    } catch {}
+  }
+
+  function resetToStartScreen() {
+    try {
+      window.localStorage?.removeItem(CONVERSATION_OPEN_KEY);
+      window.localStorage?.removeItem(CONVERSATION_MODE_KEY);
+      window.localStorage?.removeItem("aion.o20c.openingMode");
+      window.localStorage?.removeItem("aion.o20c.conversation_open");
+      window.sessionStorage?.removeItem("aion.o25f.introSpoken.v1");
+      window.__aionO20COpeningMode = "";
+      window.__aionO25FLastAskedQuestion = "";
+    } catch {}
+
+    removeLegacyBusinessTwinSetupSurfaces();
+
+    try {
+      if (typeof window.requestRender === "function") window.requestRender();
+    } catch {}
+
+    try {
+      if (typeof requestRender === "function") requestRender();
+    } catch {}
+
+    setTimeout(removeLegacyBusinessTwinSetupSurfaces, 50);
+    setTimeout(removeLegacyBusinessTwinSetupSurfaces, 200);
+  }
+
+  function openBusinessFoundationVoiceConversation(mode = "existing_business") {
+    const normalisedMode = mode === "start_with_aion" ? "existing_business" : String(mode || "existing_business");
+
+    try {
+      window.localStorage?.setItem(CONVERSATION_OPEN_KEY, "true");
+      window.localStorage?.setItem(CONVERSATION_MODE_KEY, normalisedMode);
+      window.localStorage?.setItem("aion.o20c.openingMode", normalisedMode);
+      window.localStorage?.setItem("aion.activeTab", "small_business_foundation");
+      window.localStorage?.setItem("aion.activeTab.v1", "small_business_foundation");
+      window.localStorage?.setItem("aion.forcedMainTab.v2", "small_business_foundation");
+      window.__aionForcedMainTabV2 = "small_business_foundation";
+      window.__aionO20COpeningMode = normalisedMode;
+    } catch {}
+
+    clearStaleVoiceConversationState();
+    removeLegacyBusinessTwinSetupSurfaces();
+
+    try {
+      if (typeof window.requestRender === "function") window.requestRender();
+    } catch {}
+
+    try {
+      if (typeof requestRender === "function") requestRender();
+    } catch {}
+
+    setTimeout(removeLegacyBusinessTwinSetupSurfaces, 0);
+    setTimeout(removeLegacyBusinessTwinSetupSurfaces, 80);
+    setTimeout(removeLegacyBusinessTwinSetupSurfaces, 250);
+
+    setTimeout(() => {
+      try {
+        removeLegacyBusinessTwinSetupSurfaces();
+        if (typeof window.beginAionO25FAutomaticConversation === "function") {
+          window.beginAionO25FAutomaticConversation();
+        }
+        if (typeof window.syncAionO25FTerminal === "function") {
+          window.syncAionO25FTerminal();
+        }
+      } catch (error) {
+        console.warn("[AION O25G] open voice conversation failed", error);
+      }
+    }, 300);
+  }
+
+  function isHaveBusinessTrigger(target) {
+    const node = target?.closest?.("button, [role='button'], a, [data-aion-o20c-open-conversation], [data-aion-business-entry-mode]");
+    if (!node) return false;
+
+    const mode =
+      node.getAttribute?.("data-aion-o20c-open-conversation") ||
+      node.getAttribute?.("data-aion-business-entry-mode") ||
+      "";
+
+    const txt = safeText(node).trim();
+
+    return (
+      /small_business_growth|existing_business|have_business|start_with_aion/i.test(mode) ||
+      /^I have a business$/i.test(txt) ||
+      /^Start with AION$/i.test(txt) ||
+      /^Start Business Twin Setup$/i.test(txt)
+    );
+  }
+
+  function isBackToStartTrigger(target) {
+    const node = target?.closest?.("button, [role='button'], a, [data-aion-o20c-reset-start]");
+    if (!node) return false;
+    const txt = safeText(node).trim();
+    return /Back to start/i.test(txt) || node.hasAttribute?.("data-aion-o20c-reset-start");
+  }
+
+  document.addEventListener("click", function onO25GSingleAuthorityClick(event) {
+    if (isBackToStartTrigger(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      resetToStartScreen();
+      return;
+    }
+
+    if (isHaveBusinessTrigger(event.target)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      openBusinessFoundationVoiceConversation("existing_business");
+      return;
+    }
+
+    const txt = safeText(event.target);
+    if (/Start Business Twin Setup|Continue in Limited Context Mode|Create Business Twin Draft/i.test(txt)) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      openBusinessFoundationVoiceConversation("existing_business");
+    }
+  }, true);
+
+  const originalAppend = window.appendAionO21ETranscript;
+  if (typeof originalAppend === "function" && !window.__aionO25GTranscriptSpeakerAuthorityPatched) {
+    window.__aionO25GTranscriptSpeakerAuthorityPatched = true;
+
+    window.appendAionO21ETranscript = function appendAionO25GTranscriptSpeakerAuthority(text, meta = {}) {
+      const result = originalAppend.call(this, text, meta);
+
+      try {
+        const source = String(meta?.source || "");
+        const speaker = String(meta?.speaker || meta?.role || "");
+        const isAion =
+          /aion/i.test(speaker) ||
+          /aion_o25f|aion_intro|auto_question|next_question|foundation_question/i.test(source) ||
+          meta?.aion === true ||
+          meta?.is_aion === true;
+
+        if (isAion && typeof window.getAionO21ELiveMicTranscriptState === "function") {
+          const state = window.getAionO21ELiveMicTranscriptState();
+          const items = Array.isArray(state?.items) ? state.items : [];
+          const last = items[items.length - 1];
+          if (last) {
+            last.speaker = "AION";
+            last.role = "aion";
+            last.source = source || "aion";
+          }
+        }
+      } catch {}
+
+      setTimeout(() => {
+        try {
+          if (typeof window.syncAionO25FTerminal === "function") window.syncAionO25FTerminal();
+          if (typeof window.syncAionO25ETerminalOnlyVoiceConversation === "function") window.syncAionO25ETerminalOnlyVoiceConversation();
+        } catch {}
+      }, 30);
+
+      return result;
+    };
+  }
+
+  if (typeof window.postAionO21EAudioChunkToStt === "function" && !window.__aionO25GAbsoluteSttEndpointPatched) {
+    window.__aionO25GAbsoluteSttEndpointPatched = true;
+
+    window.postAionO21EAudioChunkToStt = async function postAionO25GAudioChunkToAbsoluteLocalStt(blob) {
+      const state =
+        typeof window.getAionO21ELiveMicTranscriptState === "function"
+          ? window.getAionO21ELiveMicTranscriptState()
+          : {};
+
+      try {
+        if (!blob || !blob.size) {
+          state.last_error = "empty_audio_chunk";
+          return { ok: false, error: "empty_audio_chunk" };
+        }
+
+        const form = new FormData();
+        form.append("file", blob, "aion-live-mic.webm");
+        form.append("source", "aion_o25g_absolute_local_stt");
+
+        const response = await fetch(LOCAL_STT_ENDPOINT, {
+          method: "POST",
+          body: form,
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload?.detail || payload?.error || `STT failed ${response.status}`);
+        }
+
+        const transcript = String(payload.text || payload.transcript || "").trim();
+        if (transcript && typeof window.appendAionO21ETranscript === "function") {
+          window.appendAionO21ETranscript(transcript, {
+            source: "local_stt_transcript",
+            speaker: "YOU",
+            role: "user",
+            endpoint: LOCAL_STT_ENDPOINT,
+          });
+        }
+
+        state.last_error = "";
+        state.last_stt_ok = true;
+        state.endpoint = LOCAL_STT_ENDPOINT;
+
+        return { ok: true, text: transcript, payload };
+      } catch (error) {
+        state.last_error = String(error?.message || error);
+        state.last_stt_ok = false;
+        state.endpoint = LOCAL_STT_ENDPOINT;
+        console.warn("[AION O25G] local STT failed", error);
+        return { ok: false, error: String(error?.message || error) };
+      }
+    };
+  }
+
+  const observer = new MutationObserver(() => {
+    removeLegacyBusinessTwinSetupSurfaces();
+  });
+
+  try {
+    observer.observe(document.documentElement || document.body, {
+      childList: true,
+      subtree: true,
+    });
+  } catch {}
+
+  const style = document.createElement("style");
+  style.id = "aion-o25g-single-authority-style";
+  style.textContent = `
+    [data-aion-o25g-legacy-business-twin-removed='true'] {
+      display: none !important;
+    }
+  `;
+  document.head.appendChild(style);
+
+  window.openAionO25GBusinessFoundationVoiceConversation = openBusinessFoundationVoiceConversation;
+  window.resetAionO25GVoiceOnboardingToStart = resetToStartScreen;
+  window.removeAionO25GLegacyBusinessTwinSetupSurfaces = removeLegacyBusinessTwinSetupSurfaces;
+
+  window.__debugAionO25GSingleAuthorityVoiceOnboardingUX = function () {
+    return {
+      installed: true,
+      version: VERSION,
+      conversation_open: window.localStorage?.getItem(CONVERSATION_OPEN_KEY) === "true",
+      conversation_mode: window.localStorage?.getItem(CONVERSATION_MODE_KEY) || "",
+      legacy_business_twin_setup_visible: Array.from(document.querySelectorAll("main, section, article, aside, dialog, div"))
+        .some((node) => isLegacyBusinessTwinSetupNode(node)),
+      terminal_present: !!document.querySelector("[data-aion-o25f-auto-voice-terminal='true']"),
+      transcript_present: !!document.querySelector("[data-aion-o25f-transcript='true'], [data-aion-o25e-transcript-log='true']"),
+      absolute_stt_endpoint: LOCAL_STT_ENDPOINT,
+      voice_runtime_state: window.__aionO25FVoiceRuntimeState || {},
+    };
+  };
+
+  setTimeout(removeLegacyBusinessTwinSetupSurfaces, 0);
+  setTimeout(removeLegacyBusinessTwinSetupSurfaces, 300);
+  setTimeout(removeLegacyBusinessTwinSetupSurfaces, 900);
+
+  console.log("[AION] O25G single authority voice onboarding UX installed");
+})();
