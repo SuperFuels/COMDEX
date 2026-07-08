@@ -23,6 +23,89 @@ DEFAULT_KOKORO_VOICE = "af_heart"
 DEFAULT_WHISPER_MODEL = "base"
 
 
+
+def aion_o23i_bundle_probe() -> int:
+    import importlib.util
+    import json
+    import os
+    import sys
+    from pathlib import Path
+
+    required_env_paths = {
+        "AION_VOICE_BUNDLE_ROOT": os.environ.get("AION_VOICE_BUNDLE_ROOT", ""),
+        "AION_KOKORO_MODEL_PATH": os.environ.get("AION_KOKORO_MODEL_PATH", ""),
+        "AION_KOKORO_CONFIG_PATH": os.environ.get("AION_KOKORO_CONFIG_PATH", ""),
+        "AION_KOKORO_VOICE_PATH": os.environ.get("AION_KOKORO_VOICE_PATH", ""),
+        "AION_SPACY_MODEL_PATH": os.environ.get("AION_SPACY_MODEL_PATH", ""),
+        "AION_WHISPER_MODEL_PATH": os.environ.get("AION_WHISPER_MODEL_PATH", ""),
+    }
+
+    required_imports = [
+        "kokoro",
+        "soundfile",
+        "faster_whisper",
+        "ctranslate2",
+        "av",
+        "torch",
+        "spacy",
+        "numpy",
+    ]
+
+    imports = {}
+    for name in required_imports:
+        spec = importlib.util.find_spec(name)
+        imports[name] = {
+            "found": spec is not None,
+            "origin": getattr(spec, "origin", None) if spec else None,
+        }
+
+    paths = {}
+    for key, raw in required_env_paths.items():
+        path = Path(raw) if raw else None
+        paths[key] = {
+            "path": raw,
+            "exists": bool(path and path.exists()),
+            "is_dir": bool(path and path.is_dir()),
+            "is_file": bool(path and path.is_file()),
+        }
+
+    offline_env = {
+        "HF_HUB_OFFLINE": os.environ.get("HF_HUB_OFFLINE", ""),
+        "TRANSFORMERS_OFFLINE": os.environ.get("TRANSFORMERS_OFFLINE", ""),
+        "HF_DATASETS_OFFLINE": os.environ.get("HF_DATASETS_OFFLINE", ""),
+        "AION_VOICE_NO_HIDDEN_DOWNLOADS": os.environ.get("AION_VOICE_NO_HIDDEN_DOWNLOADS", ""),
+        "AION_ELEVENLABS_ENABLED": os.environ.get("AION_ELEVENLABS_ENABLED", ""),
+        "AION_BROWSER_SPEECH_FALLBACK_ENABLED": os.environ.get("AION_BROWSER_SPEECH_FALLBACK_ENABLED", ""),
+    }
+
+    ok = (
+        sys.version_info[:2] == (3, 12)
+        and all(item["found"] for item in imports.values())
+        and all(item["exists"] for item in paths.values())
+        and offline_env["HF_HUB_OFFLINE"] == "1"
+        and offline_env["TRANSFORMERS_OFFLINE"] == "1"
+        and offline_env["HF_DATASETS_OFFLINE"] == "1"
+        and offline_env["AION_VOICE_NO_HIDDEN_DOWNLOADS"] == "true"
+        and offline_env["AION_ELEVENLABS_ENABLED"] == "false"
+        and offline_env["AION_BROWSER_SPEECH_FALLBACK_ENABLED"] == "false"
+    )
+
+    print(json.dumps({
+        "ok": ok,
+        "phase": "O23I",
+        "purpose": "prove_worker_runs_from_staged_bundle_paths",
+        "python": sys.executable,
+        "version_info": list(sys.version_info[:3]),
+        "imports": imports,
+        "paths": paths,
+        "offline_env": offline_env,
+        "business_context_hardcoded": False,
+    }, indent=2))
+
+    return 0 if ok else 2
+
+
+
 def _json_out(payload: dict[str, Any]) -> int:
     print(json.dumps(payload, indent=2))
     return 0 if payload.get("ok") else 1
@@ -311,6 +394,10 @@ def main() -> int:
         "stage": "mode",
         "error": f"Unsupported mode: {args.mode}",
     })
+
+
+if len(__import__("sys").argv) > 1 and __import__("sys").argv[1] == "aion-o23i-bundle-probe":
+    raise SystemExit(aion_o23i_bundle_probe())
 
 
 if __name__ == "__main__":

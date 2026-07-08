@@ -119,7 +119,17 @@ def voice_worker_script() -> Path:
 
 
 def voice_worker_environment() -> dict[str, str]:
-    return build_voice_download_policy_env(os.environ)
+    env = build_voice_download_policy_env(os.environ)
+    bundle_root = resolve_voice_bundle_root()
+
+    env.setdefault("AION_VOICE_BUNDLE_ROOT", str(bundle_root))
+    env.setdefault("AION_KOKORO_MODEL_PATH", str(bundle_root / "kokoro" / "kokoro-v1_0.pth"))
+    env.setdefault("AION_KOKORO_CONFIG_PATH", str(bundle_root / "kokoro" / "config.json"))
+    env.setdefault("AION_KOKORO_VOICE_PATH", str(bundle_root / "kokoro" / "voices" / "af_heart.pt"))
+    env.setdefault("AION_SPACY_MODEL_PATH", str(bundle_root / "spacy" / "en_core_web_sm"))
+    env.setdefault("AION_WHISPER_MODEL_PATH", str(bundle_root / "whisper" / "base"))
+
+    return env
 
 
 def call_voice_worker(mode: str, request: dict[str, Any], timeout: int = 120) -> VoiceWorkerResult:
