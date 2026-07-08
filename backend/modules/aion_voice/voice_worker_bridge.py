@@ -23,23 +23,94 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def default_voice_python() -> Path:
-    root = repo_root()
 
-    env_python = os.environ.get("AION_VOICE_PYTHON")
-    if env_python:
-        return Path(env_python)
+AION_O23F_PACKAGED_VOICE_RESOLVER_VERSION = "aion.voice.o23f.packaged_resolver.v1"
 
-    bundled = root / "desktop" / "mac" / "Tessaris.app" / "Contents" / "Resources" / "voice" / "python" / "bin" / "python"
-    if bundled.exists():
-        return bundled
 
-    local = root / ".venv_voice" / "bin" / "python"
-    if local.exists():
-        return local
+def voice_bundle_staging_root() -> Path:
+    return repo_root() / "desktop" / "mac" / "voice_bundle_staging" / "voice"
+
+
+def voice_bundle_packaged_root() -> Path:
+    return (
+        repo_root()
+        / "desktop"
+        / "mac"
+        / "Tessaris.app"
+        / "Contents"
+        / "Resources"
+        / "voice"
+    )
+
+
+def voice_bundle_root_from_env() -> Path | None:
+    raw = os.environ.get("AION_VOICE_BUNDLE_ROOT", "").strip()
+    if not raw:
+        return None
+    return Path(raw).expanduser().resolve()
+
+
+def voice_python_for_bundle_root(bundle_root: Path) -> Path:
+    return bundle_root / "python" / "bin" / "python"
+
+
+def resolve_voice_bundle_root() -> Path:
+    override = voice_bundle_root_from_env()
+    if override is not None:
+        return override
+
+    mode = os.environ.get("AION_VOICE_RUNTIME_MODE", "").strip().lower()
+
+    if mode in {"packaged", "app", "bundle"}:
+        return voice_bundle_packaged_root()
+
+    if mode in {"staging", "bundle_staging", "staged"}:
+        return voice_bundle_staging_root()
+
+    staging = voice_bundle_staging_root()
+    if voice_python_for_bundle_root(staging).exists():
+        return staging
+
+    packaged = voice_bundle_packaged_root()
+    if voice_python_for_bundle_root(packaged).exists():
+        return packaged
+
+    return staging
+
+
+def resolve_voice_python() -> Path:
+    explicit = os.environ.get("AION_VOICE_PYTHON", "").strip()
+    if explicit:
+        return Path(explicit).expanduser().resolve()
+
+    bundle_python = voice_python_for_bundle_root(resolve_voice_bundle_root())
+    if bundle_python.exists():
+        return bundle_python
+
+    development = repo_root() / ".venv_voice" / "bin" / "python"
+    if development.exists():
+        return development
+
+    legacy_packaged = (
+        repo_root()
+        / "desktop"
+        / "mac"
+        / "Tessaris.app"
+        / "Contents"
+        / "Resources"
+        / "voice"
+        / "python"
+        / "bin"
+        / "python"
+    )
+    if legacy_packaged.exists():
+        return legacy_packaged
 
     return Path(sys.executable)
 
+
+def default_voice_python() -> Path:
+    return resolve_voice_python()
 
 def voice_worker_script() -> Path:
     return repo_root() / "scripts" / "aion_voice_worker.py"
