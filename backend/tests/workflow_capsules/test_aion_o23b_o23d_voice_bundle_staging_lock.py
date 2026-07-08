@@ -42,7 +42,12 @@ def test_o23b_o23d_manifest_has_hashes_and_download_policy():
     assert data["ok"] is True
     assert data["phase"] == "O23B_O23C_O23D"
     assert data["python_runtime_bundled_in_this_step"] is False
-    assert data["python_runtime_next_step"] == "O23E"
+    
+    assert data["python_runtime_next_step"] in {"O23E", "O23F"}
+
+    if data["python_runtime_next_step"] == "O23F":
+        assert data["python_runtime_strategy"]["phase"] == "O23E"
+        assert data["python_runtime_strategy"]["do_not_commit_dev_venv"] is True
     assert data["business_context_hardcoded"] is False
 
     copied = data["copied"]

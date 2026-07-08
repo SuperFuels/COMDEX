@@ -55,6 +55,13 @@
     "staging_contains_required_model_assets": true
   },
   "python_runtime_bundled_in_this_step": false,
-  "python_runtime_next_step": "O23E",
-  "business_context_hardcoded": false
+  "python_runtime_next_step": "O23F",
+  "business_context_hardcoded": false,
+  "python_runtime_strategy": {
+    "phase": "O23E",
+    "strategy_manifest": "desktop/mac/voice_bundle_staging/voice/python_runtime_manifest.o23e.json",
+    "staging_python_launcher": "desktop/mac/voice_bundle_staging/voice/python/bin/python",
+    "release_requirement": "replace staging launcher with embedded or relocatable Python 3.12 runtime",
+    "do_not_commit_dev_venv": true
+  }
 }
