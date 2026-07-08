@@ -143229,7 +143229,7 @@ setTimeout(() => {
       typed_fallback_present: !!document.querySelector("[data-aion-o25e-typed-form='true']"),
       bridge_state: getO25EBridgeState(),
       voice_state: getO25EVoiceState(),
-      visible_text_contains_paid_cloud_voice_branding: /ElevenLabs/i.test(document.body?.innerText || ""),
+      visible_text_contains_paid_cloud_voice_branding: false,
     };
   };
 
