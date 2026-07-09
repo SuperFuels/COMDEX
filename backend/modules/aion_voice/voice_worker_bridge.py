@@ -172,7 +172,7 @@ def call_voice_worker(
 
     try:
         completed = subprocess.run(
-            [str(python_path), str(worker_path), str(request_path)],
+            [str(python_path), str(worker_path), str(mode), "--request", str(request_path)],
             cwd=str(runtime_root),
             text=True,
             stdout=subprocess.PIPE,

@@ -71,3 +71,12 @@ def test_o25i_voice_worker_result_uses_existing_dataclass_fields():
     assert "worker_path=worker_path" not in block
     assert "runtime_root=runtime_root" not in block
     assert 'payload.setdefault("returncode"' in block
+
+
+def test_o25i_worker_cli_invocation_uses_mode_and_request_flag():
+    text = read(BRIDGE)
+    start = text.index("def call_voice_worker(")
+    end = text.index("def synthesize_with_worker", start)
+    block = text[start:end]
+    assert "[str(python_path), str(worker_path), str(mode), \"--request\", str(request_path)]" in block
+    assert "[str(python_path), str(worker_path), str(request_path)]" not in block
