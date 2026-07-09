@@ -144131,7 +144131,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
       explicit_open: hasExplicitOpen(),
       startup_selector_visible: Boolean(document.querySelector("[data-aion-o25u-startup-selector='true'], [data-aion-phase24a-business-entry-selector='true']")),
       selected_terminal_visible: Boolean(document.querySelector("[data-aion-o25e-voice-terminal-only='true']")),
-      wrong_o25w_terminal_visible: Boolean(document.querySelector("[data-aion-o25w-current-terminal='true']")),
+      wrong_o25w_terminal_visible: Boolean(document.querySelector("[data-aion-o25e-voice-terminal-only='true']")),
       last_fresh_launch_reset: window.__aionO25ZLastFreshLaunchReset || null,
       last_terminal_removed: window.__aionO25ZLastTerminalRemoved || null,
       last_voice_start: window.__aionO25ZLastVoiceStart || null,
@@ -144142,4 +144142,266 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
   console.log("[AION] O25Z final startup selector owner installed");
 })();
 /* END AION O25Z FINAL STARTUP SELECTOR OWNER LOCK */
+
+
+/* BEGIN AION O25AA HARD STARTUP ENTRY SCREEN OWNER LOCK */
+(function installAionO25AAHardStartupEntryScreenOwner() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO25AAHardStartupEntryScreenOwnerInstalled) return;
+  window.__aionO25AAHardStartupEntryScreenOwnerInstalled = true;
+
+  const EXPLICIT_KEY = "aion.o25aa.explicit_terminal_open.v1";
+  const O25Z_KEY = "aion.o25z.explicit_terminal_open.v1";
+  const O25U_KEY = "aion.o25u.current_terminal_open.v1";
+
+  const staleKeys = [
+    "aion.o20c.conversationOpen",
+    "aion.o20c.conversationMode",
+    "aion.o20c.conversation_open",
+    "aion.o20c.conversation_mode",
+    "aion.o25f.intentionalConversationOpen.v1",
+    "aion.o25f.openingIntroSpoken.v1",
+    "aion.voiceOnboarding.o19m.started.v1",
+    "aion.voiceOnboarding.o19l.started.v1",
+    "aion.voiceOnboarding.o19j.v1"
+  ];
+
+  function hasExplicitTerminalOpen() {
+    try {
+      return (
+        window.__aionO25AAExplicitTerminalOpen === true ||
+        window.__aionO25ZExplicitTerminalOpen === true ||
+        window.__aionO25UConversationOpen === true ||
+        window.sessionStorage?.getItem(EXPLICIT_KEY) === "true" ||
+        window.sessionStorage?.getItem(O25Z_KEY) === "true" ||
+        window.sessionStorage?.getItem(O25U_KEY) === "true"
+      );
+    } catch {
+      return window.__aionO25AAExplicitTerminalOpen === true;
+    }
+  }
+
+  function clearAllStartupBypassState(reason) {
+    if (hasExplicitTerminalOpen()) return;
+
+    try {
+      staleKeys.forEach((key) => window.localStorage?.removeItem(key));
+      window.sessionStorage?.removeItem(EXPLICIT_KEY);
+      window.sessionStorage?.removeItem(O25Z_KEY);
+      window.sessionStorage?.removeItem(O25U_KEY);
+    } catch {}
+
+    window.__aionO25AAExplicitTerminalOpen = false;
+    window.__aionO25ZExplicitTerminalOpen = false;
+    window.__aionO25UConversationOpen = false;
+    window.__aionO20COpeningMode = "";
+
+    try {
+      if (typeof state !== "undefined" && state) {
+        state.activeTab = "small_business_foundation";
+      }
+    } catch {}
+
+    window.__aionO25AALastClear = {
+      reason,
+      ts: new Date().toISOString()
+    };
+  }
+
+  function renderStartupDirect(reason) {
+    if (hasExplicitTerminalOpen()) return false;
+
+    clearAllStartupBypassState(reason);
+
+    const app =
+      document.querySelector("#app") ||
+      document.querySelector("[data-app-root]") ||
+      document.body;
+
+    if (!app) return false;
+
+    if (typeof renderBusinessEntryModeSelector === "function") {
+      try {
+        app.innerHTML = renderBusinessEntryModeSelector();
+        window.__aionO25AALastRender = {
+          reason,
+          method: "renderBusinessEntryModeSelector",
+          ts: new Date().toISOString()
+        };
+        return true;
+      } catch (error) {
+        console.warn("[AION O25AA] renderBusinessEntryModeSelector failed", error);
+      }
+    }
+
+    app.innerHTML = `
+      <main
+        data-aion-o25aa-fallback-startup="true"
+        data-aion-o25u-startup-selector="true"
+        data-aion-phase24a-business-entry-selector="true"
+        style="min-height:100vh;background:#ffffff;color:#0f172a;display:grid;place-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;padding:44px;box-sizing:border-box;"
+      >
+        <section style="text-align:center;display:grid;gap:24px;justify-items:center;max-width:980px;">
+          <div style="width:220px;height:220px;border-radius:999px;display:grid;place-items:center;background:radial-gradient(circle at 45% 35%,#ffffff,#c7f9ff 22%,#1f2937 72%,#020617);box-shadow:0 0 0 22px rgba(45,212,191,0.10),0 40px 110px rgba(15,23,42,0.16);">
+            <div style="color:#34d399;font-size:58px;font-weight:950;">∞</div>
+          </div>
+          <div style="font-size:12px;font-weight:950;letter-spacing:.22em;text-transform:uppercase;color:rgba(14,116,144,.58);">Tessaris AION</div>
+          <h1 style="font-size:clamp(62px,8vw,112px);line-height:.86;margin:0;letter-spacing:-.085em;">What are we building?</h1>
+          <p style="font-size:19px;line-height:1.45;color:rgba(51,65,85,.72);margin:0;">Choose a starting point. AION will build your business foundation locally.</p>
+          <button type="button" data-aion-business-entry-mode="small_business_growth" data-aion-o25aa-start-business="true" style="border:0;border-radius:999px;background:linear-gradient(135deg,#67e8f9,#34d399);padding:16px 26px;font-weight:950;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;">I have a business</button>
+        </section>
+      </main>
+    `;
+
+    window.__aionO25AALastRender = {
+      reason,
+      method: "fallback",
+      ts: new Date().toISOString()
+    };
+
+    return true;
+  }
+
+  function openTerminalAfterClick(mode) {
+    try {
+      window.sessionStorage?.setItem(EXPLICIT_KEY, "true");
+      window.sessionStorage?.setItem(O25Z_KEY, "true");
+      window.sessionStorage?.setItem(O25U_KEY, "true");
+      window.localStorage?.setItem("aion.o20c.conversationMode", String(mode || "small_business_growth"));
+    } catch {}
+
+    window.__aionO25AAExplicitTerminalOpen = true;
+    window.__aionO25ZExplicitTerminalOpen = true;
+    window.__aionO25UConversationOpen = true;
+    window.__aionO20COpeningMode = String(mode || "small_business_growth");
+
+    try {
+      if (typeof state !== "undefined" && state) {
+        state.activeTab = "small_business_foundation";
+      }
+    } catch {}
+
+    const app =
+      document.querySelector("#app") ||
+      document.querySelector("[data-app-root]") ||
+      document.body;
+
+    if (app && typeof renderBusinessEntryModeSelector === "function") {
+      app.innerHTML = renderBusinessEntryModeSelector();
+    } else {
+      try {
+        if (typeof requestRender === "function") requestRender();
+        else if (typeof render === "function") render();
+      } catch {}
+    }
+
+    setTimeout(() => {
+      try {
+        if (typeof window.syncAionO25ETerminalOnlyVoiceConversation === "function") {
+          window.syncAionO25ETerminalOnlyVoiceConversation();
+        }
+      } catch {}
+    }, 80);
+
+    setTimeout(() => {
+      try {
+        if (typeof window.openAionO25ZSelectedBusinessTerminal === "function") {
+          window.openAionO25ZSelectedBusinessTerminal(mode || "small_business_growth");
+          return;
+        }
+      } catch {}
+
+      try {
+        if (typeof window.beginAionO25FAutomaticConversation === "function") {
+          window.beginAionO25FAutomaticConversation();
+        }
+      } catch {}
+    }, 450);
+
+    window.__aionO25AALastOpen = {
+      mode,
+      ts: new Date().toISOString()
+    };
+
+    return { ok: true, owner: "O25AA", mode };
+  }
+
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.('[data-aion-business-entry-mode="small_business_growth"], [data-aion-o25aa-start-business="true"], [data-aion-o25u-start-business="true"]');
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    openTerminalAfterClick("small_business_growth");
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    if (hasExplicitTerminalOpen()) return;
+
+    const bodyText = String(document.body?.innerText || "");
+    const startupVisible = Boolean(
+      document.querySelector("[data-aion-o25u-startup-selector='true']") ||
+      document.querySelector("[data-aion-phase24a-business-entry-selector='true']")
+    );
+
+    const terminalVisible = Boolean(
+      document.querySelector("[data-aion-o25e-voice-terminal-only='true']") ||
+      document.querySelector("[data-aion-o25f-auto-voice-terminal='true']") ||
+      document.querySelector("[data-aion-o25u-current-terminal='true']")
+    );
+
+    const boardroomVisible =
+      /boardroom|live agents|pilot|workflow canvas|council/i.test(bodyText) &&
+      !/what are we building/i.test(bodyText);
+
+    if (!startupVisible || terminalVisible || boardroomVisible) {
+      renderStartupDirect("mutation_boardroom_or_terminal_bypass");
+    }
+  });
+
+  try {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch {}
+
+  window.resetAionO25AAStartup = function resetAionO25AAStartup() {
+    try {
+      window.sessionStorage?.removeItem(EXPLICIT_KEY);
+      window.sessionStorage?.removeItem(O25Z_KEY);
+      window.sessionStorage?.removeItem(O25U_KEY);
+    } catch {}
+
+    window.__aionO25AAExplicitTerminalOpen = false;
+    window.__aionO25ZExplicitTerminalOpen = false;
+    window.__aionO25UConversationOpen = false;
+
+    clearAllStartupBypassState("manual_reset");
+    renderStartupDirect("manual_reset");
+
+    return { ok: true };
+  };
+
+  window.__debugAionO25AAHardStartupEntryScreenOwner = function () {
+    return {
+      installed: true,
+      explicit_terminal_open: hasExplicitTerminalOpen(),
+      startup_visible: Boolean(document.querySelector("[data-aion-o25u-startup-selector='true'], [data-aion-phase24a-business-entry-selector='true']")),
+      selected_terminal_visible: Boolean(document.querySelector("[data-aion-o25e-voice-terminal-only='true']")),
+      boardroom_text_visible: /boardroom|live agents|workflow canvas/i.test(String(document.body?.innerText || "")),
+      last_clear: window.__aionO25AALastClear || null,
+      last_render: window.__aionO25AALastRender || null,
+      last_open: window.__aionO25AALastOpen || null
+    };
+  };
+
+  clearAllStartupBypassState("install");
+  setTimeout(() => renderStartupDirect("boot_0"), 0);
+  setTimeout(() => renderStartupDirect("boot_100"), 100);
+  setTimeout(() => renderStartupDirect("boot_500"), 500);
+  setTimeout(() => renderStartupDirect("boot_1500"), 1500);
+
+  console.log("[AION] O25AA hard startup entry screen owner installed");
+})();
+/* END AION O25AA HARD STARTUP ENTRY SCREEN OWNER LOCK */
 
