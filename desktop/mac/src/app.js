@@ -23150,124 +23150,134 @@ function routeAionBusinessTwinToFinanceOnceV2() {
 /* O19F: old redirect disabled. small_business_foundation renders the real startup selector again. */
 /* BEGIN AION O19F RESTORE REAL BUSINESS ENTRY SELECTOR LOCK */
 function renderBusinessEntryModeSelector() {
-  const conversationOpen = (() => {
-    try {
-      return window.localStorage?.getItem("aion.o20c.conversationOpen") === "true";
-    } catch {
-      return false;
-    }
-  })();
-
-  const conversationPanel = (() => {
-    if (typeof panelHtmlO19I === "function") {
-      try {
-        return panelHtmlO19I();
-      } catch {}
-    }
-    if (typeof renderAionO25DBusinessFoundationConversationPanel === "function") {
-      return renderAionO25DBusinessFoundationConversationPanel();
-    }
-    return `
-      <section class="aion-o20c-fallback-terminal" data-aion-o25d-foundation-terminal="true">
-        <div class="aion-o20c-terminal-kicker">AION CONVERSATION</div>
-        <h2>Welcome to Tessaris.</h2>
-        <p>AION will explain the Business Operating System, ask the starter questions, and capture answers into the Business Foundation draft.</p>
-      </section>
-    `;
-  })();
-
-  if (conversationOpen) {
-    return `
-      <section class="aion-o20c-conversation-shell" data-aion-o20c-conversation-shell="true" aria-label="AION voice conversation">
-        <!-- Compatibility text: What are we building? Choose a starting point. I have an idea. I have a business. Generate me an idea. -->
-        <main class="aion-o20c-terminal-wrap">
-          <header class="aion-o20c-terminal-header">
-            <div>
-              <div class="aion-o20c-eyebrow">AION LIVE SETUP</div>
-              <h1>Business Foundation Conversation</h1>
-              <p>AION is using the local voice runtime where available. Your answers are captured into the transcript and used to build the Business Foundation canvas, Business Map, and Boardroom readiness profile.</p>
-            </div>
-            <button type="button" data-aion-o20c-reset-start="true">Back to start</button>
-          </header>
-
-          <section class="aion-o20c-terminal" data-aion-o20c-terminal="true" data-aion-o20c-conversation-terminal="true" data-aion-startup-conversation-terminal="true" data-aion-business-foundation-terminal="true">
-            ${conversationPanel}
-          </section>
-        </main>
-
-        <button type="button" class="aion-o20c-mini-orb" data-aion-o19m-start="true" data-aion-o20c-mini-orb="true" aria-label="AION voice control">
-          <span>∞</span>
-          <b>AION</b>
-        </button>
-      </section>
-    `;
-  }
-
+  /* AION O25T: startup selector is the direct route source-of-truth.
+     Do not delegate to older conversation/twin takeover renderers here.
+     Voice remains click-only via O25O's explicit "I have a business" listener.
+  */
   return `
-    <section class="aion-o20b-clean-startup" data-aion-o20b-clean-startup="true" aria-label="AION startup screen">
-      <!-- Compatibility text for older route locks: What are we building? Choose a starting point. I have an idea. I have a business. Generate me an idea. -->
+    <main
+      class="aion-o25t-startup-selector"
+      data-aion-phase24a-business-entry-selector="true"
+      data-aion-o25t-startup-selector="true"
+      style="
+        min-height:100vh;
+        width:100%;
+        background:#ffffff;
+        color:#111111;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        padding:56px;
+        box-sizing:border-box;
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      "
+    >
+      <section style="width:min(980px,100%);">
+        <div style="font-size:12px;font-weight:950;letter-spacing:0.18em;text-transform:uppercase;color:rgba(17,17,17,0.52);margin-bottom:20px;">
+          Tessaris AION
+        </div>
 
-      <main class="aion-o20b-main">
-        <section class="aion-o20b-orbit" aria-label="AION voice onboarding launcher">
-          <svg class="aion-o20b-rings" viewBox="0 0 520 520" aria-hidden="true">
-            <circle cx="260" cy="260" r="220" class="ring faint"></circle>
-            <circle cx="260" cy="260" r="220" class="ring active teal"></circle>
-            <circle cx="260" cy="260" r="178" class="ring soft"></circle>
-            <circle cx="260" cy="260" r="178" class="ring active blue"></circle>
-            <circle cx="260" cy="260" r="136" class="ring faint"></circle>
-            <circle cx="260" cy="260" r="136" class="ring active gold"></circle>
-            <circle cx="260" cy="260" r="96" class="ring dash"></circle>
+        <h1 style="font-size:60px;line-height:0.94;margin:0 0 18px;font-weight:950;letter-spacing:-0.06em;color:#111111;">
+          What are we building?
+        </h1>
 
-            <text x="260" y="64" text-anchor="middle">BOARDROOM</text>
-            <text x="260" y="462" text-anchor="middle">BUSINESS TWIN</text>
-            <text x="64" y="265" text-anchor="middle" transform="rotate(-90 64 265)">PILOT</text>
-            <text x="456" y="265" text-anchor="middle" transform="rotate(90 456 265)">COUNCIL</text>
+        <p style="font-size:18px;line-height:1.55;margin:0 0 36px;color:rgba(17,17,17,0.66);max-width:760px;">
+          Choose a starting point. AION will build your business foundation locally, then use it to shape the boardroom, agents, workflows and business twin.
+        </p>
 
-            <circle cx="260" cy="40" r="5" class="node teal-node"></circle>
-            <circle cx="260" cy="480" r="5" class="node blue-node"></circle>
-            <circle cx="40" cy="260" r="5" class="node gold-node"></circle>
-            <circle cx="480" cy="260" r="5" class="node blue-node"></circle>
-          </svg>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+          <button
+            type="button"
+            data-aion-business-entry-mode="small_business_growth"
+            data-aion-o20c-open-conversation="small_business_growth"
+            data-aion-o25t-start-business="true"
+            style="
+              appearance:none;
+              -webkit-appearance:none;
+              border:1px solid #111111;
+              border-radius:24px;
+              background:#111111;
+              color:#ffffff;
+              padding:28px;
+              text-align:left;
+              cursor:pointer;
+              min-height:168px;
+              box-shadow:0 24px 70px rgba(17,17,17,0.16);
+            "
+          >
+            <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:18px;">
+              Existing business
+            </div>
+            <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#ffffff;">
+              I have a business
+            </div>
+            <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(255,255,255,0.74);">
+              Map the business you already run, then build the foundation and boardroom around it.
+            </div>
+          </button>
 
           <button
             type="button"
-            class="aion-o20b-orb"
-            data-aion-o19m-start="true"
-            data-aion-o20b-start="true"
-            data-aion-o20c-open-conversation="start_with_aion"
-            aria-label="Start AION voice onboarding"
+            data-aion-business-entry-mode="founder_build_idea"
+            data-aion-o20c-open-conversation="founder_build_idea"
+            style="
+              appearance:none;
+              -webkit-appearance:none;
+              border:1px solid rgba(17,17,17,0.16);
+              border-radius:24px;
+              background:#f7f7f7;
+              color:#111111;
+              padding:28px;
+              text-align:left;
+              cursor:pointer;
+              min-height:168px;
+            "
           >
-            <span class="aion-o20b-inf">∞</span>
-            <span class="aion-o20b-word">AION</span>
+            <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">
+              New venture
+            </div>
+            <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">
+              I have an idea
+            </div>
+            <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">
+              Turn an idea into a structured business foundation and plan.
+            </div>
           </button>
-        </section>
 
-        <section class="aion-o20b-copy">
-          <div class="aion-o20b-eyebrow">Tessaris AI · Business Operating System</div>
-          <h1>AION</h1>
-          <p>Map your business. Build your Business Twin. Unlock your AI Boardroom.</p>
-        </section>
-
-        <nav class="aion-o20b-actions" aria-label="Startup actions">
-          <button type="button" class="primary" data-aion-o19m-start="true" data-aion-o20b-start="true" data-aion-o20c-open-conversation="start_with_aion">
-            Start with AION
+          <button
+            type="button"
+            data-aion-business-entry-mode="founder_generate_idea"
+            data-aion-o20c-open-conversation="founder_generate_idea"
+            style="
+              appearance:none;
+              -webkit-appearance:none;
+              border:1px solid rgba(17,17,17,0.16);
+              border-radius:24px;
+              background:#f7f7f7;
+              color:#111111;
+              padding:28px;
+              text-align:left;
+              cursor:pointer;
+              min-height:168px;
+            "
+          >
+            <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">
+              Discovery
+            </div>
+            <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">
+              Generate me an idea
+            </div>
+            <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">
+              Let AION suggest a direction and help you shape it.
+            </div>
           </button>
-          <button type="button" data-aion-business-entry-mode="small_business_growth" data-aion-o20c-open-conversation="small_business_growth">
-            I have a business
-          </button>
-          <button type="button" data-aion-business-entry-mode="founder_build_idea" data-aion-o20c-open-conversation="founder_build_idea">
-            I have an idea
-          </button>
-          <button type="button" class="muted" data-aion-business-entry-mode="founder_generate_idea" data-aion-o20c-open-conversation="founder_generate_idea">
-            Generate an idea
-          </button>
-        </nav>
-
-        <div class="aion-o20c-powered-line" data-aion-o20c-powered-line="true">
-          Powered by Glyph OS · Wave Intelligence
         </div>
-      </main>
-    </section>
+
+        <p style="font-size:12px;line-height:1.5;margin:24px 0 0;color:rgba(17,17,17,0.48);">
+          Local-first mode. Voice, foundation capture and business context stay on this machine unless you explicitly connect external services.
+        </p>
+      </section>
+    </main>
   `;
 }
 
@@ -145412,9 +145422,10 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
     console.log("[AION O25R] business start clicked; voice remains click-owned by O25O");
   }, true);
 
-  setTimeout(() => rescueIfBlank("initial-1s"), 1000);
-  setTimeout(() => rescueIfBlank("initial-3s"), 3000);
-  setInterval(() => rescueIfBlank("interval"), 2500);
+  // AION O25T: O25R interval rescue disabled.
+  // The startup selector is now rendered directly by renderBusinessEntryModeSelector().
+  // Keep one delayed diagnostic rescue only; no interval fighting requestRender().
+  setTimeout(() => rescueIfBlank("diagnostic-3s"), 3000);
 
-  console.log("[AION] O25R startup white-screen rescue installed");
+  console.log("[AION] O25R startup white-screen rescue installed; interval disabled by O25T");
 })();
