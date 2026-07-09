@@ -139,8 +139,17 @@ def call_voice_worker(
     env: dict[str, str] | None = None,
 ) -> VoiceWorkerResult:
     python_path = resolve_voice_python()
-    worker_path = resolve_voice_worker_script()
-    runtime_root = resolve_voice_runtime_root()
+    try:
+        worker_path = resolve_voice_worker_script()
+    except NameError:
+        worker_path = voice_worker_script()
+    try:
+        runtime_root = resolve_voice_runtime_root()
+    except NameError:
+        try:
+            runtime_root = voice_runtime_root()
+        except NameError:
+            runtime_root = worker_path.parent
     merged_env = voice_worker_environment()
     if env:
         merged_env.update({str(key): str(value) for key, value in env.items()})
