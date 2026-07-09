@@ -51,8 +51,10 @@ def test_o25i_syntax_checks_clean():
 def test_o25i_worker_request_writer_exists():
     text = read(BRIDGE)
     assert "def _write_worker_request" in text
-    assert '"mode": str(mode)' in text
-    assert '"operation": str(mode)' in text
+    assert "payload = dict(request or {})" in text
+    assert 'payload.setdefault("mode", str(mode))' in text
+    assert 'payload.setdefault("operation", str(mode))' in text
+    assert '"request": request' not in text
     assert "request_path.write_text" in text
 
 
@@ -80,3 +82,14 @@ def test_o25i_worker_cli_invocation_uses_mode_and_request_flag():
     block = text[start:end]
     assert "[str(python_path), str(worker_path), str(mode), \"--request\", str(request_path)]" in block
     assert "[str(python_path), str(worker_path), str(request_path)]" not in block
+
+
+def test_o25i_worker_request_envelope_is_flat_for_tts_text():
+    text = read(BRIDGE)
+    start = text.index("def _write_worker_request")
+    end = text.index("def call_voice_worker", start)
+    block = text[start:end]
+    assert "payload = dict(request or {})" in block
+    assert '"request": request' not in block
+    assert 'payload.setdefault("mode", str(mode))' in block
+    assert 'payload.setdefault("operation", str(mode))' in block

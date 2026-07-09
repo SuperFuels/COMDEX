@@ -136,15 +136,15 @@ def _write_worker_request(mode: str, request: dict[str, Any]) -> Path:
     import tempfile
     import uuid
 
-    payload = {
-        "mode": str(mode),
-        "operation": str(mode),
-        "request": request,
-    }
+    # The worker CLI receives mode as argv and reads this JSON from --request.
+    # Keep operation fields such as text, voice and sample_rate at the top level.
+    payload = dict(request or {})
+    payload.setdefault("mode", str(mode))
+    payload.setdefault("operation", str(mode))
+
     request_path = Path(tempfile.gettempdir()) / f"aion_voice_worker_request_{uuid.uuid4().hex}.json"
     request_path.write_text(json.dumps(payload), encoding="utf-8")
     return request_path
-
 
 def call_voice_worker(
     mode: str,
