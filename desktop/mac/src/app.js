@@ -145138,3 +145138,47 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
   console.log("[AION] O25O local-only opening voice final owner installed");
 })();
+
+/* AION O25P — Final stale business placeholder fetch blocker
+   Blocks stale business_not_registered/costa-conexion container fetches before network.
+   This prevents backend-ready startup from being followed by 404 request storms.
+*/
+(function installAionO25PStaleBusinessFetchBlocker() {
+  const LOCK = "aion.o25p.stale_business_fetch_blocker.v1";
+  if (window[LOCK]) return;
+  window[LOCK] = true;
+
+  const previousFetch = window.fetch.bind(window);
+
+  window.fetch = function aionO25PFetch(input, init) {
+    const rawUrl = typeof input === "string" ? input : input && input.url;
+    const url = rawUrl ? String(rawUrl) : "";
+
+    const isBusinessApi = url.includes("/api/aion/business/");
+    const isPlaceholder =
+      url.includes("/business_not_registered") ||
+      url.includes("/costa-conexion") ||
+      url.includes("/costa-conexion/");
+
+    if (isBusinessApi && isPlaceholder) {
+      console.log("[AION O25P] blocked stale placeholder business fetch", { url });
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            ok: false,
+            skipped: true,
+            reason: "stale_placeholder_business_id_blocked_before_network",
+          }),
+          {
+            status: 200,
+            headers: { "Content-Type": "application/json" },
+          },
+        ),
+      );
+    }
+
+    return previousFetch(input, init);
+  };
+
+  console.log("[AION] O25P stale business placeholder fetch blocker installed");
+})();

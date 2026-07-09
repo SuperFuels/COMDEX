@@ -38,7 +38,7 @@ let isQuitting = false;
 const DEV_PROJECT_ROOT = "/Users/kevinrobinson/dev/COMDEX";
 const BACKEND_HOST = "127.0.0.1";
 const BACKEND_PORT = 8080;
-const BACKEND_HEALTH_PATH = "/api/local-node/health";
+const BACKEND_HEALTH_PATH = "/health";
 const BACKEND_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}${BACKEND_HEALTH_PATH}`;
 
 function wait(ms) {
@@ -878,12 +878,11 @@ async function ensureBackendRunning() {
       "8080",
     ], {
       cwd: projectRoot,
-      env: aionO25NLocalVoiceBackendEnv(),
-      env: {
-        ...process.env,
+      env: aionO25NLocalVoiceBackendEnv({
         PYTHONUNBUFFERED: "1",
         TESSARIS_PROJECT_ROOT: projectRoot,
-      },
+        PYTHONPATH: projectRoot,
+      }),
       stdio: "pipe",
     });
 
@@ -1231,17 +1230,45 @@ app.on("before-quit", async (event) => {
   }
 });
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  // AION O25P: start backend before loading renderer.
+  // The renderer contains many eager backend fetchers; loading it before
+  // backend readiness causes request storms and white-screen/freeze behaviour.
+  let backendBootResult = { ok: false, mode: "not_started" };
+  try {
+    backendBootResult = await ensureBackendRunning();
+  } catch (error) {
+    console.error("[backend] pre-render startup failed:", error);
+    backendBootResult = {
+      ok: false,
+      mode: "startup_error",
+      detail: error instanceof Error ? error.message : String(error),
+    };
+  }
+
   createWindow();
 
   if (mainWindow && !mainWindow.isDestroyed()) {
     mainWindow.webContents.once("did-finish-load", () => {
-      void bootBackendForWindow();
+      sendBackendStatus({
+        ok: !!backendBootResult.ok,
+        status: backendBootResult.ok ? "ready" : "startup_error",
+        detail: backendBootResult.ok
+          ? (backendBootResult.mode === "existing"
+              ? "Connected to existing local backend."
+              : "Started local backend.")
+          : (backendBootResult.detail || "Local backend did not become ready before renderer load."),
+      });
     });
   }
 
-  app.on("activate", () => {
+  app.on("activate", async () => {
     if (BrowserWindow.getAllWindows().length === 0) {
+      try {
+        await ensureBackendRunning();
+      } catch (error) {
+        console.error("[backend] activate startup failed:", error);
+      }
       createWindow();
 
       if (mainWindow && !mainWindow.isDestroyed()) {
