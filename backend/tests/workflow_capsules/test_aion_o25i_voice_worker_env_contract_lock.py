@@ -54,3 +54,20 @@ def test_o25i_worker_request_writer_exists():
     assert '"mode": str(mode)' in text
     assert '"operation": str(mode)' in text
     assert "request_path.write_text" in text
+
+
+def test_o25i_voice_worker_result_uses_existing_dataclass_fields():
+    text = read(BRIDGE)
+    start = text.index("def call_voice_worker(")
+    end = text.index("def synthesize_with_worker", start)
+    block = text[start:end]
+    assert "return VoiceWorkerResult(" in block
+    assert "ok=bool(payload.get" in block
+    assert "payload=payload" in block
+    assert "stdout=stdout" in block
+    assert "stderr=stderr" in block
+    assert "returncode=int(completed.returncode)" not in block
+    assert "python_path=python_path" not in block
+    assert "worker_path=worker_path" not in block
+    assert "runtime_root=runtime_root" not in block
+    assert 'payload.setdefault("returncode"' in block

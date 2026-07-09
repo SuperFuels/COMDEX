@@ -200,15 +200,16 @@ def call_voice_worker(
             payload.setdefault("error", f"Voice worker exited with code {completed.returncode}.")
             payload.setdefault("stderr", stderr[-4000:])
 
+        payload.setdefault("returncode", int(completed.returncode))
+        payload.setdefault("python_path", str(python_path))
+        payload.setdefault("worker_path", str(worker_path))
+        payload.setdefault("runtime_root", str(runtime_root))
+
         return VoiceWorkerResult(
             ok=bool(payload.get("ok")),
             payload=payload,
             stdout=stdout,
             stderr=stderr,
-            returncode=int(completed.returncode),
-            python_path=python_path,
-            worker_path=worker_path,
-            runtime_root=runtime_root,
         )
     finally:
         try:
