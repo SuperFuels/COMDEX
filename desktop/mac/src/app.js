@@ -142892,6 +142892,14 @@ setTimeout(() => {
   }
 
   function syncAionO25ETerminalOnlyVoiceConversation() {
+    const explicitOpen =
+      window.__aionO25ZExplicitTerminalOpen === true ||
+      window.__aionO25UConversationOpen === true ||
+      window.sessionStorage?.getItem("aion.o25z.explicit_terminal_open.v1") === "true" ||
+      window.sessionStorage?.getItem("aion.o25u.current_terminal_open.v1") === "true";
+
+    if (!explicitOpen) return false;
+
     const shell = document.querySelector("[data-aion-o20c-conversation-shell='true']");
     if (!shell) return false;
 
@@ -143804,4 +143812,334 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
   console.log("[AION] O25Y startup selector and selected terminal voice owner installed");
 })();
 /* END AION O25Y STARTUP SELECTOR AND SELECTED TERMINAL VOICE OWNER LOCK */
+
+
+/* BEGIN AION O25Z FINAL STARTUP SELECTOR OWNER LOCK */
+(function installAionO25ZFinalStartupSelectorOwner() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO25ZFinalStartupSelectorOwnerInstalled) return;
+  window.__aionO25ZFinalStartupSelectorOwnerInstalled = true;
+
+  const EXPLICIT_KEY = "aion.o25z.explicit_terminal_open.v1";
+  const O25U_KEY = "aion.o25u.current_terminal_open.v1";
+
+  const staleKeys = [
+    "aion.o20c.conversationOpen",
+    "aion.o20c.conversationMode",
+    "aion.o20c.conversation_open",
+    "aion.o20c.conversation_mode",
+    "aion.o25f.intentionalConversationOpen.v1",
+    "aion.o25f.openingIntroSpoken.v1",
+    "aion.voiceOnboarding.o19m.started.v1",
+    "aion.voiceOnboarding.o19l.started.v1",
+    "aion.voiceOnboarding.o19j.v1",
+    "aion.voiceDiscovery.o19a.activeSessionId",
+    "aion.voiceDiscovery.o19b.active",
+    "aion.voiceDiscovery.o19c.active",
+    "aion.voiceDiscovery.o19d.active",
+    "aion.voiceDiscovery.o19e.active"
+  ];
+
+  function hasExplicitOpen() {
+    try {
+      return (
+        window.__aionO25ZExplicitTerminalOpen === true ||
+        window.sessionStorage?.getItem(EXPLICIT_KEY) === "true" ||
+        window.sessionStorage?.getItem(O25U_KEY) === "true"
+      );
+    } catch {
+      return window.__aionO25ZExplicitTerminalOpen === true;
+    }
+  }
+
+  function clearStaleOpenState(reason) {
+    if (hasExplicitOpen()) return false;
+
+    try {
+      staleKeys.forEach((key) => window.localStorage?.removeItem(key));
+      window.sessionStorage?.removeItem(O25U_KEY);
+      window.sessionStorage?.removeItem(EXPLICIT_KEY);
+    } catch {}
+
+    window.__aionO25UConversationOpen = false;
+    window.__aionO25ZExplicitTerminalOpen = false;
+    window.__aionO20COpeningMode = "";
+
+    window.__aionO25ZLastFreshLaunchReset = {
+      reason,
+      ts: new Date().toISOString()
+    };
+
+    return true;
+  }
+
+  function removeTerminalIfNotExplicit(reason) {
+    if (hasExplicitOpen()) return false;
+
+    const selectors = [
+      "[data-aion-o20c-conversation-shell='true']",
+      "[data-aion-o25e-voice-terminal-only='true']",
+      "[data-aion-o25f-auto-voice-terminal='true']",
+      "[data-aion-o25u-current-terminal='true']"
+    ];
+
+    let removed = 0;
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((node) => {
+        node.remove();
+        removed += 1;
+      });
+    });
+
+    if (removed) {
+      window.__aionO25ZLastTerminalRemoved = {
+        reason,
+        removed,
+        ts: new Date().toISOString()
+      };
+    }
+
+    return removed > 0;
+  }
+
+  function forceStartupSelector(reason) {
+    if (hasExplicitOpen()) return;
+
+    clearStaleOpenState(reason);
+    removeTerminalIfNotExplicit(reason);
+
+    try {
+      if (typeof state !== "undefined" && state) {
+        state.activeTab = "small_business_foundation";
+      }
+    } catch {}
+
+    try {
+      if (typeof requestRender === "function") requestRender();
+      else if (typeof render === "function") render();
+    } catch {}
+  }
+
+  async function speakLocalIntro() {
+    const text = [
+      "Welcome to AION.",
+      "I can help map your business, build your Business Foundation, create your Business Map, activate the Boardroom, and route deeper discovery to the right department pilots.",
+      "What are you looking to achieve?"
+    ].join(" ");
+
+    window.__aionO25ZLastVoiceStart = {
+      ts: new Date().toISOString(),
+      provider: "local_kokoro",
+      text_preview: text.slice(0, 120)
+    };
+
+    try {
+      window.__aionO25FVoiceRuntimeState = {
+        ...(window.__aionO25FVoiceRuntimeState || {}),
+        speaking: true,
+        last_spoken_text: text
+      };
+
+      const response = await fetch("http://127.0.0.1:8080/api/aion/voice/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          voice: "af_heart",
+          format: "wav",
+          provider: "local"
+        })
+      });
+
+      if (!response.ok) {
+        const detail = await response.text().catch(() => "");
+        throw new Error(`Local TTS ${response.status}: ${detail.slice(0, 240)}`);
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      window.__aionO25ZCurrentAudio = audio;
+
+      await audio.play();
+
+      audio.onended = () => {
+        try { URL.revokeObjectURL(url); } catch {}
+        window.__aionO25FVoiceRuntimeState = {
+          ...(window.__aionO25FVoiceRuntimeState || {}),
+          speaking: false,
+          last_tts_ok: true
+        };
+      };
+
+      return { ok: true };
+    } catch (error) {
+      window.__aionO25FVoiceRuntimeState = {
+        ...(window.__aionO25FVoiceRuntimeState || {}),
+        speaking: false,
+        last_tts_ok: false,
+        last_tts_error: String(error?.message || error)
+      };
+
+      window.__aionO25ZLastVoiceError = {
+        ts: new Date().toISOString(),
+        error: String(error?.message || error)
+      };
+
+      console.warn("[AION O25Z] local intro voice failed", error);
+      return { ok: false, error: String(error?.message || error) };
+    }
+  }
+
+  function openSelectedTerminal(mode = "small_business_growth") {
+    try {
+      window.sessionStorage?.setItem(EXPLICIT_KEY, "true");
+      window.sessionStorage?.setItem(O25U_KEY, "true");
+      window.localStorage?.setItem("aion.o20c.conversationMode", String(mode || "small_business_growth"));
+    } catch {}
+
+    window.__aionO25ZExplicitTerminalOpen = true;
+    window.__aionO25UConversationOpen = true;
+    window.__aionO20COpeningMode = String(mode || "small_business_growth");
+
+    try {
+      if (typeof state !== "undefined" && state) {
+        state.activeTab = "small_business_foundation";
+      }
+    } catch {}
+
+    try {
+      if (typeof requestRender === "function") requestRender();
+      else if (typeof render === "function") render();
+    } catch {}
+
+    setTimeout(() => {
+      try {
+        if (typeof window.syncAionO25ETerminalOnlyVoiceConversation === "function") {
+          window.syncAionO25ETerminalOnlyVoiceConversation();
+        }
+      } catch {}
+    }, 80);
+
+    setTimeout(() => {
+      speakLocalIntro();
+    }, 550);
+
+    return { ok: true, owner: "O25Z", mode };
+  }
+
+  document.addEventListener("click", (event) => {
+    const business = event.target?.closest?.('[data-aion-business-entry-mode="small_business_growth"], [data-aion-o25u-start-business="true"]');
+    if (business) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
+      openSelectedTerminal("small_business_growth");
+      return;
+    }
+
+    const stop = event.target?.closest?.("[data-aion-o25e-stop-talking='true'], [data-aion-o25f-stop='true']");
+    if (stop) {
+      try {
+        if (window.__aionO25ZCurrentAudio) {
+          window.__aionO25ZCurrentAudio.pause();
+          window.__aionO25ZCurrentAudio.currentTime = 0;
+        }
+      } catch {}
+      try {
+        if (typeof window.stopAionO25FBusinessFoundationSpeech === "function") {
+          window.stopAionO25FBusinessFoundationSpeech();
+        }
+      } catch {}
+      return;
+    }
+
+    const reply = event.target?.closest?.("[data-aion-o25e-talk-toggle='true'], [data-aion-o25f-reply='true']");
+    if (reply) {
+      try {
+        if (typeof window.toggleAionO21ELiveMicTranscriptCapture === "function") {
+          window.toggleAionO21ELiveMicTranscriptCapture();
+        }
+      } catch {}
+    }
+  }, true);
+
+  document.addEventListener("submit", (event) => {
+    const form = event.target?.closest?.("[data-aion-o25e-typed-form='true'], [data-aion-o25f-typed-form='true']");
+    if (!form) return;
+
+    const input =
+      form.querySelector("[data-aion-o25e-typed-input='true']") ||
+      form.querySelector("[data-aion-o25f-typed-input='true']");
+
+    const value = String(input?.value || "").trim();
+    if (!value) return;
+
+    try {
+      if (typeof window.appendAionO21ETranscript === "function") {
+        window.appendAionO21ETranscript(value, {
+          provider: "typed_fallback",
+          source: "typed_fallback",
+          speaker: "user",
+          role: "user"
+        });
+      }
+    } catch {}
+
+    if (input) input.value = "";
+
+    setTimeout(() => {
+      try {
+        if (typeof window.syncAionO25ETerminalOnlyVoiceConversation === "function") {
+          window.syncAionO25ETerminalOnlyVoiceConversation();
+        }
+      } catch {}
+    }, 60);
+  }, true);
+
+  const observer = new MutationObserver(() => {
+    if (!hasExplicitOpen()) {
+      removeTerminalIfNotExplicit("mutation_guard");
+    }
+  });
+
+  try {
+    observer.observe(document.body, { childList: true, subtree: true });
+  } catch {}
+
+  clearStaleOpenState("install");
+  setTimeout(() => forceStartupSelector("boot_0"), 0);
+  setTimeout(() => forceStartupSelector("boot_250"), 250);
+  setTimeout(() => forceStartupSelector("boot_900"), 900);
+
+  window.openAionO25ZSelectedBusinessTerminal = openSelectedTerminal;
+  window.resetAionO25ZToStartupSelector = function resetAionO25ZToStartupSelector() {
+    try {
+      window.sessionStorage?.removeItem(EXPLICIT_KEY);
+      window.sessionStorage?.removeItem(O25U_KEY);
+    } catch {}
+    window.__aionO25ZExplicitTerminalOpen = false;
+    window.__aionO25UConversationOpen = false;
+    clearStaleOpenState("manual_reset");
+    forceStartupSelector("manual_reset");
+    return { ok: true };
+  };
+
+  window.__debugAionO25ZFinalStartupSelectorOwner = function () {
+    return {
+      installed: true,
+      explicit_open: hasExplicitOpen(),
+      startup_selector_visible: Boolean(document.querySelector("[data-aion-o25u-startup-selector='true'], [data-aion-phase24a-business-entry-selector='true']")),
+      selected_terminal_visible: Boolean(document.querySelector("[data-aion-o25e-voice-terminal-only='true']")),
+      wrong_o25w_terminal_visible: Boolean(document.querySelector("[data-aion-o25w-current-terminal='true']")),
+      last_fresh_launch_reset: window.__aionO25ZLastFreshLaunchReset || null,
+      last_terminal_removed: window.__aionO25ZLastTerminalRemoved || null,
+      last_voice_start: window.__aionO25ZLastVoiceStart || null,
+      last_voice_error: window.__aionO25ZLastVoiceError || null
+    };
+  };
+
+  console.log("[AION] O25Z final startup selector owner installed");
+})();
+/* END AION O25Z FINAL STARTUP SELECTOR OWNER LOCK */
 
