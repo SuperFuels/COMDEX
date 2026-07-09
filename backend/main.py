@@ -1918,7 +1918,7 @@ def _aion_o19k_json_response(payload: dict, status_code: int = 200):
 
 
 if "app" in globals() and _AionO19KFastAPIRequest is not None and _AionO19KFastAPIResponse is not None:
-    @app.post("/api/aion/voice/tts")
+    @app.post("/api/aion/voice/tts/legacy-elevenlabs-disabled")
     async def aion_o19k_elevenlabs_voice_tts(request: _AionO19KFastAPIRequest):
         body = await request.json()
         text = str(body.get("text") or "").strip()
