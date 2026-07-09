@@ -23196,6 +23196,13 @@ function renderBusinessEntryModeSelector() {
   }
 
   function renderCurrentTerminal() {
+    /* AION O25W:
+       Use the proper O25F-style Business Foundation terminal design,
+       but keep O25U as the route owner.
+       No O19/O20 legacy opener.
+       No O25E/O25F auto-mount ownership.
+       Voice buttons keep the existing working O25F/O21E handlers.
+    */
     const rows = transcriptRows();
     const runtime = window.__aionO25FVoiceRuntimeState || {};
     const speaking = runtime.speaking === true || window.__aionO25OOpeningVoiceStarted === true;
@@ -23213,67 +23220,79 @@ function renderBusinessEntryModeSelector() {
 
     return `
       <main
-        class="aion-o25u-current-terminal"
+        class="aion-o25w-current-terminal"
         data-aion-o25u-current-terminal="true"
+        data-aion-o25w-current-terminal="true"
         style="
           min-height:100vh;
-          background:#ffffff;
-          color:#111111;
-          padding:44px;
+          background:
+            radial-gradient(circle at 82% 12%, rgba(15,118,110,0.10), transparent 26%),
+            radial-gradient(circle at 10% 90%, rgba(56,189,248,0.08), transparent 30%),
+            #ffffff;
+          color:#071024;
+          padding:38px 46px;
           box-sizing:border-box;
           font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
         "
       >
-        <section style="max-width:1180px;margin:0 auto;">
-          <div style="display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:28px;">
-            <div>
-              <div style="font-size:12px;font-weight:950;letter-spacing:0.18em;text-transform:uppercase;color:rgba(17,17,17,0.48);margin-bottom:12px;">
-                Tessaris AION · Local Voice
+        <section style="max-width:1280px;margin:0 auto;display:grid;gap:28px;">
+          <header style="display:flex;justify-content:space-between;gap:28px;align-items:flex-start;">
+            <div style="max-width:920px;">
+              <div style="font-size:12px;font-weight:950;letter-spacing:0.24em;text-transform:uppercase;color:#7bb8cc;margin-bottom:14px;">
+                AION voice conversation
               </div>
-              <h1 style="font-size:58px;line-height:0.94;margin:0;font-weight:950;letter-spacing:-0.06em;color:#111111;">
+              <h1 style="font-size:clamp(48px,6vw,84px);line-height:0.9;margin:0;font-weight:950;letter-spacing:-0.075em;color:#071024;">
                 Business Foundation Conversation
               </h1>
-              <p style="font-size:17px;line-height:1.55;margin:18px 0 0;color:rgba(17,17,17,0.66);max-width:780px;">
-                AION will ask simple questions and build the business foundation in the background. No live execution, no external actions, no guessing.
+              <p style="font-size:18px;line-height:1.5;margin:20px 0 0;color:rgba(7,16,36,0.66);max-width:850px;">
+                AION will ask simple questions, record the transcript, and build your Business Foundation locally in the background.
               </p>
             </div>
 
             <div
-              data-aion-o25u-voice-orb="true"
+              data-aion-o25w-voice-orb="true"
               style="
-                width:86px;
-                height:86px;
+                width:92px;
+                height:92px;
                 border-radius:999px;
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                color:#dffcff;
-                background:radial-gradient(circle at 35% 30%, #7dd3fc, #172033 64%, #020617 100%);
-                box-shadow:0 0 0 18px rgba(14,165,233,0.11),0 20px 60px rgba(15,23,42,0.22);
-                font-size:13px;
+                display:grid;
+                place-items:center;
+                color:#35f2b2;
+                background:radial-gradient(circle at 35% 30%, #f8ffff, #667085 42%, #111827 78%);
+                box-shadow:0 0 0 18px rgba(45,212,191,0.12),0 22px 60px rgba(15,23,42,0.24);
+                font-size:34px;
                 font-weight:950;
-                letter-spacing:0.16em;
+                ${speaking || recording ? "animation:aionO25WOrb 1.1s ease-in-out infinite;" : ""}
               "
             >
-              AION
+              ∞
             </div>
-          </div>
+          </header>
 
-          <section style="border:1px solid rgba(17,17,17,0.12);border-radius:30px;background:#f8fafc;padding:24px;box-shadow:0 24px 80px rgba(15,23,42,0.08);">
-            <div style="display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:18px;">
+          <section
+            style="
+              border:1px solid rgba(15,23,42,0.10);
+              border-radius:34px;
+              background:linear-gradient(135deg,rgba(255,255,255,0.98),rgba(240,253,250,0.58));
+              padding:28px;
+              box-shadow:0 28px 90px rgba(15,23,42,0.10);
+            "
+          >
+            <div style="display:flex;justify-content:space-between;gap:20px;align-items:center;margin-bottom:20px;">
               <div>
-                <div style="font-size:12px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.48);">
+                <div style="font-size:12px;font-weight:950;letter-spacing:0.24em;text-transform:uppercase;color:rgba(7,16,36,0.46);">
                   Conversation transcript
                 </div>
-                <div style="font-size:13px;color:rgba(17,17,17,0.58);margin-top:6px;">
+                <div style="font-size:13px;color:rgba(7,16,36,0.56);margin-top:6px;">
                   Local Kokoro voice · local STT · preview only
                 </div>
               </div>
-              <div style="display:flex;gap:10px;align-items:center;">
-                <button type="button" data-aion-o25f-reply="true" style="border:0;border-radius:999px;background:#111111;color:#ffffff;padding:14px 20px;font-size:12px;font-weight:950;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">
+
+              <div style="display:flex;gap:12px;align-items:center;">
+                <button type="button" data-aion-o25f-reply="true" style="border:0;border-radius:999px;background:#071024;color:#ffffff;padding:15px 22px;font-size:12px;font-weight:950;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;">
                   ${recording ? "Listening..." : "Reply to AION"}
                 </button>
-                <button type="button" data-aion-o25f-stop="true" style="border:1px solid rgba(17,17,17,0.14);border-radius:999px;background:#ffffff;color:#111111;padding:14px 20px;font-size:12px;font-weight:950;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">
+                <button type="button" data-aion-o25f-stop="true" style="border:1px solid rgba(7,16,36,0.16);border-radius:999px;background:#ffffff;color:#071024;padding:15px 22px;font-size:12px;font-weight:950;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;">
                   Stop
                 </button>
               </div>
@@ -23281,14 +23300,15 @@ function renderBusinessEntryModeSelector() {
 
             <div
               data-aion-o25u-transcript="true"
+              data-aion-o25w-transcript="true"
               style="
-                min-height:420px;
-                max-height:520px;
+                min-height:460px;
+                max-height:540px;
                 overflow:auto;
-                border-radius:24px;
-                background:#ffffff;
-                border:1px solid rgba(17,17,17,0.08);
-                padding:22px;
+                border-radius:26px;
+                background:rgba(248,250,252,0.78);
+                border:1px solid rgba(15,23,42,0.08);
+                padding:24px;
               "
             >
               ${displayRows.map((row) => {
@@ -23296,35 +23316,54 @@ function renderBusinessEntryModeSelector() {
                 const isAion = speaker.includes("aion") || speaker.includes("assistant");
                 return `
                   <article style="
-                    max-width:78%;
-                    margin:${isAion ? "0 auto 18px 0" : "0 0 18px auto"};
-                    padding:16px 18px;
-                    border-radius:18px;
-                    background:${isAion ? "#f8fafc" : "#111111"};
-                    color:${isAion ? "#111111" : "#ffffff"};
-                    box-shadow:0 12px 34px rgba(15,23,42,0.07);
+                    max-width:76%;
+                    margin:${isAion ? "0 auto 22px 0" : "0 0 22px auto"};
+                    padding:18px 20px;
+                    border-radius:20px;
+                    background:${isAion ? "#ffffff" : "#071024"};
+                    color:${isAion ? "#071024" : "#ffffff"};
+                    box-shadow:0 16px 38px rgba(15,23,42,0.07);
                   ">
-                    <div style="font-size:11px;font-weight:950;letter-spacing:0.14em;text-transform:uppercase;opacity:0.65;margin-bottom:8px;">
+                    <div style="font-size:11px;font-weight:950;letter-spacing:0.18em;text-transform:uppercase;opacity:0.68;margin-bottom:10px;">
                       ${isAion ? "AION" : "YOU"}
                     </div>
-                    <div style="font-size:15px;line-height:1.52;">${esc(row.text || row.message || "")}</div>
+                    <div style="font-size:16px;line-height:1.52;">${esc(row.text || row.message || "")}</div>
                   </article>
                 `;
               }).join("")}
             </div>
 
-            <form data-aion-o25f-typed-form="true" style="display:flex;gap:12px;margin-top:18px;">
-              <input type="text" data-aion-o25f-typed-input="true" placeholder="Type here if mic is unavailable..." style="flex:1;border:1px solid rgba(17,17,17,0.12);border-radius:999px;padding:16px 20px;font-size:15px;outline:none;background:#ffffff;color:#111111;" />
-              <button type="submit" style="border:0;border-radius:999px;background:#111111;color:#ffffff;padding:0 24px;font-size:12px;font-weight:950;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">
+            <form data-aion-o25f-typed-form="true" style="display:flex;gap:14px;margin-top:20px;align-items:center;">
+              <input
+                type="text"
+                data-aion-o25f-typed-input="true"
+                placeholder="Type here while testing, or use Reply to AION..."
+                style="flex:1;border:1px solid rgba(15,23,42,0.12);border-radius:999px;padding:17px 20px;font-size:15px;outline:none;background:#ffffff;color:#071024;"
+              />
+              <button type="submit" style="border:0;border-radius:999px;background:#071024;color:#ffffff;padding:17px 24px;font-size:12px;font-weight:950;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;">
                 Send
               </button>
             </form>
 
-            <div style="margin-top:14px;font-size:12px;color:rgba(17,17,17,0.48);">
-              ${speaking ? "AION is speaking…" : "Waiting for your reply."}
+            <div style="display:flex;align-items:center;gap:14px;margin-top:16px;color:rgba(7,16,36,0.52);font-size:13px;">
+              <div style="display:flex;gap:6px;align-items:center;height:32px;padding:0 14px;border-radius:999px;background:#f1f5f9;">
+                <span style="width:6px;height:${speaking || recording ? "24px" : "10px"};border-radius:999px;background:#071024;opacity:.55;"></span>
+                <span style="width:6px;height:${speaking || recording ? "16px" : "10px"};border-radius:999px;background:#071024;opacity:.55;"></span>
+                <span style="width:6px;height:${speaking || recording ? "28px" : "10px"};border-radius:999px;background:#071024;opacity:.55;"></span>
+                <span style="width:6px;height:${speaking || recording ? "14px" : "10px"};border-radius:999px;background:#071024;opacity:.55;"></span>
+                <span style="width:6px;height:${speaking || recording ? "22px" : "10px"};border-radius:999px;background:#071024;opacity:.55;"></span>
+              </div>
+              <span>${speaking ? "AION is speaking…" : recording ? "AION is listening…" : "Waiting for your reply."}</span>
             </div>
           </section>
         </section>
+
+        <style>
+          @keyframes aionO25WOrb {
+            0%,100% { transform:scale(1); }
+            50% { transform:scale(1.055); }
+          }
+        </style>
       </main>
     `;
   }
