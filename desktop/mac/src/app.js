@@ -23360,19 +23360,19 @@ function renderBusinessEntryModeSelector() {
           </p>
 
           <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
-            <button type="button" data-aion-business-entry-mode="small_business_growth" data-aion-o20c-open-conversation="small_business_growth" data-aion-o25u-start-business="true" style="appearance:none;-webkit-appearance:none;border:1px solid #111111;border-radius:24px;background:#111111;color:#ffffff;padding:28px;text-align:left;cursor:pointer;min-height:168px;box-shadow:0 24px 70px rgba(17,17,17,0.16);">
+            <button type="button" data-aion-business-entry-mode="small_business_growth" data-aion-o25u-start-business="true" style="appearance:none;-webkit-appearance:none;border:1px solid #111111;border-radius:24px;background:#111111;color:#ffffff;padding:28px;text-align:left;cursor:pointer;min-height:168px;box-shadow:0 24px 70px rgba(17,17,17,0.16);">
               <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:18px;">Existing business</div>
               <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#ffffff;">I have a business</div>
               <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(255,255,255,0.74);">Map the business you already run, then build the foundation and boardroom around it.</div>
             </button>
 
-            <button type="button" data-aion-business-entry-mode="founder_build_idea" data-aion-o20c-open-conversation="founder_build_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
+            <button type="button" data-aion-business-entry-mode="founder_build_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
               <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">New venture</div>
               <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">I have an idea</div>
               <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">Turn an idea into a structured business foundation and plan.</div>
             </button>
 
-            <button type="button" data-aion-business-entry-mode="founder_generate_idea" data-aion-o20c-open-conversation="founder_generate_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
+            <button type="button" data-aion-business-entry-mode="founder_generate_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
               <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">Discovery</div>
               <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">Generate me an idea</div>
               <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">Let AION suggest a direction and help you shape it.</div>
@@ -137812,6 +137812,25 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   if (window.__aionO19IVoiceGuideExistingBusinessTwinInstalled) return;
   window.__aionO19IVoiceGuideExistingBusinessTwinInstalled = true;
 
+  // AION O25V: legacy Tessaris Voice Opener is retired.
+  // O25U owns startup + current terminal. Do not mount O19I panel.
+  try {
+    window.__aionO25VLegacyVoiceOpenerRetired = true;
+    window.localStorage?.removeItem("aion.voiceOnboarding.o19m.started.v1");
+    window.localStorage?.removeItem("aion.voiceOnboarding.o19l.started.v1");
+    window.localStorage?.removeItem("aion.voiceOnboarding.o19i.v1");
+    document.querySelectorAll("[data-aion-o19i-voice-guide-panel]").forEach((node) => node.remove());
+  } catch {}
+  window.refreshAionO19IVoiceGuide = function refreshAionO19IRetiredByO25V() {
+    document.querySelectorAll("[data-aion-o19i-voice-guide-panel]").forEach((node) => node.remove());
+    return false;
+  };
+  window.getAionO19IVoiceOnboardingState = function getAionO19IRetiredState() {
+    return { retired_by: "O25V", transcript: [], stage: "" };
+  };
+  console.log("[AION] O19I legacy Tessaris Voice Opener retired by O25V");
+  return;
+
   const STORAGE_KEY = "aion.voiceOnboarding.o19i.v1";
   const PANEL_ATTR = "data-aion-o19i-voice-guide-panel";
 
@@ -138677,6 +138696,13 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   if (window.__aionO19MConsolidatedVoiceOnboardingUiInstalled) return;
   window.__aionO19MConsolidatedVoiceOnboardingUiInstalled = true;
 
+  // AION O25V: O19M legacy onboarding UI retired.
+  window.startAionO19MOnboarding = function startAionO19MRetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  window.startAionO19MLiveMic = function startAionO19MMicRetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  window.stopAionO19MLiveMic = function stopAionO19MMicRetiredByO25V() { return { ok:true, retired_by:"O25V" }; };
+  console.log("[AION] O19M legacy voice onboarding UI retired by O25V");
+  return;
+
   const STARTED_KEY = "aion.voiceOnboarding.o19m.started.v1";
   const O19I_STATE_KEY = "aion.voiceOnboarding.o19i.v1";
 
@@ -139241,6 +139267,12 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   if (window.__aionO19M2HardBindAionStartButtonInstalled) return;
   window.__aionO19M2HardBindAionStartButtonInstalled = true;
 
+  // AION O25V: no hard binding for retired O19M start button.
+  window.forceBindAionO19M2StartButton = function forceBindAionO19M2RetiredByO25V() { return 0; };
+  window.forceStartAionO19M2 = function forceStartAionO19M2RetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  console.log("[AION] O19M2 legacy hard bind retired by O25V");
+  return;
+
   function callStart(reason) {
     window.__aionO19M2LastStartAttempt = {
       ts: new Date().toISOString(),
@@ -139357,6 +139389,14 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   if (typeof window === "undefined" || typeof document === "undefined") return;
   if (window.__aionO19NOpeningSpeechCaptureVisualizerInstalled) return;
   window.__aionO19NOpeningSpeechCaptureVisualizerInstalled = true;
+
+  // AION O25V: O19N old opening speech retired.
+  window.startAionO19NOpeningSequence = function startAionO19NRetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  window.playAionO19NCurrentPrompt = function playAionO19NRetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  window.captureAionO19NUserAnswer = function captureAionO19NRetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  window.speakAionO19NText = function speakAionO19NRetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  console.log("[AION] O19N legacy opening speech retired by O25V");
+  return;
 
   const STATE_KEY = "aion.voiceOnboarding.o19i.v1";
   const STARTED_KEY = "aion.voiceOnboarding.o19m.started.v1";
@@ -139751,6 +139791,19 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   if (typeof window === "undefined" || typeof document === "undefined") return;
   if (window.__aionO19OResetAndOpeningTriggerAuthorityInstalled) return;
   window.__aionO19OResetAndOpeningTriggerAuthorityInstalled = true;
+
+  // AION O25V: O19O legacy reset/opening trigger retired.
+  window.resetAionO19OFullVoiceOnboarding = function resetAionO19ORetiredByO25V() {
+    try {
+      window.localStorage?.removeItem("aion.voiceOnboarding.o19m.started.v1");
+      window.localStorage?.removeItem("aion.voiceOnboarding.o19i.v1");
+      document.querySelectorAll("[data-aion-o19i-voice-guide-panel]").forEach((node) => node.remove());
+    } catch {}
+    return { ok:true, retired_by:"O25V" };
+  };
+  window.startAionO19OOpening = function startAionO19ORetiredByO25V() { return { ok:false, retired_by:"O25V" }; };
+  console.log("[AION] O19O legacy opening trigger retired by O25V");
+  return;
 
   const STATE_KEY = "aion.voiceOnboarding.o19i.v1";
   const STARTED_KEYS = [
@@ -140596,36 +140649,34 @@ console.info("[AION] O18AD direct department branch rewrite installed");
   }
 
   function openConversation(mode = "start_with_aion") {
-    safeSet(STORAGE_KEY, "true");
-    safeSet(MODE_KEY, String(mode || "start_with_aion"));
+    // AION O25V: O20C old conversation takeover is retired.
+    // Route to O25U current terminal only; never click O19I/O19O legacy opener.
+    const cleanMode = String(mode || "small_business_growth");
+    safeSet(STORAGE_KEY, "false");
+    safeRemove(STORAGE_KEY);
+    safeRemove(MODE_KEY);
 
     try {
+      window.__aionO25UConversationOpen = true;
+      window.sessionStorage?.setItem("aion.o25u.current_terminal_open.v1", "true");
+      window.__aionO20COpeningMode = cleanMode;
       if (typeof state !== "undefined" && state) {
         state.activeTab = "small_business_foundation";
       }
-    } catch {}
-
-    try {
-      window.__aionO20COpeningMode = String(mode || "start_with_aion");
     } catch {}
 
     renderNow();
 
     setTimeout(() => {
       try {
-        if (typeof startAionO19OOpeningFromBeginning === "function") {
-          startAionO19OOpeningFromBeginning();
-          return;
+        document.querySelectorAll("[data-aion-o19i-voice-guide-panel]").forEach((node) => node.remove());
+        if (typeof window.aionO25OStartLocalOpeningVoice === "function" && /small_business_growth|existing_business|business/i.test(cleanMode)) {
+          window.aionO25OStartLocalOpeningVoice("business-start-click");
         }
       } catch {}
+    }, 250);
 
-      try {
-        const button = document.querySelector("[data-aion-o19i-play-stage]");
-        if (button) button.click();
-      } catch {}
-    }, 180);
-
-    return { ok: true, conversation_open: true, mode: String(mode || "start_with_aion") };
+    return { ok: true, conversation_open: true, mode: cleanMode, owner: "O25U/O25V" };
   }
 
   function closeConversation() {
@@ -145464,7 +145515,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
             <button
               type="button"
               data-aion-business-entry-mode="small_business_growth"
-              data-aion-o20c-open-conversation="small_business_growth"
+             
               style="appearance:none;border:1px solid #111111;border-radius:22px;background:#111111;color:#ffffff;padding:26px;text-align:left;cursor:pointer;min-height:150px;"
             >
               <div style="font-size:11px;font-weight:900;letter-spacing:0.16em;text-transform:uppercase;opacity:0.7;margin-bottom:18px;">Existing business</div>
@@ -145475,7 +145526,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
             <button
               type="button"
               data-aion-business-entry-mode="founder_build_idea"
-              data-aion-o20c-open-conversation="founder_build_idea"
+             
               style="appearance:none;border:1px solid rgba(17,17,17,0.18);border-radius:22px;background:#f7f7f7;color:#111111;padding:26px;text-align:left;cursor:pointer;min-height:150px;"
             >
               <div style="font-size:11px;font-weight:900;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.48);margin-bottom:18px;">New venture</div>
@@ -145486,7 +145537,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
             <button
               type="button"
               data-aion-business-entry-mode="founder_generate_idea"
-              data-aion-o20c-open-conversation="founder_generate_idea"
+             
               style="appearance:none;border:1px solid rgba(17,17,17,0.18);border-radius:22px;background:#f7f7f7;color:#111111;padding:26px;text-align:left;cursor:pointer;min-height:150px;"
             >
               <div style="font-size:11px;font-weight:900;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.48);margin-bottom:18px;">Discovery</div>
