@@ -145130,13 +145130,9 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
     true
   );
 
-  setTimeout(() => {
-    if (window.AION_ACTIVE_TAB === "small_business_foundation") {
-      startLocalOpeningVoice("foundation-active-tab");
-    }
-  }, 1250);
-
-  console.log("[AION] O25O local-only opening voice final owner installed");
+  // AION O25S: no active-tab / page-load voice.
+  // Opening voice is explicit-click only via the "I have a business" listener.
+  console.log("[AION] O25O local-only opening voice final owner installed; click-only by O25S");
 })();
 
 /* AION O25P — Final stale business placeholder fetch blocker
