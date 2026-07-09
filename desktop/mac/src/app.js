@@ -143583,3 +143583,225 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
   console.log("[AION] O25D startup conversation foundation UX installed");
 })();
+
+
+/* BEGIN AION O25Y STARTUP SELECTOR AND SELECTED TERMINAL VOICE OWNER LOCK */
+(function installAionO25YStartupSelectorAndSelectedTerminalVoiceOwner() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionO25YStartupSelectorAndSelectedTerminalVoiceOwnerInstalled) return;
+  window.__aionO25YStartupSelectorAndSelectedTerminalVoiceOwnerInstalled = true;
+
+  const SESSION_INTENT_KEY = "aion.o25y.user_opened_terminal_this_session.v1";
+
+  const TERMINAL_OPEN_KEYS = [
+    "aion.o20c.conversationOpen",
+    "aion.o20c.conversation_open",
+    "aion.o20c.conversationMode",
+    "aion.o20c.conversation_mode",
+    "aion.o25f.intentionalConversationOpen.v1",
+    "aion.o25f.openingIntroSpoken.v1",
+    "aion.o25u.current_terminal_open.v1",
+    "aion.businessTwinSetup.entryRoute.v1",
+    "aion.businessEntryMode.v1"
+  ];
+
+  function clearTerminalOpenFlags() {
+    try {
+      TERMINAL_OPEN_KEYS.forEach((key) => {
+        window.localStorage?.removeItem(key);
+        window.sessionStorage?.removeItem(key);
+      });
+      window.__aionO20COpeningMode = "";
+      window.__aionO25UConversationOpen = false;
+      window.__aionO25FDeferredAutomaticStartRequested = false;
+    } catch {}
+  }
+
+  function requestSafeRender() {
+    try {
+      if (typeof requestRender === "function") requestRender();
+      else if (typeof render === "function") render();
+    } catch {}
+  }
+
+  function isStartupFoundationRoute() {
+    try {
+      if (typeof state !== "undefined" && state && state.activeTab === "small_business_foundation") return true;
+    } catch {}
+    try {
+      return window.AION_ACTIVE_TAB === "small_business_foundation";
+    } catch {
+      return false;
+    }
+  }
+
+  function showStartupSelectorOnFreshLaunch(reason) {
+    if (!isStartupFoundationRoute()) return false;
+
+    let userOpened = false;
+    try {
+      userOpened = window.sessionStorage?.getItem(SESSION_INTENT_KEY) === "true";
+    } catch {}
+
+    if (userOpened) return false;
+
+    clearTerminalOpenFlags();
+
+    window.__aionO25YLastFreshLaunchReset = {
+      ok: true,
+      reason: reason || "fresh_launch",
+      ts: new Date().toISOString()
+    };
+
+    requestSafeRender();
+    return true;
+  }
+
+  function markUserOpenedTerminal(mode) {
+    try {
+      window.sessionStorage?.setItem(SESSION_INTENT_KEY, "true");
+      window.sessionStorage?.setItem("aion.o25f.intentionalConversationOpen.v1", "true");
+      window.sessionStorage?.setItem("aion.o25u.current_terminal_open.v1", "true");
+      window.localStorage?.setItem("aion.o20c.conversationOpen", "true");
+      window.localStorage?.setItem("aion.o20c.conversationMode", String(mode || "small_business_growth"));
+      window.localStorage?.setItem("aion.businessTwinSetup.entryRoute.v1", String(mode || "small_business_growth"));
+      window.__aionO20COpeningMode = String(mode || "small_business_growth");
+      window.__aionO25UConversationOpen = true;
+      window.__aionO25FDeferredAutomaticStartRequested = true;
+    } catch {}
+  }
+
+  async function startSelectedTerminalVoice() {
+    window.__aionO25YLastVoiceStart = {
+      started: true,
+      ts: new Date().toISOString(),
+      tried_o25f: typeof window.beginAionO25FAutomaticConversation === "function",
+      tried_o25o: typeof window.startAionO25OOpeningVoice === "function"
+    };
+
+    try {
+      if (typeof window.beginAionO25FAutomaticConversation === "function") {
+        await window.beginAionO25FAutomaticConversation();
+        return true;
+      }
+    } catch (error) {
+      window.__aionO25YLastVoiceStart.o25f_error = String(error && error.message ? error.message : error);
+    }
+
+    try {
+      if (typeof window.startAionO25OOpeningVoice === "function") {
+        await window.startAionO25OOpeningVoice("selected-terminal-open");
+        return true;
+      }
+    } catch (error) {
+      window.__aionO25YLastVoiceStart.o25o_error = String(error && error.message ? error.message : error);
+    }
+
+    try {
+      const text = "Welcome to AION. I can help map your business, build your Business Foundation, create your Business Map, activate the Boardroom, and route deeper discovery to the right department pilots. What are you looking to achieve?";
+      if (typeof window.speakAionO25FBusinessFoundation === "function") {
+        await window.speakAionO25FBusinessFoundation(text, { source: "o25y_selected_terminal_opening" });
+        return true;
+      }
+    } catch (error) {
+      window.__aionO25YLastVoiceStart.speak_error = String(error && error.message ? error.message : error);
+    }
+
+    return false;
+  }
+
+  function openSelectedTerminalFromStartup(mode) {
+    markUserOpenedTerminal(mode || "small_business_growth");
+    requestSafeRender();
+
+    setTimeout(() => {
+      try {
+        if (typeof window.syncAionO25ETerminalOnlyVoiceConversation === "function") {
+          window.syncAionO25ETerminalOnlyVoiceConversation();
+        }
+      } catch {}
+    }, 80);
+
+    setTimeout(() => {
+      startSelectedTerminalVoice();
+    }, 450);
+
+    return true;
+  }
+
+  document.addEventListener("click", (event) => {
+    const entry = event.target?.closest?.("[data-aion-business-entry-mode]");
+    if (!entry) return;
+
+    const mode = String(entry.getAttribute("data-aion-business-entry-mode") || "").trim();
+
+    if (mode !== "small_business_growth") return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation?.();
+
+    openSelectedTerminalFromStartup(mode);
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    const reply =
+      event.target?.closest?.("[data-aion-o25e-talk-toggle='true']") ||
+      event.target?.closest?.("[data-aion-o25f-reply='true']");
+
+    if (!reply) return;
+
+    try {
+      if (typeof window.toggleAionO21ELiveMicTranscriptCapture === "function") {
+        window.toggleAionO21ELiveMicTranscriptCapture();
+      }
+    } catch {}
+
+    setTimeout(() => {
+      try {
+        if (typeof window.syncAionO25ETerminalOnlyVoiceConversation === "function") {
+          window.syncAionO25ETerminalOnlyVoiceConversation();
+        }
+      } catch {}
+    }, 120);
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    const stop =
+      event.target?.closest?.("[data-aion-o25e-stop-talking='true']") ||
+      event.target?.closest?.("[data-aion-o25f-stop='true']");
+
+    if (!stop) return;
+
+    try {
+      if (typeof window.stopAionO25FBusinessFoundationSpeech === "function") {
+        window.stopAionO25FBusinessFoundationSpeech();
+      }
+    } catch {}
+
+    try {
+      if (typeof window.stopAionO21ELiveMicTranscriptCapture === "function") {
+        window.stopAionO21ELiveMicTranscriptCapture();
+      }
+    } catch {}
+  }, true);
+
+  setTimeout(() => showStartupSelectorOnFreshLaunch("load_0"), 0);
+  setTimeout(() => showStartupSelectorOnFreshLaunch("load_150"), 150);
+  setTimeout(() => showStartupSelectorOnFreshLaunch("load_700"), 700);
+
+  window.__debugAionO25YStartupSelectorAndSelectedTerminalVoiceOwner = function () {
+    return {
+      installed: true,
+      session_user_opened_terminal: window.sessionStorage?.getItem(SESSION_INTENT_KEY) || "",
+      startup_selector_visible: Boolean(document.querySelector("[data-aion-o25u-startup-selector='true']")),
+      selected_terminal_visible: Boolean(document.querySelector("[data-aion-o25e-voice-terminal-only='true']")),
+      last_fresh_launch_reset: window.__aionO25YLastFreshLaunchReset || null,
+      last_voice_start: window.__aionO25YLastVoiceStart || null
+    };
+  };
+
+  console.log("[AION] O25Y startup selector and selected terminal voice owner installed");
+})();
+/* END AION O25Y STARTUP SELECTOR AND SELECTED TERMINAL VOICE OWNER LOCK */
+
