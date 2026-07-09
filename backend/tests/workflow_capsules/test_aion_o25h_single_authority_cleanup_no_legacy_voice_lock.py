@@ -1,6 +1,7 @@
 from pathlib import Path
 import re
 import subprocess
+import sys
 
 ROOT = Path(__file__).resolve().parents[3]
 APP = ROOT / "desktop/mac/src/app.js"
@@ -85,4 +86,4 @@ def test_o25h_aion_turns_render_as_aion_not_you():
 
 def test_o25h_syntax_checks_clean():
     subprocess.run(["node", "--check", str(APP)], cwd=ROOT, check=True)
-    subprocess.run(["python", "-m", "py_compile", str(MAIN)], cwd=ROOT, check=True)
+    subprocess.run([sys.executable, "-m", "py_compile", str(MAIN)], cwd=ROOT, check=True)
