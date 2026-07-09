@@ -8,10 +8,11 @@ APP = ROOT / "desktop/mac/src/app.js"
 def test_o25t_startup_selector_is_direct_route_source():
     text = APP.read_text(encoding="utf-8")
     start = text.index("function renderBusinessEntryModeSelector()")
-    end = text.index("/* O19G", start) if "/* O19G" in text[start:] else start + 9000
+    end = text.index("window.renderBusinessEntryModeSelector = renderBusinessEntryModeSelector", start)
     block = text[start:end]
-    assert "AION O25T: startup selector is the direct route source-of-truth" in block
-    assert "data-aion-o25t-startup-selector" in block
+    assert "AION O25U:" in block or "AION O25T: startup selector is the direct route source-of-truth" in block
+    assert "data-aion-o25u-startup-selector" in block or "data-aion-o25t-startup-selector" in block
+    assert "data-aion-o25u-current-terminal" in block
     assert "I have a business" in block
     assert "I have an idea" in block
     assert "Generate me an idea" in block

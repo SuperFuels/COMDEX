@@ -23150,135 +23150,244 @@ function routeAionBusinessTwinToFinanceOnceV2() {
 /* O19F: old redirect disabled. small_business_foundation renders the real startup selector again. */
 /* BEGIN AION O19F RESTORE REAL BUSINESS ENTRY SELECTOR LOCK */
 function renderBusinessEntryModeSelector() {
-  /* AION O25T: startup selector is the direct route source-of-truth.
-     Do not delegate to older conversation/twin takeover renderers here.
-     Voice remains click-only via O25O's explicit "I have a business" listener.
+  /* AION O25U:
+     small_business_foundation has exactly two states:
+       1. clean startup selector
+       2. current Business Foundation voice terminal after explicit click
+     It must not delegate to O25D/O25E/O25F legacy render owners.
   */
-  return `
-    <main
-      class="aion-o25t-startup-selector"
-      data-aion-phase24a-business-entry-selector="true"
-      data-aion-o25t-startup-selector="true"
-      style="
-        min-height:100vh;
-        width:100%;
-        background:#ffffff;
-        color:#111111;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        padding:56px;
-        box-sizing:border-box;
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-      "
-    >
-      <section style="width:min(980px,100%);">
-        <div style="font-size:12px;font-weight:950;letter-spacing:0.18em;text-transform:uppercase;color:rgba(17,17,17,0.52);margin-bottom:20px;">
-          Tessaris AION
-        </div>
 
-        <h1 style="font-size:60px;line-height:0.94;margin:0 0 18px;font-weight:950;letter-spacing:-0.06em;color:#111111;">
-          What are we building?
-        </h1>
+  function esc(value) {
+    if (typeof escapeHtml === "function") return escapeHtml(value);
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
 
-        <p style="font-size:18px;line-height:1.55;margin:0 0 36px;color:rgba(17,17,17,0.66);max-width:760px;">
-          Choose a starting point. AION will build your business foundation locally, then use it to shape the boardroom, agents, workflows and business twin.
-        </p>
+  function currentTerminalOpen() {
+    try {
+      return (
+        window.__aionO25UConversationOpen === true ||
+        window.sessionStorage?.getItem("aion.o25u.current_terminal_open.v1") === "true"
+      );
+    } catch {
+      return window.__aionO25UConversationOpen === true;
+    }
+  }
 
-        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
-          <button
-            type="button"
-            data-aion-business-entry-mode="small_business_growth"
-            data-aion-o20c-open-conversation="small_business_growth"
-            data-aion-o25t-start-business="true"
-            style="
-              appearance:none;
-              -webkit-appearance:none;
-              border:1px solid #111111;
-              border-radius:24px;
-              background:#111111;
-              color:#ffffff;
-              padding:28px;
-              text-align:left;
-              cursor:pointer;
-              min-height:168px;
-              box-shadow:0 24px 70px rgba(17,17,17,0.16);
-            "
-          >
-            <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:18px;">
-              Existing business
-            </div>
-            <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#ffffff;">
-              I have a business
-            </div>
-            <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(255,255,255,0.74);">
-              Map the business you already run, then build the foundation and boardroom around it.
-            </div>
-          </button>
+  function transcriptRows() {
+    try {
+      const voice =
+        typeof window.getAionO21ELiveMicTranscriptState === "function"
+          ? window.getAionO21ELiveMicTranscriptState()
+          : {};
+      const rows =
+        Array.isArray(voice?.transcripts) ? voice.transcripts :
+        Array.isArray(voice?.transcript) ? voice.transcript :
+        Array.isArray(voice?.items) ? voice.items :
+        [];
+      return rows.filter(Boolean);
+    } catch {
+      return [];
+    }
+  }
 
-          <button
-            type="button"
-            data-aion-business-entry-mode="founder_build_idea"
-            data-aion-o20c-open-conversation="founder_build_idea"
-            style="
-              appearance:none;
-              -webkit-appearance:none;
-              border:1px solid rgba(17,17,17,0.16);
-              border-radius:24px;
-              background:#f7f7f7;
-              color:#111111;
-              padding:28px;
-              text-align:left;
-              cursor:pointer;
-              min-height:168px;
-            "
-          >
-            <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">
-              New venture
-            </div>
-            <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">
-              I have an idea
-            </div>
-            <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">
-              Turn an idea into a structured business foundation and plan.
-            </div>
-          </button>
+  function renderCurrentTerminal() {
+    const rows = transcriptRows();
+    const runtime = window.__aionO25FVoiceRuntimeState || {};
+    const speaking = runtime.speaking === true || window.__aionO25OOpeningVoiceStarted === true;
+    const recording =
+      typeof window.getAionO21ELiveMicTranscriptState === "function"
+        ? window.getAionO21ELiveMicTranscriptState()?.recording === true
+        : false;
 
-          <button
-            type="button"
-            data-aion-business-entry-mode="founder_generate_idea"
-            data-aion-o20c-open-conversation="founder_generate_idea"
-            style="
-              appearance:none;
-              -webkit-appearance:none;
-              border:1px solid rgba(17,17,17,0.16);
-              border-radius:24px;
-              background:#f7f7f7;
-              color:#111111;
-              padding:28px;
-              text-align:left;
-              cursor:pointer;
-              min-height:168px;
-            "
-          >
-            <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">
-              Discovery
-            </div>
-            <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">
-              Generate me an idea
-            </div>
-            <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">
-              Let AION suggest a direction and help you shape it.
-            </div>
-          </button>
-        </div>
+    const displayRows = rows.length
+      ? rows
+      : [{
+          speaker: "AION",
+          text: "Click Reply to AION when you are ready. I will use this conversation to build your Business Foundation locally.",
+        }];
 
-        <p style="font-size:12px;line-height:1.5;margin:24px 0 0;color:rgba(17,17,17,0.48);">
-          Local-first mode. Voice, foundation capture and business context stay on this machine unless you explicitly connect external services.
-        </p>
-      </section>
-    </main>
-  `;
+    return `
+      <main
+        class="aion-o25u-current-terminal"
+        data-aion-o25u-current-terminal="true"
+        style="
+          min-height:100vh;
+          background:#ffffff;
+          color:#111111;
+          padding:44px;
+          box-sizing:border-box;
+          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        "
+      >
+        <section style="max-width:1180px;margin:0 auto;">
+          <div style="display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:28px;">
+            <div>
+              <div style="font-size:12px;font-weight:950;letter-spacing:0.18em;text-transform:uppercase;color:rgba(17,17,17,0.48);margin-bottom:12px;">
+                Tessaris AION · Local Voice
+              </div>
+              <h1 style="font-size:58px;line-height:0.94;margin:0;font-weight:950;letter-spacing:-0.06em;color:#111111;">
+                Business Foundation Conversation
+              </h1>
+              <p style="font-size:17px;line-height:1.55;margin:18px 0 0;color:rgba(17,17,17,0.66);max-width:780px;">
+                AION will ask simple questions and build the business foundation in the background. No live execution, no external actions, no guessing.
+              </p>
+            </div>
+
+            <div
+              data-aion-o25u-voice-orb="true"
+              style="
+                width:86px;
+                height:86px;
+                border-radius:999px;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                color:#dffcff;
+                background:radial-gradient(circle at 35% 30%, #7dd3fc, #172033 64%, #020617 100%);
+                box-shadow:0 0 0 18px rgba(14,165,233,0.11),0 20px 60px rgba(15,23,42,0.22);
+                font-size:13px;
+                font-weight:950;
+                letter-spacing:0.16em;
+              "
+            >
+              AION
+            </div>
+          </div>
+
+          <section style="border:1px solid rgba(17,17,17,0.12);border-radius:30px;background:#f8fafc;padding:24px;box-shadow:0 24px 80px rgba(15,23,42,0.08);">
+            <div style="display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:18px;">
+              <div>
+                <div style="font-size:12px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.48);">
+                  Conversation transcript
+                </div>
+                <div style="font-size:13px;color:rgba(17,17,17,0.58);margin-top:6px;">
+                  Local Kokoro voice · local STT · preview only
+                </div>
+              </div>
+              <div style="display:flex;gap:10px;align-items:center;">
+                <button type="button" data-aion-o25f-reply="true" style="border:0;border-radius:999px;background:#111111;color:#ffffff;padding:14px 20px;font-size:12px;font-weight:950;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">
+                  ${recording ? "Listening..." : "Reply to AION"}
+                </button>
+                <button type="button" data-aion-o25f-stop="true" style="border:1px solid rgba(17,17,17,0.14);border-radius:999px;background:#ffffff;color:#111111;padding:14px 20px;font-size:12px;font-weight:950;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">
+                  Stop
+                </button>
+              </div>
+            </div>
+
+            <div
+              data-aion-o25u-transcript="true"
+              style="
+                min-height:420px;
+                max-height:520px;
+                overflow:auto;
+                border-radius:24px;
+                background:#ffffff;
+                border:1px solid rgba(17,17,17,0.08);
+                padding:22px;
+              "
+            >
+              ${displayRows.map((row) => {
+                const speaker = String(row.speaker || row.role || row.author || "").toLowerCase();
+                const isAion = speaker.includes("aion") || speaker.includes("assistant");
+                return `
+                  <article style="
+                    max-width:78%;
+                    margin:${isAion ? "0 auto 18px 0" : "0 0 18px auto"};
+                    padding:16px 18px;
+                    border-radius:18px;
+                    background:${isAion ? "#f8fafc" : "#111111"};
+                    color:${isAion ? "#111111" : "#ffffff"};
+                    box-shadow:0 12px 34px rgba(15,23,42,0.07);
+                  ">
+                    <div style="font-size:11px;font-weight:950;letter-spacing:0.14em;text-transform:uppercase;opacity:0.65;margin-bottom:8px;">
+                      ${isAion ? "AION" : "YOU"}
+                    </div>
+                    <div style="font-size:15px;line-height:1.52;">${esc(row.text || row.message || "")}</div>
+                  </article>
+                `;
+              }).join("")}
+            </div>
+
+            <form data-aion-o25f-typed-form="true" style="display:flex;gap:12px;margin-top:18px;">
+              <input type="text" data-aion-o25f-typed-input="true" placeholder="Type here if mic is unavailable..." style="flex:1;border:1px solid rgba(17,17,17,0.12);border-radius:999px;padding:16px 20px;font-size:15px;outline:none;background:#ffffff;color:#111111;" />
+              <button type="submit" style="border:0;border-radius:999px;background:#111111;color:#ffffff;padding:0 24px;font-size:12px;font-weight:950;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;">
+                Send
+              </button>
+            </form>
+
+            <div style="margin-top:14px;font-size:12px;color:rgba(17,17,17,0.48);">
+              ${speaking ? "AION is speaking…" : "Waiting for your reply."}
+            </div>
+          </section>
+        </section>
+      </main>
+    `;
+  }
+
+  function renderStartSelector() {
+    return `
+      <main
+        class="aion-o25u-startup-selector"
+        data-aion-phase24a-business-entry-selector="true"
+        data-aion-o25u-startup-selector="true"
+        style="
+          min-height:100vh;
+          width:100%;
+          background:#ffffff;
+          color:#111111;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:56px;
+          box-sizing:border-box;
+          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        "
+      >
+        <section style="width:min(980px,100%);">
+          <div style="font-size:12px;font-weight:950;letter-spacing:0.18em;text-transform:uppercase;color:rgba(17,17,17,0.52);margin-bottom:20px;">
+            Tessaris AION
+          </div>
+          <h1 style="font-size:60px;line-height:0.94;margin:0 0 18px;font-weight:950;letter-spacing:-0.06em;color:#111111;">
+            What are we building?
+          </h1>
+          <p style="font-size:18px;line-height:1.55;margin:0 0 36px;color:rgba(17,17,17,0.66);max-width:760px;">
+            Choose a starting point. AION will build your business foundation locally, then use it to shape the boardroom, agents, workflows and business twin.
+          </p>
+
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+            <button type="button" data-aion-business-entry-mode="small_business_growth" data-aion-o20c-open-conversation="small_business_growth" data-aion-o25u-start-business="true" style="appearance:none;-webkit-appearance:none;border:1px solid #111111;border-radius:24px;background:#111111;color:#ffffff;padding:28px;text-align:left;cursor:pointer;min-height:168px;box-shadow:0 24px 70px rgba(17,17,17,0.16);">
+              <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:18px;">Existing business</div>
+              <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#ffffff;">I have a business</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(255,255,255,0.74);">Map the business you already run, then build the foundation and boardroom around it.</div>
+            </button>
+
+            <button type="button" data-aion-business-entry-mode="founder_build_idea" data-aion-o20c-open-conversation="founder_build_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
+              <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">New venture</div>
+              <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">I have an idea</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">Turn an idea into a structured business foundation and plan.</div>
+            </button>
+
+            <button type="button" data-aion-business-entry-mode="founder_generate_idea" data-aion-o20c-open-conversation="founder_generate_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
+              <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">Discovery</div>
+              <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">Generate me an idea</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">Let AION suggest a direction and help you shape it.</div>
+            </button>
+          </div>
+
+          <p style="font-size:12px;line-height:1.5;margin:24px 0 0;color:rgba(17,17,17,0.48);">
+            Local-first mode. Voice, foundation capture and business context stay on this machine unless you explicitly connect external services.
+          </p>
+        </section>
+      </main>
+    `;
+  }
+
+  return currentTerminalOpen() ? renderCurrentTerminal() : renderStartSelector();
 }
 
 if (typeof window !== "undefined") {
@@ -143206,10 +143315,9 @@ setTimeout(() => {
   }, true);
 
   function scheduleSync() {
-    installO25EStyles();
-    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 0);
-    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 150);
-    setTimeout(syncAionO25ETerminalOnlyVoiceConversation, 600);
+    // AION O25U: O25E old terminal auto-mount is decommissioned.
+    // The current terminal is rendered directly by renderBusinessEntryModeSelector().
+    return false;
   }
 
   document.addEventListener("aion:startup-rendered", scheduleSync);
@@ -144239,6 +144347,11 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
     const normalisedMode = mode === "start_with_aion" ? "existing_business" : String(mode || "existing_business");
 
     try {
+      window.__aionO25UConversationOpen = true;
+      window.sessionStorage?.setItem("aion.o25u.current_terminal_open.v1", "true");
+    } catch {}
+
+    try {
       window.localStorage?.setItem(CONVERSATION_OPEN_KEY, "true");
       window.localStorage?.setItem(CONVERSATION_MODE_KEY, normalisedMode);
       window.localStorage?.setItem("aion.o20c.openingMode", normalisedMode);
@@ -144267,14 +144380,16 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
     setTimeout(() => {
       try {
         removeLegacyBusinessTwinSetupSurfaces();
-        if (typeof window.beginAionO25FAutomaticConversation === "function") {
-          window.window.__aionO25FDeferredAutomaticStartRequested = true;
-        }
-        if (typeof window.syncAionO25FTerminal === "function") {
-          window.syncAionO25FTerminal();
+        window.__aionO25UConversationOpen = true;
+        window.sessionStorage?.setItem("aion.o25u.current_terminal_open.v1", "true");
+        if (typeof window.requestRender === "function") window.requestRender();
+        else if (typeof requestRender === "function") requestRender();
+
+        if (typeof window.aionO25OStartLocalOpeningVoice === "function") {
+          window.aionO25OStartLocalOpeningVoice("business-start-click");
         }
       } catch (error) {
-        console.warn("[AION O25G] open voice conversation failed", error);
+        console.warn("[AION O25G] open current voice terminal failed", error);
       }
     }, 300);
   }
@@ -144692,11 +144807,8 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
   clearStaleConversationOnColdStart();
   syncBodyState();
 
-  setInterval(() => {
-    syncBodyState();
-    forceCanonicalTerminal();
-  }, 750);
-
+  // AION O25U: O25H interval disabled. It was forcing old O25F terminal ownership.
+  // Current route ownership lives in renderBusinessEntryModeSelector().
   window.__debugAionO25HSingleAuthorityCleanup = function __debugAionO25HSingleAuthorityCleanup() {
     const bodyText = String(document.body?.innerText || "");
     return {
@@ -144969,17 +145081,9 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
     window.aionBeginO25FAutomaticConversation = window.beginAionO25FAutomaticConversation;
   }
 
-  setTimeout(() => {
-    if (
-      window.__aionO25FDeferredAutomaticStartRequested ||
-      window.AION_ACTIVE_TAB === "small_business_foundation" ||
-      document.querySelector('[data-aion-business-foundation-voice-terminal]')
-    ) {
-      startVoiceAfterBackendReady("deferred-start");
-    }
-  }, 750);
-
-  console.log("[AION] O25M backend-ready voice start final authority installed");
+  // AION O25U: O25M no longer auto-starts voice from active tab/deferred flags.
+  // Voice starts only from the explicit O25G -> O25O business click path.
+  console.log("[AION] O25M backend-ready voice start final authority installed; auto-start disabled by O25U");
 })();
 
 
