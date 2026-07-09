@@ -23332,56 +23332,187 @@ function renderBusinessEntryModeSelector() {
   function renderStartSelector() {
     return `
       <main
-        class="aion-o25u-startup-selector"
+        class="aion-o25w-startup-selector"
         data-aion-phase24a-business-entry-selector="true"
         data-aion-o25u-startup-selector="true"
+        data-aion-o25w-big-graphic-startup="true"
         style="
           min-height:100vh;
           width:100%;
-          background:#ffffff;
-          color:#111111;
+          background:
+            radial-gradient(circle at 50% 34%, rgba(45,212,191,0.14), transparent 26%),
+            radial-gradient(circle at 50% 72%, rgba(56,189,248,0.10), transparent 34%),
+            #ffffff;
+          color:#0f172a;
           display:flex;
           align-items:center;
           justify-content:center;
-          padding:56px;
+          padding:44px;
           box-sizing:border-box;
           font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+          overflow:hidden;
         "
       >
-        <section style="width:min(980px,100%);">
-          <div style="font-size:12px;font-weight:950;letter-spacing:0.18em;text-transform:uppercase;color:rgba(17,17,17,0.52);margin-bottom:20px;">
-            Tessaris AION
+        <section
+          style="
+            width:min(1280px,100%);
+            min-height:calc(100vh - 110px);
+            display:grid;
+            grid-template-rows:auto auto auto;
+            justify-items:center;
+            align-content:center;
+            gap:26px;
+            position:relative;
+          "
+        >
+          <div
+            data-aion-o25w-central-graphic="true"
+            style="
+              position:relative;
+              width:min(520px,58vw);
+              min-width:360px;
+              aspect-ratio:1;
+              display:flex;
+              align-items:center;
+              justify-content:center;
+              margin-bottom:-10px;
+            "
+          >
+            <svg viewBox="0 0 520 520" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible;filter:drop-shadow(0 18px 38px rgba(14,165,233,0.10));">
+              <circle cx="260" cy="260" r="224" fill="none" stroke="rgba(15,23,42,0.055)" stroke-width="1.4" />
+              <circle cx="260" cy="260" r="184" fill="none" stroke="rgba(14,165,233,0.10)" stroke-width="12" />
+              <circle cx="260" cy="260" r="144" fill="none" stroke="rgba(15,23,42,0.075)" stroke-width="1" stroke-dasharray="7 10" />
+              <circle cx="260" cy="260" r="224" fill="none" stroke="rgba(20,184,166,0.70)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="620 760">
+                <animateTransform attributeName="transform" type="rotate" from="0 260 260" to="360 260 260" dur="18s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="260" cy="260" r="184" fill="none" stroke="rgba(56,189,248,0.62)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="420 690">
+                <animateTransform attributeName="transform" type="rotate" from="360 260 260" to="0 260 260" dur="24s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="260" cy="260" r="144" fill="none" stroke="rgba(245,158,11,0.58)" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="260 620">
+                <animateTransform attributeName="transform" type="rotate" from="0 260 260" to="360 260 260" dur="21s" repeatCount="indefinite" />
+              </circle>
+
+              <circle cx="260" cy="36" r="5.5" fill="#14b8a6" />
+              <circle cx="444" cy="260" r="5.5" fill="#38bdf8" />
+              <circle cx="260" cy="484" r="5.5" fill="#14b8a6" />
+              <circle cx="76" cy="260" r="5.5" fill="#f59e0b" />
+
+              <text x="260" y="21" text-anchor="middle" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:0.16em;fill:rgba(15,23,42,0.24);font-weight:900;">BOARDROOM</text>
+              <text x="486" y="264" text-anchor="middle" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:0.16em;fill:rgba(15,23,42,0.24);font-weight:900;">AGENTS</text>
+              <text x="260" y="510" text-anchor="middle" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:0.16em;fill:rgba(15,23,42,0.24);font-weight:900;">WORKFLOWS</text>
+              <text x="32" y="264" text-anchor="middle" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:10px;letter-spacing:0.16em;fill:rgba(15,23,42,0.24);font-weight:900;">TWIN</text>
+            </svg>
+
+            <div
+              style="
+                position:relative;
+                z-index:3;
+                width:168px;
+                height:168px;
+                border-radius:999px;
+                border:1px solid rgba(20,184,166,0.32);
+                background:
+                  radial-gradient(circle at 48% 36%, rgba(255,255,255,0.96), rgba(207,250,254,0.76) 19%, rgba(15,23,42,0.82) 72%, #020617 100%);
+                color:#ffffff;
+                display:grid;
+                align-content:center;
+                justify-items:center;
+                gap:8px;
+                box-shadow:
+                  0 28px 70px rgba(15,23,42,0.18),
+                  0 0 0 14px rgba(20,184,166,0.055),
+                  inset 0 0 52px rgba(255,255,255,0.24);
+              "
+            >
+              <div style="color:#34d399;font-size:42px;line-height:1;text-shadow:0 0 18px rgba(52,211,153,0.48);font-weight:900;">∞</div>
+              <div style="color:rgba(240,249,255,0.88);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:19px;font-weight:950;letter-spacing:0.34em;text-indent:0.34em;">AION</div>
+            </div>
           </div>
-          <h1 style="font-size:60px;line-height:0.94;margin:0 0 18px;font-weight:950;letter-spacing:-0.06em;color:#111111;">
-            What are we building?
-          </h1>
-          <p style="font-size:18px;line-height:1.55;margin:0 0 36px;color:rgba(17,17,17,0.66);max-width:760px;">
-            Choose a starting point. AION will build your business foundation locally, then use it to shape the boardroom, agents, workflows and business twin.
-          </p>
 
-          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
-            <button type="button" data-aion-business-entry-mode="small_business_growth" data-aion-o25u-start-business="true" style="appearance:none;-webkit-appearance:none;border:1px solid #111111;border-radius:24px;background:#111111;color:#ffffff;padding:28px;text-align:left;cursor:pointer;min-height:168px;box-shadow:0 24px 70px rgba(17,17,17,0.16);">
-              <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(255,255,255,0.62);margin-bottom:18px;">Existing business</div>
-              <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#ffffff;">I have a business</div>
-              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(255,255,255,0.74);">Map the business you already run, then build the foundation and boardroom around it.</div>
+          <div style="text-align:center;display:grid;justify-items:center;gap:10px;">
+            <div style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:0.18em;font-size:11px;color:rgba(14,116,144,0.56);font-weight:950;">
+              Tessaris AION
+            </div>
+            <h1 style="margin:0;color:rgba(15,23,42,0.96);font-size:clamp(62px,8vw,112px);line-height:0.86;letter-spacing:-0.085em;font-weight:950;">
+              What are we building?
+            </h1>
+            <p style="margin:0;max-width:760px;color:rgba(51,65,85,0.72);font-size:19px;line-height:1.45;letter-spacing:-0.02em;">
+              Choose a starting point. AION will build your business foundation locally, then use it to shape the boardroom, agents, workflows and business twin.
+            </p>
+          </div>
+
+          <div style="display:flex;justify-content:center;align-items:stretch;gap:12px;flex-wrap:wrap;margin-top:4px;">
+            <button
+              type="button"
+              data-aion-business-entry-mode="small_business_growth"
+              data-aion-o25u-start-business="true"
+              style="
+                appearance:none;
+                -webkit-appearance:none;
+                border:1px solid rgba(20,184,166,0.28);
+                border-radius:999px;
+                background:linear-gradient(135deg,#67e8f9,#34d399);
+                color:#041014;
+                padding:15px 24px;
+                cursor:pointer;
+                font-size:11px;
+                font-weight:950;
+                letter-spacing:0.12em;
+                text-transform:uppercase;
+                box-shadow:0 18px 54px rgba(20,184,166,0.20);
+              "
+            >
+              I have a business
             </button>
 
-            <button type="button" data-aion-business-entry-mode="founder_build_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
-              <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">New venture</div>
-              <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">I have an idea</div>
-              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">Turn an idea into a structured business foundation and plan.</div>
+            <button
+              type="button"
+              data-aion-business-entry-mode="founder_build_idea"
+              style="
+                appearance:none;
+                -webkit-appearance:none;
+                border:1px solid rgba(15,23,42,0.10);
+                border-radius:999px;
+                background:#ffffff;
+                color:rgba(15,23,42,0.72);
+                padding:15px 24px;
+                cursor:pointer;
+                font-size:11px;
+                font-weight:950;
+                letter-spacing:0.12em;
+                text-transform:uppercase;
+                box-shadow:0 14px 34px rgba(15,23,42,0.08);
+              "
+            >
+              I have an idea
             </button>
 
-            <button type="button" data-aion-business-entry-mode="founder_generate_idea" style="appearance:none;-webkit-appearance:none;border:1px solid rgba(17,17,17,0.16);border-radius:24px;background:#f7f7f7;color:#111111;padding:28px;text-align:left;cursor:pointer;min-height:168px;">
-              <div style="font-size:11px;font-weight:950;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.46);margin-bottom:18px;">Discovery</div>
-              <div style="font-size:28px;font-weight:950;letter-spacing:-0.045em;color:#111111;">Generate me an idea</div>
-              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.62);">Let AION suggest a direction and help you shape it.</div>
+            <button
+              type="button"
+              data-aion-business-entry-mode="founder_generate_idea"
+              style="
+                appearance:none;
+                -webkit-appearance:none;
+                border:1px solid rgba(15,23,42,0.10);
+                border-radius:999px;
+                background:#ffffff;
+                color:rgba(15,23,42,0.72);
+                padding:15px 24px;
+                cursor:pointer;
+                font-size:11px;
+                font-weight:950;
+                letter-spacing:0.12em;
+                text-transform:uppercase;
+                box-shadow:0 14px 34px rgba(15,23,42,0.08);
+              "
+            >
+              Generate me an idea
             </button>
           </div>
 
-          <p style="font-size:12px;line-height:1.5;margin:24px 0 0;color:rgba(17,17,17,0.48);">
+          <div style="font-size:12px;line-height:1.5;margin-top:2px;color:rgba(15,23,42,0.42);text-align:center;">
             Local-first mode. Voice, foundation capture and business context stay on this machine unless you explicitly connect external services.
-          </p>
+          </div>
         </section>
       </main>
     `;
