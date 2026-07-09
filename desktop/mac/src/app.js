@@ -144972,3 +144972,169 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
   console.log("[AION] O25M backend-ready voice start final authority installed");
 })();
 
+
+/* AION O25O — Local-Only Opening Voice Final Owner
+   Purpose:
+   - O20D/O19K legacy frontend voice authority can still intercept local TTS calls
+     and treat them as legacy duplicate requests.
+   - O25O bypasses that path by using XMLHttpRequest directly to the local backend.
+   - It also disables O25K's earlier auto-opening voice so there is only one owner.
+*/
+(function installAionO25OLocalOnlyOpeningVoiceFinalOwner() {
+  const LOCK = "aion.o25o.local_only_opening_voice_final_owner.v1";
+  if (window[LOCK]) return;
+  window[LOCK] = true;
+
+  window.__aionO25KOpeningVoiceStarted = true;
+  window.__aionO25MVoiceStarted = false;
+  window.__aionO25OOpeningVoiceStarted = false;
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  function xhrJson(method, url, body, timeoutMs = 180000) {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(method, url, true);
+      xhr.timeout = timeoutMs;
+      xhr.responseType = "blob";
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.onload = function onload() {
+        resolve({
+          status: xhr.status,
+          ok: xhr.status >= 200 && xhr.status < 300,
+          blob: xhr.response,
+          text: () => new Promise((textResolve) => {
+            if (!xhr.response) return textResolve("");
+            const reader = new FileReader();
+            reader.onload = () => textResolve(String(reader.result || ""));
+            reader.onerror = () => textResolve("");
+            reader.readAsText(xhr.response);
+          }),
+        });
+      };
+      xhr.onerror = () => reject(new Error("XHR network error"));
+      xhr.ontimeout = () => reject(new Error("XHR timeout"));
+      xhr.send(JSON.stringify(body || {}));
+    });
+  }
+
+  async function healthReady() {
+    try {
+      const xhr = new XMLHttpRequest();
+      return await new Promise((resolve) => {
+        xhr.open("GET", "http://127.0.0.1:8080/health", true);
+        xhr.timeout = 3000;
+        xhr.onload = () => resolve(xhr.status >= 200 && xhr.status < 300);
+        xhr.onerror = () => resolve(false);
+        xhr.ontimeout = () => resolve(false);
+        xhr.send();
+      });
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  async function waitForBackendReady(maxMs = 120000) {
+    const started = Date.now();
+    while (Date.now() - started < maxMs) {
+      if (await healthReady()) return true;
+      await sleep(1500);
+    }
+    return false;
+  }
+
+  async function playLocalOpeningVoice(text, reason = "o25o") {
+    const response = await xhrJson("POST", "http://127.0.0.1:8080/api/aion/voice/tts", {
+      text,
+      voice: "af_heart",
+      format: "wav",
+      provider: "local",
+    });
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`Local TTS ${response.status}: ${body || "no body"}`);
+    }
+
+    const blob = response.blob;
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+
+    audio.addEventListener("ended", () => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch (_error) {}
+    });
+
+    console.log("[AION O25O] playing local Kokoro opening voice", { reason });
+    await audio.play();
+    return true;
+  }
+
+  const openingText =
+    "Hi, I’m AION. I’ll help you build your business foundation and business twin locally on this machine. I’ll ask a few simple questions about what your business does, how it works, your customers, sales, marketing, operations, finance and goals. As we talk, I’ll quietly structure the answers into the foundation for your boardroom.";
+
+  async function startLocalOpeningVoice(reason = "o25o") {
+    if (window.__aionO25OOpeningVoiceStarted) return false;
+    window.__aionO25OOpeningVoiceStarted = true;
+
+    const ready = await waitForBackendReady();
+    if (!ready) {
+      window.__aionO25OOpeningVoiceStarted = false;
+      console.warn("[AION O25O] backend not ready; local opening voice not started", { reason });
+      return false;
+    }
+
+    try {
+      await playLocalOpeningVoice(openingText, reason);
+      return true;
+    } catch (error) {
+      window.__aionO25OOpeningVoiceStarted = false;
+      console.warn("[AION O25O] local opening voice failed", error);
+      return false;
+    }
+  }
+
+  window.aionO25OStartLocalOpeningVoice = startLocalOpeningVoice;
+
+  // Disable earlier voice starters from creating legacy-routed duplicates.
+  window.aionO25KStartBackendReadyFoundationVoice = function aionO25KDisabledByO25O() {
+    console.log("[AION O25O] O25K voice starter suppressed; O25O owns local opening voice");
+    return startLocalOpeningVoice("o25k-suppressed");
+  };
+
+  window.aionO25MStartVoiceAfterBackendReady = function aionO25MDelegatedToO25O() {
+    console.log("[AION O25O] O25M delegated to O25O local opening voice");
+    return startLocalOpeningVoice("o25m-delegated");
+  };
+
+  document.addEventListener(
+    "click",
+    function onO25OBusinessStartClick(event) {
+      const target = event.target && event.target.closest ? event.target.closest("button, [role='button'], a, div") : null;
+      if (!target) return;
+
+      const label = String(target.textContent || target.getAttribute("aria-label") || "").trim().toLowerCase();
+      if (!label) return;
+
+      if (
+        label.includes("i have a business") ||
+        label.includes("start business foundation") ||
+        label.includes("build my business twin")
+      ) {
+        setTimeout(() => startLocalOpeningVoice("business-start-click"), 750);
+      }
+    },
+    true
+  );
+
+  setTimeout(() => {
+    if (window.AION_ACTIVE_TAB === "small_business_foundation") {
+      startLocalOpeningVoice("foundation-active-tab");
+    }
+  }, 1250);
+
+  console.log("[AION] O25O local-only opening voice final owner installed");
+})();
