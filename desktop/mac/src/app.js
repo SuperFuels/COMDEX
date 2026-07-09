@@ -145287,7 +145287,138 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
     return startOnce("o25m-suppressed");
   };
 
-  setTimeout(() => startOnce("page-mounted"), 2500);
+  // AION O25R: no page-load voice.
+  // Voice must only start from an explicit user click. O25O owns the current
+  // business-start-click voice path, so O25Q only exposes a manual helper.
+  console.log("[AION] O25Q final single local voice startup authority installed; click-only by O25R");
+})();
 
-  console.log("[AION] O25Q final single local voice startup authority installed");
+/* AION O25R — Startup selector white-screen rescue
+   Keeps the first-run startup selector visible on small_business_foundation if
+   older takeover layers render a blank white shell. Does not start voice.
+*/
+(function installAionO25RStartupWhiteScreenRescue() {
+  const LOCK = "aion.o25r.startup_white_screen_rescue.v1";
+  if (window[LOCK]) return;
+  window[LOCK] = true;
+
+  function isStartupRoute() {
+    return (
+      window.AION_ACTIVE_TAB === "small_business_foundation" ||
+      window.__aionForcedMainTabV2 === "small_business_foundation" ||
+      document.body?.textContent?.includes("Waiting for local backend") ||
+      document.querySelector("[data-aion-phase24a-business-entry-selector]") ||
+      document.querySelector("[data-aion-o25d-business-foundation-conversation]")
+    );
+  }
+
+  function hasUsableStartupUi() {
+    const bodyText = String(document.body?.innerText || "");
+    return (
+      bodyText.includes("I have a business") ||
+      bodyText.includes("I have an idea") ||
+      bodyText.includes("Generate me an idea") ||
+      document.querySelector("[data-aion-business-entry-mode='small_business_growth']") ||
+      document.querySelector("[data-aion-o25d-entry-mode='existing_business']")
+    );
+  }
+
+  function renderFallbackStartupSelector() {
+    return `
+      <main
+        data-aion-o25r-startup-rescue="true"
+        style="
+          min-height:100vh;
+          background:#ffffff;
+          color:#111111;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          padding:48px;
+          box-sizing:border-box;
+          font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+        "
+      >
+        <section style="width:min(920px,100%);">
+          <div style="font-size:12px;font-weight:900;letter-spacing:0.18em;text-transform:uppercase;color:rgba(17,17,17,0.58);margin-bottom:18px;">
+            Tessaris AION
+          </div>
+          <h1 style="font-size:54px;line-height:0.96;margin:0 0 18px;font-weight:950;letter-spacing:-0.05em;">
+            What are we building?
+          </h1>
+          <p style="font-size:18px;line-height:1.55;margin:0 0 34px;color:rgba(17,17,17,0.68);max-width:720px;">
+            Start with your current business, a new idea, or let AION help generate a business concept.
+          </p>
+
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;">
+            <button
+              type="button"
+              data-aion-business-entry-mode="small_business_growth"
+              data-aion-o20c-open-conversation="small_business_growth"
+              style="appearance:none;border:1px solid #111111;border-radius:22px;background:#111111;color:#ffffff;padding:26px;text-align:left;cursor:pointer;min-height:150px;"
+            >
+              <div style="font-size:11px;font-weight:900;letter-spacing:0.16em;text-transform:uppercase;opacity:0.7;margin-bottom:18px;">Existing business</div>
+              <div style="font-size:26px;font-weight:950;letter-spacing:-0.04em;">I have a business</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:12px;opacity:0.76;">Map, understand and improve the business you already run.</div>
+            </button>
+
+            <button
+              type="button"
+              data-aion-business-entry-mode="founder_build_idea"
+              data-aion-o20c-open-conversation="founder_build_idea"
+              style="appearance:none;border:1px solid rgba(17,17,17,0.18);border-radius:22px;background:#f7f7f7;color:#111111;padding:26px;text-align:left;cursor:pointer;min-height:150px;"
+            >
+              <div style="font-size:11px;font-weight:900;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.48);margin-bottom:18px;">New venture</div>
+              <div style="font-size:26px;font-weight:950;letter-spacing:-0.04em;">I have an idea</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.64);">Turn your idea into a structured business foundation.</div>
+            </button>
+
+            <button
+              type="button"
+              data-aion-business-entry-mode="founder_generate_idea"
+              data-aion-o20c-open-conversation="founder_generate_idea"
+              style="appearance:none;border:1px solid rgba(17,17,17,0.18);border-radius:22px;background:#f7f7f7;color:#111111;padding:26px;text-align:left;cursor:pointer;min-height:150px;"
+            >
+              <div style="font-size:11px;font-weight:900;letter-spacing:0.16em;text-transform:uppercase;color:rgba(17,17,17,0.48);margin-bottom:18px;">Discovery</div>
+              <div style="font-size:26px;font-weight:950;letter-spacing:-0.04em;">Generate me an idea</div>
+              <div style="font-size:14px;line-height:1.45;margin-top:12px;color:rgba(17,17,17,0.64);">Let AION suggest a business direction to explore.</div>
+            </button>
+          </div>
+        </section>
+      </main>
+    `;
+  }
+
+  function rescueIfBlank(reason = "scan") {
+    const appRoot = document.getElementById("app");
+    if (!appRoot || !isStartupRoute()) return false;
+
+    const rect = appRoot.getBoundingClientRect?.();
+    const bodyText = String(document.body?.innerText || "").trim();
+    const almostBlank =
+      bodyText.length < 80 ||
+      !hasUsableStartupUi() ||
+      (rect && rect.height < 120);
+
+    if (!almostBlank) return false;
+
+    appRoot.innerHTML = renderFallbackStartupSelector();
+    console.log("[AION O25R] restored startup selector after blank render", { reason });
+    return true;
+  }
+
+  document.addEventListener("click", (event) => {
+    const businessButton = event.target?.closest?.(
+      "[data-aion-business-entry-mode='small_business_growth'], [data-aion-o20c-open-conversation='small_business_growth']"
+    );
+    if (!businessButton) return;
+
+    console.log("[AION O25R] business start clicked; voice remains click-owned by O25O");
+  }, true);
+
+  setTimeout(() => rescueIfBlank("initial-1s"), 1000);
+  setTimeout(() => rescueIfBlank("initial-3s"), 3000);
+  setInterval(() => rescueIfBlank("interval"), 2500);
+
+  console.log("[AION] O25R startup white-screen rescue installed");
 })();
