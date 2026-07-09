@@ -132,77 +132,66 @@ def voice_worker_environment() -> dict[str, str]:
     return env
 
 
-def call_voice_worker(mode: str, request: dict[str, Any], timeout: int = 120) -> VoiceWorkerResult:
-    python_path = default_voice_python()
-    worker_path = voice_worker_script()
+def call_voice_worker(
+    mode: str,
+    request: dict[str, Any],
+    timeout: int = 120,
+    env: dict[str, str] | None = None,
+) -> VoiceWorkerResult:
+    python_path = resolve_voice_python()
+    worker_path = resolve_voice_worker_script()
+    runtime_root = resolve_voice_runtime_root()
+    merged_env = voice_worker_environment()
+    if env:
+        merged_env.update({str(key): str(value) for key, value in env.items()})
 
-    if not worker_path.exists():
-        return VoiceWorkerResult(
-            ok=False,
-            payload={
-                "ok": False,
-                "stage": "worker_missing",
-                "error": f"Voice worker script missing: {worker_path}",
-            },
-        )
-
-    with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8") as tmp:
-        request_path = Path(tmp.name)
-        json.dump(request, tmp)
+    request_path = _write_worker_request(mode=mode, request=request)
 
     try:
-        proc = subprocess.run(
-            [str(python_path), str(worker_path), mode, "--request", str(request_path)],
-            cwd=str(repo_root()),
+        completed = subprocess.run(
+            [str(python_path), str(worker_path), str(request_path)],
+            cwd=str(runtime_root),
             text=True,
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             timeout=timeout,
+            env=merged_env,
+            check=False,
         )
 
-        stdout = proc.stdout or ""
-        stderr = proc.stderr or ""
+        stdout = (completed.stdout or "").strip()
+        stderr = (completed.stderr or "").strip()
 
         try:
-            payload = json.loads(stdout)
+            payload = json.loads(stdout) if stdout else {}
         except Exception:
             payload = {
                 "ok": False,
-                "stage": "worker_output",
-                "error": "Voice worker did not return JSON.",
+                "error": "Voice worker returned non-JSON stdout.",
                 "stdout": stdout[-4000:],
                 "stderr": stderr[-4000:],
-                "returncode": proc.returncode,
             }
 
-        ok = bool(payload.get("ok")) and proc.returncode == 0
-        if not ok:
+        if completed.returncode != 0:
             payload.setdefault("ok", False)
-            payload.setdefault("returncode", proc.returncode)
-            if stderr:
-                payload.setdefault("stderr", stderr[-4000:])
+            payload.setdefault("error", f"Voice worker exited with code {completed.returncode}.")
+            payload.setdefault("stderr", stderr[-4000:])
 
         return VoiceWorkerResult(
-            ok=ok,
+            ok=bool(payload.get("ok")),
             payload=payload,
             stdout=stdout,
             stderr=stderr,
-        )
-
-    except Exception as exc:
-        return VoiceWorkerResult(
-            ok=False,
-            payload={
-                "ok": False,
-                "stage": "worker_call",
-                "error": repr(exc),
-            },
+            returncode=int(completed.returncode),
+            python_path=python_path,
+            worker_path=worker_path,
+            runtime_root=runtime_root,
         )
     finally:
         try:
             request_path.unlink()
         except Exception:
             pass
-
 
 def synthesize_with_worker(text: str, voice: str = "af_heart", sample_rate: int = 24000) -> VoiceWorkerResult:
     return call_voice_worker(
