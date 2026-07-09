@@ -2022,7 +2022,7 @@ if "app" in globals() and _AionO19KFastAPIRequest is not None and _AionO19KFastA
                 "model_id": model_id,
             }, 502)
 
-    print("[AION] O19K ElevenLabs voice bridge route installed")
+    print("[AION] O19K legacy ElevenLabs voice bridge disabled; local voice router owns /api/aion/voice/tts")
 # END AION O19K ELEVENLABS VOICE BRIDGE LOCK
 
 # AION O21A/O21B local-first voice provider router

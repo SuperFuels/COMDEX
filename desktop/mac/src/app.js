@@ -143680,8 +143680,8 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
     if (!opener) return;
     const mode = opener.getAttribute("data-aion-o20c-open-conversation") || "small_business_growth";
     markIntentionalConversationOpen(mode);
-    setTimeout(beginAionO25FAutomaticConversation, 120);
-    setTimeout(beginAionO25FAutomaticConversation, 650);
+    window.__aionO25FDeferredAutomaticStartRequested = true;
+    window.__aionO25FDeferredAutomaticStartRequested = true;
   }, true);
 
   function getVoiceState() {
@@ -144084,7 +144084,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
   document.addEventListener("aion:o25e-terminal-rendered", () => {
     setTimeout(syncAionO25FTerminal, 0);
-    setTimeout(beginAionO25FAutomaticConversation, 180);
+    window.__aionO25FDeferredAutomaticStartRequested = true;
   });
 
   setTimeout(clearStaleConversationOpenOnFreshLaunch, 0);
@@ -144092,7 +144092,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
   setTimeout(() => {
     patchTranscriptForAutomaticNextQuestions();
     syncAionO25FTerminal();
-    beginAionO25FAutomaticConversation();
+    window.__aionO25FDeferredAutomaticStartRequested = true;
   }, 700);
 
   window.syncAionO25FTerminal = syncAionO25FTerminal;
@@ -144258,7 +144258,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
       try {
         removeLegacyBusinessTwinSetupSurfaces();
         if (typeof window.beginAionO25FAutomaticConversation === "function") {
-          window.beginAionO25FAutomaticConversation();
+          window.window.__aionO25FDeferredAutomaticStartRequested = true;
         }
         if (typeof window.syncAionO25FTerminal === "function") {
           window.syncAionO25FTerminal();
@@ -144709,7 +144709,7 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
 // AION O25K — Backend-ready voice onboarding authority.
 // Purpose: O25F was starting local TTS before the local backend had finished booting,
-// causing net::ERR_CONNECTION_REFUSED and no opening audio. This lock gates the
+// causing backend-not-ready fetch failures and no opening audio. This lock gates the
 // first business-foundation voice turn on /health and retries once the backend is ready.
 (function installAionO25KBackendReadyVoiceOnboardingAuthority() {
   const LOCK = "aion.o25k.backend_ready_voice_onboarding_authority.v1";
@@ -144880,3 +144880,95 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
   console.log("[AION] O25K backend-ready voice onboarding authority installed");
 })();
+
+
+/* AION O25M — Backend-Ready Voice Start Final Authority
+   Final owner for business-foundation opening voice.
+   It waits for /health before allowing the first local TTS call.
+*/
+(function installAionO25MBackendReadyVoiceStartFinalAuthority() {
+  const LOCK = "aion.o25m.backend_ready_voice_start_final_authority.v2";
+  if (window[LOCK]) return;
+  window[LOCK] = true;
+
+  window.__aionO25MVoiceStarted = false;
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function healthReady() {
+    try {
+      const response = await fetch("http://127.0.0.1:8080/health", {
+        method: "GET",
+        cache: "no-store",
+      });
+      return !!response && response.ok;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  async function waitForBackendReady(maxMs = 120000) {
+    const started = Date.now();
+    while (Date.now() - started < maxMs) {
+      if (await healthReady()) return true;
+      await sleep(1500);
+    }
+    return false;
+  }
+
+  async function startVoiceAfterBackendReady(reason = "o25m") {
+    if (window.__aionO25MVoiceStarted) return false;
+    window.__aionO25MVoiceStarted = true;
+
+    const ready = await waitForBackendReady();
+    if (!ready) {
+      window.__aionO25MVoiceStarted = false;
+      console.warn("[AION O25M] backend not ready; opening voice deferred", { reason });
+      return false;
+    }
+
+    const starter =
+      window.__aionO25FOriginalStarter ||
+      window.__aionO25FBackendReadyStarter ||
+      window.beginAionO25FAutomaticConversation ||
+      window.aionBeginO25FAutomaticConversation;
+
+    if (typeof starter === "function") {
+      console.log("[AION O25M] backend ready; starting local opening voice", { reason });
+      await starter();
+      return true;
+    }
+
+    console.warn("[AION O25M] O25F starter not available after backend ready", { reason });
+    return false;
+  }
+
+  window.aionO25MStartVoiceAfterBackendReady = startVoiceAfterBackendReady;
+
+  const existingStarter =
+    window.beginAionO25FAutomaticConversation ||
+    window.aionBeginO25FAutomaticConversation;
+
+  if (typeof existingStarter === "function" && !window.__aionO25FOriginalStarter) {
+    window.__aionO25FOriginalStarter = existingStarter;
+    window.beginAionO25FAutomaticConversation = function beginAionO25FBackendReadyProxy() {
+      return startVoiceAfterBackendReady("proxy");
+    };
+    window.aionBeginO25FAutomaticConversation = window.beginAionO25FAutomaticConversation;
+  }
+
+  setTimeout(() => {
+    if (
+      window.__aionO25FDeferredAutomaticStartRequested ||
+      window.AION_ACTIVE_TAB === "small_business_foundation" ||
+      document.querySelector('[data-aion-business-foundation-voice-terminal]')
+    ) {
+      startVoiceAfterBackendReady("deferred-start");
+    }
+  }, 750);
+
+  console.log("[AION] O25M backend-ready voice start final authority installed");
+})();
+
