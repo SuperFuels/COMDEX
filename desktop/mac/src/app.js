@@ -145182,3 +145182,112 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
   console.log("[AION] O25P stale business placeholder fetch blocker installed");
 })();
+
+/* AION O25Q — Final single local voice startup authority
+   Older O25F/O25K/O25M startup paths are suppressed here so only one direct
+   local Kokoro TTS request is made after backend health is ready.
+*/
+(function installAionO25QFinalSingleLocalVoiceStartup() {
+  const LOCK = "aion.o25q.final_single_local_voice_startup.v1";
+  if (window[LOCK]) return;
+  window[LOCK] = true;
+
+  window.__aionO25QStarted = false;
+  window.__aionO25MVoiceStarted = true;
+  window.__aionO25KOpeningVoiceStarted = true;
+
+  const openingText =
+    "Hi, I’m AION. I’ll help you build your business foundation and business twin locally on this machine. I’ll ask a few simple questions about what your business does, how it works, your customers, sales, marketing, operations, finance and goals.";
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function backendReady() {
+    try {
+      const response = await fetch("http://127.0.0.1:8080/health", { cache: "no-store" });
+      return !!response.ok;
+    } catch (_error) {
+      return false;
+    }
+  }
+
+  async function waitForBackend(maxMs = 90000) {
+    const started = Date.now();
+    while (Date.now() - started < maxMs) {
+      if (await backendReady()) return true;
+      await sleep(1000);
+    }
+    return false;
+  }
+
+  async function playLocalTts(text) {
+    const response = await fetch("http://127.0.0.1:8080/api/aion/voice/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        text,
+        voice: "af_heart",
+        format: "wav",
+        provider: "local",
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`Local TTS failed ${response.status}: ${body}`);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.addEventListener("ended", () => {
+      try { URL.revokeObjectURL(url); } catch (_error) {}
+    });
+
+    await audio.play();
+    return true;
+  }
+
+  async function startOnce(reason = "o25q") {
+    if (window.__aionO25QStarted) return false;
+    window.__aionO25QStarted = true;
+
+    const ready = await waitForBackend();
+    if (!ready) {
+      window.__aionO25QStarted = false;
+      console.warn("[AION O25Q] backend not ready for local voice", { reason });
+      return false;
+    }
+
+    try {
+      console.log("[AION O25Q] starting single direct local voice", { reason });
+      await playLocalTts(openingText);
+      console.log("[AION O25Q] single direct local voice played", { reason });
+      return true;
+    } catch (error) {
+      window.__aionO25QStarted = false;
+      console.warn("[AION O25Q] single direct local voice failed", error);
+      return false;
+    }
+  }
+
+  window.aionO25QStartSingleLocalVoice = startOnce;
+
+  window.beginAionO25FAutomaticConversation = function beginAionO25FDisabledByO25Q() {
+    console.log("[AION O25Q] suppressed O25F; O25Q owns local startup voice");
+    return startOnce("o25f-suppressed");
+  };
+  window.aionO25KStartBackendReadyFoundationVoice = function aionO25KDisabledByO25Q() {
+    console.log("[AION O25Q] suppressed O25K; O25Q owns local startup voice");
+    return startOnce("o25k-suppressed");
+  };
+  window.aionO25MStartVoiceAfterBackendReady = function aionO25MDisabledByO25Q() {
+    console.log("[AION O25Q] suppressed O25M; O25Q owns local startup voice");
+    return startOnce("o25m-suppressed");
+  };
+
+  setTimeout(() => startOnce("page-mounted"), 2500);
+
+  console.log("[AION] O25Q final single local voice startup authority installed");
+})();

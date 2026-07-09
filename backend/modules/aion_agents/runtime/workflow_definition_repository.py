@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import List, Optional
+from datetime import datetime, timezone
 
 from backend.modules.aion_agents.contracts.workflow_definition import WorkflowDefinition
 
@@ -43,16 +44,36 @@ class WorkflowDefinitionRepository:
         )
         return workflow
 
-    def load(self, workspace_id: str, workflow_id: str) -> WorkflowDefinition:
+    def load(self, workspace_id: str, workflow_id: str) -> Optional[WorkflowDefinition]:
         path = self._workflow_path(workspace_id, workflow_id)
         if not path.exists():
             raise FileNotFoundError(
                 f"Workflow definition not found: workspace_id={workspace_id} workflow_id={workflow_id}"
             )
 
-        return WorkflowDefinition.model_validate_json(
-            path.read_text(encoding="utf-8")
-        )
+        raw = path.read_text(encoding="utf-8")
+
+        # AION O25Q empty/corrupt workflow quarantine:
+        # /api/local-node/status must not crash the desktop app because a
+        # workflow definition file is empty or half-written.
+        if not raw.strip():
+            self._quarantine_invalid_workflow_file(path, "empty")
+            return None
+
+        try:
+            return WorkflowDefinition.model_validate_json(raw)
+        except Exception:
+            self._quarantine_invalid_workflow_file(path, "invalid_json")
+            return None
+
+    def _quarantine_invalid_workflow_file(self, path: Path, reason: str) -> None:
+        try:
+            stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+            target = path.with_suffix(path.suffix + f".quarantined-{reason}-{stamp}")
+            path.rename(target)
+            print(f"[AION O25Q] quarantined invalid workflow definition: {path} -> {target}")
+        except Exception as error:
+            print(f"[AION O25Q] failed to quarantine invalid workflow definition {path}: {error}")
 
     def get(self, workspace_id: str, workflow_id: str) -> Optional[WorkflowDefinition]:
         try:
