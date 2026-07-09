@@ -144706,3 +144706,177 @@ window.__aionO22FBrowserSpeechRuntimeDisabled = true;
 
   console.log("[AION] O25H single authority cleanup installed");
 })();
+
+// AION O25K — Backend-ready voice onboarding authority.
+// Purpose: O25F was starting local TTS before the local backend had finished booting,
+// causing net::ERR_CONNECTION_REFUSED and no opening audio. This lock gates the
+// first business-foundation voice turn on /health and retries once the backend is ready.
+(function installAionO25KBackendReadyVoiceOnboardingAuthority() {
+  const LOCK = "aion.o25k.backend_ready_voice_onboarding_authority.v1";
+  if (window.__aionO25KBackendReadyVoiceOnboardingAuthority === LOCK) return;
+  window.__aionO25KBackendReadyVoiceOnboardingAuthority = LOCK;
+
+  const HEALTH_URL = "http://127.0.0.1:8080/health";
+  const TTS_URL = "http://127.0.0.1:8080/api/aion/voice/tts";
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function waitForAionLocalBackendReady(timeoutMs = 120000) {
+    const started = Date.now();
+    let lastError = null;
+
+    while (Date.now() - started < timeoutMs) {
+      try {
+        const response = await fetch(HEALTH_URL, {
+          method: "GET",
+          cache: "no-store",
+        });
+
+        if (response && response.ok) {
+          return true;
+        }
+
+        lastError = new Error(`health ${response ? response.status : "no-response"}`);
+      } catch (error) {
+        lastError = error;
+      }
+
+      await sleep(1000);
+    }
+
+    console.warn("[AION O25K] backend health wait timed out", lastError);
+    return false;
+  }
+
+  window.aionO25KWaitForBackendReady = waitForAionLocalBackendReady;
+
+  async function speakOpeningThroughLocalBackend(text) {
+    const response = await fetch(TTS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify({
+        text,
+        voice: "af_heart",
+        format: "wav",
+        provider: "local",
+      }),
+    });
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      throw new Error(`TTS ${response.status}: ${body || response.statusText}`);
+    }
+
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+
+    audio.addEventListener("ended", () => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch (_) {}
+    });
+
+    await audio.play();
+    return true;
+  }
+
+  window.aionO25KSpeakOpeningThroughLocalBackend = speakOpeningThroughLocalBackend;
+
+  const openingText =
+    "Hi, I’m AION. I’ll help you build your business foundation and business twin locally on this machine. I’ll ask a few simple questions about what your business does, how it works, your customers, sales, marketing, operations, finance and goals. As we talk, I’ll quietly structure the answers into the foundation for your boardroom.";
+
+  async function startBackendReadyFoundationVoice() {
+    if (window.__aionO25KOpeningVoiceStarted) return;
+    window.__aionO25KOpeningVoiceStarted = true;
+
+    console.log("[AION O25K] waiting for backend before opening local voice");
+
+    const ready = await waitForAionLocalBackendReady(120000);
+    if (!ready) {
+      window.__aionO25KOpeningVoiceStarted = false;
+      return;
+    }
+
+    console.log("[AION O25K] backend ready; starting opening local voice");
+
+    try {
+      await speakOpeningThroughLocalBackend(openingText);
+      console.log("[AION O25K] opening local voice completed");
+    } catch (error) {
+      window.__aionO25KOpeningVoiceStarted = false;
+      console.warn("[AION O25K] opening local voice failed after backend ready", error);
+    }
+  }
+
+  window.aionO25KStartBackendReadyFoundationVoice = startBackendReadyFoundationVoice;
+
+  function wrapLegacyO25FStarter() {
+    const original = window.beginAionO25FAutomaticConversation;
+    if (typeof original !== "function") return false;
+    if (original.__aionO25KWrapped) return true;
+
+    const wrapped = async function aionO25KBackendReadyBeginAionO25F(...args) {
+      const ready = await waitForAionLocalBackendReady(120000);
+      if (!ready) return null;
+      return original.apply(this, args);
+    };
+
+    wrapped.__aionO25KWrapped = true;
+    window.beginAionO25FAutomaticConversation = wrapped;
+    console.log("[AION O25K] wrapped O25F starter behind backend health");
+    return true;
+  }
+
+  function bindBusinessStartButtons() {
+    const labels = [
+      "i have a business",
+      "i’ve got a business",
+      "i have an existing business",
+      "start business foundation",
+      "build my business twin",
+    ];
+
+    document.addEventListener(
+      "click",
+      function onO25KBusinessStartClick(event) {
+        const target = event.target && event.target.closest ? event.target.closest("button, [role='button'], a, div") : null;
+        if (!target) return;
+
+        const text = String(target.textContent || target.getAttribute("aria-label") || "").trim().toLowerCase();
+        if (!text) return;
+
+        const matched = labels.some((label) => text.includes(label));
+        if (!matched) return;
+
+        setTimeout(() => {
+          startBackendReadyFoundationVoice();
+        }, 500);
+      },
+      true
+    );
+  }
+
+  function installWhenReady() {
+    wrapLegacyO25FStarter();
+    bindBusinessStartButtons();
+
+    let attempts = 0;
+    const timer = setInterval(() => {
+      attempts += 1;
+      const wrapped = wrapLegacyO25FStarter();
+      if (wrapped || attempts > 60) clearInterval(timer);
+    }, 500);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", installWhenReady, { once: true });
+  } else {
+    installWhenReady();
+  }
+
+  console.log("[AION] O25K backend-ready voice onboarding authority installed");
+})();
