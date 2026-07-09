@@ -132,6 +132,20 @@ def voice_worker_environment() -> dict[str, str]:
     return env
 
 
+def _write_worker_request(mode: str, request: dict[str, Any]) -> Path:
+    import tempfile
+    import uuid
+
+    payload = {
+        "mode": str(mode),
+        "operation": str(mode),
+        "request": request,
+    }
+    request_path = Path(tempfile.gettempdir()) / f"aion_voice_worker_request_{uuid.uuid4().hex}.json"
+    request_path.write_text(json.dumps(payload), encoding="utf-8")
+    return request_path
+
+
 def call_voice_worker(
     mode: str,
     request: dict[str, Any],

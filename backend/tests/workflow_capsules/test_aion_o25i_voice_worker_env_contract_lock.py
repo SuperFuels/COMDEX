@@ -46,3 +46,11 @@ def test_o25i_api_still_routes_tts_through_worker_first():
 def test_o25i_syntax_checks_clean():
     subprocess.run([sys.executable, "-m", "py_compile", str(BRIDGE)], cwd=ROOT, check=True)
     subprocess.run([sys.executable, "-m", "py_compile", str(API)], cwd=ROOT, check=True)
+
+
+def test_o25i_worker_request_writer_exists():
+    text = read(BRIDGE)
+    assert "def _write_worker_request" in text
+    assert '"mode": str(mode)' in text
+    assert '"operation": str(mode)' in text
+    assert "request_path.write_text" in text
