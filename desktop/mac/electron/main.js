@@ -1,4 +1,23 @@
 const { app, BrowserWindow, ipcMain, globalShortcut, Menu } = require("electron");
+
+// AION O25N desktop backend local voice env lock
+function aionO25NLocalVoiceBackendEnv(extraEnv = {}) {
+  return {
+    ...process.env,
+    ...extraEnv,
+    PYTHONPATH: process.env.PYTHONPATH || process.cwd(),
+    AION_VOICE_WORKER_ENABLED: "true",
+    AION_TTS_PROVIDER: "kokoro",
+    AION_LOCAL_VOICE_ENABLED: "true",
+    AION_ELEVENLABS_ENABLED: "false",
+    AION_BROWSER_SPEECH_FALLBACK_ENABLED: "false",
+    AION_VOICE_NO_HIDDEN_DOWNLOADS: "true",
+    AION_VOICE_RUNTIME_MODE: process.env.AION_VOICE_RUNTIME_MODE || "staging",
+    HF_HUB_OFFLINE: "1",
+    TRANSFORMERS_OFFLINE: "1",
+    HF_DATASETS_OFFLINE: "1",
+  };
+}
 const path = require("path");
 const fs = require("fs");
 const { spawn } = require("child_process");
@@ -859,6 +878,7 @@ async function ensureBackendRunning() {
       "8080",
     ], {
       cwd: projectRoot,
+      env: aionO25NLocalVoiceBackendEnv(),
       env: {
         ...process.env,
         PYTHONUNBUFFERED: "1",
