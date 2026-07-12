@@ -8,8 +8,11 @@ from backend.modules.aion_business.contracts.business_containers import (
     BoardroomSnapshotContainer,
     BrandFoundationContainer,
     BusinessContainerKind,
+    BusinessFinancialModelContainer,
     BusinessIdentityContainer,
+    BusinessMapContainer,
     BusinessStructureContainer,
+    DepartmentIntelligenceContainer,
     OperationalRuntimeSummaryContainer,
 )
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
@@ -18,6 +21,9 @@ from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 _CONTAINER_FILE_MAP: dict[BusinessContainerKind, str] = {
     "business_identity": "business_identity.json",
     "business_structure": "business_structure.json",
+    "business_map": "business_map.json",
+    "department_intelligence": "department_intelligence.json",
+    "business_financial_model": "business_financial_model.json",
     "brand_foundation": "brand_foundation.json",
     "boardroom_snapshot": "boardroom_snapshot.json",
     "operational_runtime_summary": "operational_runtime_summary.json",
@@ -76,6 +82,15 @@ class BusinessContainerRepository:
 
     def load_business_structure(self, workspace_id: str) -> BusinessStructureContainer:
         return BusinessStructureContainer(**self.load_dict(workspace_id, "business_structure"))
+
+    def load_business_map(self, workspace_id: str) -> BusinessMapContainer:
+        return BusinessMapContainer(**self.load_dict(workspace_id, "business_map"))
+
+    def load_department_intelligence(self, workspace_id: str) -> DepartmentIntelligenceContainer:
+        return DepartmentIntelligenceContainer(**self.load_dict(workspace_id, "department_intelligence"))
+
+    def load_business_financial_model(self, workspace_id: str) -> BusinessFinancialModelContainer:
+        return BusinessFinancialModelContainer(**self.load_dict(workspace_id, "business_financial_model"))
 
     def load_brand_foundation(self, workspace_id: str) -> BrandFoundationContainer:
         return BrandFoundationContainer(**self.load_dict(workspace_id, "brand_foundation"))

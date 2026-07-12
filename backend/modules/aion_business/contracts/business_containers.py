@@ -8,6 +8,9 @@ from pydantic import BaseModel, Field
 BusinessContainerKind = Literal[
     "business_identity",
     "business_structure",
+    "business_map",
+    "department_intelligence",
+    "business_financial_model",
     "brand_foundation",
     "boardroom_snapshot",
     "operational_runtime_summary",
@@ -72,6 +75,59 @@ class BusinessStructureContainer(BaseModel):
     teams: List[Dict[str, Any]] = Field(default_factory=list)
     human_agents: List[Dict[str, Any]] = Field(default_factory=list)
     ai_agents: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class BusinessMapContainer(BaseModel):
+    id: str
+    workspace_id: str
+    kind: Literal["business_map"] = "business_map"
+    meta: BusinessContainerMeta
+
+    facts: List[Dict[str, Any]] = Field(default_factory=list)
+    assumptions: List[Dict[str, Any]] = Field(default_factory=list)
+    unknowns: List[Dict[str, Any]] = Field(default_factory=list)
+    conflicts: List[Dict[str, Any]] = Field(default_factory=list)
+    unanswered_fields: List[str] = Field(default_factory=list)
+    department_discovery_gaps: List[str] = Field(default_factory=list)
+    source_refs: List[str] = Field(default_factory=list)
+    revision: int = 1
+
+
+class DepartmentIntelligenceContainer(BaseModel):
+    id: str
+    workspace_id: str
+    kind: Literal["department_intelligence"] = "department_intelligence"
+    meta: BusinessContainerMeta
+
+    departments: Dict[str, Dict[str, Any]] = Field(default_factory=dict)
+    revision: int = 1
+
+
+class BusinessFinancialModelContainer(BaseModel):
+    id: str
+    workspace_id: str
+    kind: Literal["business_financial_model"] = "business_financial_model"
+    meta: BusinessContainerMeta
+
+    model_status: str = "draft"
+    currency: Optional[str] = None
+    period_basis: str = "annual"
+    discovery_state: Dict[str, Any] = Field(default_factory=dict)
+    revenue_model: Dict[str, Any] = Field(default_factory=dict)
+    pricing_model: Dict[str, Any] = Field(default_factory=dict)
+    direct_cost_model: Dict[str, Any] = Field(default_factory=dict)
+    overhead_model: Dict[str, Any] = Field(default_factory=dict)
+    cashflow_model: Dict[str, Any] = Field(default_factory=dict)
+    capacity_model: Dict[str, Any] = Field(default_factory=dict)
+    tax_context: Dict[str, Any] = Field(default_factory=dict)
+    integration_evidence: Dict[str, Any] = Field(default_factory=dict)
+    metrics: Dict[str, Any] = Field(default_factory=dict)
+    assumptions: List[Dict[str, Any]] = Field(default_factory=list)
+    missing_information: List[str] = Field(default_factory=list)
+    evidence_refs: List[Dict[str, Any]] = Field(default_factory=list)
+    provenance: Dict[str, Any] = Field(default_factory=dict)
+    completion_receipt: Dict[str, Any] = Field(default_factory=dict)
+    revision: int = 1
 
 
 class BrandFoundationContainer(BaseModel):
@@ -148,6 +204,9 @@ class OperationalRuntimeSummaryContainer(BaseModel):
 BusinessContainerModel = (
     BusinessIdentityContainer
     | BusinessStructureContainer
+    | BusinessMapContainer
+    | DepartmentIntelligenceContainer
+    | BusinessFinancialModelContainer
     | BrandFoundationContainer
     | BoardroomSnapshotContainer
     | OperationalRuntimeSummaryContainer
