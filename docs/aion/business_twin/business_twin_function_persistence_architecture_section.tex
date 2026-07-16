@@ -734,6 +734,36 @@ The main application renderer should only select the active function and delegat
 to its module. It must not contain each function's schemas, persistence logic,
 upload handlers, or model calculations.
 
+\subsection{Finance Pilot Implementation Baseline}
+
+The Finance implementation establishes the reusable baseline for subsequent
+functions. The desktop modules are
+\texttt{aion\_finance\_discovery\_schema.js},
+\texttt{aion\_finance\_model\_builder.js}, and
+\texttt{aion\_finance\_pilot.js}. Canonical synchronisation and operational
+queries pass through \texttt{aion\_business\_container\_client.js}; lifecycle
+progression remains owned by
+\texttt{aion\_business\_twin\_orchestrator.js}.
+
+Finance discovery records reporting currency, pricing, monthly revenue, sales
+volume, revenue pattern, payment terms, direct costs, fixed overheads, owner
+labour and capacity, cash and buffer, receivables, payables, tax, debt, targets,
+and approval limits. Answers are founder-provided facts until reconciled to
+evidence. The model builder calculates annualised revenue, gross profit, gross
+margin, operating surplus, and operating margin only when the required numeric
+inputs exist. Every metric stores its formula and is marked
+\texttt{calculated\_from\_unverified\_input}; missing inputs and parsing
+assumptions remain explicit.
+
+On finalisation, Finance emits a completion receipt to the Business Twin
+Orchestrator. The orchestrator marks Finance complete, marks Operations
+\texttt{ready\_to\_activate}, and records Operations as the next department.
+Finance itself neither routes to nor activates Operations. The permanent
+Finance terminal sends read-only questions to
+\texttt{/api/aion/business/data/finance-agent/\{business\_id\}/turn}. Answers
+are grounded in the canonical Business Financial Model, remain approval-gated,
+and are appended to its bounded operational transcript.
+
 \subsection{Safety and Approval Rules}
 
 The following boundaries apply across every function:

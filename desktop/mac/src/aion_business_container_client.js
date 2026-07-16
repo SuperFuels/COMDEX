@@ -60,6 +60,7 @@
 
   function financeModelFromState(state) {
     const answers = state.answers || {};
+    const calculated = global.AionFinanceModelBuilder?.build?.(state) || {};
     return {
       model_status: state.status === 'complete' ? 'complete' : 'discovery_in_progress',
       currency: answers.currency || null,
@@ -70,21 +71,30 @@
         average_monthly_revenue: answers.revenue_monthly || null,
         revenue_pattern: answers.revenue_pattern || null,
       },
-      direct_cost_model: { direct_costs: answers.direct_costs || null, owner_labour: answers.labour_owner || null },
+      pricing_model: calculated.pricing_model || {},
+      direct_cost_model: { direct_costs: answers.direct_costs || null, owner_labour: answers.labour_owner || null, ...(calculated.direct_cost_model || {}) },
       overhead_model: { fixed_costs: answers.fixed_costs || null },
-      cashflow_model: { cash_position: answers.cash_position || null, receivables: answers.receivables || null, payables: answers.payables || null },
-      tax_context: { tax_and_vat: answers.tax_vat || null, debt_and_finance: answers.debt_finance || null },
+      cashflow_model: {
+        cash_position: answers.cash_position || null,
+        minimum_cash_buffer_policy: answers.cash_buffer_policy || null,
+        receivables: answers.receivables || null,
+        payables: answers.payables || null,
+        unrecorded_liabilities: answers.unrecorded_liabilities || null,
+      },
+      tax_context: { tax_and_vat: answers.tax_context || answers.tax_vat || null, debt_and_finance: answers.debt_finance || null },
       integration_evidence: {
         accounting_platforms: state.accounting_platforms || [],
         other_accounting_platform: state.other_accounting_platform || '',
         evidence_sources: state.evidence_sources || [],
       },
-      metrics: {},
-      assumptions: [],
-      missing_information: [],
+      capacity_model: calculated.capacity_model || {},
+      metrics: calculated.metrics || {},
+      assumptions: calculated.assumptions || [],
+      missing_information: calculated.missing_information || [],
       evidence_refs: (state.source_records || []).filter((item) => item.canonical_record).map((item) => item.canonical_record),
       provenance: { source: 'finance_pilot_discovery', updated_at: new Date().toISOString() },
       completion_receipt: state.status === 'complete' ? { completed_at: state.completed_at, source: 'finance_pilot' } : {},
+      finance_priorities: answers.finance_priorities || null,
     };
   }
 
@@ -128,6 +138,23 @@
               boardroom_summary: `Finance discovery ${state.question_index || 0}/${global.AionFinanceDiscoverySchema?.questions?.length || 0}; status ${state.status}.`,
               updated_at: new Date().toISOString(),
             },
+            ...(state.status === 'complete' ? {
+              operations: {
+                department: 'operations',
+                status: 'ready_to_activate',
+                unlocked_by: 'business_twin_orchestrator',
+                predecessor: 'finance',
+                activation_requires_user_or_orchestrator_route: true,
+                updated_at: new Date().toISOString(),
+              },
+              boardroom: {
+                department: 'boardroom',
+                status: 'finance_context_ready',
+                finance_model_ref: modelResult.receipt || {},
+                provider_memory_mutation_allowed: false,
+                updated_at: new Date().toISOString(),
+              },
+            } : {}),
           },
         },
         source: 'desktop_finance_pilot',
@@ -161,10 +188,99 @@
     return request(`/api/aion/business/data/finance-artifacts/${encodeURIComponent(businessId)}`, { method: 'POST', body });
   }
 
+  async function listFinanceArtifacts() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/finance-artifacts/${encodeURIComponent(businessId)}`);
+  }
+
+  async function analyseFinanceArtifact(artifactId) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/finance-artifacts/${encodeURIComponent(businessId)}/${encodeURIComponent(artifactId)}/analyse`, { method: 'POST' });
+  }
+
+  async function acceptFinanceArtifactFacts(artifactId, factIds = []) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/finance-artifacts/${encodeURIComponent(businessId)}/${encodeURIComponent(artifactId)}/accept`, {
+      method: 'POST',
+      body: JSON.stringify({ fact_ids: Array.isArray(factIds) ? factIds : [] }),
+    });
+  }
+
+  async function getXeroStatus() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/integrations/xero/${encodeURIComponent(businessId)}/status`);
+  }
+
+  async function connectXero() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/integrations/xero/${encodeURIComponent(businessId)}/connect`, { method: 'POST' });
+  }
+
+  async function selectXeroTenant(tenantId) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/integrations/xero/${encodeURIComponent(businessId)}/tenant`, {
+      method: 'POST', body: JSON.stringify({ tenant_id: String(tenantId || '') }),
+    });
+  }
+
+  async function syncXero() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/integrations/xero/${encodeURIComponent(businessId)}/sync`, { method: 'POST' });
+  }
+
+  async function disconnectXero() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/integrations/xero/${encodeURIComponent(businessId)}`, { method: 'DELETE' });
+  }
+
   async function getBoardroomContext() {
     const businessId = resolveBusinessId();
     if (!businessId) throw new Error('Registered business ID missing');
     return request(`/api/aion/business/data/boardroom-context/${encodeURIComponent(businessId)}`);
+  }
+
+  async function getOperatingModel() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/operating-model/${encodeURIComponent(businessId)}`);
+  }
+
+  async function saveOperatingModel(payload, expectedRevision = null) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/operating-model/${encodeURIComponent(businessId)}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        payload: payload && typeof payload === 'object' ? payload : {},
+        source: 'desktop_products_services_workspace',
+        expected_revision: expectedRevision,
+      }),
+    });
+  }
+
+  async function importOperatingModelSpreadsheet(file, category) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    const body = new FormData();
+    body.append('category', category);
+    body.append('file', file, file.name);
+    return request(`/api/aion/business/data/operating-model/${encodeURIComponent(businessId)}/import`, { method: 'POST', body });
+  }
+
+  async function askFinanceAgent(userText) {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/finance-agent/${encodeURIComponent(businessId)}/turn`, {
+      method: 'POST', body: JSON.stringify({ user_text: String(userText || '').trim() }),
+    });
   }
 
   async function bootstrap() {
@@ -186,6 +302,13 @@
     }
   }
 
-  global.AionBusinessContainerClient = { canonicalBusinessId, resolveBusinessId, commitFoundationPacket, syncFinanceState, syncFinanceStateNow, uploadFinanceArtifact, getBoardroomContext };
+  global.AionBusinessContainerClient = {
+    canonicalBusinessId, resolveBusinessId, commitFoundationPacket,
+    syncFinanceState, syncFinanceStateNow,
+    uploadFinanceArtifact, listFinanceArtifacts, analyseFinanceArtifact, acceptFinanceArtifactFacts,
+    getXeroStatus, connectXero, selectXeroTenant, syncXero, disconnectXero,
+    getOperatingModel, saveOperatingModel, importOperatingModelSpreadsheet,
+    getBoardroomContext, askFinanceAgent,
+  };
   setTimeout(bootstrap, 600);
 })(window);

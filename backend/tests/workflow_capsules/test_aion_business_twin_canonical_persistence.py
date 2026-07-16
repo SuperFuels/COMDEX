@@ -80,6 +80,70 @@ def test_foundation_commits_identity_structure_map_and_ledger(tmp_path, monkeypa
     assert context["context_hash"].startswith("sha256:")
 
 
+def test_operational_finance_turn_is_grounded_and_persisted(tmp_path, monkeypatch):
+    repository = BusinessContainerRepository(base_dir=tmp_path / "business_containers")
+    monkeypatch.setattr(api, "_repo", lambda: repository)
+    api.put_finance_model(
+        "home-fixed",
+        api.ContainerWriteRequest(payload={
+            "model_status": "complete",
+            "metrics": {
+                "gross_margin_percent": {"value": 42.5, "verification": "calculated_from_unverified_input"},
+                "monthly_gross_profit": {"value": 1700},
+            },
+            "missing_information": ["verified bank balance"],
+            "discovery_state": {},
+        }),
+    )
+    result = api.finance_agent_turn("home-fixed", api.FinanceAgentTurnRequest(user_text="Show me the margins"))
+    assert "42.50%" in result["turn"]["response"]
+    assert result["approval_gated"] is True
+    saved = repository.load_business_financial_model("home-fixed")
+    assert saved.discovery_state["operational_transcript"][0]["user_text"] == "Show me the margins"
+
+
+def test_operating_model_calculates_stock_procurement_unit_economics_and_board_context(tmp_path, monkeypatch):
+    repository = BusinessContainerRepository(base_dir=tmp_path / "business_containers")
+    monkeypatch.setattr(api, "_repo", lambda: repository)
+
+    result = api.put_operating_model(
+        "home-fixed",
+        api.ContainerWriteRequest(
+            source="test_products_services",
+            payload={
+                "currency": "EUR",
+                "offerings": [{
+                    "name": "Repair day rate", "offering_type": "service",
+                    "pricing_basis": "day_rate", "price": 400,
+                    "material_cost_per_unit": 50, "labour_cost_per_unit": 160,
+                    "expected_monthly_volume": 12,
+                }],
+                "inventory_items": [{
+                    "name": "Roof tiles", "stock_class": "raw_material", "unit": "tiles",
+                    "quantity_on_hand": 20, "quantity_reserved": 5, "unit_cost": 3,
+                    "reorder_point": 20, "target_stock": 100, "lead_time_days": 4,
+                }],
+            },
+        ),
+    )
+
+    model = result["payload"]
+    assert model["unit_economics"][0]["contribution_per_unit"] == 190
+    assert model["unit_economics"][0]["gross_margin_percent"] == 47.5
+    assert model["inventory_metrics"]["total_stock_value"] == 60
+    assert model["inventory_metrics"]["reorder_items"] == 1
+    assert model["inventory_metrics"]["suggested_procurement_cash_required"] == 255
+    assert model["procurement_queue"][0]["requires_approval"] is True
+
+    context = api.get_boardroom_context("home-fixed")["context"]
+    assert context["operating_model"]["inventory_metrics"]["total_stock_value"] == 60
+    assert context["source_revisions"]["operating_model"] == 1
+    facts = context["business_map_projection"]["facts"]
+    assert next(item for item in facts if item["field"] == "inventory_metrics")["value"]["reorder_items"] == 1
+    ledger = repository.load_department_intelligence("home-fixed")
+    assert ledger.departments["procurement"]["operating_model"]["stock_value"] == 60
+
+
 @pytest.mark.asyncio
 async def test_finance_artifact_writes_bytes_receipt_and_file_cabinet_pointer(tmp_path, monkeypatch):
     runtime_root = tmp_path / "AION_BUSINESS"

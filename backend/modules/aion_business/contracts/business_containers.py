@@ -11,6 +11,7 @@ BusinessContainerKind = Literal[
     "business_map",
     "department_intelligence",
     "business_financial_model",
+    "business_operating_model",
     "brand_foundation",
     "boardroom_snapshot",
     "operational_runtime_summary",
@@ -121,12 +122,50 @@ class BusinessFinancialModelContainer(BaseModel):
     capacity_model: Dict[str, Any] = Field(default_factory=dict)
     tax_context: Dict[str, Any] = Field(default_factory=dict)
     integration_evidence: Dict[str, Any] = Field(default_factory=dict)
+    external_data: Dict[str, Any] = Field(default_factory=dict)
     metrics: Dict[str, Any] = Field(default_factory=dict)
     assumptions: List[Dict[str, Any]] = Field(default_factory=list)
     missing_information: List[str] = Field(default_factory=list)
     evidence_refs: List[Dict[str, Any]] = Field(default_factory=list)
     provenance: Dict[str, Any] = Field(default_factory=dict)
     completion_receipt: Dict[str, Any] = Field(default_factory=dict)
+    revision: int = 1
+
+
+class BusinessOperatingModelContainer(BaseModel):
+    """Canonical cross-functional description of what the business sells and delivers.
+
+    This container deliberately sits beside (not inside) Finance. Products & Services
+    owns the catalogue, Operations owns recipes/capacity/stock, HR owns labour inputs,
+    Sales owns customer terms and Finance consumes the calculated economics.
+    """
+
+    id: str
+    workspace_id: str
+    kind: Literal["business_operating_model"] = "business_operating_model"
+    meta: BusinessContainerMeta
+
+    model_status: str = "draft"
+    setup_mode: str = "simple"
+    currency: str = "EUR"
+    offerings: List[Dict[str, Any]] = Field(default_factory=list)
+    pricing_rules: List[Dict[str, Any]] = Field(default_factory=list)
+    payment_terms: List[Dict[str, Any]] = Field(default_factory=list)
+    customer_terms: List[Dict[str, Any]] = Field(default_factory=list)
+    labour_resources: List[Dict[str, Any]] = Field(default_factory=list)
+    overheads: List[Dict[str, Any]] = Field(default_factory=list)
+    debt_commitments: List[Dict[str, Any]] = Field(default_factory=list)
+    financial_targets: List[Dict[str, Any]] = Field(default_factory=list)
+    production_lines: List[Dict[str, Any]] = Field(default_factory=list)
+    bills_of_materials: List[Dict[str, Any]] = Field(default_factory=list)
+    inventory_items: List[Dict[str, Any]] = Field(default_factory=list)
+    suppliers: List[Dict[str, Any]] = Field(default_factory=list)
+    procurement_queue: List[Dict[str, Any]] = Field(default_factory=list)
+    unit_economics: List[Dict[str, Any]] = Field(default_factory=list)
+    inventory_metrics: Dict[str, Any] = Field(default_factory=dict)
+    capacity_model: Dict[str, Any] = Field(default_factory=dict)
+    provenance: Dict[str, Any] = Field(default_factory=dict)
+    source_refs: List[Dict[str, Any]] = Field(default_factory=list)
     revision: int = 1
 
 
@@ -207,6 +246,7 @@ BusinessContainerModel = (
     | BusinessMapContainer
     | DepartmentIntelligenceContainer
     | BusinessFinancialModelContainer
+    | BusinessOperatingModelContainer
     | BrandFoundationContainer
     | BoardroomSnapshotContainer
     | OperationalRuntimeSummaryContainer

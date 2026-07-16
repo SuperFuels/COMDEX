@@ -15,7 +15,7 @@ def test_phase21l_aion_or_pilot_department_routes_to_aion_workspace_surface():
 
     assert 'if (departmentKey === "aion")' in block
     assert 'if (departmentKey === "pilot")' in block
-    assert block.count("return renderAionWorkspaceSurface(selectedRuns, selectedAgentCard);") >= 2
+    assert block.count("return renderAionWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);") >= 2
 
 def test_phase21l_mounts_inside_confirmed_aion_workspace_surface():
     start = TEXT.index("function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard)")
@@ -23,17 +23,14 @@ def test_phase21l_mounts_inside_confirmed_aion_workspace_surface():
     block = TEXT[start:end]
 
     assert "installAionPilotCockpitStyles();" in block
-    assert "Live Agents / Aion" in block
-    assert "AION Pilot" in block
     assert "${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}" in block
-    assert "data-aion-phase21l-operator-identity" in block
+    assert "data-aion-phase21l-live-agents-aion-pilot-mount" in block
+    assert "renderAionGoalLoopFounderDemoTracePanel" not in block
 
 
-def test_phase21l_operator_identity_visible():
-    assert "Aion Operator Identity" in TEXT
-    assert "AION Pilot native runtime" in TEXT
-    assert "Pilot is not UI automation" in TEXT
-    assert "No live external side effects without exact approval" in TEXT
+def test_phase21l_operator_identity_is_carried_by_runtime_not_page_chrome():
+    assert "AION Pilot native runtime executor, not UI automation" in TEXT
+    assert "No money, post, deploy, external send" in TEXT
 
 
 def test_phase21l_top_level_aion_chat_points_to_live_agents_aion():

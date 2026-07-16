@@ -1,0 +1,74 @@
+\section{Products, Services, Production, Inventory and Procurement Operating Model}
+\label{sec:aion-operating-model}
+
+\subsection{Purpose and ownership}
+
+The Business Operating Model is the canonical, cross-functional representation of what a business sells, how it charges, how it delivers, which people and materials are required, what stock it holds, and what it may need to procure.  It is stored in \texttt{business\_operating\_model.json} inside the registered Business Container.  It is deliberately separate from the Business Financial Model: Finance consumes its economics, but does not own the catalogue, labour, production, stock or supplier truth.
+
+Canonical ownership is divided as follows:
+\begin{itemize}
+  \item Products \& Services owns the offer catalogue, SKUs, rate card, pricing basis and default commercial terms.
+  \item Sales owns customer-specific price and payment-term exceptions and observed sales demand.
+  \item Operations owns production lines, delivery units, bills of materials, capacity, stock movements and fulfilment constraints.
+  \item HR owns labour resources, engagement type, cost basis, availability, responsibility and permissions.
+  \item Finance owns imported accounting evidence, overhead reconciliation, debt, tax context, cash policy and calculated financial interpretation.
+  \item Procurement owns the review queue for suggested, drafted, approved, ordered and received purchases.
+  \item The Boardroom receives a read-only projection of all of the above on every meeting; external model memory is not a source of truth.
+\end{itemize}
+
+\subsection{Progressive-disclosure user experience}
+
+The interface must work for both a sole trader and a complex production business.  Simple mode therefore requires only an offer name, type, charging basis, rate, unit and expected monthly volume.  A plumber may record a single day rate.  Advanced mode exposes direct material, labour and other unit costs, production lines, capacity, bills of materials, inventory policy, suppliers, borrowing and targets.  Adding detail must never be mandatory merely because the schema supports it.
+
+The primary internal workspaces are Offerings, Delivery \& Costs, Stock, Procurement, Finance Inputs and Summary.  Repeating structures use add-row controls.  Free-text Finance questions must not duplicate information owned by these structured tables.
+
+\subsection{Canonical data contract}
+
+The \texttt{BusinessOperatingModelContainer} stores:
+\begin{itemize}
+  \item \texttt{offerings}, \texttt{pricing\_rules}, \texttt{payment\_terms} and \texttt{customer\_terms};
+  \item \texttt{labour\_resources}, \texttt{overheads}, \texttt{debt\_commitments} and \texttt{financial\_targets};
+  \item \texttt{production\_lines} and \texttt{bills\_of\_materials};
+  \item \texttt{inventory\_items}, \texttt{suppliers} and \texttt{procurement\_queue};
+  \item calculated \texttt{unit\_economics}, \texttt{inventory\_metrics} and \texttt{capacity\_model};
+  \item provenance, source references, revision and container metadata.
+\end{itemize}
+
+Inventory classes are \texttt{raw\_material}, \texttt{work\_in\_progress}, \texttt{finished\_good}, \texttt{consumable}, \texttt{packaging} and \texttt{resale}.  Every stock item may carry on-hand quantity, reserved quantity, available quantity, unit cost, stock value, reorder point, target stock, supplier and lead time.  Available quantity is calculated as on-hand less reserved quantity.
+
+\subsection{Calculations and decision support}
+
+For each offering, the runtime calculates direct cost per unit, contribution per unit, gross-margin percentage, expected monthly revenue and expected monthly contribution.  Direct cost may include material, labour, equipment, subcontractor and other direct inputs.  Bill-of-material lines are included in material cost.
+
+For inventory, the runtime calculates total stock value, available stock value, value by stock class, number of items at or below reorder point, and suggested procurement cash required.  A reorder suggestion is generated when available quantity is at or below the reorder point and below target stock.  Suggested quantity is target stock less available stock.  The resulting procurement line is always approval-gated and does not contact a supplier, place an order or make a payment.
+
+These facts allow the Boardroom to reason about working capital.  For example, it can identify excessive finished-goods inventory, estimate cash tied up in stock, calculate the margin retained under a proposed discount, and model how price or sales velocity may convert inventory into cash.  Any recommendation remains a scenario until the user approves a Boardroom package and the relevant Pilot receives an authorised task.
+
+\subsection{Procurement interaction}
+
+Procurement supports both policy-generated suggestions and quick manual additions.  A natural entry such as ``four lettuce needed tomorrow'' becomes a draft queue line.  Queue states are suggested, draft, review, approved, ordered, received and cancelled.  Quantity, unit, supplier, required date, lead time and estimated cash requirement remain visible throughout.  Approval boundaries belong to the permissions and governance layer; they are not an open-ended Finance discovery question.
+
+\subsection{Persistence and Boardroom projection}
+
+The desktop client reads and writes the model through \texttt{/api/aion/business/data/operating-model/\{business\}}.  The backend is authoritative: it normalises row identifiers, performs calculations, increments revision, stores provenance and saves the typed container.  Each save replaces the current operating-model projection in the Business Map and updates Department Intelligence summaries for Products \& Services, Operations, Sales, Finance, HR and Procurement.
+
+The Boardroom Context Envelope includes the complete operating model under both \texttt{function\_models.operating\_model} and \texttt{operating\_model}, together with its source revision.  Consequently, every Boardroom provider receives the same compact business truth without requiring provider-side memory.
+
+\subsection{Finance discovery boundary}
+
+Finance discovery version 2 asks only for judgement that structured records or accounting integrations cannot reliably establish: reporting currency confirmation, minimum protected cash reserve, unrecorded or overdue liabilities, tax context and hidden financial priorities.  Pricing, sales volume, terms, labour, capacity, materials, overhead schedules, debt schedules and targets are maintained in the Operating Model rather than repeated as conversational questions.
+
+\subsection{Safety invariants}
+
+\begin{enumerate}
+  \item Selecting, importing or saving a source does not authorise an external write.
+  \item Stock-driven procurement is suggestion-only until explicit approval.
+  \item Original evidence, extracted facts, accepted facts and calculated projections retain distinct provenance.
+  \item Finance, Sales, Operations and HR may consume shared facts but must not silently create conflicting copies.
+  \item Boardroom analysis is a projection; the Business Container remains the persistent source of truth.
+  \item Provider memory mutation and raw autonomous connector access remain disabled.
+\end{enumerate}
+
+\subsection{Reuse for future functions}
+
+Future function setup must extend the typed operating model or Department Intelligence rather than append large function-specific blocks to \texttt{app.js}.  The Products \& Services workspace is implemented as a separate renderer module.  New catalogue, commerce, warehouse or procurement connectors must map provider records into the same canonical fields, preserve provider identifiers and sync timestamps, and expose conflicts for user review instead of overwriting confirmed business truth.

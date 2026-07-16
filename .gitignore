@@ -202,6 +202,15 @@ INERTIA/artifacts/programmable_inertia/**/*
 # Tessaris: local artifacts (generated)
 **/artifacts/**
 
+# AION desktop local build/runtime artifacts (source remains tracked separately)
+.venv_voice/
+.o25ax_backup_*/
+desktop/mac/Tessaris.app/
+desktop/mac/voice_bundle_staging/
+desktop/mac/src/app.js.broken-*
+desktop/mac/src/app.js.phase*backup*
+desktop/mac/src/app.js.phase*-route-truth-backup
+
 
 # runtime / generated
 .runtime/

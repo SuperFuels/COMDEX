@@ -166,6 +166,29 @@ def synthesize_text(request: TTSRequest):
     )
 
 
+@router.post("/tts-json")
+def synthesize_text_json(request: TTSRequest):
+    """Renderer-safe TTS transport that never creates a Blob-backed response."""
+    if not _aion_voice_worker_enabled():
+        return JSONResponse(
+            status_code=503,
+            content={"ok": False, "error": "Persistent local voice worker is not enabled."},
+        )
+
+    worker_result = synthesize_with_worker(
+        text=_aion_voice_text_from_request(request),
+        voice=_aion_voice_voice_from_request(request),
+        sample_rate=int(os.environ.get("AION_KOKORO_SAMPLE_RATE", "24000")),
+    )
+    if not worker_result.ok:
+        return _aion_voice_worker_error_response(worker_result.payload)
+
+    payload = dict(worker_result.payload)
+    payload.setdefault("ok", True)
+    payload.setdefault("mime_type", "audio/wav")
+    return JSONResponse(content=payload, headers=_aion_voice_worker_headers(payload))
+
+
 async def _speech_to_text_impl(file: UploadFile):
     # AION O22E WORKER BRIDGE: gated local worker path.
     if _aion_voice_worker_enabled():

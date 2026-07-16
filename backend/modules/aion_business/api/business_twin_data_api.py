@@ -3,6 +3,8 @@ from __future__ import annotations
 from copy import deepcopy
 from datetime import UTC, datetime
 from hashlib import sha256
+import csv
+import io
 import json
 from pathlib import Path
 import re
@@ -15,6 +17,7 @@ from pydantic import BaseModel, Field
 from backend.modules.aion_business.contracts.business_containers import (
     BusinessContainerMeta,
     BusinessFinancialModelContainer,
+    BusinessOperatingModelContainer,
     BusinessIdentityContainer,
     BusinessMapContainer,
     BusinessStructureContainer,
@@ -26,6 +29,7 @@ from backend.modules.aion_business.runtime.canonical_business_identity import ca
 from backend.modules.aion_business.runtime.workspace_repository import WorkspaceRepository
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
+from backend.modules.aion_business.runtime.finance_artifact_analyser import analyse_finance_artifact
 
 
 router = APIRouter(prefix="/api/aion/business/data", tags=["aion-business-data"])
@@ -81,6 +85,173 @@ def _text(value: Any) -> str | None:
     return text or None
 
 
+def _number(value: Any, default: float = 0.0) -> float:
+    try:
+        if value in (None, ""):
+            return default
+        return float(str(value).replace(",", "").replace("€", "").replace("£", "").strip())
+    except (TypeError, ValueError):
+        return default
+
+
+def _stable_row_id(prefix: str, row: Dict[str, Any], index: int) -> str:
+    existing = str(row.get("id") or "").strip()
+    if existing:
+        return existing
+    seed = str(row.get("sku") or row.get("name") or row.get("description") or index)
+    slug = re.sub(r"[^a-z0-9]+", "-", seed.lower()).strip("-") or str(index + 1)
+    return f"{prefix}.{slug}"
+
+
+def _calculate_operating_model(payload: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalise editable rows and calculate boardroom-ready operating facts."""
+    calculated = deepcopy(payload)
+    currency = str(calculated.get("currency") or "EUR").upper()
+
+    inventory: list[Dict[str, Any]] = []
+    inventory_value = 0.0
+    inventory_available_value = 0.0
+    inventory_by_class: Dict[str, float] = {}
+    suggested: list[Dict[str, Any]] = []
+    for index, raw in enumerate(_list(calculated.get("inventory_items"))):
+        item = _object(raw)
+        item["id"] = _stable_row_id("inventory", item, index)
+        stock_class = str(item.get("stock_class") or "consumable")
+        on_hand = _number(item.get("quantity_on_hand"))
+        reserved = _number(item.get("quantity_reserved"))
+        available = max(on_hand - reserved, 0.0)
+        reorder_point = _number(item.get("reorder_point"))
+        target = max(_number(item.get("target_stock")), reorder_point)
+        unit_cost = _number(item.get("unit_cost"))
+        value = on_hand * unit_cost
+        item.update({
+            "stock_class": stock_class,
+            "quantity_on_hand": on_hand,
+            "quantity_reserved": reserved,
+            "quantity_available": available,
+            "unit_cost": unit_cost,
+            "stock_value": round(value, 2),
+            "reorder_required": available <= reorder_point and target > available,
+        })
+        inventory.append(item)
+        inventory_value += value
+        inventory_available_value += available * unit_cost
+        inventory_by_class[stock_class] = inventory_by_class.get(stock_class, 0.0) + value
+        if item["reorder_required"]:
+            qty = max(target - available, 0.0)
+            suggested.append({
+                "id": f"procurement.auto.{item['id']}",
+                "inventory_item_id": item["id"],
+                "name": item.get("name") or item.get("sku") or "Stock item",
+                "quantity": round(qty, 4),
+                "unit": item.get("unit") or "units",
+                "supplier_id": item.get("supplier_id"),
+                "lead_time_days": _number(item.get("lead_time_days")),
+                "estimated_cash_required": round(qty * unit_cost, 2),
+                "reason": "available stock is at or below reorder point",
+                "status": "suggested",
+                "requires_approval": True,
+                "generated_by": "stock_policy",
+            })
+    calculated["inventory_items"] = inventory
+
+    existing_queue = [_object(item) for item in _list(calculated.get("procurement_queue"))]
+    existing_ids = {str(item.get("inventory_item_id") or item.get("id") or "") for item in existing_queue}
+    existing_queue.extend(item for item in suggested if str(item.get("inventory_item_id")) not in existing_ids)
+    for index, item in enumerate(existing_queue):
+        item["id"] = _stable_row_id("procurement", item, index)
+        item.setdefault("status", "draft")
+        item.setdefault("requires_approval", True)
+        item["estimated_cash_required"] = round(
+            _number(item.get("estimated_cash_required"))
+            or _number(item.get("quantity")) * _number(item.get("unit_cost")), 2
+        )
+    calculated["procurement_queue"] = existing_queue
+
+    bom_by_offering: Dict[str, float] = {}
+    for raw in _list(calculated.get("bills_of_materials")):
+        line = _object(raw)
+        offering_id = str(line.get("offering_id") or "")
+        bom_by_offering[offering_id] = bom_by_offering.get(offering_id, 0.0) + (
+            _number(line.get("quantity_per_unit"), 1.0) * _number(line.get("unit_cost"))
+        )
+
+    economics: list[Dict[str, Any]] = []
+    offerings: list[Dict[str, Any]] = []
+    for index, raw in enumerate(_list(calculated.get("offerings"))):
+        offering = _object(raw)
+        offering["id"] = _stable_row_id("offering", offering, index)
+        price = _number(offering.get("price") or offering.get("charge_rate"))
+        material = _number(offering.get("material_cost_per_unit")) + bom_by_offering.get(offering["id"], 0.0)
+        labour = _number(offering.get("labour_cost_per_unit"))
+        other = sum(_number(offering.get(key)) for key in ("equipment_cost_per_unit", "subcontractor_cost_per_unit", "other_direct_cost_per_unit"))
+        direct = material + labour + other
+        contribution = price - direct
+        volume = _number(offering.get("expected_monthly_volume"))
+        offering.update({"price": price, "direct_cost_per_unit": round(direct, 2)})
+        offerings.append(offering)
+        economics.append({
+            "offering_id": offering["id"],
+            "name": offering.get("name") or offering.get("sku") or "Offering",
+            "currency": currency,
+            "price_per_unit": round(price, 2),
+            "direct_cost_per_unit": round(direct, 2),
+            "contribution_per_unit": round(contribution, 2),
+            "gross_margin_percent": round((contribution / price * 100), 2) if price else None,
+            "expected_monthly_volume": volume,
+            "expected_monthly_revenue": round(price * volume, 2),
+            "expected_monthly_contribution": round(contribution * volume, 2),
+        })
+    calculated["offerings"] = offerings
+    calculated["unit_economics"] = economics
+    calculated["inventory_metrics"] = {
+        "currency": currency,
+        "total_stock_value": round(inventory_value, 2),
+        "available_stock_value": round(inventory_available_value, 2),
+        "stock_value_by_class": {key: round(value, 2) for key, value in inventory_by_class.items()},
+        "reorder_items": len(suggested),
+        "suggested_procurement_cash_required": round(sum(_number(item.get("estimated_cash_required")) for item in suggested), 2),
+    }
+    calculated["currency"] = currency
+    calculated["model_status"] = "ready" if offerings else "draft"
+    return calculated
+
+
+def _project_operating_model_to_business_map(repository: BusinessContainerRepository, business_id: str, model: Dict[str, Any], source: str) -> None:
+    try:
+        business_map = repository.load_business_map(business_id)
+    except FileNotFoundError:
+        business_map = BusinessMapContainer(
+            id=f"{business_id}.business_map", workspace_id=business_id,
+            meta=_meta(business_id, "business_map", source),
+        )
+    business_map.facts = [
+        fact for fact in business_map.facts
+        if not str(_object(fact).get("source_ref") or "").startswith("operating_model:")
+    ]
+    projected = {
+        "offerings": _list(model.get("offerings")),
+        "unit_economics": _list(model.get("unit_economics")),
+        "inventory_metrics": _object(model.get("inventory_metrics")),
+        "procurement_queue": _list(model.get("procurement_queue")),
+        "production_lines": _list(model.get("production_lines")),
+        "labour_resources": _list(model.get("labour_resources")),
+        "payment_terms": _list(model.get("payment_terms")),
+        "financial_targets": _list(model.get("financial_targets")),
+    }
+    observed_at = _now()
+    for field, value in projected.items():
+        business_map.facts.append({
+            "business_id": business_id, "function": "operating_model", "category": "business_model",
+            "field": field, "value": value, "classification": "structured_business_fact",
+            "confidence": 0.94, "verification_status": "user_confirmed",
+            "source_ref": f"operating_model:{field}", "observed_at": observed_at, "created_at": observed_at,
+        })
+    business_map.revision = int(business_map.revision or 0) + 1
+    business_map.meta = _meta(business_id, "business_map", source)
+    repository.save_model(business_map)
+
+
 def _business_type(value: Any) -> str:
     raw = str(value or "").strip().lower().replace(" ", "_")
     aliases = {
@@ -113,6 +284,14 @@ class ContainerWriteRequest(BaseModel):
 class BusinessMapFactsRequest(BaseModel):
     facts: list[Dict[str, Any]] = Field(default_factory=list)
     source: str = "desktop_runtime"
+
+
+class FinanceAgentTurnRequest(BaseModel):
+    user_text: str = Field(..., min_length=1, max_length=4000)
+
+
+class FinanceArtifactAcceptanceRequest(BaseModel):
+    fact_ids: list[str] = Field(default_factory=list)
 
 
 def _repo() -> BusinessContainerRepository:
@@ -282,6 +461,9 @@ def _add_finance_file_cabinet_pointer(*, business_id: str, category: str, record
             "artifact_hash": record["artifact_hash"],
             "receipt_hash": record["receipt_hash"],
             "replay_locator_hash": record["replay_locator_hash"],
+            "analysis_status": _object(record.get("analysis")).get("status"),
+            "analysis_path": _object(record.get("analysis")).get("storage_path"),
+            "analysis_hash": _object(record.get("analysis")).get("analysis_hash"),
         },
     }
     existing_index = next((index for index, item in enumerate(destination["children"]) if item.get("id") == pointer_id), None)
@@ -292,6 +474,99 @@ def _add_finance_file_cabinet_pointer(*, business_id: str, category: str, record
     tree["root"] = {**_object(tree.get("root")), "id": "root", "type": "folder", "name": "Workflows", "children": folders}
     WorkflowFileCabinetRepository.save(business_id, tree)
     return pointer
+
+
+def _add_operating_model_file_pointer(*, business_id: str, category: str, record: Dict[str, Any]) -> Dict[str, Any]:
+    tree = WorkflowFileCabinetRepository.load(business_id)
+    folders = tree.get("folders")
+    if not isinstance(folders, list):
+        folders = list((tree.get("root") or {}).get("children") or [])
+        tree["folders"] = folders
+    department = _ensure_folder(folders, node_id="folder_products_services", name="Products & Services", node_type="department")
+    destination = _ensure_folder(
+        department["children"], node_id=f"folder_products_services_{category}",
+        name="Offer Catalogue" if category == "offerings" else "Stock & Inventory",
+    )
+    pointer = {
+        "id": f"operating_model_import_{record['artifact_id']}",
+        "name": record["name"], "type": "business_container_artifact",
+        "document_type": record["extension"], "source_of_truth": "business_container",
+        "file_cabinet_role": "index_pointer_only", "status": "committed",
+        "target": {
+            "business_container_id": business_id, "sub_container": "operating_model",
+            "category": category, "storage_path": record["storage_path"],
+            "artifact_id": record["artifact_id"], "artifact_hash": record["artifact_hash"],
+            "imported_row_count": record["imported_row_count"],
+        },
+    }
+    destination["children"] = [item for item in destination["children"] if item.get("id") != pointer["id"]] + [pointer]
+    tree["root"] = {**_object(tree.get("root")), "id": "root", "type": "folder", "name": "Workflows", "children": folders}
+    WorkflowFileCabinetRepository.save(business_id, tree)
+    return pointer
+
+
+def _normalise_import_header(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", "_", str(value or "").strip().lower()).strip("_")
+
+
+def _parse_operating_model_rows(content: bytes, extension: str) -> list[Dict[str, Any]]:
+    if extension == ".csv":
+        decoded = content.decode("utf-8-sig", errors="replace")
+        return [{_normalise_import_header(key): value for key, value in row.items()} for row in csv.DictReader(io.StringIO(decoded))]
+    if extension == ".xlsx":
+        from openpyxl import load_workbook
+        workbook = load_workbook(io.BytesIO(content), read_only=True, data_only=True)
+        sheet = workbook[workbook.sheetnames[0]]
+        iterator = sheet.iter_rows(values_only=True)
+        headers = [_normalise_import_header(value) for value in next(iterator, [])]
+        return [{headers[index]: value for index, value in enumerate(row) if index < len(headers) and headers[index]} for row in iterator]
+    raise HTTPException(status_code=400, detail="operating_model_import_requires_csv_or_xlsx")
+
+
+def _first_value(row: Dict[str, Any], *names: str) -> Any:
+    for name in names:
+        if row.get(name) not in (None, ""):
+            return row[name]
+    return None
+
+
+def _map_operating_import_rows(rows: list[Dict[str, Any]], category: str) -> list[Dict[str, Any]]:
+    mapped: list[Dict[str, Any]] = []
+    for row in rows:
+        if category == "offerings":
+            name = _first_value(row, "name", "offering", "product", "service", "product_name", "service_name", "description")
+            if not name:
+                continue
+            mapped.append({
+                "name": str(name), "sku": _first_value(row, "sku", "product_code", "code"),
+                "offering_type": str(_first_value(row, "type", "offering_type", "product_type") or "product"),
+                "pricing_basis": str(_first_value(row, "pricing_basis", "charge_basis", "rate_type") or "per_unit"),
+                "price": _number(_first_value(row, "price", "rate", "charge_rate", "sell_price", "unit_price")),
+                "unit": str(_first_value(row, "unit", "charge_unit", "uom") or "units"),
+                "expected_monthly_volume": _number(_first_value(row, "expected_monthly_volume", "monthly_volume", "volume")),
+                "material_cost_per_unit": _number(_first_value(row, "material_cost_per_unit", "material_cost", "unit_cost", "cost")),
+                "labour_cost_per_unit": _number(_first_value(row, "labour_cost_per_unit", "labour_cost")),
+                "import_source": "catalogue_spreadsheet",
+            })
+        else:
+            name = _first_value(row, "name", "item", "stock_item", "product", "description")
+            if not name:
+                continue
+            mapped.append({
+                "name": str(name), "sku": _first_value(row, "sku", "product_code", "code"),
+                "stock_class": str(_first_value(row, "stock_class", "inventory_type", "type") or "raw_material"),
+                "unit": str(_first_value(row, "unit", "uom") or "units"),
+                "quantity_on_hand": _number(_first_value(row, "quantity_on_hand", "on_hand", "quantity", "stock")),
+                "quantity_reserved": _number(_first_value(row, "quantity_reserved", "reserved")),
+                "unit_cost": _number(_first_value(row, "unit_cost", "cost", "cost_price")),
+                "sell_price": _number(_first_value(row, "sell_price", "price", "unit_price")),
+                "reorder_point": _number(_first_value(row, "reorder_point", "minimum_stock", "min_stock")),
+                "target_stock": _number(_first_value(row, "target_stock", "maximum_stock", "max_stock")),
+                "supplier_name": _first_value(row, "supplier_name", "supplier"),
+                "lead_time_days": _number(_first_value(row, "lead_time_days", "lead_time")),
+                "import_source": "inventory_spreadsheet",
+            })
+    return mapped
 
 
 @router.get("/identity/{candidate}")
@@ -412,7 +687,7 @@ def commit_foundation(candidate: str, request: FoundationCommitRequest) -> Dict[
             "description": f"{key.title()} business function",
             "status": "draft",
             "active": True,
-        } for key in ["finance", "marketing", "sales", "operations", "support"]],
+        } for key in ["products_services", "finance", "marketing", "sales", "operations", "support", "hr", "procurement"]],
         teams=[],
     )
     repository.save_model(structure)
@@ -439,7 +714,7 @@ def commit_foundation(candidate: str, request: FoundationCommitRequest) -> Dict[
             id=f"{business_id}.department_intelligence",
             workspace_id=business_id,
             meta=_meta(business_id, "department_intelligence", request.source),
-            departments={key: {"department": key, "status": "needs_discovery"} for key in ["finance", "marketing", "sales", "operations", "support"]},
+            departments={key: {"department": key, "status": "needs_discovery"} for key in ["products_services", "finance", "marketing", "sales", "operations", "support", "hr", "procurement"]},
         )
         repository.save_model(ledger)
 
@@ -570,6 +845,26 @@ def put_finance_model(candidate: str, request: ContainerWriteRequest) -> Dict[st
     repository = _repo()
     existing = repository.load_optional_dict(business_id, "business_financial_model")
     payload = _object(request.payload)
+    # Desktop discovery saves must not erase provider evidence or accepted
+    # document facts already committed by authoritative backend workflows.
+    if existing:
+        if existing.get("external_data"):
+            payload["external_data"] = _object(existing.get("external_data"))
+        payload["integration_evidence"] = {
+            **_object(existing.get("integration_evidence")),
+            **_object(payload.get("integration_evidence")),
+        }
+        refs: list[Dict[str, Any]] = []
+        seen: set[str] = set()
+        for item in [*_list(existing.get("evidence_refs")), *_list(payload.get("evidence_refs"))]:
+            if not isinstance(item, dict):
+                continue
+            key = str(item.get("artifact_id") or item.get("source") or _hash(item))
+            if key in seen:
+                continue
+            seen.add(key)
+            refs.append(item)
+        payload["evidence_refs"] = refs
     payload.update({"id": f"{business_id}.business_financial_model", "workspace_id": business_id, "kind": "business_financial_model"})
     payload["revision"] = _next_revision(existing, request.expected_revision)
     payload["meta"] = _meta(business_id, "business_financial_model", request.source).model_dump(mode="json")
@@ -577,6 +872,115 @@ def put_finance_model(candidate: str, request: ContainerWriteRequest) -> Dict[st
     repository.save_model(model)
     data = model.model_dump(mode="json")
     return {"ok": True, "business_id": business_id, "payload": data, "receipt": _receipt(business_id=business_id, kind="business_financial_model", payload=data)}
+
+
+@router.get("/operating-model/{candidate}")
+def get_operating_model(candidate: str) -> Dict[str, Any]:
+    return _read_container(candidate, "business_operating_model")
+
+
+@router.put("/operating-model/{candidate}")
+def put_operating_model(candidate: str, request: ContainerWriteRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    repository = _repo()
+    existing = repository.load_optional_dict(business_id, "business_operating_model")
+    payload = _calculate_operating_model(_object(request.payload))
+    payload.update({
+        "id": f"{business_id}.business_operating_model",
+        "workspace_id": business_id,
+        "kind": "business_operating_model",
+    })
+    payload["revision"] = _next_revision(existing, request.expected_revision)
+    payload["meta"] = _meta(business_id, "business_operating_model", request.source).model_dump(mode="json")
+    payload["provenance"] = {
+        **_object(payload.get("provenance")),
+        "last_saved_at": _now(),
+        "last_saved_by": request.source,
+        "calculated_by": "aion_operating_model.v1",
+    }
+    model = BusinessOperatingModelContainer(**payload)
+    repository.save_model(model)
+    data = model.model_dump(mode="json")
+    _project_operating_model_to_business_map(repository, business_id, data, request.source)
+
+    ledger = repository.load_optional_dict(business_id, "department_intelligence") or {}
+    departments = _object(ledger.get("departments"))
+    summary = {
+        "status": data.get("model_status"),
+        "operating_model_revision": data.get("revision"),
+        "offering_count": len(_list(data.get("offerings"))),
+        "inventory_item_count": len(_list(data.get("inventory_items"))),
+        "stock_value": _object(data.get("inventory_metrics")).get("total_stock_value"),
+        "procurement_items_requiring_review": len([
+            item for item in _list(data.get("procurement_queue"))
+            if str(_object(item).get("status") or "") in {"suggested", "draft"}
+        ]),
+        "updated_at": _now(),
+    }
+    for department in ("products_services", "operations", "sales", "finance", "hr", "procurement"):
+        departments[department] = {**_object(departments.get(department)), "department": department, "operating_model": summary}
+    ledger_payload = {
+        **ledger,
+        "id": f"{business_id}.department_intelligence",
+        "workspace_id": business_id,
+        "kind": "department_intelligence",
+        "meta": _meta(business_id, "department_intelligence", request.source).model_dump(mode="json"),
+        "departments": departments,
+        "revision": int(ledger.get("revision") or 0) + 1,
+    }
+    repository.save_model(DepartmentIntelligenceContainer(**ledger_payload))
+    return {
+        "ok": True, "business_id": business_id, "payload": data,
+        "receipt": _receipt(business_id=business_id, kind="business_operating_model", payload=data),
+        "boardroom_projection_updated": True,
+    }
+
+
+@router.post("/operating-model/{candidate}/import")
+async def import_operating_model_spreadsheet(
+    candidate: str,
+    category: str = Form(...),
+    file: UploadFile = File(...),
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    if category not in {"offerings", "inventory"}:
+        raise HTTPException(status_code=400, detail="operating_model_import_category_invalid")
+    filename = _safe_filename(file.filename or f"{category}.xlsx")
+    extension = Path(filename).suffix.lower()
+    content = await file.read()
+    if not content or len(content) > MAX_FINANCE_ARTIFACT_BYTES:
+        raise HTTPException(status_code=400, detail="operating_model_import_empty_or_too_large")
+    rows = _map_operating_import_rows(_parse_operating_model_rows(content, extension), category)
+    if not rows:
+        raise HTTPException(status_code=422, detail="no_recognised_operating_model_rows")
+
+    artifact_hash = "sha256:" + sha256(content).hexdigest()
+    artifact_id = f"operating-import-{sha256((artifact_hash + category).encode()).hexdigest()[:16]}"
+    storage_dir = AIONBusinessPaths.business_container_dir(business_id) / "artifacts" / "operating_model" / category
+    storage_dir.mkdir(parents=True, exist_ok=True)
+    stored_name = f"{artifact_id}{extension}"
+    storage_path = storage_dir / stored_name
+    storage_path.write_bytes(content)
+    relative_path = str(storage_path.relative_to(AIONBusinessPaths.ROOT))
+
+    repository = _repo()
+    existing = repository.load_optional_dict(business_id, "business_operating_model") or {}
+    target_key = "offerings" if category == "offerings" else "inventory_items"
+    existing[target_key] = [*_list(existing.get(target_key)), *rows]
+    source_refs = _list(existing.get("source_refs"))
+    record = {
+        "artifact_id": artifact_id, "name": filename, "extension": extension.lstrip("."),
+        "artifact_hash": artifact_hash, "storage_path": relative_path,
+        "imported_row_count": len(rows), "category": category, "imported_at": _now(),
+    }
+    source_refs.append(record)
+    existing["source_refs"] = source_refs
+    saved = put_operating_model(
+        business_id,
+        ContainerWriteRequest(payload=existing, source="operating_model_spreadsheet_import", expected_revision=int(existing.get("revision") or 0) or None),
+    )
+    pointer = _add_operating_model_file_pointer(business_id=business_id, category=category, record=record)
+    return {**saved, "import": record, "imported_rows": rows, "file_cabinet_pointer": pointer}
 
 
 @router.post("/finance-artifacts/{candidate}")
@@ -670,6 +1074,235 @@ async def upload_finance_artifact(
     return {"ok": True, "business_id": business_id, "record": record, "file_cabinet_pointer": pointer}
 
 
+def _finance_artifact_record(business_id: str, artifact_id: str) -> tuple[Path, Dict[str, Any]]:
+    finance_root = AIONBusinessPaths.business_container_dir(business_id) / "finance"
+    matches = list(finance_root.glob(f"*/{artifact_id}.artifact.json"))
+    if not matches:
+        raise HTTPException(status_code=404, detail="finance_artifact_not_found")
+    receipt_path = matches[0]
+    record = _object(json.loads(receipt_path.read_text(encoding="utf-8")))
+    if record.get("business_id") not in {None, business_id} and _object(record.get("target")).get("business_id") != business_id:
+        raise HTTPException(status_code=409, detail="finance_artifact_business_mismatch")
+    return receipt_path, record
+
+
+@router.get("/finance-artifacts/{candidate}")
+def list_finance_artifacts(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    finance_root = AIONBusinessPaths.business_container_dir(business_id) / "finance"
+    artifacts: list[Dict[str, Any]] = []
+    for receipt_path in sorted(finance_root.glob("*/*.artifact.json")):
+        record = _object(json.loads(receipt_path.read_text(encoding="utf-8")))
+        artifact_id = str(record.get("artifact_id") or "")
+        analysis_path = receipt_path.parent / f"{artifact_id}.analysis.json"
+        artifacts.append({
+            "record": record,
+            "analysis": json.loads(analysis_path.read_text(encoding="utf-8")) if analysis_path.exists() else None,
+        })
+    return {"ok": True, "business_id": business_id, "artifacts": artifacts}
+
+
+def _finance_artifact_bytes_path(business_id: str, record: Dict[str, Any]) -> Path:
+    relative = str(record.get("storage_path") or "")
+    path = (AIONBusinessPaths.ROOT / relative).resolve()
+    root = AIONBusinessPaths.business_container_dir(business_id).resolve()
+    try:
+        path.relative_to(root)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail="artifact_path_escape") from exc
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="finance_artifact_bytes_missing")
+    return path
+
+
+@router.post("/finance-artifacts/{candidate}/{artifact_id}/analyse")
+def analyse_uploaded_finance_artifact(candidate: str, artifact_id: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    receipt_path, record = _finance_artifact_record(business_id, artifact_id)
+    source_path = _finance_artifact_bytes_path(business_id, record)
+    try:
+        analysis = analyse_finance_artifact(
+            source_path,
+            filename=str(_object(record.get("target")).get("artifact_name") or source_path.name),
+            category=str(record.get("category") or receipt_path.parent.name),
+            artifact_id=artifact_id,
+        )
+    except (ValueError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail=f"finance_artifact_parse_failed:{exc}") from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+    analysis_path = receipt_path.parent / f"{artifact_id}.analysis.json"
+    analysis_path.write_text(json.dumps(analysis, indent=2, sort_keys=True, default=str), encoding="utf-8")
+    analysis_ref = {
+        "status": analysis["status"],
+        "analysis_id": analysis["analysis_id"],
+        "analysis_hash": analysis["analysis_hash"],
+        "storage_path": f"business_containers/{business_id}/finance/{record['category']}/{analysis_path.name}",
+        "candidate_fact_count": len(analysis.get("candidate_facts") or []),
+        "acceptance_required": True,
+        "analysed_at": analysis["analysed_at"],
+    }
+    record["analysis"] = analysis_ref
+    receipt_path.write_text(json.dumps(record, indent=2, sort_keys=True), encoding="utf-8")
+    pointer = _add_finance_file_cabinet_pointer(
+        business_id=business_id,
+        category=str(record["category"]),
+        record=record,
+    )
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "artifact_id": artifact_id,
+        "analysis": analysis,
+        "analysis_ref": analysis_ref,
+        "file_cabinet_pointer": pointer,
+    }
+
+
+@router.get("/finance-artifacts/{candidate}/{artifact_id}/analysis")
+def get_finance_artifact_analysis(candidate: str, artifact_id: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    receipt_path, _record = _finance_artifact_record(business_id, artifact_id)
+    analysis_path = receipt_path.parent / f"{artifact_id}.analysis.json"
+    if not analysis_path.exists():
+        raise HTTPException(status_code=404, detail="finance_artifact_not_analysed")
+    return {"ok": True, "business_id": business_id, "artifact_id": artifact_id, "analysis": json.loads(analysis_path.read_text(encoding="utf-8"))}
+
+
+@router.post("/finance-artifacts/{candidate}/{artifact_id}/accept")
+def accept_finance_artifact_facts(
+    candidate: str,
+    artifact_id: str,
+    request: FinanceArtifactAcceptanceRequest,
+) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    receipt_path, record = _finance_artifact_record(business_id, artifact_id)
+    analysis_path = receipt_path.parent / f"{artifact_id}.analysis.json"
+    if not analysis_path.exists():
+        raise HTTPException(status_code=409, detail="analyse_artifact_before_accepting_facts")
+    analysis = _object(json.loads(analysis_path.read_text(encoding="utf-8")))
+    candidates = [item for item in _list(analysis.get("candidate_facts")) if isinstance(item, dict)]
+    requested = set(request.fact_ids or [str(item.get("fact_id") or "") for item in candidates])
+    accepted = [item for item in candidates if str(item.get("fact_id") or "") in requested]
+    if not accepted:
+        raise HTTPException(status_code=400, detail="no_candidate_facts_selected")
+
+    repository = _repo()
+    try:
+        business_map = repository.load_business_map(business_id)
+    except FileNotFoundError:
+        business_map = BusinessMapContainer(
+            id=f"{business_id}.business_map",
+            workspace_id=business_id,
+            meta=_meta(business_id, "business_map", "finance_artifact_acceptance"),
+        )
+    existing_ids = {str(item.get("fact_id") or "") for item in business_map.facts if isinstance(item, dict)}
+    observed_at = _now()
+    appended = []
+    for candidate_fact in accepted:
+        fact = {
+            **candidate_fact,
+            "business_id": business_id,
+            "classification": "user_accepted_extracted_fact",
+            "verification_status": "accepted_from_source_document",
+            "accepted": True,
+            "accepted_at": observed_at,
+            "source_ref": f"finance_artifact:{artifact_id}:{analysis.get('analysis_hash')}",
+            "evidence_refs": [{
+                "artifact_id": artifact_id,
+                "artifact_hash": record.get("artifact_hash"),
+                "analysis_hash": analysis.get("analysis_hash"),
+            }],
+            "observed_at": observed_at,
+        }
+        if str(fact.get("fact_id") or "") not in existing_ids:
+            business_map.facts.append(fact)
+            appended.append(fact)
+            existing_ids.add(str(fact.get("fact_id") or ""))
+    if appended:
+        business_map.revision = int(business_map.revision or 0) + 1
+        business_map.meta.updated_at = observed_at
+        business_map.meta.source = "finance_artifact_acceptance"
+        repository.save_model(business_map)
+
+    finance_payload = repository.load_optional_dict(business_id, "business_financial_model") or {
+        "id": f"{business_id}.business_financial_model",
+        "workspace_id": business_id,
+        "kind": "business_financial_model",
+        "meta": _meta(business_id, "business_financial_model", "finance_artifact_acceptance").model_dump(mode="json"),
+    }
+    refs = _list(finance_payload.get("evidence_refs"))
+    refs = [item for item in refs if item.get("artifact_id") != artifact_id]
+    refs.append({
+        "source": "user_uploaded_finance_artifact",
+        "artifact_id": artifact_id,
+        "artifact_hash": record.get("artifact_hash"),
+        "analysis_hash": analysis.get("analysis_hash"),
+        "accepted_fact_ids": [item.get("fact_id") for item in accepted],
+        "storage_path": record.get("storage_path"),
+        "verification_status": "accepted_from_source_document",
+        "accepted_at": observed_at,
+    })
+    finance_payload["evidence_refs"] = refs
+    external_data = _object(finance_payload.get("external_data"))
+    artifacts = _object(external_data.get("artifacts"))
+    artifacts[artifact_id] = {
+        "artifact_id": artifact_id,
+        "filename": _object(record.get("target")).get("artifact_name"),
+        "category": record.get("category"),
+        "artifact_hash": record.get("artifact_hash"),
+        "analysis_hash": analysis.get("analysis_hash"),
+        "verification_status": "accepted_from_source_document",
+        "accepted_at": observed_at,
+        "facts": [{
+            "fact_id": item.get("fact_id"),
+            "field": item.get("field"),
+            "value": item.get("value"),
+            "unit": item.get("unit"),
+            "aggregation": item.get("aggregation"),
+            "source_sheet": item.get("source_sheet"),
+            "source_column": item.get("source_column"),
+        } for item in accepted],
+    }
+    external_data["artifacts"] = artifacts
+    external_data["accepted_artifact_count"] = len(artifacts)
+    external_data["accepted_fact_count"] = sum(
+        len(_list(_object(item).get("facts"))) for item in artifacts.values()
+    )
+    external_data["updated_at"] = observed_at
+    finance_payload["external_data"] = external_data
+    finance_payload["revision"] = int(finance_payload.get("revision") or 0) + 1
+    finance_payload["meta"] = _meta(business_id, "business_financial_model", "finance_artifact_acceptance").model_dump(mode="json")
+    repository.save_model(BusinessFinancialModelContainer(**finance_payload))
+
+    accepted_ids = [str(item.get("fact_id") or "") for item in accepted]
+    analysis["status"] = "accepted_into_finance_model"
+    analysis["accepted_fact_ids"] = accepted_ids
+    analysis["accepted_at"] = observed_at
+    for item in candidates:
+        item["accepted"] = str(item.get("fact_id") or "") in set(accepted_ids)
+    analysis["candidate_facts"] = candidates
+    analysis_path.write_text(json.dumps(analysis, indent=2, sort_keys=True, default=str), encoding="utf-8")
+    record["analysis"] = {
+        **_object(record.get("analysis")),
+        "status": analysis["status"],
+        "accepted_fact_ids": accepted_ids,
+        "accepted_at": observed_at,
+    }
+    receipt_path.write_text(json.dumps(record, indent=2, sort_keys=True), encoding="utf-8")
+    pointer = _add_finance_file_cabinet_pointer(business_id=business_id, category=str(record["category"]), record=record)
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "artifact_id": artifact_id,
+        "accepted_fact_count": len(accepted),
+        "appended_fact_count": len(appended),
+        "accepted_fact_ids": accepted_ids,
+        "file_cabinet_pointer": pointer,
+    }
+
+
 @router.get("/boardroom-context/{candidate}")
 def get_boardroom_context(candidate: str) -> Dict[str, Any]:
     business_id = canonical_business_id(candidate)
@@ -681,6 +1314,7 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
     business_map = optional("business_map")
     ledger = optional("department_intelligence")
     finance_model = optional("business_financial_model")
+    operating_model = optional("business_operating_model")
     evidence_refs = _list(finance_model.get("evidence_refs"))
     envelope = {
         "schema_version": "aion.boardroom_context_envelope.v1",
@@ -698,13 +1332,15 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
             "conflicts": _list(business_map.get("conflicts")),
             "revision": business_map.get("revision"),
         },
-        "function_models": {"finance": finance_model},
+        "function_models": {"finance": finance_model, "operating_model": operating_model},
+        "operating_model": operating_model,
         "department_intelligence": _object(ledger.get("departments")),
         "evidence_index": evidence_refs,
         "source_revisions": {
             "business_map": business_map.get("revision"),
             "department_intelligence": ledger.get("revision"),
             "finance": finance_model.get("revision"),
+            "operating_model": operating_model.get("revision"),
         },
         "execution_boundary": {
             "approval_gated": True,
@@ -715,3 +1351,59 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
     }
     envelope["context_hash"] = _hash(envelope)
     return {"ok": True, "business_id": business_id, "context": envelope}
+
+
+def _finance_grounded_response(question: str, model: Dict[str, Any]) -> str:
+    metrics = _object(model.get("metrics"))
+    missing = _list(model.get("missing_information"))
+    lowered = question.lower()
+    labels = {
+        "average_monthly_revenue": "Average monthly revenue",
+        "annualised_revenue": "Annualised revenue",
+        "monthly_gross_profit": "Monthly gross profit",
+        "gross_margin_percent": "Gross margin",
+        "monthly_operating_surplus": "Monthly operating surplus",
+        "operating_margin_percent": "Operating margin",
+    }
+    wanted = list(metrics)
+    if "margin" in lowered:
+        wanted = [key for key in metrics if "margin" in key or "gross_profit" in key]
+    elif "cash" in lowered:
+        cash = _object(model.get("cashflow_model"))
+        return "Cash position on record: " + str(cash.get("cash_position") or "not yet quantified") + (f". Still needed: {', '.join(missing)}." if missing else ".")
+    elif "fixed" in lowered or "cost" in lowered:
+        return "Fixed-cost information on record: " + str(_object(model.get("overhead_model")).get("fixed_costs") or "not yet quantified") + ". Direct-cost information: " + str(_object(model.get("direct_cost_model")).get("direct_costs") or "not yet quantified") + ". Values remain unverified until reconciled to evidence."
+    lines = []
+    for key in wanted:
+        item = _object(metrics.get(key))
+        value = item.get("value")
+        if value is None:
+            continue
+        suffix = "%" if "percent" in key else ""
+        lines.append(f"{labels.get(key, key.replace('_', ' ').title())}: {value:,.2f}{suffix}")
+    if not lines:
+        return "The Finance Pilot does not yet have enough verified numeric data to answer that reliably. " + ("Still needed: " + ", ".join(missing) + "." if missing else "Complete or update Finance discovery first.")
+    note = " These figures are calculated from founder-provided, currently unverified inputs."
+    if missing:
+        note += " Missing for a fuller model: " + ", ".join(missing) + "."
+    return "Finance update — " + "; ".join(lines) + "." + note
+
+
+@router.post("/finance-agent/{candidate}/turn")
+def finance_agent_turn(candidate: str, request: FinanceAgentTurnRequest) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    repository = _repo()
+    model = repository.load_optional_dict(business_id, "business_financial_model") or {}
+    if not model:
+        raise HTTPException(status_code=409, detail="finance_model_missing")
+    response = _finance_grounded_response(request.user_text, model)
+    transcript = _list(_object(model.get("discovery_state")).get("operational_transcript"))
+    turn = {"user_text": request.user_text.strip(), "response": response, "created_at": _now(), "source": "canonical_finance_model", "live_external_action": False}
+    transcript.append(turn)
+    discovery = _object(model.get("discovery_state"))
+    discovery["operational_transcript"] = transcript[-200:]
+    model["discovery_state"] = discovery
+    model["revision"] = int(model.get("revision") or 0) + 1
+    model["meta"] = _meta(business_id, "business_financial_model", "finance_operational_terminal").model_dump(mode="json")
+    repository.save_model(BusinessFinancialModelContainer(**model))
+    return {"ok": True, "business_id": business_id, "turn": turn, "model_revision": model["revision"], "approval_gated": True}

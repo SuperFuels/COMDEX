@@ -73,12 +73,12 @@ def test_phase25i_renders_approved_boardroom_actions_panel():
     assert "data-aion-phase25i-run-central-task" in block
 
 
-def test_phase25i_mounts_in_existing_central_aion_workspace():
+def test_phase25i_keeps_boardroom_action_panels_out_of_default_conversation_stream():
     block = central_workspace_block()
 
-    assert "renderAionCentralAssessmentHookPanel" in block
-    assert "renderAionCentralApprovedBoardroomActionsPanel" in block
-    assert 'renderAionBusinessContextMiniCard("pilot")' in block
+    assert "renderAionCentralAssessmentHookPanel" not in block
+    assert "renderAionCentralApprovedBoardroomActionsPanel" not in block
+    assert "renderAionPilotCockpitPanel" in block
 
 
 def test_phase25i_exports_debug_helpers():

@@ -22,6 +22,9 @@ DEFAULT_KOKORO_REPO = "hexgrad/Kokoro-82M"
 DEFAULT_KOKORO_VOICE = "af_heart"
 DEFAULT_WHISPER_MODEL = "base"
 
+_KOKORO_PIPELINE = None
+_KOKORO_PIPELINE_KEY = None
+
 
 
 def aion_o23i_bundle_probe() -> int:
@@ -173,6 +176,7 @@ def _extract_kokoro_item(item):
 
 
 def run_tts(request: dict[str, Any]) -> dict[str, Any]:
+    global _KOKORO_PIPELINE, _KOKORO_PIPELINE_KEY
     started = time.time()
     text = str(request.get("text") or "").strip()
     voice = str(request.get("voice") or DEFAULT_KOKORO_VOICE).strip()
@@ -200,7 +204,11 @@ def run_tts(request: dict[str, Any]) -> dict[str, Any]:
         }
 
     try:
-        pipeline = KPipeline(lang_code="a", repo_id=repo_id)
+        pipeline_key = ("a", repo_id)
+        if _KOKORO_PIPELINE is None or _KOKORO_PIPELINE_KEY != pipeline_key:
+            _KOKORO_PIPELINE = KPipeline(lang_code="a", repo_id=repo_id)
+            _KOKORO_PIPELINE_KEY = pipeline_key
+        pipeline = _KOKORO_PIPELINE
         generator = pipeline(text, voice=voice)
 
         chunks = []
@@ -366,11 +374,39 @@ def run_stt(request: dict[str, Any]) -> dict[str, Any]:
         }
 
 
+def run_persistent_server() -> int:
+    """Serve newline-delimited requests while retaining loaded voice models."""
+    import sys
+
+    for raw_line in sys.stdin:
+        try:
+            request = json.loads(raw_line)
+            mode = str(request.get("mode") or request.get("operation") or "tts")
+            if mode == "tts":
+                payload = run_tts(request)
+            elif mode == "stt":
+                payload = run_stt(request)
+            else:
+                payload = {"ok": False, "stage": "mode", "error": f"Unsupported mode: {mode}"}
+        except Exception as exc:
+            payload = {"ok": False, "stage": "persistent_worker", "error": repr(exc)}
+
+        print(json.dumps(payload, separators=(",", ":")), flush=True)
+
+    return 0
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="AION local voice worker")
-    parser.add_argument("mode", choices=["tts", "stt"])
-    parser.add_argument("--request", required=True, help="Path to JSON request")
+    parser.add_argument("mode", choices=["tts", "stt", "serve"])
+    parser.add_argument("--request", help="Path to JSON request")
     args = parser.parse_args()
+
+    if args.mode == "serve":
+        return run_persistent_server()
+
+    if not args.request:
+        return _json_out({"ok": False, "stage": "request", "error": "--request is required"})
 
     request_path = Path(args.request)
     try:

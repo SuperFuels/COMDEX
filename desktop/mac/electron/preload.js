@@ -27,6 +27,18 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("desktop-runtime-info");
   },
 
+  async openExternalUrl(url = "") {
+    return await ipcRenderer.invoke("aion-open-external-url", url);
+  },
+
+  async playLocalVoice(payload = {}) {
+    return await ipcRenderer.invoke("aion-play-local-voice", payload);
+  },
+
+  async requestMicrophonePermission() {
+    return await ipcRenderer.invoke("aion-request-microphone-permission");
+  },
+
   /**
    * Existing isolated browser bridge.
    * Keep this because your current Electron main may already use it.

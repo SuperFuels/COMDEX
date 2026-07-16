@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 import tempfile
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from backend.modules.aion_voice.voice_download_policy import build_voice_download_policy_env
@@ -18,6 +19,10 @@ class VoiceWorkerResult:
     payload: dict[str, Any]
     stdout: str = ""
     stderr: str = ""
+
+
+_PERSISTENT_TTS_PROCESS: subprocess.Popen[str] | None = None
+_PERSISTENT_TTS_LOCK = threading.Lock()
 
 
 def repo_root() -> Path:
@@ -152,6 +157,9 @@ def call_voice_worker(
     timeout: int = 120,
     env: dict[str, str] | None = None,
 ) -> VoiceWorkerResult:
+    if mode == "tts":
+        return _call_persistent_tts_worker(request=request, env=env)
+
     python_path = resolve_voice_python()
     try:
         worker_path = resolve_voice_worker_script()
@@ -216,6 +224,84 @@ def call_voice_worker(
             request_path.unlink()
         except Exception:
             pass
+
+
+def _start_persistent_tts_worker(env: dict[str, str] | None = None) -> subprocess.Popen[str]:
+    global _PERSISTENT_TTS_PROCESS
+
+    if _PERSISTENT_TTS_PROCESS is not None and _PERSISTENT_TTS_PROCESS.poll() is None:
+        return _PERSISTENT_TTS_PROCESS
+
+    python_path = resolve_voice_python()
+    try:
+        worker_path = resolve_voice_worker_script()
+    except NameError:
+        worker_path = voice_worker_script()
+    try:
+        runtime_root = resolve_voice_runtime_root()
+    except NameError:
+        try:
+            runtime_root = voice_runtime_root()
+        except NameError:
+            runtime_root = worker_path.parent
+
+    merged_env = voice_worker_environment()
+    if env:
+        merged_env.update({str(key): str(value) for key, value in env.items()})
+
+    _PERSISTENT_TTS_PROCESS = subprocess.Popen(
+        [str(python_path), str(worker_path), "serve"],
+        cwd=str(runtime_root),
+        text=True,
+        stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        bufsize=1,
+        env=merged_env,
+    )
+    return _PERSISTENT_TTS_PROCESS
+
+
+def _call_persistent_tts_worker(
+    request: dict[str, Any],
+    env: dict[str, str] | None = None,
+) -> VoiceWorkerResult:
+    global _PERSISTENT_TTS_PROCESS
+    payload_request = dict(request or {})
+    payload_request.setdefault("mode", "tts")
+    payload_request.setdefault("operation", "tts")
+
+    with _PERSISTENT_TTS_LOCK:
+        for attempt in range(2):
+            process = _start_persistent_tts_worker(env=env)
+            try:
+                if process.stdin is None or process.stdout is None:
+                    raise RuntimeError("Persistent voice worker pipes are unavailable")
+                process.stdin.write(json.dumps(payload_request, separators=(",", ":")) + "\n")
+                process.stdin.flush()
+                response_line = process.stdout.readline()
+                if not response_line:
+                    raise RuntimeError("Persistent voice worker stopped without a response")
+                payload = json.loads(response_line)
+                payload.setdefault("persistent_worker", True)
+                payload.setdefault("worker_pid", process.pid)
+                return VoiceWorkerResult(ok=bool(payload.get("ok")), payload=payload)
+            except Exception as exc:
+                try:
+                    process.kill()
+                except Exception:
+                    pass
+                _PERSISTENT_TTS_PROCESS = None
+                if attempt == 1:
+                    payload = {
+                        "ok": False,
+                        "stage": "persistent_worker",
+                        "error": repr(exc),
+                        "persistent_worker": True,
+                    }
+                    return VoiceWorkerResult(ok=False, payload=payload)
+
+    return VoiceWorkerResult(ok=False, payload={"ok": False, "error": "Persistent worker unavailable"})
 
 def synthesize_with_worker(text: str, voice: str = "af_heart", sample_rate: int = 24000) -> VoiceWorkerResult:
     return call_voice_worker(

@@ -11,7 +11,7 @@
     "pack": "electron-builder --dir --mac"
   },
   "devDependencies": {
-    "electron": "^35.0.0",
+    "electron": "^43.1.0",
     "electron-builder": "^24.13.3"
   },
   "build": {

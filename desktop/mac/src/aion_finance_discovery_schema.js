@@ -23,23 +23,20 @@
     ['crm_sales', 'CRM / sales records', 'Pipeline, won revenue and customer value'],
   ].map(([id, label, description]) => ({ id, label, description }));
 
+  // Prices, volume, customer terms, labour, production capacity, materials,
+  // overhead lines, debt schedules and targets are structured records in the
+  // Business Operating Model. Finance asks only for judgement that cannot be
+  // reliably inferred from accounting data or a table.
   const questions = [
-    ['revenue_model', 'How does the business charge customers, and what are the main prices or price ranges?'],
-    ['revenue_monthly', 'What is the average monthly revenue? A range is fine.'],
-    ['revenue_pattern', 'Is revenue steady, seasonal, project-based, recurring, or a mixture?'],
-    ['direct_costs', 'What direct costs are incurred when delivering a sale or job?'],
-    ['fixed_costs', 'What are the main fixed monthly overheads and their approximate amounts?'],
-    ['labour_owner', 'What does owner time cost the business, and how many delivery hours are available each month?'],
-    ['cash_position', 'What is the current cash position and minimum cash buffer the business should protect?'],
-    ['receivables', 'How much is currently owed by customers, and how quickly do customers usually pay?'],
-    ['payables', 'What is currently owed to suppliers, tax authorities, lenders, or contractors?'],
-    ['tax_vat', 'What VAT, sales-tax, corporation-tax, or other tax obligations apply?'],
-    ['debt_finance', 'Does the business have loans, credit cards, leases, or other finance commitments?'],
-    ['targets_limits', 'What profit, cash, revenue, or cost targets matter most, and what spending requires approval?'],
-  ].map(([id, prompt]) => ({ id, prompt }));
+    ['currency', 'Please confirm the reporting currency Finance should use.'],
+    ['cash_buffer_policy', 'What minimum cash reserve should Finance protect? If the imported closing cash is no longer representative, please also provide the current approximate balance.'],
+    ['unrecorded_liabilities', 'Are there any overdue or unrecorded amounts owed to suppliers, contractors or tax authorities that are not visible in the connected accounts? You can say no.'],
+    ['tax_context', 'Which taxes does the business currently account for, and how often are they filed? If you are unsure, say that your accountant should confirm this.'],
+    ['finance_priorities', 'Is there any financial risk, constraint or priority the records do not show that the Boardroom should know now? You can say no.'],
+  ].map(([id, prompt]) => ({ id, prompt, capture_mode: 'conversation', owner: 'finance' }));
 
   global.AionFinanceDiscoverySchema = Object.freeze({
-    version: 'aion.finance.discovery.v1',
+    version: 'aion.finance.discovery.v2',
     accountingPlatforms,
     evidenceSources,
     questions,

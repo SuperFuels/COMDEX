@@ -22,10 +22,10 @@ def _pilot_terminal() -> str:
     return APP_JS[terminal_start:terminal_end]
 
 
-def test_phase23y_live_agents_mounts_persistent_pilot_input_bar():
+def test_phase23y_legacy_fixed_bar_is_retained_but_not_mounted():
     assert "function renderLiveAgentsPersistentPilotTerminal" in APP_JS
     assert "data-aion-phase23y-persistent-pilot-terminal" in APP_JS
-    assert "${renderLiveAgentsPersistentPilotTerminal()}" in APP_JS
+    assert "${renderLiveAgentsPersistentPilotTerminal()}" not in _live_agents_surface()
     assert "data-aion-phase23y-persistent-pilot-terminal-input" in APP_JS
     assert "data-aion-phase23y-persistent-pilot-start" in APP_JS
 
@@ -48,8 +48,9 @@ def test_phase23y_live_agents_surface_fills_viewport_white_to_hide_global_cream(
 
     assert "aion-phase23y-live-agents-white-shell" in surface
     assert "min-height:100vh" in surface
-    assert "padding-bottom:96px" in surface
-    assert "background:#ffffff; background-color:#ffffff;" in surface
+    assert "padding:42px 56px 96px 96px" in surface
+    assert "background:#ffffff" in surface
+    assert "background-color:#ffffff" in surface
     assert 'document.body.classList.add("aion-phase23y-live-agents-white")' in surface
     assert 'appRoot.style.background = "#ffffff";' in surface
 
@@ -80,15 +81,13 @@ def test_phase23y_marketing_workspace_has_manual_and_pilot_tabs():
     assert "Pilot Marketing" in APP_JS
 
 
-def test_phase23y_marketing_branch_uses_manual_or_pilot_workspace_not_generic_stream():
+def test_phase23y_marketing_branch_uses_shared_role_scoped_pilot_runtime():
     body = _live_agents_workspace_body()
     branch_start = body.index('if (departmentKey === "marketing")')
     finance_start = body.index('if (departmentKey === "finance")', branch_start)
     branch = body[branch_start:finance_start]
 
-    assert "getLiveAgentsMarketingWorkspaceMode()" in branch
-    assert "return renderMarketingManualWorkspaceSurface();" in branch
-    assert "return renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard);" in branch
+    assert 'return renderAionDepartmentPilotRuntime("marketing", selectedRuns, scopedSelectedAgentCard);' in branch
 
 
 def test_phase23y_pilot_marketing_workspace_surfaces_pilot_outputs():

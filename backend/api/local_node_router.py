@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import re
@@ -1873,6 +1874,36 @@ def get_aion_lrm_pilot_context_preview(
     )
 # END PHASE 21C LOCK
 
+
+def _compact_website_scan_evidence(evidence: Any) -> Dict[str, Any]:
+    """Return only the bounded evidence the renderer needs for provenance."""
+    source = evidence if isinstance(evidence, dict) else {}
+
+    def bounded_text(value: Any, limit: int = 2000) -> str:
+        return str(value or "").strip()[:limit]
+
+    def bounded_list(value: Any, *, count: int, item_limit: int = 500) -> List[str]:
+        if not isinstance(value, list):
+            return []
+        return [bounded_text(item, item_limit) for item in value[:count] if bounded_text(item, item_limit)]
+
+    try:
+        visible_text_length = max(0, int(source.get("visible_text_length") or 0))
+    except (TypeError, ValueError):
+        visible_text_length = 0
+
+    return {
+        "url": bounded_text(source.get("url"), 2048),
+        "domain": bounded_text(source.get("domain"), 255),
+        "title": bounded_text(source.get("title"), 1000),
+        "headings": bounded_list(source.get("headings"), count=24, item_limit=500),
+        "emails": bounded_list(source.get("emails"), count=20, item_limit=320),
+        "phones": bounded_list(source.get("phones"), count=20, item_limit=100),
+        "social_links": bounded_list(source.get("social_links"), count=24, item_limit=2048),
+        "visible_text_length": visible_text_length,
+        "live_external_side_effect": False,
+    }
+
 @router.post("/api/aion/small-business/website-scan")
 async def api_aion_small_business_website_scan(payload: dict):
     payload = payload or {}
@@ -1891,7 +1922,9 @@ async def api_aion_small_business_website_scan(payload: dict):
     website = str(payload.get("website") or "").strip()
 
     try:
-        result = scan_website_with_openai(website)
+        # This scanner performs synchronous website and OpenAI network calls.
+        # Keep them off the asyncio request loop so voice/onboarding remains responsive.
+        result = await asyncio.to_thread(scan_website_with_openai, website)
     except Exception as exc:
         return {
             "ok": False,
@@ -1905,6 +1938,9 @@ async def api_aion_small_business_website_scan(payload: dict):
             "live_external_side_effect": False,
         }
 
+    # The full visible website text is useful server-side for extraction, but it
+    # must not be transferred into Electron and duplicated throughout app state.
+    result["evidence"] = _compact_website_scan_evidence(result.get("evidence"))
     result["usage_gate"] = gate
     return result
 
@@ -1912,4 +1948,3 @@ async def api_aion_small_business_website_scan(payload: dict):
 @router.post("/aion/small-business/website-scan")
 async def aion_small_business_website_scan(payload: dict):
     return await api_aion_small_business_website_scan(payload or {})
-

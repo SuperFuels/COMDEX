@@ -1,4 +1,13 @@
-const { app, BrowserWindow, ipcMain, globalShortcut, Menu } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  globalShortcut,
+  Menu,
+  session,
+  shell,
+  systemPreferences,
+} = require("electron");
 
 // AION O25N desktop backend local voice env lock
 function aionO25NLocalVoiceBackendEnv(extraEnv = {}) {
@@ -20,6 +29,7 @@ function aionO25NLocalVoiceBackendEnv(extraEnv = {}) {
 }
 const path = require("path");
 const fs = require("fs");
+const os = require("os");
 const { spawn } = require("child_process");
 const http = require("http");
 const { pathToFileURL } = require("url");
@@ -68,6 +78,85 @@ function httpGet(url) {
       req.destroy(new Error("timeout"));
     });
   });
+}
+
+function httpPostJson(url, payload) {
+  return new Promise((resolve, reject) => {
+    const target = new URL(url);
+    const body = JSON.stringify(payload || {});
+    const req = http.request({
+      hostname: target.hostname,
+      port: target.port,
+      path: `${target.pathname}${target.search}`,
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "content-length": Buffer.byteLength(body),
+      },
+    }, (res) => {
+      const chunks = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => {
+        const raw = Buffer.concat(chunks).toString("utf8");
+        let parsed = {};
+        try { parsed = JSON.parse(raw || "{}"); } catch {}
+        if ((res.statusCode || 500) >= 400) {
+          reject(new Error(parsed.error || `TTS HTTP ${res.statusCode}`));
+          return;
+        }
+        resolve(parsed);
+      });
+    });
+    req.on("error", reject);
+    req.setTimeout(120000, () => req.destroy(new Error("TTS request timed out")));
+    req.end(body);
+  });
+}
+
+async function playAionLocalVoiceInMain(payload = {}) {
+  const text = String(payload.text || "").trim();
+  if (!text) return { ok: false, error: "Missing voice text" };
+
+  const voicePayload = await httpPostJson(
+    `http://${BACKEND_HOST}:${BACKEND_PORT}/api/aion/voice/tts-json`,
+    {
+      text,
+      voice: String(payload.voice || "af_heart"),
+      provider: "local",
+    },
+  );
+  if (!voicePayload.ok || !voicePayload.audio_base64) {
+    throw new Error(voicePayload.error || "TTS returned no audio");
+  }
+
+  const audioPath = path.join(
+    os.tmpdir(),
+    `aion_voice_${process.pid}_${Date.now()}.wav`,
+  );
+  fs.writeFileSync(audioPath, Buffer.from(voicePayload.audio_base64, "base64"));
+
+  try {
+    await new Promise((resolve, reject) => {
+      const player = spawn("/usr/bin/afplay", [audioPath], {
+        stdio: "ignore",
+      });
+      player.once("error", reject);
+      player.once("exit", (code, signal) => {
+        if (code === 0) resolve();
+        else reject(new Error(`afplay stopped (${code ?? signal ?? "unknown"})`));
+      });
+    });
+  } finally {
+    try { fs.unlinkSync(audioPath); } catch {}
+  }
+
+  return {
+    ok: true,
+    provider: voicePayload.provider || "kokoro",
+    elapsed_seconds: voicePayload.elapsed_seconds ?? null,
+    persistent_worker: voicePayload.persistent_worker === true,
+    worker_pid: voicePayload.worker_pid ?? null,
+  };
 }
 
 async function isBackendHealthy() {
@@ -205,6 +294,27 @@ function sendBackendStatus(payload) {
 function sendToMainWindow(channel, payload) {
   if (!mainWindow || mainWindow.isDestroyed()) return;
   mainWindow.webContents.send(channel, payload);
+}
+
+function installAionMicrophonePermissionPolicy() {
+  const ses = session.defaultSession;
+  if (!ses || ses.__aionMicrophonePermissionPolicyInstalled) return;
+  ses.__aionMicrophonePermissionPolicyInstalled = true;
+
+  ses.setPermissionCheckHandler((_webContents, permission, _origin, details = {}) => {
+    if (permission !== "media") return false;
+    const mediaType = String(details.mediaType || "").toLowerCase();
+    return !mediaType || mediaType === "audio" || mediaType === "microphone";
+  });
+
+  ses.setPermissionRequestHandler((_webContents, permission, callback, details = {}) => {
+    const mediaTypes = Array.isArray(details.mediaTypes)
+      ? details.mediaTypes.map((item) => String(item).toLowerCase())
+      : [];
+    const allowAudio = permission === "media" &&
+      (mediaTypes.length === 0 || mediaTypes.includes("audio"));
+    callback(allowAudio);
+  });
 }
 
 function cleanupBackendProcessState() {
@@ -1215,6 +1325,43 @@ ipcMain.handle("desktop-runtime-info", async () => {
   return runtimeInfo();
 });
 
+ipcMain.handle("aion-open-external-url", async (_event, rawUrl = "") => {
+  const value = String(rawUrl || "").trim();
+  let parsed;
+  try {
+    parsed = new URL(value);
+  } catch {
+    return { ok: false, error: "invalid_url" };
+  }
+  if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+    return { ok: false, error: "unsupported_protocol" };
+  }
+  await shell.openExternal(parsed.toString());
+  return { ok: true };
+});
+
+ipcMain.handle("aion-play-local-voice", async (_event, payload = {}) => {
+  try {
+    return await playAionLocalVoiceInMain(payload);
+  } catch (error) {
+    return { ok: false, error: String(error?.message || error) };
+  }
+});
+
+ipcMain.handle("aion-request-microphone-permission", async () => {
+  if (process.platform !== "darwin") return { granted: true, status: "not_required" };
+  const before = systemPreferences.getMediaAccessStatus("microphone");
+  if (before === "granted") return { granted: true, status: before };
+  if (before === "denied" || before === "restricted") {
+    return { granted: false, status: before };
+  }
+  const granted = await systemPreferences.askForMediaAccess("microphone");
+  return {
+    granted: granted === true,
+    status: systemPreferences.getMediaAccessStatus("microphone"),
+  };
+});
+
 app.on("before-quit", async (event) => {
   if (isQuitting) {
     return;
@@ -1231,6 +1378,7 @@ app.on("before-quit", async (event) => {
 });
 
 app.whenReady().then(async () => {
+  installAionMicrophonePermissionPolicy();
   // AION O25P: start backend before loading renderer.
   // The renderer contains many eager backend fetchers; loading it before
   // backend readiness causes request storms and white-screen/freeze behaviour.
@@ -1383,4 +1531,3 @@ function installAionD1DevToolsShortcutRepair() {
 
 installAionD1DevToolsShortcutRepair();
 /* END AION D1 DEVTOOLS SHORTCUT REPAIR */
-

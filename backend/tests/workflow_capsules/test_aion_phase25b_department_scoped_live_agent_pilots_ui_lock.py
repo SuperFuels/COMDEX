@@ -45,10 +45,9 @@ def test_phase25b_live_agent_workspaces_route_to_scoped_pilots():
     assert 'renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard)' in text
     assert "renderAionRealFinance121BoardroomPanelV2()" in text
     assert "renderAionFinanceDataSetupPanelV2()" in text
-    assert 'return renderAionDepartmentScopedPilotSurface("sales", selectedRuns, selectedAgentCard);' in text
-    assert 'return renderAionDepartmentScopedPilotSurface("operations", selectedRuns, selectedAgentCard);' in text
-    assert 'return renderAionDepartmentScopedPilotSurface("support", selectedRuns, selectedAgentCard);' in text
-    assert 'renderAionDepartmentScopedPilotSurface("marketing", selectedRuns, selectedAgentCard)' in text
+    assert '["marketing", "sales", "operations", "support", "hr"].includes(departmentKey)' in text
+    assert "return renderAionDepartmentPilotRuntime(departmentKey, selectedRuns, scopedSelectedAgentCard);" in text
+    assert 'renderAionDepartmentPilotRuntime("marketing", selectedRuns, scopedSelectedAgentCard)' in text
 
 
 def test_phase25b_central_pilot_still_exists():

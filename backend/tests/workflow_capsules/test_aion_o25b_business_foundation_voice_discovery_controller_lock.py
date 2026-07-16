@@ -53,10 +53,21 @@ def test_o25b_is_schema_driven_not_demo_business_hardcoded():
 def test_o25b_starting_questions_are_limited_and_generic():
     text = read_controller()
 
-    assert "existing business" in text
-    assert "new business idea" in text
-    assert "limited-context task" in text
-    assert "What are you looking to achieve first" in text
+    assert "existing business" in text or "entry_mode" in text
+    assert "Before we start, what should I call you?" in text
+    assert "contact_name" in text
+    assert "owner_role" in text
+    assert (
+        "AION can help with growth, sales, marketing, finance, operations"
+        not in text
+    )
+    assert 'reason: "finance_handoff_ready"' in text
+    assert 'next_department: "finance"' in text
+    assert 'next_pilot: "finance_pilot"' in text
+    assert (
+        "Which area would be most useful to focus on first?"
+        not in text
+    )
 
     # Starting questions are allowed. Long fixed business questionnaire flows are not.
     assert "AION_FOUNDATION_DISCOVERY_STARTERS" in text

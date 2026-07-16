@@ -12,7 +12,7 @@ def test_o16b_department_resolver_lock_installed():
 def test_o16b_resolver_accepts_all_live_agents_departments():
     text = APP.read_text(encoding="utf-8")
     block = text[text.find("BEGIN AION O16B"):text.find("END AION O16B")]
-    for key in ["marketing", "sales", "finance", "operations", "support", "pilot", "builder"]:
+    for key in ["marketing", "sales", "finance", "operations", "support", "hr", "pilot", "builder"]:
         assert f'"{key}"' in block
 
 def test_o16b_resolver_prefers_selected_state_before_default():

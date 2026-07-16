@@ -8885,12 +8885,49 @@ function renderDesktopAssistantPanel() {
 
 /* PHASE 21N LOCK: Pilot frontend interaction smoke */
 
+function getAionPilotActiveDepartmentScope() {
+  let selected = "pilot";
+  try {
+    selected = typeof getSelectedLiveDepartmentKey === "function"
+      ? String(getSelectedLiveDepartmentKey() || "pilot").toLowerCase()
+      : "pilot";
+  } catch {}
+
+  if (["marketing", "sales", "finance", "operations", "support", "hr"].includes(selected)) {
+    return selected;
+  }
+  return "pilot";
+}
+
 function getAionPilotFrontendInteractionState() {
-  if (!window.__aionPilotFrontendInteractionState) {
-    window.__aionPilotFrontendInteractionState = {
+  const scope = getAionPilotActiveDepartmentScope();
+  if (!window.__aionPilotFrontendInteractionStates) {
+    window.__aionPilotFrontendInteractionStates = {};
+    if (window.__aionPilotFrontendInteractionState) {
+      window.__aionPilotFrontendInteractionStates.pilot = window.__aionPilotFrontendInteractionState;
+    }
+  }
+
+  const previousScope = window.__aionPilotLastDepartmentScope;
+  if (previousScope && window.__aionPilotFrontendInteractionStates[previousScope]) {
+    try {
+      localStorage.setItem(
+        `aion.pilot.runtimeState.${previousScope}.v1`,
+        JSON.stringify(window.__aionPilotFrontendInteractionStates[previousScope]),
+      );
+    } catch {}
+  }
+
+  if (!window.__aionPilotFrontendInteractionStates[scope]) {
+    let storedState = null;
+    try {
+      storedState = JSON.parse(localStorage.getItem(`aion.pilot.runtimeState.${scope}.v1`) || "null");
+    } catch {}
+    window.__aionPilotFrontendInteractionStates[scope] = storedState && typeof storedState === "object" ? storedState : {
       status: "idle",
       last_request: "",
       draft_created: false,
+      department_scope: scope,
       stream_events: [],
       artifact_status: "draft_preview",
       artifact_hash: "sha256:preview_artifact_hash",
@@ -8908,7 +8945,9 @@ function getAionPilotFrontendInteractionState() {
     };
   }
 
-  return window.__aionPilotFrontendInteractionState;
+  window.__aionPilotLastDepartmentScope = scope;
+  window.__aionPilotFrontendInteractionState = window.__aionPilotFrontendInteractionStates[scope];
+  return window.__aionPilotFrontendInteractionStates[scope];
 }
 
 function createAionPilotFrontendDraftMission() {
@@ -19272,7 +19311,7 @@ function renderAionPilotDepartmentQueueSummary(pilotState = getAionPilotFrontend
   const waitingApprovalCount = Number(toolSummary?.waiting_approval_count ?? toolQueue?.waiting_approval_count ?? 0);
   const blockedCount = Number(toolSummary?.blocked_count ?? toolQueue?.blocked_count ?? 0);
 
-  const departments = ["marketing", "sales", "finance", "operations", "support", "builder", "pilot"];
+  const departments = ["marketing", "sales", "finance", "operations", "support", "hr", "builder", "pilot"];
 
   const renderDepartmentLane = (departmentId) => {
     const departmentItems = toolItems.filter((item) => String(item.department_id || "").toLowerCase() === departmentId);
@@ -19343,8 +19382,18 @@ function renderAionPilotDepartmentQueueSummary(pilotState = getAionPilotFrontend
 }
 
 
-function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot()) {
+function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(), options = {}) {
+  window.AionDepartmentPilotRuntime?.installStyles?.();
   const pilotState = getAionPilotFrontendInteractionState();
+  const scope = String(options.departmentKey || pilotState.department_scope || getAionPilotActiveDepartmentScope()).toLowerCase();
+  const roleContext = window.AionDepartmentPilotRuntime?.getContext?.(scope) || {
+    role: { label: scope === "pilot" ? "Central" : runtimeShared.getDepartmentLabel(scope), pilot_id: `${scope}_pilot`, remit: "Business task planning and approval-gated execution." },
+    business_name: "Current business",
+    graph_status: scope === "pilot" ? "cross_function" : "no_goal_loop_assignment",
+    intelligence_status: scope === "pilot" ? "coordinating" : "needs_discovery",
+  };
+  const role = roleContext.role;
+  const title = scope === "pilot" ? "Pilot" : `${role.label} Pilot`;
   const plan = pilotState.plan || buildAionPilotUniversalPlan(pilotState.last_request || "");
   const hasDraft = pilotState.draft_created === true;
   const statusLabel = String(snapshot.status || "idle").replace(/_/g, " ").toUpperCase();
@@ -19352,12 +19401,20 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
   const safeWorkRunning = pilotState.safe_work_status === "running_safe_work";
 
   return `
-    <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-phase21r-stream-ui-redesign data-aion-phase21x-real-frontend-pilot-mount data-aion-phase22c-step-runner-ui>
+    <section class="aion-pilot-stream-shell" data-aion-pilot-simple-dashboard data-aion-shared-pilot-terminal="true" data-aion-pilot-role="${escapeHtml(scope)}" data-aion-phase21r-stream-ui-redesign data-aion-phase21x-real-frontend-pilot-mount data-aion-phase22c-step-runner-ui>
       <div class="aion-pilot-stream-header">
         <div>
-          <h2>Pilot</h2>
-          <p>It drafts the plan, you choose the human approval stages, and Pilot executes the safe work between them.</p>
+          <h2>${escapeHtml(title)}</h2>
+          <p>${escapeHtml(role.remit || "It drafts the plan, you choose the human approval stages, and Pilot executes the safe work between them.")}</p>
         </div>
+      </div>
+
+      <div class="aion-shared-pilot-role-context" data-aion-pilot-role-context="${escapeHtml(scope)}">
+        <span><strong>Role</strong> ${escapeHtml(role.pilot_id || `${scope}_pilot`)}</span>
+        <span><strong>Business</strong> ${escapeHtml(roleContext.business_name || "Current business")}</span>
+        <span><strong>Graph</strong> ${escapeHtml(roleContext.graph_status || "not_staged")}</span>
+        <span><strong>Context</strong> ${escapeHtml(roleContext.intelligence_status || "needs_discovery")}</span>
+        <span><strong>Boundary</strong> approval gated</span>
       </div>
 
       <div class="aion-pilot-stream-window" data-aion-pilot-stream-window>
@@ -19396,7 +19453,7 @@ function renderAionPilotSimpleTaskStream(snapshot = getAionPilotCockpitSnapshot(
             `
             : `
               <div class="aion-pilot-stream-message aion-pilot-stream-message-system">
-                <p>Ask for any business task for a business task. It will create a plan first, then wait for approval before running safe draft work.</p>
+                <p>Ask ${escapeHtml(title)} for a task. It will use the ${escapeHtml(scope === "pilot" ? "cross-functional business" : role.label)} context, create a plan first, and wait for approval before running safe work.</p>
               </div>
             `
         }
@@ -23377,7 +23434,13 @@ function applyAionO25ABFreshStartupRouteOwner() {
    * Finance handoff is a temporary route exception.
    * It may claim Live Agents while the handoff session flag is active.
    */
-  if (completedBusinessPacket) {
+  /*
+   * Completed-business resume is startup-only.  Once this page lifetime has
+   * claimed its initial route, manual sidebar navigation and Live Agents
+   * department switching must remain authoritative.  Running this branch on
+   * every render trapped the desktop in Live Agents / Finance.
+   */
+  if (completedBusinessPacket && !startupRouteAlreadyClaimed) {
     try {
       state.activeTab = "live_agents";
       state.selectedLiveAgentDepartment = "finance";
@@ -23391,7 +23454,7 @@ function applyAionO25ABFreshStartupRouteOwner() {
       appliedRoute = "live_agents";
       routeReason = "completed_business_resume";
     } catch {}
-  } else if (financeHandoffActive) {
+  } else if (financeHandoffActive && !startupRouteAlreadyClaimed) {
     try {
       state.activeTab = "live_agents";
 
@@ -24818,6 +24881,7 @@ function getRunsForSelectedLiveAgent() {
 function buildDepartmentRoomCards() {
   const allowedDepartments = [
     ["marketing", "Marketing"],
+    ["products_services", "Products & Services"],
     ["pilot", "Pilot"],
     ["sales", "Sales"],
     ["finance", "Finance"],
@@ -38686,6 +38750,8 @@ function getSelectedLiveDepartmentKey() {
     "finance",
     "operations",
     "support",
+    "hr",
+    "products_services",
     "pilot",
     "builder",
   ]);
@@ -38922,11 +38988,17 @@ const AION_DEPARTMENT_PILOT_PROFILES = {
     missing: ["common enquiries", "support channels", "response templates", "complaints", "service gaps"],
     nextAction: "Run Support discovery",
   },
+  hr: {
+    title: "HR Pilot",
+    purpose: "Scoped people, role, accountability, permission, capacity, hiring, training and policy work.",
+    missing: ["organisation roles", "accountabilities", "permission boundaries", "skills", "capacity", "hiring needs", "training needs"],
+    nextAction: "Run HR discovery",
+  },
 };
 
 function normaliseAionDepartmentPilotKey(departmentKey = "") {
   const key = String(departmentKey || "").trim().toLowerCase();
-  if (["marketing", "sales", "finance", "operations", "support"].includes(key)) return key;
+  if (["marketing", "sales", "finance", "operations", "support", "hr"].includes(key)) return key;
   return key || "marketing";
 }
 
@@ -40472,7 +40544,7 @@ function getAionDepartmentResultEvidenceStatus(entry = {}) {
  * stable and business-agnostic.
  */
 function getAionCoreDepartmentKeys() {
-  return ["marketing", "sales", "finance", "operations", "support"];
+  return ["marketing", "sales", "finance", "operations", "support", "hr"];
 }
 
 function getAionExtendedDepartmentKeys() {
@@ -45340,6 +45412,18 @@ const AION_DEPARTMENT_PILOT_SPECIALIST_PLAYBOOKS = {
       ["support_issue_patterns", "Identify issue patterns", "Prepare common issue patterns and escalation points."],
     ],
   },
+  hr: {
+    title: "HR Specialist Pilot",
+    objective: "Map roles, accountability, permission boundaries, skills, capacity, hiring and training needs.",
+    specialist_fields: ["organisation_roles", "accountabilities", "permission_boundaries", "skills", "capacity", "hiring_needs", "training_needs"],
+    outputs: ["organisation_map", "responsibility_matrix", "permission_review", "people_capacity_plan"],
+    task_templates: [
+      ["hr_organisation_map", "Map organisation roles", "Create a safe internal map of roles and reporting relationships."],
+      ["hr_accountability_matrix", "Draft accountability matrix", "Prepare responsibilities and accountable owners for review."],
+      ["hr_permission_review", "Review permission boundaries", "Prepare least-privilege access recommendations without changing accounts."],
+      ["hr_capacity_plan", "Prepare people capacity plan", "Prepare skills, workload, hiring and training observations."],
+    ],
+  },
 };
 
 function getAionDepartmentPilotSpecialistPlaybook(departmentKey = "") {
@@ -46695,64 +46779,41 @@ function renderCOOWorkspaceSurface(selectedRuns, selectedAgentCard) {
 function renderAionWorkspaceSurface(selectedRuns, selectedAgentCard) {
   installAionPilotCockpitStyles();
 
-  const counts = getDepartmentRunCounts("pilot");
-  const totalRuns = Array.isArray(selectedRuns) ? selectedRuns.length : counts.total;
-  const agentLabel = selectedAgentCard?.label || "Pilot";
-
   return `
     <section
       class="aion-live-agents-pilot-workspace"
       data-aion-phase21l-live-agents-aion-pilot-mount
       data-aion-live-agents-aion-pilot-workspace
     >
-      <div class="surface-header" style="padding:0; margin-bottom:18px;">
-        <div>
-          <div class="surface-eyebrow">Live Agents / Aion</div>
-          <div class="surface-title" style="font-size:34px;">Aion</div>
-          
-        </div>
-
-      </div>
-
-      
-    <section class="aion-pilot-operator-identity" data-aion-phase21l-operator-identity="true">
-      <div class="aion-pilot-panel-kicker">Aion Operator Identity</div>
-      <div class="aion-pilot-panel-title">AION Pilot — native AION runtime executor</div>
-      <div class="aion-pilot-panel-copy">
-        Plan-gated runtime. No live external side effects without exact approval.
-      </div>
-    </section>
-
-      ${renderAionBusinessContextMiniCard("pilot")}
-      ${renderAionCentralAssessmentHookPanel(getAionPilotCockpitSnapshot()?.pilot_state?.plan)}
-      ${renderAionCentralApprovedBoardroomActionsPanel(getAionPilotCockpitSnapshot()?.pilot_state?.plan)}
-      ${renderAionGoalLoopCentralPilotTaskQueuePanel()}
-      ${renderAionGoalLoopDepartmentTaskQueueWritebackPanel()}
-      ${renderAionGoalLoopMeasurementSchemaPanel()}
-      ${renderAionGoalLoopManualResultCapturePanel()}
-      ${renderAionGoalLoopEvaluationEnginePanel()}
-      ${renderAionGoalLoopAbTestPanel()}
-      ${renderAionGoalLoopGeneratedAbTestPanel()}
-      ${renderAionGoalLoopFeedbackToBoardPanel()}
-      ${renderAionGoalLoopBoardroomFeedbackDecisionPanel()}
-      ${renderAionGoalLoopCrossFunctionAnalysisPanel()}
-      ${renderAionGoalLoopCrossFunctionConflictPanel()}
-      ${renderAionGoalLoopCanvasExecutionControlsPanel()}
-      ${renderAionGoalLoopApprovalGatePanel()}
-      ${renderAionGoalLoopBusinessContainerPersistencePanel()}
-      ${renderAionGoalLoopReplayRestorePanel()}
-      ${renderAionGoalLoopEvidenceProofReceiptPanel()}
-      ${renderAionGoalLoopRevisionHistoryPanel()}
-      ${renderAionGoalLoopCloseoutPanel()}
-      ${renderAionGoalLoopDashboardSummaryPanel()}
-      ${renderAionGoalLoopExecutiveDecisionPackagePanel()}
-      ${renderAionGoalLoopBoardroomDecisionCapturePanel()}
-      ${renderAionGoalLoopApprovedActionStagingPanel()}
-      ${renderAionGoalLoopGuardedExecutionHandoffPanel()}
-      ${renderAionGoalLoopFounderDemoTracePanel()}
       ${renderAionPilotCockpitPanel(getAionPilotCockpitSnapshot())}
     </section>
   `;
+}
+
+function renderAionDepartmentPilotRuntime(departmentKey, selectedRuns = [], selectedAgentCard = null) {
+  const key = normaliseAionDepartmentPilotKey(departmentKey);
+  window.AionDepartmentPilotRuntime?.installStyles?.();
+  const profile = getAionDepartmentPilotProfile(key);
+  const entry = getAionDepartmentPilotLedgerEntry(key);
+  const packageStatus = entry.status || "needs_discovery";
+
+  return `
+    <section data-aion-shared-department-pilot="true" data-aion-shared-department="${escapeHtml(key)}">
+      <section style="border:2px solid #f59e0b;background:#fff;padding:14px 18px;margin-bottom:14px;display:flex;justify-content:space-between;gap:18px;align-items:center;">
+        <div>
+          <div style="color:#0f766e;font-size:11px;letter-spacing:.28em;text-transform:uppercase;font-weight:900;">Boardroom Package</div>
+          <div style="font-size:20px;font-weight:900;color:#0f172a;margin-top:6px;">${escapeHtml(profile.title)} assignment</div>
+          <div style="font-size:13px;font-weight:650;color:#475569;margin-top:6px;">${escapeHtml(packageStatus)} · department graph scoped · approval gated</div>
+        </div>
+        <span class="badge">${escapeHtml(`${key}_pilot`)}</span>
+      </section>
+      ${renderAionPilotSimpleTaskStream(getAionPilotCockpitSnapshot(), { departmentKey: key })}
+    </section>
+  `;
+}
+
+if (typeof window !== "undefined") {
+  window.renderAionDepartmentPilotRuntime = renderAionDepartmentPilotRuntime;
 }
 
 /* PHASE 21L LOCK: Live Agents Aion Pilot cockpit mount */
@@ -48757,6 +48818,14 @@ function renderAionO18ADDepartmentConversationCockpit(departmentKey, selectedRun
       fields: "customer questions, feedback, response process, complaints and follow-up boundaries",
       gate: "Support needs customer context before service messaging or follow-up automation.",
       current: "What are the most common customer questions or issues?"
+    },
+    hr: {
+      label: "HR",
+      pilot: "hr_pilot",
+      title: "HR assignment package",
+      fields: "roles, responsibilities, accountability, permissions, skills, capacity, hiring and training",
+      gate: "HR needs role and permission discovery before changing people processes or access.",
+      current: "Who is responsible and accountable for each critical part of the business?"
     }
   }[key];
 
@@ -48910,11 +48979,7 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
       return renderLiveAgentSettingsView(scopedSelectedAgentCard);
     }
 
-    if (getLiveAgentsMarketingWorkspaceMode() === "manual") {
-      return renderMarketingManualWorkspaceSurface();
-    }
-
-    return renderPilotMarketingWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
+    return renderAionDepartmentPilotRuntime("marketing", selectedRuns, scopedSelectedAgentCard);
   }
 
   if (activeView === LIVE_AGENT_VIEWS.SETTINGS) {
@@ -48932,16 +48997,15 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
     return renderAionO18ADDepartmentConversationCockpit("finance", selectedRuns, selectedAgentCard);
   }
 
-  if (departmentKey === "sales") {
-    return renderAionO18ADDepartmentConversationCockpit("sales", selectedRuns, selectedAgentCard);
+  if (departmentKey === "products_services") {
+    if (window.AionOperatingModelWorkspace && typeof window.AionOperatingModelWorkspace.render === "function") {
+      return window.AionOperatingModelWorkspace.render();
+    }
+    return renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCard);
   }
 
-  if (departmentKey === "operations") {
-    return renderAionO18ADDepartmentConversationCockpit("operations", selectedRuns, selectedAgentCard);
-  }
-
-  if (departmentKey === "support") {
-    return renderAionO18ADDepartmentConversationCockpit("support", selectedRuns, selectedAgentCard);
+  if (["marketing", "sales", "operations", "support", "hr"].includes(departmentKey)) {
+    return renderAionDepartmentPilotRuntime(departmentKey, selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "builder") {
@@ -49057,6 +49121,8 @@ function renderLiveAgentsExecutiveDepartmentNavO14P(activeDepartment) {
     ["finance", "Finance"],
     ["operations", "Operations"],
     ["support", "Support"],
+    ["hr", "HR"],
+    ["products_services", "Products & Services"],
     ["pilot", "Pilot"],
     ["builder", "Builder"],
   ];
@@ -49521,10 +49587,8 @@ function renderLiveAgentsSurface() {
       ${departmentKey === "marketing" ? renderLiveAgentsSubviewTabs() : ""}
 
       <div class="dashboard-shell" data-aion-o14p-live-agents-dashboard="true">
-        ${departmentKey === "marketing" && typeof renderAionO17EMarketingPilotCockpit === "function" ? renderAionO17EMarketingPilotCockpit(selectedRuns, selectedAgentCard) : renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard)}
+        ${renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard)}
       </div>
-
-      ${renderLiveAgentsPersistentPilotTerminal()}
     </div>
   `;
 }
@@ -89186,6 +89250,19 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
   const TABBAR_ID = "aion-glyph-workflow-top-tabs-v2";
   const GLYPH_PANEL_ID = "aion-master-glyph-workflow-tab-v1";
 
+  function isWorkflowRouteV5() {
+    try {
+      const route = String(
+        (typeof state !== "undefined" && state && state.activeTab) ||
+        window.__aionActiveBusinessTab ||
+        ""
+      ).toLowerCase();
+      return route === "operations_agents" || route === "operations_flow" || route === "workflow";
+    } catch (_) {
+      return false;
+    }
+  }
+
   function removeLegacyDuplicateTabStrips() {
     document
       .querySelectorAll(
@@ -89227,9 +89304,16 @@ if (typeof installAionMasterGlyphCanvasControls === "function") {
     const tabbar = document.getElementById(TABBAR_ID);
     if (tabbar) {
       tabbar.setAttribute("data-aion-canonical-glyph-tabs-v5", "true");
-      tabbar.style.setProperty("display", "flex", "important");
-      tabbar.style.setProperty("visibility", "visible", "important");
-      tabbar.style.setProperty("opacity", "1", "important");
+      if (isWorkflowRouteV5()) {
+        tabbar.style.setProperty("display", "flex", "important");
+        tabbar.style.setProperty("visibility", "visible", "important");
+        tabbar.style.setProperty("opacity", "1", "important");
+      } else {
+        tabbar.style.setProperty("display", "none", "important");
+        tabbar.style.setProperty("visibility", "hidden", "important");
+        tabbar.style.setProperty("opacity", "0", "important");
+        tabbar.style.setProperty("pointer-events", "none", "important");
+      }
     }
 
     fixGlyphPanelVisibility();
@@ -114445,6 +114529,7 @@ const AION_GOAL_LOOP_CORE_DEPARTMENTS = [
   "finance",
   "operations",
   "support",
+  "hr",
 ];
 
 function normaliseAionGoalLoopDepartmentKey(value = "") {
@@ -115155,6 +115240,12 @@ function buildAionBoardroomGoalLoopInputFromDecision(decision = {}, overrides = 
             sub_goal: `Track objections, issues and customer feedback for: ${title}`,
             owner_agent: "support_pilot",
             measurement: ["objections", "issues", "review_trend"],
+          },
+          {
+            department: "hr",
+            sub_goal: `Confirm roles, accountability and people capacity for: ${title}`,
+            owner_agent: "hr_pilot",
+            measurement: ["role_coverage", "accountability_gaps", "capacity_risk"],
           },
         ];
 
@@ -116185,6 +116276,7 @@ function fitAionGoalSheetWorkflowOnceO12C(graph) {
     { key: "finance", label: "Finance", tone: "amber" },
     { key: "operations", label: "Operations", tone: "amber" },
     { key: "support", label: "Support", tone: "amber" },
+    { key: "hr", label: "HR", tone: "amber" },
   ];
 
   const BOARDROOM_GOAL_ID = "goal_loop_founder_demo_001";
@@ -118468,7 +118560,7 @@ Preview only. Nothing executed.`);
   const BOARDROOM_GOAL_SHEET_ID = "workflow_goal_loop_boardroom_goal_sheet";
   const DEFAULT_PARENT_GOAL_ID = "goal_loop_boardroom_growth_001";
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -118476,6 +118568,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   const DEPARTMENT_GOAL_DEFAULTS = {
@@ -118513,6 +118606,13 @@ Preview only. Nothing executed.`);
       plan: "Define support scripts, FAQ, escalation and response process.",
       measurement: "Customer response quality, support volume and issue evidence.",
       pilot_owner: "support_pilot",
+    },
+    hr: {
+      title: "HR Goal Sheet",
+      goal: "Confirm roles, accountability, permissions and people capacity for the Boardroom goal.",
+      plan: "Review organisation roles, responsibility ownership, access boundaries, skills and capacity.",
+      measurement: "Role coverage, accountability gaps, permission risk and capacity evidence.",
+      pilot_owner: "hr_pilot",
     },
   };
 
@@ -119099,7 +119199,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13B linked department Goal Sheet opener installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -119107,6 +119207,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function isGoalSheetGraphO13B(graph) {
@@ -119647,7 +119748,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13C department Goal Sheet Pilot task packets installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -119655,6 +119756,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function nowIsoO13C() {
@@ -120070,7 +120172,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13D Live Agents / Pilot preview state bridge installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -120078,6 +120180,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function nowIsoO13D() {
@@ -120559,7 +120662,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13E Live Agents workspace Goal Sheet queue injection installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -120567,6 +120670,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function escapeHtmlO13E(value) {
@@ -120967,7 +121071,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13E.3 real department Pilot surface Goal Sheet queues installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -120975,6 +121079,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function escapeHtmlO13E3(value) {
@@ -121391,7 +121496,7 @@ Preview only. Nothing executed.`);
   const EVIDENCE_NODE_ID = "goal_sheet_evidence_feedback";
   const DECISION_NODE_ID = "goal_sheet_board_decision";
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -121399,6 +121504,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function nowIsoO13F() {
@@ -121919,7 +122025,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13G Boardroom Goal Sheet progress summary installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -121927,6 +122033,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function escapeHtmlO13G(value) {
@@ -122349,7 +122456,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13H Linked department sheets click routing fix installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -122357,6 +122464,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function isLinkedDepartmentSheetsClickO13H(event) {
@@ -122838,7 +122946,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13H.2 actual workflow node selection route installed");
 
-  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENT_ORDER = ["marketing", "sales", "finance", "operations", "support", "hr"];
 
   const DEPARTMENT_LABELS = {
     marketing: "Marketing",
@@ -122846,6 +122954,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function getGraphO13H2() {
@@ -123141,6 +123250,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   function graph() {
@@ -124955,6 +125065,7 @@ Preview only. Nothing executed.`);
     finance: "Finance",
     operations: "Operations",
     support: "Support",
+    hr: "HR",
   };
 
   const DEPARTMENT_CONTENT = {
@@ -128923,7 +129034,7 @@ Preview only. Nothing executed.`);
   window.__aionO14LCompactLiveAgentsExecutiveSwitcherInstalled = true;
 
   const STYLE_ID = "aion-o14l-compact-live-agents-style";
-  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support", "pilot", "builder"];
+  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support", "hr", "products_services", "pilot", "builder"];
 
   function activeTabO14L() {
     try {
@@ -128960,6 +129071,7 @@ Preview only. Nothing executed.`);
   function labelO14L(value) {
     const key = normaliseDeptO14L(value);
     if (key === "pilot") return "Pilot";
+    if (key === "products_services") return "Products & Services";
     return key.charAt(0).toUpperCase() + key.slice(1);
   }
 
@@ -129406,7 +129518,7 @@ Preview only. Nothing executed.`);
   if (window.__aionO14MLiveAgentsDepartmentAuthorityLockInstalled === true) return;
   window.__aionO14MLiveAgentsDepartmentAuthorityLockInstalled = true;
 
-  const DEPARTMENTS_O14M = ["marketing", "sales", "finance", "operations", "support", "pilot", "builder"];
+  const DEPARTMENTS_O14M = ["marketing", "sales", "finance", "operations", "support", "hr", "products_services", "pilot", "builder"];
   const STYLE_ID_O14M = "aion-o14m-live-agents-authority-style";
 
   function normaliseDeptO14M(value) {
@@ -129483,6 +129595,9 @@ Preview only. Nothing executed.`);
 
     try {
       localStorage.setItem("aion.liveAgents.focusDepartment.v1", key);
+      localStorage.setItem("aion.liveAgents.selectedDepartment", key);
+      localStorage.setItem("aion.selectedLiveDepartment", key);
+      localStorage.setItem("aion.departmentPilot.selected", key);
     } catch {}
 
     try {
@@ -129496,6 +129611,7 @@ Preview only. Nothing executed.`);
     } catch {}
 
     try {
+      window.__aionO16ASelectedLiveAgentsDepartment = key;
       window.__aionLiveAgentsFocusDepartment = key;
       window.__aionActiveLiveAgentsDepartment = key;
       window.__aionLiveAgentsDepartment = key;
@@ -130666,6 +130782,8 @@ Preview only. Nothing executed.`);
     "finance",
     "operations",
     "support",
+    "hr",
+    "products_services",
     "pilot",
     "builder",
   ]);
@@ -130686,6 +130804,15 @@ Preview only. Nothing executed.`);
     window.__aionActiveDepartmentPilot = departmentKey;
     window.__aionSelectedDepartmentPilot = departmentKey;
     window.__aionDepartmentPilotKey = departmentKey;
+
+    try {
+      state.activeTab = "live_agents";
+      state.selectedLiveAgentDepartment = departmentKey;
+      state.liveAgentsSelectedDepartment = departmentKey;
+      state.aionLiveAgentsFocusDepartment = departmentKey;
+      state.activeLiveAgentDepartment = departmentKey;
+      state.liveAgentsWorkspaceMode = departmentKey;
+    } catch {}
 
     try {
       window.localStorage?.setItem?.("aion.liveAgents.selectedDepartment", departmentKey);
@@ -130718,14 +130845,12 @@ Preview only. Nothing executed.`);
     try {
       if (typeof window.setActiveTab === "function") {
         window.setActiveTab("live_agents");
-        return;
       }
     } catch {}
 
     try {
       if (typeof setActiveTab === "function") {
         setActiveTab("live_agents");
-        return;
       }
     } catch {}
 
@@ -135888,11 +136013,30 @@ Preview only. Nothing executed.`);
     );
 
     return candidates.find((node) => {
+      // Department Pilots intentionally reuse the canonical Pilot composer.
+      // O18Z2 only owns the obsolete page-level footer and must never hide a
+      // composer mounted inside a scoped department terminal.
+      if (node.closest?.('[data-aion-shared-pilot-terminal="true"]')) return false;
       const value = String(node.value || "");
       const text = String(node.innerText || node.textContent || "");
       const label = `${value} ${text}`.replace(/\s+/g, " ").trim().toUpperCase();
       return label === "START TASK" || label.includes("START TASK");
     }) || null;
+  }
+
+  function restoreSharedPilotComposersO18Z2() {
+    document
+      .querySelectorAll('[data-aion-shared-pilot-terminal="true"] .aion-pilot-composer-bar')
+      .forEach((bar) => {
+        bar.removeAttribute("data-aion-o18z2-bottom-start-task-bar");
+        [
+          "display", "visibility", "opacity", "pointer-events", "height",
+          "min-height", "max-height", "overflow", "padding", "margin", "border",
+        ].forEach((property) => bar.style.removeProperty(property));
+
+        const button = bar.querySelector('[data-aion-pilot-create-draft-mission]');
+        button?.removeAttribute("data-aion-o18z2-start-task-button");
+      });
   }
 
   function findBottomBarFromStartButtonO18Z2(button) {
@@ -135932,6 +136076,7 @@ Preview only. Nothing executed.`);
 
   function hideBottomStartTaskBarO18Z2() {
     ensureStyleO18Z2();
+    restoreSharedPilotComposersO18Z2();
 
     const button = findStartTaskButtonO18Z2();
     if (!button) return false;

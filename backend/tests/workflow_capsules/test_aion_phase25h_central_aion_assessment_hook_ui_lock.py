@@ -86,11 +86,11 @@ def test_phase25h_mission_visible_stream_mentions_assessment_hook():
     assert "proposal_only" in block
 
 
-def test_phase25h_central_workspace_mounts_assessment_panel():
+def test_phase25h_central_workspace_keeps_assessment_out_of_default_stream_chrome():
     block = central_workspace_block()
 
-    assert "renderAionCentralAssessmentHookPanel" in block
-    assert 'renderAionBusinessContextMiniCard("pilot")' in block
+    assert "renderAionCentralAssessmentHookPanel" not in block
+    assert "renderAionPilotCockpitPanel" in block
 
 
 def test_phase25h_exports_debug_helpers():

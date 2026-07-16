@@ -25,30 +25,22 @@ def test_marketing_workspace_mounts_scoped_pilot_once_without_duplicate_phase25_
 
 
 def test_finance_workspace_keeps_finance_room_setup_and_scoped_pilot():
-    block = function_block("renderFinanceWorkspaceSurface")
-
-    assert "renderAionRealFinance121BoardroomPanelV2()" in block
-    assert "renderAionFinanceDataSetupPanelV2()" in block
-    assert 'renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard)' in block
+    finance = Path("desktop/mac/src/aion_finance_pilot.js").read_text(encoding="utf-8")
+    assert "state.status === 'complete'" in finance
+    assert "global.renderAionDepartmentPilotRuntime('finance')" in finance
 
 
-def test_sales_operations_support_route_to_department_scoped_pilot():
-    assert 'function renderSalesWorkspaceSurface(selectedRuns, selectedAgentCard)' in APP_JS
-    assert 'return renderAionDepartmentScopedPilotSurface("sales", selectedRuns, selectedAgentCard);' in APP_JS
-
-    assert 'function renderOperationsWorkspaceSurface(selectedRuns, selectedAgentCard)' in APP_JS
-    assert 'return renderAionDepartmentScopedPilotSurface("operations", selectedRuns, selectedAgentCard);' in APP_JS
-
-    assert 'function renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard)' in APP_JS
-    assert 'return renderAionDepartmentScopedPilotSurface("support", selectedRuns, selectedAgentCard);' in APP_JS
+def test_sales_operations_support_and_hr_route_to_shared_department_pilot():
+    block = function_block("renderLiveAgentsWorkspaceBody")
+    assert '["marketing", "sales", "operations", "support", "hr"].includes(departmentKey)' in block
+    assert "renderAionDepartmentPilotRuntime(departmentKey" in block
 
 
 def test_central_aion_workspace_stays_separate_guarded_executor():
     block = function_block("renderAionWorkspaceSurface")
 
-    assert "AION Pilot — native AION runtime executor" in block
-    assert "Plan-gated runtime. No live external side effects without exact approval." in block
     assert "renderAionPilotCockpitPanel" in block
+    assert "renderAionGoalLoopFounderDemoTracePanel" not in block
 
     assert "renderAionDepartmentScopedPilotSurface" not in block
     assert "renderFinanceWorkspaceSurface" not in block
