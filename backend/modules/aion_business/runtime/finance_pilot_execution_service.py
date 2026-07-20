@@ -35,6 +35,9 @@ from backend.modules.aion_business.runtime.department_pilot_repository import (
 from backend.modules.aion_business.runtime.department_pilot_runtime import (
     DepartmentPilotRuntime,
 )
+from backend.modules.aion_business.runtime.finance_management_report_builder import (
+    build_finance_management_report,
+)
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import (
     WorkflowFileCabinetRepository,
@@ -64,6 +67,10 @@ def _metric_value(metrics: dict[str, Any], *names: str) -> float | None:
 
 def _money(value: float | None, currency: str) -> str:
     return "not available" if value is None else f"{currency} {value:,.2f}"
+
+
+def _percent(value: float | None) -> str:
+    return "not available" if value is None else f"{value:,.1f}%"
 
 
 def _ensure_folder(
@@ -185,7 +192,18 @@ class FinancePilotExecutionService:
             completed_actions=[envelope.task.title],
             unresolved_items=report["unresolved_items"],
             decisions_requested=report["decisions_requested"],
-            metric_changes={},
+            metric_changes={
+                "management_report": {
+                    "schema_version": report["management_accounts"]["schema_version"],
+                    "period": report["management_accounts"]["period"],
+                    "currency": report["management_accounts"]["currency"],
+                    "headline": report["management_accounts"]["headline"],
+                    "kpis": report["management_accounts"]["kpis"],
+                    "comparison_coverage": report["management_accounts"]["comparison_coverage"],
+                    "evidence_freshness": report["management_accounts"]["evidence_freshness"],
+                    "warnings": report["management_accounts"]["warnings"][:8],
+                }
+            },
             artifact_ids=[artifact.artifact_id],
             receipt_ids=[receipt.receipt_id],
             intelligence_patch_ids=[patch.patch_id],
@@ -262,16 +280,40 @@ class FinancePilotExecutionService:
             if item.retrieval_status != "retrieved"
         ]
         missing = list(financial.get("missing_information") or [])
-        unresolved = [*issues, *[str(item) for item in missing]][:20]
+        management = build_finance_management_report(
+            financial,
+            generated_at=generated_at,
+            retrieval_issues=issues,
+        )
+        headline = management["headline"]
+        revenue = headline.get("revenue") if headline.get("revenue") is not None else revenue
+        gross_profit = headline.get("gross_profit") if headline.get("gross_profit") is not None else gross_profit
+        operating_profit = (
+            headline.get("operating_profit")
+            if headline.get("operating_profit") is not None
+            else operating_profit
+        )
+        cash = headline.get("ending_cash") if headline.get("ending_cash") is not None else cash
+        gross_margin = next(
+            (item.get("actual") for item in management["kpis"] if item.get("key") == "gross_margin_percent"),
+            None,
+        )
+        unresolved = list(dict.fromkeys([
+            *issues,
+            *[str(item) for item in missing],
+            *management["warnings"],
+        ]))[:30]
         available = sum(value is not None for value in (revenue, gross_profit, operating_profit, cash))
         outcome = "succeeded" if not issues and available else "partial"
         executive_summary = (
             f"Finance completed the approved read-only Boardroom analysis. "
             f"Revenue: {_money(revenue, currency)}; gross profit: {_money(gross_profit, currency)}; "
-            f"operating profit: {_money(operating_profit, currency)}; closing cash: {_money(cash, currency)}."
+            f"gross margin: {_percent(gross_margin)}; operating profit: {_money(operating_profit, currency)}; "
+            f"closing cash: {_money(cash, currency)}. "
+            f"Reporting period: {management['period']['label']}."
         )
         return {
-            "schema_version": "aion.finance_pilot.management_report.v1",
+            "schema_version": "aion.finance_pilot.management_report.v2",
             "report_id": f"finance-report-{envelope.task.task_id}",
             "workspace_id": envelope.task.workspace_id,
             "task_id": envelope.task.task_id,
@@ -290,6 +332,7 @@ class FinancePilotExecutionService:
                 "operating_profit": operating_profit,
                 "ending_cash": cash,
             },
+            "management_accounts": management,
             "operating_context": operating,
             "unresolved_items": unresolved,
             "decisions_requested": (
@@ -445,6 +488,15 @@ class FinancePilotExecutionService:
             "outcome": report["outcome"],
             "executive_summary": report["executive_summary"],
             "metrics": report["metrics"],
+            "management_report": {
+                "schema_version": report["management_accounts"]["schema_version"],
+                "period": report["management_accounts"]["period"],
+                "headline": report["management_accounts"]["headline"],
+                "kpis": report["management_accounts"]["kpis"],
+                "comparison_coverage": report["management_accounts"]["comparison_coverage"],
+                "evidence_freshness": report["management_accounts"]["evidence_freshness"],
+                "warnings": report["management_accounts"]["warnings"],
+            },
             "artifact_id": artifact_id,
             "evidence_refs": [item.reference_id for item in envelope.retrieved_evidence],
             "updated_at": created_at,

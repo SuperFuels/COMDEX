@@ -37,7 +37,7 @@ def _resolve_json_pointer(document: Any, pointer: str | None) -> Any:
 
 
 def _bounded(value: Any, *, depth: int = 0) -> Any:
-    if depth >= 5:
+    if depth >= 7:
         return "[retrieval depth limited]"
     if isinstance(value, dict):
         return {str(key): _bounded(item, depth=depth + 1) for key, item in list(value.items())[:80]}
@@ -92,13 +92,58 @@ def _project_container(kind: str, selected: Any, department_id: str) -> dict[str
             "model_status",
             "currency",
             "period_basis",
+            "reporting_period",
+            "current_period",
+            "reporting_periods",
+            "periods",
+            "management_accounts",
+            "budget_metrics",
+            "previous_period_metrics",
+            "revenue_model",
+            "direct_cost_model",
+            "overhead_model",
+            "cashflow_model",
             "metrics",
+            "integration_evidence",
             "assumptions",
             "missing_information",
             "evidence_refs",
             "revision",
         )
-        return _bounded({key: selected.get(key) for key in keys if key in selected})
+        projection = {key: selected.get(key) for key in keys if key in selected}
+        # Only accepted fact rows are exposed to the Pilot. Raw provider payloads,
+        # workbook analysis samples and other external_data remain outside prompts.
+        accepted_artifacts: list[dict[str, Any]] = []
+        artifacts = ((selected.get("external_data") or {}).get("artifacts") or {})
+        if isinstance(artifacts, dict):
+            for artifact in list(artifacts.values())[:30]:
+                if not isinstance(artifact, dict):
+                    continue
+                facts = []
+                for fact in list(artifact.get("facts") or [])[:80]:
+                    if isinstance(fact, dict):
+                        facts.append(
+                            {
+                                key: fact.get(key)
+                                for key in (
+                                    "fact_id", "field", "value", "unit", "aggregation",
+                                    "source_sheet", "source_column",
+                                )
+                                if key in fact
+                            }
+                        )
+                accepted_artifacts.append(
+                    {
+                        "artifact_id": artifact.get("artifact_id"),
+                        "filename": artifact.get("filename"),
+                        "verification_status": artifact.get("verification_status"),
+                        "accepted_at": artifact.get("accepted_at"),
+                        "facts": facts,
+                    }
+                )
+        if accepted_artifacts:
+            projection["accepted_artifact_facts"] = accepted_artifacts
+        return _bounded(projection)
 
     if kind == "business_operating_model":
         return _bounded(

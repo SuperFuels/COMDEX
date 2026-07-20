@@ -15,8 +15,8 @@ The target operating loop is:
 - **Phase 2 complete:** the versioned `aion.department_pilot.*.v1` contract family now covers an approved Boardroom package, specialist task, progress events, conversation, context references, proposed tools, exact-payload approvals, artifacts, receipts, Department Intelligence patches and Boardroom handback. Existing mission queue and capability receipts are adapted into this family rather than replaced by a parallel queue.
 - **Phase 3 read-only foundation complete:** the durable runtime now provides atomic backend persistence, task queues by workspace and department, guarded lifecycle transitions, conversation persistence, append-only audit records, restart recovery, stale-writer protection, canonical context retrieval, backend capability enforcement, Finance report storage, File Cabinet registration, applied Department Intelligence updates, Boardroom handback projection and user-visible completed/failed task states. Exact-payload approval adapters for future external side effects remain later controlled-execution work.
 - **Phase 4 complete:** the founder's existing `Delegate to Agents` decision after a live, non-simulated Boardroom task build now creates the canonical Finance assignment package. The backend hash-binds the current Business Container context at approval, routes Finance idempotently to the Finance Pilot queue and exposes the same task in the Central Pilot monitor. Finance is the only enabled specialist. Every other function remains blocked by an explicit design gate.
-- **Phase 5 execution and conversation slices complete:** a queued Finance Boardroom action can now claim and run a permission-checked read-only management analysis, retrieve the exact hash-bound context, store its report under `Finance/Reports`, update Finance Department Intelligence, create an execution receipt and expose a durable handback to the next Boardroom snapshot. The permanent Finance terminal now uses a separate backend-authoritative conversation session, selectively retrieves canonical Finance evidence, labels reliability and sources, and leaves the Financial Model unchanged. Re-running a completed task is idempotent and execution or conversation failures are visible in the Pilot interface. Period comparisons, forecasting, scenarios and reconciliation remain the next Finance capability increments.
-- **Verification baseline:** 56 focused contract, persistence, genuine Boardroom producer, routing API, Finance execution/handback, grounded conversation, desktop bridge, Finance/Xero, shared terminal and Products & Services tests pass. JavaScript and Python syntax checks pass; the packaged desktop verification is repeated at each milestone.
+- **Phase 5 execution, conversation, management-reporting, scenario and reconciliation slices complete:** a queued Finance Boardroom action can now claim and run a permission-checked read-only management analysis, retrieve the exact hash-bound context, store its report under `Finance/Reports`, update Finance Department Intelligence, create an execution receipt and expose a durable handback to the next Boardroom snapshot. The permanent Finance terminal uses a separate backend-authoritative conversation session, selectively retrieves canonical Finance evidence, labels reliability and sources, and leaves the Financial Model unchanged. Management reports now produce period-aware profit-and-loss, cash and working-capital KPIs; calculate supported margins and cost relationships; compare actuals with canonical budgets and previous periods; expose evidence freshness, verification and missing comparisons; and consume accepted artifact facts without exposing raw external payloads. Conflicting accepted facts are visibly withheld rather than silently selected. Finance scenarios create expected, upside and downside monthly projections for revenue, price, volume, costs, hiring, stock purchases and protected cash reserves. Scenario inputs and outputs are hash-bound, stored separately under `Finance/Scenarios`, summarised into Finance Intelligence and projected to the Boardroom without mutating historical evidence. Reconciliation now compares accepted spreadsheet facts with the latest read-only Xero report values only when their reporting periods match, surfaces matches, conflicts, missing values and period problems, and records a founder review decision without silently replacing canonical truth. An incomplete evidence baseline is rejected rather than invented. Re-running a completed task remains idempotent. Exact-payload proposed Finance actions are the next Finance capability increment.
+- **Verification baseline:** the focused current-architecture contract, persistence, genuine Boardroom producer, routing API, Finance execution/handback, grounded conversation, management reporting, scenario, desktop bridge, Finance/Xero, shared terminal and Products & Services suites pass. JavaScript and Python syntax checks pass; packaged desktop verification is repeated at each milestone. An obsolete legacy O14A1 incoming-package-panel lock is outside this baseline because that preview panel is no longer installed and must not be restored into the canonical runtime.
 
 ## Delivery principles
 
@@ -156,10 +156,27 @@ Implemented first slice:
 
 Remaining Finance capability increments:
 
-- Period and budget comparisons, richer KPI reporting and management-account presentation.
-- Cash forecasting and pricing, volume, cost, hiring, stock and downside scenarios.
-- Xero-to-spreadsheet reconciliation with visible conflicts and freshness.
 - Proposed Finance actions that use the exact-payload approval contracts before any controlled side effect.
+
+Implemented forecasting and scenario slice:
+
+- Derive a monthly planning baseline only from supported canonical management-account values.
+- Run expected, upside and downside variants across a one-to-36-month horizon.
+- Model revenue growth, price, volume, direct-cost and overhead changes, monthly hiring cost, one-off stock purchases and a protected cash reserve.
+- Show monthly revenue, gross profit, operating profit, cash movement and closing cash plus reserve breaches.
+- Store every scenario as a separate hash-bound planning record under `Finance/Scenarios` and index it in the File Cabinet.
+- Summarise the latest scenario in Finance Department Intelligence and the durable Boardroom snapshot.
+- Keep scenario assumptions explicitly labelled `modelled_not_actual`; never update accepted accounting facts or the historical Financial Model.
+- Refuse to run when revenue, direct costs, overheads or opening cash are missing from the evidence baseline.
+
+Implemented reconciliation slice:
+
+- Read the latest Xero report evidence from the existing read-only sync; no Xero write scope is added.
+- Compare accepted spreadsheet facts only when their reporting period matches the Xero period.
+- Classify each comparable metric as matching, conflicting, missing in the spreadsheet, missing in Xero, missing a period or using a different period.
+- Store a hash-bound reconciliation artifact under `Finance/Reconciliations` and project its compact summary into Finance Intelligence and the Boardroom.
+- Allow the founder to record `keep_spreadsheet`, `prefer_xero`, `needs_investigation` or `no_change` as a review decision.
+- Keep review separate from canonical replacement: even `prefer_xero` records intent but cannot silently edit accepted historical values.
 
 Controlled outputs:
 

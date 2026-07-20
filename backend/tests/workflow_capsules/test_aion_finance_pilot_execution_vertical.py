@@ -179,10 +179,18 @@ def test_finance_task_completes_with_artifact_intelligence_and_boardroom_handbac
         "operating_profit": 152346.0,
         "ending_cash": 159011.0,
     }
+    management = payload["report"]["management_accounts"]
+    assert management["schema_version"] == "aion.finance_pilot.management_accounts.v2"
+    assert management["headline"]["revenue"] == 378750.0
+    assert management["comparison_coverage"]["budget_available"] is False
+    assert management["comparison_coverage"]["previous_period_available"] is False
     envelope = tasks.load("home-fixed", "finance", task_id)
     assert envelope.task.status == "completed"
     assert envelope.handback is not None
     assert envelope.handback.status == "ready_for_boardroom"
+    assert envelope.handback.metric_changes["management_report"]["headline"][
+        "ending_cash"
+    ] == 159011.0
     assert len(envelope.artifacts) == len(envelope.receipts) == 1
     report_path = envelope.artifacts[0].business_container_path
     assert (tmp_path / "artifacts" / "home-fixed" / "finance" / "reports").is_dir()
@@ -228,3 +236,60 @@ def test_finance_executor_rejects_unapproved_capability_without_claiming_task(
     assert response.json()["detail"]["code"] == "finance_pilot_permission_denied"
     assert tasks.load("home-fixed", "finance", task_id).task.status == "queued"
     assert not (tmp_path / "artifacts").exists()
+
+
+def test_finance_execution_retrieves_period_budget_and_comparative_context(
+    tmp_path, monkeypatch
+):
+    client, _tasks, containers = _client(tmp_path, monkeypatch)
+    _seed_context(containers)
+    model = containers.load_dict("home-fixed", "business_financial_model")
+    model["reporting_period"] = {
+        "label": "Year ended 31 December 2025",
+        "from": "2025-01-01",
+        "to": "2025-12-31",
+    }
+    model["reporting_periods"] = {
+        "current": {"metrics": model["metrics"]},
+        "budget": {
+            "metrics": {
+                "revenue": 350000,
+                "gross_profit": 210000,
+                "operating_profit": 135000,
+                "ending_cash": 140000,
+            }
+        },
+        "previous": {
+            "metrics": {
+                "revenue": 320000,
+                "gross_profit": 190000,
+                "operating_profit": 120000,
+                "ending_cash": 115000,
+            }
+        },
+    }
+    model["evidence_refs"] = [
+        {
+            "source": "accepted_management_accounts",
+            "accepted_at": "2026-07-18T12:00:00+00:00",
+            "verification_status": "accepted_from_source_document",
+        }
+    ]
+    model["revision"] = 6
+    containers.save_dict("home-fixed", "business_financial_model", model)
+    task_id = _route_task(client)
+
+    response = client.post(
+        f"/api/aion/business/department-pilots/home-fixed/finance/{task_id}/execute-read-only",
+        json={"executed_at": "2026-07-20T12:00:00+00:00"},
+    )
+
+    assert response.status_code == 200
+    management = response.json()["report"]["management_accounts"]
+    assert management["period"]["label"] == "Year ended 31 December 2025"
+    assert management["comparison_coverage"]["budget_available"] is True
+    assert management["comparison_coverage"]["previous_period_available"] is True
+    revenue = next(item for item in management["kpis"] if item["key"] == "revenue")
+    assert revenue["budget_variance"] == 28750
+    assert revenue["previous_variance"] == 58750
+    assert management["evidence_freshness"]["overall_state"] == "fresh"

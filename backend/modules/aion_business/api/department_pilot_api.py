@@ -48,6 +48,12 @@ from backend.modules.aion_business.runtime.department_pilot_runtime import (
 from backend.modules.aion_business.runtime.finance_pilot_execution_service import (
     FinancePilotExecutionService,
 )
+from backend.modules.aion_business.runtime.finance_forecasting_service import (
+    FinanceForecastingService,
+)
+from backend.modules.aion_business.runtime.finance_reconciliation_service import (
+    FinanceReconciliationService,
+)
 from backend.modules.aion_business.runtime.finance_pilot_conversation_service import (
     FinancePilotConversationService,
 )
@@ -222,6 +228,40 @@ class FinanceConversationRequest(BaseModel):
     preferred_provider: Optional[str] = None
     preferred_model: Optional[str] = None
     created_at: Optional[str] = None
+
+
+class FinanceScenarioRequest(BaseModel):
+    scenario_id: Optional[str] = None
+    scenario_name: str = Field(default="Finance planning scenario", min_length=1, max_length=160)
+    forecast_months: int = Field(default=12, ge=1, le=36)
+    annual_revenue_growth_percent: float = 0
+    revenue_change_percent: float = 0
+    price_change_percent: float = 0
+    volume_change_percent: float = 0
+    direct_cost_change_percent: float = 0
+    overhead_change_percent: float = 0
+    monthly_hiring_cost: float = Field(default=0, ge=0)
+    one_off_stock_purchase: float = Field(default=0, ge=0)
+    stock_purchase_month: int = Field(default=1, ge=1, le=36)
+    opening_cash: Optional[float] = None
+    minimum_cash_reserve: float = Field(default=0, ge=0)
+    sensitivity_percent: float = Field(default=10, ge=0, le=100)
+    created_at: Optional[str] = None
+    created_by: str = "finance_pilot"
+
+
+class FinanceReconciliationRequest(BaseModel):
+    artifact_periods: dict[str, dict[str, Optional[str]]] = Field(default_factory=dict)
+    tolerance_percent: float = Field(default=1, ge=0, le=100)
+    created_at: Optional[str] = None
+    created_by: str = "finance_pilot"
+
+
+class FinanceReconciliationReviewRequest(BaseModel):
+    decision: str
+    reviewed_by: str
+    notes: Optional[str] = None
+    reviewed_at: Optional[str] = None
 
 
 @router.get("/profiles")
@@ -657,3 +697,98 @@ def execute_finance_task_read_only(
         "report": report,
         "file_cabinet_pointer": pointer,
     }
+
+
+@router.post("/{workspace_id}/finance/scenarios/run")
+def run_finance_scenario(
+    workspace_id: str,
+    request: FinanceScenarioRequest,
+) -> dict[str, Any]:
+    """Run a read-only scenario without changing historical Finance truth."""
+
+    workspace_id = _canonical_workspace(workspace_id)
+    profile = _profile_or_404("finance")
+    if profile.get("activation_state") != "enabled":
+        raise HTTPException(status_code=409, detail="Finance Pilot is not enabled.")
+    payload = request.model_dump(exclude={"scenario_name", "created_at", "created_by"})
+    try:
+        scenario, pointer = FinanceForecastingService(
+            container_repository=get_business_container_repository()
+        ).run(
+            workspace_id,
+            payload,
+            scenario_name=request.scenario_name,
+            created_by=request.created_by,
+            created_at=request.created_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        "ok": True,
+        "workspace_id": workspace_id,
+        "scenario": scenario,
+        "file_cabinet_pointer": pointer,
+    }
+
+
+@router.get("/{workspace_id}/finance/scenarios")
+def list_finance_scenarios(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        records = FinanceForecastingService(
+            container_repository=get_business_container_repository()
+        ).list(workspace_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {
+        "ok": True,
+        "workspace_id": workspace_id,
+        "scenarios": records,
+        "latest_scenario": records[0] if records else None,
+    }
+
+
+@router.post("/{workspace_id}/finance/reconciliations/run")
+def run_finance_reconciliation(workspace_id: str, request: FinanceReconciliationRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceReconciliationService(get_business_container_repository()).run(
+            workspace_id,
+            artifact_periods=request.artifact_periods,
+            tolerance=request.tolerance_percent / 100,
+            created_at=request.created_at or _now(),
+            created_by=request.created_by,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "reconciliation": record}
+
+
+@router.post("/{workspace_id}/finance/reconciliations/{reconciliation_id}/review")
+def review_finance_reconciliation(workspace_id: str, reconciliation_id: str, request: FinanceReconciliationReviewRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceReconciliationService(get_business_container_repository()).review(
+            workspace_id, reconciliation_id, decision=request.decision,
+            reviewed_by=request.reviewed_by, notes=request.notes,
+            reviewed_at=request.reviewed_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "reconciliation": record}
+
+
+@router.get("/{workspace_id}/finance/reconciliations")
+def list_finance_reconciliations(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        records = FinanceReconciliationService(get_business_container_repository()).list(workspace_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "reconciliations": records, "latest_reconciliation": records[0] if records else None}

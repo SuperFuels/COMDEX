@@ -111,6 +111,51 @@
       || '';
   }
 
+  function formatFinanceValue(value, format, currency) {
+    const number = Number(value);
+    if (!Number.isFinite(number)) return 'Not available';
+    if (format === 'percent') return `${number.toFixed(1)}%`;
+    if (format === 'money') {
+      try {
+        return new Intl.NumberFormat(undefined, {
+          style: 'currency', currency: currency || 'EUR', maximumFractionDigits: 0,
+        }).format(number);
+      } catch {
+        return `${currency || 'EUR'} ${number.toLocaleString()}`;
+      }
+    }
+    return number.toLocaleString(undefined, { maximumFractionDigits: 1 });
+  }
+
+  function financeManagementHandback(handback) {
+    const report = handback?.metric_changes?.management_report;
+    if (!report || typeof report !== 'object') return '';
+    const currency = report.currency || 'EUR';
+    const keys = new Set(['revenue', 'gross_profit', 'gross_margin_percent', 'operating_profit', 'ending_cash', 'debtors', 'creditors']);
+    const kpis = (Array.isArray(report.kpis) ? report.kpis : [])
+      .filter((item) => keys.has(item?.key) && item?.available)
+      .slice(0, 7);
+    const period = report.period || {};
+    const freshness = report.evidence_freshness || {};
+    const warnings = Array.isArray(report.warnings) ? report.warnings.slice(0, 4) : [];
+    return `
+      <section class="aion-finance-management-handback" data-aion-finance-management-handback>
+        <header><strong>Management account</strong><span>${escapeHtml(period.label || 'Period not specified')}</span></header>
+        ${kpis.length ? `<div class="aion-finance-management-kpis">${kpis.map((item) => `
+          <article>
+            <small>${escapeHtml(item.label || item.key)}</small>
+            <strong>${escapeHtml(formatFinanceValue(item.actual, item.format, currency))}</strong>
+            ${item.budget_variance_percent != null ? `<em>Budget variance ${escapeHtml(formatFinanceValue(item.budget_variance_percent, 'percent', currency))}</em>` : ''}
+            ${item.previous_variance_percent != null ? `<em>Previous period ${escapeHtml(formatFinanceValue(item.previous_variance_percent, 'percent', currency))}</em>` : ''}
+          </article>`).join('')}</div>` : '<p>No supported management-account figures are available.</p>'}
+        <footer>
+          <span>Evidence: ${escapeHtml(freshness.overall_state || 'not dated')}${freshness.latest_observed_at ? ` · latest ${escapeHtml(freshness.latest_observed_at)}` : ''}</span>
+          <span>${report.comparison_coverage?.budget_available ? 'Budget comparison available' : 'No budget comparison'} · ${report.comparison_coverage?.previous_period_available ? 'Previous period available' : 'No previous period comparison'}</span>
+        </footer>
+        ${warnings.length ? `<details><summary>${warnings.length} evidence or reporting warning${warnings.length === 1 ? '' : 's'}</summary><ul>${warnings.map((warning) => `<li>${escapeHtml(warning)}</li>`).join('')}</ul></details>` : ''}
+      </section>`;
+  }
+
   function taskCard(envelope, departmentId) {
     const task = envelope?.task || {};
     const handback = envelope?.handback || null;
@@ -128,6 +173,7 @@
           <section class="aion-pilot-handback">
             <strong>&gt; Result ready for Boardroom</strong>
             <p>${escapeHtml(handback.executive_summary || '')}</p>
+            ${financeManagementHandback(handback)}
             ${artifacts.length ? `<small>Saved in Finance / Reports · ${escapeHtml(artifacts[artifacts.length - 1]?.title || 'Finance report')}</small>` : ''}
           </section>` : ''}
         ${task.status === 'failed' ? `
@@ -168,6 +214,103 @@
             </article>`;
         }).join('') : '<p class="aion-canonical-pilot-empty">Ask Finance about revenue, margins, costs, cash, evidence or an approved Boardroom action.</p>'}
       </section>`;
+  }
+
+  function financeScenarioPanel(payload) {
+    const latest = payload?.latest_scenario || null;
+    const expected = latest?.variants?.expected?.summary || null;
+    const upside = latest?.variants?.upside?.summary || null;
+    const downside = latest?.variants?.downside?.summary || null;
+    const currency = latest?.currency || 'EUR';
+    const signature = latest?.scenario_hash || 'empty';
+    return `
+      <section class="aion-finance-scenario" data-aion-finance-scenario data-aion-finance-scenario-signature="${escapeHtml(signature)}">
+        <header><strong>&gt; Finance Pilot · forecasting and scenarios</strong><span>Planning model · not actuals</span></header>
+        ${latest ? `
+          <div class="aion-finance-scenario-latest">
+            <strong>${escapeHtml(latest.name || 'Latest scenario')}</strong>
+            <span>Expected closing cash ${escapeHtml(formatFinanceValue(expected?.closing_cash, 'money', currency))}</span>
+            <span>Upside ${escapeHtml(formatFinanceValue(upside?.closing_cash, 'money', currency))}</span>
+            <span>Downside ${escapeHtml(formatFinanceValue(downside?.closing_cash, 'money', currency))}</span>
+            <small>${expected?.months_below_reserve?.length ? `${expected.months_below_reserve.length} expected month(s) below the protected reserve` : 'Expected case remains above the protected reserve'} · saved in Finance / Scenarios</small>
+          </div>` : '<p>No saved scenario yet. Use the verified management-account baseline to test a plan.</p>'}
+        <details>
+          <summary>Run a Finance scenario</summary>
+          <form data-aion-finance-scenario-form>
+            <label>Scenario name<input name="scenario_name" value="Finance planning scenario" maxlength="160"></label>
+            <label>Months<input name="forecast_months" type="number" min="1" max="36" value="12"></label>
+            <label>Revenue change %<input name="revenue_change_percent" type="number" step="0.1" value="0"></label>
+            <label>Annual growth %<input name="annual_revenue_growth_percent" type="number" step="0.1" value="0"></label>
+            <label>Price change %<input name="price_change_percent" type="number" step="0.1" value="0"></label>
+            <label>Volume change %<input name="volume_change_percent" type="number" step="0.1" value="0"></label>
+            <label>Direct-cost change %<input name="direct_cost_change_percent" type="number" step="0.1" value="0"></label>
+            <label>Overhead change %<input name="overhead_change_percent" type="number" step="0.1" value="0"></label>
+            <label>New monthly people cost<input name="monthly_hiring_cost" type="number" min="0" step="0.01" value="0"></label>
+            <label>One-off stock purchase<input name="one_off_stock_purchase" type="number" min="0" step="0.01" value="0"></label>
+            <label>Stock purchase month<input name="stock_purchase_month" type="number" min="1" max="36" value="1"></label>
+            <label>Protected cash reserve<input name="minimum_cash_reserve" type="number" min="0" step="0.01" value="0"></label>
+            <label>Upside/downside sensitivity %<input name="sensitivity_percent" type="number" min="0" max="100" step="0.1" value="10"></label>
+            <button type="submit" data-aion-finance-run-scenario>Run and save scenario</button>
+          </form>
+          <small>Scenarios are stored separately and never overwrite accounting evidence or accepted historical facts.</small>
+        </details>
+      </section>`;
+  }
+
+  async function refreshFinanceScenario(terminal, stream, workspaceId) {
+    if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
+    const payload = await financeScenarios(workspaceId);
+    const html = financeScenarioPanel(payload);
+    const nextSignature = payload?.latest_scenario?.scenario_hash || 'empty';
+    const current = stream.querySelector?.('[data-aion-finance-scenario]');
+    if (current?.getAttribute?.('data-aion-finance-scenario-signature') !== nextSignature) {
+      current?.remove?.();
+      const conversation = stream.querySelector?.('[data-aion-finance-conversation]');
+      if (conversation) conversation.insertAdjacentHTML?.('beforebegin', html);
+      else stream.insertAdjacentHTML?.('beforeend', html);
+    }
+    return payload;
+  }
+
+  function financeReconciliationPanel(payload) {
+    const latest = payload?.latest_reconciliation || null;
+    const counts = latest?.counts || {};
+    const signature = latest?.reconciliation_hash || 'empty';
+    const needsReview = latest?.status === 'review_required';
+    return `
+      <section class="aion-finance-reconciliation" data-aion-finance-reconciliation data-aion-finance-reconciliation-signature="${escapeHtml(signature)}">
+        <header><strong>&gt; Finance Pilot · Xero and spreadsheet reconciliation</strong><span>Read-only</span></header>
+        ${latest ? `<p>${Number(counts.match || 0)} matching · ${Number(counts.conflict || 0)} conflicts · ${Number(counts.period_missing || 0) + Number(counts.period_mismatch || 0)} period issues</p>
+          ${(latest.warnings || []).length ? `<ul>${latest.warnings.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>` : ''}
+          ${needsReview ? `<div class="aion-finance-reconciliation-actions">
+            <button type="button" data-aion-reconciliation-review="keep_spreadsheet" data-aion-reconciliation-id="${escapeHtml(latest.reconciliation_id)}">Keep spreadsheet</button>
+            <button type="button" data-aion-reconciliation-review="prefer_xero" data-aion-reconciliation-id="${escapeHtml(latest.reconciliation_id)}">Prefer Xero</button>
+            <button type="button" data-aion-reconciliation-review="needs_investigation" data-aion-reconciliation-id="${escapeHtml(latest.reconciliation_id)}">Investigate</button>
+          </div>` : `<small>Review state: ${escapeHtml(latest.status || 'not reviewed')}</small>`}` : '<p>No reconciliation has been run.</p>'}
+        <details><summary>Run reconciliation</summary>
+          <form data-aion-finance-reconciliation-form>
+            <label>Spreadsheet period from<input name="period_from" type="date"></label>
+            <label>Spreadsheet period to<input name="period_to" type="date"></label>
+            <label>Tolerance %<input name="tolerance_percent" type="number" min="0" max="100" step="0.1" value="1"></label>
+            <button type="submit" data-aion-finance-run-reconciliation>Compare accepted files with Xero</button>
+          </form>
+          <small>No accepted fact is replaced by this check. A review decision is recorded separately.</small>
+        </details>
+      </section>`;
+  }
+
+  async function refreshFinanceReconciliation(terminal, stream, workspaceId) {
+    if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
+    const payload = await financeReconciliations(workspaceId);
+    const signature = payload?.latest_reconciliation?.reconciliation_hash || 'empty';
+    const current = stream.querySelector?.('[data-aion-finance-reconciliation]');
+    if (current?.getAttribute?.('data-aion-finance-reconciliation-signature') !== signature) {
+      current?.remove?.();
+      const scenario = stream.querySelector?.('[data-aion-finance-scenario]');
+      if (scenario) scenario.insertAdjacentHTML?.('afterend', financeReconciliationPanel(payload));
+      else stream.insertAdjacentHTML?.('beforeend', financeReconciliationPanel(payload));
+    }
+    return payload;
   }
 
   async function refreshFinanceConversation(terminal, stream, workspaceId) {
@@ -231,7 +374,11 @@
         stream.insertAdjacentHTML?.('afterbegin', html);
       }
       applyActivationGate(terminal, stream, payload, departmentId);
-      if (departmentId === 'finance') await refreshFinanceConversation(terminal, stream, workspaceId);
+      if (departmentId === 'finance') {
+        await refreshFinanceScenario(terminal, stream, workspaceId);
+        await refreshFinanceReconciliation(terminal, stream, workspaceId);
+        await refreshFinanceConversation(terminal, stream, workspaceId);
+      }
       return payload;
     } catch (error) {
       console.warn('[AION] Department Pilot queue refresh deferred', error);
@@ -271,6 +418,35 @@
 
   function financeConversationSession(workspaceId) {
     return request(`/${encodeURIComponent(workspaceId)}/finance/conversation/session`);
+  }
+
+  function financeScenarios(workspaceId) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/scenarios`);
+  }
+
+  function runFinanceScenario(workspaceId, scenario) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/scenarios/run`, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...scenario,
+        created_at: new Date().toISOString(),
+        created_by: 'finance_pilot',
+      }),
+    });
+  }
+
+  function financeReconciliations(workspaceId) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/reconciliations`);
+  }
+
+  function runFinanceReconciliation(workspaceId, payload) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/reconciliations/run`, { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  function reviewFinanceReconciliation(workspaceId, reconciliationId, decision) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/reconciliations/${encodeURIComponent(reconciliationId)}/review`, {
+      method: 'POST', body: JSON.stringify({ decision, reviewed_by: 'founder', reviewed_at: new Date().toISOString() }),
+    });
   }
 
   function askFinance(workspaceId, userText) {
@@ -380,6 +556,73 @@
     }
   }
 
+  async function handleFinanceScenarioSubmit(event) {
+    const form = event?.target?.closest?.('[data-aion-finance-scenario-form]');
+    if (!form) return;
+    event.preventDefault?.();
+    const terminal = form.closest?.('[data-aion-shared-pilot-terminal="true"]');
+    if (terminal?.getAttribute?.('data-aion-pilot-role') !== 'finance') return;
+    const workspaceId = resolveBusinessId();
+    const button = form.querySelector?.('[data-aion-finance-run-scenario]');
+    if (!workspaceId || !button || button.disabled) return;
+    const values = Object.fromEntries(new FormData(form).entries());
+    const numericFields = [
+      'forecast_months', 'annual_revenue_growth_percent', 'revenue_change_percent',
+      'price_change_percent', 'volume_change_percent', 'direct_cost_change_percent',
+      'overhead_change_percent', 'monthly_hiring_cost', 'one_off_stock_purchase',
+      'stock_purchase_month', 'minimum_cash_reserve', 'sensitivity_percent',
+    ];
+    numericFields.forEach((field) => { values[field] = Number(values[field] || 0); });
+    button.disabled = true;
+    button.textContent = 'Modelling scenario…';
+    try {
+      const result = await runFinanceScenario(workspaceId, values);
+      global.dispatchEvent?.(new CustomEvent('aion:finance-scenario-completed', { detail: result }));
+      const stream = terminal.querySelector?.('[data-aion-pilot-stream-window]');
+      await refreshFinanceScenario(terminal, stream, workspaceId);
+    } catch (error) {
+      global.dispatchEvent?.(new CustomEvent('aion:finance-scenario-failed', {
+        detail: { message: String(error?.message || error) },
+      }));
+      console.error('[AION] Finance scenario failed', error);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Run and save scenario';
+    }
+  }
+
+  async function handleFinanceReconciliationSubmit(event) {
+    const form = event?.target?.closest?.('[data-aion-finance-reconciliation-form]');
+    if (!form) return;
+    event.preventDefault?.();
+    const terminal = form.closest?.('[data-aion-shared-pilot-terminal="true"]');
+    const workspaceId = resolveBusinessId();
+    const button = form.querySelector?.('[data-aion-finance-run-reconciliation]');
+    if (!workspaceId || !button || button.disabled) return;
+    const values = Object.fromEntries(new FormData(form).entries());
+    const period = values.period_from && values.period_to ? { '*': { from: values.period_from, to: values.period_to } } : {};
+    button.disabled = true; button.textContent = 'Comparing evidence…';
+    try {
+      await runFinanceReconciliation(workspaceId, { artifact_periods: period, tolerance_percent: Number(values.tolerance_percent || 1), created_at: new Date().toISOString() });
+      await refreshFinanceReconciliation(terminal, terminal.querySelector?.('[data-aion-pilot-stream-window]'), workspaceId);
+    } catch (error) { console.error('[AION] Finance reconciliation failed', error); }
+    finally { button.disabled = false; button.textContent = 'Compare accepted files with Xero'; }
+  }
+
+  async function handleFinanceReconciliationReview(event) {
+    const button = event?.target?.closest?.('[data-aion-reconciliation-review]');
+    if (!button || button.disabled) return;
+    const workspaceId = resolveBusinessId(); const reconciliationId = button.getAttribute('data-aion-reconciliation-id');
+    const decision = button.getAttribute('data-aion-reconciliation-review');
+    const terminal = button.closest?.('[data-aion-shared-pilot-terminal="true"]');
+    if (!workspaceId || !reconciliationId || !decision) return;
+    button.disabled = true;
+    try {
+      await reviewFinanceReconciliation(workspaceId, reconciliationId, decision);
+      await refreshFinanceReconciliation(terminal, terminal.querySelector?.('[data-aion-pilot-stream-window]'), workspaceId);
+    } catch (error) { button.disabled = false; console.error('[AION] Finance reconciliation review failed', error); }
+  }
+
   global.AionDepartmentPilotBackend = Object.freeze({
     PACKAGE_SCHEMA,
     approveAndRoute,
@@ -390,6 +633,11 @@
     departmentQueue,
     financeConversationSession,
     askFinance,
+    financeScenarios,
+    runFinanceScenario,
+    financeReconciliations,
+    runFinanceReconciliation,
+    reviewFinanceReconciliation,
     executeFinanceTask,
     refreshVisibleQueue,
     refreshProfiles,
@@ -405,6 +653,9 @@
   );
 
   if (global.document) {
+    global.document.addEventListener('submit', handleFinanceScenarioSubmit, true);
+    global.document.addEventListener('submit', handleFinanceReconciliationSubmit, true);
+    global.document.addEventListener('click', handleFinanceReconciliationReview, true);
     global.document.addEventListener('click', handleFinanceConversationSubmit, true);
     global.document.addEventListener('click', handleFinanceExecutionClick);
     const style = global.document.createElement('style');
@@ -421,6 +672,16 @@
       .aion-finance-run-task:disabled{opacity:.65;cursor:wait}
       .aion-pilot-handback{margin:12px 0 0;padding:12px;border:1px solid rgba(74,222,128,.55);background:#052e1a;color:#dcfce7}
       .aion-pilot-handback strong{color:#86efac}.aion-pilot-handback p{color:#dcfce7}.aion-pilot-handback small{color:#86efac}
+      .aion-finance-management-handback{margin:12px 0;padding:12px;border:1px solid rgba(125,211,252,.35);background:#07111f;color:#cbd5e1}
+      .aion-finance-management-handback>header,.aion-finance-management-handback>footer{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+      .aion-finance-management-handback>header{padding-bottom:10px;border-bottom:1px solid rgba(56,189,248,.2)}
+      .aion-finance-management-handback>header strong{color:#7dd3fc}.aion-finance-management-handback>header span{color:#cbd5e1;text-transform:none;letter-spacing:0;font-size:12px}
+      .aion-finance-management-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:10px 0}
+      .aion-finance-management-kpis article{padding:10px;border:1px solid rgba(56,189,248,.2);background:#0f172a}
+      .aion-finance-management-kpis article small,.aion-finance-management-kpis article strong,.aion-finance-management-kpis article em{display:block}
+      .aion-finance-management-kpis article small{color:#94a3b8}.aion-finance-management-kpis article strong{margin:5px 0;color:#f8fafc;font-size:17px}.aion-finance-management-kpis article em{color:#7dd3fc;font-size:10px;font-style:normal}
+      .aion-finance-management-handback>footer{padding-top:8px;border-top:1px solid rgba(56,189,248,.2);color:#94a3b8;font-size:10px}
+      .aion-finance-management-handback details{margin-top:8px;color:#fbbf24}.aion-finance-management-handback details ul{margin:8px 0 0;padding-left:20px;color:#fde68a}
       .aion-pilot-failure{margin:12px 0 0;padding:12px;border:1px solid #ef4444;background:#2a0a0a;color:#fecaca}
       .aion-pilot-failure strong{color:#fca5a5}.aion-pilot-failure p{color:#fecaca}
       .aion-finance-conversation{border:1px solid rgba(56,189,248,.42);background:#07111f;padding:14px;margin:0;color:#cbd5e1}
@@ -430,6 +691,19 @@
       .aion-finance-conversation-turn:last-child{border-bottom:0}.aion-finance-conversation-turn.is-user{background:#0f172a}
       .aion-finance-conversation-turn.is-user strong{color:#7dd3fc}.aion-finance-conversation-turn.is-finance strong{color:#86efac}
       .aion-finance-conversation-turn p{white-space:pre-wrap;color:#e2e8f0}.aion-finance-conversation-turn small{color:#94a3b8}
+      .aion-finance-scenario{border:1px solid rgba(74,222,128,.5);background:#07111f;padding:14px;margin:0 0 16px;color:#cbd5e1}
+      .aion-finance-scenario>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(74,222,128,.25)}
+      .aion-finance-scenario>header strong{color:#86efac}.aion-finance-scenario>header span{color:#fbbf24;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+      .aion-finance-scenario-latest{display:grid;grid-template-columns:repeat(3,minmax(130px,1fr));gap:8px;padding:12px 0}
+      .aion-finance-scenario-latest>strong,.aion-finance-scenario-latest>small{grid-column:1/-1;color:#e2e8f0}.aion-finance-scenario-latest>span{padding:9px;border:1px solid rgba(56,189,248,.2);color:#7dd3fc}
+      .aion-finance-scenario details{margin-top:8px}.aion-finance-scenario summary{cursor:pointer;color:#86efac}
+      .aion-finance-scenario form{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:9px;margin:12px 0}
+      .aion-finance-scenario label{display:grid;gap:5px;color:#94a3b8;font-size:11px}.aion-finance-scenario input{border:1px solid rgba(56,189,248,.35);background:#0f172a;color:#f8fafc;padding:9px;font:inherit}
+      .aion-finance-scenario button{align-self:end;padding:10px 12px;border:1px solid #4ade80;background:#16a34a;color:#03150b;font-weight:800;cursor:pointer}.aion-finance-scenario button:disabled{opacity:.65;cursor:wait}
+      .aion-finance-reconciliation{border:1px solid rgba(56,189,248,.42);background:#07111f;padding:14px;margin:0 0 16px;color:#cbd5e1}
+      .aion-finance-reconciliation>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(56,189,248,.24)}.aion-finance-reconciliation>header strong{color:#7dd3fc}.aion-finance-reconciliation>header span{color:#86efac}
+      .aion-finance-reconciliation ul{color:#fbbf24}.aion-finance-reconciliation form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin:12px 0}.aion-finance-reconciliation label{display:grid;gap:5px;color:#94a3b8;font-size:11px}.aion-finance-reconciliation input{background:#0f172a;border:1px solid rgba(56,189,248,.35);color:#f8fafc;padding:9px}
+      .aion-finance-reconciliation button{padding:9px 12px;border:1px solid #38bdf8;background:#0c4a6e;color:#e0f2fe;font-weight:700;cursor:pointer}.aion-finance-reconciliation-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
       .aion-canonical-pilot-empty{margin:12px 0 0;color:#64748b}
       .aion-department-design-gate{border:1px solid #f59e0b;background:#1c1917;padding:14px;margin:0 0 16px;color:#fde68a}
       .aion-department-design-gate strong{color:#fbbf24}.aion-department-design-gate p{color:#d6d3d1}.aion-department-design-gate ul{margin:8px 0 0;padding-left:20px;color:#a8a29e}
