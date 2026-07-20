@@ -151,6 +151,44 @@
       </section>`;
   }
 
+  function financeConversationPanel(payload) {
+    const turns = Array.isArray(payload?.session?.turns) ? payload.session.turns.slice(-40) : [];
+    const signature = turns.map((turn) => turn?.turn_hash || '').join('|') || 'empty';
+    return `
+      <section class="aion-finance-conversation" data-aion-finance-conversation data-aion-finance-conversation-signature="${escapeHtml(signature)}">
+        <header><strong>&gt; Finance Pilot · grounded conversation</strong><span>Read-only</span></header>
+        ${turns.length ? turns.map((turn) => {
+          const sources = Array.isArray(turn?.sources) ? turn.sources : [];
+          const isUser = turn?.role === 'user';
+          return `
+            <article class="aion-finance-conversation-turn ${isUser ? 'is-user' : 'is-finance'}">
+              <strong>${isUser ? 'You' : 'Finance Pilot'}</strong>
+              <p>${escapeHtml(turn?.content || '')}</p>
+              ${!isUser ? `<small>Reliability: ${escapeHtml(turn?.reliability || 'unverified')}${sources.length ? ` · Sources: ${sources.map((source) => escapeHtml(source?.label || source?.container_kind || '')).join(', ')}` : ''} · no external action taken</small>` : ''}
+            </article>`;
+        }).join('') : '<p class="aion-canonical-pilot-empty">Ask Finance about revenue, margins, costs, cash, evidence or an approved Boardroom action.</p>'}
+      </section>`;
+  }
+
+  async function refreshFinanceConversation(terminal, stream, workspaceId) {
+    if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
+    const payload = await financeConversationSession(workspaceId);
+    const html = financeConversationPanel(payload);
+    const nextSignature = (Array.isArray(payload?.session?.turns) ? payload.session.turns : [])
+      .map((turn) => turn?.turn_hash || '').join('|') || 'empty';
+    const current = stream.querySelector?.('[data-aion-finance-conversation]');
+    if (current?.getAttribute?.('data-aion-finance-conversation-signature') !== nextSignature) {
+      current?.remove?.();
+      stream.insertAdjacentHTML?.('beforeend', html);
+      stream.scrollTop = stream.scrollHeight;
+    }
+    const input = terminal.querySelector?.('[data-aion-pilot-mission-input]');
+    const button = terminal.querySelector?.('[data-aion-pilot-create-draft-mission]');
+    if (input) input.placeholder = 'Ask the Finance Pilot about revenue, margins, costs, cash or evidence…';
+    if (button && !button.disabled) button.textContent = 'Ask Finance';
+    return payload;
+  }
+
   function applyActivationGate(terminal, stream, payload, departmentId) {
     const profile = payload?.profile || null;
     const blocked = departmentId !== 'pilot' && profile?.activation_state !== 'enabled';
@@ -193,6 +231,7 @@
         stream.insertAdjacentHTML?.('afterbegin', html);
       }
       applyActivationGate(terminal, stream, payload, departmentId);
+      if (departmentId === 'finance') await refreshFinanceConversation(terminal, stream, workspaceId);
       return payload;
     } catch (error) {
       console.warn('[AION] Department Pilot queue refresh deferred', error);
@@ -228,6 +267,20 @@
 
   function departmentQueue(workspaceId, departmentId) {
     return request(`/${encodeURIComponent(workspaceId)}/${encodeURIComponent(departmentId)}`);
+  }
+
+  function financeConversationSession(workspaceId) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/conversation/session`);
+  }
+
+  function askFinance(workspaceId, userText) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/conversation/turn`, {
+      method: 'POST',
+      body: JSON.stringify({
+        user_text: String(userText || '').trim(),
+        created_at: new Date().toISOString(),
+      }),
+    });
   }
 
   function executeFinanceTask(workspaceId, taskId) {
@@ -286,6 +339,47 @@
     }
   }
 
+  async function handleFinanceConversationSubmit(event) {
+    const button = event?.target?.closest?.('[data-aion-pilot-create-draft-mission]');
+    const terminal = button?.closest?.('[data-aion-shared-pilot-terminal="true"]');
+    if (!button || terminal?.getAttribute?.('data-aion-pilot-role') !== 'finance') return;
+    event.preventDefault?.();
+    event.stopImmediatePropagation?.();
+    const input = terminal.querySelector?.('[data-aion-pilot-mission-input]');
+    const question = String(input?.value || '').trim();
+    const workspaceId = resolveBusinessId();
+    if (!question || !workspaceId || button.disabled) return;
+    button.disabled = true;
+    button.textContent = 'Finance is analysing…';
+    if (input) input.disabled = true;
+    try {
+      const result = await askFinance(workspaceId, question);
+      if (input) input.value = '';
+      global.dispatchEvent?.(new CustomEvent('aion:finance-pilot-conversation-turn', { detail: result }));
+      const stream = terminal.querySelector?.('[data-aion-pilot-stream-window]');
+      await refreshFinanceConversation(terminal, stream, workspaceId);
+    } catch (error) {
+      const stream = terminal.querySelector?.('[data-aion-pilot-stream-window]');
+      stream?.querySelector?.('[data-aion-finance-conversation-error]')?.remove?.();
+      stream?.insertAdjacentHTML?.('beforeend', `
+        <section class="aion-pilot-failure" data-aion-finance-conversation-error>
+          <strong>&gt; Finance could not answer</strong>
+          <p>${escapeHtml(String(error?.message || error))}</p>
+        </section>`);
+      global.dispatchEvent?.(new CustomEvent('aion:finance-pilot-conversation-failed', {
+        detail: { message: String(error?.message || error) },
+      }));
+      console.error('[AION] Finance Pilot conversation failed', error);
+    } finally {
+      button.disabled = false;
+      button.textContent = 'Ask Finance';
+      if (input) {
+        input.disabled = false;
+        input.focus?.();
+      }
+    }
+  }
+
   global.AionDepartmentPilotBackend = Object.freeze({
     PACKAGE_SCHEMA,
     approveAndRoute,
@@ -294,6 +388,8 @@
     profiles,
     monitor,
     departmentQueue,
+    financeConversationSession,
+    askFinance,
     executeFinanceTask,
     refreshVisibleQueue,
     refreshProfiles,
@@ -309,6 +405,7 @@
   );
 
   if (global.document) {
+    global.document.addEventListener('click', handleFinanceConversationSubmit, true);
     global.document.addEventListener('click', handleFinanceExecutionClick);
     const style = global.document.createElement('style');
     style.id = 'aion-department-pilot-backend-styles';
@@ -326,6 +423,13 @@
       .aion-pilot-handback strong{color:#86efac}.aion-pilot-handback p{color:#dcfce7}.aion-pilot-handback small{color:#86efac}
       .aion-pilot-failure{margin:12px 0 0;padding:12px;border:1px solid #ef4444;background:#2a0a0a;color:#fecaca}
       .aion-pilot-failure strong{color:#fca5a5}.aion-pilot-failure p{color:#fecaca}
+      .aion-finance-conversation{border:1px solid rgba(56,189,248,.42);background:#07111f;padding:14px;margin:0;color:#cbd5e1}
+      .aion-finance-conversation>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(56,189,248,.24);color:#7dd3fc}
+      .aion-finance-conversation>header span{color:#86efac;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+      .aion-finance-conversation-turn{padding:12px;border-bottom:1px solid rgba(56,189,248,.16)}
+      .aion-finance-conversation-turn:last-child{border-bottom:0}.aion-finance-conversation-turn.is-user{background:#0f172a}
+      .aion-finance-conversation-turn.is-user strong{color:#7dd3fc}.aion-finance-conversation-turn.is-finance strong{color:#86efac}
+      .aion-finance-conversation-turn p{white-space:pre-wrap;color:#e2e8f0}.aion-finance-conversation-turn small{color:#94a3b8}
       .aion-canonical-pilot-empty{margin:12px 0 0;color:#64748b}
       .aion-department-design-gate{border:1px solid #f59e0b;background:#1c1917;padding:14px;margin:0 0 16px;color:#fde68a}
       .aion-department-design-gate strong{color:#fbbf24}.aion-department-design-gate p{color:#d6d3d1}.aion-department-design-gate ul{margin:8px 0 0;padding-left:20px;color:#a8a29e}

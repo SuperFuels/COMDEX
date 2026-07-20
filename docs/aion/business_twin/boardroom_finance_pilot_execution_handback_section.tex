@@ -95,25 +95,34 @@ The Finance Pilot queue exposes a \emph{Run read-only Finance analysis} control 
 
 Completed and failed states are visually distinct.  A failure includes the latest persisted failure message so the user can diagnose the problem before retrying or changing the approved instruction.  Design-gated departments remain disabled and continue to show the agreed design topics instead of exposing an unconfigured agent.
 
+\subsection{Grounded permanent Finance conversation}
+
+The permanent Finance terminal now uses a backend-authoritative conversation session stored separately under the Department Pilot runtime.  Conversation turns are no longer written into the Business Financial Model and therefore do not increment the revision of financial truth.  Each user and Finance Pilot turn carries a stable identifier, timestamp, previous-turn hash, turn hash, provider record, reliability label and an explicit statement that no external write occurred.
+
+For each question, the Finance Pilot selectively assembles canonical context from the Business Financial Model and, when relevant to the question, the Business Operating Model and Finance Department Intelligence.  It exposes the container revision, content hash and verification state for every supplied source.  Xero and accepted spreadsheet provenance already projected into the Financial Model influence the answer's reliability.  Conflicted evidence is labelled conflicted; source-backed evidence is distinguished from founder-supplied unverified information.
+
+Large catalogues are bounded before prompt construction.  Offerings, unit economics and financial targets are represented by their total count, a limited relevant sample and a truncation flag.  Operating context is omitted entirely when the Finance question does not need it.  This preserves selective retrieval and prevents a large product catalogue or Intelligence history from being copied wholesale into an AI prompt.
+
+The configured provider receives a strict read-only Finance instruction: it may answer from supplied context, identify missing or stale information, and recommend analysis, but it may not invent figures or imply that an external action was executed.  When no provider is available, a deterministic grounded fallback still answers supported revenue, profit, margin and cash questions from canonical metrics.  The interface displays the answer, reliability, source labels and the no-external-action boundary.  Conversation failures are displayed inside the Finance terminal.
+
 \subsection{Verification and source checkpoint}
 
 The completed vertical is covered by focused tests for canonical contracts, durable persistence, live Boardroom production, idempotent routing, context hash binding, permission denial, execution transitions, artifact storage, File Cabinet registration, Department Intelligence writeback, Boardroom handback, desktop presentation, Finance/Xero compatibility and the Products \& Services operating model.
 
-At the completion of this milestone:
+At the completion of the execution-and-conversation milestone:
 \begin{itemize}
-  \item 53 focused tests passed;
+  \item 56 focused tests passed;
   \item Python and JavaScript syntax checks passed;
   \item desktop packaging completed successfully; and
   \item the packaged application contained the updated Department Pilot desktop bridge.
 \end{itemize}
 
-The implementation is represented by the local commits \texttt{144c8dc6}, \texttt{37680cec} and \texttt{594db7be}.  These commits respectively establish the shared routing foundation, connect genuine live Boardroom Finance routing, and complete the first Finance result-and-handback vertical.
+The execution foundation is represented by the local commits \texttt{144c8dc6}, \texttt{37680cec} and \texttt{594db7be}.  These commits respectively establish the shared routing foundation, connect genuine live Boardroom Finance routing, and complete the first Finance result-and-handback vertical.  Grounded permanent conversation is recorded in the subsequent Finance conversation checkpoint.
 
 \subsection{Remaining Finance boundary}
 
 This milestone proves the architecture but does not complete the full Finance Pilot product.  The next Finance increments are:
 \begin{enumerate}
-  \item grounded free-form Finance conversation over selectively retrieved evidence;
   \item richer management reporting, period comparisons and KPI presentation;
   \item cash forecasting and pricing, volume, cost, hiring, stock and downside scenarios;
   \item Xero-to-spreadsheet reconciliation with visible conflicts, provenance and freshness;
@@ -122,4 +131,3 @@ This milestone proves the architecture but does not complete the full Finance Pi
 \end{enumerate}
 
 Sales, Marketing, Support, HR and Operations remain intentionally design-gated.  Their capabilities, interfaces, connectors and permission boundaries must be agreed with the founder before their specialist profiles can be enabled.  Operations remains last because it spans the canonical models owned by all preceding functions.
-

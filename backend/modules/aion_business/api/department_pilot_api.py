@@ -48,6 +48,9 @@ from backend.modules.aion_business.runtime.department_pilot_runtime import (
 from backend.modules.aion_business.runtime.finance_pilot_execution_service import (
     FinancePilotExecutionService,
 )
+from backend.modules.aion_business.runtime.finance_pilot_conversation_service import (
+    FinancePilotConversationService,
+)
 
 
 router = APIRouter(
@@ -66,6 +69,12 @@ def get_department_pilot_repository() -> DepartmentPilotRepository:
 
 def get_business_container_repository() -> BusinessContainerRepository:
     return BusinessContainerRepository()
+
+
+def get_finance_pilot_conversation_service() -> FinancePilotConversationService:
+    return FinancePilotConversationService(
+        container_repository=get_business_container_repository()
+    )
 
 
 def _canonical_workspace(candidate: str) -> str:
@@ -206,6 +215,13 @@ class RetrieveContextRequest(BaseModel):
 class ExecuteFinanceTaskRequest(BaseModel):
     executed_at: Optional[str] = None
     actor_id: str = "finance_pilot"
+
+
+class FinanceConversationRequest(BaseModel):
+    user_text: str = Field(..., min_length=1, max_length=4000)
+    preferred_provider: Optional[str] = None
+    preferred_model: Optional[str] = None
+    created_at: Optional[str] = None
 
 
 @router.get("/profiles")
@@ -429,6 +445,42 @@ def list_department_queue(
         "task_count": len(envelopes),
         "tasks": [item.model_dump(mode="json") for item in envelopes],
     }
+
+
+@router.get("/{workspace_id}/finance/conversation/session")
+def get_finance_conversation_session(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    _profile_or_404("finance")
+    session = get_finance_pilot_conversation_service().get_session(workspace_id)
+    return {
+        "ok": True,
+        "workspace_id": workspace_id,
+        "department_id": "finance",
+        "session": session,
+    }
+
+
+@router.post("/{workspace_id}/finance/conversation/turn")
+def create_finance_conversation_turn(
+    workspace_id: str,
+    request: FinanceConversationRequest,
+) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    profile = _profile_or_404("finance")
+    if profile.get("activation_state") != "enabled":
+        raise HTTPException(status_code=409, detail="Finance Pilot is not enabled.")
+    try:
+        return get_finance_pilot_conversation_service().answer(
+            workspace_id,
+            request.user_text,
+            preferred_provider=request.preferred_provider,
+            preferred_model=request.preferred_model,
+            created_at=request.created_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/{workspace_id}/{department_id}/{task_id}")

@@ -25,6 +25,12 @@ def test_backend_bridge_is_modular_and_loaded_before_legacy_app():
     assert "Run read-only Finance analysis" in bridge
     assert "Result ready for Boardroom" in bridge
     assert "/execute-read-only" in bridge
+    assert "data-aion-finance-conversation" in bridge
+    assert "grounded conversation" in bridge
+    assert "/finance/conversation/session" in bridge
+    assert "/finance/conversation/turn" in bridge
+    assert "handleFinanceConversationSubmit" in bridge
+    assert "stopImmediatePropagation" in bridge
 
 
 def test_backend_bridge_rejects_preview_and_uses_one_step_boardroom_handoff():
