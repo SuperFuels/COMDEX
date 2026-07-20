@@ -1112,6 +1112,7 @@ from backend.modules.aion_business.api.workflow_api import router as aion_busine
 from backend.modules.aion_business.api.workflow_file_cabinet_api import router as aion_business_workflow_file_cabinet_router
 from backend.modules.aion_business.api.business_twin_data_api import router as aion_business_twin_data_router
 from backend.modules.aion_business.api.finance_integrations_api import router as aion_finance_integrations_router
+from backend.modules.aion_business.api.department_pilot_api import router as aion_department_pilot_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -1368,6 +1369,7 @@ app.include_router(aion_business_workflow_router)
 app.include_router(aion_business_workflow_file_cabinet_router)
 app.include_router(aion_business_twin_data_router)
 app.include_router(aion_finance_integrations_router)
+app.include_router(aion_department_pilot_router)
 app.include_router(aion_business_role_router)
 app.include_router(aion_business_audit_router)
 app.include_router(aion_business_founder_review_router)
@@ -1735,7 +1737,7 @@ def aion_business_boardroom_preview_endpoint(business_id: str):
         "boardroom": {
             "mode": "preview",
             "central_pilot": "existing_central_pilot",
-            "department_pilots": ["marketing", "sales", "finance", "operations", "support"],
+            "department_pilots": ["marketing", "sales", "finance", "operations", "support", "hr"],
             "goal_loop_preview_ready": True,
             "preview_only": True,
         },

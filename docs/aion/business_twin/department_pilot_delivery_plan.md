@@ -8,6 +8,15 @@ The target operating loop is:
 
 `Function discovery -> Canonical function model -> Boardroom context -> Approved Boardroom package -> Department Pilot task queue -> Pilot work and user conversation -> Artifacts and evidence -> Business Container writeback -> Boardroom handback`
 
+## Implementation status — 16 July 2026
+
+- **Phase 0 complete:** the founder approved the redesigned light Products & Services workspace in the packaged desktop application. The design remains modular in `aion_operating_model_workspace.js`; `app.js` was not expanded.
+- **Phase 1 complete:** commit `ec55457a` is on `origin/main` and tagged `aion-business-twin-finance-foundation-2026-07-16`.
+- **Phase 2 complete:** the versioned `aion.department_pilot.*.v1` contract family now covers an approved Boardroom package, specialist task, progress events, conversation, context references, proposed tools, exact-payload approvals, artifacts, receipts, Department Intelligence patches and Boardroom handback. Existing mission queue and capability receipts are adapted into this family rather than replaced by a parallel queue.
+- **Phase 3 in progress:** the durable runtime foundation now provides atomic backend persistence, task queues by workspace and department, guarded lifecycle transitions, conversation persistence, append-only audit records, restart recovery, stale-writer protection and canonical context retrieval. The remaining Phase 3 work is permission/tool adapters, file-cabinet artifact registration, applied Department Intelligence patches, handback projection and user-visible failure telemetry.
+- **Phase 4 routing foundation complete:** the backend exposes one-step Boardroom approval and Central Pilot routing, idempotent Finance task delivery, department queues, a cross-department monitor and desktop queue hydration. Finance is the only enabled specialist. Every other function is blocked by an explicit design gate.
+- **Verification baseline:** focused contract, persistence, routing API, desktop bridge, Finance/Xero, shared terminal and Products & Services tests pass. The final total is recorded after each delivery batch rather than hard-coded here.
+
 ## Delivery principles
 
 1. The local COMDEX repository is the source of truth.
@@ -20,6 +29,7 @@ The target operating loop is:
 8. Source evidence, extracted facts, accepted facts, assumptions and generated conclusions remain distinguishable.
 9. Large catalogues are summarized for Boardroom use and retrieved selectively rather than copied wholesale into prompts.
 10. Each phase must be tested through the packaged desktop application as well as by automated tests.
+11. Sales, Marketing, Support, HR and Operations remain unconfigured until their purpose, workflows, capabilities, interface and permissions have been discussed with the founder.
 
 ## Phase 0 — Products and Services design completion
 
@@ -102,6 +112,13 @@ Connect the existing Central Pilot and Boardroom package flow to the shared runt
 
 Exit gate: an approved Finance action appears automatically in the Finance Pilot queue and is visible from the Central Pilot monitor.
 
+Implementation boundary:
+
+- `finance_pilot` is enabled.
+- `sales_pilot`, `marketing_pilot`, `support_pilot`, `hr_pilot` and `operations_pilot` return `design_required` and cannot receive canonical work.
+- Legacy preview packages and local-browser demo queues cannot be promoted into the canonical runtime.
+- Boardroom approval and queue delivery use one backend transaction, avoiding an approved-but-not-routed intermediate state.
+
 ## Phase 5 — Finance as the first complete vertical implementation
 
 Implement Finance on the shared runtime before building more function onboarding.
@@ -136,27 +153,21 @@ Exit gate: a real approved Boardroom Finance package completes end to end and it
 
 Exit gate: a recurring read-only Finance task runs, stores its report and updates Finance Intelligence without manual re-entry.
 
-## Phase 7 — Operations implementation
+## Phase 7 — Sales design and implementation
 
-- Build the Operations discovery schema and canonical Operations model.
-- Reuse Products & Services, labour, production, stock, procurement and capacity domains.
-- Configure `operations_pilot` prompts, permissions, calculations and tools.
-- Support delivery planning, capacity, bottlenecks, work queues, supplier lead times and operational performance.
-- Prove Finance-to-Operations dependencies through shared canonical references.
-
-Exit gate: Operations completes the same discovery-to-Boardroom-to-execution-to-handback loop.
-
-## Phase 8 — Sales implementation
-
+- Agree the Sales operating model before defining its Pilot capabilities or interface.
 - Build Sales discovery, pipeline, customer, pricing and payment-term models.
 - Add CRM, ecommerce and sales-source mappings, starting with imports and then selected connectors.
-- Configure `sales_pilot` capabilities for pipeline analysis, forecasting, follow-up preparation and revenue reporting.
+- Decide the role of inbound and outbound phone agents for qualification, calling and human handoff.
+- Design email sales, follow-up and funnel workflows, including consent and approval boundaries.
+- Configure the agreed `sales_pilot` capabilities for pipeline analysis, forecasting, follow-up preparation and revenue reporting.
 - Send recognised revenue and customer-payment implications to Finance through canonical references.
 
 Exit gate: Sales operates on the shared runtime and its results are reconciled with Finance and Products & Services.
 
-## Phase 9 — Marketing implementation
+## Phase 8 — Marketing design and implementation
 
+- Agree the Marketing workspace, channels, attribution model, operating rhythm and automation boundaries before activation.
 - Consolidate existing Marketing Pilot work into the shared runtime.
 - Build canonical audience, offer, channel, campaign, budget, lead and attribution context.
 - Link campaigns to Sales outcomes and Finance-approved budgets.
@@ -164,8 +175,9 @@ Exit gate: Sales operates on the shared runtime and its results are reconciled w
 
 Exit gate: Marketing can receive an approved Boardroom campaign package, prepare work, record results and return evidence.
 
-## Phase 10 — Support implementation
+## Phase 9 — Support design and implementation
 
+- Agree whether phone and messaging support are native capabilities or selected communication plugins.
 - Build Support discovery and canonical customer-service context.
 - Model channels, issue categories, service levels, policies, knowledge and escalation rules.
 - Configure read-only analysis and drafted responses before enabling any outbound communication.
@@ -173,8 +185,9 @@ Exit gate: Marketing can receive an approved Boardroom campaign package, prepare
 
 Exit gate: Support completes the standard Department Pilot loop with controlled communication permissions.
 
-## Phase 11 — HR and People implementation
+## Phase 10 — HR and People design and implementation
 
+- Design the visible organisation chart and accountability canvas before settling the HR workspace.
 - Build the canonical people, role, responsibility and accountability model.
 - Capture employees, contractors, founders, reporting lines, skills, capacity and employment cost.
 - Define application roles and data/action permissions separately from job titles.
@@ -182,6 +195,19 @@ Exit gate: Support completes the standard Department Pilot loop with controlled 
 - Protect sensitive people data with stricter retrieval and visibility rules.
 
 Exit gate: HR provides reliable people/capacity context to Operations and Finance while enforcing role-based access.
+
+## Phase 11 — Operations design and implementation
+
+Operations is deliberately last because it is the broadest function and depends on the canonical models established by the other departments.
+
+- Agree the full operating-system scope before defining its Pilot interface or capabilities.
+- Build the Operations discovery schema and canonical Operations model.
+- Reuse Products & Services, labour, production, stock, procurement and capacity domains.
+- Configure `operations_pilot` prompts, permissions, calculations and tools only after the design is approved.
+- Support delivery planning, capacity, bottlenecks, work queues, supplier lead times and operational performance.
+- Prove cross-functional dependencies through shared canonical references.
+
+Exit gate: Operations completes the same discovery-to-Boardroom-to-execution-to-handback loop and coordinates agreed dependencies without becoming a second Central Pilot.
 
 ## Phase 12 — Connector expansion and catalogue scale
 

@@ -18,6 +18,7 @@ class AIONBusinessPaths:
     EXTERNAL_SPECIALISTS = ROOT / "external_specialists"
     EXTERNAL_WORK_ORDERS = ROOT / "external_work_orders"
     TOPOLOGIES = ROOT / "topologies"
+    DEPARTMENT_PILOT_RUNTIME = ROOT / "department_pilot_runtime"
 
     @classmethod
     def ensure_base_dirs(cls) -> None:
@@ -34,6 +35,7 @@ class AIONBusinessPaths:
         cls.EXTERNAL_SPECIALISTS.mkdir(parents=True, exist_ok=True)
         cls.EXTERNAL_WORK_ORDERS.mkdir(parents=True, exist_ok=True)
         cls.TOPOLOGIES.mkdir(parents=True, exist_ok=True)
+        cls.DEPARTMENT_PILOT_RUNTIME.mkdir(parents=True, exist_ok=True)
 
     @classmethod
     def workspace_file(cls, workspace_id: str) -> Path:
@@ -163,3 +165,26 @@ class AIONBusinessPaths:
     @classmethod
     def topology_file(cls, workspace_id: str) -> Path:
         return cls.topology_dir() / f"{workspace_id}.json"
+
+    @classmethod
+    def department_pilot_dir(cls, workspace_id: str, department_id: str) -> Path:
+        cls.ensure_base_dirs()
+        path = cls.DEPARTMENT_PILOT_RUNTIME / workspace_id / department_id
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @classmethod
+    def department_pilot_task_dir(cls, workspace_id: str, department_id: str) -> Path:
+        path = cls.department_pilot_dir(workspace_id, department_id) / "tasks"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    @classmethod
+    def department_pilot_task_file(
+        cls, workspace_id: str, department_id: str, task_id: str
+    ) -> Path:
+        return cls.department_pilot_task_dir(workspace_id, department_id) / f"{task_id}.json"
+
+    @classmethod
+    def department_pilot_audit_file(cls, workspace_id: str, department_id: str) -> Path:
+        return cls.department_pilot_dir(workspace_id, department_id) / "audit.jsonl"
