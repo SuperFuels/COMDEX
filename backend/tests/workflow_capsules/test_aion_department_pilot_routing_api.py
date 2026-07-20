@@ -200,6 +200,82 @@ def test_boardroom_action_endpoint_builds_canonical_package_server_side(
     assert len(repository.list_for_department("home-fixed", "finance")) == 1
 
 
+def test_real_boardroom_action_hash_binds_current_finance_context(
+    tmp_path, monkeypatch
+):
+    client, repository, containers = _client(tmp_path, monkeypatch)
+    identity = {
+        "id": "home-fixed.business_identity",
+        "workspace_id": "home-fixed",
+        "kind": "business_identity",
+        "trading_name": "Home Fixed",
+    }
+    financial_model = {
+        "id": "home-fixed.business_financial_model",
+        "workspace_id": "home-fixed",
+        "kind": "business_financial_model",
+        "model_status": "accepted",
+        "currency": "EUR",
+        "metrics": {"revenue": 378750},
+        "revision": 4,
+    }
+    containers.save_dict("home-fixed", "business_identity", identity)
+    containers.save_dict(
+        "home-fixed", "business_financial_model", financial_model
+    )
+
+    response = client.post(
+        "/api/aion/business/department-pilots/approve-boardroom-action",
+        json={
+            "workspace_id": "home-fixed",
+            "business_id": "home-fixed",
+            "boardroom_session_id": "session-live-finance",
+            "boardroom_decision_id": "decision-live-finance",
+            "package_id": "package-live-finance",
+            "title": "Review Finance performance",
+            "objective": "Prepare a source-grounded Finance report.",
+            "department_id": "finance",
+            "actions": [
+                {
+                    "action_id": "action-live-finance",
+                    "title": "Prepare management report",
+                    "objective": "Explain revenue and cash performance.",
+                    "department_id": "finance",
+                    "capability": "finance.boardroom_analysis",
+                }
+            ],
+            "approval_id": "approval-live-finance",
+            "approved_by": "founder:kevin",
+            "approved_at": "2026-07-20T10:00:00+00:00",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["context_binding_state"] == "hash_bound_at_boardroom_approval"
+    assert payload["context_reference_count"] == 2
+    references = payload["approved_package"]["context_refs"]
+    assert {item["container_kind"] for item in references} == {
+        "business_identity",
+        "business_financial_model",
+    }
+    assert all(item["content_hash"].startswith("sha256:") for item in references)
+
+    task_id = payload["tasks"][0]["task"]["task_id"]
+    retrieved = client.post(
+        f"/api/aion/business/department-pilots/home-fixed/finance/{task_id}/retrieve-context",
+        json={
+            "retrieved_at": "2026-07-20T10:01:00+00:00",
+            "retrieved_by": "finance_pilot",
+        },
+    )
+    assert retrieved.status_code == 200
+    evidence = retrieved.json()["retrieved_evidence"]
+    assert {item["retrieval_status"] for item in evidence} == {"retrieved"}
+    restored = repository.load("home-fixed", "finance", task_id)
+    assert len(restored.retrieved_evidence) == 2
+
+
 def test_unapproved_function_design_cannot_be_bypassed_by_router(tmp_path, monkeypatch):
     client, repository, _ = _client(tmp_path, monkeypatch)
     sales = _approved_package("sales")

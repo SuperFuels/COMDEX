@@ -13,6 +13,7 @@ from backend.modules.aion_business.contracts.department_pilot import (
     BoardroomAssignmentPackage,
     ContextReference,
     DepartmentPilotWorkEnvelope,
+    canonical_contract_hash,
 )
 from backend.modules.aion_business.runtime.business_container_repository import (
     BusinessContainerRepository,
@@ -30,6 +31,7 @@ from backend.modules.aion_business.runtime.department_context_assembler import (
 from backend.modules.aion_business.runtime.department_pilot_contracts import (
     approve_assignment_package,
     create_assignment_package,
+    create_context_reference,
     create_provenance,
 )
 from backend.modules.aion_business.runtime.department_pilot_profiles import (
@@ -75,6 +77,57 @@ def _profile_or_404(department_id: str) -> dict[str, Any]:
     if profile is None:
         raise HTTPException(status_code=404, detail=f"Unknown Department Pilot: {department_id}")
     return profile
+
+
+_COMMON_BOARDROOM_CONTEXT_KINDS = (
+    "business_identity",
+    "business_map",
+    "department_intelligence",
+)
+
+_DEPARTMENT_BOARDROOM_CONTEXT_KINDS = {
+    "finance": ("business_financial_model", "business_operating_model"),
+}
+
+_CONTEXT_VERIFICATION_STATES = {
+    "business_identity": "founder_supplied",
+    "business_map": "unverified",
+    "department_intelligence": "unverified",
+    "business_financial_model": "unverified",
+    "business_operating_model": "founder_supplied",
+}
+
+
+def _bind_current_boardroom_context(
+    workspace_id: str,
+    department_id: str,
+) -> list[ContextReference]:
+    """Hash-bind the canonical context that exists when the founder approves work."""
+
+    repository = get_business_container_repository()
+    kinds = (
+        *_COMMON_BOARDROOM_CONTEXT_KINDS,
+        *_DEPARTMENT_BOARDROOM_CONTEXT_KINDS.get(department_id, ()),
+    )
+    references: list[ContextReference] = []
+    for kind in kinds:
+        payload = repository.load_optional_dict(workspace_id, kind)  # type: ignore[arg-type]
+        if payload is None:
+            continue
+        revision = payload.get("revision")
+        references.append(
+            create_context_reference(
+                reference_id=f"boardroom:{department_id}:{kind}:r{revision or 1}",
+                workspace_id=workspace_id,
+                container_kind=kind,
+                container_id=str(payload.get("id") or f"{workspace_id}.{kind}"),
+                revision=revision if isinstance(revision, int) else None,
+                content_hash=canonical_contract_hash(payload),
+                verification_state=_CONTEXT_VERIFICATION_STATES.get(kind, "unverified"),
+                summary=f"{kind.replace('_', ' ').title()} bound at Boardroom approval.",
+            )
+        )
+    return references
 
 
 def _load_or_404(
@@ -279,6 +332,9 @@ def approve_boardroom_action(request: ApproveBoardroomActionRequest) -> dict[str
         raise HTTPException(status_code=409, detail="Boardroom action department mismatch.")
 
     approved_at = request.approved_at or _now()
+    context_refs = request.context_refs or _bind_current_boardroom_context(
+        workspace_id, request.department_id
+    )
     try:
         draft = create_assignment_package(
             package_id=request.package_id,
@@ -290,7 +346,7 @@ def approve_boardroom_action(request: ApproveBoardroomActionRequest) -> dict[str
             objective=request.objective,
             department_id=request.department_id,
             actions=request.actions,
-            context_refs=request.context_refs,
+            context_refs=context_refs,
             constraints=request.constraints,
             provenance=create_provenance(
                 created_by="aion_boardroom",
@@ -316,6 +372,8 @@ def approve_boardroom_action(request: ApproveBoardroomActionRequest) -> dict[str
         routed_by="central_pilot",
     )
     result["approval_state"] = "boardroom_action_approved_and_routed"
+    result["context_binding_state"] = "hash_bound_at_boardroom_approval"
+    result["context_reference_count"] = len(context_refs)
     result["approved_package"] = approved.model_dump(mode="json")
     return result
 

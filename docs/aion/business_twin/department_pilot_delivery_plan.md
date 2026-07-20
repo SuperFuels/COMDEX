@@ -8,14 +8,14 @@ The target operating loop is:
 
 `Function discovery -> Canonical function model -> Boardroom context -> Approved Boardroom package -> Department Pilot task queue -> Pilot work and user conversation -> Artifacts and evidence -> Business Container writeback -> Boardroom handback`
 
-## Implementation status — 16 July 2026
+## Implementation status — 20 July 2026
 
 - **Phase 0 complete:** the founder approved the redesigned light Products & Services workspace in the packaged desktop application. The design remains modular in `aion_operating_model_workspace.js`; `app.js` was not expanded.
 - **Phase 1 complete:** commit `ec55457a` is on `origin/main` and tagged `aion-business-twin-finance-foundation-2026-07-16`.
 - **Phase 2 complete:** the versioned `aion.department_pilot.*.v1` contract family now covers an approved Boardroom package, specialist task, progress events, conversation, context references, proposed tools, exact-payload approvals, artifacts, receipts, Department Intelligence patches and Boardroom handback. Existing mission queue and capability receipts are adapted into this family rather than replaced by a parallel queue.
 - **Phase 3 in progress:** the durable runtime foundation now provides atomic backend persistence, task queues by workspace and department, guarded lifecycle transitions, conversation persistence, append-only audit records, restart recovery, stale-writer protection and canonical context retrieval. The remaining Phase 3 work is permission/tool adapters, file-cabinet artifact registration, applied Department Intelligence patches, handback projection and user-visible failure telemetry.
-- **Phase 4 routing foundation complete:** the backend exposes one-step Boardroom approval and Central Pilot routing, idempotent Finance task delivery, department queues, a cross-department monitor and desktop queue hydration. Finance is the only enabled specialist. Every other function is blocked by an explicit design gate.
-- **Verification baseline:** focused contract, persistence, routing API, desktop bridge, Finance/Xero, shared terminal and Products & Services tests pass. The final total is recorded after each delivery batch rather than hard-coded here.
+- **Phase 4 complete:** the founder's existing `Delegate to Agents` decision after a live, non-simulated Boardroom task build now creates the canonical Finance assignment package. The backend hash-binds the current Business Container context at approval, routes Finance idempotently to the Finance Pilot queue and exposes the same task in the Central Pilot monitor. Finance is the only enabled specialist. Every other function remains blocked by an explicit design gate.
+- **Verification baseline:** 40 focused contract, persistence, genuine Boardroom producer, routing API, desktop bridge, Finance/Xero, shared terminal and Products & Services tests pass. JavaScript and Python syntax checks pass, desktop packaging succeeds and the packaged application contains both canonical routing modules.
 
 ## Delivery principles
 
@@ -118,6 +118,9 @@ Implementation boundary:
 - `sales_pilot`, `marketing_pilot`, `support_pilot`, `hr_pilot` and `operations_pilot` return `design_required` and cannot receive canonical work.
 - Legacy preview packages and local-browser demo queues cannot be promoted into the canonical runtime.
 - Boardroom approval and queue delivery use one backend transaction, avoiding an approved-but-not-routed intermediate state.
+- Only `aion.department_task_build.live.v1` records produced through live provider fanout can be promoted by the Boardroom producer. Simulated, legacy and preview-panel records are rejected.
+- The founder's `Delegate to Agents` action is the approval boundary. Current Finance actions are converted into one canonical, hash-bound package; non-Finance actions remain design-gated and are reported rather than silently routed.
+- When explicit context references are not supplied, the backend binds the current business identity, Business Map, Department Intelligence, financial model and operating model that exist at the moment of Finance approval.
 
 ## Phase 5 — Finance as the first complete vertical implementation
 
