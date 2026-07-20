@@ -21,6 +21,10 @@ def test_backend_bridge_is_modular_and_loaded_before_legacy_app():
     assert "data-aion-canonical-pilot-queue" in bridge
     assert "data-aion-department-design-gate" in bridge
     assert "Its purpose, workflows, capabilities and permissions will be agreed" in bridge
+    assert "data-aion-finance-run-task" in bridge
+    assert "Run read-only Finance analysis" in bridge
+    assert "Result ready for Boardroom" in bridge
+    assert "/execute-read-only" in bridge
 
 
 def test_backend_bridge_rejects_preview_and_uses_one_step_boardroom_handoff():

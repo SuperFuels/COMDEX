@@ -16,6 +16,20 @@ DEPARTMENT_PILOT_PROFILES: dict[str, dict[str, Any]] = {
         "activation_state": "enabled",
         "implementation_order": 1,
         "design_topics": [],
+        "allowed_capabilities": [
+            "finance.boardroom_analysis",
+            "finance.management_report",
+            "finance.explain",
+            "finance.reconciliation",
+            "finance.scenario",
+            "cashflow.model",
+        ],
+        "tool_permissions": {
+            "safe_internal": ["finance_report_writer", "finance_calculator"],
+            "read_only_external": ["xero.read", "finance_artifact.read"],
+            "staged_external": [],
+            "approved_live_external": [],
+        },
     },
     "sales": {
         "pilot_id": "sales_pilot",

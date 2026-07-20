@@ -111,13 +111,30 @@
       || '';
   }
 
-  function taskCard(envelope) {
+  function taskCard(envelope, departmentId) {
     const task = envelope?.task || {};
+    const handback = envelope?.handback || null;
+    const artifacts = Array.isArray(envelope?.artifacts) ? envelope.artifacts : [];
+    const events = Array.isArray(envelope?.events) ? envelope.events : [];
+    const latestEvent = events.length ? events[events.length - 1] : null;
+    const canRunFinance = departmentId === 'finance' && task.department_id === 'finance' && task.status === 'queued';
     return `
       <article class="aion-canonical-pilot-task" data-aion-canonical-task-id="${escapeHtml(task.task_id)}">
         <div><strong>${escapeHtml(task.title || 'Boardroom action')}</strong><span>${escapeHtml(task.status || 'queued')}</span></div>
         <p>${escapeHtml(task.objective || '')}</p>
         <small>Boardroom package ${escapeHtml(task.package_id || '')} · ${escapeHtml(task.priority || 'medium')} priority</small>
+        ${canRunFinance ? `<button type="button" class="aion-finance-run-task" data-aion-finance-run-task="${escapeHtml(task.task_id)}">Run read-only Finance analysis</button>` : ''}
+        ${handback ? `
+          <section class="aion-pilot-handback">
+            <strong>&gt; Result ready for Boardroom</strong>
+            <p>${escapeHtml(handback.executive_summary || '')}</p>
+            ${artifacts.length ? `<small>Saved in Finance / Reports · ${escapeHtml(artifacts[artifacts.length - 1]?.title || 'Finance report')}</small>` : ''}
+          </section>` : ''}
+        ${task.status === 'failed' ? `
+          <section class="aion-pilot-failure">
+            <strong>&gt; Action failed</strong>
+            <p>${escapeHtml(latestEvent?.message || 'Finance could not complete this action. Review the error before retrying.')}</p>
+          </section>` : ''}
       </article>`;
   }
 
@@ -130,7 +147,7 @@
     return `
       <section class="aion-canonical-pilot-queue" data-aion-canonical-pilot-queue="${escapeHtml(departmentId)}" data-aion-canonical-queue-signature="${escapeHtml(signature)}">
         <header><strong>&gt; ${escapeHtml(heading)}</strong><span>${tasks.length} task${tasks.length === 1 ? '' : 's'}</span></header>
-        ${tasks.length ? tasks.map(taskCard).join('') : '<p class="aion-canonical-pilot-empty">No approved Boardroom actions are waiting.</p>'}
+        ${tasks.length ? tasks.map((item) => taskCard(item, departmentId)).join('') : '<p class="aion-canonical-pilot-empty">No approved Boardroom actions are waiting.</p>'}
       </section>`;
   }
 
@@ -213,6 +230,16 @@
     return request(`/${encodeURIComponent(workspaceId)}/${encodeURIComponent(departmentId)}`);
   }
 
+  function executeFinanceTask(workspaceId, taskId) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/${encodeURIComponent(taskId)}/execute-read-only`, {
+      method: 'POST',
+      body: JSON.stringify({
+        actor_id: 'finance_pilot',
+        executed_at: new Date().toISOString(),
+      }),
+    });
+  }
+
   async function handleApprovedPackageEvent(event) {
     try {
       const result = await routeApprovedPackage(event?.detail?.package);
@@ -234,6 +261,31 @@
     }
   }
 
+  async function handleFinanceExecutionClick(event) {
+    const button = event?.target?.closest?.('[data-aion-finance-run-task]');
+    if (!button) return;
+    const workspaceId = resolveBusinessId();
+    const taskId = button.getAttribute('data-aion-finance-run-task') || '';
+    if (!workspaceId || !taskId || button.disabled) return;
+    const originalLabel = button.textContent;
+    button.disabled = true;
+    button.textContent = 'Finance analysis running…';
+    try {
+      const result = await executeFinanceTask(workspaceId, taskId);
+      global.dispatchEvent?.(new CustomEvent('aion:finance-pilot-task-completed', {
+        detail: result,
+      }));
+      await refreshVisibleQueue();
+    } catch (error) {
+      button.disabled = false;
+      button.textContent = originalLabel;
+      global.dispatchEvent?.(new CustomEvent('aion:finance-pilot-task-failed', {
+        detail: { task_id: taskId, message: String(error?.message || error) },
+      }));
+      console.error('[AION] Finance Pilot task failed', error);
+    }
+  }
+
   global.AionDepartmentPilotBackend = Object.freeze({
     PACKAGE_SCHEMA,
     approveAndRoute,
@@ -242,6 +294,7 @@
     profiles,
     monitor,
     departmentQueue,
+    executeFinanceTask,
     refreshVisibleQueue,
     refreshProfiles,
   });
@@ -256,6 +309,7 @@
   );
 
   if (global.document) {
+    global.document.addEventListener('click', handleFinanceExecutionClick);
     const style = global.document.createElement('style');
     style.id = 'aion-department-pilot-backend-styles';
     style.textContent = `
@@ -266,6 +320,12 @@
       .aion-canonical-pilot-task{padding:12px 0;border-bottom:1px solid rgba(56,189,248,.18)}
       .aion-canonical-pilot-task:last-child{border-bottom:0}
       .aion-canonical-pilot-task strong{color:#e2e8f0}.aion-canonical-pilot-task p{margin:7px 0;color:#cbd5e1}.aion-canonical-pilot-task small{color:#64748b}
+      .aion-finance-run-task{display:block;margin:12px 0 0;padding:10px 14px;border:1px solid #4ade80;background:#16a34a;color:#03150b;font:700 12px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+      .aion-finance-run-task:disabled{opacity:.65;cursor:wait}
+      .aion-pilot-handback{margin:12px 0 0;padding:12px;border:1px solid rgba(74,222,128,.55);background:#052e1a;color:#dcfce7}
+      .aion-pilot-handback strong{color:#86efac}.aion-pilot-handback p{color:#dcfce7}.aion-pilot-handback small{color:#86efac}
+      .aion-pilot-failure{margin:12px 0 0;padding:12px;border:1px solid #ef4444;background:#2a0a0a;color:#fecaca}
+      .aion-pilot-failure strong{color:#fca5a5}.aion-pilot-failure p{color:#fecaca}
       .aion-canonical-pilot-empty{margin:12px 0 0;color:#64748b}
       .aion-department-design-gate{border:1px solid #f59e0b;background:#1c1917;padding:14px;margin:0 0 16px;color:#fde68a}
       .aion-department-design-gate strong{color:#fbbf24}.aion-department-design-gate p{color:#d6d3d1}.aion-department-design-gate ul{margin:8px 0 0;padding-left:20px;color:#a8a29e}

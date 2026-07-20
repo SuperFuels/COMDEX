@@ -13,9 +13,10 @@ The target operating loop is:
 - **Phase 0 complete:** the founder approved the redesigned light Products & Services workspace in the packaged desktop application. The design remains modular in `aion_operating_model_workspace.js`; `app.js` was not expanded.
 - **Phase 1 complete:** commit `ec55457a` is on `origin/main` and tagged `aion-business-twin-finance-foundation-2026-07-16`.
 - **Phase 2 complete:** the versioned `aion.department_pilot.*.v1` contract family now covers an approved Boardroom package, specialist task, progress events, conversation, context references, proposed tools, exact-payload approvals, artifacts, receipts, Department Intelligence patches and Boardroom handback. Existing mission queue and capability receipts are adapted into this family rather than replaced by a parallel queue.
-- **Phase 3 in progress:** the durable runtime foundation now provides atomic backend persistence, task queues by workspace and department, guarded lifecycle transitions, conversation persistence, append-only audit records, restart recovery, stale-writer protection and canonical context retrieval. The remaining Phase 3 work is permission/tool adapters, file-cabinet artifact registration, applied Department Intelligence patches, handback projection and user-visible failure telemetry.
+- **Phase 3 read-only foundation complete:** the durable runtime now provides atomic backend persistence, task queues by workspace and department, guarded lifecycle transitions, conversation persistence, append-only audit records, restart recovery, stale-writer protection, canonical context retrieval, backend capability enforcement, Finance report storage, File Cabinet registration, applied Department Intelligence updates, Boardroom handback projection and user-visible completed/failed task states. Exact-payload approval adapters for future external side effects remain later controlled-execution work.
 - **Phase 4 complete:** the founder's existing `Delegate to Agents` decision after a live, non-simulated Boardroom task build now creates the canonical Finance assignment package. The backend hash-binds the current Business Container context at approval, routes Finance idempotently to the Finance Pilot queue and exposes the same task in the Central Pilot monitor. Finance is the only enabled specialist. Every other function remains blocked by an explicit design gate.
-- **Verification baseline:** 40 focused contract, persistence, genuine Boardroom producer, routing API, desktop bridge, Finance/Xero, shared terminal and Products & Services tests pass. JavaScript and Python syntax checks pass, desktop packaging succeeds and the packaged application contains both canonical routing modules.
+- **Phase 5 first vertical slice complete:** a queued Finance Boardroom action can now claim and run a permission-checked read-only management analysis, retrieve the exact hash-bound context, store its report under `Finance/Reports`, update Finance Department Intelligence, create an execution receipt and expose a durable handback to the next Boardroom snapshot. Re-running a completed task is idempotent and failed execution is visible in the Pilot queue. Rich conversational analysis, comparison, forecasting, scenarios and reconciliation remain the next Finance capability increments.
+- **Verification baseline:** 53 focused contract, persistence, genuine Boardroom producer, routing API, Finance execution/handback, desktop bridge, Finance/Xero, shared terminal and Products & Services tests pass. JavaScript and Python syntax checks pass; the packaged desktop verification is repeated at each milestone.
 
 ## Delivery principles
 
@@ -137,6 +138,25 @@ Initial read-only capabilities:
 - Reconcile accepted spreadsheet facts with Xero and visibly report conflicts.
 - Identify missing, stale, assumed and unverified values.
 - Answer arbitrary Finance questions using retrieved business context.
+
+Implemented first slice:
+
+- Run an approved `finance.boardroom_analysis`, management-report or other explicitly permitted read-only Finance capability from the Finance Pilot queue.
+- Retrieve and verify the Business Container records hash-bound when the founder approved the Boardroom package.
+- Produce a deterministic management report covering available revenue, gross profit, operating profit and cash figures.
+- Store the report in the Finance Business Container and register an index pointer under `Finance/Reports` in the File Cabinet.
+- Record the report artifact, completion receipt, Finance Intelligence result and Boardroom handback in the canonical work envelope.
+- Project the latest handback into the durable Boardroom snapshot when that container exists.
+- Show completed handbacks and failed analyses in the Finance and Central Pilot queues.
+- Refuse unapproved capabilities before the task is claimed; no Xero or other external writes are permitted.
+
+Remaining Finance capability increments:
+
+- Grounded free-form Finance conversation over selectively retrieved evidence.
+- Period and budget comparisons, richer KPI reporting and management-account presentation.
+- Cash forecasting and pricing, volume, cost, hiring, stock and downside scenarios.
+- Xero-to-spreadsheet reconciliation with visible conflicts and freshness.
+- Proposed Finance actions that use the exact-payload approval contracts before any controlled side effect.
 
 Controlled outputs:
 

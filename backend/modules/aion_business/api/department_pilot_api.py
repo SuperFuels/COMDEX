@@ -45,6 +45,9 @@ from backend.modules.aion_business.runtime.department_pilot_repository import (
 from backend.modules.aion_business.runtime.department_pilot_runtime import (
     DepartmentPilotRuntime,
 )
+from backend.modules.aion_business.runtime.finance_pilot_execution_service import (
+    FinancePilotExecutionService,
+)
 
 
 router = APIRouter(
@@ -198,6 +201,11 @@ class ConversationTurnRequest(BaseModel):
 class RetrieveContextRequest(BaseModel):
     retrieved_at: Optional[str] = None
     retrieved_by: str
+
+
+class ExecuteFinanceTaskRequest(BaseModel):
+    executed_at: Optional[str] = None
+    actor_id: str = "finance_pilot"
 
 
 @router.get("/profiles")
@@ -525,3 +533,75 @@ def retrieve_department_context(
         )
     except DepartmentPilotConcurrencyError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/{workspace_id}/finance/{task_id}/execute-read-only")
+def execute_finance_task_read_only(
+    workspace_id: str,
+    task_id: str,
+    request: ExecuteFinanceTaskRequest,
+) -> dict[str, Any]:
+    """Run the approved Finance analysis and prepare its Boardroom handback."""
+
+    workspace_id = _canonical_workspace(workspace_id)
+    profile = _profile_or_404("finance")
+    if profile.get("activation_state") != "enabled":
+        raise HTTPException(status_code=409, detail="Finance Pilot is not enabled.")
+    service = FinancePilotExecutionService(
+        task_repository=get_department_pilot_repository(),
+        container_repository=get_business_container_repository(),
+    )
+
+    def record_failure(message: str) -> None:
+        repository = get_department_pilot_repository()
+        try:
+            current = repository.load(workspace_id, "finance", task_id)
+            if current.task.status not in {"claimed", "running"}:
+                return
+            DepartmentPilotRuntime(repository).transition(
+                workspace_id=workspace_id,
+                department_id="finance",
+                task_id=task_id,
+                to_status="failed",
+                occurred_at=request.executed_at or _now(),
+                actor_id=request.actor_id,
+                event_id=f"{task_id}-failed",
+                message=f"Finance analysis failed: {message}",
+                progress_percent=None,
+                data={"error": message},
+            )
+        except Exception:
+            return
+
+    try:
+        envelope, report, pointer = service.execute(
+            workspace_id,
+            task_id,
+            actor_id=request.actor_id,
+            executed_at=request.executed_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": "finance_pilot_permission_denied", "message": str(exc)},
+        ) from exc
+    except (ValueError, DepartmentPilotConcurrencyError) as exc:
+        record_failure(str(exc))
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except Exception as exc:
+        record_failure(str(exc))
+        raise HTTPException(
+            status_code=500,
+            detail={"code": "finance_pilot_execution_failed", "message": str(exc)},
+        ) from exc
+    return {
+        "ok": True,
+        "execution_state": "completed_for_boardroom_handback",
+        "workspace_id": workspace_id,
+        "task_id": task_id,
+        "envelope": envelope.model_dump(mode="json"),
+        "report": report,
+        "file_cabinet_pointer": pointer,
+    }
