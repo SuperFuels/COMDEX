@@ -130,6 +130,9 @@ from backend.modules.hexcore.open_relation_reasoning_benchmark import (
 from backend.modules.hexcore.cost_aware_open_document_benchmark import (
     run_cost_aware_open_document_benchmark,
 )
+from backend.modules.hexcore.natural_document_comprehension_benchmark import (
+    run_natural_document_comprehension_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -570,6 +573,26 @@ def test_efficiency_mutation_preserves_success_with_fewer_probes(tmp_path):
     assert result["gates"]["mean_goal_preserved_or_improved"] is True
     assert result["gates"]["at_least_one_experiment_removed"] is True
     assert result["gates"]["challenger_promoted"] is True
+    assert result["restart"]["champion_retained"] is True
+
+
+def test_natural_document_comprehension_is_gold_isolated_and_persistent(
+    tmp_path: Path,
+) -> None:
+    result = run_natural_document_comprehension_benchmark(
+        state_path=tmp_path / "phase40_state.json",
+        artifact_dir=tmp_path / "phase40_artifacts",
+        result_path=tmp_path / "phase40_result.json",
+        sealed_projects=12,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["goal_success"] >= 0.90
+    assert result["gate"]["claim_f1"] >= 0.90
+    assert result["gate"]["decomposition_exact"] >= 0.90
+    assert result["gate"]["contradiction_revision_accuracy"] >= 0.95
+    assert result["gate"]["unverified_acceptances"] == 0
+    assert result["gate"]["provenance_complete"] == 1.0
+    assert result["gold_isolation"]["solver_receives_gold_claims"] is False
     assert result["restart"]["champion_retained"] is True
 
 
