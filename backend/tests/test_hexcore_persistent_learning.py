@@ -136,6 +136,9 @@ from backend.modules.hexcore.natural_document_comprehension_benchmark import (
 from backend.modules.hexcore.open_schema_learning_benchmark import (
     run_open_schema_learning_benchmark,
 )
+from backend.modules.hexcore.adaptive_schema_theory_revision_benchmark import (
+    run_adaptive_schema_theory_revision_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -618,6 +621,24 @@ def test_open_schema_learning_invents_transfers_queries_and_persists(
     assert result["gate"]["provenance_complete"] == 1.0
     assert result["gold_isolation"]["solver_receives_expected_schema"] is False
     assert result["restart"]["schemas_retained"] is True
+
+
+def test_adaptive_schema_revision_criticises_experiments_and_persists(
+    tmp_path: Path,
+) -> None:
+    result = run_adaptive_schema_theory_revision_benchmark(
+        state_path=tmp_path / "phase42_state.json",
+        result_path=tmp_path / "phase42_result.json",
+        sealed_worlds=18,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["final_theory_accuracy"] >= 0.90
+    assert result["gate"]["novel_schema_accuracy"] >= 0.90
+    assert result["gate"]["change_recall"] >= 0.90
+    assert result["gate"]["stable_false_revisions"] == 0
+    assert result["gate"]["active_trial_reduction"] >= 0.10
+    assert result["gate"]["complexity_violations"] == 0
+    assert result["restart"]["champion_retained"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
