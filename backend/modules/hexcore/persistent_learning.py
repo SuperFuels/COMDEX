@@ -181,6 +181,8 @@ class HexCorePersistentLearningStore:
             "schema_learning_projects": {},
             "adaptive_schema_theories": {},
             "schema_revision_sessions": [],
+            "compositional_theory_programs": {},
+            "program_induction_sessions": [],
         }
 
     def _load(self) -> Dict[str, Any]:

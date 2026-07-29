@@ -1,0 +1,140 @@
+\section{Phase 43: Compositional Theory Program Induction}
+\label{sec:hexcore-phase43}
+
+\subsection{Research Objective}
+
+Phase 43 asks whether AION can determine which kind of conceptual revision is
+required by predictive failure: a parameter change, a contextual exception, a
+hidden intermediate predicate, or a different aggregation operator. It must
+then identify the exact executable theory through active experimentation.
+
+The promoted procedure is
+\texttt{procedure\_compositional\_theory\_program\_67d49719b0b9}, descended
+from the Phase 42 adaptive schema-revision champion.
+
+\subsection{Executable Program Grammar}
+
+Let $x\in\{0,1,2\}^{n}$ for $n\in\{3,4,5\}$. The bounded theory language
+contains four program families.
+
+\paragraph{Parameter revision.}
+\begin{equation}
+  f_{\tau}(x)=\mathbb{I}\!\left[\sum_i x_i\geq\tau\right].
+\end{equation}
+
+\paragraph{Contextual exception.}
+\begin{equation}
+  f_{\tau,v}(x)=
+  \mathbb{I}\!\left[
+    \sum_i x_i\geq\tau \;\land\; x_v\neq 2
+  \right].
+\end{equation}
+
+\paragraph{Latent-predicate composition.}
+\begin{align}
+  z_{a,b}(x) &=
+  \mathbb{I}[x_a\geq1 \land x_b\geq1],\\
+  f_{\tau,a,b}(x) &=
+  \mathbb{I}\!\left[
+    z_{a,b}(x)=1 \;\land\!
+    \sum_{i\notin\{a,b\}}x_i\geq\tau
+  \right].
+\end{align}
+
+\paragraph{Range-sensitive operator.}
+\begin{equation}
+  f_{\tau,w}(x)=
+  \mathbb{I}\!\left[
+    \max_i x_i-\min_i x_i\leq w
+    \;\land\;
+    \sum_i x_i\geq\tau
+  \right].
+\end{equation}
+
+Predictively equivalent candidates are collapsed to a single
+minimum-complexity representative. Degenerate truth programs with near-constant
+outputs are excluded before sealing.
+
+\subsection{Probabilistic Criticism and Active Experimentation}
+
+HexCore assigns a complexity-sensitive prior and maintains a posterior over all
+remaining executable programs. The next intervention maximises expected
+information gain per unit environmental cost:
+\begin{equation}
+  x^\star=\arg\max_x
+  \frac{
+    H[P(h)]-\mathbb{E}_{y\mid x}H[P(h\mid x,y)]
+  }{c(x)}.
+\end{equation}
+
+The learner must collect at least 12 discovery observations and reach $98.5\%$
+posterior confidence. The resulting program is then tested on 16 unseen
+interventions; at least $87.5\%$ verification agreement is required. Otherwise
+the operational result is \texttt{NO\_ADEQUATE\_THEORY}.
+
+This separates two decisions: model-class diagnosis and exact program
+identification. The truth program, revision class, and out-of-grammar status
+remain unavailable to the solver.
+
+\subsection{Sealed Evaluation}
+
+The evaluation contained 48 sealed worlds, 16 independently named external
+worlds, and 12 parity worlds intentionally outside the grammar. The in-grammar
+cohort balanced all four program families and varied arity from three to five.
+Observations used a deterministic $2\%$ noise process. The matched random
+control used the same grammar, prior, likelihood, stopping criterion,
+verification requirement, and budget; only experiment selection differed.
+
+\begin{table}[htbp]
+  \centering
+  \caption{Phase 43 sealed compositional-program results.}
+  \label{tab:phase43-results}
+  \begin{tabular}{lr}
+    \hline
+    Measure & Result \\
+    \hline
+    Exact executable-program recovery & \textbf{100.00\%} \\
+    Revision-class diagnosis & \textbf{100.00\%} \\
+    Weakest program family & \textbf{100.00\%} \\
+    Full-state predictive accuracy & \textbf{100.00\%} \\
+    External-domain exact recovery & \textbf{100.00\%} \\
+    Out-of-grammar safe abstention & \textbf{100.00\%} \\
+    Unsafe forced theories & \textbf{0} \\
+    Mean active environmental observations & \textbf{28.094} \\
+    Mean random-control observations & 48.594 \\
+    Environmental observation reduction & \textbf{42.19\%} \\
+    Unjustified complexity violations & \textbf{0} \\
+    Provenance completeness & \textbf{100.00\%} \\
+    Restart relearning & \textbf{0 worlds} \\
+    \hline
+  \end{tabular}
+\end{table}
+
+All pre-declared gates passed. CAU authorised promotion, and the complete
+program library, induction-session history, and champion survived restart.
+
+\subsection{Capability and Claim Boundary}
+
+Phase 43 demonstrates bounded program induction rather than selection of one
+flat rule. AION can identify when a threshold should change, when a rule needs
+an exception, when two observations imply a useful hidden predicate, and when
+the aggregation operator itself is wrong. It chooses discriminative
+experiments, verifies the resulting executable theory on unseen interventions,
+and declines to force a theory when the supplied language is inadequate.
+
+The operator families, ternary variables, simulator, noise process, and
+verification oracle remain engineered. This is not unrestricted program
+synthesis, arbitrary scientific law discovery, real-world causal
+identification, or AGI.
+
+\subsection{Next Frontier}
+
+Phase 44 should replace the fixed four-family grammar with a small typed
+domain-specific language whose primitives may be composed and mutated into
+previously unseen expression trees. The learner should invent reusable latent
+subprograms and compare predictive evidence against description length.
+Separately implemented simulators should introduce continuous or mixed-valued
+state, delayed effects, and program structures absent from the curriculum.
+Promotion must preserve safe timeout and abstention, external transfer,
+intervention efficiency, provenance, restart retention, weakest-family
+protection, and CAU authority.

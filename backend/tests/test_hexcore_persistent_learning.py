@@ -139,6 +139,9 @@ from backend.modules.hexcore.open_schema_learning_benchmark import (
 from backend.modules.hexcore.adaptive_schema_theory_revision_benchmark import (
     run_adaptive_schema_theory_revision_benchmark,
 )
+from backend.modules.hexcore.compositional_theory_program_induction_benchmark import (
+    run_compositional_theory_program_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -638,6 +641,26 @@ def test_adaptive_schema_revision_criticises_experiments_and_persists(
     assert result["gate"]["stable_false_revisions"] == 0
     assert result["gate"]["active_trial_reduction"] >= 0.10
     assert result["gate"]["complexity_violations"] == 0
+    assert result["restart"]["champion_retained"] is True
+
+
+def test_compositional_theory_programs_invent_abstain_and_persist(
+    tmp_path: Path,
+) -> None:
+    result = run_compositional_theory_program_benchmark(
+        state_path=tmp_path / "phase43_state.json",
+        result_path=tmp_path / "phase43_result.json",
+        sealed_worlds=12,
+        external_worlds=4,
+        ood_worlds=4,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["exact_program_accuracy"] >= 0.90
+    assert result["gate"]["revision_kind_accuracy"] >= 0.95
+    assert result["gate"]["external_family_accuracy"] >= 0.90
+    assert result["gate"]["safe_ood_abstention"] >= 0.90
+    assert result["gate"]["unsafe_forced_theories"] == 0
+    assert result["gate"]["active_trial_reduction"] >= 0.10
     assert result["restart"]["champion_retained"] is True
 
 
