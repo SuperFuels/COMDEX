@@ -45,6 +45,26 @@ def run_goal_loop():
     except Exception as e:
         logger.error(f"Goal loop error: {e}")
 
+def run_finance_recurring_work():
+    """Run due read-only Finance schedules for every canonical business container."""
+    try:
+        from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+        from backend.modules.aion_business.runtime.finance_recurring_work_service import FinanceRecurringWorkService
+        from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+
+        root = AIONBusinessPaths.BUSINESS_CONTAINERS
+        if not root.exists():
+            return
+        for workspace in sorted(path for path in root.iterdir() if path.is_dir()):
+            try:
+                results = FinanceRecurringWorkService(BusinessContainerRepository()).run_due(workspace.name)
+                if results:
+                    logger.info("Finance recurring work %s: %s", workspace.name, results)
+            except Exception:
+                logger.exception("Finance recurring scheduler failed for %s", workspace.name)
+    except Exception:
+        logger.exception("Finance recurring scheduler scan failed")
+
 def start_scheduler():
     global scheduler
 
@@ -60,6 +80,15 @@ def start_scheduler():
         scheduler.add_job(run_dream_cycle, CronTrigger(hour=3, minute=0))
         # Schedule goal loop every 10 minutes
         scheduler.add_job(run_goal_loop, CronTrigger(minute="*/10"))
+        # Durable schedule records decide whether work is due; this job only owns the scan.
+        scheduler.add_job(
+            run_finance_recurring_work,
+            CronTrigger(minute="*/5"),
+            id="aion-finance-recurring-work",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
 
         scheduler.start()
         logger.info("✅ Dream + Goal scheduler started.")

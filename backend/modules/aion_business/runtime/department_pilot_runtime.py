@@ -13,6 +13,8 @@ from backend.modules.aion_business.contracts.department_pilot import (
     DepartmentExecutionReceipt,
     DepartmentIntelligencePatch,
     DepartmentPilotWorkEnvelope,
+    DepartmentApprovalRecord,
+    ProposedToolCall,
     RetrievedEvidence,
 )
 from backend.modules.aion_business.runtime.department_pilot_contracts import (
@@ -195,6 +197,54 @@ class DepartmentPilotRuntime:
             artifacts=current.artifacts,
             receipts=current.receipts,
             intelligence_patches=current.intelligence_patches,
+            handback=current.handback,
+        )
+        self.repository.save(updated, expected_previous_hash=current.envelope_hash)
+        return updated
+
+    def attach_proposed_tool_call(
+        self,
+        *,
+        workspace_id: str,
+        department_id: str,
+        task_id: str,
+        proposal: ProposedToolCall,
+    ) -> DepartmentPilotWorkEnvelope:
+        current = self.repository.load(workspace_id, department_id, task_id)
+        if current.task.status not in {"running", "waiting_approval"}:
+            raise ValueError(f"tool_proposal_not_allowed_from_status:{current.task.status}")
+        if any(item.tool_call_id == proposal.tool_call_id for item in current.proposed_tool_calls):
+            raise ValueError("proposed_tool_call_id_already_attached")
+        updated = create_work_envelope(
+            package=current.package, task=current.task, events=current.events,
+            conversation=current.conversation, retrieved_evidence=current.retrieved_evidence,
+            proposed_tool_calls=[*current.proposed_tool_calls, proposal],
+            approvals=current.approvals, artifacts=current.artifacts,
+            receipts=current.receipts, intelligence_patches=current.intelligence_patches,
+            handback=current.handback,
+        )
+        self.repository.save(updated, expected_previous_hash=current.envelope_hash)
+        return updated
+
+    def attach_approval(
+        self,
+        *,
+        workspace_id: str,
+        department_id: str,
+        task_id: str,
+        approval: DepartmentApprovalRecord,
+    ) -> DepartmentPilotWorkEnvelope:
+        current = self.repository.load(workspace_id, department_id, task_id)
+        if current.task.status != "waiting_approval":
+            raise ValueError(f"approval_not_allowed_from_status:{current.task.status}")
+        if any(item.approval_id == approval.approval_id for item in current.approvals):
+            raise ValueError("approval_id_already_attached")
+        updated = create_work_envelope(
+            package=current.package, task=current.task, events=current.events,
+            conversation=current.conversation, retrieved_evidence=current.retrieved_evidence,
+            proposed_tool_calls=current.proposed_tool_calls,
+            approvals=[*current.approvals, approval], artifacts=current.artifacts,
+            receipts=current.receipts, intelligence_patches=current.intelligence_patches,
             handback=current.handback,
         )
         self.repository.save(updated, expected_previous_hash=current.envelope_hash)

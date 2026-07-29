@@ -54,8 +54,32 @@ from backend.modules.aion_business.runtime.finance_forecasting_service import (
 from backend.modules.aion_business.runtime.finance_reconciliation_service import (
     FinanceReconciliationService,
 )
+from backend.modules.aion_business.runtime.finance_controlled_action_service import (
+    FinanceControlledActionService,
+)
+from backend.modules.aion_business.runtime.finance_recurring_work_service import (
+    FinanceRecurringWorkService,
+)
+from backend.modules.aion_business.runtime.department_pilot_recovery_service import (
+    DepartmentPilotRecoveryService,
+)
 from backend.modules.aion_business.runtime.finance_pilot_conversation_service import (
     FinancePilotConversationService,
+)
+from backend.modules.aion_business.runtime.finance_security_policy import (
+    get_finance_security_policy,
+)
+from backend.modules.aion_business.runtime.finance_ledger_service import (
+    FinanceLedgerService,
+)
+from backend.modules.aion_business.runtime.finance_transaction_reconciliation_service import (
+    FinanceTransactionReconciliationService,
+)
+from backend.modules.aion_business.runtime.finance_director_service import (
+    FinanceDirectorService,
+)
+from backend.modules.aion_business.runtime.xero_reconciliation_handoff_service import (
+    XeroReconciliationHandoffService,
 )
 
 
@@ -75,6 +99,16 @@ def get_department_pilot_repository() -> DepartmentPilotRepository:
 
 def get_business_container_repository() -> BusinessContainerRepository:
     return BusinessContainerRepository()
+
+
+@router.get("/{workspace_id}/finance/security-policy")
+def get_finance_permission_and_sensitive_data_policy(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    return {
+        "ok": True,
+        "workspace_id": workspace_id,
+        "policy": get_finance_security_policy(),
+    }
 
 
 def get_finance_pilot_conversation_service() -> FinancePilotConversationService:
@@ -262,6 +296,104 @@ class FinanceReconciliationReviewRequest(BaseModel):
     reviewed_by: str
     notes: Optional[str] = None
     reviewed_at: Optional[str] = None
+
+
+class FinanceLedgerBuildRequest(BaseModel):
+    created_at: Optional[str] = None
+    created_by: str = "finance_pilot"
+
+
+class FinanceTransactionReconciliationRequest(BaseModel):
+    amount_tolerance_percent: float = Field(default=1, ge=0, le=100)
+    date_window_days: int = Field(default=7, ge=0, le=90)
+    created_at: Optional[str] = None
+    created_by: str = "finance_pilot"
+    classify_unmatched: bool = True
+    classification_limit: int = Field(default=25, ge=0, le=50)
+    preferred_provider: Optional[str] = None
+    preferred_model: Optional[str] = None
+
+
+class FinanceTransactionMatchReviewRequest(BaseModel):
+    decision: str
+    reviewed_by: str
+    notes: Optional[str] = None
+    reviewed_at: Optional[str] = None
+
+
+class FinanceCounterpartyClassificationReviewRequest(BaseModel):
+    decision: str
+    reviewed_by: str
+    selected_account: Optional[dict[str, Any]] = None
+    notes: Optional[str] = None
+    reviewed_at: Optional[str] = None
+
+
+class XeroReconciliationHandoffPrepareRequest(BaseModel):
+    prepared_by: str = "finance_pilot"
+    prepared_at: Optional[str] = None
+
+
+class XeroReconciliationHandoffDecisionRequest(BaseModel):
+    approved: bool
+    decided_by: str
+    decided_payload_hash: Optional[str] = None
+    reason: Optional[str] = None
+    decided_at: Optional[str] = None
+
+
+class XeroReconciliationHandoffExecuteRequest(BaseModel):
+    attempted_by: str
+    attempted_at: Optional[str] = None
+
+
+class FinanceDirectorRefreshRequest(BaseModel):
+    minimum_cash_reserve: Optional[float] = Field(default=None, ge=0)
+    created_at: Optional[str] = None
+    created_by: str = "finance_pilot"
+
+
+class FinanceControlledProposalRequest(BaseModel):
+    tool_call_id: str
+    tool_name: str
+    provider: str
+    payload: dict[str, Any]
+    rationale: str = Field(..., min_length=1, max_length=2000)
+    proposed_by: str = "finance_pilot"
+    proposed_at: Optional[str] = None
+
+
+class FinanceControlledProposalDecisionRequest(BaseModel):
+    approval_id: str
+    approved: bool
+    decided_by: str
+    decided_payload_hash: Optional[str] = None
+    reason: Optional[str] = None
+    decided_at: Optional[str] = None
+
+
+class FinanceRecurringScheduleRequest(BaseModel):
+    schedule_id: str = Field(..., min_length=1, max_length=120)
+    kind: str
+    cadence: str
+    next_run_at: str
+    created_by: str = "finance_pilot"
+    minimum_cash_reserve: float = Field(default=0, ge=0)
+
+
+class FinanceRecurringEnabledRequest(BaseModel):
+    enabled: bool
+
+
+class FinanceRecurringRunRequest(BaseModel):
+    run_at: Optional[str] = None
+    actor_id: str = "finance_scheduler"
+
+
+class DepartmentTaskRecoveryRequest(BaseModel):
+    actor_id: str
+    occurred_at: Optional[str] = None
+    reason: Optional[str] = None
 
 
 @router.get("/profiles")
@@ -733,7 +865,7 @@ def run_finance_scenario(
     }
 
 
-@router.get("/{workspace_id}/finance/scenarios")
+@router.get("/finance-scenarios")
 def list_finance_scenarios(workspace_id: str) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
     try:
@@ -784,7 +916,7 @@ def review_finance_reconciliation(workspace_id: str, reconciliation_id: str, req
     return {"ok": True, "workspace_id": workspace_id, "reconciliation": record}
 
 
-@router.get("/{workspace_id}/finance/reconciliations")
+@router.get("/finance-reconciliations")
 def list_finance_reconciliations(workspace_id: str) -> dict[str, Any]:
     workspace_id = _canonical_workspace(workspace_id)
     try:
@@ -792,3 +924,361 @@ def list_finance_reconciliations(workspace_id: str) -> dict[str, Any]:
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     return {"ok": True, "workspace_id": workspace_id, "reconciliations": records, "latest_reconciliation": records[0] if records else None}
+
+
+@router.post("/finance-ledger-build")
+def build_finance_ledger(workspace_id: str, request: FinanceLedgerBuildRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        ledger = FinanceLedgerService(get_business_container_repository()).build(
+            workspace_id, created_by=request.created_by, created_at=request.created_at or _now()
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "ledger": ledger, "external_write_performed": False}
+
+
+@router.get("/finance-ledger")
+def get_finance_ledger(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        ledger = FinanceLedgerService(get_business_container_repository()).latest(workspace_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "ledger": ledger}
+
+
+@router.get("/finance-ledger-records")
+def get_finance_ledger_records(workspace_id: str, ledger_id: str, collection: str,
+                               limit: int = Query(default=200, ge=1, le=1000),
+                               offset: int = Query(default=0, ge=0)) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        records = FinanceLedgerService(get_business_container_repository()).records(
+            workspace_id, ledger_id, collection, limit=limit, offset=offset
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "ledger_id": ledger_id,
+            "collection": collection, "offset": offset, "count": len(records), "records": records}
+
+
+@router.post("/finance-transaction-reconciliation-run")
+def run_finance_transaction_reconciliation(workspace_id: str,
+                                           request: FinanceTransactionReconciliationRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceTransactionReconciliationService(get_business_container_repository()).run(
+            workspace_id, created_by=request.created_by, created_at=request.created_at or _now(),
+            amount_tolerance=request.amount_tolerance_percent / 100,
+            date_window_days=request.date_window_days, classify_unmatched=request.classify_unmatched,
+            classification_limit=request.classification_limit,
+            preferred_provider=request.preferred_provider, preferred_model=request.preferred_model,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "transaction_reconciliation": record,
+            "external_write_performed": False}
+
+
+@router.get("/finance-transaction-reconciliation")
+def get_finance_transaction_reconciliation(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceTransactionReconciliationService(get_business_container_repository()).latest(workspace_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "latest_transaction_reconciliation": record}
+
+
+@router.post("/finance-transaction-match-review")
+def review_finance_transaction_match(workspace_id: str, run_id: str, match_id: str,
+                                     request: FinanceTransactionMatchReviewRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceTransactionReconciliationService(get_business_container_repository()).review(
+            workspace_id, run_id, match_id, decision=request.decision,
+            reviewed_by=request.reviewed_by, notes=request.notes, reviewed_at=request.reviewed_at or _now()
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "transaction_reconciliation": record,
+            "external_write_performed": False, "provider_reconciliation_posted": False}
+
+
+@router.post("/finance-counterparty-classification-review")
+def review_finance_counterparty_classification(workspace_id: str, run_id: str, suggestion_id: str,
+                                               request: FinanceCounterpartyClassificationReviewRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceTransactionReconciliationService(get_business_container_repository()).review_classification(
+            workspace_id, run_id, suggestion_id, decision=request.decision,
+            reviewed_by=request.reviewed_by, selected_account=request.selected_account,
+            notes=request.notes, reviewed_at=request.reviewed_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "transaction_reconciliation": record,
+            "external_write_performed": False}
+
+
+@router.post("/finance-xero-reconciliation-handoff-prepare")
+def prepare_xero_reconciliation_handoff(workspace_id: str, run_id: str, match_id: str,
+                                        request: XeroReconciliationHandoffPrepareRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        reconciliation = FinanceTransactionReconciliationService(get_business_container_repository()).latest(workspace_id)
+        if not reconciliation or reconciliation.get("run_id") != run_id:
+            raise FileNotFoundError(f"Transaction reconciliation not found: {run_id}")
+        handoff = XeroReconciliationHandoffService().prepare(
+            workspace_id, reconciliation, match_id, prepared_by=request.prepared_by,
+            prepared_at=request.prepared_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "handoff": handoff, "external_write_performed": False}
+
+
+@router.get("/finance-xero-reconciliation-handoffs")
+def list_xero_reconciliation_handoffs(workspace_id: str,
+                                      limit: int = Query(default=100, ge=1, le=500)) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        handoffs = XeroReconciliationHandoffService().list(workspace_id, limit=limit)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "handoffs": handoffs,
+            "external_write_performed": False}
+
+
+@router.post("/finance-xero-reconciliation-handoff-decision")
+def decide_xero_reconciliation_handoff(workspace_id: str, handoff_id: str,
+                                       request: XeroReconciliationHandoffDecisionRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        handoff = XeroReconciliationHandoffService().decide(
+            workspace_id, handoff_id, approved=request.approved, decided_by=request.decided_by,
+            decided_payload_hash=request.decided_payload_hash, reason=request.reason,
+            decided_at=request.decided_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "handoff": handoff, "external_write_performed": False}
+
+
+@router.post("/finance-xero-reconciliation-handoff-execute")
+def execute_xero_reconciliation_handoff(workspace_id: str, handoff_id: str,
+                                        request: XeroReconciliationHandoffExecuteRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        receipt = XeroReconciliationHandoffService().execute(
+            workspace_id, handoff_id, attempted_by=request.attempted_by,
+            attempted_at=request.attempted_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "receipt": receipt,
+            "external_write_performed": False, "provider_reconciliation_posted": False}
+
+
+@router.post("/finance-director-refresh")
+def refresh_finance_director(workspace_id: str, request: FinanceDirectorRefreshRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceDirectorService(get_business_container_repository()).refresh(
+            workspace_id, minimum_cash_reserve=request.minimum_cash_reserve,
+            created_by=request.created_by, created_at=request.created_at or _now()
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "finance_director": record,
+            "external_write_performed": False}
+
+
+@router.get("/finance-director")
+def get_finance_director(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        record = FinanceDirectorService(get_business_container_repository()).latest(workspace_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "finance_director": record}
+
+
+@router.post("/{workspace_id}/finance/{task_id}/proposals")
+def create_finance_controlled_proposal(workspace_id: str, task_id: str, request: FinanceControlledProposalRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        envelope = FinanceControlledActionService(get_department_pilot_repository()).propose(
+            workspace_id, task_id, tool_call_id=request.tool_call_id,
+            tool_name=request.tool_name, provider=request.provider, payload=request.payload,
+            rationale=request.rationale, proposed_by=request.proposed_by,
+            proposed_at=request.proposed_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except (ValueError, DepartmentPilotConcurrencyError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "external_action_performed": False, "envelope": envelope.model_dump(mode="json")}
+
+
+@router.post("/{workspace_id}/finance/{task_id}/proposals/{tool_call_id}/decision")
+def decide_finance_controlled_proposal(workspace_id: str, task_id: str, tool_call_id: str, request: FinanceControlledProposalDecisionRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        envelope = FinanceControlledActionService(get_department_pilot_repository()).decide(
+            workspace_id, task_id, tool_call_id, approval_id=request.approval_id,
+            approved=request.approved, decided_by=request.decided_by,
+            decided_payload_hash=request.decided_payload_hash, reason=request.reason,
+            decided_at=request.decided_at or _now(),
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except (ValueError, DepartmentPilotConcurrencyError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "external_action_performed": False, "envelope": envelope.model_dump(mode="json")}
+
+
+@router.get("/{workspace_id}/finance/{task_id}/proposals/{tool_call_id}/readiness")
+def finance_controlled_proposal_readiness(workspace_id: str, task_id: str, tool_call_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        return FinanceControlledActionService(get_department_pilot_repository()).execution_readiness(workspace_id, task_id, tool_call_id)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/finance-recurring")
+def create_finance_recurring_schedule(workspace_id: str, request: FinanceRecurringScheduleRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        schedule = FinanceRecurringWorkService(get_business_container_repository()).create(
+            workspace_id, schedule_id=request.schedule_id, kind=request.kind,
+            cadence=request.cadence, next_run_at=request.next_run_at,
+            created_by=request.created_by,
+            minimum_cash_reserve=request.minimum_cash_reserve,
+        )
+    except FileExistsError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "schedule": schedule}
+
+
+@router.get("/finance-recurring")
+def list_finance_recurring_schedules(workspace_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        schedules = FinanceRecurringWorkService(get_business_container_repository()).list(workspace_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "schedules": schedules}
+
+
+@router.post("/finance-recurring-enabled")
+def set_finance_recurring_schedule_enabled(workspace_id: str, schedule_id: str, request: FinanceRecurringEnabledRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        schedule = FinanceRecurringWorkService(get_business_container_repository()).set_enabled(
+            workspace_id, schedule_id, request.enabled
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, "schedule": schedule}
+
+
+@router.post("/finance-recurring-run")
+def run_finance_recurring_schedule(workspace_id: str, schedule_id: str, request: FinanceRecurringRunRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    try:
+        result = FinanceRecurringWorkService(get_business_container_repository()).run(
+            workspace_id, schedule_id, run_at=request.run_at, actor_id=request.actor_id
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "workspace_id": workspace_id, **result}
+
+
+@router.post("/finance-recurring-run-due")
+def run_due_finance_recurring_schedules(workspace_id: str, request: FinanceRecurringRunRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    results = FinanceRecurringWorkService(get_business_container_repository()).run_due(
+        workspace_id, now=request.run_at
+    )
+    return {"ok": True, "workspace_id": workspace_id, "results": results}
+
+
+@router.get("/{workspace_id}/{department_id}/{task_id}/diagnostics")
+def get_department_task_diagnostics(workspace_id: str, department_id: str, task_id: str) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    _profile_or_404(department_id)
+    try:
+        return DepartmentPilotRecoveryService(get_department_pilot_repository()).diagnostics(
+            workspace_id, department_id, task_id
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+
+
+@router.post("/{workspace_id}/{department_id}/{task_id}/retry")
+def retry_department_task(workspace_id: str, department_id: str, task_id: str, request: DepartmentTaskRecoveryRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    _profile_or_404(department_id)
+    try:
+        envelope = DepartmentPilotRecoveryService(get_department_pilot_repository()).retry(
+            workspace_id, department_id, task_id, actor_id=request.actor_id,
+            occurred_at=request.occurred_at, reason=request.reason,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except (ValueError, DepartmentPilotConcurrencyError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "envelope": envelope.model_dump(mode="json")}
+
+
+@router.post("/{workspace_id}/{department_id}/{task_id}/cancel")
+def cancel_department_task(workspace_id: str, department_id: str, task_id: str, request: DepartmentTaskRecoveryRequest) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    _profile_or_404(department_id)
+    try:
+        envelope = DepartmentPilotRecoveryService(get_department_pilot_repository()).cancel(
+            workspace_id, department_id, task_id, actor_id=request.actor_id,
+            occurred_at=request.occurred_at, reason=request.reason,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except (ValueError, DepartmentPilotConcurrencyError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "envelope": envelope.model_dump(mode="json")}

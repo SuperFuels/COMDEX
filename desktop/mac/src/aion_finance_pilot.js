@@ -217,6 +217,25 @@
 
   function buildBusinessFinancialModel(state) {
     const calculated = global.AionFinanceModelBuilder?.build?.(state) || {};
+    // Canonical artifact bytes and extracted facts already live in the Business
+    // Container.  Keeping them in this browser handoff duplicated large workbook
+    // analyses and could exhaust localStorage during finalisation.
+    const sourceRecords = (state.source_records || []).map((item) => ({
+      id: item.id,
+      name: item.name,
+      size: item.size,
+      mime_type: item.mime_type,
+      type_label: item.type_label,
+      category: item.category,
+      status: item.status,
+      canonical_record: item.canonical_record || null,
+      file_cabinet_pointer: item.file_cabinet_pointer || null,
+      analysis: item.analysis ? {
+        status: item.analysis.status,
+        candidate_fact_count: item.analysis.candidate_fact_count,
+        accepted_fact_ids: item.analysis.accepted_fact_ids || [],
+      } : null,
+    }));
     const model = {
       schema_version: 'aion.business_financial_model.v1',
       status: 'draft_for_board_review',
@@ -224,7 +243,7 @@
         accounting_platforms: state.accounting_platforms,
         other_accounting_platform: state.other_accounting_platform,
         evidence_sources: state.evidence_sources,
-        source_records: state.source_records,
+        source_records: sourceRecords,
         connector_policy: state.connector_policy,
       },
       discovery_answers: state.answers,
@@ -237,10 +256,16 @@
       created_at: now(),
       updated_at: now(),
     };
-    localStorage.setItem(MODEL_KEY, JSON.stringify(model));
+    let localModelStored = true;
+    try {
+      localStorage.setItem(MODEL_KEY, JSON.stringify(model));
+    } catch (error) {
+      localModelStored = false;
+      console.warn('[AION] Finance model local cache unavailable; canonical Business Container remains authoritative.', error);
+    }
     let foundationPacket = null;
     try { foundationPacket = JSON.parse(localStorage.getItem('aion.businessTwin.foundationPacket.v1') || 'null'); } catch {}
-    localStorage.setItem(BOARDROOM_PACKET_KEY, JSON.stringify({
+    const boardroomPacket = {
       schema_version: 'aion.business_twin.finance_packet.v1',
       department: 'finance',
       status: 'ready_for_boardroom_review',
@@ -254,8 +279,13 @@
         approval_required: true,
       },
       created_at: now(),
-    }));
-    return model;
+    };
+    try {
+      localStorage.setItem(BOARDROOM_PACKET_KEY, JSON.stringify(boardroomPacket));
+    } catch (error) {
+      console.warn('[AION] Finance Boardroom packet local cache unavailable; canonical Business Container remains authoritative.', error);
+    }
+    return { ...model, local_cache_stored: localModelStored };
   }
 
   function refresh() {
@@ -599,6 +629,8 @@
     if (!state.accounting_platforms.includes('xero')) return '';
     const connection = xeroConnection(state);
     const connected = connection.connected === true || connection.status === 'connected';
+    const reauthorisationRequired = connected && connection.reauthorisation_required === true;
+    const missingScopes = Array.isArray(connection.missing_scopes) ? connection.missing_scopes : [];
     const awaiting = connection.status === 'awaiting_authorisation';
     const tenants = Array.isArray(connection.available_tenants) ? connection.available_tenants : [];
     const tenantSelect = connection.status === 'tenant_selection_required' && tenants.length
@@ -614,9 +646,10 @@
           ${connection.last_sync_at ? `<div style="color:#94a3b8;margin-top:4px">Last sync: ${esc(connection.last_sync_at)} · ${Number(summary.account_count || 0)} accounts · ${Number(summary.invoice_count || 0)} invoices · ${Number((summary.reports_received || []).length)} reports</div>` : ''}
           ${connection.last_error ? `<div style="color:#fca5a5;margin-top:6px">${esc(connection.last_error)}</div>` : ''}
           ${connection.config_message ? `<div style="color:#facc15;margin-top:6px">${esc(connection.config_message)}</div>` : ''}
+          ${reauthorisationRequired ? `<div style="color:#facc15;margin-top:7px"><strong>Reauthorisation required.</strong> Xero must approve the additional read-only access for manual journals and projects before those records can sync.${missingScopes.length ? `<br><small>Missing: ${esc(missingScopes.join(', '))}</small>` : ''}</div>` : ''}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
-          ${connected ? `<button type="button" data-aion-xero-sync style="padding:9px 12px;background:#22c55e;color:#052e16;border:1px solid #86efac;font-weight:900">Sync Xero now</button><button type="button" data-aion-xero-disconnect style="padding:9px 12px;background:transparent;color:#fca5a5;border:1px solid #ef4444">Disconnect</button>` : `<button type="button" data-aion-xero-connect style="padding:9px 12px;background:#22c55e;color:#052e16;border:1px solid #86efac;font-weight:900">${awaiting ? 'Restart connection' : 'Connect Xero'}</button>${awaiting ? '<button type="button" data-aion-xero-status style="padding:9px 12px">Check connection</button>' : ''}`}
+          ${connected ? `${reauthorisationRequired ? '<button type="button" data-aion-xero-connect style="padding:9px 12px;background:#facc15;color:#422006;border:1px solid #fde68a;font-weight:900">Reauthorise Xero</button>' : ''}<button type="button" data-aion-xero-sync style="padding:9px 12px;background:#22c55e;color:#052e16;border:1px solid #86efac;font-weight:900">Sync Xero now</button><button type="button" data-aion-xero-disconnect style="padding:9px 12px;background:transparent;color:#fca5a5;border:1px solid #ef4444">Disconnect</button>` : `<button type="button" data-aion-xero-connect style="padding:9px 12px;background:#22c55e;color:#052e16;border:1px solid #86efac;font-weight:900">${awaiting ? 'Restart connection' : 'Connect Xero'}</button>${awaiting ? '<button type="button" data-aion-xero-status style="padding:9px 12px">Check connection</button>' : ''}`}
         </div>
       </div>
       ${tenantSelect}
@@ -701,7 +734,13 @@
 
   function renderReview(state) {
     const rows = schema.questions.map((q, index) => `<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;padding:9px 0;border-bottom:1px solid rgba(148,163,184,.2)"><div><div style="color:#7dd3fc">${esc(q.prompt)}</div><div style="color:#e2e8f0;margin-top:4px">${esc(state.answers[q.id] || 'Not answered')}</div></div><button type="button" data-aion-finance-edit-answer="${index}" style="align-self:center;background:transparent;color:#7dd3fc;border:1px solid rgba(56,189,248,.5);padding:6px 9px">Edit</button></div>`).join('');
-    return `<div style="color:#86efac;font-weight:900;letter-spacing:.2em;text-transform:uppercase">&gt; Finance Discovery · Review</div><p style="color:#cbd5e1">Review the captured baseline. Finalising creates the first Business Financial Model for the Boardroom; it does not authorise payments or external changes.</p><div style="max-height:380px;overflow:auto">${rows}</div><div style="display:flex;justify-content:space-between;margin-top:18px"><button data-aion-finance-back style="padding:10px 16px">Back</button><button data-aion-finance-finalise style="padding:10px 16px;background:#22c55e;color:#052e16;border:0;font-weight:900">Build Financial Model</button></div>`;
+    const finalisation = state.finalisation || {};
+    const message = finalisation.status === 'failed'
+      ? `<div role="alert" style="margin-top:12px;padding:10px;border:1px solid #ef4444;color:#fecaca">Financial model could not be finalised: ${esc(finalisation.error || 'Unknown error')}. Your discovery answers remain saved; retry when the local backend is available.</div>`
+      : finalisation.status === 'building'
+        ? '<div style="margin-top:12px;color:#bae6fd">Building the canonical model and confirming the Business Container receipt…</div>'
+        : '';
+    return `<div style="color:#86efac;font-weight:900;letter-spacing:.2em;text-transform:uppercase">&gt; Finance Discovery · Review</div><p style="color:#cbd5e1">Review the captured baseline. Finalising creates the first Business Financial Model for the Boardroom; it does not authorise payments or external changes.</p><div style="max-height:380px;overflow:auto">${rows}</div>${message}<div style="display:flex;justify-content:space-between;margin-top:18px"><button data-aion-finance-back style="padding:10px 16px" ${finalisation.status === 'building' ? 'disabled' : ''}>Back</button><button data-aion-finance-finalise style="padding:10px 16px;background:#22c55e;color:#052e16;border:0;font-weight:900" ${finalisation.status === 'building' ? 'disabled aria-busy="true"' : ''}>${finalisation.status === 'building' ? 'Building Financial Model…' : 'Build Financial Model'}</button></div>`;
   }
 
   function renderComplete(state) {
@@ -842,10 +881,43 @@
       state.status = 'discovery';
       state.question_index = Number(action.dataset.aionFinanceEditAnswer || 0);
     } else if (action.matches('[data-aion-finance-finalise]')) {
-      state.status = 'complete';
-      state.completed_at = now();
-      buildBusinessFinancialModel(state);
-      global.AionBusinessTwinOrchestrator?.completeFinancePilot?.({ completed_at: state.completed_at, model_key: MODEL_KEY, approval_gated: true });
+      action.disabled = true;
+      state.finalisation = { status: 'building', started_at: now(), error: null };
+      persistWithoutContainerSync(state);
+      refresh();
+      (async () => {
+        try {
+          const latest = load();
+          latest.status = 'complete';
+          latest.completed_at = now();
+          const model = buildBusinessFinancialModel(latest);
+          const sync = await global.AionBusinessContainerClient?.syncFinanceStateNow?.(latest);
+          if (!sync?.ok) throw new Error(sync?.reason || 'Canonical Finance Business Container receipt was not returned');
+          latest.finalisation = {
+            status: 'complete',
+            completed_at: latest.completed_at,
+            business_id: sync.business_id,
+            finance_model_receipt: sync.finance_model || null,
+            local_cache_stored: model.local_cache_stored !== false,
+          };
+          save(latest);
+          global.AionBusinessTwinOrchestrator?.completeFinancePilot?.({
+            completed_at: latest.completed_at,
+            model_key: MODEL_KEY,
+            business_id: sync.business_id,
+            finance_model_receipt: sync.finance_model || null,
+            approval_gated: true,
+          });
+          refresh();
+        } catch (error) {
+          const latest = load();
+          latest.status = 'review';
+          latest.finalisation = { status: 'failed', failed_at: now(), error: String(error?.message || error) };
+          persistWithoutContainerSync(latest);
+          refresh();
+        }
+      })();
+      return;
     } else if (action.matches('[data-aion-finance-operational-send]')) {
       const input = document.querySelector('[data-aion-finance-operational-answer]');
       const userText = String(input?.value || '').trim();

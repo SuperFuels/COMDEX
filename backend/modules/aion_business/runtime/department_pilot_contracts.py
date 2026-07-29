@@ -240,7 +240,7 @@ _TASK_TRANSITIONS = {
     "blocked": {"queued", "retry_scheduled", "failed", "cancelled"},
     "retry_scheduled": {"queued", "failed", "cancelled"},
     "completed": set(),
-    "failed": set(),
+    "failed": {"retry_scheduled", "cancelled"},
     "cancelled": set(),
 }
 

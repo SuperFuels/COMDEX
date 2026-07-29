@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import UTC, date, datetime, timedelta
+import asyncio
 from hashlib import sha256
 import base64
 import json
@@ -22,6 +23,9 @@ from backend.modules.aion_business.contracts.business_containers import (
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import (
+    WorkflowFileCabinetRepository,
+)
 
 
 router = APIRouter(prefix="/api/aion/integrations", tags=["aion-finance-integrations"])
@@ -30,6 +34,7 @@ XERO_AUTHORIZE_URL = "https://login.xero.com/identity/connect/authorize"
 XERO_TOKEN_URL = "https://identity.xero.com/connect/token"
 XERO_CONNECTIONS_URL = "https://api.xero.com/connections"
 XERO_ACCOUNTING_BASE = "https://api.xero.com/api.xro/2.0"
+XERO_PROJECTS_BASE = "https://api.xero.com/projects.xro/2.0"
 XERO_KEYCHAIN_SERVICE = "com.tessaris.aion.xero"
 XERO_SCOPES = [
     "offline_access",
@@ -37,9 +42,11 @@ XERO_SCOPES = [
     "accounting.invoices.read",
     "accounting.payments.read",
     "accounting.banktransactions.read",
+    "accounting.manualjournals.read",
     "accounting.reports.profitandloss.read",
     "accounting.reports.balancesheet.read",
     "accounting.reports.banksummary.read",
+    "projects.read",
 ]
 
 
@@ -79,19 +86,87 @@ def _write_json(path: Path, payload: Any, mode: int = 0o600) -> None:
         pass
 
 
+def _record_connector_attempt(
+    business_id: str | None,
+    *,
+    operation: str,
+    status: str,
+    attempt: int,
+    provider_status: int | None = None,
+    retryable: bool = False,
+    error_code: str | None = None,
+    error_type: str | None = None,
+) -> Dict[str, Any] | None:
+    """Persist a secret-free connector receipt and File Cabinet pointer."""
+    if not business_id:
+        return None
+    business_id = canonical_business_id(business_id)
+    occurred_at = _now()
+    receipt_id = f"xero_{datetime.now(UTC).strftime('%Y%m%dT%H%M%S%fZ')}_{secrets.token_hex(3)}"
+    receipt = {
+        "schema_version": "aion.connector_attempt_receipt.v1",
+        "receipt_id": receipt_id,
+        "business_id": business_id,
+        "department_id": "finance",
+        "provider": "xero",
+        "operation": operation,
+        "status": status,
+        "attempt": attempt,
+        "provider_status": provider_status,
+        "retryable": retryable,
+        "error_code": error_code,
+        "error_type": error_type,
+        "occurred_at": occurred_at,
+        "external_write_performed": False,
+        "contains_credentials": False,
+    }
+    receipt["receipt_hash"] = _hash(receipt)
+    path = _integration_dir(business_id) / "receipts" / f"{receipt_id}.json"
+    _write_json(path, receipt)
+    tree = WorkflowFileCabinetRepository.load(business_id)
+    folders = tree.get("folders") or (tree.get("root") or {}).get("children") or []
+    finance = next((item for item in folders if item.get("id") == "folder_finance"), None)
+    if finance is None:
+        finance = {"id": "folder_finance", "name": "Finance", "type": "department", "children": []}
+        folders.append(finance)
+    children = finance.setdefault("children", [])
+    receipt_folder = next((item for item in children if item.get("id") == "folder_finance_connector_receipts"), None)
+    if receipt_folder is None:
+        receipt_folder = {"id": "folder_finance_connector_receipts", "name": "Connector Receipts", "type": "folder", "children": []}
+        children.append(receipt_folder)
+    receipt_folder.setdefault("children", []).append({
+        "id": f"finance_connector_receipt_pointer_{receipt_id}",
+        "name": f"Xero · {operation} · {status} · attempt {attempt}",
+        "type": "business_container_artifact",
+        "document_type": "connector_attempt_receipt",
+        "status": status,
+        "target": {"storage_path": str(path), "receipt_hash": receipt["receipt_hash"]},
+    })
+    tree["folders"] = folders
+    tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}
+    WorkflowFileCabinetRepository.save(business_id, tree)
+    return receipt
+
+
 def _public_connection(business_id: str) -> Dict[str, Any]:
     value = _read_json(_connection_path(business_id), {})
+    granted_scopes = list(value.get("scopes") or [])
+    missing_scopes = [scope for scope in XERO_SCOPES if scope not in granted_scopes]
+    connected = value.get("status") == "connected"
     return {
         "provider": "xero",
         "business_id": business_id,
         "configured": bool(str(os.getenv("XERO_CLIENT_ID") or "").strip()),
         "status": value.get("status") or "not_connected",
-        "connected": value.get("status") == "connected",
+        "connected": connected,
         "tenant_id": value.get("tenant_id"),
         "tenant_name": value.get("tenant_name"),
         "tenant_type": value.get("tenant_type"),
         "available_tenants": value.get("available_tenants") or [],
-        "scopes": value.get("scopes") or XERO_SCOPES,
+        "scopes": granted_scopes,
+        "required_scopes": XERO_SCOPES,
+        "missing_scopes": missing_scopes,
+        "reauthorisation_required": connected and bool(missing_scopes),
         "read_only": True,
         "external_writes_enabled": False,
         "connected_at": value.get("connected_at"),
@@ -160,16 +235,67 @@ def _pkce_challenge(verifier: str) -> str:
     return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
 
 
-async def _token_request(data: Dict[str, str]) -> Dict[str, Any]:
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.post(
-            XERO_TOKEN_URL,
-            data=data,
-            headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
-        )
-    if response.status_code >= 400:
-        raise HTTPException(status_code=502, detail=f"xero_token_exchange_failed:{response.text[:500]}")
-    token = response.json()
+async def _xero_request_json(
+    operation: str,
+    method: str,
+    url: str,
+    *,
+    timeout: float,
+    attempts: int = 3,
+    business_id: str | None = None,
+    **kwargs: Any,
+) -> Any:
+    """Bounded retry policy with structured, secret-free diagnostics."""
+    last_error: Exception | None = None
+    for attempt in range(1, attempts + 1):
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.request(method, url, **kwargs)
+            retryable = response.status_code == 429 or response.status_code >= 500
+            if response.status_code < 400:
+                try:
+                    value = response.json()
+                    _record_connector_attempt(business_id, operation=operation, status="succeeded", attempt=attempt, provider_status=response.status_code)
+                    return value
+                except ValueError as exc:
+                    _record_connector_attempt(business_id, operation=operation, status="failed", attempt=attempt, provider_status=response.status_code, error_code="xero_invalid_json")
+                    raise HTTPException(status_code=502, detail={
+                        "code": "xero_invalid_json", "provider": "xero",
+                        "operation": operation, "attempt": attempt, "retryable": False,
+                    }) from exc
+            if not retryable or attempt == attempts:
+                _record_connector_attempt(business_id, operation=operation, status="failed", attempt=attempt, provider_status=response.status_code, retryable=retryable, error_code="xero_provider_request_failed")
+                raise HTTPException(status_code=502, detail={
+                    "code": "xero_provider_request_failed", "provider": "xero",
+                    "operation": operation, "provider_status": response.status_code,
+                    "attempt": attempt, "retryable": retryable,
+                })
+            _record_connector_attempt(business_id, operation=operation, status="retrying", attempt=attempt, provider_status=response.status_code, retryable=True, error_code="xero_provider_retryable_status")
+        except HTTPException:
+            raise
+        except (httpx.TimeoutException, httpx.TransportError) as exc:
+            last_error = exc
+            if attempt == attempts:
+                _record_connector_attempt(business_id, operation=operation, status="failed", attempt=attempt, retryable=True, error_code="xero_provider_unavailable", error_type=type(exc).__name__)
+                raise HTTPException(status_code=504, detail={
+                    "code": "xero_provider_unavailable", "provider": "xero",
+                    "operation": operation, "attempt": attempt,
+                    "error_type": type(exc).__name__, "retryable": True,
+                }) from exc
+            _record_connector_attempt(business_id, operation=operation, status="retrying", attempt=attempt, retryable=True, error_code="xero_transport_retry", error_type=type(exc).__name__)
+        await asyncio.sleep(min(0.25 * (2 ** (attempt - 1)), 2.0))
+    raise HTTPException(status_code=504, detail={
+        "code": "xero_provider_unavailable", "provider": "xero",
+        "operation": operation, "error_type": type(last_error).__name__ if last_error else "Unknown",
+        "retryable": True,
+    })
+
+
+async def _token_request(data: Dict[str, str], business_id: str | None = None) -> Dict[str, Any]:
+    token = await _xero_request_json(
+        "token_exchange", "POST", XERO_TOKEN_URL, timeout=30.0, business_id=business_id, data=data,
+        headers={"Accept": "application/json", "Content-Type": "application/x-www-form-urlencoded"},
+    )
     token["obtained_at"] = _now()
     token["expires_at"] = (
         datetime.now(UTC) + timedelta(seconds=max(60, int(token.get("expires_in") or 1800)))
@@ -197,22 +323,18 @@ async def _valid_access_token(business_id: str) -> str:
         "grant_type": "refresh_token",
         "refresh_token": refresh,
         "client_id": client_id,
-    })
+    }, business_id)
     if not refreshed.get("refresh_token"):
         refreshed["refresh_token"] = refresh
     _TokenStore.save(business_id, refreshed)
     return str(refreshed.get("access_token") or "")
 
 
-async def _connections(access_token: str) -> list[Dict[str, Any]]:
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        response = await client.get(
-            XERO_CONNECTIONS_URL,
-            headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
-        )
-    if response.status_code >= 400:
-        raise HTTPException(status_code=502, detail=f"xero_connections_failed:{response.text[:500]}")
-    value = response.json()
+async def _connections(access_token: str, business_id: str | None = None) -> list[Dict[str, Any]]:
+    value = await _xero_request_json(
+        "connections", "GET", XERO_CONNECTIONS_URL, timeout=30.0, business_id=business_id,
+        headers={"Authorization": f"Bearer {access_token}", "Accept": "application/json"},
+    )
     return value if isinstance(value, list) else []
 
 
@@ -229,6 +351,17 @@ def _tenant_public(item: Dict[str, Any]) -> Dict[str, Any]:
 def xero_status(candidate: str) -> Dict[str, Any]:
     business_id = canonical_business_id(candidate)
     return {"ok": True, "connection": _public_connection(business_id)}
+
+
+@router.get("/xero/{candidate}/receipts")
+def xero_connector_receipts(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    receipt_dir = _integration_dir(business_id) / "receipts"
+    receipts = [
+        _read_json(path, {})
+        for path in sorted(receipt_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True)
+    ] if receipt_dir.exists() else []
+    return {"ok": True, "business_id": business_id, "receipts": receipts}
 
 
 @router.post("/xero/{candidate}/connect")
@@ -301,9 +434,9 @@ async def xero_callback(
         "redirect_uri": str(pending.get("redirect_uri") or _redirect_uri()),
         "client_id": str(os.getenv("XERO_CLIENT_ID") or "").strip(),
         "code_verifier": str(pending.get("code_verifier") or ""),
-    })
+    }, business_id)
     secret_ref = _TokenStore.save(business_id, token)
-    tenants = [_tenant_public(item) for item in await _connections(str(token.get("access_token") or ""))]
+    tenants = [_tenant_public(item) for item in await _connections(str(token.get("access_token") or ""), business_id)]
     selected = tenants[0] if len(tenants) == 1 else {}
     connection = {
         "provider": "xero",
@@ -335,7 +468,7 @@ class TenantSelection(BaseModel):
 async def select_xero_tenant(candidate: str, request: TenantSelection) -> Dict[str, Any]:
     business_id = canonical_business_id(candidate)
     access_token = await _valid_access_token(business_id)
-    tenants = [_tenant_public(item) for item in await _connections(access_token)]
+    tenants = [_tenant_public(item) for item in await _connections(access_token, business_id)]
     selected = next((item for item in tenants if item.get("tenant_id") == request.tenant_id), None)
     if not selected:
         raise HTTPException(status_code=404, detail="xero_tenant_not_found")
@@ -350,21 +483,37 @@ async def select_xero_tenant(candidate: str, request: TenantSelection) -> Dict[s
     return {"ok": True, "connection": _public_connection(business_id)}
 
 
-async def _xero_get(access_token: str, tenant_id: str, path: str, params: Dict[str, Any] | None = None) -> Dict[str, Any]:
-    async with httpx.AsyncClient(timeout=45.0) as client:
-        response = await client.get(
-            f"{XERO_ACCOUNTING_BASE}/{path.lstrip('/')}",
-            params=params or {},
-            headers={
-                "Authorization": f"Bearer {access_token}",
-                "Xero-tenant-id": tenant_id,
-                "Accept": "application/json",
-            },
-        )
-    if response.status_code >= 400:
-        raise HTTPException(status_code=502, detail=f"xero_{path.replace('/', '_')}_failed:{response.text[:500]}")
-    value = response.json()
+async def _xero_get(access_token: str, tenant_id: str, path: str, params: Dict[str, Any] | None = None,
+                    business_id: str | None = None) -> Dict[str, Any]:
+    value = await _xero_request_json(
+        path.replace("/", "_"), "GET", f"{XERO_ACCOUNTING_BASE}/{path.lstrip('/')}",
+        timeout=45.0, business_id=business_id, params=params or {},
+        headers={"Authorization": f"Bearer {access_token}", "Xero-tenant-id": tenant_id, "Accept": "application/json"},
+    )
     return value if isinstance(value, dict) else {"value": value}
+
+
+async def _xero_projects_get(access_token: str, tenant_id: str, path: str,
+                             business_id: str | None = None) -> Dict[str, Any]:
+    value = await _xero_request_json(
+        f"projects_{path.replace('/', '_')}", "GET", f"{XERO_PROJECTS_BASE}/{path.lstrip('/')}",
+        timeout=45.0, business_id=business_id,
+        headers={"Authorization": f"Bearer {access_token}", "Xero-tenant-id": tenant_id, "Accept": "application/json"},
+    )
+    return value if isinstance(value, dict) else {"value": value}
+
+
+async def _xero_get_collection_pages(access_token: str, tenant_id: str, path: str,
+                                     root: str, business_id: str, *, max_pages: int = 20) -> Dict[str, Any]:
+    """Retrieve a bounded accounting collection without loading an unbounded history."""
+    records: list[Dict[str, Any]] = []
+    for page in range(1, max_pages + 1):
+        payload = await _xero_get(access_token, tenant_id, path, {"page": page}, business_id)
+        batch = [item for item in (payload.get(root) or []) if isinstance(item, dict)]
+        records.extend(batch)
+        if len(batch) < 100:
+            return {root: records, "AionPagination": {"pages_fetched": page, "truncated": False}}
+    return {root: records, "AionPagination": {"pages_fetched": max_pages, "truncated": True}}
 
 
 def _update_finance_model_with_xero(business_id: str, snapshot: Dict[str, Any], evidence_ref: Dict[str, Any]) -> None:
@@ -415,14 +564,42 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
         "organisation": ("Organisation", {}),
         "accounts": ("Accounts", {}),
         "invoices": ("Invoices", {"page": 1}),
+        "bank_transactions": ("BankTransactions", {"page": 1}),
+        "payments": ("Payments", {"page": 1}),
+        "manual_journals": ("ManualJournals", {"page": 1}),
+        "tracking_categories": ("TrackingCategories", {}),
         "profit_and_loss": ("Reports/ProfitAndLoss", {"fromDate": from_date.isoformat(), "toDate": to_date.isoformat(), "standardLayout": "true"}),
         "balance_sheet": ("Reports/BalanceSheet", {"date": to_date.isoformat(), "standardLayout": "true"}),
         "bank_summary": ("Reports/BankSummary", {"fromDate": from_date.isoformat(), "toDate": to_date.isoformat()}),
     }
     raw: Dict[str, Any] = {}
+    optional_failures: list[Dict[str, Any]] = []
     try:
         for key, (path, params) in requests.items():
-            raw[key] = await _xero_get(access_token, tenant_id, path, params)
+            try:
+                collection_root = {"invoices": "Invoices", "bank_transactions": "BankTransactions", "payments": "Payments", "manual_journals": "ManualJournals"}.get(key)
+                raw[key] = (
+                    await _xero_get_collection_pages(access_token, tenant_id, path, collection_root, business_id)
+                    if collection_root else await _xero_get(access_token, tenant_id, path, params, business_id)
+                )
+            except HTTPException as exc:
+                if key not in {"bank_transactions", "payments", "manual_journals", "tracking_categories"}:
+                    raise
+                raw[key] = {
+                    {"bank_transactions": "BankTransactions", "payments": "Payments", "manual_journals": "ManualJournals", "tracking_categories": "TrackingCategories"}[key]: []
+                }
+                detail = exc.detail if isinstance(exc.detail, dict) else {}
+                optional_failures.append({"collection": key, "code": detail.get("code") or "xero_optional_collection_unavailable", "provider_status": detail.get("provider_status")})
+        try:
+            project_payload = await _xero_projects_get(access_token, tenant_id, "Projects", business_id)
+            raw["projects"] = {
+                "Projects": project_payload.get("Projects") or project_payload.get("items") or [],
+                "AionPagination": project_payload.get("pagination") or {},
+            }
+        except HTTPException as exc:
+            raw["projects"] = {"Projects": []}
+            detail = exc.detail if isinstance(exc.detail, dict) else {}
+            optional_failures.append({"collection": "projects", "code": detail.get("code") or "xero_projects_unavailable", "provider_status": detail.get("provider_status")})
     except Exception as exc:
         connection.update({"last_sync_status": "failed", "last_error": str(exc)[:1000]})
         _write_json(_connection_path(business_id), connection)
@@ -437,7 +614,13 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
         "organisation_count": len(raw.get("organisation", {}).get("Organisations") or []),
         "account_count": len(raw.get("accounts", {}).get("Accounts") or []),
         "invoice_count": len(raw.get("invoices", {}).get("Invoices") or []),
+        "bank_transaction_count": len(raw.get("bank_transactions", {}).get("BankTransactions") or []),
+        "payment_count": len(raw.get("payments", {}).get("Payments") or []),
+        "manual_journal_count": len(raw.get("manual_journals", {}).get("ManualJournals") or []),
+        "tracking_category_count": len(raw.get("tracking_categories", {}).get("TrackingCategories") or []),
+        "project_count": len(raw.get("projects", {}).get("Projects") or []),
         "reports_received": [key for key in ["profit_and_loss", "balance_sheet", "bank_summary"] if raw.get(key)],
+        "optional_collection_failures": optional_failures,
     }
     snapshot = {
         "schema_version": "aion.xero.read_only_sync.v1",

@@ -6,6 +6,8 @@ import json
 from pathlib import Path
 
 from fastapi import UploadFile
+from fastapi import HTTPException
+import httpx
 
 from backend.modules.aion_business.api import business_twin_data_api as data_api
 from backend.modules.aion_business.api import finance_integrations_api as xero_api
@@ -41,9 +43,27 @@ def test_xero_connect_uses_pkce_and_read_only_granular_scopes(monkeypatch, tmp_p
     assert "code_challenge=" in result["connect_url"]
     assert "code_challenge_method=S256" in result["connect_url"]
     assert "accounting.invoices.read" in result["connect_url"]
+    assert "accounting.manualjournals.read" in result["connect_url"]
+    assert "projects.read" in result["connect_url"]
     pending = json.loads((AIONBusinessPaths.business_container_dir("home-fixed") / "integrations/xero/oauth_pending.json").read_text())
     assert pending["code_verifier"]
     assert "access_token" not in pending
+
+
+def test_existing_xero_connection_reports_when_new_read_only_scopes_need_reauthorisation(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+    monkeypatch.setenv("XERO_CLIENT_ID", "test-client-id")
+    xero_api._write_json(xero_api._connection_path("home-fixed"), {
+        "status": "connected", "tenant_id": "tenant-1", "tenant_name": "Home Fixed",
+        "scopes": ["offline_access", "accounting.invoices.read"],
+    })
+    connection = xero_api._public_connection("home-fixed")
+    assert connection["reauthorisation_required"] is True
+    assert "accounting.manualjournals.read" in connection["missing_scopes"]
+    assert "projects.read" in connection["missing_scopes"]
+    pilot = (ROOT / "desktop/mac/src/aion_finance_pilot.js").read_text(encoding="utf-8")
+    assert "Reauthorise Xero" in pilot
+    assert "manual journals and projects" in pilot
 
 
 def test_xero_read_only_sync_updates_canonical_finance_model(monkeypatch, tmp_path: Path) -> None:
@@ -63,7 +83,8 @@ def test_xero_read_only_sync_updates_canonical_finance_model(monkeypatch, tmp_pa
     async def fake_access_token(_business_id: str) -> str:
         return "safe-test-token"
 
-    async def fake_get(_token: str, _tenant: str, path: str, params=None):
+    async def fake_get(_token: str, _tenant: str, path: str, params=None, business_id=None):
+        assert business_id == "home-fixed"
         if path == "Organisation":
             return {"Organisations": [{"Name": "Home Fixed Ltd"}]}
         if path == "Accounts":
@@ -72,17 +93,101 @@ def test_xero_read_only_sync_updates_canonical_finance_model(monkeypatch, tmp_pa
             return {"Invoices": [{"InvoiceID": "i1", "Status": "AUTHORISED"}]}
         return {"Reports": [{"ReportName": path.split("/")[-1], "Rows": []}]}
 
+    async def fake_projects_get(_token: str, _tenant: str, path: str, business_id=None):
+        assert path == "Projects"
+        assert business_id == "home-fixed"
+        return {"items": [{"projectId": "project-1", "name": "Villa repair", "status": "INPROGRESS"}]}
+
     monkeypatch.setattr(xero_api, "_valid_access_token", fake_access_token)
     monkeypatch.setattr(xero_api, "_xero_get", fake_get)
+    monkeypatch.setattr(xero_api, "_xero_projects_get", fake_projects_get)
     result = asyncio.run(xero_api.sync_xero(business_id))
     assert result["ok"] is True
     assert result["snapshot"]["summary"]["account_count"] == 1
     assert result["snapshot"]["summary"]["invoice_count"] == 1
+    assert result["snapshot"]["summary"]["bank_transaction_count"] == 0
+    assert result["snapshot"]["summary"]["project_count"] == 1
     assert result["snapshot"]["read_only"] is True
     assert result["snapshot"]["external_writes_enabled"] is False
     model = json.loads((AIONBusinessPaths.business_container_dir(business_id) / "business_financial_model.json").read_text())
     assert model["integration_evidence"]["xero"]["tenant_name"] == "Home Fixed Ltd"
     assert model["evidence_refs"][0]["verification_status"] == "provider_sourced"
+
+
+def test_xero_provider_calls_use_bounded_retry_and_secret_free_diagnostics(monkeypatch) -> None:
+    statuses = [503, 429, 200]
+    calls = []
+
+    class Response:
+        def __init__(self, status): self.status_code = status
+        def json(self): return {"ok": True}
+
+    class Client:
+        def __init__(self, **_kwargs): pass
+        async def __aenter__(self): return self
+        async def __aexit__(self, *_args): return False
+        async def request(self, method, url, **_kwargs):
+            calls.append((method, url))
+            return Response(statuses.pop(0))
+
+    async def no_sleep(_seconds): return None
+    monkeypatch.setattr(xero_api.httpx, "AsyncClient", Client)
+    monkeypatch.setattr(xero_api.asyncio, "sleep", no_sleep)
+    result = asyncio.run(xero_api._xero_request_json("accounts", "GET", "https://example.invalid", timeout=1))
+    assert result == {"ok": True}
+    assert len(calls) == 3
+
+    class TimeoutClient(Client):
+        async def request(self, method, url, **_kwargs):
+            raise httpx.ReadTimeout("secret-token-must-not-leak")
+
+    monkeypatch.setattr(xero_api.httpx, "AsyncClient", TimeoutClient)
+    try:
+        asyncio.run(xero_api._xero_request_json("accounts", "GET", "https://example.invalid", timeout=1))
+        raise AssertionError("expected provider timeout")
+    except HTTPException as exc:
+        assert exc.status_code == 504
+        assert exc.detail["code"] == "xero_provider_unavailable"
+        assert exc.detail["attempt"] == 3
+        assert "secret-token" not in str(exc.detail)
+
+
+def test_xero_connector_attempts_create_secret_free_restart_durable_receipts(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+
+    class Response:
+        status_code = 503
+
+        def json(self):
+            return {"provider": "temporarily unavailable"}
+
+    class Client:
+        def __init__(self, **_kwargs): pass
+        async def __aenter__(self): return self
+        async def __aexit__(self, *_args): return False
+        async def request(self, _method, _url, **_kwargs): return Response()
+
+    async def no_sleep(_seconds): return None
+    monkeypatch.setattr(xero_api.httpx, "AsyncClient", Client)
+    monkeypatch.setattr(xero_api.asyncio, "sleep", no_sleep)
+    try:
+        asyncio.run(xero_api._xero_request_json(
+            "accounts", "GET", "https://example.invalid", timeout=1,
+            attempts=2, business_id="home-fixed",
+            headers={"Authorization": "Bearer secret-token-must-not-leak"},
+        ))
+        raise AssertionError("expected provider failure")
+    except HTTPException:
+        pass
+
+    listed = xero_api.xero_connector_receipts("home-fixed")
+    assert [item["status"] for item in listed["receipts"]] == ["failed", "retrying"]
+    assert all(item["contains_credentials"] is False for item in listed["receipts"])
+    assert "secret-token" not in json.dumps(listed)
+    cabinet = json.loads((AIONBusinessPaths.ROOT / "workflow_file_cabinets/home-fixed/tree.json").read_text())
+    finance = next(item for item in cabinet["folders"] if item["id"] == "folder_finance")
+    folder = next(item for item in finance["children"] if item["id"] == "folder_finance_connector_receipts")
+    assert len(folder["children"]) == 2
 
 
 def test_finance_csv_upload_analysis_acceptance_and_file_cabinet(monkeypatch, tmp_path: Path) -> None:

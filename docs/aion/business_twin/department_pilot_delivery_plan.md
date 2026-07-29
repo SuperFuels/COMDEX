@@ -154,9 +154,15 @@ Implemented first slice:
 - Expose answer reliability, canonical source labels, revisions and content hashes while retaining a deterministic evidence-grounded fallback when no model provider is available.
 - Bound large offering and unit-economics collections before prompt construction, and omit operating or Boardroom context when the question does not require it.
 
-Remaining Finance capability increments:
+Implemented controlled-action slice:
 
-- Proposed Finance actions that use the exact-payload approval contracts before any controlled side effect.
+- Finance may stage only explicitly permitted draft actions using the shared proposed-tool-call contract.
+- The complete payload is canonicalised and hash-bound before it is shown for approval.
+- A positive decision is rejected unless the founder supplies the exact proposal payload hash.
+- Approval cannot be reused for an altered payload, a different tool call, task, department or business.
+- Approved proposals remain non-executable while the corresponding live connector permission is disabled.
+- The Finance and Central Pilot queues show the exact JSON payload, hash and decision state.
+- No external financial write is enabled by this slice.
 
 Implemented forecasting and scenario slice:
 
@@ -195,6 +201,72 @@ Exit gate: a real approved Boardroom Finance package completes end to end and it
 - Require explicit approval before enabling any schedule that could cause an external side effect.
 
 Exit gate: a recurring read-only Finance task runs, stores its report and updates Finance Intelligence without manual re-entry.
+
+Implemented recurring-work and recovery slice:
+
+- Durable weekly cash updates, monthly management reports, monthly period-close checks and daily cash-buffer/exception alerts.
+- Hash-bound schedule records with enabled state, cadence, next/last run, run count, failure count and latest error.
+- Hash-bound run artifacts stored below the Finance Business Container and indexed under `Finance/Recurring` in the File Cabinet.
+- Compact latest-run projections into Finance Department Intelligence and the Boardroom snapshot.
+- Read-only execution with `external_action_performed: false` on every recurring result.
+- Backend-authoritative pause, resume, manual run and due-run operations.
+- User-visible task diagnostics plus controlled retry, recovery and cancellation without replaying an external action.
+
+Completed Finance finalisation, security and installed-application validation:
+
+- The Finance review screen now builds the model through a canonical backend finalisation transaction. Large workbook analysis is no longer copied into browser storage before the transition, preventing storage-quota failures that previously made **Build Financial Model** appear unresponsive.
+- The interface exposes progress and a recoverable error when canonical persistence fails; Finance is marked complete only after the Business Container returns a receipt.
+- A backend-authoritative Finance security policy now classifies financial summaries, transaction detail, counterparty personal data, credentials and tokens, and payroll or tax-sensitive data.
+- External financial writes remain denied by default. Credentials remain in macOS Keychain and are never stored in the Business Container, Pilot conversation or Boardroom context.
+- Exact-payload approval remains mandatory for any staged action. Payments, transfers, tax filing, journal posting and accounting reconciliation posting remain prohibited.
+- Xero connector success, retry and failure attempts now create durable, secret-free receipts under `Finance/Connector Receipts`, with provider status, retryability, error classification, request hash and an explicit `external_write_performed: false` marker.
+- Installed-app testing has proved that approved Finance work, exact-payload decisions, recurring schedules, last-run/failure state and File Cabinet evidence survive a complete application restart.
+- Route-shadow regressions affecting recurring work, scenarios and reconciliations were removed and covered by backend tests.
+- The installed executable passed when launched directly. Normal macOS `open`/Finder launch did not remain alive reliably in the test environment, so application launch ownership remains a packaging exit-gate item rather than being misreported as complete.
+
+Current Finance capability boundary:
+
+- Finance can read canonical financial evidence and the existing read-only Xero reporting connection.
+- Finance can produce management reports, KPIs, cash views, deterministic forecasts and scenarios.
+- Finance can compare accepted spreadsheet summaries with Xero report summaries for aligned periods.
+- Finance can hold grounded conversations, identify evidence gaps, schedule recurring read-only work and stage controlled proposals.
+- Finance cannot yet match individual bank transactions to invoices or bills, post reconciliations, create journals, edit Xero, send debt-collection messages, issue invoices, make payments or file taxes.
+
+The next Finance milestone is the Finance Director transaction and decision vertical:
+
+1. Build a canonical ledger and transaction layer for accounts, bank transactions, invoices, bills, payments, journals, projects and tracking categories.
+2. Add transaction-level matching, confidence scoring, duplicate and missing-record detection, exceptions and founder/accountant review.
+3. Add an inspectable reconciliation workspace. Suggested matches begin as drafts; any accounting-platform write requires an individually enabled connector permission and exact-payload approval.
+4. Extend the living Business Financial Model across profit and loss, balance sheet, cash flow, receivables, payables, working capital, budgets, jobs/projects, work in progress, pipeline and Products & Services unit economics.
+5. Add proactive Finance Director signals for runway, protected cash reserve, margin erosion, overdue debtors, quote leakage, WIP, capacity and pipeline risk.
+6. Convert recommendations into canonical Boardroom proposals and cross-department requests. Finance may propose invoice chasing, quote follow-up, pricing changes or demand-generation work, but Sales, Marketing and Operations retain their own execution permissions.
+7. Add narrowly scoped connector adapters only after the review and receipt path is proven. Generic Finance write access must never be granted.
+
+Exit gate: Finance can explain the current position, forecast the consequences of a decision, identify the transactions or operational drivers behind a risk, prepare a fully inspectable response, obtain the precise required approval, and return verified evidence to the Business Container and Boardroom.
+
+Completed Finance Director transaction and decision vertical:
+
+- The latest read-only Xero snapshot is normalised into a canonical, hash-verified transaction ledger covering accounts, sales invoices, supplier bills, bank transactions, payments, manual journals, tracking categories and projects.
+- Large ledger collections are persisted as bounded JSONL records below `Finance/Ledgers`; compact counts, receivables, payables and overdue totals are projected into the living Financial Model, Finance Intelligence and File Cabinet.
+- Transaction reconciliation proposes payment-to-invoice and bank-entry-to-invoice matches with confidence scores and reasons. It identifies duplicate records, unmatched entries and overdue receivables/payables in an exception queue.
+- A founder or authorised accountant may accept a suggested match as a draft intent, reject it or mark it for investigation. Review does not post a reconciliation, journal or other change to Xero.
+- The Finance Director operating view combines the canonical ledger, accepted Financial Model and Products & Services operating model into an evidence-labelled operating P&L, partial balance sheet, cash-flow proxy, working-capital view, projects, budgets, WIP, pipeline and unit economics.
+- Net cash burn, rather than total expenses, drives the runway calculation. Signals cover protected-reserve breaches, runway, low margin, operating losses, overdue invoices, quote leakage, weak pipeline, WIP cash, missing unit economics and unverified evidence.
+- Signals produce inspectable Boardroom-review proposals for invoice chasing, quote follow-up, pricing scenarios, controllable-cost review, Sales pipeline work, Marketing demand-generation options and Operations WIP completion. No proposal is routed, sent or executed merely because it was generated.
+- The permanent Finance terminal now contains the Finance Director workspace, ledger controls, working-capital totals, warnings, proposals, suggested matches, review controls and open exceptions.
+- New Xero collections remain read-only. Existing Xero connections may require reauthorisation for the added manual-journal and project scopes.
+- Backend policy explicitly permits ledger construction, transaction matching and reviewed draft intent while continuing to prohibit reconciliation posting, journal posting, payments, transfers and tax filing.
+
+Completed reconciliation intelligence and Xero handoff boundary:
+
+- Known counterparties reuse only mappings previously confirmed by an authorised reviewer. Provider account codes already present on a Xero transaction remain visible as provider evidence.
+- An unknown counterparty may be sent to the configured LLM with a minimised transaction description and the bounded, existing chart of accounts. The model may suggest only an existing account code; invented codes are discarded. Malformed confidence is treated as zero confidence.
+- LLM classification is capped per run. Every new mapping requires human confirmation before it becomes reusable canonical memory. Low-confidence and unsupported classifications become clarification requests rather than bookkeeping entries.
+- Xero's Accounting API does not expose bank-statement-line reconciliation. AION therefore never reports a bank entry as reconciled through the API. It creates an exact, inspectable manual handoff for an accepted draft match, binds approval to the payload hash and stores an immutable provider-limitation receipt in `Finance/Xero Reconciliation Handoffs`.
+- Repeated receipt creation is idempotent, business-container isolation is enforced and the receipt records zero provider reconciliations and `external_write_performed=false`.
+- Existing Xero connections now report missing scopes. When manual-journal or project read access is absent, Finance displays **Reauthorise Xero** before the next sync.
+
+The remaining Finance production boundary is live-data validation of this hybrid review path and, where Xero genuinely exposes a supported write operation, a separately scoped provider adapter. Payment creation, journals, transfers and other mutations must never be conflated with bank-statement reconciliation and remain disabled until separately designed and approved.
 
 ## Phase 7 — Sales design and implementation
 

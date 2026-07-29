@@ -162,6 +162,8 @@
     const artifacts = Array.isArray(envelope?.artifacts) ? envelope.artifacts : [];
     const events = Array.isArray(envelope?.events) ? envelope.events : [];
     const latestEvent = events.length ? events[events.length - 1] : null;
+    const proposals = Array.isArray(envelope?.proposed_tool_calls) ? envelope.proposed_tool_calls : [];
+    const approvals = Array.isArray(envelope?.approvals) ? envelope.approvals : [];
     const canRunFinance = departmentId === 'finance' && task.department_id === 'finance' && task.status === 'queued';
     return `
       <article class="aion-canonical-pilot-task" data-aion-canonical-task-id="${escapeHtml(task.task_id)}">
@@ -169,6 +171,18 @@
         <p>${escapeHtml(task.objective || '')}</p>
         <small>Boardroom package ${escapeHtml(task.package_id || '')} · ${escapeHtml(task.priority || 'medium')} priority</small>
         ${canRunFinance ? `<button type="button" class="aion-finance-run-task" data-aion-finance-run-task="${escapeHtml(task.task_id)}">Run read-only Finance analysis</button>` : ''}
+        ${proposals.map((proposal) => {
+          const approval = approvals.find((item) => item?.tool_call_id === proposal?.tool_call_id);
+          return `<section class="aion-finance-proposal">
+            <strong>&gt; Controlled Finance proposal · ${escapeHtml(proposal.tool_name)}</strong>
+            <pre>${escapeHtml(JSON.stringify(proposal.payload, null, 2))}</pre>
+            <small>Exact payload hash: ${escapeHtml(proposal.payload_hash)} · no external action taken</small>
+            ${approval ? `<p>Decision: ${escapeHtml(approval.status)} · this approval applies only to the displayed payload.</p>` : `<div>
+              <button type="button" data-aion-finance-proposal-decision="approve" data-task-id="${escapeHtml(task.task_id)}" data-tool-call-id="${escapeHtml(proposal.tool_call_id)}" data-payload-hash="${escapeHtml(proposal.payload_hash)}">Approve exact payload</button>
+              <button type="button" data-aion-finance-proposal-decision="reject" data-task-id="${escapeHtml(task.task_id)}" data-tool-call-id="${escapeHtml(proposal.tool_call_id)}">Reject</button>
+            </div>`}
+          </section>`;
+        }).join('')}
         ${handback ? `
           <section class="aion-pilot-handback">
             <strong>&gt; Result ready for Boardroom</strong>
@@ -180,8 +194,46 @@
           <section class="aion-pilot-failure">
             <strong>&gt; Action failed</strong>
             <p>${escapeHtml(latestEvent?.message || 'Finance could not complete this action. Review the error before retrying.')}</p>
+            <button type="button" data-aion-department-task-retry="${escapeHtml(task.task_id)}" data-department-id="${escapeHtml(task.department_id)}">Retry safely</button>
           </section>` : ''}
       </article>`;
+  }
+
+  function financeRecurringPanel(payload) {
+    const schedules = Array.isArray(payload?.schedules) ? payload.schedules : [];
+    const signature = schedules.map((item) => item.schedule_hash || '').join('|') || 'empty';
+    const definitions = [
+      ['weekly_cash_update', 'Weekly cash update', 'weekly'],
+      ['monthly_management_report', 'Monthly management report', 'monthly'],
+      ['period_close_check', 'Period-close check', 'monthly'],
+      ['exception_cash_buffer_alert', 'Cash-buffer and exception alert', 'daily'],
+    ];
+    return `<section class="aion-finance-recurring" data-aion-finance-recurring data-aion-finance-recurring-signature="${escapeHtml(signature)}">
+      <header><strong>&gt; Finance Pilot · recurring work</strong><span>Persistent schedules</span></header>
+      ${schedules.length ? schedules.map((schedule) => `<article>
+        <div><strong>${escapeHtml(schedule.kind.replaceAll('_', ' '))}</strong><span>${escapeHtml(schedule.enabled ? schedule.last_run_status : 'paused')}</span></div>
+        <small>Next ${escapeHtml(schedule.next_run_at)} · ${Number(schedule.run_count || 0)} runs · ${Number(schedule.failure_count || 0)} failures</small>
+        ${schedule.last_error ? `<p>${escapeHtml(schedule.last_error)}</p>` : ''}
+        <button type="button" data-aion-finance-schedule-run="${escapeHtml(schedule.schedule_id)}">Run now</button>
+        <button type="button" data-aion-finance-schedule-enabled="${escapeHtml(schedule.schedule_id)}" data-enabled="${schedule.enabled ? 'false' : 'true'}">${schedule.enabled ? 'Pause' : 'Resume'}</button>
+      </article>`).join('') : '<p>No recurring Finance work is scheduled yet.</p>'}
+      <details><summary>Add a standard Finance schedule</summary><div class="aion-finance-schedule-definitions">
+        ${definitions.map(([kind, label, cadence]) => `<button type="button" data-aion-finance-schedule-create="${kind}" data-cadence="${cadence}">${label}</button>`).join('')}
+      </div><label>Protected cash reserve <input type="number" min="0" step="0.01" value="0" data-aion-finance-schedule-reserve></label></details>
+      <small>Scheduled work is read-only. Outputs are saved under Finance / Recurring and returned to Boardroom context.</small>
+    </section>`;
+  }
+
+  async function refreshFinanceRecurring(terminal, stream, workspaceId) {
+    if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
+    const payload = await financeRecurringSchedules(workspaceId);
+    const signature = (payload?.schedules || []).map((item) => item.schedule_hash || '').join('|') || 'empty';
+    const current = stream.querySelector?.('[data-aion-finance-recurring]');
+    if (current?.getAttribute?.('data-aion-finance-recurring-signature') !== signature) {
+      current?.remove?.();
+      stream.insertAdjacentHTML?.('beforeend', financeRecurringPanel(payload));
+    }
+    return payload;
   }
 
   function queuePanel(payload, departmentId) {
@@ -313,6 +365,70 @@
     return payload;
   }
 
+  function financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload) {
+    const ledger = ledgerPayload?.ledger || null;
+    const director = directorPayload?.finance_director || null;
+    const reconciliation = transactionPayload?.latest_transaction_reconciliation || null;
+    const signals = Array.isArray(director?.proactive_signals) ? director.proactive_signals : [];
+    const proposals = Array.isArray(director?.boardroom_proposals) ? director.boardroom_proposals : [];
+    const matches = Array.isArray(reconciliation?.matches) ? reconciliation.matches.slice(0, 25) : [];
+    const exceptions = Array.isArray(reconciliation?.exceptions) ? reconciliation.exceptions.slice(0, 25) : [];
+    const classifications = Array.isArray(reconciliation?.classifications) ? reconciliation.classifications.slice(0, 25) : [];
+    const handoffs = Array.isArray(handoffPayload?.handoffs) ? handoffPayload.handoffs : [];
+    const handoffFor = (matchId) => handoffs.find((item) => item?.payload?.match_id === matchId) || null;
+    const signature = [ledger?.ledger_hash, director?.director_model_hash, reconciliation?.run_hash, ...handoffs.map((item) => item.handoff_hash)].filter(Boolean).join('|') || 'empty';
+    const currency = director?.currency || ledger?.currency || 'EUR';
+    return `<section class="aion-finance-director" data-aion-finance-director data-aion-finance-director-signature="${escapeHtml(signature)}">
+      <header><strong>&gt; Finance Director · live model and transaction control</strong><span>Read-only · approval gated</span></header>
+      <div class="aion-finance-director-actions">
+        <button type="button" data-aion-finance-build-ledger>${ledger ? 'Rebuild ledger from latest Xero sync' : 'Build canonical transaction ledger'}</button>
+        <label>Protected cash reserve <input type="number" min="0" step="0.01" value="${escapeHtml(director?.cash_flow?.protected_reserve || 0)}" data-aion-finance-director-reserve></label>
+        <button type="button" data-aion-finance-refresh-director>Refresh Finance Director model</button>
+        <button type="button" data-aion-finance-run-transaction-reconciliation ${ledger ? '' : 'disabled'}>Find transaction matches</button>
+      </div>
+      ${ledger ? `<div class="aion-finance-director-kpis">
+        <article><small>Ledger records</small><strong>${Object.values(ledger.record_counts || {}).reduce((sum, value) => sum + Number(value || 0), 0)}</strong></article>
+        <article><small>Receivables</small><strong>${escapeHtml(formatFinanceValue(ledger.summaries?.accounts_receivable, 'money', currency))}</strong></article>
+        <article><small>Payables</small><strong>${escapeHtml(formatFinanceValue(ledger.summaries?.accounts_payable, 'money', currency))}</strong></article>
+        <article><small>Overdue receivables</small><strong>${escapeHtml(formatFinanceValue(ledger.summaries?.overdue_receivables, 'money', currency))}</strong></article>
+      </div><small>Source sync ${escapeHtml(ledger.source_sync_id)} · ${escapeHtml(ledger.ledger_hash)} · records are retrieved in bounded pages</small>` : '<p>No canonical ledger exists. Sync Xero, then build the ledger.</p>'}
+      ${director ? `<div class="aion-finance-director-kpis">
+        <article><small>Operating profit</small><strong>${escapeHtml(formatFinanceValue(director.profit_and_loss?.operating_profit, 'money', currency))}</strong></article>
+        <article><small>Gross margin</small><strong>${escapeHtml(formatFinanceValue(director.profit_and_loss?.gross_margin_percent, 'percent', currency))}</strong></article>
+        <article><small>Latest cash</small><strong>${escapeHtml(formatFinanceValue(director.cash_flow?.opening_or_latest_cash, 'money', currency))}</strong></article>
+        <article><small>Estimated runway</small><strong>${director.cash_flow?.estimated_runway_months == null ? 'Not available' : `${escapeHtml(director.cash_flow.estimated_runway_months)} months`}</strong></article>
+      </div>
+      ${signals.length ? `<details open><summary>${signals.length} Finance Director signal${signals.length === 1 ? '' : 's'}</summary>${signals.map((signal) => `<article class="aion-finance-signal is-${escapeHtml(signal.severity)}"><strong>${escapeHtml(signal.title)}</strong><p>${escapeHtml(signal.recommendation)}</p><small>For ${escapeHtml((signal.target_departments || []).join(', '))} · requires review</small></article>`).join('')}</details>` : '<p>No proactive warning is currently supported by the available evidence.</p>'}
+      ${proposals.length ? `<details><summary>${proposals.length} proposed Boardroom action${proposals.length === 1 ? '' : 's'}</summary>${proposals.map((proposal) => `<article class="aion-finance-director-proposal"><strong>${escapeHtml(proposal.title)}</strong><p>${escapeHtml(proposal.rationale)}</p><small>Target: ${escapeHtml(proposal.target_department)} · payload ${escapeHtml(proposal.payload_hash)} · not routed or executed</small></article>`).join('')}</details>` : ''}` : '<p>Refresh the Finance Director model to calculate the live operating view and proactive signals.</p>'}
+      ${reconciliation ? `<details open><summary>Transaction reconciliation · ${Number(reconciliation.match_count || 0)} suggested matches · ${Number(reconciliation.exception_count || 0)} exceptions</summary>
+        ${matches.map((match) => { const handoff = handoffFor(match.match_id); return `<article class="aion-finance-transaction-match"><div><strong>${escapeHtml(match.match_type.replaceAll('_', ' '))}</strong><span>${escapeHtml(match.confidence)} · ${Number(match.confidence_score || 0)}%</span></div><p>${escapeHtml((match.reasons || []).join(' · '))}</p><small>${escapeHtml(match.invoice?.invoice_number || match.invoice?.invoice_id || '')} · ${escapeHtml(match.payment?.payment_id || match.bank_transaction?.bank_transaction_id || '')}</small>
+          ${match.review ? `<em>${escapeHtml(match.review.decision)} · provider not changed</em>${match.review.decision === 'accept_match' ? (handoff ? `<details><summary>Xero handoff · ${escapeHtml(handoff.status.replaceAll('_', ' '))}</summary><pre>${escapeHtml(JSON.stringify(handoff.payload, null, 2))}</pre><small>Exact payload hash: ${escapeHtml(handoff.payload_hash)}</small>${handoff.status === 'exact_approval_required' ? `<div><button type="button" data-aion-xero-handoff-decision="approve" data-handoff-id="${escapeHtml(handoff.handoff_id)}" data-payload-hash="${escapeHtml(handoff.payload_hash)}">Approve this exact handoff</button><button type="button" data-aion-xero-handoff-decision="reject" data-handoff-id="${escapeHtml(handoff.handoff_id)}">Reject</button></div>` : ''}${handoff.status === 'approved_manual_handoff' ? `<button type="button" data-aion-xero-handoff-receipt data-handoff-id="${escapeHtml(handoff.handoff_id)}">Create immutable limitation receipt</button>` : ''}${handoff.status === 'manual_xero_action_required' ? `<p>Complete this reconciliation in Xero Bank Rec or Cash Coding. The limitation receipt is stored in the Finance File Cabinet.</p>` : ''}</details>` : `<button type="button" data-aion-xero-handoff-prepare data-run-id="${escapeHtml(reconciliation.run_id)}" data-match-id="${escapeHtml(match.match_id)}">Prepare exact Xero handoff</button>`) : ''}` : `<div><button type="button" data-aion-transaction-match-review="accept_match" data-run-id="${escapeHtml(reconciliation.run_id)}" data-match-id="${escapeHtml(match.match_id)}">Accept draft match</button><button type="button" data-aion-transaction-match-review="reject_match" data-run-id="${escapeHtml(reconciliation.run_id)}" data-match-id="${escapeHtml(match.match_id)}">Reject</button><button type="button" data-aion-transaction-match-review="needs_investigation" data-run-id="${escapeHtml(reconciliation.run_id)}" data-match-id="${escapeHtml(match.match_id)}">Investigate</button></div>`}
+        </article>`; }).join('')}
+        ${classifications.length ? `<h4>Counterparty intelligence</h4>${classifications.map((item) => `<article class="aion-finance-counterparty-suggestion"><div><strong>${escapeHtml(item.counterparty || 'Unknown counterparty')}</strong><span>${escapeHtml(item.source.replaceAll('_', ' '))} · ${Math.round(Number(item.confidence || 0) * 100)}%</span></div><p>${escapeHtml(item.rationale || '')}</p><p>${item.suggested_account ? `Suggested account: <strong>${escapeHtml(item.suggested_account.code)} · ${escapeHtml(item.suggested_account.name)}</strong>` : escapeHtml(item.question_for_human || 'Finance needs a human classification.')}</p>
+          ${item.review ? `<em>${escapeHtml(item.review.decision)} · reusable mappings only come from confirmed reviews</em>` : `<div>${item.suggested_account ? `<button type="button" data-aion-counterparty-classification-review="accept_mapping" data-run-id="${escapeHtml(reconciliation.run_id)}" data-suggestion-id="${escapeHtml(item.suggestion_id)}" data-account="${escapeHtml(JSON.stringify(item.suggested_account))}">Confirm and remember</button>` : ''}<button type="button" data-aion-counterparty-classification-review="reject_mapping" data-run-id="${escapeHtml(reconciliation.run_id)}" data-suggestion-id="${escapeHtml(item.suggestion_id)}">Reject</button><button type="button" data-aion-counterparty-classification-review="needs_clarification" data-run-id="${escapeHtml(reconciliation.run_id)}" data-suggestion-id="${escapeHtml(item.suggestion_id)}">Ask me</button></div>`}
+        </article>`).join('')}` : ''}
+        ${exceptions.length ? `<h4>Open exceptions</h4>${exceptions.map((item) => `<article class="aion-finance-exception"><strong>${escapeHtml(item.kind.replaceAll('_', ' '))}</strong><span>${escapeHtml(item.severity)}</span><pre>${escapeHtml(JSON.stringify(item.detail, null, 2))}</pre></article>`).join('')}` : ''}
+        <small>AION may suggest a category, but only a confirmed human review creates reusable mapping memory. Accepting a match never posts a reconciliation or journal to Xero.</small>
+      </details>` : '<p>No transaction matching run exists.</p>'}
+    </section>`;
+  }
+
+  async function refreshFinanceDirector(terminal, stream, workspaceId) {
+    if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
+    const [ledgerPayload, directorPayload, transactionPayload, handoffPayload] = await Promise.all([
+      financeLedger(workspaceId), financeDirector(workspaceId), financeTransactionReconciliation(workspaceId), financeXeroReconciliationHandoffs(workspaceId),
+    ]);
+    const signature = [ledgerPayload?.ledger?.ledger_hash, directorPayload?.finance_director?.director_model_hash, transactionPayload?.latest_transaction_reconciliation?.run_hash, ...(handoffPayload?.handoffs || []).map((item) => item.handoff_hash)].filter(Boolean).join('|') || 'empty';
+    const current = stream.querySelector?.('[data-aion-finance-director]');
+    if (current?.getAttribute?.('data-aion-finance-director-signature') !== signature) {
+      current?.remove?.();
+      const scenario = stream.querySelector?.('[data-aion-finance-scenario]');
+      if (scenario) scenario.insertAdjacentHTML?.('beforebegin', financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload));
+      else stream.insertAdjacentHTML?.('beforeend', financeDirectorPanel(ledgerPayload, directorPayload, transactionPayload, handoffPayload));
+    }
+    return { ledgerPayload, directorPayload, transactionPayload, handoffPayload };
+  }
+
   async function refreshFinanceConversation(terminal, stream, workspaceId) {
     if (!terminal || !stream || terminal.getAttribute('data-aion-pilot-role') !== 'finance') return null;
     const payload = await financeConversationSession(workspaceId);
@@ -375,6 +491,8 @@
       }
       applyActivationGate(terminal, stream, payload, departmentId);
       if (departmentId === 'finance') {
+        await refreshFinanceRecurring(terminal, stream, workspaceId);
+        await refreshFinanceDirector(terminal, stream, workspaceId);
         await refreshFinanceScenario(terminal, stream, workspaceId);
         await refreshFinanceReconciliation(terminal, stream, workspaceId);
         await refreshFinanceConversation(terminal, stream, workspaceId);
@@ -420,8 +538,49 @@
     return request(`/${encodeURIComponent(workspaceId)}/finance/conversation/session`);
   }
 
+  function financeRecurringSchedules(workspaceId) {
+    return request(`/finance-recurring?workspace_id=${encodeURIComponent(workspaceId)}`);
+  }
+
+  function createFinanceRecurringSchedule(workspaceId, kind, cadence, minimumCashReserve = 0) {
+    return request(`/finance-recurring?workspace_id=${encodeURIComponent(workspaceId)}`, {
+      method: 'POST', body: JSON.stringify({
+        schedule_id: kind, kind, cadence, next_run_at: new Date().toISOString(),
+        created_by: 'founder', minimum_cash_reserve: minimumCashReserve,
+      }),
+    });
+  }
+
+  function setFinanceRecurringEnabled(workspaceId, scheduleId, enabled) {
+    return request(`/finance-recurring-enabled?workspace_id=${encodeURIComponent(workspaceId)}&schedule_id=${encodeURIComponent(scheduleId)}`, {
+      method: 'POST', body: JSON.stringify({ enabled }),
+    });
+  }
+
+  function runFinanceRecurring(workspaceId, scheduleId) {
+    return request(`/finance-recurring-run?workspace_id=${encodeURIComponent(workspaceId)}&schedule_id=${encodeURIComponent(scheduleId)}`, {
+      method: 'POST', body: JSON.stringify({ actor_id: 'founder', run_at: new Date().toISOString() }),
+    });
+  }
+
+  function decideFinanceProposal(workspaceId, taskId, toolCallId, approved, payloadHash) {
+    return request(`/${encodeURIComponent(workspaceId)}/finance/${encodeURIComponent(taskId)}/proposals/${encodeURIComponent(toolCallId)}/decision`, {
+      method: 'POST', body: JSON.stringify({
+        approval_id: `finance-approval-${toolCallId}-${Date.now()}`, approved,
+        decided_by: 'founder', decided_payload_hash: approved ? payloadHash : null,
+        decided_at: new Date().toISOString(),
+      }),
+    });
+  }
+
+  function retryDepartmentTask(workspaceId, departmentId, taskId) {
+    return request(`/${encodeURIComponent(workspaceId)}/${encodeURIComponent(departmentId)}/${encodeURIComponent(taskId)}/retry`, {
+      method: 'POST', body: JSON.stringify({ actor_id: 'founder', occurred_at: new Date().toISOString() }),
+    });
+  }
+
   function financeScenarios(workspaceId) {
-    return request(`/${encodeURIComponent(workspaceId)}/finance/scenarios`);
+    return request(`/finance-scenarios?workspace_id=${encodeURIComponent(workspaceId)}`);
   }
 
   function runFinanceScenario(workspaceId, scenario) {
@@ -436,7 +595,71 @@
   }
 
   function financeReconciliations(workspaceId) {
-    return request(`/${encodeURIComponent(workspaceId)}/finance/reconciliations`);
+    return request(`/finance-reconciliations?workspace_id=${encodeURIComponent(workspaceId)}`);
+  }
+
+  function financeLedger(workspaceId) {
+    return request(`/finance-ledger?workspace_id=${encodeURIComponent(workspaceId)}`);
+  }
+
+  function buildFinanceLedger(workspaceId) {
+    return request(`/finance-ledger-build?workspace_id=${encodeURIComponent(workspaceId)}`, {
+      method: 'POST', body: JSON.stringify({ created_by: 'finance_pilot', created_at: new Date().toISOString() }),
+    });
+  }
+
+  function financeDirector(workspaceId) {
+    return request(`/finance-director?workspace_id=${encodeURIComponent(workspaceId)}`);
+  }
+
+  function refreshFinanceDirectorModel(workspaceId, minimumCashReserve) {
+    return request(`/finance-director-refresh?workspace_id=${encodeURIComponent(workspaceId)}`, {
+      method: 'POST', body: JSON.stringify({ minimum_cash_reserve: minimumCashReserve, created_by: 'finance_pilot', created_at: new Date().toISOString() }),
+    });
+  }
+
+  function financeTransactionReconciliation(workspaceId) {
+    return request(`/finance-transaction-reconciliation?workspace_id=${encodeURIComponent(workspaceId)}`);
+  }
+
+  function runFinanceTransactionReconciliation(workspaceId) {
+    return request(`/finance-transaction-reconciliation-run?workspace_id=${encodeURIComponent(workspaceId)}`, {
+      method: 'POST', body: JSON.stringify({ amount_tolerance_percent: 1, date_window_days: 7, classify_unmatched: true, created_by: 'finance_pilot', created_at: new Date().toISOString() }),
+    });
+  }
+
+  function reviewFinanceTransactionMatch(workspaceId, runId, matchId, decision) {
+    return request(`/finance-transaction-match-review?workspace_id=${encodeURIComponent(workspaceId)}&run_id=${encodeURIComponent(runId)}&match_id=${encodeURIComponent(matchId)}`, {
+      method: 'POST', body: JSON.stringify({ decision, reviewed_by: 'founder', reviewed_at: new Date().toISOString() }),
+    });
+  }
+
+  function reviewFinanceCounterpartyClassification(workspaceId, runId, suggestionId, decision, selectedAccount = null) {
+    return request(`/finance-counterparty-classification-review?workspace_id=${encodeURIComponent(workspaceId)}&run_id=${encodeURIComponent(runId)}&suggestion_id=${encodeURIComponent(suggestionId)}`, {
+      method: 'POST', body: JSON.stringify({ decision, reviewed_by: 'founder', selected_account: selectedAccount, reviewed_at: new Date().toISOString() }),
+    });
+  }
+
+  function financeXeroReconciliationHandoffs(workspaceId) {
+    return request(`/finance-xero-reconciliation-handoffs?workspace_id=${encodeURIComponent(workspaceId)}`);
+  }
+
+  function prepareFinanceXeroReconciliationHandoff(workspaceId, runId, matchId) {
+    return request(`/finance-xero-reconciliation-handoff-prepare?workspace_id=${encodeURIComponent(workspaceId)}&run_id=${encodeURIComponent(runId)}&match_id=${encodeURIComponent(matchId)}`, {
+      method: 'POST', body: JSON.stringify({ prepared_by: 'founder', prepared_at: new Date().toISOString() }),
+    });
+  }
+
+  function decideFinanceXeroReconciliationHandoff(workspaceId, handoffId, approved, payloadHash = null) {
+    return request(`/finance-xero-reconciliation-handoff-decision?workspace_id=${encodeURIComponent(workspaceId)}&handoff_id=${encodeURIComponent(handoffId)}`, {
+      method: 'POST', body: JSON.stringify({ approved, decided_by: 'founder', decided_payload_hash: approved ? payloadHash : null }),
+    });
+  }
+
+  function createFinanceXeroReconciliationReceipt(workspaceId, handoffId) {
+    return request(`/finance-xero-reconciliation-handoff-execute?workspace_id=${encodeURIComponent(workspaceId)}&handoff_id=${encodeURIComponent(handoffId)}`, {
+      method: 'POST', body: JSON.stringify({ attempted_by: 'founder', attempted_at: new Date().toISOString() }),
+    });
   }
 
   function runFinanceReconciliation(workspaceId, payload) {
@@ -623,6 +846,116 @@
     } catch (error) { button.disabled = false; console.error('[AION] Finance reconciliation review failed', error); }
   }
 
+  async function handleFinanceDirectorClick(event) {
+    const build = event?.target?.closest?.('[data-aion-finance-build-ledger]');
+    const refresh = event?.target?.closest?.('[data-aion-finance-refresh-director]');
+    const reconcile = event?.target?.closest?.('[data-aion-finance-run-transaction-reconciliation]');
+    const review = event?.target?.closest?.('[data-aion-transaction-match-review]');
+    const classification = event?.target?.closest?.('[data-aion-counterparty-classification-review]');
+    const handoffPrepare = event?.target?.closest?.('[data-aion-xero-handoff-prepare]');
+    const handoffDecision = event?.target?.closest?.('[data-aion-xero-handoff-decision]');
+    const handoffReceipt = event?.target?.closest?.('[data-aion-xero-handoff-receipt]');
+    if (!build && !refresh && !reconcile && !review && !classification && !handoffPrepare && !handoffDecision && !handoffReceipt) return;
+    const workspaceId = resolveBusinessId();
+    const terminal = event.target.closest?.('[data-aion-shared-pilot-terminal="true"]');
+    const stream = terminal?.querySelector?.('[data-aion-pilot-stream-window]');
+    if (!workspaceId || !terminal || !stream || event.target.disabled) return;
+    event.target.disabled = true;
+    const original = event.target.textContent;
+    try {
+      if (build) {
+        event.target.textContent = 'Building ledger…';
+        await buildFinanceLedger(workspaceId);
+      } else if (refresh) {
+        event.target.textContent = 'Refreshing model…';
+        const reserve = Number(terminal.querySelector?.('[data-aion-finance-director-reserve]')?.value || 0);
+        await refreshFinanceDirectorModel(workspaceId, reserve);
+      } else if (reconcile) {
+        event.target.textContent = 'Matching transactions…';
+        await runFinanceTransactionReconciliation(workspaceId);
+      } else if (review) {
+        event.target.textContent = 'Recording review…';
+        await reviewFinanceTransactionMatch(workspaceId, review.getAttribute('data-run-id'), review.getAttribute('data-match-id'), review.getAttribute('data-aion-transaction-match-review'));
+      } else if (classification) {
+        event.target.textContent = 'Recording classification…';
+        let account = null;
+        try { account = classification.getAttribute('data-account') ? JSON.parse(classification.getAttribute('data-account')) : null; } catch (_) { account = null; }
+        await reviewFinanceCounterpartyClassification(workspaceId, classification.getAttribute('data-run-id'), classification.getAttribute('data-suggestion-id'), classification.getAttribute('data-aion-counterparty-classification-review'), account);
+      } else if (handoffPrepare) {
+        event.target.textContent = 'Preparing exact payload…';
+        await prepareFinanceXeroReconciliationHandoff(workspaceId, handoffPrepare.getAttribute('data-run-id'), handoffPrepare.getAttribute('data-match-id'));
+      } else if (handoffDecision) {
+        const approved = handoffDecision.getAttribute('data-aion-xero-handoff-decision') === 'approve';
+        event.target.textContent = approved ? 'Recording exact approval…' : 'Rejecting handoff…';
+        await decideFinanceXeroReconciliationHandoff(workspaceId, handoffDecision.getAttribute('data-handoff-id'), approved, handoffDecision.getAttribute('data-payload-hash'));
+      } else if (handoffReceipt) {
+        event.target.textContent = 'Creating receipt…';
+        await createFinanceXeroReconciliationReceipt(workspaceId, handoffReceipt.getAttribute('data-handoff-id'));
+      }
+      await refreshFinanceDirector(terminal, stream, workspaceId);
+    } catch (error) {
+      event.target.disabled = false;
+      event.target.textContent = original;
+      stream.querySelector?.('[data-aion-finance-director-error]')?.remove?.();
+      stream.insertAdjacentHTML?.('afterbegin', `<section class="aion-pilot-failure" data-aion-finance-director-error><strong>&gt; Finance Director action could not complete</strong><p>${escapeHtml(String(error?.message || error))}</p></section>`);
+      console.error('[AION] Finance Director action failed', error);
+    }
+  }
+
+  async function handleFinanceRecurringClick(event) {
+    const create = event?.target?.closest?.('[data-aion-finance-schedule-create]');
+    const run = event?.target?.closest?.('[data-aion-finance-schedule-run]');
+    const enabled = event?.target?.closest?.('[data-aion-finance-schedule-enabled]');
+    if (!create && !run && !enabled) return;
+    const workspaceId = resolveBusinessId();
+    const terminal = event.target.closest?.('[data-aion-shared-pilot-terminal="true"]');
+    const stream = terminal?.querySelector?.('[data-aion-pilot-stream-window]');
+    if (!workspaceId || !terminal || !stream || event.target.disabled) return;
+    event.target.disabled = true;
+    try {
+      if (create) {
+        const reserve = Number(terminal.querySelector?.('[data-aion-finance-schedule-reserve]')?.value || 0);
+        await createFinanceRecurringSchedule(workspaceId, create.getAttribute('data-aion-finance-schedule-create'), create.getAttribute('data-cadence'), reserve);
+      } else if (run) {
+        await runFinanceRecurring(workspaceId, run.getAttribute('data-aion-finance-schedule-run'));
+      } else {
+        await setFinanceRecurringEnabled(workspaceId, enabled.getAttribute('data-aion-finance-schedule-enabled'), enabled.getAttribute('data-enabled') === 'true');
+      }
+      await refreshFinanceRecurring(terminal, stream, workspaceId);
+    } catch (error) {
+      event.target.disabled = false;
+      console.error('[AION] Finance recurring work update failed', error);
+    }
+  }
+
+  async function handleFinanceProposalDecision(event) {
+    const button = event?.target?.closest?.('[data-aion-finance-proposal-decision]');
+    if (!button || button.disabled) return;
+    const workspaceId = resolveBusinessId();
+    const approved = button.getAttribute('data-aion-finance-proposal-decision') === 'approve';
+    button.disabled = true;
+    try {
+      await decideFinanceProposal(workspaceId, button.getAttribute('data-task-id'), button.getAttribute('data-tool-call-id'), approved, button.getAttribute('data-payload-hash'));
+      await refreshVisibleQueue();
+    } catch (error) {
+      button.disabled = false;
+      console.error('[AION] Exact Finance proposal decision failed', error);
+    }
+  }
+
+  async function handleDepartmentTaskRetry(event) {
+    const button = event?.target?.closest?.('[data-aion-department-task-retry]');
+    if (!button || button.disabled) return;
+    button.disabled = true;
+    try {
+      await retryDepartmentTask(resolveBusinessId(), button.getAttribute('data-department-id'), button.getAttribute('data-aion-department-task-retry'));
+      await refreshVisibleQueue();
+    } catch (error) {
+      button.disabled = false;
+      console.error('[AION] Department task retry failed', error);
+    }
+  }
+
   global.AionDepartmentPilotBackend = Object.freeze({
     PACKAGE_SCHEMA,
     approveAndRoute,
@@ -632,12 +965,30 @@
     monitor,
     departmentQueue,
     financeConversationSession,
+    financeRecurringSchedules,
+    createFinanceRecurringSchedule,
+    setFinanceRecurringEnabled,
+    runFinanceRecurring,
+    decideFinanceProposal,
+    retryDepartmentTask,
     askFinance,
     financeScenarios,
     runFinanceScenario,
     financeReconciliations,
     runFinanceReconciliation,
     reviewFinanceReconciliation,
+    financeLedger,
+    buildFinanceLedger,
+    financeDirector,
+    refreshFinanceDirectorModel,
+    financeTransactionReconciliation,
+    runFinanceTransactionReconciliation,
+    reviewFinanceTransactionMatch,
+    reviewFinanceCounterpartyClassification,
+    financeXeroReconciliationHandoffs,
+    prepareFinanceXeroReconciliationHandoff,
+    decideFinanceXeroReconciliationHandoff,
+    createFinanceXeroReconciliationReceipt,
     executeFinanceTask,
     refreshVisibleQueue,
     refreshProfiles,
@@ -656,6 +1007,10 @@
     global.document.addEventListener('submit', handleFinanceScenarioSubmit, true);
     global.document.addEventListener('submit', handleFinanceReconciliationSubmit, true);
     global.document.addEventListener('click', handleFinanceReconciliationReview, true);
+    global.document.addEventListener('click', handleFinanceDirectorClick, true);
+    global.document.addEventListener('click', handleFinanceRecurringClick, true);
+    global.document.addEventListener('click', handleFinanceProposalDecision, true);
+    global.document.addEventListener('click', handleDepartmentTaskRetry, true);
     global.document.addEventListener('click', handleFinanceConversationSubmit, true);
     global.document.addEventListener('click', handleFinanceExecutionClick);
     const style = global.document.createElement('style');
@@ -684,6 +1039,8 @@
       .aion-finance-management-handback details{margin-top:8px;color:#fbbf24}.aion-finance-management-handback details ul{margin:8px 0 0;padding-left:20px;color:#fde68a}
       .aion-pilot-failure{margin:12px 0 0;padding:12px;border:1px solid #ef4444;background:#2a0a0a;color:#fecaca}
       .aion-pilot-failure strong{color:#fca5a5}.aion-pilot-failure p{color:#fecaca}
+      .aion-finance-proposal{margin:12px 0 0;padding:12px;border:1px solid #f59e0b;background:#1c1917;color:#fde68a}.aion-finance-proposal strong{color:#fbbf24}.aion-finance-proposal pre{white-space:pre-wrap;overflow:auto;padding:10px;background:#07111f;color:#e2e8f0}.aion-finance-proposal button,.aion-pilot-failure button{margin:8px 8px 0 0;padding:8px 11px;border:1px solid #f59e0b;background:#292524;color:#fef3c7;cursor:pointer}
+      .aion-finance-recurring{border:1px solid rgba(74,222,128,.5);background:#07111f;padding:14px;margin:0 0 16px;color:#cbd5e1}.aion-finance-recurring>header,.aion-finance-recurring article>div{display:flex;justify-content:space-between;gap:12px}.aion-finance-recurring>header{padding-bottom:10px;border-bottom:1px solid rgba(74,222,128,.25)}.aion-finance-recurring>header strong{color:#86efac}.aion-finance-recurring>header span,.aion-finance-recurring article span{color:#7dd3fc;text-transform:uppercase;font-size:11px}.aion-finance-recurring article{padding:10px 0;border-bottom:1px solid rgba(56,189,248,.18)}.aion-finance-recurring button{margin:8px 8px 0 0;padding:8px 11px;border:1px solid #4ade80;background:#052e1a;color:#dcfce7;cursor:pointer}.aion-finance-recurring input{margin:8px;padding:8px;background:#0f172a;border:1px solid #38bdf8;color:#f8fafc}.aion-finance-schedule-definitions{display:flex;gap:8px;flex-wrap:wrap}
       .aion-finance-conversation{border:1px solid rgba(56,189,248,.42);background:#07111f;padding:14px;margin:0;color:#cbd5e1}
       .aion-finance-conversation>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(56,189,248,.24);color:#7dd3fc}
       .aion-finance-conversation>header span{color:#86efac;font-size:11px;letter-spacing:.12em;text-transform:uppercase}
@@ -704,6 +1061,10 @@
       .aion-finance-reconciliation>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(56,189,248,.24)}.aion-finance-reconciliation>header strong{color:#7dd3fc}.aion-finance-reconciliation>header span{color:#86efac}
       .aion-finance-reconciliation ul{color:#fbbf24}.aion-finance-reconciliation form{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:9px;margin:12px 0}.aion-finance-reconciliation label{display:grid;gap:5px;color:#94a3b8;font-size:11px}.aion-finance-reconciliation input{background:#0f172a;border:1px solid rgba(56,189,248,.35);color:#f8fafc;padding:9px}
       .aion-finance-reconciliation button{padding:9px 12px;border:1px solid #38bdf8;background:#0c4a6e;color:#e0f2fe;font-weight:700;cursor:pointer}.aion-finance-reconciliation-actions{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+      .aion-finance-director{border:1px solid rgba(74,222,128,.55);background:#07111f;padding:14px;margin:0 0 16px;color:#cbd5e1}.aion-finance-director>header{display:flex;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid rgba(74,222,128,.25)}.aion-finance-director>header strong{color:#86efac}.aion-finance-director>header span{color:#7dd3fc;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+      .aion-finance-director-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin:12px 0}.aion-finance-director-actions label{display:grid;gap:4px;color:#94a3b8;font-size:10px}.aion-finance-director-actions input{padding:8px;background:#0f172a;border:1px solid #38bdf8;color:#f8fafc}.aion-finance-director button{padding:8px 11px;border:1px solid #4ade80;background:#052e1a;color:#dcfce7;font-weight:700;cursor:pointer}.aion-finance-director button:disabled{opacity:.5;cursor:not-allowed}
+      .aion-finance-director-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin:10px 0}.aion-finance-director-kpis article{padding:10px;border:1px solid rgba(56,189,248,.25);background:#0f172a}.aion-finance-director-kpis small,.aion-finance-director-kpis strong{display:block}.aion-finance-director-kpis small{color:#94a3b8}.aion-finance-director-kpis strong{color:#f8fafc;font-size:17px;margin-top:5px}
+      .aion-finance-signal,.aion-finance-director-proposal,.aion-finance-transaction-match,.aion-finance-counterparty-suggestion,.aion-finance-exception{padding:10px;margin:8px 0;border:1px solid rgba(56,189,248,.24);background:#0f172a}.aion-finance-signal.is-critical{border-color:#ef4444}.aion-finance-signal.is-high{border-color:#f59e0b}.aion-finance-signal strong,.aion-finance-director-proposal strong{color:#fbbf24}.aion-finance-transaction-match>div,.aion-finance-counterparty-suggestion>div,.aion-finance-exception{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.aion-finance-transaction-match>div strong,.aion-finance-counterparty-suggestion>div strong{color:#7dd3fc}.aion-finance-transaction-match>div span,.aion-finance-counterparty-suggestion>div span{color:#86efac}.aion-finance-transaction-match em,.aion-finance-counterparty-suggestion em{display:block;color:#86efac;font-style:normal}.aion-finance-exception pre{flex:1 0 100%;white-space:pre-wrap;color:#cbd5e1;background:#07111f;padding:8px}
       .aion-canonical-pilot-empty{margin:12px 0 0;color:#64748b}
       .aion-department-design-gate{border:1px solid #f59e0b;background:#1c1917;padding:14px;margin:0 0 16px;color:#fde68a}
       .aion-department-design-gate strong{color:#fbbf24}.aion-department-design-gate p{color:#d6d3d1}.aion-department-design-gate ul{margin:8px 0 0;padding-left:20px;color:#a8a29e}
