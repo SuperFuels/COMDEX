@@ -1,0 +1,450 @@
+{
+  "schema_version": "aion.hexcore.anticipatory_temporal_reasoning.v1",
+  "benchmark": "learned_regime_motifs_and_duration_prediction",
+  "language_provider_used": false,
+  "development": {
+    "policies": [
+      {
+        "policy": {
+          "policy_id": "anticipate_support_1_tol_0.5",
+          "minimum_support": 1,
+          "duration_tolerance": 0.5,
+          "anticipation_window": 1,
+          "posterior_gate": 0.85,
+          "provisional_stability": 2,
+          "durable_stability": 4,
+          "diagnostic_trials": 3,
+          "escalation_trials": 4,
+          "complexity": 9
+        },
+        "result": {
+          "policy": {
+            "policy_id": "anticipate_support_1_tol_0.5",
+            "minimum_support": 1,
+            "duration_tolerance": 0.5,
+            "anticipation_window": 1,
+            "posterior_gate": 0.85,
+            "provisional_stability": 2,
+            "durable_stability": 4,
+            "diagnostic_trials": 3,
+            "escalation_trials": 4,
+            "complexity": 9
+          },
+          "worlds": 16,
+          "anticipatory_graph_accuracy": 0.9515625,
+          "reactive_graph_accuracy": 0.834375,
+          "anticipatory_goal_success": 0.9375,
+          "reactive_goal_success": 0.859375,
+          "prediction_precision": 1.0,
+          "anticipated_confirmations": 520,
+          "false_operational_switch_rate": 0.0,
+          "by_family": {
+            "periodic_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.975,
+              "reactive_goal_success": 0.85,
+              "predictions": 212,
+              "false_operational_switches": 0
+            },
+            "periodic_three": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.98125,
+              "reactive_goal_success": 0.85625,
+              "predictions": 228,
+              "false_operational_switches": 0
+            },
+            "jittered_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 0.9125,
+              "reactive_graph_accuracy": 0.83125,
+              "anticipatory_goal_success": 0.91875,
+              "reactive_goal_success": 0.86875,
+              "predictions": 143,
+              "false_operational_switches": 0
+            },
+            "nonperiodic": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 0.89375,
+              "reactive_graph_accuracy": 0.85625,
+              "anticipatory_goal_success": 0.875,
+              "reactive_goal_success": 0.8625,
+              "predictions": 78,
+              "false_operational_switches": 0
+            }
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "anticipate_support_2_tol_0.5",
+          "minimum_support": 2,
+          "duration_tolerance": 0.5,
+          "anticipation_window": 1,
+          "posterior_gate": 0.85,
+          "provisional_stability": 2,
+          "durable_stability": 4,
+          "diagnostic_trials": 3,
+          "escalation_trials": 4,
+          "complexity": 10
+        },
+        "result": {
+          "policy": {
+            "policy_id": "anticipate_support_2_tol_0.5",
+            "minimum_support": 2,
+            "duration_tolerance": 0.5,
+            "anticipation_window": 1,
+            "posterior_gate": 0.85,
+            "provisional_stability": 2,
+            "durable_stability": 4,
+            "diagnostic_trials": 3,
+            "escalation_trials": 4,
+            "complexity": 10
+          },
+          "worlds": 16,
+          "anticipatory_graph_accuracy": 0.9484375,
+          "reactive_graph_accuracy": 0.834375,
+          "anticipatory_goal_success": 0.9359375,
+          "reactive_goal_success": 0.859375,
+          "prediction_precision": 1.0,
+          "anticipated_confirmations": 378,
+          "false_operational_switch_rate": 0.0,
+          "by_family": {
+            "periodic_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.975,
+              "reactive_goal_success": 0.85,
+              "predictions": 172,
+              "false_operational_switches": 0
+            },
+            "periodic_three": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.98125,
+              "reactive_goal_success": 0.85625,
+              "predictions": 172,
+              "false_operational_switches": 0
+            },
+            "jittered_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 0.9125,
+              "reactive_graph_accuracy": 0.83125,
+              "anticipatory_goal_success": 0.91875,
+              "reactive_goal_success": 0.86875,
+              "predictions": 98,
+              "false_operational_switches": 0
+            },
+            "nonperiodic": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 0.88125,
+              "reactive_graph_accuracy": 0.85625,
+              "anticipatory_goal_success": 0.86875,
+              "reactive_goal_success": 0.8625,
+              "predictions": 27,
+              "false_operational_switches": 0
+            }
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "anticipate_support_2_tol_1.0",
+          "minimum_support": 2,
+          "duration_tolerance": 1.0,
+          "anticipation_window": 1,
+          "posterior_gate": 0.85,
+          "provisional_stability": 2,
+          "durable_stability": 4,
+          "diagnostic_trials": 3,
+          "escalation_trials": 4,
+          "complexity": 10
+        },
+        "result": {
+          "policy": {
+            "policy_id": "anticipate_support_2_tol_1.0",
+            "minimum_support": 2,
+            "duration_tolerance": 1.0,
+            "anticipation_window": 1,
+            "posterior_gate": 0.85,
+            "provisional_stability": 2,
+            "durable_stability": 4,
+            "diagnostic_trials": 3,
+            "escalation_trials": 4,
+            "complexity": 10
+          },
+          "worlds": 16,
+          "anticipatory_graph_accuracy": 0.9734375,
+          "reactive_graph_accuracy": 0.834375,
+          "anticipatory_goal_success": 0.9578125,
+          "reactive_goal_success": 0.859375,
+          "prediction_precision": 1.0,
+          "anticipated_confirmations": 452,
+          "false_operational_switch_rate": 0.0,
+          "by_family": {
+            "periodic_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.975,
+              "reactive_goal_success": 0.85,
+              "predictions": 172,
+              "false_operational_switches": 0
+            },
+            "periodic_three": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.98125,
+              "reactive_goal_success": 0.85625,
+              "predictions": 172,
+              "false_operational_switches": 0
+            },
+            "jittered_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.83125,
+              "anticipatory_goal_success": 0.99375,
+              "reactive_goal_success": 0.86875,
+              "predictions": 171,
+              "false_operational_switches": 0
+            },
+            "nonperiodic": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 0.89375,
+              "reactive_graph_accuracy": 0.85625,
+              "anticipatory_goal_success": 0.88125,
+              "reactive_goal_success": 0.8625,
+              "predictions": 51,
+              "false_operational_switches": 0
+            }
+          }
+        }
+      },
+      {
+        "policy": {
+          "policy_id": "anticipate_support_2_tol_1.5",
+          "minimum_support": 2,
+          "duration_tolerance": 1.5,
+          "anticipation_window": 1,
+          "posterior_gate": 0.85,
+          "provisional_stability": 2,
+          "durable_stability": 4,
+          "diagnostic_trials": 3,
+          "escalation_trials": 4,
+          "complexity": 10
+        },
+        "result": {
+          "policy": {
+            "policy_id": "anticipate_support_2_tol_1.5",
+            "minimum_support": 2,
+            "duration_tolerance": 1.5,
+            "anticipation_window": 1,
+            "posterior_gate": 0.85,
+            "provisional_stability": 2,
+            "durable_stability": 4,
+            "diagnostic_trials": 3,
+            "escalation_trials": 4,
+            "complexity": 10
+          },
+          "worlds": 16,
+          "anticipatory_graph_accuracy": 0.975,
+          "reactive_graph_accuracy": 0.834375,
+          "anticipatory_goal_success": 0.959375,
+          "reactive_goal_success": 0.859375,
+          "prediction_precision": 1.0,
+          "anticipated_confirmations": 462,
+          "false_operational_switch_rate": 0.0,
+          "by_family": {
+            "periodic_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.975,
+              "reactive_goal_success": 0.85,
+              "predictions": 172,
+              "false_operational_switches": 0
+            },
+            "periodic_three": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.825,
+              "anticipatory_goal_success": 0.98125,
+              "reactive_goal_success": 0.85625,
+              "predictions": 172,
+              "false_operational_switches": 0
+            },
+            "jittered_two": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 1.0,
+              "reactive_graph_accuracy": 0.83125,
+              "anticipatory_goal_success": 0.99375,
+              "reactive_goal_success": 0.86875,
+              "predictions": 171,
+              "false_operational_switches": 0
+            },
+            "nonperiodic": {
+              "worlds": 4,
+              "anticipatory_graph_accuracy": 0.9,
+              "reactive_graph_accuracy": 0.85625,
+              "anticipatory_goal_success": 0.8875,
+              "reactive_goal_success": 0.8625,
+              "predictions": 64,
+              "false_operational_switches": 0
+            }
+          }
+        }
+      }
+    ],
+    "selected_policy": {
+      "policy_id": "anticipate_support_2_tol_1.5",
+      "minimum_support": 2,
+      "duration_tolerance": 1.5,
+      "anticipation_window": 1,
+      "posterior_gate": 0.85,
+      "provisional_stability": 2,
+      "durable_stability": 4,
+      "diagnostic_trials": 3,
+      "escalation_trials": 4,
+      "complexity": 10
+    }
+  },
+  "sealed": {
+    "result": {
+      "policy": {
+        "policy_id": "anticipate_support_2_tol_1.5",
+        "minimum_support": 2,
+        "duration_tolerance": 1.5,
+        "anticipation_window": 1,
+        "posterior_gate": 0.85,
+        "provisional_stability": 2,
+        "durable_stability": 4,
+        "diagnostic_trials": 3,
+        "escalation_trials": 4,
+        "complexity": 10
+      },
+      "worlds": 28,
+      "anticipatory_graph_accuracy": 0.9678571428571429,
+      "reactive_graph_accuracy": 0.8339285714285714,
+      "anticipatory_goal_success": 0.9660714285714286,
+      "reactive_goal_success": 0.8616071428571429,
+      "prediction_precision": 1.0,
+      "anticipated_confirmations": 803,
+      "false_operational_switch_rate": 0.0,
+      "by_family": {
+        "periodic_two": {
+          "worlds": 7,
+          "anticipatory_graph_accuracy": 1.0,
+          "reactive_graph_accuracy": 0.825,
+          "anticipatory_goal_success": 0.9928571428571429,
+          "reactive_goal_success": 0.8535714285714285,
+          "predictions": 301,
+          "false_operational_switches": 0
+        },
+        "periodic_three": {
+          "worlds": 7,
+          "anticipatory_graph_accuracy": 1.0,
+          "reactive_graph_accuracy": 0.825,
+          "anticipatory_goal_success": 0.9892857142857142,
+          "reactive_goal_success": 0.8428571428571429,
+          "predictions": 301,
+          "false_operational_switches": 0
+        },
+        "jittered_two": {
+          "worlds": 7,
+          "anticipatory_graph_accuracy": 0.9785714285714285,
+          "reactive_graph_accuracy": 0.8285714285714285,
+          "anticipatory_goal_success": 0.9714285714285714,
+          "reactive_goal_success": 0.8678571428571429,
+          "predictions": 285,
+          "false_operational_switches": 0
+        },
+        "nonperiodic": {
+          "worlds": 7,
+          "anticipatory_graph_accuracy": 0.8928571428571429,
+          "reactive_graph_accuracy": 0.8571428571428571,
+          "anticipatory_goal_success": 0.9107142857142857,
+          "reactive_goal_success": 0.8821428571428571,
+          "predictions": 124,
+          "false_operational_switches": 0
+        }
+      }
+    },
+    "gate": {
+      "accepted": true,
+      "errors": [],
+      "prediction_precision": 1.0,
+      "false_operational_switch_rate": 0.0,
+      "anticipatory_graph_accuracy_gain": 0.1339285714285715,
+      "anticipatory_goal_success_gain": 0.10446428571428568,
+      "nonperiodic_graph_change": 0.03571428571428581
+    }
+  },
+  "promotion": {
+    "candidate": {
+      "procedure_id": "procedure_anticipatory_temporal_39ad2cf55b17",
+      "goal": "continuous_world_model_maintenance",
+      "steps": [
+        "retain_regime_transition_lineage",
+        "learn_state_conditioned_next_regime",
+        "learn_regime_duration_distribution",
+        "predict_when_a_transition_is_due",
+        "preactivate_predicted_graph",
+        "require_observational_confirmation",
+        "retain_durable_consolidation_gate"
+      ],
+      "score": 0.9678571428571429,
+      "success": true,
+      "evidence": {
+        "evaluation": "phase17_anticipatory_temporal_sealed",
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "prediction_precision": 1.0,
+          "false_operational_switch_rate": 0.0,
+          "anticipatory_graph_accuracy_gain": 0.1339285714285715,
+          "anticipatory_goal_success_gain": 0.10446428571428568,
+          "nonperiodic_graph_change": 0.03571428571428581
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "decision": {
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT",
+      "champion_id": "procedure_anticipatory_temporal_39ad2cf55b17",
+      "commit": {
+        "reason": "procedure_promotion:procedure_anticipatory_temporal_39ad2cf55b17",
+        "authority": {
+          "allow_learn": true,
+          "goal": "maintain_coherence",
+          "source": "anticipatory_temporal_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "3ecf35a1f6f89c7821db9c4e657333dd2552136737fc0cc420747ee98bd7ffcd"
+      }
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "champion_id": "procedure_anticipatory_temporal_39ad2cf55b17",
+    "temporal_motifs_retained": true,
+    "relearning_worlds": 0
+  },
+  "gates": {
+    "temporal_rules_learned_from_stream": true,
+    "prediction_requires_confirmation": true,
+    "sealed_gate_passed": true,
+    "cau_promoted_if_safe": true,
+    "restart_retention": true
+  },
+  "boundary_statement": "Temporal anticipation is learned within bounded permutation regimes and periodic/jittered families. It does not establish unrestricted future prediction.",
+  "passed": true
+}

@@ -1,0 +1,1020 @@
+{
+  "schema_version": "aion.hexcore.latent_state_benchmark.v1",
+  "benchmark": "hidden_state_construction_and_revision",
+  "language_provider_used": false,
+  "hidden_state_labels_supplied": false,
+  "latent_candidate_graphs_supplied": false,
+  "visible_variables_supplied": [
+    "lamp"
+  ],
+  "actions_supplied": [
+    "toggle_mode",
+    "switch_mode",
+    "pulse",
+    "idle"
+  ],
+  "diagnostic_sequences_selected_by_learner": true,
+  "phase_a": {
+    "schema_version": "aion.hexcore.latent_state_discovery_session.v1",
+    "session_id": "latent_session_230bcfb8dbb04e67",
+    "world_id": "hidden_mode_lamp_v1",
+    "model_criticism": {
+      "criticism_id": "criticism_29fcaf59dddc4c0c",
+      "world_id": "hidden_mode_lamp_v1",
+      "visible_markov_accuracy": 0.94166667,
+      "retained_graph_accuracy": null,
+      "current_accuracy": 0.94166667,
+      "adequacy_gate": 0.98,
+      "decision": "NONE_ADEQUATE",
+      "alias_diagnostic": {
+        "identical_visible_contexts": 8,
+        "conflicting_contexts": 2,
+        "conflict_detected": true,
+        "conflicting_context_hashes": [
+          "6b5b5115d11a2dd40053c14e9b5b7d8ccc8c4cb6db0e2cc1f8751ef802834927",
+          "53f6e4e50481a562546e59b8b8bd2b17b2d2e4284f2b9783b15eebd7abcb8dc5"
+        ]
+      },
+      "timestamp": "2026-07-28T18:45:33.276064+00:00"
+    },
+    "retained_graph_before": null,
+    "proposed_graph": {
+      "schema_version": "aion.hexcore.latent_state_graph.v1",
+      "graph_id": "latent_graph_38436bcb77afd440",
+      "latent_name": "latent_context_1",
+      "latent_initial": 0,
+      "latent_cardinality": 2,
+      "latent_toggle_action": "toggle_mode",
+      "visible_target": "lamp",
+      "readout_action": "pulse",
+      "source": "bounded_latent_state_construction",
+      "revision": 1,
+      "complexity": 4,
+      "edges": [
+        {
+          "source": "latent_context_1",
+          "target": "latent_context_1",
+          "edge_type": "latent_persistence"
+        },
+        {
+          "source": "action:toggle_mode",
+          "target": "latent_context_1",
+          "edge_type": "latent_intervention"
+        },
+        {
+          "source": "latent_context_1",
+          "target": "lamp",
+          "edge_type": "latent_readout"
+        },
+        {
+          "source": "action:pulse",
+          "target": "lamp",
+          "edge_type": "readout_intervention"
+        },
+        {
+          "source": "lamp",
+          "target": "lamp",
+          "edge_type": "state"
+        }
+      ]
+    },
+    "held_out_accuracy": 1.0,
+    "held_out_gain": 0.05833333,
+    "development_episodes": 30,
+    "held_out_episodes": 10,
+    "contenders": [
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_38436bcb77afd440",
+          "latent_name": "latent_context_1",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "toggle_mode",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:toggle_mode",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 1.0,
+        "objective": 0.992
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_e2fcb791e6f99dc7",
+          "latent_name": "latent_context_1",
+          "latent_initial": 1,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "switch_mode",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:switch_mode",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.89166667,
+        "objective": 0.88366667
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_ad6b79779a0d8e08",
+          "latent_name": "latent_context_1",
+          "latent_initial": 1,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "idle",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:idle",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.88888889,
+        "objective": 0.88088889
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_498b32b541189919",
+          "latent_name": "latent_context_1",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "pulse",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:pulse",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.88611111,
+        "objective": 0.87811111
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_3817d303a53d10bb",
+          "latent_name": "latent_context_1",
+          "latent_initial": 1,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "pulse",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:pulse",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.87777778,
+        "objective": 0.86977778
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_770785ae7969979f",
+          "latent_name": "latent_context_1",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "idle",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:idle",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.875,
+        "objective": 0.867
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_970f0e4a90c9291c",
+          "latent_name": "latent_context_1",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "switch_mode",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:switch_mode",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.87222222,
+        "objective": 0.86422222
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_36c1c72d77111cec",
+          "latent_name": "latent_context_1",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "switch_mode",
+          "visible_target": "lamp",
+          "readout_action": "toggle_mode",
+          "source": "bounded_latent_state_construction",
+          "revision": 1,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_1",
+              "target": "latent_context_1",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:switch_mode",
+              "target": "latent_context_1",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_1",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:toggle_mode",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.825,
+        "objective": 0.817
+      }
+    ],
+    "accepted": true,
+    "errors": [],
+    "revision": 1,
+    "timestamp": "2026-07-28T18:45:33.276432+00:00"
+  },
+  "phase_b_change": {
+    "schema_version": "aion.hexcore.latent_state_discovery_session.v1",
+    "session_id": "latent_session_cc1f4b059f6b4261",
+    "world_id": "hidden_mode_lamp_v1",
+    "model_criticism": {
+      "criticism_id": "criticism_824ac1b2fa0f4aa3",
+      "world_id": "hidden_mode_lamp_v1",
+      "visible_markov_accuracy": 0.93333333,
+      "retained_graph_accuracy": 0.875,
+      "current_accuracy": 0.875,
+      "adequacy_gate": 0.98,
+      "decision": "NONE_ADEQUATE",
+      "alias_diagnostic": {
+        "identical_visible_contexts": 8,
+        "conflicting_contexts": 2,
+        "conflict_detected": true,
+        "conflicting_context_hashes": [
+          "6b5b5115d11a2dd40053c14e9b5b7d8ccc8c4cb6db0e2cc1f8751ef802834927",
+          "53f6e4e50481a562546e59b8b8bd2b17b2d2e4284f2b9783b15eebd7abcb8dc5"
+        ]
+      },
+      "timestamp": "2026-07-28T18:45:33.288556+00:00"
+    },
+    "retained_graph_before": {
+      "schema_version": "aion.hexcore.latent_state_graph.v1",
+      "graph_id": "latent_graph_38436bcb77afd440",
+      "latent_name": "latent_context_1",
+      "latent_initial": 0,
+      "latent_cardinality": 2,
+      "latent_toggle_action": "toggle_mode",
+      "visible_target": "lamp",
+      "readout_action": "pulse",
+      "source": "bounded_latent_state_construction",
+      "revision": 1,
+      "complexity": 4,
+      "edges": [
+        {
+          "source": "latent_context_1",
+          "target": "latent_context_1",
+          "edge_type": "latent_persistence"
+        },
+        {
+          "source": "action:toggle_mode",
+          "target": "latent_context_1",
+          "edge_type": "latent_intervention"
+        },
+        {
+          "source": "latent_context_1",
+          "target": "lamp",
+          "edge_type": "latent_readout"
+        },
+        {
+          "source": "action:pulse",
+          "target": "lamp",
+          "edge_type": "readout_intervention"
+        },
+        {
+          "source": "lamp",
+          "target": "lamp",
+          "edge_type": "state"
+        }
+      ]
+    },
+    "proposed_graph": {
+      "schema_version": "aion.hexcore.latent_state_graph.v1",
+      "graph_id": "latent_graph_c85a08dcc40d45fe",
+      "latent_name": "latent_context_2",
+      "latent_initial": 0,
+      "latent_cardinality": 2,
+      "latent_toggle_action": "switch_mode",
+      "visible_target": "lamp",
+      "readout_action": "pulse",
+      "source": "bounded_latent_state_construction",
+      "revision": 2,
+      "complexity": 4,
+      "edges": [
+        {
+          "source": "latent_context_2",
+          "target": "latent_context_2",
+          "edge_type": "latent_persistence"
+        },
+        {
+          "source": "action:switch_mode",
+          "target": "latent_context_2",
+          "edge_type": "latent_intervention"
+        },
+        {
+          "source": "latent_context_2",
+          "target": "lamp",
+          "edge_type": "latent_readout"
+        },
+        {
+          "source": "action:pulse",
+          "target": "lamp",
+          "edge_type": "readout_intervention"
+        },
+        {
+          "source": "lamp",
+          "target": "lamp",
+          "edge_type": "state"
+        }
+      ]
+    },
+    "held_out_accuracy": 1.0,
+    "held_out_gain": 0.125,
+    "development_episodes": 30,
+    "held_out_episodes": 10,
+    "contenders": [
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_c85a08dcc40d45fe",
+          "latent_name": "latent_context_2",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "switch_mode",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:switch_mode",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 1.0,
+        "objective": 0.992
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_e56ef321d3508cd7",
+          "latent_name": "latent_context_2",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "pulse",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:pulse",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.89444444,
+        "objective": 0.88644444
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_f669748b6610ce3c",
+          "latent_name": "latent_context_2",
+          "latent_initial": 1,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "toggle_mode",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:toggle_mode",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.86944444,
+        "objective": 0.86144444
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_ab5230bd146ca106",
+          "latent_name": "latent_context_2",
+          "latent_initial": 1,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "idle",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:idle",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.86944444,
+        "objective": 0.86144444
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_391b658cc6fdeefa",
+          "latent_name": "latent_context_2",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "idle",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:idle",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.86944444,
+        "objective": 0.86144444
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_2b31a71cd63b03bb",
+          "latent_name": "latent_context_2",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "toggle_mode",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:toggle_mode",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.86944444,
+        "objective": 0.86144444
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_260a6c97ecfed9d9",
+          "latent_name": "latent_context_2",
+          "latent_initial": 1,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "pulse",
+          "visible_target": "lamp",
+          "readout_action": "pulse",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:pulse",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:pulse",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.84444444,
+        "objective": 0.83644444
+      },
+      {
+        "graph": {
+          "schema_version": "aion.hexcore.latent_state_graph.v1",
+          "graph_id": "latent_graph_3b6955e4a13cf2d8",
+          "latent_name": "latent_context_2",
+          "latent_initial": 0,
+          "latent_cardinality": 2,
+          "latent_toggle_action": "switch_mode",
+          "visible_target": "lamp",
+          "readout_action": "toggle_mode",
+          "source": "bounded_latent_state_construction",
+          "revision": 2,
+          "complexity": 4,
+          "edges": [
+            {
+              "source": "latent_context_2",
+              "target": "latent_context_2",
+              "edge_type": "latent_persistence"
+            },
+            {
+              "source": "action:switch_mode",
+              "target": "latent_context_2",
+              "edge_type": "latent_intervention"
+            },
+            {
+              "source": "latent_context_2",
+              "target": "lamp",
+              "edge_type": "latent_readout"
+            },
+            {
+              "source": "action:toggle_mode",
+              "target": "lamp",
+              "edge_type": "readout_intervention"
+            },
+            {
+              "source": "lamp",
+              "target": "lamp",
+              "edge_type": "state"
+            }
+          ]
+        },
+        "development_accuracy": 0.82222222,
+        "objective": 0.81422222
+      }
+    ],
+    "accepted": true,
+    "errors": [],
+    "revision": 2,
+    "timestamp": "2026-07-28T18:45:33.288632+00:00"
+  },
+  "graphs": {
+    "phase_a": {
+      "schema_version": "aion.hexcore.latent_state_graph.v1",
+      "graph_id": "latent_graph_38436bcb77afd440",
+      "latent_name": "latent_context_1",
+      "latent_initial": 0,
+      "latent_cardinality": 2,
+      "latent_toggle_action": "toggle_mode",
+      "visible_target": "lamp",
+      "readout_action": "pulse",
+      "source": "bounded_latent_state_construction",
+      "revision": 1,
+      "complexity": 4,
+      "edges": [
+        {
+          "source": "latent_context_1",
+          "target": "latent_context_1",
+          "edge_type": "latent_persistence"
+        },
+        {
+          "source": "action:toggle_mode",
+          "target": "latent_context_1",
+          "edge_type": "latent_intervention"
+        },
+        {
+          "source": "latent_context_1",
+          "target": "lamp",
+          "edge_type": "latent_readout"
+        },
+        {
+          "source": "action:pulse",
+          "target": "lamp",
+          "edge_type": "readout_intervention"
+        },
+        {
+          "source": "lamp",
+          "target": "lamp",
+          "edge_type": "state"
+        }
+      ],
+      "status": "active",
+      "source_session_id": "latent_session_230bcfb8dbb04e67",
+      "held_out_transition_accuracy": 1.0,
+      "supersedes_graph_id": null
+    },
+    "phase_b": {
+      "schema_version": "aion.hexcore.latent_state_graph.v1",
+      "graph_id": "latent_graph_c85a08dcc40d45fe",
+      "latent_name": "latent_context_2",
+      "latent_initial": 0,
+      "latent_cardinality": 2,
+      "latent_toggle_action": "switch_mode",
+      "visible_target": "lamp",
+      "readout_action": "pulse",
+      "source": "bounded_latent_state_construction",
+      "revision": 2,
+      "complexity": 4,
+      "edges": [
+        {
+          "source": "latent_context_2",
+          "target": "latent_context_2",
+          "edge_type": "latent_persistence"
+        },
+        {
+          "source": "action:switch_mode",
+          "target": "latent_context_2",
+          "edge_type": "latent_intervention"
+        },
+        {
+          "source": "latent_context_2",
+          "target": "lamp",
+          "edge_type": "latent_readout"
+        },
+        {
+          "source": "action:pulse",
+          "target": "lamp",
+          "edge_type": "readout_intervention"
+        },
+        {
+          "source": "lamp",
+          "target": "lamp",
+          "edge_type": "state"
+        }
+      ],
+      "status": "active",
+      "source_session_id": "latent_session_cc1f4b059f6b4261",
+      "held_out_transition_accuracy": 1.0,
+      "supersedes_graph_id": "latent_graph_38436bcb77afd440"
+    }
+  },
+  "restart": {
+    "retained_graph_id": "latent_graph_c85a08dcc40d45fe",
+    "retained_revision": 2,
+    "phase_b_held_out_accuracy": 1.0,
+    "active_latent_variables": 1,
+    "superseded_latent_variables": 1,
+    "relearning_experiments": 0
+  },
+  "gates": {
+    "visible_model_rejected_phase_a": true,
+    "latent_state_constructed": true,
+    "phase_a_held_out_accuracy_at_least_90_percent": true,
+    "retained_latent_model_rejected_after_change": true,
+    "latent_dynamics_revised": true,
+    "phase_b_held_out_accuracy_at_least_90_percent": true,
+    "complexity_bounded": true,
+    "restart_retention_without_relearning": true
+  },
+  "boundary_statement": "This demonstrates construction and revision of one bounded binary latent state in a controlled partially observable process. It does not demonstrate arbitrary latent-variable discovery.",
+  "passed": true
+}

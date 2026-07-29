@@ -1,0 +1,637 @@
+{
+  "benchmark": "hierarchical_relational_meta_abstraction",
+  "boundary_statement": "AION compressed a bounded finite family of signed linear relations into a parameterised meta-predicate. It did not invent unrestricted mathematics, arbitrary programs, or authority rules.",
+  "concrete_control": {
+    "domains": [
+      {
+        "accuracy": 1.0,
+        "domain_id": "lumen_balance",
+        "fields": [
+          "flare",
+          "shade"
+        ],
+        "learned_threshold": 4,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": true,
+        "training_examples": 180,
+        "true_weights": [
+          1,
+          -1
+        ]
+      },
+      {
+        "accuracy": 0.554,
+        "domain_id": "alloy_total",
+        "fields": [
+          "nickel",
+          "cobalt"
+        ],
+        "learned_threshold": 3,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": false,
+        "training_examples": 180,
+        "true_weights": [
+          1,
+          1
+        ]
+      },
+      {
+        "accuracy": 0.472,
+        "domain_id": "reverse_current",
+        "fields": [
+          "sink",
+          "source"
+        ],
+        "learned_threshold": 26,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": false,
+        "training_examples": 180,
+        "true_weights": [
+          -1,
+          1
+        ]
+      },
+      {
+        "accuracy": 0.468,
+        "domain_id": "containment",
+        "fields": [
+          "leak",
+          "barrier"
+        ],
+        "learned_threshold": -20,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": false,
+        "training_examples": 180,
+        "true_weights": [
+          -1,
+          -1
+        ]
+      }
+    ],
+    "mean_accuracy": 0.6235,
+    "structure_recovery": 0.25,
+    "worst_accuracy": 0.468
+  },
+  "development": {
+    "domains": [
+      {
+        "accuracy": 0.97,
+        "domain_id": "thermal_margin",
+        "fields": [
+          "heat",
+          "loss"
+        ],
+        "learned_threshold": 4,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": true,
+        "training_examples": 60,
+        "true_weights": [
+          1,
+          -1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "buoyancy_load",
+        "fields": [
+          "lift",
+          "mass"
+        ],
+        "learned_threshold": 5,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": true,
+        "training_examples": 60,
+        "true_weights": [
+          1,
+          -1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "reserve_sum",
+        "fields": [
+          "alpha",
+          "beta"
+        ],
+        "learned_threshold": 12,
+        "learned_weights": [
+          1,
+          1
+        ],
+        "structure_recovered": true,
+        "training_examples": 60,
+        "true_weights": [
+          1,
+          1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "inverse_bias",
+        "fields": [
+          "north",
+          "south"
+        ],
+        "learned_threshold": 2,
+        "learned_weights": [
+          -1,
+          1
+        ],
+        "structure_recovered": true,
+        "training_examples": 60,
+        "true_weights": [
+          -1,
+          1
+        ]
+      }
+    ],
+    "mean_accuracy": 0.9924999999999999,
+    "structure_recovery": 1.0,
+    "worst_accuracy": 0.97
+  },
+  "gate": {
+    "accepted": true,
+    "cold_examples_per_domain": 180,
+    "cold_mean_accuracy": 1.0,
+    "concrete_control_mean_accuracy": 0.6235,
+    "development_mean_accuracy": 0.9924999999999999,
+    "errors": [],
+    "example_reduction": 0.8,
+    "gain_over_concrete_ontology": 0.37649999999999995,
+    "nonlinear_controls_rejected": true,
+    "sealed_mean_accuracy": 1.0,
+    "sealed_structure_recovery": 1.0,
+    "sealed_worst_accuracy": 1.0,
+    "transfer_examples_per_domain": 36
+  },
+  "invented_meta_concept": {
+    "complexity": 3,
+    "concept_id": "concept_signed_linear_relation_8b22663b2ca3",
+    "created_at": "2026-07-28T23:10:18.721354+00:00",
+    "development": {
+      "domains": [
+        {
+          "accuracy": 0.97,
+          "domain_id": "thermal_margin",
+          "fields": [
+            "heat",
+            "loss"
+          ],
+          "learned_threshold": 4,
+          "learned_weights": [
+            1,
+            -1
+          ],
+          "structure_recovered": true,
+          "training_examples": 60,
+          "true_weights": [
+            1,
+            -1
+          ]
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "buoyancy_load",
+          "fields": [
+            "lift",
+            "mass"
+          ],
+          "learned_threshold": 5,
+          "learned_weights": [
+            1,
+            -1
+          ],
+          "structure_recovered": true,
+          "training_examples": 60,
+          "true_weights": [
+            1,
+            -1
+          ]
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "reserve_sum",
+          "fields": [
+            "alpha",
+            "beta"
+          ],
+          "learned_threshold": 12,
+          "learned_weights": [
+            1,
+            1
+          ],
+          "structure_recovered": true,
+          "training_examples": 60,
+          "true_weights": [
+            1,
+            1
+          ]
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "inverse_bias",
+          "fields": [
+            "north",
+            "south"
+          ],
+          "learned_threshold": 2,
+          "learned_weights": [
+            -1,
+            1
+          ],
+          "structure_recovered": true,
+          "training_examples": 60,
+          "true_weights": [
+            -1,
+            1
+          ]
+        }
+      ],
+      "mean_accuracy": 0.9924999999999999,
+      "structure_recovery": 1.0,
+      "worst_accuracy": 0.97
+    },
+    "gate": {
+      "accepted": true,
+      "cold_examples_per_domain": 180,
+      "cold_mean_accuracy": 1.0,
+      "concrete_control_mean_accuracy": 0.6235,
+      "development_mean_accuracy": 0.9924999999999999,
+      "errors": [],
+      "example_reduction": 0.8,
+      "gain_over_concrete_ontology": 0.37649999999999995,
+      "nonlinear_controls_rejected": true,
+      "sealed_mean_accuracy": 1.0,
+      "sealed_structure_recovery": 1.0,
+      "sealed_worst_accuracy": 1.0,
+      "transfer_examples_per_domain": 36
+    },
+    "kind": "parameterised_meta_predicate",
+    "name": "signed_linear_relation",
+    "operator": "weighted_sum_ge",
+    "parameter_domain": {
+      "left_weight": [
+        -1,
+        0,
+        1
+      ],
+      "right_weight": [
+        -1,
+        0,
+        1
+      ]
+    },
+    "parameters": [
+      "left_weight",
+      "right_weight",
+      "threshold"
+    ],
+    "parent_concepts": [
+      "concept_ordered_margin_2d5a04f6994e"
+    ],
+    "schema_version": "aion.hexcore.invented_concept.v1",
+    "sealed": {
+      "domains": [
+        {
+          "accuracy": 1.0,
+          "domain_id": "lumen_balance",
+          "fields": [
+            "flare",
+            "shade"
+          ],
+          "learned_threshold": 4,
+          "learned_weights": [
+            1,
+            -1
+          ],
+          "structure_recovered": true,
+          "training_examples": 36,
+          "true_weights": [
+            1,
+            -1
+          ]
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "alloy_total",
+          "fields": [
+            "nickel",
+            "cobalt"
+          ],
+          "learned_threshold": 10,
+          "learned_weights": [
+            1,
+            1
+          ],
+          "structure_recovered": true,
+          "training_examples": 36,
+          "true_weights": [
+            1,
+            1
+          ]
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "reverse_current",
+          "fields": [
+            "sink",
+            "source"
+          ],
+          "learned_threshold": 1,
+          "learned_weights": [
+            -1,
+            1
+          ],
+          "structure_recovered": true,
+          "training_examples": 36,
+          "true_weights": [
+            -1,
+            1
+          ]
+        },
+        {
+          "accuracy": 1.0,
+          "domain_id": "containment",
+          "fields": [
+            "leak",
+            "barrier"
+          ],
+          "learned_threshold": -8,
+          "learned_weights": [
+            -1,
+            -1
+          ],
+          "structure_recovered": true,
+          "training_examples": 36,
+          "true_weights": [
+            -1,
+            -1
+          ]
+        }
+      ],
+      "mean_accuracy": 1.0,
+      "structure_recovery": 1.0,
+      "worst_accuracy": 1.0
+    },
+    "subsumes": [
+      "ordered_margin",
+      "reverse_margin",
+      "additive_mass",
+      "negative_mass"
+    ]
+  },
+  "language_provider_used": false,
+  "negative_controls": [
+    {
+      "best_linear_accuracy": 0.722,
+      "domain_id": "exclusive_channels",
+      "unnecessary_generalisation_rejected": true
+    }
+  ],
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "concept_id": "concept_signed_linear_relation_8b22663b2ca3",
+        "evaluation": "phase24_meta_abstraction_sealed",
+        "gate": {
+          "accepted": true,
+          "cold_examples_per_domain": 180,
+          "cold_mean_accuracy": 1.0,
+          "concrete_control_mean_accuracy": 0.6235,
+          "development_mean_accuracy": 0.9924999999999999,
+          "errors": [],
+          "example_reduction": 0.8,
+          "gain_over_concrete_ontology": 0.37649999999999995,
+          "nonlinear_controls_rejected": true,
+          "sealed_mean_accuracy": 1.0,
+          "sealed_structure_recovery": 1.0,
+          "sealed_worst_accuracy": 1.0,
+          "transfer_examples_per_domain": 36
+        }
+      },
+      "goal": "hierarchical_meta_abstraction",
+      "procedure_id": "procedure_meta_abstraction_c5bb3ab6c20e",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "steps": [
+        "compare_concrete_concepts_by_operator_signature",
+        "propose_parameterised_relational_meta_predicate",
+        "fit_domain_parameters_from_sparse_examples",
+        "verify_on_renamed_held_out_relation_families",
+        "reject_non_linear_overgeneralisation",
+        "retain_hierarchy_with_provenance"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_meta_abstraction_c5bb3ab6c20e",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "meta_abstraction_invention_authority"
+        },
+        "reason": "procedure_promotion:procedure_meta_abstraction_c5bb3ab6c20e",
+        "state_hash": "3418d61290cccf2dc8179facd28382ea132a58ece74ada12744319857b2ea97c"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "meta_concept_retained": true,
+    "parent_link_retained": true,
+    "relearning_examples": 0
+  },
+  "schema_version": "aion.hexcore.meta_abstraction.v1",
+  "sealed_cold": {
+    "domains": [
+      {
+        "accuracy": 1.0,
+        "domain_id": "lumen_balance",
+        "fields": [
+          "flare",
+          "shade"
+        ],
+        "learned_threshold": 4,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": true,
+        "training_examples": 180,
+        "true_weights": [
+          1,
+          -1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "alloy_total",
+        "fields": [
+          "nickel",
+          "cobalt"
+        ],
+        "learned_threshold": 10,
+        "learned_weights": [
+          1,
+          1
+        ],
+        "structure_recovered": true,
+        "training_examples": 180,
+        "true_weights": [
+          1,
+          1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "reverse_current",
+        "fields": [
+          "sink",
+          "source"
+        ],
+        "learned_threshold": 1,
+        "learned_weights": [
+          -1,
+          1
+        ],
+        "structure_recovered": true,
+        "training_examples": 180,
+        "true_weights": [
+          -1,
+          1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "containment",
+        "fields": [
+          "leak",
+          "barrier"
+        ],
+        "learned_threshold": -8,
+        "learned_weights": [
+          -1,
+          -1
+        ],
+        "structure_recovered": true,
+        "training_examples": 180,
+        "true_weights": [
+          -1,
+          -1
+        ]
+      }
+    ],
+    "mean_accuracy": 1.0,
+    "structure_recovery": 1.0,
+    "worst_accuracy": 1.0
+  },
+  "sealed_transfer": {
+    "domains": [
+      {
+        "accuracy": 1.0,
+        "domain_id": "lumen_balance",
+        "fields": [
+          "flare",
+          "shade"
+        ],
+        "learned_threshold": 4,
+        "learned_weights": [
+          1,
+          -1
+        ],
+        "structure_recovered": true,
+        "training_examples": 36,
+        "true_weights": [
+          1,
+          -1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "alloy_total",
+        "fields": [
+          "nickel",
+          "cobalt"
+        ],
+        "learned_threshold": 10,
+        "learned_weights": [
+          1,
+          1
+        ],
+        "structure_recovered": true,
+        "training_examples": 36,
+        "true_weights": [
+          1,
+          1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "reverse_current",
+        "fields": [
+          "sink",
+          "source"
+        ],
+        "learned_threshold": 1,
+        "learned_weights": [
+          -1,
+          1
+        ],
+        "structure_recovered": true,
+        "training_examples": 36,
+        "true_weights": [
+          -1,
+          1
+        ]
+      },
+      {
+        "accuracy": 1.0,
+        "domain_id": "containment",
+        "fields": [
+          "leak",
+          "barrier"
+        ],
+        "learned_threshold": -8,
+        "learned_weights": [
+          -1,
+          -1
+        ],
+        "structure_recovered": true,
+        "training_examples": 36,
+        "true_weights": [
+          -1,
+          -1
+        ]
+      }
+    ],
+    "mean_accuracy": 1.0,
+    "structure_recovery": 1.0,
+    "worst_accuracy": 1.0
+  }
+}

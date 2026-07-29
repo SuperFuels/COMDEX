@@ -1,0 +1,922 @@
+{
+  "schema_version": "aion.hexcore.outcome_driven_causal_evolution.v1",
+  "benchmark": "procedural_world_outcome_memory_and_policy_mutation",
+  "language_provider_used": false,
+  "world_generation": {
+    "development_worlds": 12,
+    "sealed_worlds": 16,
+    "development_episodes_per_world": 40,
+    "sealed_episodes_per_world": 60,
+    "factor_counts": [
+      1,
+      2,
+      3
+    ],
+    "probe_reliabilities": [
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "goal_reliabilities": [
+      0.9,
+      0.95,
+      0.98,
+      0.99
+    ],
+    "goal_patterns_include_dont_care": true,
+    "symbol_vocabularies_generated": true,
+    "development_sealed_identity_overlap": 0
+  },
+  "development": {
+    "champion": {
+      "policy": {
+        "policy_id": "phase7_champion",
+        "confidence_gate": 0.95,
+        "maximum_experiments": 6,
+        "cost_weight": 0.1,
+        "mutation": "immutable_phase7_control",
+        "parent_policy_id": null,
+        "complexity": 8
+      },
+      "worlds": 12,
+      "episodes": 480,
+      "mean_factor_accuracy": 0.83125,
+      "mean_goal_success": 0.8125,
+      "average_confidence": 0.8813534362708334,
+      "calibration_error": 0.05010343627083336,
+      "average_experiments": 5.104166666666667,
+      "worst_family_factor_accuracy": 0.425,
+      "worst_family_goal_success": 0.4,
+      "families": {
+        "factors_2:relevant_1:noise_80": {
+          "episodes": 40,
+          "factor_accuracy": 0.825,
+          "goal_success": 0.9,
+          "average_experiments": 6.0
+        },
+        "factors_2:relevant_2:noise_85": {
+          "episodes": 80,
+          "factor_accuracy": 0.875,
+          "goal_success": 0.7625,
+          "average_experiments": 5.025
+        },
+        "factors_3:relevant_2:noise_90": {
+          "episodes": 80,
+          "factor_accuracy": 0.8875,
+          "goal_success": 0.8125,
+          "average_experiments": 6.0
+        },
+        "factors_2:relevant_1:noise_85": {
+          "episodes": 40,
+          "factor_accuracy": 0.95,
+          "goal_success": 0.975,
+          "average_experiments": 4.55
+        },
+        "factors_2:relevant_2:noise_90": {
+          "episodes": 40,
+          "factor_accuracy": 0.9,
+          "goal_success": 0.9,
+          "average_experiments": 4.65
+        },
+        "factors_3:relevant_3:noise_75": {
+          "episodes": 40,
+          "factor_accuracy": 0.425,
+          "goal_success": 0.4,
+          "average_experiments": 6.0
+        },
+        "factors_3:relevant_1:noise_85": {
+          "episodes": 40,
+          "factor_accuracy": 0.775,
+          "goal_success": 1.0,
+          "average_experiments": 6.0
+        },
+        "factors_3:relevant_3:noise_85": {
+          "episodes": 40,
+          "factor_accuracy": 0.775,
+          "goal_success": 0.75,
+          "average_experiments": 6.0
+        },
+        "factors_3:relevant_3:noise_95": {
+          "episodes": 80,
+          "factor_accuracy": 0.9,
+          "goal_success": 0.8375,
+          "average_experiments": 3.0
+        }
+      },
+      "failure_counts": {
+        "belief_error": 81,
+        "calibration_error": 27,
+        "experiment_budget_exhausted": 305,
+        "planning_error": 71,
+        "execution_noise": 21
+      },
+      "score": 0.8666459794125
+    },
+    "challengers": [
+      {
+        "policy": {
+          "policy_id": "challenger_high_confidence",
+          "confidence_gate": 0.98,
+          "maximum_experiments": 10,
+          "cost_weight": 0.05,
+          "mutation": "raise_confidence_and_budget_after_belief_failures",
+          "parent_policy_id": "phase7_champion",
+          "complexity": 8
+        },
+        "worlds": 12,
+        "episodes": 480,
+        "mean_factor_accuracy": 0.9291666666666667,
+        "mean_goal_success": 0.8958333333333334,
+        "average_confidence": 0.9581995982083333,
+        "calibration_error": 0.02903293154166664,
+        "average_experiments": 7.795833333333333,
+        "worst_family_factor_accuracy": 0.625,
+        "worst_family_goal_success": 0.6,
+        "families": {
+          "factors_2:relevant_1:noise_80": {
+            "episodes": 40,
+            "factor_accuracy": 0.875,
+            "goal_success": 0.875,
+            "average_experiments": 8.15
+          },
+          "factors_2:relevant_2:noise_85": {
+            "episodes": 80,
+            "factor_accuracy": 1.0,
+            "goal_success": 0.9375,
+            "average_experiments": 8.05
+          },
+          "factors_3:relevant_2:noise_90": {
+            "episodes": 80,
+            "factor_accuracy": 0.9625,
+            "goal_success": 0.8875,
+            "average_experiments": 7.275
+          },
+          "factors_2:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 1.0,
+            "goal_success": 1.0,
+            "average_experiments": 7.3
+          },
+          "factors_2:relevant_2:noise_90": {
+            "episodes": 40,
+            "factor_accuracy": 0.95,
+            "goal_success": 0.95,
+            "average_experiments": 4.9
+          },
+          "factors_3:relevant_3:noise_75": {
+            "episodes": 40,
+            "factor_accuracy": 0.625,
+            "goal_success": 0.6,
+            "average_experiments": 10.0
+          },
+          "factors_3:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.925,
+            "goal_success": 0.975,
+            "average_experiments": 9.7
+          },
+          "factors_3:relevant_3:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.9,
+            "goal_success": 0.85,
+            "average_experiments": 9.8
+          },
+          "factors_3:relevant_3:noise_95": {
+            "episodes": 80,
+            "factor_accuracy": 0.975,
+            "goal_success": 0.925,
+            "average_experiments": 6.525
+          }
+        },
+        "failure_counts": {
+          "belief_error": 34,
+          "calibration_error": 23,
+          "experiment_budget_exhausted": 172,
+          "planning_error": 29,
+          "execution_noise": 21
+        },
+        "score": 0.9199434136916668
+      },
+      {
+        "policy": {
+          "policy_id": "challenger_balanced_robust",
+          "confidence_gate": 0.97,
+          "maximum_experiments": 8,
+          "cost_weight": 0.05,
+          "mutation": "moderate_confidence_with_two_extra_probes",
+          "parent_policy_id": "phase7_champion",
+          "complexity": 8
+        },
+        "worlds": 12,
+        "episodes": 480,
+        "mean_factor_accuracy": 0.8916666666666667,
+        "mean_goal_success": 0.8729166666666667,
+        "average_confidence": 0.9257768683125001,
+        "calibration_error": 0.03411020164583334,
+        "average_experiments": 7.0375,
+        "worst_family_factor_accuracy": 0.5,
+        "worst_family_goal_success": 0.45,
+        "families": {
+          "factors_2:relevant_1:noise_80": {
+            "episodes": 40,
+            "factor_accuracy": 0.825,
+            "goal_success": 0.9,
+            "average_experiments": 7.35
+          },
+          "factors_2:relevant_2:noise_85": {
+            "episodes": 80,
+            "factor_accuracy": 0.925,
+            "goal_success": 0.9125,
+            "average_experiments": 7.325
+          },
+          "factors_3:relevant_2:noise_90": {
+            "episodes": 80,
+            "factor_accuracy": 0.95,
+            "goal_success": 0.8625,
+            "average_experiments": 6.95
+          },
+          "factors_2:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 1.0,
+            "goal_success": 1.0,
+            "average_experiments": 6.85
+          },
+          "factors_2:relevant_2:noise_90": {
+            "episodes": 40,
+            "factor_accuracy": 0.95,
+            "goal_success": 0.95,
+            "average_experiments": 4.85
+          },
+          "factors_3:relevant_3:noise_75": {
+            "episodes": 40,
+            "factor_accuracy": 0.5,
+            "goal_success": 0.45,
+            "average_experiments": 8.0
+          },
+          "factors_3:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.875,
+            "goal_success": 0.95,
+            "average_experiments": 8.0
+          },
+          "factors_3:relevant_3:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.85,
+            "goal_success": 0.825,
+            "average_experiments": 8.0
+          },
+          "factors_3:relevant_3:noise_95": {
+            "episodes": 80,
+            "factor_accuracy": 0.975,
+            "goal_success": 0.925,
+            "average_experiments": 6.425
+          }
+        },
+        "failure_counts": {
+          "belief_error": 52,
+          "calibration_error": 18,
+          "experiment_budget_exhausted": 276,
+          "planning_error": 42,
+          "execution_noise": 19
+        },
+        "score": 0.9036779596708334
+      },
+      {
+        "policy": {
+          "policy_id": "challenger_cost_aware",
+          "confidence_gate": 0.97,
+          "maximum_experiments": 9,
+          "cost_weight": 0.2,
+          "mutation": "increase_cost_penalty_while_extending_budget",
+          "parent_policy_id": "phase7_champion",
+          "complexity": 8
+        },
+        "worlds": 12,
+        "episodes": 480,
+        "mean_factor_accuracy": 0.925,
+        "mean_goal_success": 0.8875,
+        "average_confidence": 0.940201547625,
+        "calibration_error": 0.015201547624999923,
+        "average_experiments": 7.68125,
+        "worst_family_factor_accuracy": 0.55,
+        "worst_family_goal_success": 0.5,
+        "families": {
+          "factors_2:relevant_1:noise_80": {
+            "episodes": 40,
+            "factor_accuracy": 0.875,
+            "goal_success": 0.925,
+            "average_experiments": 7.75
+          },
+          "factors_2:relevant_2:noise_85": {
+            "episodes": 80,
+            "factor_accuracy": 0.9875,
+            "goal_success": 0.9125,
+            "average_experiments": 8.1875
+          },
+          "factors_3:relevant_2:noise_90": {
+            "episodes": 80,
+            "factor_accuracy": 0.975,
+            "goal_success": 0.9,
+            "average_experiments": 7.1125
+          },
+          "factors_2:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.975,
+            "goal_success": 1.0,
+            "average_experiments": 9.0
+          },
+          "factors_2:relevant_2:noise_90": {
+            "episodes": 40,
+            "factor_accuracy": 0.95,
+            "goal_success": 0.95,
+            "average_experiments": 4.875
+          },
+          "factors_3:relevant_3:noise_75": {
+            "episodes": 40,
+            "factor_accuracy": 0.55,
+            "goal_success": 0.5,
+            "average_experiments": 9.0
+          },
+          "factors_3:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.95,
+            "goal_success": 0.925,
+            "average_experiments": 9.0
+          },
+          "factors_3:relevant_3:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.925,
+            "goal_success": 0.875,
+            "average_experiments": 9.0
+          },
+          "factors_3:relevant_3:noise_95": {
+            "episodes": 80,
+            "factor_accuracy": 0.975,
+            "goal_success": 0.925,
+            "average_experiments": 6.475
+          }
+        },
+        "failure_counts": {
+          "belief_error": 36,
+          "calibration_error": 14,
+          "experiment_budget_exhausted": 235,
+          "planning_error": 33,
+          "execution_noise": 23
+        },
+        "score": 0.915834690475
+      },
+      {
+        "policy": {
+          "policy_id": "challenger_efficient",
+          "confidence_gate": 0.9,
+          "maximum_experiments": 5,
+          "cost_weight": 0.08,
+          "mutation": "lower_budget_efficiency_control",
+          "parent_policy_id": "phase7_champion",
+          "complexity": 8
+        },
+        "worlds": 12,
+        "episodes": 480,
+        "mean_factor_accuracy": 0.7791666666666667,
+        "mean_goal_success": 0.78125,
+        "average_confidence": 0.8663097121041667,
+        "calibration_error": 0.08714304543750007,
+        "average_experiments": 3.997916666666667,
+        "worst_family_factor_accuracy": 0.425,
+        "worst_family_goal_success": 0.375,
+        "families": {
+          "factors_2:relevant_1:noise_80": {
+            "episodes": 40,
+            "factor_accuracy": 0.675,
+            "goal_success": 0.825,
+            "average_experiments": 4.525
+          },
+          "factors_2:relevant_2:noise_85": {
+            "episodes": 80,
+            "factor_accuracy": 0.85,
+            "goal_success": 0.7375,
+            "average_experiments": 4.5125
+          },
+          "factors_3:relevant_2:noise_90": {
+            "episodes": 80,
+            "factor_accuracy": 0.75,
+            "goal_success": 0.7875,
+            "average_experiments": 3.575
+          },
+          "factors_2:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.9,
+            "goal_success": 0.975,
+            "average_experiments": 4.275
+          },
+          "factors_2:relevant_2:noise_90": {
+            "episodes": 40,
+            "factor_accuracy": 0.85,
+            "goal_success": 0.85,
+            "average_experiments": 2.0
+          },
+          "factors_3:relevant_3:noise_75": {
+            "episodes": 40,
+            "factor_accuracy": 0.425,
+            "goal_success": 0.375,
+            "average_experiments": 5.0
+          },
+          "factors_3:relevant_1:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.725,
+            "goal_success": 0.875,
+            "average_experiments": 5.0
+          },
+          "factors_3:relevant_3:noise_85": {
+            "episodes": 40,
+            "factor_accuracy": 0.775,
+            "goal_success": 0.75,
+            "average_experiments": 5.0
+          },
+          "factors_3:relevant_3:noise_95": {
+            "episodes": 80,
+            "factor_accuracy": 0.9,
+            "goal_success": 0.8375,
+            "average_experiments": 3.0
+          }
+        },
+        "failure_counts": {
+          "belief_error": 106,
+          "calibration_error": 40,
+          "planning_error": 85,
+          "experiment_budget_exhausted": 201,
+          "execution_noise": 21
+        },
+        "score": 0.8396963909125
+      }
+    ],
+    "selected_policy": {
+      "policy_id": "challenger_high_confidence",
+      "confidence_gate": 0.98,
+      "maximum_experiments": 10,
+      "cost_weight": 0.05,
+      "mutation": "raise_confidence_and_budget_after_belief_failures",
+      "parent_policy_id": "phase7_champion",
+      "complexity": 8
+    },
+    "mutation_record": {
+      "cycle": {
+        "schema_version": "aion.hexcore.procedure_mutation_cycle.v1",
+        "cycle_id": "mutation_6b307a5062c04275",
+        "parent_policy": {
+          "policy_id": "phase7_champion",
+          "confidence_gate": 0.95,
+          "maximum_experiments": 6,
+          "cost_weight": 0.1,
+          "mutation": "immutable_phase7_control",
+          "parent_policy_id": null,
+          "complexity": 8
+        },
+        "parent_failure_counts": {
+          "belief_error": 81,
+          "calibration_error": 27,
+          "experiment_budget_exhausted": 305,
+          "planning_error": 71,
+          "execution_noise": 21
+        },
+        "challengers": [
+          {
+            "policy": {
+              "policy_id": "challenger_high_confidence",
+              "confidence_gate": 0.98,
+              "maximum_experiments": 10,
+              "cost_weight": 0.05,
+              "mutation": "raise_confidence_and_budget_after_belief_failures",
+              "parent_policy_id": "phase7_champion",
+              "complexity": 8
+            },
+            "score": 0.9199434136916668,
+            "mean_goal_success": 0.8958333333333334,
+            "worst_family_goal_success": 0.6
+          },
+          {
+            "policy": {
+              "policy_id": "challenger_balanced_robust",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 8,
+              "cost_weight": 0.05,
+              "mutation": "moderate_confidence_with_two_extra_probes",
+              "parent_policy_id": "phase7_champion",
+              "complexity": 8
+            },
+            "score": 0.9036779596708334,
+            "mean_goal_success": 0.8729166666666667,
+            "worst_family_goal_success": 0.45
+          },
+          {
+            "policy": {
+              "policy_id": "challenger_cost_aware",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 9,
+              "cost_weight": 0.2,
+              "mutation": "increase_cost_penalty_while_extending_budget",
+              "parent_policy_id": "phase7_champion",
+              "complexity": 8
+            },
+            "score": 0.915834690475,
+            "mean_goal_success": 0.8875,
+            "worst_family_goal_success": 0.5
+          },
+          {
+            "policy": {
+              "policy_id": "challenger_efficient",
+              "confidence_gate": 0.9,
+              "maximum_experiments": 5,
+              "cost_weight": 0.08,
+              "mutation": "lower_budget_efficiency_control",
+              "parent_policy_id": "phase7_champion",
+              "complexity": 8
+            },
+            "score": 0.8396963909125,
+            "mean_goal_success": 0.78125,
+            "worst_family_goal_success": 0.375
+          }
+        ],
+        "selected_development_policy": {
+          "policy_id": "challenger_high_confidence",
+          "confidence_gate": 0.98,
+          "maximum_experiments": 10,
+          "cost_weight": 0.05,
+          "mutation": "raise_confidence_and_budget_after_belief_failures",
+          "parent_policy_id": "phase7_champion",
+          "complexity": 8
+        },
+        "timestamp": "2026-07-28T19:31:10.694538+00:00"
+      },
+      "commit": {
+        "reason": "procedure_mutation_cycle:mutation_6b307a5062c04275",
+        "authority": {
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "outcome_evolution_benchmark_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "a1e1d3677679a45c23a6c9d0e6bd67683ea2309c6571af16e367c0178b500e8b"
+      }
+    }
+  },
+  "sealed_evaluation": {
+    "champion": {
+      "policy": {
+        "policy_id": "phase7_champion",
+        "confidence_gate": 0.95,
+        "maximum_experiments": 6,
+        "cost_weight": 0.1,
+        "mutation": "immutable_phase7_control",
+        "parent_policy_id": null,
+        "complexity": 8
+      },
+      "worlds": 16,
+      "episodes": 960,
+      "mean_factor_accuracy": 0.853125,
+      "mean_goal_success": 0.8635416666666667,
+      "average_confidence": 0.8988081546666666,
+      "calibration_error": 0.045683154666666614,
+      "average_experiments": 4.489583333333333,
+      "worst_family_factor_accuracy": 0.7,
+      "worst_family_goal_success": 0.7,
+      "families": {
+        "factors_2:relevant_2:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.7833333333333333,
+          "goal_success": 0.75,
+          "average_experiments": 6.0
+        },
+        "factors_3:relevant_2:noise_95": {
+          "episodes": 120,
+          "factor_accuracy": 0.8416666666666667,
+          "goal_success": 0.8083333333333333,
+          "average_experiments": 3.0
+        },
+        "factors_3:relevant_3:noise_95": {
+          "episodes": 60,
+          "factor_accuracy": 0.9166666666666666,
+          "goal_success": 0.9166666666666666,
+          "average_experiments": 3.0
+        },
+        "factors_3:relevant_2:noise_90": {
+          "episodes": 60,
+          "factor_accuracy": 0.9166666666666666,
+          "goal_success": 0.9333333333333333,
+          "average_experiments": 6.0
+        },
+        "factors_3:relevant_1:noise_95": {
+          "episodes": 60,
+          "factor_accuracy": 0.8666666666666667,
+          "goal_success": 0.9,
+          "average_experiments": 3.0
+        },
+        "factors_1:relevant_1:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.9166666666666666,
+          "goal_success": 0.9,
+          "average_experiments": 4.166666666666667
+        },
+        "factors_2:relevant_1:noise_75": {
+          "episodes": 120,
+          "factor_accuracy": 0.7,
+          "goal_success": 0.8,
+          "average_experiments": 6.0
+        },
+        "factors_2:relevant_2:noise_85": {
+          "episodes": 60,
+          "factor_accuracy": 0.9166666666666666,
+          "goal_success": 0.8666666666666667,
+          "average_experiments": 4.633333333333334
+        },
+        "factors_2:relevant_1:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.9,
+          "goal_success": 0.9166666666666666,
+          "average_experiments": 6.0
+        },
+        "factors_3:relevant_1:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.7333333333333333,
+          "goal_success": 0.8833333333333333,
+          "average_experiments": 6.0
+        },
+        "factors_2:relevant_2:noise_75": {
+          "episodes": 60,
+          "factor_accuracy": 0.7,
+          "goal_success": 0.7,
+          "average_experiments": 6.0
+        },
+        "factors_2:relevant_2:noise_95": {
+          "episodes": 60,
+          "factor_accuracy": 0.9166666666666666,
+          "goal_success": 0.8833333333333333,
+          "average_experiments": 2.0
+        },
+        "factors_2:relevant_1:noise_90": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 0.9666666666666667,
+          "average_experiments": 4.766666666666667
+        },
+        "factors_1:relevant_1:noise_90": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 2.2666666666666666
+        }
+      },
+      "failure_counts": {
+        "experiment_budget_exhausted": 480,
+        "belief_error": 141,
+        "planning_error": 101,
+        "execution_noise": 36,
+        "calibration_error": 72
+      },
+      "score": 0.9352383690666667
+    },
+    "challenger": {
+      "policy": {
+        "policy_id": "challenger_high_confidence",
+        "confidence_gate": 0.98,
+        "maximum_experiments": 10,
+        "cost_weight": 0.05,
+        "mutation": "raise_confidence_and_budget_after_belief_failures",
+        "parent_policy_id": "phase7_champion",
+        "complexity": 8
+      },
+      "worlds": 16,
+      "episodes": 960,
+      "mean_factor_accuracy": 0.9354166666666667,
+      "mean_goal_success": 0.9166666666666666,
+      "average_confidence": 0.9487613001354167,
+      "calibration_error": 0.013344633468750033,
+      "average_experiments": 7.128125,
+      "worst_family_factor_accuracy": 0.7666666666666667,
+      "worst_family_goal_success": 0.7333333333333333,
+      "families": {
+        "factors_2:relevant_2:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.9,
+          "goal_success": 0.8666666666666667,
+          "average_experiments": 8.5
+        },
+        "factors_3:relevant_2:noise_95": {
+          "episodes": 120,
+          "factor_accuracy": 0.9916666666666667,
+          "goal_success": 0.925,
+          "average_experiments": 6.716666666666667
+        },
+        "factors_3:relevant_3:noise_95": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 6.566666666666666
+        },
+        "factors_3:relevant_2:noise_90": {
+          "episodes": 60,
+          "factor_accuracy": 0.9833333333333333,
+          "goal_success": 0.9666666666666667,
+          "average_experiments": 7.2
+        },
+        "factors_3:relevant_1:noise_95": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 0.9333333333333333,
+          "average_experiments": 6.7
+        },
+        "factors_1:relevant_1:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.9333333333333333,
+          "goal_success": 0.9166666666666666,
+          "average_experiments": 4.7
+        },
+        "factors_2:relevant_1:noise_75": {
+          "episodes": 120,
+          "factor_accuracy": 0.825,
+          "goal_success": 0.8666666666666667,
+          "average_experiments": 9.883333333333333
+        },
+        "factors_2:relevant_2:noise_85": {
+          "episodes": 60,
+          "factor_accuracy": 0.9666666666666667,
+          "goal_success": 0.9,
+          "average_experiments": 7.5
+        },
+        "factors_2:relevant_1:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.9833333333333333,
+          "goal_success": 0.9333333333333333,
+          "average_experiments": 8.433333333333334
+        },
+        "factors_3:relevant_1:noise_80": {
+          "episodes": 60,
+          "factor_accuracy": 0.7666666666666667,
+          "goal_success": 0.8833333333333333,
+          "average_experiments": 9.883333333333333
+        },
+        "factors_2:relevant_2:noise_75": {
+          "episodes": 60,
+          "factor_accuracy": 0.8,
+          "goal_success": 0.7333333333333333,
+          "average_experiments": 9.666666666666666
+        },
+        "factors_2:relevant_2:noise_95": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 1.0,
+          "average_experiments": 4.5
+        },
+        "factors_2:relevant_1:noise_90": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 4.933333333333334
+        },
+        "factors_1:relevant_1:noise_90": {
+          "episodes": 60,
+          "factor_accuracy": 1.0,
+          "goal_success": 0.9833333333333333,
+          "average_experiments": 2.2666666666666666
+        }
+      },
+      "failure_counts": {
+        "experiment_budget_exhausted": 309,
+        "execution_noise": 37,
+        "belief_error": 62,
+        "calibration_error": 27,
+        "planning_error": 44
+      },
+      "score": 0.95851857330625
+    },
+    "gate": {
+      "accepted": true,
+      "errors": [],
+      "mean_goal_gain": 0.05312499999999998,
+      "worst_family_goal_gain": 0.033333333333333326,
+      "mean_factor_accuracy_gain": 0.08229166666666665,
+      "calibration_change": -0.03233852119791658
+    }
+  },
+  "promotion": {
+    "baseline": {
+      "procedure_id": "procedure_phase7_policy_control",
+      "goal": "causal_investigation_policy",
+      "steps": [
+        "probe_by_information_gain",
+        "stop_at_0.95_or_6",
+        "intervene_to_goal_pattern",
+        "execute_and_verify"
+      ],
+      "score": 0.9352383690666667,
+      "success": true,
+      "evidence": {
+        "evaluation": "sealed_generated_worlds",
+        "mean_goal_success": 0.8635416666666667,
+        "worst_family_goal_success": 0.7
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "baseline_promotion": {
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT",
+      "champion_id": "procedure_phase7_policy_control",
+      "commit": {
+        "reason": "procedure_promotion:procedure_phase7_policy_control",
+        "authority": {
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "outcome_evolution_benchmark_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "26df84fed8fd92f4fbb202a266d75cbcf362a3037c743f2f689fa45ab25860a2"
+      }
+    },
+    "challenger": {
+      "procedure_id": "procedure_evolved_causal_30ebdb2303ae",
+      "goal": "causal_investigation_policy",
+      "steps": [
+        "probe_by_information_gain",
+        "stop_at_0.98_or_10",
+        "cost_weight_0.05",
+        "intervene_to_goal_pattern",
+        "execute_and_verify"
+      ],
+      "score": 0.95851857330625,
+      "success": true,
+      "evidence": {
+        "evaluation": "sealed_generated_worlds",
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "mean_goal_gain": 0.05312499999999998,
+          "worst_family_goal_gain": 0.033333333333333326,
+          "mean_factor_accuracy_gain": 0.08229166666666665,
+          "calibration_change": -0.03233852119791658
+        },
+        "mean_goal_success": 0.9166666666666666,
+        "worst_family_goal_success": 0.7333333333333333,
+        "failure_counts": {
+          "experiment_budget_exhausted": 309,
+          "execution_noise": 37,
+          "belief_error": 62,
+          "calibration_error": 27,
+          "planning_error": 44
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "challenger_promotion": {
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT",
+      "champion_id": "procedure_evolved_causal_30ebdb2303ae",
+      "commit": {
+        "reason": "procedure_promotion:procedure_evolved_causal_30ebdb2303ae",
+        "authority": {
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "outcome_evolution_benchmark_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "f0794e33b1fae3db232921ff368a712e50d30b982a49531b014251df24e74709"
+      }
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "champion_id": "procedure_evolved_causal_30ebdb2303ae",
+    "retained_steps": [
+      "probe_by_information_gain",
+      "stop_at_0.98_or_10",
+      "cost_weight_0.05",
+      "intervene_to_goal_pattern",
+      "execute_and_verify"
+    ],
+    "failure_queue_records": 1985,
+    "mutation_cycles": 1,
+    "relearning_worlds": 0
+  },
+  "gates": {
+    "development_and_sealed_worlds_disjoint": true,
+    "failure_taxonomy_recorded": true,
+    "challengers_created_from_outcomes": true,
+    "sealed_mean_goal_improved": true,
+    "sealed_worst_family_not_regressed": true,
+    "sealed_factor_accuracy_not_regressed": true,
+    "complexity_bounded": true,
+    "challenger_promoted": true,
+    "restart_retention": true
+  },
+  "boundary_statement": "This is a governed discrete procedure-mutation loop over generated bounded causal worlds. It does not modify source code, invent new operators, or perform unrestricted autonomous self-improvement.",
+  "passed": true
+}

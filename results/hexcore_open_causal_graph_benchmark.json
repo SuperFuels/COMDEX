@@ -1,0 +1,3066 @@
+{
+  "schema_version": "aion.hexcore.open_causal_graph_benchmark.v1",
+  "benchmark": "bounded_open_hypothesis_construction",
+  "language_provider_used": false,
+  "initial_hypothesis_set_supplied": false,
+  "variable_and_action_vocabulary_supplied": true,
+  "rule_grammar_bounded": true,
+  "active_experiment_selection_enabled": true,
+  "session": {
+    "schema_version": "aion.hexcore.open_causal_graph_session.v1",
+    "session_id": "open_graph_d0e99c4774e44c2f",
+    "world_id": "open_boolean_device_v1",
+    "initial_graph": {
+      "graph_id": "graph_212457e7cd8bb3e4",
+      "source": "initial_persistence_assumption",
+      "complexity": 3,
+      "edges": [
+        {
+          "source": "gate",
+          "target": "gate",
+          "edge_type": "state"
+        },
+        {
+          "source": "output",
+          "target": "output",
+          "edge_type": "state"
+        },
+        {
+          "source": "signal",
+          "target": "signal",
+          "edge_type": "state"
+        }
+      ],
+      "rules": {
+        "gate": {
+          "kind": "copy",
+          "arguments": [
+            "gate"
+          ],
+          "complexity": 1,
+          "parents": [
+            "gate"
+          ],
+          "action_conditions": []
+        },
+        "output": {
+          "kind": "copy",
+          "arguments": [
+            "output"
+          ],
+          "complexity": 1,
+          "parents": [
+            "output"
+          ],
+          "action_conditions": []
+        },
+        "signal": {
+          "kind": "copy",
+          "arguments": [
+            "signal"
+          ],
+          "complexity": 1,
+          "parents": [
+            "signal"
+          ],
+          "action_conditions": []
+        }
+      }
+    },
+    "initial_model_criticism": {
+      "criticism_id": "criticism_5e427cd65c134335",
+      "graph_id": "graph_212457e7cd8bb3e4",
+      "held_out_transition_accuracy": 0.72916667,
+      "adequacy_gate": 0.95,
+      "adequate": false,
+      "decision": "NONE_ADEQUATE",
+      "timestamp": "2026-07-28T18:20:45.379796+00:00"
+    },
+    "constructed_graph": {
+      "graph_id": "graph_79973cf933073596",
+      "source": "bounded_symbolic_graph_construction",
+      "complexity": 8,
+      "edges": [
+        {
+          "source": "gate",
+          "target": "gate",
+          "edge_type": "state"
+        },
+        {
+          "source": "action:flip_gate",
+          "target": "gate",
+          "edge_type": "intervention"
+        },
+        {
+          "source": "gate",
+          "target": "output",
+          "edge_type": "state"
+        },
+        {
+          "source": "output",
+          "target": "output",
+          "edge_type": "state"
+        },
+        {
+          "source": "signal",
+          "target": "output",
+          "edge_type": "state"
+        },
+        {
+          "source": "action:pulse",
+          "target": "output",
+          "edge_type": "intervention"
+        },
+        {
+          "source": "signal",
+          "target": "signal",
+          "edge_type": "state"
+        },
+        {
+          "source": "action:flip_signal",
+          "target": "signal",
+          "edge_type": "intervention"
+        }
+      ],
+      "rules": {
+        "gate": {
+          "kind": "xor_action",
+          "arguments": [
+            "gate",
+            "flip_gate"
+          ],
+          "complexity": 2,
+          "parents": [
+            "gate"
+          ],
+          "action_conditions": [
+            "flip_gate"
+          ]
+        },
+        "output": {
+          "kind": "if_action_and",
+          "arguments": [
+            "pulse",
+            "signal",
+            "gate",
+            "output"
+          ],
+          "complexity": 4,
+          "parents": [
+            "gate",
+            "output",
+            "signal"
+          ],
+          "action_conditions": [
+            "pulse"
+          ]
+        },
+        "signal": {
+          "kind": "xor_action",
+          "arguments": [
+            "signal",
+            "flip_signal"
+          ],
+          "complexity": 2,
+          "parents": [
+            "signal"
+          ],
+          "action_conditions": [
+            "flip_signal"
+          ]
+        }
+      }
+    },
+    "constructed_model_criticism": {
+      "criticism_id": "criticism_5fd0009849364c79",
+      "graph_id": "graph_79973cf933073596",
+      "held_out_transition_accuracy": 1.0,
+      "adequacy_gate": 0.95,
+      "adequate": true,
+      "decision": "MODEL_ADEQUATE",
+      "timestamp": "2026-07-28T18:20:45.381968+00:00"
+    },
+    "held_out_gain": 0.27083333,
+    "novel_edges": [
+      {
+        "source": "action:flip_gate",
+        "target": "gate",
+        "edge_type": "intervention"
+      },
+      {
+        "source": "gate",
+        "target": "output",
+        "edge_type": "state"
+      },
+      {
+        "source": "signal",
+        "target": "output",
+        "edge_type": "state"
+      },
+      {
+        "source": "action:pulse",
+        "target": "output",
+        "edge_type": "intervention"
+      },
+      {
+        "source": "action:flip_signal",
+        "target": "signal",
+        "edge_type": "intervention"
+      }
+    ],
+    "accepted": true,
+    "errors": [],
+    "observations": [
+      {
+        "index": 0,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "idle",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 1,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 2,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 3,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 4,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "idle",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 5,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 6,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 7,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 8,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "idle",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 9,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 10,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 11,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "idle",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 12,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 13,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 14,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 15,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "idle",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 16,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 17,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 18,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 19,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 20,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 21,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 22,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 23,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 24,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 25,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 26,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 27,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 28,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 29,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 30,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 31,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 32,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 33,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 34,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 35,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 36,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 1
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 1
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 37,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 38,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 39,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 40,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 1
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 1
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 41,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 42,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 1
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 43,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 44,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 45,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 46,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 47,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 48,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 49,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 50,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 51,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 52,
+        "state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 53,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 54,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 55,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "pulse",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 56,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 57,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 58,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 59,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 60,
+        "state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 61,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 62,
+        "state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 0,
+            "output": 0
+          },
+          "action_observed": "flip_gate",
+          "state_after": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      },
+      {
+        "index": 63,
+        "state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        },
+        "evidence": {
+          "state_before": {
+            "signal": 1,
+            "gate": 1,
+            "output": 0
+          },
+          "action_observed": "flip_signal",
+          "state_after": {
+            "signal": 0,
+            "gate": 1,
+            "output": 0
+          },
+          "hidden_rule_visible": false
+        }
+      }
+    ],
+    "active_experiment_trace": [
+      {
+        "index": 0,
+        "selection": {
+          "action": "idle",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.25,
+          "cost": 0.05,
+          "utility": 1.245
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 1,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.25,
+          "cost": 0.1,
+          "utility": 1.24
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 2,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.25,
+          "cost": 0.1,
+          "utility": 1.24
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 3,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.25,
+          "cost": 0.3,
+          "utility": 1.22
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 4,
+        "selection": {
+          "action": "idle",
+          "expected_information_gain_proxy": 0.5,
+          "exploration_bonus": 0.125,
+          "cost": 0.05,
+          "utility": 0.62
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 5,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 0.5,
+          "exploration_bonus": 0.125,
+          "cost": 0.1,
+          "utility": 0.615
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 6,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 0.5,
+          "exploration_bonus": 0.125,
+          "cost": 0.1,
+          "utility": 0.615
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        }
+      },
+      {
+        "index": 7,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 0.5,
+          "exploration_bonus": 0.125,
+          "cost": 0.3,
+          "utility": 0.595
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 8,
+        "selection": {
+          "action": "idle",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.08333333,
+          "cost": 0.05,
+          "utility": 3.07833333
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 9,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.08333333,
+          "cost": 0.1,
+          "utility": 3.07333333
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 10,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.08333333,
+          "cost": 0.1,
+          "utility": 3.07333333
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 11,
+        "selection": {
+          "action": "idle",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.0625,
+          "cost": 0.05,
+          "utility": 3.0575
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 12,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.0625,
+          "cost": 0.1,
+          "utility": 2.0525
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 13,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.08333333,
+          "cost": 0.3,
+          "utility": 3.05333333
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 14,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.0625,
+          "cost": 0.1,
+          "utility": 3.0525
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 15,
+        "selection": {
+          "action": "idle",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.05,
+          "cost": 0.05,
+          "utility": 3.045
+        },
+        "action": "idle",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 16,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.05,
+          "cost": 0.1,
+          "utility": 1.04
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 17,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 3.0,
+          "exploration_bonus": 0.04166667,
+          "cost": 0.1,
+          "utility": 3.03166667
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 18,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.05,
+          "cost": 0.1,
+          "utility": 1.04
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 19,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.0625,
+          "cost": 0.3,
+          "utility": 2.0325
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 20,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.03571429,
+          "cost": 0.1,
+          "utility": 1.02571429
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 21,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.04166667,
+          "cost": 0.1,
+          "utility": 1.03166667
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 22,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.03571429,
+          "cost": 0.1,
+          "utility": 1.02571429
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 23,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.03125,
+          "cost": 0.1,
+          "utility": 1.02125
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 24,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.02777778,
+          "cost": 0.1,
+          "utility": 1.01777778
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 25,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.03125,
+          "cost": 0.1,
+          "utility": 1.02125
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 26,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.02777778,
+          "cost": 0.1,
+          "utility": 1.01777778
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 27,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.05,
+          "cost": 0.3,
+          "utility": 1.02
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 28,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.025,
+          "cost": 0.1,
+          "utility": 2.015
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 29,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.02272727,
+          "cost": 0.1,
+          "utility": 2.01272727
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 30,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.04166667,
+          "cost": 0.3,
+          "utility": 2.01166667
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 31,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.02083333,
+          "cost": 0.1,
+          "utility": 2.01083333
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 32,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.025,
+          "cost": 0.1,
+          "utility": 1.015
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        }
+      },
+      {
+        "index": 33,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.02272727,
+          "cost": 0.1,
+          "utility": 2.01272727
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 34,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.02083333,
+          "cost": 0.1,
+          "utility": 1.01083333
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        }
+      },
+      {
+        "index": 35,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.01923077,
+          "cost": 0.1,
+          "utility": 2.00923077
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 1
+        }
+      },
+      {
+        "index": 36,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01923077,
+          "cost": 0.1,
+          "utility": 1.00923077
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 37,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01785714,
+          "cost": 0.1,
+          "utility": 1.00785714
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 38,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01785714,
+          "cost": 0.1,
+          "utility": 1.00785714
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 1
+        }
+      },
+      {
+        "index": 39,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01666667,
+          "cost": 0.1,
+          "utility": 1.00666667
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 1
+        }
+      },
+      {
+        "index": 40,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01666667,
+          "cost": 0.1,
+          "utility": 1.00666667
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 41,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.015625,
+          "cost": 0.1,
+          "utility": 1.005625
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 1
+        }
+      },
+      {
+        "index": 42,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.03571429,
+          "cost": 0.3,
+          "utility": 1.00571429
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 43,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01470588,
+          "cost": 0.1,
+          "utility": 1.00470588
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 44,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.015625,
+          "cost": 0.1,
+          "utility": 1.005625
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 45,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01470588,
+          "cost": 0.1,
+          "utility": 1.00470588
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 46,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01388889,
+          "cost": 0.1,
+          "utility": 1.00388889
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 47,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01315789,
+          "cost": 0.1,
+          "utility": 1.00315789
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 48,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01388889,
+          "cost": 0.1,
+          "utility": 1.00388889
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 49,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.0125,
+          "cost": 0.1,
+          "utility": 2.0025
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 50,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.01315789,
+          "cost": 0.1,
+          "utility": 2.00315789
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 51,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 2.0,
+          "exploration_bonus": 0.0125,
+          "cost": 0.1,
+          "utility": 2.0025
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 0,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 52,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01190476,
+          "cost": 0.1,
+          "utility": 1.00190476
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 53,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01190476,
+          "cost": 0.1,
+          "utility": 1.00190476
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 54,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01136364,
+          "cost": 0.1,
+          "utility": 1.00136364
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 55,
+        "selection": {
+          "action": "pulse",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.03125,
+          "cost": 0.3,
+          "utility": 1.00125
+        },
+        "action": "pulse",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 56,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01086957,
+          "cost": 0.1,
+          "utility": 1.00086957
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 57,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01136364,
+          "cost": 0.1,
+          "utility": 1.00136364
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 58,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01086957,
+          "cost": 0.1,
+          "utility": 1.00086957
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 59,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01041667,
+          "cost": 0.1,
+          "utility": 1.00041667
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 60,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01,
+          "cost": 0.1,
+          "utility": 1.0
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 61,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01041667,
+          "cost": 0.1,
+          "utility": 1.00041667
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 0,
+          "output": 0
+        }
+      },
+      {
+        "index": 62,
+        "selection": {
+          "action": "flip_gate",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.01,
+          "cost": 0.1,
+          "utility": 1.0
+        },
+        "action": "flip_gate",
+        "next_state": {
+          "signal": 1,
+          "gate": 1,
+          "output": 0
+        }
+      },
+      {
+        "index": 63,
+        "selection": {
+          "action": "flip_signal",
+          "expected_information_gain_proxy": 1.0,
+          "exploration_bonus": 0.00961538,
+          "cost": 0.1,
+          "utility": 0.99961538
+        },
+        "action": "flip_signal",
+        "next_state": {
+          "signal": 0,
+          "gate": 1,
+          "output": 0
+        }
+      }
+    ],
+    "action_counts": {
+      "idle": 5,
+      "flip_signal": 26,
+      "flip_gate": 25,
+      "pulse": 8
+    },
+    "development_observations": 48,
+    "held_out_observations": 16,
+    "complexity_cap": 12,
+    "timestamp": "2026-07-28T18:20:45.382038+00:00"
+  },
+  "restart": {
+    "graph_retained": true,
+    "relearning_experiments": 0,
+    "evaluation": {
+      "transition_accuracy": 1.0,
+      "correct_fields": 48,
+      "total_fields": 48,
+      "worlds": 4,
+      "actions_per_world": 4
+    }
+  },
+  "gates": {
+    "inadequate_model_rejected": true,
+    "novel_structure_constructed": true,
+    "constructed_graph_held_out_accuracy_at_least_95_percent": true,
+    "held_out_gain_at_least_10_points": true,
+    "complexity_bounded": true,
+    "cau_governed_persistence": true,
+    "restart_retention_without_relearning": true
+  },
+  "boundary_statement": "This demonstrates bounded construction and revision of inspectable Boolean causal graphs. Variables, actions, and the rule grammar are provided; this is not unrestricted open-world causal invention.",
+  "passed": true
+}

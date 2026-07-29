@@ -1,0 +1,343 @@
+{
+  "benchmark": "delayed_action_counterfactual_temporal_planning",
+  "boundary_statement": "Prospective planning is evaluated in bounded temporal causal worlds with delays of one to three blocks. It does not establish unrestricted forecasting or general planning.",
+  "development": {
+    "policies": [
+      {
+        "by_family": {
+          "jittered_two": {
+            "prediction_coverage": 0.38222222222222224,
+            "prediction_precision": 0.9186046511627906,
+            "prospective_goal_success": 0.7155555555555555,
+            "reactive_goal_success": 0.6711111111111111,
+            "unsafe_predictive_commit_rate": 0.03111111111111111,
+            "worlds": 5
+          },
+          "nonperiodic": {
+            "prediction_coverage": 0.035555555555555556,
+            "prediction_precision": 0.625,
+            "prospective_goal_success": 0.6133333333333333,
+            "reactive_goal_success": 0.6222222222222222,
+            "unsafe_predictive_commit_rate": 0.013333333333333334,
+            "worlds": 5
+          },
+          "periodic_three": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9111111111111111,
+            "reactive_goal_success": 0.6133333333333333,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          },
+          "periodic_two": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9244444444444444,
+            "reactive_goal_success": 0.6355555555555557,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          }
+        },
+        "fallback_rate": 0.39555555555555555,
+        "policy": {
+          "complexity": 9,
+          "maximum_duration_std": 0.6,
+          "maximum_horizon": 3,
+          "minimum_prediction_confidence": 0.82,
+          "minimum_transition_support": 1,
+          "policy_id": "prospective_safe_1"
+        },
+        "prediction_coverage": 0.6044444444444445,
+        "prediction_precision": 0.9816176470588235,
+        "prospective_goal_success": 0.7911111111111111,
+        "reactive_goal_success": 0.6355555555555555,
+        "unsafe_predictive_commit_rate": 0.011111111111111112,
+        "worlds": 20
+      },
+      {
+        "by_family": {
+          "jittered_two": {
+            "prediction_coverage": 0.38222222222222224,
+            "prediction_precision": 0.9186046511627906,
+            "prospective_goal_success": 0.7155555555555555,
+            "reactive_goal_success": 0.6711111111111111,
+            "unsafe_predictive_commit_rate": 0.03111111111111111,
+            "worlds": 5
+          },
+          "nonperiodic": {
+            "prediction_coverage": 0.035555555555555556,
+            "prediction_precision": 0.625,
+            "prospective_goal_success": 0.6133333333333333,
+            "reactive_goal_success": 0.6222222222222222,
+            "unsafe_predictive_commit_rate": 0.013333333333333334,
+            "worlds": 5
+          },
+          "periodic_three": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9111111111111111,
+            "reactive_goal_success": 0.6133333333333333,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          },
+          "periodic_two": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9244444444444444,
+            "reactive_goal_success": 0.6355555555555557,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          }
+        },
+        "fallback_rate": 0.39555555555555555,
+        "policy": {
+          "complexity": 10,
+          "maximum_duration_std": 0.8,
+          "maximum_horizon": 3,
+          "minimum_prediction_confidence": 0.82,
+          "minimum_transition_support": 2,
+          "policy_id": "prospective_safe_2"
+        },
+        "prediction_coverage": 0.6044444444444445,
+        "prediction_precision": 0.9816176470588235,
+        "prospective_goal_success": 0.7911111111111111,
+        "reactive_goal_success": 0.6355555555555555,
+        "unsafe_predictive_commit_rate": 0.011111111111111112,
+        "worlds": 20
+      },
+      {
+        "by_family": {
+          "jittered_two": {
+            "prediction_coverage": 0.8933333333333333,
+            "prediction_precision": 0.8805970149253731,
+            "prospective_goal_success": 0.7777777777777778,
+            "reactive_goal_success": 0.6711111111111111,
+            "unsafe_predictive_commit_rate": 0.08,
+            "worlds": 5
+          },
+          "nonperiodic": {
+            "prediction_coverage": 0.06222222222222222,
+            "prediction_precision": 0.7142857142857143,
+            "prospective_goal_success": 0.6088888888888888,
+            "reactive_goal_success": 0.6222222222222222,
+            "unsafe_predictive_commit_rate": 0.017777777777777778,
+            "worlds": 5
+          },
+          "periodic_three": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9111111111111111,
+            "reactive_goal_success": 0.6133333333333333,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          },
+          "periodic_two": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9244444444444444,
+            "reactive_goal_success": 0.6355555555555557,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          }
+        },
+        "fallback_rate": 0.2611111111111111,
+        "policy": {
+          "complexity": 10,
+          "maximum_duration_std": 1.2,
+          "maximum_horizon": 3,
+          "minimum_prediction_confidence": 0.75,
+          "minimum_transition_support": 2,
+          "policy_id": "prospective_balanced"
+        },
+        "prediction_coverage": 0.7388888888888889,
+        "prediction_precision": 0.9578947368421052,
+        "prospective_goal_success": 0.8055555555555556,
+        "reactive_goal_success": 0.6355555555555555,
+        "unsafe_predictive_commit_rate": 0.024444444444444446,
+        "worlds": 20
+      },
+      {
+        "by_family": {
+          "jittered_two": {
+            "prediction_coverage": 0.8488888888888889,
+            "prediction_precision": 0.9057591623036649,
+            "prospective_goal_success": 0.7955555555555556,
+            "reactive_goal_success": 0.6711111111111111,
+            "unsafe_predictive_commit_rate": 0.057777777777777775,
+            "worlds": 5
+          },
+          "nonperiodic": {
+            "prediction_coverage": 0.06222222222222222,
+            "prediction_precision": 0.7142857142857143,
+            "prospective_goal_success": 0.6088888888888888,
+            "reactive_goal_success": 0.6222222222222222,
+            "unsafe_predictive_commit_rate": 0.017777777777777778,
+            "worlds": 5
+          },
+          "periodic_three": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9111111111111111,
+            "reactive_goal_success": 0.6133333333333333,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          },
+          "periodic_two": {
+            "prediction_coverage": 1.0,
+            "prediction_precision": 1.0,
+            "prospective_goal_success": 0.9244444444444444,
+            "reactive_goal_success": 0.6355555555555557,
+            "unsafe_predictive_commit_rate": 0.0,
+            "worlds": 5
+          }
+        },
+        "fallback_rate": 0.2722222222222222,
+        "policy": {
+          "complexity": 11,
+          "maximum_duration_std": 1.0,
+          "maximum_horizon": 3,
+          "minimum_prediction_confidence": 0.85,
+          "minimum_transition_support": 3,
+          "policy_id": "prospective_conservative"
+        },
+        "prediction_coverage": 0.7277777777777777,
+        "prediction_precision": 0.966412213740458,
+        "prospective_goal_success": 0.81,
+        "reactive_goal_success": 0.6355555555555555,
+        "unsafe_predictive_commit_rate": 0.01888888888888889,
+        "worlds": 20
+      }
+    ],
+    "selected_policy": {
+      "complexity": 11,
+      "maximum_duration_std": 1.0,
+      "maximum_horizon": 3,
+      "minimum_prediction_confidence": 0.85,
+      "minimum_transition_support": 3,
+      "policy_id": "prospective_conservative"
+    }
+  },
+  "gates": {
+    "delayed_action_planning": true,
+    "future_distribution_learned": true,
+    "restart_retention": true,
+    "sealed_gate_passed": true,
+    "unpredictable_family_fallback": true
+  },
+  "language_provider_used": false,
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase18_prospective_temporal_sealed",
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "nonperiodic_goal_change": 0.002777777777777768,
+          "nonperiodic_prediction_coverage": 0.06388888888888888,
+          "prediction_precision": 0.97918637653737,
+          "prospective_goal_success_gain": 0.18819444444444444,
+          "unsafe_predictive_commit_rate": 0.005555555555555556
+        }
+      },
+      "goal": "prospective_temporal_planning",
+      "procedure_id": "procedure_prospective_temporal_70387bb93ebb",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 0.8180555555555555,
+      "source_rules": [],
+      "steps": [
+        "learn_confirmed_regime_duration_model",
+        "enumerate_future_graph_distribution",
+        "score_delayed_actions_against_future_graphs",
+        "commit_only_above_prediction_confidence",
+        "fallback_when_temporal_structure_is_unreliable",
+        "record_plan_outcome_with_provenance"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_prospective_temporal_70387bb93ebb",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "goal": "maintain_coherence",
+          "source": "prospective_temporal_planning_authority"
+        },
+        "reason": "procedure_promotion:procedure_prospective_temporal_70387bb93ebb",
+        "state_hash": "cacd0a9ece3c36fdfe9478b49049afc7b106091fddae10b6d7f072010c52b0af"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "prospective_memory_retained": true,
+    "relearning_worlds": 0
+  },
+  "schema_version": "aion.hexcore.prospective_temporal_planning.v1",
+  "sealed": {
+    "gate": {
+      "accepted": true,
+      "errors": [],
+      "nonperiodic_goal_change": 0.002777777777777768,
+      "nonperiodic_prediction_coverage": 0.06388888888888888,
+      "prediction_precision": 0.97918637653737,
+      "prospective_goal_success_gain": 0.18819444444444444,
+      "unsafe_predictive_commit_rate": 0.005555555555555556
+    },
+    "result": {
+      "by_family": {
+        "jittered_two": {
+          "prediction_coverage": 0.8722222222222222,
+          "prediction_precision": 0.9522292993630573,
+          "prospective_goal_success": 0.8555555555555555,
+          "reactive_goal_success": 0.6444444444444444,
+          "unsafe_predictive_commit_rate": 0.013888888888888888,
+          "worlds": 8
+        },
+        "nonperiodic": {
+          "prediction_coverage": 0.06388888888888888,
+          "prediction_precision": 0.6956521739130435,
+          "prospective_goal_success": 0.6388888888888888,
+          "reactive_goal_success": 0.6361111111111111,
+          "unsafe_predictive_commit_rate": 0.008333333333333333,
+          "worlds": 8
+        },
+        "periodic_three": {
+          "prediction_coverage": 1.0,
+          "prediction_precision": 1.0,
+          "prospective_goal_success": 0.9111111111111111,
+          "reactive_goal_success": 0.575,
+          "unsafe_predictive_commit_rate": 0.0,
+          "worlds": 8
+        },
+        "periodic_two": {
+          "prediction_coverage": 1.0,
+          "prediction_precision": 1.0,
+          "prospective_goal_success": 0.8666666666666667,
+          "reactive_goal_success": 0.6638888888888889,
+          "unsafe_predictive_commit_rate": 0.0,
+          "worlds": 8
+        }
+      },
+      "fallback_rate": 0.2659722222222222,
+      "policy": {
+        "complexity": 11,
+        "maximum_duration_std": 1.0,
+        "maximum_horizon": 3,
+        "minimum_prediction_confidence": 0.85,
+        "minimum_transition_support": 3,
+        "policy_id": "prospective_conservative"
+      },
+      "prediction_coverage": 0.7340277777777777,
+      "prediction_precision": 0.97918637653737,
+      "prospective_goal_success": 0.8180555555555555,
+      "reactive_goal_success": 0.6298611111111111,
+      "unsafe_predictive_commit_rate": 0.005555555555555556,
+      "worlds": 32
+    }
+  }
+}

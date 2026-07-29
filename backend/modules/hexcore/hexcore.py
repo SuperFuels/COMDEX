@@ -145,6 +145,12 @@ class HexCore:
 
         self.memory_core = MemoryCore()
 
+        # Canonical governance shell shared with the conversation runtime.
+        # This keeps provider reasoning separate from authority to act or learn.
+        from backend.modules.hexcore.governed_runtime import get_hexcore_governed_runtime
+        self.governed_runtime = get_hexcore_governed_runtime()
+        self.last_action_governance: Optional[Dict[str, Any]] = None
+
         # Optional field/goals/reinforcement hooks - fail open
         self.goal_engine = self._load_goal_engine()
         self.reinforcement_engine = self._load_reinforcement_engine()
@@ -1151,6 +1157,22 @@ class HexCore:
 
         reflection = self.generate_thought(decision)
         milestone = self.check_milestones()
+        governed_runtime = getattr(self, "governed_runtime", None)
+        if governed_runtime is None:
+            from backend.modules.hexcore.governed_runtime import get_hexcore_governed_runtime
+
+            governed_runtime = get_hexcore_governed_runtime()
+            self.governed_runtime = governed_runtime
+        action_governance = governed_runtime.evaluate_action(
+            decision,
+            context={
+                "input": input_str,
+                "hexcore_id": self.id,
+                "coherence": self.last_coherence,
+                "reward": self.last_reward,
+            },
+        )
+        self.last_action_governance = action_governance
 
         entry = {
             "timestamp": datetime.now().isoformat(),
@@ -1184,6 +1206,7 @@ class HexCore:
                 "result": decision_influence_result,
                 "weights_snapshot": self.last_decision_weights_snapshot,
             },
+            "action_governance": action_governance,
         }
 
         try:
@@ -1284,8 +1307,35 @@ class HexCore:
     # ──────────────────────────────────────────────
     # ACTION HANDLING
     # ──────────────────────────────────────────────
-    async def _handle_action(self, input_str: str, decision: str):
+    async def _handle_action(
+        self,
+        input_str: str,
+        decision: str,
+        action_governance: Optional[Dict[str, Any]] = None,
+    ):
         decision_lower = decision.lower()
+
+        governed_runtime = getattr(self, "governed_runtime", None)
+        if governed_runtime is None:
+            from backend.modules.hexcore.governed_runtime import get_hexcore_governed_runtime
+
+            governed_runtime = get_hexcore_governed_runtime()
+            self.governed_runtime = governed_runtime
+        action_governance = (
+            action_governance
+            or getattr(self, "last_action_governance", None)
+            or governed_runtime.evaluate_action(
+            decision,
+            context={"input": input_str, "hexcore_id": self.id},
+            )
+        )
+        self.last_action_governance = action_governance
+        if not action_governance.get("allowed", False):
+            logger.warning(
+                "[HexCore] Action vetoed by governed Soul Laws: %s",
+                action_governance.get("reason"),
+            )
+            return
 
         try:
             if "qqc" in decision_lower or "resonate" in decision_lower:

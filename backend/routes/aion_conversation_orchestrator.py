@@ -17,6 +17,7 @@ class ConversationTurnRequest(BaseModel):
     apply_teaching: Optional[bool] = None
     include_metadata: bool = True
     include_debug: bool = False
+    request_metadata: Dict[str, Any] = Field(default_factory=dict)
 
 
 class ConversationStateRequest(BaseModel):
@@ -31,6 +32,7 @@ async def conversation_turn(payload: ConversationTurnRequest) -> Dict[str, Any]:
         apply_teaching=payload.apply_teaching,
         include_debug=payload.include_debug,
         include_metadata=payload.include_metadata,
+        request_metadata=payload.request_metadata,
     )
 
 
@@ -40,6 +42,15 @@ async def conversation_state(session_id: str = "default") -> Dict[str, Any]:
         "ok": True,
         "origin": "aion_conversation_orchestrator",
         "state": _ORCH.get_state(session_id),
+    }
+
+
+@router.get("/conversation/governance/status")
+async def conversation_governance_status() -> Dict[str, Any]:
+    return {
+        "ok": True,
+        "origin": "aion_hexcore_governed_runtime",
+        "status": _ORCH.governed_runtime.status(),
     }
 
 

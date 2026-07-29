@@ -197,6 +197,21 @@ def _composer_known_facts_from_turn_ctx(turn_ctx: Dict[str, Any]) -> List[str]:
     if planner_reason:
         facts.append(f"Planner routed this turn as {planner_reason}")
 
+    # HexCore governed recall is evidence for reasoning, not automatically
+    # accepted truth. Provenance and confidence stay attached to every item.
+    governed = dict(turn_ctx.get("hexcore_governance") or {})
+    for item in list(governed.get("recalled_knowledge") or [])[:5]:
+        if not isinstance(item, dict):
+            continue
+        answer = str(item.get("answer") or "").strip()
+        if answer:
+            facts.append(
+                "Recalled knowledge "
+                f"(source={item.get('source') or 'unknown'}, "
+                f"confidence={_safe_float(item.get('confidence'), 0.0):.2f}): "
+                f"{_truncate_text(answer, 240)}"
+            )
+
     # dedupe preserve order
     out: List[str] = []
     for f in facts:
@@ -265,6 +280,24 @@ def _composer_source_refs(turn_ctx: Dict[str, Any]) -> List[str]:
     planner = dict(turn_ctx.get("planner") or {})
     if planner.get("reason") and "response_mode_planner" not in refs:
         refs.append("response_mode_planner")
+
+    governed = dict(turn_ctx.get("hexcore_governance") or {})
+    recall_sources = {
+        str(item.get("source") or "")
+        for item in list(governed.get("recalled_knowledge") or [])
+        if isinstance(item, dict)
+    }
+    if "cee_lex_memory" in recall_sources and "hexcore:cee_lex_memory" not in refs:
+        refs.append("hexcore:cee_lex_memory")
+    if (
+        "hexcore_persistent_knowledge" in recall_sources
+        and "hexcore:persistent_knowledge" not in refs
+    ):
+        refs.append("hexcore:persistent_knowledge")
+    if governed.get("pattern_results") and "hexcore:pattern_engine" not in refs:
+        refs.append("hexcore:pattern_engine")
+    if governed.get("tessaris_rules") and "hexcore:tessaris_rules" not in refs:
+        refs.append("hexcore:tessaris_rules")
 
     return refs
 
@@ -1539,6 +1572,7 @@ class ConversationOrchestrator:
         self,
         tracker: Optional[DialogueStateTracker] = None,
         config: Optional[OrchestratorConfig] = None,
+        governed_runtime: Optional[Any] = None,
     ) -> None:
         self.tracker = tracker or DialogueStateTracker()
         self.config = config or OrchestratorConfig()
@@ -1559,6 +1593,15 @@ class ConversationOrchestrator:
             self.trading_learning_capture = get_trading_learning_capture_runtime()
         except Exception:
             self.trading_learning_capture = None
+
+        # HexCore is the authority shell around the existing reasoning path.
+        # The reasoning provider remains replaceable; authority and learning are not.
+        if governed_runtime is not None:
+            self.governed_runtime = governed_runtime
+        else:
+            from backend.modules.hexcore.governed_runtime import get_hexcore_governed_runtime
+
+            self.governed_runtime = get_hexcore_governed_runtime()
 
     def _try_workflow_capsule_route(
         self,
@@ -2045,6 +2088,7 @@ class ConversationOrchestrator:
             apply_teaching=packet.apply_teaching,
             include_debug=packet.include_debug,
             include_metadata=packet.include_metadata,
+            request_metadata=packet.request_metadata,
         )
         return TurnResult.from_dict(out).validate()
 
@@ -2057,15 +2101,52 @@ class ConversationOrchestrator:
         apply_teaching: Optional[bool] = None,
         include_debug: bool = False,
         include_metadata: bool = True,
+        request_metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         started = time.time()
         turn_id = str(uuid.uuid4())
+        request_metadata = dict(request_metadata or {})
 
         if apply_teaching is None:
             apply_teaching = self.config.enable_teaching_default
 
         state = self.tracker.get_or_create(session_id)
         state_before = state.to_dict()
+
+        governed_request_metadata = dict(request_metadata)
+        governed_request_metadata.setdefault(
+            "goals",
+            [
+                {"kind": "commitment", "value": str(value)}
+                for value in list(state_before.get("commitments") or [])
+            ]
+            + [
+                {"kind": "unresolved", "value": str(value)}
+                for value in list(state_before.get("unresolved") or [])
+            ],
+        )
+        governed_request_metadata.setdefault(
+            "memories",
+            [
+                dict(value)
+                for value in list(state_before.get("recent_turns") or [])[-8:]
+                if isinstance(value, dict)
+            ],
+        )
+
+        governed_context = None
+        governance_begin_error = None
+        try:
+            governed_context = self.governed_runtime.begin_turn(
+                turn_id=turn_id,
+                session_id=session_id,
+                user_text=user_text,
+                request_metadata=governed_request_metadata,
+            )
+        except Exception as exc:
+            # Answering remains available; learning is impossible without a
+            # successfully established governed context.
+            governance_begin_error = type(exc).__name__
 
         # Assemble from current state BEFORE appending the new user turn
         turn_ctx_raw = build_turn_context(user_text=user_text, dialogue_state=state_before)
@@ -2092,6 +2173,19 @@ class ConversationOrchestrator:
         # Override/normalize context mode with planner output for downstream consistency
         turn_ctx["response_mode"] = planned_mode
         turn_ctx["planner"] = plan
+        if governed_context is not None:
+            turn_ctx["hexcore_governance"] = {
+                "governance_id": governed_context.governance_id,
+                "authority": dict(governed_context.authority),
+                "recalled_knowledge": list(governed_context.recalled_knowledge),
+                "pattern_results": list(governed_context.pattern_results),
+                "tessaris_rules": list(governed_context.tessaris_rules),
+                "goals": list(governed_context.goals),
+                "memories": list(governed_context.memories),
+                "reasoning_providers": list(governed_context.reasoning_providers),
+                "cognitive_foundation": dict(governed_context.cognitive_foundation),
+                "learning_layers": dict(getattr(governed_context, "learning_layers", {}) or {}),
+            }
 
         # Phase D Sprint 2: read-only learning context (debug/trace + compact metadata summary)
         learning_context_view = self._build_learning_context_view(include_debug=include_debug)
@@ -2336,7 +2430,10 @@ class ConversationOrchestrator:
                     "psi_tilde": _safe_float((turn_ctx.get("phi_state") or {}).get("Φ_coherence"), 0.5),
                 },
                 source_refs=_composer_source_refs(turn_ctx),
-                apply_teaching=bool(apply_teaching),
+                # Legacy composer teaching is intentionally disabled on the
+                # governed path. HexCore may commit only after outcome
+                # verification and a positive CAU decision.
+                apply_teaching=False,
                 include_debug=include_debug,
                 include_metadata=include_metadata,
             )
@@ -2345,6 +2442,40 @@ class ConversationOrchestrator:
         response_text = str(composer_out.get("response") or "")
         confidence = _safe_float(composer_out.get("confidence"), 0.0)
         metadata = dict(composer_out.get("metadata") or {})
+        metadata["hexcore_governed_teaching_requested"] = bool(apply_teaching)
+
+        governance_result: Dict[str, Any]
+        if governed_context is None:
+            governance_result = {
+                "schema_version": "aion.hexcore.governance_result.v1",
+                "authority": {
+                    "allow_learn": False,
+                    "deny_reason": "GOVERNED_CONTEXT_UNAVAILABLE",
+                    "source": "conversation_orchestrator_fail_closed",
+                },
+                "learning_committed": False,
+                "learning_reason": "GOVERNED_CONTEXT_UNAVAILABLE",
+                "error": governance_begin_error,
+            }
+        else:
+            try:
+                governance_result = self.governed_runtime.complete_turn(
+                    context=governed_context,
+                    response_text=response_text,
+                    confidence=confidence,
+                    mode=str((local_out or {}).get("mode") or planned_mode or "answer"),
+                    apply_teaching=bool(apply_teaching),
+                    request_metadata=governed_request_metadata,
+                )
+            except Exception as exc:
+                governance_result = {
+                    "schema_version": "aion.hexcore.governance_result.v1",
+                    "governance_id": governed_context.governance_id,
+                    "authority": dict(governed_context.authority),
+                    "learning_committed": False,
+                    "learning_reason": "GOVERNANCE_FINALIZATION_FAILED",
+                    "error": type(exc).__name__,
+                }
 
         # Local handlers may override planner mode, e.g. workflow_proposal.
         effective_mode = str((local_out or {}).get("mode") or planned_mode or "answer")
@@ -2444,6 +2575,8 @@ class ConversationOrchestrator:
                     "trading_journal": trading_journal_summary_after or trading_journal_summary_before,
                     # Phase D Sprint 2 (compact, read-only advisory summary)
                     "learning_context": learning_context_summary,
+                    # HexCore cognitive authority, recall and verified outcome loop
+                    "hexcore": governance_result,
                 },
             }
 
@@ -2475,6 +2608,7 @@ class ConversationOrchestrator:
                     "trading_weakness_signals": trading_weakness_signals,
                     # Phase D Sprint 2 (full read-only context view for diagnostics)
                     "learning_context_view": learning_context_view,
+                    "hexcore_governance": governance_result,
                 },
             }
 

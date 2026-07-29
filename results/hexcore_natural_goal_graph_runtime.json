@@ -1,0 +1,2409 @@
+{
+  "benchmark": "natural_brief_to_verified_executable_goal_graph",
+  "boundary_statement": "Phase 37 executes real Pattern Engine overlap analysis and, when enabled, live Gemma/OpenAI goal-graph proposals. HexCore native parsing, exact evidence verification and executable fallback remain engineered for four bounded vocabularies and four graph families. This is not unrestricted natural-language project understanding or autonomous general intelligence.",
+  "domains": {
+    "archive": {
+      "goal_success": 1.0,
+      "native_graph_accuracy": 1.0,
+      "projects": 6
+    },
+    "laboratory": {
+      "goal_success": 1.0,
+      "native_graph_accuracy": 1.0,
+      "projects": 6
+    },
+    "mission": {
+      "goal_success": 1.0,
+      "native_graph_accuracy": 1.0,
+      "projects": 6
+    },
+    "supply": {
+      "goal_success": 1.0,
+      "native_graph_accuracy": 1.0,
+      "projects": 6
+    }
+  },
+  "gate": {
+    "accepted": true,
+    "errors": [],
+    "goal_success": 1.0,
+    "live_by_provider": {
+      "local_gemma": {
+        "calls": 8,
+        "exact_acceptances": 4
+      },
+      "openai": {
+        "calls": 4,
+        "exact_acceptances": 4
+      }
+    },
+    "live_pattern_coverage": 1.0,
+    "live_provider_calls": 12,
+    "live_provider_exact_acceptances": 8,
+    "live_provider_exact_rate": 0.6666666666666666,
+    "mean_pattern_overlaps": 8.625,
+    "native_graph_accuracy": 1.0,
+    "provider_disabled_success": 1.0,
+    "revision_success": 1.0,
+    "unsafe_acceptances": 0,
+    "weakest_domain_success": 1.0
+  },
+  "passed": true,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase37_natural_goal_graph_sealed",
+        "gate": {
+          "accepted": true,
+          "errors": [],
+          "goal_success": 1.0,
+          "live_by_provider": {
+            "local_gemma": {
+              "calls": 8,
+              "exact_acceptances": 4
+            },
+            "openai": {
+              "calls": 4,
+              "exact_acceptances": 4
+            }
+          },
+          "live_pattern_coverage": 1.0,
+          "live_provider_calls": 12,
+          "live_provider_exact_acceptances": 8,
+          "live_provider_exact_rate": 0.6666666666666666,
+          "mean_pattern_overlaps": 8.625,
+          "native_graph_accuracy": 1.0,
+          "provider_disabled_success": 1.0,
+          "revision_success": 1.0,
+          "unsafe_acceptances": 0,
+          "weakest_domain_success": 1.0
+        }
+      },
+      "goal": "natural_goal_graph_runtime",
+      "procedure_id": "procedure_natural_goal_graph_a81883b88406",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [],
+      "steps": [
+        "parse_natural_project_brief",
+        "invoke_live_pattern_overlap_analysis",
+        "accept_provider_outputs_as_untrusted_graph_proposals",
+        "verify_graph_edges_against_provenance_bearing_brief",
+        "construct_executable_dependency_order",
+        "revise_graph_when_verified_brief_changes",
+        "execute_verify_commit_and_restart"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_natural_goal_graph_a81883b88406",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase37_goal_graph_authority"
+        },
+        "reason": "procedure_promotion:procedure_natural_goal_graph_a81883b88406",
+        "state_hash": "ac35297af550e4d88776aa18b78712f19ed5025ea68024325952a275c52b5f50"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "provider_audit": {
+    "live_requested": true,
+    "openai_configured": true,
+    "rows": [
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:archive:000",
+        "proposed_edges": [
+          [
+            "align_seal",
+            "unlock_archive"
+          ],
+          [
+            "obtain_credential",
+            "unlock_archive"
+          ],
+          [
+            "unlock_archive",
+            "deliver_record"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      },
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:archive:000",
+        "proposed_edges": [
+          [
+            "align_seal",
+            "unlock_archive"
+          ],
+          [
+            "obtain_credential",
+            "unlock_archive"
+          ],
+          [
+            "unlock_archive",
+            "deliver_record"
+          ]
+        ],
+        "provider": "openai",
+        "reason": "parsed"
+      },
+      {
+        "accepted": false,
+        "exact_graph": false,
+        "live": true,
+        "project_id": "phase37_sealed:laboratory:001",
+        "proposed_edges": [
+          [
+            "analyse_sample",
+            "collect_sample"
+          ],
+          [
+            "calibrate_sensor",
+            "collect_sample"
+          ],
+          [
+            "publish_result",
+            "analyse_sample"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      },
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:laboratory:001",
+        "proposed_edges": [
+          [
+            "analyse_sample",
+            "publish_result"
+          ],
+          [
+            "calibrate_sensor",
+            "collect_sample"
+          ],
+          [
+            "collect_sample",
+            "analyse_sample"
+          ]
+        ],
+        "provider": "openai",
+        "reason": "parsed"
+      },
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:mission:002",
+        "proposed_edges": [
+          [
+            "charge_cell",
+            "map_route"
+          ],
+          [
+            "launch_probe",
+            "transmit_reading"
+          ],
+          [
+            "map_route",
+            "launch_probe"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      },
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:mission:002",
+        "proposed_edges": [
+          [
+            "charge_cell",
+            "map_route"
+          ],
+          [
+            "launch_probe",
+            "transmit_reading"
+          ],
+          [
+            "map_route",
+            "launch_probe"
+          ]
+        ],
+        "provider": "openai",
+        "reason": "parsed"
+      },
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:supply:003",
+        "proposed_edges": [
+          [
+            "allocate_budget",
+            "place_order"
+          ],
+          [
+            "place_order",
+            "receive_goods"
+          ],
+          [
+            "verify_vendor",
+            "allocate_budget"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      },
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:supply:003",
+        "proposed_edges": [
+          [
+            "allocate_budget",
+            "place_order"
+          ],
+          [
+            "place_order",
+            "receive_goods"
+          ],
+          [
+            "verify_vendor",
+            "allocate_budget"
+          ]
+        ],
+        "provider": "openai",
+        "reason": "parsed"
+      },
+      {
+        "accepted": false,
+        "exact_graph": false,
+        "live": true,
+        "project_id": "phase37_sealed:archive:004",
+        "proposed_edges": [
+          [
+            "align_seal",
+            "unlock_archive"
+          ],
+          [
+            "unlock_archive",
+            "deliver_record"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      },
+      {
+        "accepted": false,
+        "exact_graph": false,
+        "live": true,
+        "project_id": "phase37_sealed:laboratory:005",
+        "proposed_edges": [
+          [
+            "analyse_sample",
+            "publish_result"
+          ],
+          [
+            "calibrate_sensor",
+            "collect_sample"
+          ],
+          [
+            "collect_sample",
+            "analyse_sample"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      },
+      {
+        "accepted": true,
+        "exact_graph": true,
+        "live": true,
+        "project_id": "phase37_sealed:mission:006",
+        "proposed_edges": [
+          [
+            "charge_cell",
+            "launch_probe"
+          ],
+          [
+            "launch_probe",
+            "transmit_reading"
+          ],
+          [
+            "map_route",
+            "launch_probe"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      },
+      {
+        "accepted": false,
+        "exact_graph": false,
+        "live": true,
+        "project_id": "phase37_sealed:supply:007",
+        "proposed_edges": [
+          [
+            "allocate_budget",
+            "place_order"
+          ],
+          [
+            "place_order",
+            "receive_goods"
+          ],
+          [
+            "verify_vendor",
+            "allocate_budget"
+          ]
+        ],
+        "provider": "local_gemma",
+        "reason": "parsed"
+      }
+    ]
+  },
+  "restart": {
+    "champion_retained": true,
+    "projects_retained": true,
+    "relearning_projects": 0
+  },
+  "schema_version": "aion.hexcore.natural_goal_graph_runtime.v1",
+  "sealed": {
+    "projects": 24,
+    "rows": [
+      {
+        "domain": "archive",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "8ca5aef062eb0005d115d98a35cb1ae6e0b97aac4aecf55b2e917e7702f22576",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 9
+        },
+        "plan": [
+          "align_seal",
+          "obtain_credential",
+          "unlock_archive",
+          "deliver_record"
+        ],
+        "project_id": "phase37_sealed:archive:000",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "openai",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "deliver_record",
+                "align_seal"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": true,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "laboratory",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "99b74195ea349213bf545485b73377a74751ecec27c41fcd17b080378e423ef4",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "calibrate_sensor",
+          "collect_sample",
+          "analyse_sample",
+          "publish_result"
+        ],
+        "project_id": "phase37_sealed:laboratory:001",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "collect_sample"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "publish_result",
+                "analyse_sample"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ]
+            ],
+            "provider": "openai",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ],
+              [
+                "publish_result",
+                "calibrate_sensor"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "mission",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "b3e4900ab42d3152ca709030050c05f59ff8ea55c57046aa4eaa0e535fe29084",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "charge_cell",
+          "map_route",
+          "launch_probe",
+          "transmit_reading"
+        ],
+        "project_id": "phase37_sealed:mission:002",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "map_route"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "map_route"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "map_route"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ]
+            ],
+            "provider": "openai",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "map_route"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ],
+              [
+                "transmit_reading",
+                "charge_cell"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "supply",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "4461d8eeeb4b9caa2afa0f1a86ff3d81ff128bbb6d3635afcb429449d601e224",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "verify_vendor",
+          "allocate_budget",
+          "place_order",
+          "receive_goods"
+        ],
+        "project_id": "phase37_sealed:supply:003",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "openai",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "receive_goods",
+                "verify_vendor"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "archive",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "30658f08380b9ac34737e468a91760fa6f808944d252b362c8c806be8730bfd7",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 9
+        },
+        "plan": [
+          "align_seal",
+          "obtain_credential",
+          "unlock_archive",
+          "deliver_record"
+        ],
+        "project_id": "phase37_sealed:archive:004",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "deliver_record",
+                "align_seal"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "laboratory",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "4dca71409d124dcffe502ae83f6ac001abe03e1201a1ecc08a8ea51993c44713",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 8,
+          "live": true,
+          "overlap_count": 12
+        },
+        "plan": [
+          "calibrate_sensor",
+          "analyse_sample",
+          "collect_sample",
+          "publish_result"
+        ],
+        "project_id": "phase37_sealed:laboratory:005",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "publish_result"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "publish_result"
+              ],
+              [
+                "publish_result",
+                "calibrate_sensor"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": true,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "mission",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "e8324434b97d0f366f1aa10e6e8e9699c53a6299f3b6df7d0e409fe1afb2f306",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 9
+        },
+        "plan": [
+          "charge_cell",
+          "map_route",
+          "launch_probe",
+          "transmit_reading"
+        ],
+        "project_id": "phase37_sealed:mission:006",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ],
+              [
+                "transmit_reading",
+                "charge_cell"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "supply",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "9546b5b9bcd76396ed7fdd48c32360faa2dddef8412a5ce96aca227bbae2e3c7",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 9
+        },
+        "plan": [
+          "allocate_budget",
+          "verify_vendor",
+          "place_order",
+          "receive_goods"
+        ],
+        "project_id": "phase37_sealed:supply:007",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "place_order"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "local_gemma",
+            "reason": "parsed"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "receive_goods",
+                "verify_vendor"
+              ],
+              [
+                "verify_vendor",
+                "place_order"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "archive",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "ebcccd7cf3cae19c524f697090930ba4f7593e0c77be1f75416947cb6f1d1577",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 8,
+          "live": true,
+          "overlap_count": 12
+        },
+        "plan": [
+          "align_seal",
+          "obtain_credential",
+          "unlock_archive",
+          "deliver_record"
+        ],
+        "project_id": "phase37_sealed:archive:008",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "obtain_credential"
+              ],
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "obtain_credential",
+                "deliver_record"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "obtain_credential"
+              ],
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "deliver_record",
+                "align_seal"
+              ],
+              [
+                "obtain_credential",
+                "deliver_record"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "laboratory",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "af73e12b1d95f50d36af9e1df37d00c5c1df70950618b605d5b918bd24e693d6",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 8,
+          "live": true,
+          "overlap_count": 12
+        },
+        "plan": [
+          "calibrate_sensor",
+          "analyse_sample",
+          "collect_sample",
+          "publish_result"
+        ],
+        "project_id": "phase37_sealed:laboratory:009",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "publish_result"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "publish_result"
+              ],
+              [
+                "publish_result",
+                "calibrate_sensor"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "mission",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "ed2d38dea552d4093dbdee361babdc4755506046db660efd06ef0bfd5940641f",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "map_route",
+          "charge_cell",
+          "launch_probe",
+          "transmit_reading"
+        ],
+        "project_id": "phase37_sealed:mission:010",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "charge_cell"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "charge_cell"
+              ],
+              [
+                "transmit_reading",
+                "charge_cell"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": true,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "supply",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "4020ef32435b0d460a1da5cca9d22706fe586d801b8dbdec81e0df40f21b4dbb",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 8,
+          "live": true,
+          "overlap_count": 12
+        },
+        "plan": [
+          "verify_vendor",
+          "allocate_budget",
+          "place_order",
+          "receive_goods"
+        ],
+        "project_id": "phase37_sealed:supply:011",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "receive_goods"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ],
+              [
+                "verify_vendor",
+                "place_order"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "receive_goods"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "receive_goods",
+                "verify_vendor"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ],
+              [
+                "verify_vendor",
+                "place_order"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "archive",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "e61e4d4d4ddc01f6f8a7c60b9ee888553eb7085fdcd655a98eaac3032baee876",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "obtain_credential",
+          "align_seal",
+          "unlock_archive",
+          "deliver_record"
+        ],
+        "project_id": "phase37_sealed:archive:012",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "obtain_credential",
+                "align_seal"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "deliver_record",
+                "align_seal"
+              ],
+              [
+                "obtain_credential",
+                "align_seal"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "laboratory",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "7866d523863f6600d40e28f80d5212ef49ef4c07e0c487c9d15e71cf26ecc525",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "collect_sample",
+          "calibrate_sensor",
+          "analyse_sample",
+          "publish_result"
+        ],
+        "project_id": "phase37_sealed:laboratory:013",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "collect_sample",
+                "calibrate_sensor"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "collect_sample",
+                "calibrate_sensor"
+              ],
+              [
+                "publish_result",
+                "calibrate_sensor"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "mission",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "fa39fa9377646d65f3210616e833ffc94a5ae67963505971d7b325d329d8f6b5",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "map_route",
+          "charge_cell",
+          "launch_probe",
+          "transmit_reading"
+        ],
+        "project_id": "phase37_sealed:mission:014",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "charge_cell"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "charge_cell"
+              ],
+              [
+                "transmit_reading",
+                "charge_cell"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "supply",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "829f97fc7eca54d24316c01443fff9bc5f3fbd4de7a1a02fd29bc908b62634d5",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "verify_vendor",
+          "allocate_budget",
+          "place_order",
+          "receive_goods"
+        ],
+        "project_id": "phase37_sealed:supply:015",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "receive_goods",
+                "verify_vendor"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": true,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "archive",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "15336beea787e83119dd18dd1f383bf9d01413a5f04851448481286885dbf3e6",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "align_seal",
+          "obtain_credential",
+          "unlock_archive",
+          "deliver_record"
+        ],
+        "project_id": "phase37_sealed:archive:016",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "obtain_credential"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "obtain_credential"
+              ],
+              [
+                "deliver_record",
+                "align_seal"
+              ],
+              [
+                "obtain_credential",
+                "unlock_archive"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "laboratory",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "186431d958cfbc3668f74174d4103f920c9d8d2933748328fff30a98deafb3d5",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "calibrate_sensor",
+          "collect_sample",
+          "analyse_sample",
+          "publish_result"
+        ],
+        "project_id": "phase37_sealed:laboratory:017",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "collect_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ],
+              [
+                "publish_result",
+                "calibrate_sensor"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "mission",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "33b9d41509b6abb3222391ce4b895ec3547f32815b13c8b134e882328d749850",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "charge_cell",
+          "map_route",
+          "launch_probe",
+          "transmit_reading"
+        ],
+        "project_id": "phase37_sealed:mission:018",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "map_route"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "map_route"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ],
+              [
+                "transmit_reading",
+                "charge_cell"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "supply",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "a2e6d779ec18b0a1e1f9f14ac7c96542c0165984e85cc229327c48308ae873e2",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 7
+        },
+        "plan": [
+          "verify_vendor",
+          "allocate_budget",
+          "place_order",
+          "receive_goods"
+        ],
+        "project_id": "phase37_sealed:supply:019",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "receive_goods",
+                "verify_vendor"
+              ],
+              [
+                "verify_vendor",
+                "allocate_budget"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "archive",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "903c0191bdd8c71d400dd341f5b0138cea2dc8a37cea374cd471e33acdcab1c7",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 8,
+          "live": true,
+          "overlap_count": 12
+        },
+        "plan": [
+          "align_seal",
+          "obtain_credential",
+          "unlock_archive",
+          "deliver_record"
+        ],
+        "project_id": "phase37_sealed:archive:020",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "obtain_credential"
+              ],
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "obtain_credential",
+                "deliver_record"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "align_seal",
+                "obtain_credential"
+              ],
+              [
+                "align_seal",
+                "unlock_archive"
+              ],
+              [
+                "deliver_record",
+                "align_seal"
+              ],
+              [
+                "obtain_credential",
+                "deliver_record"
+              ],
+              [
+                "unlock_archive",
+                "deliver_record"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": true,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "laboratory",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "77ac58c299f90db8a5c735e310419cf1938a2e6f76ae5eea66f0329b454f51a7",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 9
+        },
+        "plan": [
+          "calibrate_sensor",
+          "collect_sample",
+          "analyse_sample",
+          "publish_result"
+        ],
+        "project_id": "phase37_sealed:laboratory:021",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "analyse_sample",
+                "publish_result"
+              ],
+              [
+                "calibrate_sensor",
+                "analyse_sample"
+              ],
+              [
+                "collect_sample",
+                "analyse_sample"
+              ],
+              [
+                "publish_result",
+                "calibrate_sensor"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "mission",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "2f6e1a398fc86990b13f094cfaf10d1adfa956acbcf2e8dc3b7cb31bf238dda6",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 9
+        },
+        "plan": [
+          "charge_cell",
+          "map_route",
+          "launch_probe",
+          "transmit_reading"
+        ],
+        "project_id": "phase37_sealed:mission:022",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "charge_cell",
+                "launch_probe"
+              ],
+              [
+                "launch_probe",
+                "transmit_reading"
+              ],
+              [
+                "map_route",
+                "launch_probe"
+              ],
+              [
+                "transmit_reading",
+                "charge_cell"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      },
+      {
+        "domain": "supply",
+        "execution_success": true,
+        "learning_committed": true,
+        "native_exact_graph": true,
+        "pattern": {
+          "brief_hash": "b24477f11bf885c4b5caa8d80498965718edaeae1629ec4be8d5cb7a17b225ab",
+          "engine": "backend.modules.symbolic.SymbolicPatternEngine",
+          "fragment_count": 6,
+          "live": true,
+          "overlap_count": 9
+        },
+        "plan": [
+          "allocate_budget",
+          "verify_vendor",
+          "place_order",
+          "receive_goods"
+        ],
+        "project_id": "phase37_sealed:supply:023",
+        "provider_audits": [
+          {
+            "accepted": true,
+            "exact_graph": true,
+            "live": true,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "verify_vendor",
+                "place_order"
+              ]
+            ],
+            "provider": "aion_native_symbolic",
+            "reason": "native_language_to_structure"
+          },
+          {
+            "accepted": false,
+            "exact_graph": false,
+            "live": false,
+            "proposed_edges": [
+              [
+                "allocate_budget",
+                "place_order"
+              ],
+              [
+                "place_order",
+                "receive_goods"
+              ],
+              [
+                "receive_goods",
+                "verify_vendor"
+              ],
+              [
+                "verify_vendor",
+                "place_order"
+              ]
+            ],
+            "provider": "adversarial_injected",
+            "reason": "unsupported_cycle_with_confidence_0.99"
+          }
+        ],
+        "provider_disabled_success": true,
+        "revised": false,
+        "selected_provider": "aion_native_symbolic",
+        "unsafe_acceptances": 0
+      }
+    ]
+  }
+}

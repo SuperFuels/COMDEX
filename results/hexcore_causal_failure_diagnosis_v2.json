@@ -1,0 +1,222 @@
+{
+  "schema_version": "aion.hexcore.causal_failure_diagnosis.v2",
+  "benchmark": "sensor_graph_and_world_change_diagnosis",
+  "language_provider_used": false,
+  "development": {
+    "candidates": [
+      {
+        "configuration": {
+          "disagreement_gate": 0.05,
+          "mapping_margin_gate": 0.25
+        },
+        "result": {
+          "worlds": 18,
+          "diagnosis_accuracy": 1.0,
+          "graph_repair_accuracy": 1.0,
+          "control_goal_success": 0.5185185185185186,
+          "repaired_goal_success": 0.9037037037037037,
+          "worst_mode_diagnosis_accuracy": 1.0,
+          "worst_mode_repaired_goal_success": 0.7222222222222222,
+          "by_mode": {
+            "sensor_error": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.6944444444444445,
+              "repaired_goal_success": 0.7222222222222222
+            },
+            "graph_error": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.4444444444444444,
+              "repaired_goal_success": 1.0
+            },
+            "world_change": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.4166666666666667,
+              "repaired_goal_success": 0.9888888888888889
+            }
+          }
+        }
+      },
+      {
+        "configuration": {
+          "disagreement_gate": 0.08,
+          "mapping_margin_gate": 0.3
+        },
+        "result": {
+          "worlds": 18,
+          "diagnosis_accuracy": 1.0,
+          "graph_repair_accuracy": 1.0,
+          "control_goal_success": 0.5185185185185186,
+          "repaired_goal_success": 0.9037037037037037,
+          "worst_mode_diagnosis_accuracy": 1.0,
+          "worst_mode_repaired_goal_success": 0.7222222222222222,
+          "by_mode": {
+            "sensor_error": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.6944444444444445,
+              "repaired_goal_success": 0.7222222222222222
+            },
+            "graph_error": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.4444444444444444,
+              "repaired_goal_success": 1.0
+            },
+            "world_change": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.4166666666666667,
+              "repaired_goal_success": 0.9888888888888889
+            }
+          }
+        }
+      },
+      {
+        "configuration": {
+          "disagreement_gate": 0.12,
+          "mapping_margin_gate": 0.35
+        },
+        "result": {
+          "worlds": 18,
+          "diagnosis_accuracy": 1.0,
+          "graph_repair_accuracy": 1.0,
+          "control_goal_success": 0.5185185185185186,
+          "repaired_goal_success": 0.9037037037037037,
+          "worst_mode_diagnosis_accuracy": 1.0,
+          "worst_mode_repaired_goal_success": 0.7222222222222222,
+          "by_mode": {
+            "sensor_error": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.6944444444444445,
+              "repaired_goal_success": 0.7222222222222222
+            },
+            "graph_error": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.4444444444444444,
+              "repaired_goal_success": 1.0
+            },
+            "world_change": {
+              "worlds": 6,
+              "diagnosis_accuracy": 1.0,
+              "graph_repair_accuracy": 1.0,
+              "control_goal_success": 0.4166666666666667,
+              "repaired_goal_success": 0.9888888888888889
+            }
+          }
+        }
+      }
+    ],
+    "selected_configuration": {
+      "disagreement_gate": 0.05,
+      "mapping_margin_gate": 0.25
+    }
+  },
+  "sealed": {
+    "result": {
+      "worlds": 30,
+      "diagnosis_accuracy": 1.0,
+      "graph_repair_accuracy": 1.0,
+      "control_goal_success": 0.51,
+      "repaired_goal_success": 0.8988888888888888,
+      "worst_mode_diagnosis_accuracy": 1.0,
+      "worst_mode_repaired_goal_success": 0.7233333333333334,
+      "by_mode": {
+        "sensor_error": {
+          "worlds": 10,
+          "diagnosis_accuracy": 1.0,
+          "graph_repair_accuracy": 1.0,
+          "control_goal_success": 0.69,
+          "repaired_goal_success": 0.7233333333333334
+        },
+        "graph_error": {
+          "worlds": 10,
+          "diagnosis_accuracy": 1.0,
+          "graph_repair_accuracy": 1.0,
+          "control_goal_success": 0.38666666666666666,
+          "repaired_goal_success": 0.9866666666666667
+        },
+        "world_change": {
+          "worlds": 10,
+          "diagnosis_accuracy": 1.0,
+          "graph_repair_accuracy": 1.0,
+          "control_goal_success": 0.4533333333333333,
+          "repaired_goal_success": 0.9866666666666667
+        }
+      }
+    },
+    "gate": {
+      "accepted": false,
+      "errors": [
+        "WORST_MODE_REPAIRED_GOAL_BELOW_75_PERCENT"
+      ],
+      "diagnosis_accuracy": 1.0,
+      "worst_mode_diagnosis_accuracy": 1.0,
+      "graph_repair_accuracy": 1.0,
+      "repaired_goal_gain": 0.38888888888888884,
+      "worst_mode_repaired_goal_success": 0.7233333333333334
+    }
+  },
+  "promotion": {
+    "candidate": {
+      "procedure_id": "procedure_causal_failure_diagnosis_49800d432f47",
+      "goal": "causal_failure_diagnosis",
+      "steps": [
+        "measure_repeat_instability",
+        "infer_early_intervention_response_graph",
+        "infer_late_intervention_response_graph",
+        "classify_sensor_graph_or_world_change",
+        "route_to_bounded_repair_specialist",
+        "validate_repair_by_verified_goal_outcome"
+      ],
+      "score": 1.8988888888888888,
+      "success": false,
+      "evidence": {
+        "evaluation": "phase14_source_disjoint_sealed",
+        "gate": {
+          "accepted": false,
+          "errors": [
+            "WORST_MODE_REPAIRED_GOAL_BELOW_75_PERCENT"
+          ],
+          "diagnosis_accuracy": 1.0,
+          "worst_mode_diagnosis_accuracy": 1.0,
+          "graph_repair_accuracy": 1.0,
+          "repaired_goal_gain": 0.38888888888888884,
+          "worst_mode_repaired_goal_success": 0.7233333333333334
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "decision": {
+      "promoted": false,
+      "reason": "CANDIDATE_FAILED"
+    }
+  },
+  "restart": {
+    "champion_retained": false,
+    "champion_id": null,
+    "failure_queue_records": 30,
+    "relearning_worlds": 0
+  },
+  "gates": {
+    "sealed_gate_passed": false,
+    "cau_promoted_if_safe": true,
+    "separate_failure_queues": true,
+    "restart_retention": false
+  },
+  "boundary_statement": "The diagnostic grammar contains three supplied failure classes and bounded graph permutations. This is not unrestricted fault discovery or autonomous source-code repair.",
+  "passed": false
+}

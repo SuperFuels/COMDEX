@@ -1,0 +1,3515 @@
+{
+  "schema_version": "aion.hexcore.multigeneration_causal_evolution.v1",
+  "benchmark": "calibrated_total_cost_multigeneration_evolution",
+  "language_provider_used": false,
+  "calibration_target": "goal_relevant_factor_correctness",
+  "action_cost_contract": {
+    "probe": "world-specific observed cost",
+    "toggle": 0.25,
+    "terminal_attempt": 0.5,
+    "retries_charged": true
+  },
+  "generations": [
+    {
+      "generation": 1,
+      "development": {
+        "parent": {
+          "policy": {
+            "policy_id": "phase9_goal_aware_adaptive7",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 7,
+            "cost_weight": 0.05,
+            "mutation": "immutable_phase9_control",
+            "parent_policy_id": null,
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": false,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 5,
+            "complexity": 10
+          },
+          "worlds": 14,
+          "episodes": 840,
+          "mean_factor_accuracy": 0.5880952380952381,
+          "mean_relevant_factor_accuracy": 0.9369047619047619,
+          "mean_goal_success": 0.9333333333333333,
+          "average_confidence": 0.9567746625595238,
+          "calibration_error": 0.019869900654761907,
+          "average_experiments": 4.741666666666666,
+          "average_goal_attempts": 1.0964285714285715,
+          "average_total_actions": 6.502380952380952,
+          "average_total_action_cost": 1.6253571428571427,
+          "worst_family_factor_accuracy": 0.21666666666666667,
+          "worst_family_goal_success": 0.8333333333333334,
+          "families": {
+            "factors_2:relevant_1:noise_75": {
+              "episodes": 120,
+              "factor_accuracy": 0.39166666666666666,
+              "goal_success": 0.8916666666666667,
+              "average_experiments": 5.991666666666666,
+              "average_total_action_cost": 2.7700000000000005
+            },
+            "factors_2:relevant_1:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.5166666666666667,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.1,
+              "average_total_action_cost": 1.0558333333333334
+            },
+            "factors_3:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.38333333333333336,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.366666666666666,
+              "average_total_action_cost": 2.290833333333333
+            },
+            "factors_3:relevant_2:noise_80": {
+              "episodes": 120,
+              "factor_accuracy": 0.425,
+              "goal_success": 0.8333333333333334,
+              "average_experiments": 6.758333333333334,
+              "average_total_action_cost": 1.9091666666666667
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.43333333333333335,
+              "goal_success": 1.0,
+              "average_experiments": 2.3,
+              "average_total_action_cost": 0.7858333333333333
+            },
+            "factors_1:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 1.0,
+              "goal_success": 1.0,
+              "average_experiments": 2.1666666666666665,
+              "average_total_action_cost": 0.8583333333333333
+            },
+            "factors_3:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.21666666666666667,
+              "goal_success": 0.9,
+              "average_experiments": 5.616666666666666,
+              "average_total_action_cost": 0.935
+            },
+            "factors_3:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.25,
+              "goal_success": 0.95,
+              "average_experiments": 4.5,
+              "average_total_action_cost": 1.5458333333333334
+            },
+            "factors_2:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.9,
+              "goal_success": 0.9,
+              "average_experiments": 6.683333333333334,
+              "average_total_action_cost": 2.0533333333333332
+            },
+            "factors_1:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.95,
+              "goal_success": 0.95,
+              "average_experiments": 4.4,
+              "average_total_action_cost": 1.1066666666666667
+            },
+            "factors_2:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.416666666666667,
+              "average_total_action_cost": 1.665
+            },
+            "factors_1:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.9666666666666667,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 2.3333333333333335,
+              "average_total_action_cost": 1.1
+            }
+          },
+          "failure_counts": {
+            "belief_error": 53,
+            "planning_error": 54,
+            "experiment_budget_exhausted": 263,
+            "calibration_error": 21,
+            "execution_noise": 2
+          },
+          "score": 0.9521450674880951,
+          "total_cost_utility": 0.9207039534077383
+        },
+        "challengers": [
+          {
+            "policy": {
+              "policy_id": "generation_1_adaptive_929_15",
+              "confidence_gate": 0.9299999999999999,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.15,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5797619047619048,
+            "mean_relevant_factor_accuracy": 0.9285714285714286,
+            "mean_goal_success": 0.9238095238095239,
+            "average_confidence": 0.9527409809880952,
+            "calibration_error": 0.02416955241666663,
+            "average_experiments": 4.152380952380953,
+            "average_goal_attempts": 1.1095238095238096,
+            "average_total_actions": 5.916666666666667,
+            "average_total_action_cost": 1.5107738095238095,
+            "worst_family_factor_accuracy": 0.2,
+            "worst_family_goal_success": 0.8833333333333333,
+            "families": {
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 120,
+                "factor_accuracy": 0.4,
+                "goal_success": 0.9,
+                "average_experiments": 5.4,
+                "average_total_action_cost": 2.5483333333333333
+              },
+              "factors_2:relevant_1:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.6666666666666665,
+                "average_total_action_cost": 0.925
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.4875
+              },
+              "factors_3:relevant_2:noise_80": {
+                "episodes": 120,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 0.8916666666666667,
+                "average_experiments": 8.3,
+                "average_total_action_cost": 2.1754166666666666
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.4166666666666667,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7541666666666667
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9333333333333333,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7583333333333333
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.2,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 5.333333333333333,
+                "average_total_action_cost": 0.9458333333333333
+              },
+              "factors_3:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.25,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 4.85,
+                "average_total_action_cost": 1.5991666666666666
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.8833333333333333,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 4.916666666666667,
+                "average_total_action_cost": 1.7841666666666667
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 4.65,
+                "average_total_action_cost": 1.1316666666666668
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9166666666666666,
+                "goal_success": 0.9,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.2208333333333334
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.9666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.316666666666667,
+                "average_total_action_cost": 1.0966666666666667
+              }
+            },
+            "failure_counts": {
+              "belief_error": 60,
+              "calibration_error": 47,
+              "planning_error": 60,
+              "experiment_budget_exhausted": 83,
+              "execution_noise": 4
+            },
+            "score": 0.9518803752309525,
+            "total_cost_utility": 0.9221885642767857
+          },
+          {
+            "policy": {
+              "policy_id": "generation_1_adaptive_940_25",
+              "confidence_gate": 0.94,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.25,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5952380952380952,
+            "mean_relevant_factor_accuracy": 0.930952380952381,
+            "mean_goal_success": 0.9273809523809524,
+            "average_confidence": 0.9540077815119048,
+            "calibration_error": 0.02305540055952382,
+            "average_experiments": 4.4904761904761905,
+            "average_goal_attempts": 1.1071428571428572,
+            "average_total_actions": 6.252380952380952,
+            "average_total_action_cost": 1.6036309523809524,
+            "worst_family_factor_accuracy": 0.2,
+            "worst_family_goal_success": 0.8833333333333333,
+            "families": {
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 120,
+                "factor_accuracy": 0.5083333333333333,
+                "goal_success": 0.925,
+                "average_experiments": 7.2,
+                "average_total_action_cost": 3.1783333333333332
+              },
+              "factors_2:relevant_1:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.6666666666666665,
+                "average_total_action_cost": 0.925
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.4875
+              },
+              "factors_3:relevant_2:noise_80": {
+                "episodes": 120,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 0.8916666666666667,
+                "average_experiments": 8.3,
+                "average_total_action_cost": 2.1754166666666666
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.4166666666666667,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7541666666666667
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9333333333333333,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7583333333333333
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.2,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 6.466666666666667,
+                "average_total_action_cost": 0.9858333333333333
+              },
+              "factors_3:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.25,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 4.85,
+                "average_total_action_cost": 1.5991666666666666
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.8833333333333333,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 4.916666666666667,
+                "average_total_action_cost": 1.7841666666666667
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 4.65,
+                "average_total_action_cost": 1.1316666666666668
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9166666666666666,
+                "goal_success": 0.9,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.2208333333333334
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.9666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.316666666666667,
+                "average_total_action_cost": 1.0966666666666667
+              }
+            },
+            "failure_counts": {
+              "belief_error": 58,
+              "calibration_error": 44,
+              "planning_error": 58,
+              "experiment_budget_exhausted": 114,
+              "execution_noise": 3
+            },
+            "score": 0.9520079675071429,
+            "total_cost_utility": 0.9153718641458335
+          },
+          {
+            "policy": {
+              "policy_id": "generation_1_adaptive_950_35",
+              "confidence_gate": 0.95,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.35,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5892857142857143,
+            "mean_relevant_factor_accuracy": 0.9321428571428572,
+            "mean_goal_success": 0.9333333333333333,
+            "average_confidence": 0.9531185113690476,
+            "calibration_error": 0.02097565422619041,
+            "average_experiments": 5.154761904761905,
+            "average_goal_attempts": 1.1011904761904763,
+            "average_total_actions": 6.910714285714286,
+            "average_total_action_cost": 1.7230952380952382,
+            "worst_family_factor_accuracy": 0.18333333333333332,
+            "worst_family_goal_success": 0.8833333333333333,
+            "families": {
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 120,
+                "factor_accuracy": 0.475,
+                "goal_success": 0.925,
+                "average_experiments": 8.316666666666666,
+                "average_total_action_cost": 3.5566666666666666
+              },
+              "factors_2:relevant_1:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.6666666666666665,
+                "average_total_action_cost": 0.925
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.4875
+              },
+              "factors_3:relevant_2:noise_80": {
+                "episodes": 120,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 9.75,
+                "average_total_action_cost": 2.3758333333333335
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.4166666666666667,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7541666666666667
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9333333333333333,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7583333333333333
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.18333333333333332,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 7.6,
+                "average_total_action_cost": 1.0425
+              },
+              "factors_3:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.25,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 6.4,
+                "average_total_action_cost": 1.9091666666666667
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.8833333333333333,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 4.916666666666667,
+                "average_total_action_cost": 1.7841666666666667
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 6.133333333333334,
+                "average_total_action_cost": 1.28
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9166666666666666,
+                "goal_success": 0.9,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.2208333333333334
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.9666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.316666666666667,
+                "average_total_action_cost": 1.0966666666666667
+              }
+            },
+            "failure_counts": {
+              "belief_error": 57,
+              "calibration_error": 40,
+              "planning_error": 54,
+              "experiment_budget_exhausted": 205,
+              "execution_noise": 2
+            },
+            "score": 0.9439001072500001,
+            "total_cost_utility": 0.9077465626339285
+          },
+          {
+            "policy": {
+              "policy_id": "generation_1_one_fewer_probe",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 6,
+              "cost_weight": 0.05,
+              "mutation": "low_reliability_budget_expansion",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 7,
+              "complexity": 11
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5988095238095238,
+            "mean_relevant_factor_accuracy": 0.9464285714285714,
+            "mean_goal_success": 0.9452380952380952,
+            "average_confidence": 0.9652069340833334,
+            "calibration_error": 0.01877836265476196,
+            "average_experiments": 5.179761904761905,
+            "average_goal_attempts": 1.0904761904761904,
+            "average_total_actions": 6.929761904761905,
+            "average_total_action_cost": 1.7256547619047617,
+            "worst_family_factor_accuracy": 0.2,
+            "worst_family_goal_success": 0.8333333333333334,
+            "families": {
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 120,
+                "factor_accuracy": 0.5083333333333333,
+                "goal_success": 0.925,
+                "average_experiments": 7.2,
+                "average_total_action_cost": 3.1783333333333332
+              },
+              "factors_2:relevant_1:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.5,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 3.966666666666667,
+                "average_total_action_cost": 1.0425
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.38333333333333336,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 4.366666666666666,
+                "average_total_action_cost": 2.290833333333333
+              },
+              "factors_3:relevant_2:noise_80": {
+                "episodes": 120,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 0.8916666666666667,
+                "average_experiments": 8.3,
+                "average_total_action_cost": 2.1754166666666666
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 1.0,
+                "average_experiments": 2.3,
+                "average_total_action_cost": 0.7858333333333333
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 1.0,
+                "goal_success": 1.0,
+                "average_experiments": 2.1666666666666665,
+                "average_total_action_cost": 0.8583333333333333
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.2,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 6.466666666666667,
+                "average_total_action_cost": 0.9858333333333333
+              },
+              "factors_3:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.25,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 4.85,
+                "average_total_action_cost": 1.5991666666666666
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.8333333333333334,
+                "goal_success": 0.8333333333333334,
+                "average_experiments": 6.0,
+                "average_total_action_cost": 1.9925
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 4.65,
+                "average_total_action_cost": 1.1316666666666668
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9833333333333333,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 4.416666666666667,
+                "average_total_action_cost": 1.665
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.9666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.3333333333333335,
+                "average_total_action_cost": 1.1
+              }
+            },
+            "failure_counts": {
+              "belief_error": 45,
+              "calibration_error": 24,
+              "planning_error": 44,
+              "experiment_budget_exhausted": 183,
+              "execution_noise": 2
+            },
+            "score": 0.9576490893738094,
+            "total_cost_utility": 0.9227506474315476
+          }
+        ],
+        "selected_policy": {
+          "policy_id": "generation_1_one_fewer_probe",
+          "confidence_gate": 0.97,
+          "maximum_experiments": 6,
+          "cost_weight": 0.05,
+          "mutation": "low_reliability_budget_expansion",
+          "parent_policy_id": "phase9_goal_aware_adaptive7",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": true,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 7,
+          "complexity": 11
+        },
+        "mutation_record": {
+          "cycle": {
+            "schema_version": "aion.hexcore.procedure_mutation_cycle.v1",
+            "cycle_id": "mutation_7f506e42ad67413a",
+            "parent_policy": {
+              "policy_id": "phase9_goal_aware_adaptive7",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "immutable_phase9_control",
+              "parent_policy_id": null,
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": false,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 10
+            },
+            "parent_failure_counts": {
+              "belief_error": 53,
+              "planning_error": 54,
+              "experiment_budget_exhausted": 263,
+              "calibration_error": 21,
+              "execution_noise": 2
+            },
+            "challengers": [
+              {
+                "policy": {
+                  "policy_id": "generation_1_adaptive_929_15",
+                  "confidence_gate": 0.9299999999999999,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.15,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.9518803752309525,
+                "mean_goal_success": 0.9238095238095239,
+                "worst_family_goal_success": 0.8833333333333333
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_1_adaptive_940_25",
+                  "confidence_gate": 0.94,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.25,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.9520079675071429,
+                "mean_goal_success": 0.9273809523809524,
+                "worst_family_goal_success": 0.8833333333333333
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_1_adaptive_950_35",
+                  "confidence_gate": 0.95,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.35,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.9439001072500001,
+                "mean_goal_success": 0.9333333333333333,
+                "worst_family_goal_success": 0.8833333333333333
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_1_one_fewer_probe",
+                  "confidence_gate": 0.97,
+                  "maximum_experiments": 6,
+                  "cost_weight": 0.05,
+                  "mutation": "low_reliability_budget_expansion",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": false,
+                  "reliability_slope": 0.0,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 7,
+                  "complexity": 11
+                },
+                "score": 0.9576490893738094,
+                "mean_goal_success": 0.9452380952380952,
+                "worst_family_goal_success": 0.8333333333333334
+              }
+            ],
+            "selected_development_policy": {
+              "policy_id": "generation_1_one_fewer_probe",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 6,
+              "cost_weight": 0.05,
+              "mutation": "low_reliability_budget_expansion",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 7,
+              "complexity": 11
+            },
+            "timestamp": "2026-07-28T20:03:55.368844+00:00"
+          },
+          "commit": {
+            "reason": "procedure_mutation_cycle:mutation_7f506e42ad67413a",
+            "authority": {
+              "allow_learn": true,
+              "deny_reason": null,
+              "goal": "maintain_coherence",
+              "source": "multigeneration_causal_evolution_authority",
+              "S": 1.0,
+              "H": 0.0
+            },
+            "state_hash": "4ce044347ee7f9611526e0e6bc30f9c80912883ad42aa2345b1c875c594da708"
+          }
+        }
+      },
+      "sealed": {
+        "parent": {
+          "policy": {
+            "policy_id": "phase9_goal_aware_adaptive7",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 7,
+            "cost_weight": 0.05,
+            "mutation": "immutable_phase9_control",
+            "parent_policy_id": null,
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": false,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 5,
+            "complexity": 10
+          },
+          "worlds": 18,
+          "episodes": 1080,
+          "mean_factor_accuracy": 0.7129629629629629,
+          "mean_relevant_factor_accuracy": 0.9472222222222222,
+          "mean_goal_success": 0.9472222222222222,
+          "average_confidence": 0.9588296622222222,
+          "calibration_error": 0.011607440000000024,
+          "average_experiments": 4.566666666666666,
+          "average_goal_attempts": 1.0694444444444444,
+          "average_total_actions": 6.312037037037037,
+          "average_total_action_cost": 1.3953703703703704,
+          "worst_family_factor_accuracy": 0.16666666666666666,
+          "worst_family_goal_success": 0.7166666666666667,
+          "families": {
+            "factors_1:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.2666666666666666,
+              "average_total_action_cost": 0.8599999999999999
+            },
+            "factors_1:relevant_1:noise_85": {
+              "episodes": 240,
+              "factor_accuracy": 0.9875,
+              "goal_success": 0.9875,
+              "average_experiments": 4.1,
+              "average_total_action_cost": 1.2004166666666667
+            },
+            "factors_1:relevant_1:noise_80": {
+              "episodes": 120,
+              "factor_accuracy": 0.975,
+              "goal_success": 0.975,
+              "average_experiments": 4.433333333333334,
+              "average_total_action_cost": 1.5
+            },
+            "factors_2:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.7166666666666667,
+              "goal_success": 0.7166666666666667,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 2.105
+            },
+            "factors_3:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.5,
+              "goal_success": 0.7833333333333333,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 1.2583333333333333
+            },
+            "factors_3:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.16666666666666666,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 5.816666666666666,
+              "average_total_action_cost": 1.2233333333333334
+            },
+            "factors_3:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 5.0,
+              "average_total_action_cost": 1.8466666666666667
+            },
+            "factors_2:relevant_1:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.475,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.083333333333333,
+              "average_total_action_cost": 1.5625
+            },
+            "factors_2:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 1.0,
+              "goal_success": 1.0,
+              "average_experiments": 4.65,
+              "average_total_action_cost": 1.5041666666666667
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.5,
+              "goal_success": 1.0,
+              "average_experiments": 2.3,
+              "average_total_action_cost": 0.8758333333333332
+            },
+            "factors_3:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.48333333333333334,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 6.7,
+              "average_total_action_cost": 1.8133333333333332
+            },
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.9333333333333333,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 5.666666666666667,
+              "average_total_action_cost": 1.2
+            },
+            "factors_3:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.25,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 2.3666666666666667,
+              "average_total_action_cost": 1.5033333333333334
+            }
+          },
+          "failure_counts": {
+            "belief_error": 57,
+            "calibration_error": 19,
+            "planning_error": 56,
+            "experiment_budget_exhausted": 313,
+            "execution_noise": 1
+          },
+          "score": 0.9961599934814814,
+          "total_cost_utility": 0.9663203622222222
+        },
+        "challenger": {
+          "policy": {
+            "policy_id": "generation_1_one_fewer_probe",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 6,
+            "cost_weight": 0.05,
+            "mutation": "low_reliability_budget_expansion",
+            "parent_policy_id": "phase9_goal_aware_adaptive7",
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": true,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 7,
+            "complexity": 11
+          },
+          "worlds": 18,
+          "episodes": 1080,
+          "mean_factor_accuracy": 0.7185185185185186,
+          "mean_relevant_factor_accuracy": 0.9537037037037037,
+          "mean_goal_success": 0.9537037037037037,
+          "average_confidence": 0.9586959979074073,
+          "calibration_error": 0.004992294203703618,
+          "average_experiments": 4.911111111111111,
+          "average_goal_attempts": 1.0629629629629629,
+          "average_total_actions": 6.647222222222222,
+          "average_total_action_cost": 1.436435185185185,
+          "worst_family_factor_accuracy": 0.16666666666666666,
+          "worst_family_goal_success": 0.8166666666666667,
+          "families": {
+            "factors_1:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.2666666666666666,
+              "average_total_action_cost": 0.8599999999999999
+            },
+            "factors_1:relevant_1:noise_85": {
+              "episodes": 240,
+              "factor_accuracy": 0.9666666666666667,
+              "goal_success": 0.9625,
+              "average_experiments": 3.9291666666666667,
+              "average_total_action_cost": 1.185
+            },
+            "factors_1:relevant_1:noise_80": {
+              "episodes": 120,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9916666666666667,
+              "average_experiments": 4.691666666666666,
+              "average_total_action_cost": 1.5354166666666667
+            },
+            "factors_2:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.8333333333333334,
+              "goal_success": 0.8166666666666667,
+              "average_experiments": 9.733333333333333,
+              "average_total_action_cost": 2.745833333333333
+            },
+            "factors_3:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.48333333333333334,
+              "goal_success": 0.8166666666666667,
+              "average_experiments": 9.866666666666667,
+              "average_total_action_cost": 1.3724999999999998
+            },
+            "factors_3:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.16666666666666666,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 6.7,
+              "average_total_action_cost": 1.2950000000000002
+            },
+            "factors_3:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 5.0,
+              "average_total_action_cost": 1.8466666666666667
+            },
+            "factors_2:relevant_1:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.48333333333333334,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 3.9583333333333335,
+              "average_total_action_cost": 1.5270833333333333
+            },
+            "factors_2:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 1.0,
+              "goal_success": 1.0,
+              "average_experiments": 4.65,
+              "average_total_action_cost": 1.5041666666666667
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.5,
+              "goal_success": 1.0,
+              "average_experiments": 2.3,
+              "average_total_action_cost": 0.8758333333333332
+            },
+            "factors_3:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.5166666666666667,
+              "goal_success": 0.9166666666666666,
+              "average_experiments": 6.0,
+              "average_total_action_cost": 1.7041666666666666
+            },
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.95,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 6.5,
+              "average_total_action_cost": 1.2833333333333334
+            },
+            "factors_3:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.25,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 2.3666666666666667,
+              "average_total_action_cost": 1.5033333333333334
+            }
+          },
+          "failure_counts": {
+            "belief_error": 50,
+            "calibration_error": 20,
+            "planning_error": 48,
+            "experiment_budget_exhausted": 270,
+            "execution_noise": 2
+          },
+          "score": 0.9981867263444445,
+          "total_cost_utility": 0.9708241486712963
+        },
+        "gate": {
+          "accepted": false,
+          "errors": [
+            "TOTAL_ACTION_COST_REGRESSION"
+          ],
+          "goal_change": 0.0064814814814815325,
+          "worst_family_goal_change": 0.09999999999999998,
+          "relevant_factor_accuracy_change": 0.0064814814814815325,
+          "calibration_change": -0.006615145796296407,
+          "total_action_cost_change": 0.04106481481481472,
+          "total_cost_utility_change": 0.004503786449074121
+        }
+      },
+      "promotion": null,
+      "active_policy_after_generation": {
+        "policy_id": "phase9_goal_aware_adaptive7",
+        "confidence_gate": 0.97,
+        "maximum_experiments": 7,
+        "cost_weight": 0.05,
+        "mutation": "immutable_phase9_control",
+        "parent_policy_id": null,
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "complexity": 10
+      }
+    },
+    {
+      "generation": 2,
+      "development": {
+        "parent": {
+          "policy": {
+            "policy_id": "phase9_goal_aware_adaptive7",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 7,
+            "cost_weight": 0.05,
+            "mutation": "immutable_phase9_control",
+            "parent_policy_id": null,
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": false,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 5,
+            "complexity": 10
+          },
+          "worlds": 14,
+          "episodes": 840,
+          "mean_factor_accuracy": 0.580952380952381,
+          "mean_relevant_factor_accuracy": 0.930952380952381,
+          "mean_goal_success": 0.9285714285714286,
+          "average_confidence": 0.9461971563214286,
+          "calibration_error": 0.01524477536904767,
+          "average_experiments": 4.123809523809523,
+          "average_goal_attempts": 1.1011904761904763,
+          "average_total_actions": 5.90952380952381,
+          "average_total_action_cost": 1.5261309523809525,
+          "worst_family_factor_accuracy": 0.2,
+          "worst_family_goal_success": 0.65,
+          "families": {
+            "factors_3:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.48333333333333334,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 4.966666666666667,
+              "average_total_action_cost": 1.5508333333333333
+            },
+            "factors_3:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.5333333333333333,
+              "goal_success": 0.9166666666666666,
+              "average_experiments": 6.566666666666666,
+              "average_total_action_cost": 2.5375
+            },
+            "factors_1:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 1.0,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.3,
+              "average_total_action_cost": 1.16
+            },
+            "factors_2:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.43333333333333335,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 4.466666666666667,
+              "average_total_action_cost": 2.2133333333333334
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 180,
+              "factor_accuracy": 0.5111111111111111,
+              "goal_success": 0.9944444444444445,
+              "average_experiments": 2.327777777777778,
+              "average_total_action_cost": 0.8994444444444445
+            },
+            "factors_3:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.21666666666666667,
+              "goal_success": 1.0,
+              "average_experiments": 2.316666666666667,
+              "average_total_action_cost": 1.4483333333333333
+            },
+            "factors_2:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.4666666666666667,
+              "goal_success": 1.0,
+              "average_experiments": 2.3,
+              "average_total_action_cost": 0.7441666666666666
+            },
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.9666666666666667,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 5.683333333333334,
+              "average_total_action_cost": 0.9383333333333332
+            },
+            "factors_2:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.7,
+              "goal_success": 0.7,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 1.8583333333333334
+            },
+            "factors_3:relevant_3:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.65,
+              "goal_success": 0.65,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 2.0516666666666667
+            },
+            "factors_1:relevant_1:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.95,
+              "goal_success": 0.95,
+              "average_experiments": 2.55,
+              "average_total_action_cost": 1.5425
+            },
+            "factors_3:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.2,
+              "goal_success": 0.95,
+              "average_experiments": 5.6,
+              "average_total_action_cost": 2.6225
+            }
+          },
+          "failure_counts": {
+            "belief_error": 58,
+            "calibration_error": 14,
+            "planning_error": 58,
+            "experiment_budget_exhausted": 220,
+            "execution_noise": 2
+          },
+          "score": 0.9592367592119048,
+          "total_cost_utility": 0.9278149966339286
+        },
+        "challengers": [
+          {
+            "policy": {
+              "policy_id": "generation_2_adaptive_929_15",
+              "confidence_gate": 0.9299999999999999,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.15,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5702380952380952,
+            "mean_relevant_factor_accuracy": 0.9142857142857143,
+            "mean_goal_success": 0.9178571428571428,
+            "average_confidence": 0.9405999330595238,
+            "calibration_error": 0.026314218773809572,
+            "average_experiments": 3.9,
+            "average_goal_attempts": 1.1047619047619048,
+            "average_total_actions": 5.6988095238095235,
+            "average_total_action_cost": 1.4929166666666667,
+            "worst_family_factor_accuracy": 0.2,
+            "worst_family_goal_success": 0.7333333333333333,
+            "families": {
+              "factors_3:relevant_2:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.48333333333333334,
+                "goal_success": 0.9,
+                "average_experiments": 4.433333333333334,
+                "average_total_action_cost": 1.4825000000000002
+              },
+              "factors_3:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.5166666666666667,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 5.033333333333333,
+                "average_total_action_cost": 2.1983333333333333
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9,
+                "goal_success": 0.9,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.9333333333333333
+              },
+              "factors_2:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 1.0,
+                "average_experiments": 4.75,
+                "average_total_action_cost": 2.2875
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 180,
+                "factor_accuracy": 0.46111111111111114,
+                "goal_success": 0.9277777777777778,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7819444444444444
+              },
+              "factors_3:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.21666666666666667,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.25,
+                "average_total_action_cost": 1.4291666666666667
+              },
+              "factors_2:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 1.0,
+                "average_experiments": 2.283333333333333,
+                "average_total_action_cost": 0.7433333333333334
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 5.466666666666667,
+                "average_total_action_cost": 0.9483333333333334
+              },
+              "factors_2:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.7833333333333333,
+                "goal_success": 0.7833333333333333,
+                "average_experiments": 9.033333333333333,
+                "average_total_action_cost": 2.1525000000000003
+              },
+              "factors_3:relevant_3:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.6833333333333333,
+                "goal_success": 0.7333333333333333,
+                "average_experiments": 9.966666666666667,
+                "average_total_action_cost": 2.4833333333333334
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.9666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.4833333333333334,
+                "average_total_action_cost": 1.5233333333333332
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.2,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 4.9,
+                "average_total_action_cost": 2.3733333333333335
+              }
+            },
+            "failure_counts": {
+              "experiment_budget_exhausted": 157,
+              "belief_error": 72,
+              "calibration_error": 43,
+              "planning_error": 68,
+              "execution_noise": 1
+            },
+            "score": 0.94864191815,
+            "total_cost_utility": 0.9149857310208334
+          },
+          {
+            "policy": {
+              "policy_id": "generation_2_adaptive_940_25",
+              "confidence_gate": 0.94,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.25,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5714285714285714,
+            "mean_relevant_factor_accuracy": 0.9154761904761904,
+            "mean_goal_success": 0.9178571428571428,
+            "average_confidence": 0.9418289865833334,
+            "calibration_error": 0.026352796107142917,
+            "average_experiments": 4.145238095238096,
+            "average_goal_attempts": 1.1083333333333334,
+            "average_total_actions": 5.947619047619048,
+            "average_total_action_cost": 1.5426785714285713,
+            "worst_family_factor_accuracy": 0.2,
+            "worst_family_goal_success": 0.7333333333333333,
+            "families": {
+              "factors_3:relevant_2:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.48333333333333334,
+                "goal_success": 0.9,
+                "average_experiments": 4.433333333333334,
+                "average_total_action_cost": 1.4825000000000002
+              },
+              "factors_3:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.5166666666666667,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 5.033333333333333,
+                "average_total_action_cost": 2.1983333333333333
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9,
+                "goal_success": 0.9,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.9333333333333333
+              },
+              "factors_2:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 1.0,
+                "average_experiments": 4.75,
+                "average_total_action_cost": 2.2875
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 180,
+                "factor_accuracy": 0.46111111111111114,
+                "goal_success": 0.9277777777777778,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7819444444444444
+              },
+              "factors_3:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.21666666666666667,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.25,
+                "average_total_action_cost": 1.4291666666666667
+              },
+              "factors_2:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 1.0,
+                "average_experiments": 2.283333333333333,
+                "average_total_action_cost": 0.7433333333333334
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 6.633333333333334,
+                "average_total_action_cost": 1.0316666666666667
+              },
+              "factors_2:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.8,
+                "goal_success": 0.7833333333333333,
+                "average_experiments": 9.866666666666667,
+                "average_total_action_cost": 2.2741666666666664
+              },
+              "factors_3:relevant_3:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.6833333333333333,
+                "goal_success": 0.7333333333333333,
+                "average_experiments": 10.0,
+                "average_total_action_cost": 2.4766666666666666
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.9666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.4833333333333334,
+                "average_total_action_cost": 1.5233333333333332
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.2,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 6.3,
+                "average_total_action_cost": 2.871666666666667
+              }
+            },
+            "failure_counts": {
+              "experiment_budget_exhausted": 190,
+              "belief_error": 71,
+              "calibration_error": 41,
+              "planning_error": 68,
+              "execution_noise": 1
+            },
+            "score": 0.9439675360166665,
+            "total_cost_utility": 0.9092427533541666
+          },
+          {
+            "policy": {
+              "policy_id": "generation_2_adaptive_950_35",
+              "confidence_gate": 0.95,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.35,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5726190476190476,
+            "mean_relevant_factor_accuracy": 0.9154761904761904,
+            "mean_goal_success": 0.9166666666666666,
+            "average_confidence": 0.9423851539761905,
+            "calibration_error": 0.02690896350000005,
+            "average_experiments": 4.413095238095238,
+            "average_goal_attempts": 1.1154761904761905,
+            "average_total_actions": 6.223809523809524,
+            "average_total_action_cost": 1.6139880952380952,
+            "worst_family_factor_accuracy": 0.15,
+            "worst_family_goal_success": 0.7333333333333333,
+            "families": {
+              "factors_3:relevant_2:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.48333333333333334,
+                "goal_success": 0.9,
+                "average_experiments": 4.433333333333334,
+                "average_total_action_cost": 1.4825000000000002
+              },
+              "factors_3:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.5166666666666667,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 5.033333333333333,
+                "average_total_action_cost": 2.1983333333333333
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9,
+                "goal_success": 0.9,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.9333333333333333
+              },
+              "factors_2:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.5,
+                "goal_success": 1.0,
+                "average_experiments": 6.133333333333334,
+                "average_total_action_cost": 2.7800000000000002
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 180,
+                "factor_accuracy": 0.46111111111111114,
+                "goal_success": 0.9277777777777778,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.7819444444444444
+              },
+              "factors_3:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.21666666666666667,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.25,
+                "average_total_action_cost": 1.4291666666666667
+              },
+              "factors_2:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 1.0,
+                "average_experiments": 2.283333333333333,
+                "average_total_action_cost": 0.7433333333333334
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 7.766666666666667,
+                "average_total_action_cost": 1.1091666666666666
+              },
+              "factors_2:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.8,
+                "goal_success": 0.7833333333333333,
+                "average_experiments": 10.0,
+                "average_total_action_cost": 2.2925
+              },
+              "factors_3:relevant_3:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.6833333333333333,
+                "goal_success": 0.7333333333333333,
+                "average_experiments": 10.0,
+                "average_total_action_cost": 2.4766666666666666
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.9666666666666667,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 2.4833333333333334,
+                "average_total_action_cost": 1.5233333333333332
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.15,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 7.4,
+                "average_total_action_cost": 3.2816666666666667
+              }
+            },
+            "failure_counts": {
+              "experiment_budget_exhausted": 206,
+              "belief_error": 71,
+              "calibration_error": 41,
+              "planning_error": 69,
+              "execution_noise": 1
+            },
+            "score": 0.9375467787285714,
+            "total_cost_utility": 0.8993560924583334
+          },
+          {
+            "policy": {
+              "policy_id": "generation_2_one_fewer_probe",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 6,
+              "cost_weight": 0.05,
+              "mutation": "low_reliability_budget_expansion",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 7,
+              "complexity": 11
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.5845238095238096,
+            "mean_relevant_factor_accuracy": 0.9357142857142857,
+            "mean_goal_success": 0.9369047619047619,
+            "average_confidence": 0.9585414073095239,
+            "calibration_error": 0.022827121595238142,
+            "average_experiments": 4.640476190476191,
+            "average_goal_attempts": 1.088095238095238,
+            "average_total_actions": 6.4226190476190474,
+            "average_total_action_cost": 1.6107142857142858,
+            "worst_family_factor_accuracy": 0.2,
+            "worst_family_goal_success": 0.7333333333333333,
+            "families": {
+              "factors_3:relevant_2:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.48333333333333334,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 4.966666666666667,
+                "average_total_action_cost": 1.5508333333333333
+              },
+              "factors_3:relevant_2:noise_85": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 0.8333333333333334,
+                "average_experiments": 6.0,
+                "average_total_action_cost": 2.4641666666666664
+              },
+              "factors_1:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 1.0,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.3,
+                "average_total_action_cost": 1.16
+              },
+              "factors_2:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 1.0,
+                "average_experiments": 4.75,
+                "average_total_action_cost": 2.2875
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 180,
+                "factor_accuracy": 0.5111111111111111,
+                "goal_success": 0.9944444444444445,
+                "average_experiments": 2.327777777777778,
+                "average_total_action_cost": 0.8994444444444445
+              },
+              "factors_3:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.21666666666666667,
+                "goal_success": 1.0,
+                "average_experiments": 2.316666666666667,
+                "average_total_action_cost": 1.4483333333333333
+              },
+              "factors_2:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.4666666666666667,
+                "goal_success": 1.0,
+                "average_experiments": 2.3,
+                "average_total_action_cost": 0.7441666666666666
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 6.633333333333334,
+                "average_total_action_cost": 1.0316666666666667
+              },
+              "factors_2:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.8,
+                "goal_success": 0.7833333333333333,
+                "average_experiments": 9.866666666666667,
+                "average_total_action_cost": 2.2741666666666664
+              },
+              "factors_3:relevant_3:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.6833333333333333,
+                "goal_success": 0.7333333333333333,
+                "average_experiments": 10.0,
+                "average_total_action_cost": 2.4766666666666666
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 2.55,
+                "average_total_action_cost": 1.5425
+              },
+              "factors_3:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.2,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 6.3,
+                "average_total_action_cost": 2.871666666666667
+              }
+            },
+            "failure_counts": {
+              "belief_error": 54,
+              "calibration_error": 19,
+              "planning_error": 50,
+              "experiment_budget_exhausted": 218,
+              "execution_noise": 3
+            },
+            "score": 0.9564345756809524,
+            "total_cost_utility": 0.9250551243630951
+          }
+        ],
+        "selected_policy": {
+          "policy_id": "generation_2_one_fewer_probe",
+          "confidence_gate": 0.97,
+          "maximum_experiments": 6,
+          "cost_weight": 0.05,
+          "mutation": "low_reliability_budget_expansion",
+          "parent_policy_id": "phase9_goal_aware_adaptive7",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": true,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 7,
+          "complexity": 11
+        },
+        "mutation_record": {
+          "cycle": {
+            "schema_version": "aion.hexcore.procedure_mutation_cycle.v1",
+            "cycle_id": "mutation_482a771eea924c7b",
+            "parent_policy": {
+              "policy_id": "phase9_goal_aware_adaptive7",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "immutable_phase9_control",
+              "parent_policy_id": null,
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": false,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 10
+            },
+            "parent_failure_counts": {
+              "belief_error": 58,
+              "calibration_error": 14,
+              "planning_error": 58,
+              "experiment_budget_exhausted": 220,
+              "execution_noise": 2
+            },
+            "challengers": [
+              {
+                "policy": {
+                  "policy_id": "generation_2_adaptive_929_15",
+                  "confidence_gate": 0.9299999999999999,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.15,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.94864191815,
+                "mean_goal_success": 0.9178571428571428,
+                "worst_family_goal_success": 0.7333333333333333
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_2_adaptive_940_25",
+                  "confidence_gate": 0.94,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.25,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.9439675360166665,
+                "mean_goal_success": 0.9178571428571428,
+                "worst_family_goal_success": 0.7333333333333333
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_2_adaptive_950_35",
+                  "confidence_gate": 0.95,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.35,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.9375467787285714,
+                "mean_goal_success": 0.9166666666666666,
+                "worst_family_goal_success": 0.7333333333333333
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_2_one_fewer_probe",
+                  "confidence_gate": 0.97,
+                  "maximum_experiments": 6,
+                  "cost_weight": 0.05,
+                  "mutation": "low_reliability_budget_expansion",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": false,
+                  "reliability_slope": 0.0,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 7,
+                  "complexity": 11
+                },
+                "score": 0.9564345756809524,
+                "mean_goal_success": 0.9369047619047619,
+                "worst_family_goal_success": 0.7333333333333333
+              }
+            ],
+            "selected_development_policy": {
+              "policy_id": "generation_2_one_fewer_probe",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 6,
+              "cost_weight": 0.05,
+              "mutation": "low_reliability_budget_expansion",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 7,
+              "complexity": 11
+            },
+            "timestamp": "2026-07-28T20:04:07.281268+00:00"
+          },
+          "commit": {
+            "reason": "procedure_mutation_cycle:mutation_482a771eea924c7b",
+            "authority": {
+              "allow_learn": true,
+              "deny_reason": null,
+              "goal": "maintain_coherence",
+              "source": "multigeneration_causal_evolution_authority",
+              "S": 1.0,
+              "H": 0.0
+            },
+            "state_hash": "c064c6bcad4700332779cea8bd158641383bfcd75d6a4a6f0536eeb929e8a754"
+          }
+        }
+      },
+      "sealed": {
+        "parent": {
+          "policy": {
+            "policy_id": "phase9_goal_aware_adaptive7",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 7,
+            "cost_weight": 0.05,
+            "mutation": "immutable_phase9_control",
+            "parent_policy_id": null,
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": false,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 5,
+            "complexity": 10
+          },
+          "worlds": 18,
+          "episodes": 1080,
+          "mean_factor_accuracy": 0.6953703703703704,
+          "mean_relevant_factor_accuracy": 0.962037037037037,
+          "mean_goal_success": 0.9611111111111111,
+          "average_confidence": 0.9632217535277778,
+          "calibration_error": 0.0011847164907408114,
+          "average_experiments": 4.122222222222222,
+          "average_goal_attempts": 1.0685185185185184,
+          "average_total_actions": 5.770370370370371,
+          "average_total_action_cost": 1.4478240740740742,
+          "worst_family_factor_accuracy": 0.425,
+          "worst_family_goal_success": 0.8166666666666667,
+          "families": {
+            "factors_1:relevant_1:noise_95": {
+              "episodes": 120,
+              "factor_accuracy": 1.0,
+              "goal_success": 1.0,
+              "average_experiments": 2.2,
+              "average_total_action_cost": 1.2329166666666667
+            },
+            "factors_2:relevant_1:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.48333333333333334,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.25,
+              "average_total_action_cost": 1.0791666666666666
+            },
+            "factors_2:relevant_1:noise_75": {
+              "episodes": 180,
+              "factor_accuracy": 0.5333333333333333,
+              "goal_success": 0.9222222222222223,
+              "average_experiments": 5.8277777777777775,
+              "average_total_action_cost": 1.8461111111111113
+            },
+            "factors_2:relevant_1:noise_90": {
+              "episodes": 120,
+              "factor_accuracy": 0.425,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.5,
+              "average_total_action_cost": 1.00625
+            },
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 120,
+              "factor_accuracy": 0.9333333333333333,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 5.783333333333333,
+              "average_total_action_cost": 1.8741666666666668
+            },
+            "factors_2:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 4.366666666666666,
+              "average_total_action_cost": 2.2075000000000005
+            },
+            "factors_1:relevant_1:noise_90": {
+              "episodes": 120,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.375,
+              "average_total_action_cost": 1.0079166666666668
+            },
+            "factors_3:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.4666666666666667,
+              "goal_success": 1.0,
+              "average_experiments": 4.7,
+              "average_total_action_cost": 1.0833333333333333
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.55,
+              "goal_success": 1.0,
+              "average_experiments": 2.066666666666667,
+              "average_total_action_cost": 1.3358333333333332
+            },
+            "factors_2:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.366666666666666,
+              "average_total_action_cost": 1.1866666666666668
+            },
+            "factors_2:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.8166666666666667,
+              "goal_success": 0.8166666666666667,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 2.308333333333333
+            }
+          },
+          "failure_counts": {
+            "experiment_budget_exhausted": 234,
+            "belief_error": 41,
+            "planning_error": 41,
+            "calibration_error": 13,
+            "execution_noise": 1
+          },
+          "score": 1.0175037974425925,
+          "total_cost_utility": 0.9794834505069445
+        },
+        "challenger": {
+          "policy": {
+            "policy_id": "generation_2_one_fewer_probe",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 6,
+            "cost_weight": 0.05,
+            "mutation": "low_reliability_budget_expansion",
+            "parent_policy_id": "phase9_goal_aware_adaptive7",
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": true,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 7,
+            "complexity": 11
+          },
+          "worlds": 18,
+          "episodes": 1080,
+          "mean_factor_accuracy": 0.687037037037037,
+          "mean_relevant_factor_accuracy": 0.9675925925925926,
+          "mean_goal_success": 0.9694444444444444,
+          "average_confidence": 0.9702329027407407,
+          "calibration_error": 0.0026403101481481395,
+          "average_experiments": 4.531481481481482,
+          "average_goal_attempts": 1.0722222222222222,
+          "average_total_actions": 6.183333333333334,
+          "average_total_action_cost": 1.5435648148148147,
+          "worst_family_factor_accuracy": 0.425,
+          "worst_family_goal_success": 0.8666666666666667,
+          "families": {
+            "factors_1:relevant_1:noise_95": {
+              "episodes": 120,
+              "factor_accuracy": 1.0,
+              "goal_success": 1.0,
+              "average_experiments": 2.2,
+              "average_total_action_cost": 1.2329166666666667
+            },
+            "factors_2:relevant_1:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.48333333333333334,
+              "goal_success": 0.9583333333333334,
+              "average_experiments": 4.066666666666666,
+              "average_total_action_cost": 1.0670833333333334
+            },
+            "factors_2:relevant_1:noise_75": {
+              "episodes": 180,
+              "factor_accuracy": 0.4388888888888889,
+              "goal_success": 0.95,
+              "average_experiments": 6.777777777777778,
+              "average_total_action_cost": 2.0394444444444444
+            },
+            "factors_2:relevant_1:noise_90": {
+              "episodes": 120,
+              "factor_accuracy": 0.425,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.5,
+              "average_total_action_cost": 1.00625
+            },
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 120,
+              "factor_accuracy": 0.9666666666666667,
+              "goal_success": 0.9583333333333334,
+              "average_experiments": 6.75,
+              "average_total_action_cost": 2.0875
+            },
+            "factors_2:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.4666666666666667,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.583333333333333,
+              "average_total_action_cost": 2.2708333333333335
+            },
+            "factors_1:relevant_1:noise_90": {
+              "episodes": 120,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.375,
+              "average_total_action_cost": 1.0079166666666668
+            },
+            "factors_3:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.4666666666666667,
+              "goal_success": 1.0,
+              "average_experiments": 4.7,
+              "average_total_action_cost": 1.0833333333333333
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.55,
+              "goal_success": 1.0,
+              "average_experiments": 2.066666666666667,
+              "average_total_action_cost": 1.3358333333333332
+            },
+            "factors_2:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.366666666666666,
+              "average_total_action_cost": 1.1866666666666668
+            },
+            "factors_2:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.8666666666666667,
+              "goal_success": 0.8666666666666667,
+              "average_experiments": 9.733333333333333,
+              "average_total_action_cost": 2.9858333333333333
+            }
+          },
+          "failure_counts": {
+            "experiment_budget_exhausted": 162,
+            "belief_error": 35,
+            "calibration_error": 15,
+            "planning_error": 31,
+            "execution_noise": 2
+          },
+          "score": 1.0156941601925924,
+          "total_cost_utility": 0.9770751076481482
+        },
+        "gate": {
+          "accepted": false,
+          "errors": [
+            "TOTAL_ACTION_COST_REGRESSION",
+            "TOTAL_COST_UTILITY_NOT_IMPROVED"
+          ],
+          "goal_change": 0.008333333333333304,
+          "worst_family_goal_change": 0.050000000000000044,
+          "relevant_factor_accuracy_change": 0.005555555555555536,
+          "calibration_change": 0.001455593657407328,
+          "total_action_cost_change": 0.09574074074074046,
+          "total_cost_utility_change": -0.0024083428587963196
+        }
+      },
+      "promotion": null,
+      "active_policy_after_generation": {
+        "policy_id": "phase9_goal_aware_adaptive7",
+        "confidence_gate": 0.97,
+        "maximum_experiments": 7,
+        "cost_weight": 0.05,
+        "mutation": "immutable_phase9_control",
+        "parent_policy_id": null,
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "complexity": 10
+      }
+    },
+    {
+      "generation": 3,
+      "development": {
+        "parent": {
+          "policy": {
+            "policy_id": "phase9_goal_aware_adaptive7",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 7,
+            "cost_weight": 0.05,
+            "mutation": "immutable_phase9_control",
+            "parent_policy_id": null,
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": false,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 5,
+            "complexity": 10
+          },
+          "worlds": 14,
+          "episodes": 840,
+          "mean_factor_accuracy": 0.805952380952381,
+          "mean_relevant_factor_accuracy": 0.9488095238095238,
+          "mean_goal_success": 0.95,
+          "average_confidence": 0.9569563408333334,
+          "calibration_error": 0.008146817023809594,
+          "average_experiments": 4.772619047619048,
+          "average_goal_attempts": 1.1011904761904763,
+          "average_total_actions": 6.6535714285714285,
+          "average_total_action_cost": 1.7560714285714285,
+          "worst_family_factor_accuracy": 0.26666666666666666,
+          "worst_family_goal_success": 0.8333333333333334,
+          "families": {
+            "factors_1:relevant_1:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.975,
+              "goal_success": 0.975,
+              "average_experiments": 4.25,
+              "average_total_action_cost": 1.5279166666666666
+            },
+            "factors_3:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.4666666666666667,
+              "goal_success": 0.8333333333333334,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 1.3508333333333333
+            },
+            "factors_1:relevant_1:noise_90": {
+              "episodes": 120,
+              "factor_accuracy": 0.9916666666666667,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.466666666666667,
+              "average_total_action_cost": 0.8295833333333333
+            },
+            "factors_3:relevant_3:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.8833333333333333,
+              "goal_success": 0.9166666666666666,
+              "average_experiments": 6.35,
+              "average_total_action_cost": 1.3358333333333332
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.5333333333333333,
+              "goal_success": 1.0,
+              "average_experiments": 2.3333333333333335,
+              "average_total_action_cost": 1.0958333333333334
+            },
+            "factors_1:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.95,
+              "goal_success": 0.95,
+              "average_experiments": 4.3,
+              "average_total_action_cost": 2.23
+            },
+            "factors_3:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 1.0,
+              "average_experiments": 4.316666666666666,
+              "average_total_action_cost": 1.6375
+            },
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 5.55,
+              "average_total_action_cost": 2.6008333333333336
+            },
+            "factors_2:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.9833333333333333,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.466666666666667,
+              "average_total_action_cost": 1.9983333333333335
+            },
+            "factors_2:relevant_2:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.9166666666666666,
+              "goal_success": 0.9083333333333333,
+              "average_experiments": 6.658333333333333,
+              "average_total_action_cost": 2.46875
+            },
+            "factors_2:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.26666666666666666,
+              "goal_success": 0.9,
+              "average_experiments": 5.75,
+              "average_total_action_cost": 2.683333333333333
+            }
+          },
+          "failure_counts": {
+            "experiment_budget_exhausted": 248,
+            "belief_error": 43,
+            "planning_error": 40,
+            "calibration_error": 15,
+            "execution_noise": 2
+          },
+          "score": 1.014108731833333,
+          "total_cost_utility": 0.926996629077381
+        },
+        "challengers": [
+          {
+            "policy": {
+              "policy_id": "generation_3_adaptive_929_15",
+              "confidence_gate": 0.9299999999999999,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.15,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.8083333333333333,
+            "mean_relevant_factor_accuracy": 0.9333333333333333,
+            "mean_goal_success": 0.9238095238095239,
+            "average_confidence": 0.9457138409642857,
+            "calibration_error": 0.012380507630952331,
+            "average_experiments": 3.880952380952381,
+            "average_goal_attempts": 1.1333333333333333,
+            "average_total_actions": 5.794047619047619,
+            "average_total_action_cost": 1.5623214285714284,
+            "worst_family_factor_accuracy": 0.4166666666666667,
+            "worst_family_goal_success": 0.8166666666666667,
+            "families": {
+              "factors_1:relevant_1:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.9416666666666667,
+                "goal_success": 0.925,
+                "average_experiments": 2.9166666666666665,
+                "average_total_action_cost": 1.2945833333333332
+              },
+              "factors_3:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.4166666666666667,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 8.633333333333333,
+                "average_total_action_cost": 1.4716666666666667
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 120,
+                "factor_accuracy": 0.9916666666666667,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.433333333333333,
+                "average_total_action_cost": 0.82375
+              },
+              "factors_3:relevant_3:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.85,
+                "goal_success": 0.8166666666666667,
+                "average_experiments": 5.0,
+                "average_total_action_cost": 1.2958333333333334
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.48333333333333334,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.8833333333333333
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 4.483333333333333,
+                "average_total_action_cost": 2.294166666666667
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.5,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.2
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.9833333333333333,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 5.283333333333333,
+                "average_total_action_cost": 2.5075
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.4291666666666667
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.9083333333333333,
+                "goal_success": 0.9,
+                "average_experiments": 5.208333333333333,
+                "average_total_action_cost": 2.107083333333333
+              },
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.55,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 4.816666666666666,
+                "average_total_action_cost": 2.3400000000000003
+              }
+            },
+            "failure_counts": {
+              "belief_error": 56,
+              "calibration_error": 40,
+              "planning_error": 58,
+              "execution_noise": 6,
+              "experiment_budget_exhausted": 136
+            },
+            "score": 1.0053810413309523,
+            "total_cost_utility": 0.9199024921398812
+          },
+          {
+            "policy": {
+              "policy_id": "generation_3_adaptive_940_25",
+              "confidence_gate": 0.94,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.25,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.7976190476190477,
+            "mean_relevant_factor_accuracy": 0.9345238095238095,
+            "mean_goal_success": 0.925,
+            "average_confidence": 0.9481933093452382,
+            "calibration_error": 0.013669499821428621,
+            "average_experiments": 4.188095238095238,
+            "average_goal_attempts": 1.1321428571428571,
+            "average_total_actions": 6.101190476190476,
+            "average_total_action_cost": 1.6454166666666667,
+            "worst_family_factor_accuracy": 0.38333333333333336,
+            "worst_family_goal_success": 0.8166666666666667,
+            "families": {
+              "factors_1:relevant_1:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.9416666666666667,
+                "goal_success": 0.925,
+                "average_experiments": 2.9166666666666665,
+                "average_total_action_cost": 1.2945833333333332
+              },
+              "factors_3:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 9.833333333333334,
+                "average_total_action_cost": 1.5458333333333334
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 120,
+                "factor_accuracy": 0.9916666666666667,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.433333333333333,
+                "average_total_action_cost": 0.82375
+              },
+              "factors_3:relevant_3:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.85,
+                "goal_success": 0.8166666666666667,
+                "average_experiments": 5.0,
+                "average_total_action_cost": 1.2958333333333334
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.48333333333333334,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.8833333333333333
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 4.483333333333333,
+                "average_total_action_cost": 2.294166666666667
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.5,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.2
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.9833333333333333,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 6.5,
+                "average_total_action_cost": 2.941666666666667
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.4291666666666667
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.9083333333333333,
+                "goal_success": 0.9,
+                "average_experiments": 5.208333333333333,
+                "average_total_action_cost": 2.107083333333333
+              },
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.38333333333333336,
+                "goal_success": 0.95,
+                "average_experiments": 6.7,
+                "average_total_action_cost": 2.9949999999999997
+              }
+            },
+            "failure_counts": {
+              "belief_error": 55,
+              "calibration_error": 38,
+              "planning_error": 57,
+              "execution_noise": 6,
+              "experiment_budget_exhausted": 183
+            },
+            "score": 0.9980280047976192,
+            "total_cost_utility": 0.9110373869494048
+          },
+          {
+            "policy": {
+              "policy_id": "generation_3_adaptive_950_35",
+              "confidence_gate": 0.95,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "reliability_conditioned_per_factor_stopping",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": true,
+              "reliability_slope": 0.35,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 12
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.8130952380952381,
+            "mean_relevant_factor_accuracy": 0.9369047619047619,
+            "mean_goal_success": 0.9261904761904762,
+            "average_confidence": 0.9476807368571428,
+            "calibration_error": 0.010775974952380918,
+            "average_experiments": 4.476190476190476,
+            "average_goal_attempts": 1.1333333333333333,
+            "average_total_actions": 6.389285714285714,
+            "average_total_action_cost": 1.7431547619047618,
+            "worst_family_factor_accuracy": 0.43333333333333335,
+            "worst_family_goal_success": 0.8166666666666667,
+            "families": {
+              "factors_1:relevant_1:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.9416666666666667,
+                "goal_success": 0.925,
+                "average_experiments": 2.9166666666666665,
+                "average_total_action_cost": 1.2945833333333332
+              },
+              "factors_3:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 10.0,
+                "average_total_action_cost": 1.5650000000000002
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 120,
+                "factor_accuracy": 0.9916666666666667,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.433333333333333,
+                "average_total_action_cost": 0.82375
+              },
+              "factors_3:relevant_3:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.85,
+                "goal_success": 0.8166666666666667,
+                "average_experiments": 5.0,
+                "average_total_action_cost": 1.2958333333333334
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.48333333333333334,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 1.0,
+                "average_total_action_cost": 0.8833333333333333
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.9833333333333333,
+                "goal_success": 0.9666666666666667,
+                "average_experiments": 6.066666666666666,
+                "average_total_action_cost": 2.8275
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.5,
+                "goal_success": 0.9333333333333333,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.2
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.9833333333333333,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 7.633333333333334,
+                "average_total_action_cost": 3.3466666666666667
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 2.0,
+                "average_total_action_cost": 1.4291666666666667
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.9083333333333333,
+                "goal_success": 0.9,
+                "average_experiments": 5.208333333333333,
+                "average_total_action_cost": 2.107083333333333
+              },
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.5666666666666667,
+                "goal_success": 0.95,
+                "average_experiments": 7.85,
+                "average_total_action_cost": 3.4058333333333333
+              }
+            },
+            "failure_counts": {
+              "belief_error": 53,
+              "calibration_error": 35,
+              "planning_error": 56,
+              "execution_noise": 6,
+              "experiment_budget_exhausted": 201
+            },
+            "score": 0.9971305192952381,
+            "total_cost_utility": 0.901698863404762
+          },
+          {
+            "policy": {
+              "policy_id": "generation_3_one_fewer_probe",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 6,
+              "cost_weight": 0.05,
+              "mutation": "low_reliability_budget_expansion",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 7,
+              "complexity": 11
+            },
+            "worlds": 14,
+            "episodes": 840,
+            "mean_factor_accuracy": 0.8035714285714286,
+            "mean_relevant_factor_accuracy": 0.9488095238095238,
+            "mean_goal_success": 0.9488095238095238,
+            "average_confidence": 0.9580958500238096,
+            "calibration_error": 0.009286326214285823,
+            "average_experiments": 5.002380952380952,
+            "average_goal_attempts": 1.1,
+            "average_total_actions": 6.890476190476191,
+            "average_total_action_cost": 1.7998214285714285,
+            "worst_family_factor_accuracy": 0.38333333333333336,
+            "worst_family_goal_success": 0.875,
+            "families": {
+              "factors_1:relevant_1:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.9583333333333334,
+                "goal_success": 0.95,
+                "average_experiments": 4.058333333333334,
+                "average_total_action_cost": 1.5270833333333333
+              },
+              "factors_3:relevant_2:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.43333333333333335,
+                "goal_success": 0.8833333333333333,
+                "average_experiments": 9.833333333333334,
+                "average_total_action_cost": 1.5458333333333334
+              },
+              "factors_1:relevant_1:noise_90": {
+                "episodes": 120,
+                "factor_accuracy": 0.9916666666666667,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 2.466666666666667,
+                "average_total_action_cost": 0.8295833333333333
+              },
+              "factors_3:relevant_3:noise_90": {
+                "episodes": 60,
+                "factor_accuracy": 0.8833333333333333,
+                "goal_success": 0.9166666666666666,
+                "average_experiments": 6.35,
+                "average_total_action_cost": 1.3358333333333332
+              },
+              "factors_2:relevant_1:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.5333333333333333,
+                "goal_success": 1.0,
+                "average_experiments": 2.3333333333333335,
+                "average_total_action_cost": 1.0958333333333334
+              },
+              "factors_1:relevant_1:noise_80": {
+                "episodes": 60,
+                "factor_accuracy": 0.95,
+                "goal_success": 0.95,
+                "average_experiments": 4.483333333333333,
+                "average_total_action_cost": 2.294166666666667
+              },
+              "factors_3:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.45,
+                "goal_success": 1.0,
+                "average_experiments": 4.316666666666666,
+                "average_total_action_cost": 1.6375
+              },
+              "factors_1:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.9833333333333333,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 6.5,
+                "average_total_action_cost": 2.941666666666667
+              },
+              "factors_2:relevant_2:noise_95": {
+                "episodes": 60,
+                "factor_accuracy": 0.9833333333333333,
+                "goal_success": 0.9833333333333333,
+                "average_experiments": 4.466666666666667,
+                "average_total_action_cost": 1.9983333333333335
+              },
+              "factors_2:relevant_2:noise_85": {
+                "episodes": 120,
+                "factor_accuracy": 0.875,
+                "goal_success": 0.875,
+                "average_experiments": 6.0,
+                "average_total_action_cost": 2.32
+              },
+              "factors_2:relevant_1:noise_75": {
+                "episodes": 60,
+                "factor_accuracy": 0.38333333333333336,
+                "goal_success": 0.95,
+                "average_experiments": 6.7,
+                "average_total_action_cost": 2.9949999999999997
+              }
+            },
+            "failure_counts": {
+              "experiment_budget_exhausted": 257,
+              "planning_error": 41,
+              "belief_error": 43,
+              "calibration_error": 19,
+              "execution_noise": 2
+            },
+            "score": 1.0076189252333334,
+            "total_cost_utility": 0.9202712755892858
+          }
+        ],
+        "selected_policy": {
+          "policy_id": "generation_3_one_fewer_probe",
+          "confidence_gate": 0.97,
+          "maximum_experiments": 6,
+          "cost_weight": 0.05,
+          "mutation": "low_reliability_budget_expansion",
+          "parent_policy_id": "phase9_goal_aware_adaptive7",
+          "goal_relevance_only": true,
+          "uncertain_factor_only": true,
+          "goal_retries": 1,
+          "adaptive_confidence": false,
+          "reliability_slope": 0.0,
+          "adaptive_experiment_budget": true,
+          "low_reliability_budget": 10,
+          "high_reliability_budget": 7,
+          "complexity": 11
+        },
+        "mutation_record": {
+          "cycle": {
+            "schema_version": "aion.hexcore.procedure_mutation_cycle.v1",
+            "cycle_id": "mutation_ff3d02d43a1b4dd5",
+            "parent_policy": {
+              "policy_id": "phase9_goal_aware_adaptive7",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 7,
+              "cost_weight": 0.05,
+              "mutation": "immutable_phase9_control",
+              "parent_policy_id": null,
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": false,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 5,
+              "complexity": 10
+            },
+            "parent_failure_counts": {
+              "experiment_budget_exhausted": 248,
+              "belief_error": 43,
+              "planning_error": 40,
+              "calibration_error": 15,
+              "execution_noise": 2
+            },
+            "challengers": [
+              {
+                "policy": {
+                  "policy_id": "generation_3_adaptive_929_15",
+                  "confidence_gate": 0.9299999999999999,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.15,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 1.0053810413309523,
+                "mean_goal_success": 0.9238095238095239,
+                "worst_family_goal_success": 0.8166666666666667
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_3_adaptive_940_25",
+                  "confidence_gate": 0.94,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.25,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.9980280047976192,
+                "mean_goal_success": 0.925,
+                "worst_family_goal_success": 0.8166666666666667
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_3_adaptive_950_35",
+                  "confidence_gate": 0.95,
+                  "maximum_experiments": 7,
+                  "cost_weight": 0.05,
+                  "mutation": "reliability_conditioned_per_factor_stopping",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": true,
+                  "reliability_slope": 0.35,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 5,
+                  "complexity": 12
+                },
+                "score": 0.9971305192952381,
+                "mean_goal_success": 0.9261904761904762,
+                "worst_family_goal_success": 0.8166666666666667
+              },
+              {
+                "policy": {
+                  "policy_id": "generation_3_one_fewer_probe",
+                  "confidence_gate": 0.97,
+                  "maximum_experiments": 6,
+                  "cost_weight": 0.05,
+                  "mutation": "low_reliability_budget_expansion",
+                  "parent_policy_id": "phase9_goal_aware_adaptive7",
+                  "goal_relevance_only": true,
+                  "uncertain_factor_only": true,
+                  "goal_retries": 1,
+                  "adaptive_confidence": false,
+                  "reliability_slope": 0.0,
+                  "adaptive_experiment_budget": true,
+                  "low_reliability_budget": 10,
+                  "high_reliability_budget": 7,
+                  "complexity": 11
+                },
+                "score": 1.0076189252333334,
+                "mean_goal_success": 0.9488095238095238,
+                "worst_family_goal_success": 0.875
+              }
+            ],
+            "selected_development_policy": {
+              "policy_id": "generation_3_one_fewer_probe",
+              "confidence_gate": 0.97,
+              "maximum_experiments": 6,
+              "cost_weight": 0.05,
+              "mutation": "low_reliability_budget_expansion",
+              "parent_policy_id": "phase9_goal_aware_adaptive7",
+              "goal_relevance_only": true,
+              "uncertain_factor_only": true,
+              "goal_retries": 1,
+              "adaptive_confidence": false,
+              "reliability_slope": 0.0,
+              "adaptive_experiment_budget": true,
+              "low_reliability_budget": 10,
+              "high_reliability_budget": 7,
+              "complexity": 11
+            },
+            "timestamp": "2026-07-28T20:04:14.385810+00:00"
+          },
+          "commit": {
+            "reason": "procedure_mutation_cycle:mutation_ff3d02d43a1b4dd5",
+            "authority": {
+              "allow_learn": true,
+              "deny_reason": null,
+              "goal": "maintain_coherence",
+              "source": "multigeneration_causal_evolution_authority",
+              "S": 1.0,
+              "H": 0.0
+            },
+            "state_hash": "823385b59995b2ea69c71e93beae4b3769ea28ab7caa2980fc19a5746819fd4a"
+          }
+        }
+      },
+      "sealed": {
+        "parent": {
+          "policy": {
+            "policy_id": "phase9_goal_aware_adaptive7",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 7,
+            "cost_weight": 0.05,
+            "mutation": "immutable_phase9_control",
+            "parent_policy_id": null,
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": false,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 5,
+            "complexity": 10
+          },
+          "worlds": 18,
+          "episodes": 1080,
+          "mean_factor_accuracy": 0.6148148148148148,
+          "mean_relevant_factor_accuracy": 0.9148148148148149,
+          "mean_goal_success": 0.912962962962963,
+          "average_confidence": 0.9413909851851852,
+          "calibration_error": 0.0265761703703703,
+          "average_experiments": 4.8768518518518515,
+          "average_goal_attempts": 1.1083333333333334,
+          "average_total_actions": 6.796296296296297,
+          "average_total_action_cost": 1.5690277777777777,
+          "worst_family_factor_accuracy": 0.31666666666666665,
+          "worst_family_goal_success": 0.5833333333333334,
+          "families": {
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.9666666666666667,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 5.933333333333334,
+              "average_total_action_cost": 1.2266666666666666
+            },
+            "factors_3:relevant_3:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.5833333333333334,
+              "goal_success": 0.5833333333333334,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 2.203333333333333
+            },
+            "factors_2:relevant_1:noise_90": {
+              "episodes": 120,
+              "factor_accuracy": 0.49166666666666664,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.316666666666667,
+              "average_total_action_cost": 0.85875
+            },
+            "factors_3:relevant_3:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.95,
+              "goal_success": 0.95,
+              "average_experiments": 6.283333333333333,
+              "average_total_action_cost": 1.3241666666666667
+            },
+            "factors_3:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 1.0,
+              "average_experiments": 4.783333333333333,
+              "average_total_action_cost": 1.375
+            },
+            "factors_2:relevant_1:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.525,
+              "goal_success": 0.9583333333333334,
+              "average_experiments": 3.9833333333333334,
+              "average_total_action_cost": 1.77125
+            },
+            "factors_3:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.5,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.583333333333333,
+              "average_total_action_cost": 1.025
+            },
+            "factors_3:relevant_2:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.43333333333333335,
+              "goal_success": 0.9166666666666666,
+              "average_experiments": 6.633333333333334,
+              "average_total_action_cost": 2.0458333333333334
+            },
+            "factors_2:relevant_2:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.8,
+              "goal_success": 0.8166666666666667,
+              "average_experiments": 6.7,
+              "average_total_action_cost": 1.5633333333333332
+            },
+            "factors_1:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.9666666666666667,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 4.233333333333333,
+              "average_total_action_cost": 1.0816666666666668
+            },
+            "factors_1:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 1.0,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.1,
+              "average_total_action_cost": 0.8641666666666665
+            },
+            "factors_3:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.4166666666666667,
+              "goal_success": 0.9333333333333333,
+              "average_experiments": 6.666666666666667,
+              "average_total_action_cost": 1.9908333333333335
+            },
+            "factors_3:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.31666666666666665,
+              "goal_success": 0.95,
+              "average_experiments": 4.433333333333334,
+              "average_total_action_cost": 2.2224999999999997
+            },
+            "factors_2:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.8666666666666667,
+              "goal_success": 0.8666666666666667,
+              "average_experiments": 6.633333333333334,
+              "average_total_action_cost": 1.8150000000000002
+            },
+            "factors_3:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.3333333333333333,
+              "goal_success": 0.6333333333333333,
+              "average_experiments": 7.0,
+              "average_total_action_cost": 3.408333333333333
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 1.0,
+              "average_experiments": 2.2,
+              "average_total_action_cost": 0.8366666666666666
+            }
+          },
+          "failure_counts": {
+            "experiment_budget_exhausted": 369,
+            "belief_error": 92,
+            "calibration_error": 24,
+            "planning_error": 92,
+            "execution_noise": 2
+          },
+          "score": 0.9330736548148149,
+          "total_cost_utility": 0.9009985500000001
+        },
+        "challenger": {
+          "policy": {
+            "policy_id": "generation_3_one_fewer_probe",
+            "confidence_gate": 0.97,
+            "maximum_experiments": 6,
+            "cost_weight": 0.05,
+            "mutation": "low_reliability_budget_expansion",
+            "parent_policy_id": "phase9_goal_aware_adaptive7",
+            "goal_relevance_only": true,
+            "uncertain_factor_only": true,
+            "goal_retries": 1,
+            "adaptive_confidence": false,
+            "reliability_slope": 0.0,
+            "adaptive_experiment_budget": true,
+            "low_reliability_budget": 10,
+            "high_reliability_budget": 7,
+            "complexity": 11
+          },
+          "worlds": 18,
+          "episodes": 1080,
+          "mean_factor_accuracy": 0.6185185185185185,
+          "mean_relevant_factor_accuracy": 0.925,
+          "mean_goal_success": 0.9231481481481482,
+          "average_confidence": 0.9527135973055556,
+          "calibration_error": 0.02771359730555556,
+          "average_experiments": 5.363888888888889,
+          "average_goal_attempts": 1.1009259259259259,
+          "average_total_actions": 7.268518518518518,
+          "average_total_action_cost": 1.682824074074074,
+          "worst_family_factor_accuracy": 0.31666666666666665,
+          "worst_family_goal_success": 0.6333333333333333,
+          "families": {
+            "factors_1:relevant_1:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.95,
+              "goal_success": 0.95,
+              "average_experiments": 7.033333333333333,
+              "average_total_action_cost": 1.3408333333333333
+            },
+            "factors_3:relevant_3:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.6333333333333333,
+              "goal_success": 0.6333333333333333,
+              "average_experiments": 10.0,
+              "average_total_action_cost": 2.7824999999999998
+            },
+            "factors_2:relevant_1:noise_90": {
+              "episodes": 120,
+              "factor_accuracy": 0.49166666666666664,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.316666666666667,
+              "average_total_action_cost": 0.85875
+            },
+            "factors_3:relevant_3:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.95,
+              "goal_success": 0.95,
+              "average_experiments": 6.283333333333333,
+              "average_total_action_cost": 1.3241666666666667
+            },
+            "factors_3:relevant_2:noise_90": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 1.0,
+              "average_experiments": 4.783333333333333,
+              "average_total_action_cost": 1.375
+            },
+            "factors_2:relevant_1:noise_85": {
+              "episodes": 120,
+              "factor_accuracy": 0.5166666666666667,
+              "goal_success": 0.9416666666666667,
+              "average_experiments": 3.85,
+              "average_total_action_cost": 1.7354166666666666
+            },
+            "factors_3:relevant_2:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.5,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 4.583333333333333,
+              "average_total_action_cost": 1.025
+            },
+            "factors_3:relevant_2:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.48333333333333334,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 8.1,
+              "average_total_action_cost": 2.43
+            },
+            "factors_2:relevant_2:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.8833333333333333,
+              "goal_success": 0.8666666666666667,
+              "average_experiments": 8.366666666666667,
+              "average_total_action_cost": 1.8125
+            },
+            "factors_1:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.9666666666666667,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 4.45,
+              "average_total_action_cost": 1.1033333333333333
+            },
+            "factors_1:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 1.0,
+              "goal_success": 0.9833333333333333,
+              "average_experiments": 2.1,
+              "average_total_action_cost": 0.8641666666666665
+            },
+            "factors_3:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.3333333333333333,
+              "goal_success": 0.9,
+              "average_experiments": 6.0,
+              "average_total_action_cost": 1.9291666666666667
+            },
+            "factors_3:relevant_1:noise_80": {
+              "episodes": 60,
+              "factor_accuracy": 0.31666666666666665,
+              "goal_success": 0.9666666666666667,
+              "average_experiments": 4.683333333333334,
+              "average_total_action_cost": 2.2975
+            },
+            "factors_2:relevant_2:noise_85": {
+              "episodes": 60,
+              "factor_accuracy": 0.8333333333333334,
+              "goal_success": 0.85,
+              "average_experiments": 6.0,
+              "average_total_action_cost": 1.7225
+            },
+            "factors_3:relevant_2:noise_75": {
+              "episodes": 60,
+              "factor_accuracy": 0.36666666666666664,
+              "goal_success": 0.75,
+              "average_experiments": 9.633333333333333,
+              "average_total_action_cost": 4.259166666666667
+            },
+            "factors_2:relevant_1:noise_95": {
+              "episodes": 60,
+              "factor_accuracy": 0.45,
+              "goal_success": 1.0,
+              "average_experiments": 2.2,
+              "average_total_action_cost": 0.8366666666666666
+            }
+          },
+          "failure_counts": {
+            "experiment_budget_exhausted": 347,
+            "belief_error": 81,
+            "planning_error": 79,
+            "calibration_error": 36,
+            "execution_noise": 4
+          },
+          "score": 0.934031354612963,
+          "total_cost_utility": 0.8992808599328703
+        },
+        "gate": {
+          "accepted": false,
+          "errors": [
+            "TOTAL_ACTION_COST_REGRESSION",
+            "TOTAL_COST_UTILITY_NOT_IMPROVED"
+          ],
+          "goal_change": 0.010185185185185186,
+          "worst_family_goal_change": 0.04999999999999993,
+          "relevant_factor_accuracy_change": 0.010185185185185186,
+          "calibration_change": 0.0011374269351852595,
+          "total_action_cost_change": 0.1137962962962964,
+          "total_cost_utility_change": -0.0017176900671297402
+        }
+      },
+      "promotion": null,
+      "active_policy_after_generation": {
+        "policy_id": "phase9_goal_aware_adaptive7",
+        "confidence_gate": 0.97,
+        "maximum_experiments": 7,
+        "cost_weight": 0.05,
+        "mutation": "immutable_phase9_control",
+        "parent_policy_id": null,
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "complexity": 10
+      }
+    }
+  ],
+  "successful_promotions": 0,
+  "plateau_detected": true,
+  "initial_policy": {
+    "policy_id": "phase9_goal_aware_adaptive7",
+    "confidence_gate": 0.97,
+    "maximum_experiments": 7,
+    "cost_weight": 0.05,
+    "mutation": "immutable_phase9_control",
+    "parent_policy_id": null,
+    "goal_relevance_only": true,
+    "uncertain_factor_only": true,
+    "goal_retries": 1,
+    "adaptive_confidence": false,
+    "reliability_slope": 0.0,
+    "adaptive_experiment_budget": false,
+    "low_reliability_budget": 10,
+    "high_reliability_budget": 5,
+    "complexity": 10
+  },
+  "final_policy": {
+    "policy_id": "phase9_goal_aware_adaptive7",
+    "confidence_gate": 0.97,
+    "maximum_experiments": 7,
+    "cost_weight": 0.05,
+    "mutation": "immutable_phase9_control",
+    "parent_policy_id": null,
+    "goal_relevance_only": true,
+    "uncertain_factor_only": true,
+    "goal_retries": 1,
+    "adaptive_confidence": false,
+    "reliability_slope": 0.0,
+    "adaptive_experiment_budget": false,
+    "low_reliability_budget": 10,
+    "high_reliability_budget": 5,
+    "complexity": 10
+  },
+  "external_family": {
+    "description": "four-factor, two-relevant-factor worlds with unseen symbol grammar, costs, and reliability values",
+    "control": {
+      "policy": {
+        "policy_id": "phase9_goal_aware_adaptive7",
+        "confidence_gate": 0.97,
+        "maximum_experiments": 7,
+        "cost_weight": 0.05,
+        "mutation": "immutable_phase9_control",
+        "parent_policy_id": null,
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "complexity": 10
+      },
+      "worlds": 12,
+      "episodes": 720,
+      "mean_factor_accuracy": 0.26666666666666666,
+      "mean_relevant_factor_accuracy": 0.8694444444444445,
+      "mean_goal_success": 0.8652777777777778,
+      "average_confidence": 0.8991453324861111,
+      "calibration_error": 0.029700888041666595,
+      "average_experiments": 5.713888888888889,
+      "average_goal_attempts": 1.1736111111111112,
+      "average_total_actions": 7.9375,
+      "average_total_action_cost": 2.26075,
+      "worst_family_factor_accuracy": 0.22916666666666666,
+      "worst_family_goal_success": 0.6875,
+      "families": {
+        "external_four:noise_92": {
+          "episodes": 360,
+          "factor_accuracy": 0.2861111111111111,
+          "goal_success": 0.9861111111111112,
+          "average_experiments": 4.522222222222222,
+          "average_total_action_cost": 1.7812222222222223
+        },
+        "external_four:noise_72": {
+          "episodes": 240,
+          "factor_accuracy": 0.22916666666666666,
+          "goal_success": 0.6875,
+          "average_experiments": 7.0,
+          "average_total_action_cost": 2.359625
+        },
+        "external_four:noise_82": {
+          "episodes": 120,
+          "factor_accuracy": 0.2833333333333333,
+          "goal_success": 0.8583333333333333,
+          "average_experiments": 6.716666666666667,
+          "average_total_action_cost": 3.5015833333333335
+        }
+      },
+      "failure_counts": {
+        "experiment_budget_exhausted": 344,
+        "belief_error": 94,
+        "planning_error": 95,
+        "calibration_error": 8,
+        "execution_noise": 2
+      },
+      "score": 0.798393155725,
+      "total_cost_utility": 0.7604514446562501
+    },
+    "final": {
+      "policy": {
+        "policy_id": "phase9_goal_aware_adaptive7",
+        "confidence_gate": 0.97,
+        "maximum_experiments": 7,
+        "cost_weight": 0.05,
+        "mutation": "immutable_phase9_control",
+        "parent_policy_id": null,
+        "goal_relevance_only": true,
+        "uncertain_factor_only": true,
+        "goal_retries": 1,
+        "adaptive_confidence": false,
+        "reliability_slope": 0.0,
+        "adaptive_experiment_budget": false,
+        "low_reliability_budget": 10,
+        "high_reliability_budget": 5,
+        "complexity": 10
+      },
+      "worlds": 12,
+      "episodes": 720,
+      "mean_factor_accuracy": 0.26666666666666666,
+      "mean_relevant_factor_accuracy": 0.8694444444444445,
+      "mean_goal_success": 0.8652777777777778,
+      "average_confidence": 0.8991453324861111,
+      "calibration_error": 0.029700888041666595,
+      "average_experiments": 5.713888888888889,
+      "average_goal_attempts": 1.1736111111111112,
+      "average_total_actions": 7.9375,
+      "average_total_action_cost": 2.26075,
+      "worst_family_factor_accuracy": 0.22916666666666666,
+      "worst_family_goal_success": 0.6875,
+      "families": {
+        "external_four:noise_92": {
+          "episodes": 360,
+          "factor_accuracy": 0.2861111111111111,
+          "goal_success": 0.9861111111111112,
+          "average_experiments": 4.522222222222222,
+          "average_total_action_cost": 1.7812222222222223
+        },
+        "external_four:noise_72": {
+          "episodes": 240,
+          "factor_accuracy": 0.22916666666666666,
+          "goal_success": 0.6875,
+          "average_experiments": 7.0,
+          "average_total_action_cost": 2.359625
+        },
+        "external_four:noise_82": {
+          "episodes": 120,
+          "factor_accuracy": 0.2833333333333333,
+          "goal_success": 0.8583333333333333,
+          "average_experiments": 6.716666666666667,
+          "average_total_action_cost": 3.5015833333333335
+        }
+      },
+      "failure_counts": {
+        "experiment_budget_exhausted": 344,
+        "belief_error": 94,
+        "planning_error": 95,
+        "calibration_error": 8,
+        "execution_noise": 2
+      },
+      "score": 0.798393155725,
+      "total_cost_utility": 0.7604514446562501
+    },
+    "gate": {
+      "accepted": true,
+      "errors": [],
+      "absolute_mean_goal": 0.8652777777777778,
+      "absolute_worst_family_goal": 0.6875,
+      "absolute_relevant_factor_accuracy": 0.8694444444444445,
+      "absolute_calibration_error": 0.029700888041666595,
+      "total_action_cost_change": 0.0
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "champion_id": "procedure_efficient_causal_34e0b23ffd0f",
+    "mutation_cycles": 3,
+    "failure_queue_records": 5072,
+    "relearning_worlds": 0
+  },
+  "gates": {
+    "at_least_one_generation_promoted": false,
+    "external_family_passed": true,
+    "total_action_cost_accounted": true,
+    "goal_relevant_calibration_used": true,
+    "fresh_sealed_cohort_each_generation": true,
+    "restart_retention": true
+  },
+  "boundary_statement": "This is bounded mutation of an allowlisted causal procedure over generated worlds. It does not modify source code, CAU, or the structural grammar.",
+  "passed": false
+}
