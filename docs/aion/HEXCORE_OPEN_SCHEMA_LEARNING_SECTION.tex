@@ -1,0 +1,100 @@
+\section{Phase 41: Open-Schema Learning and Explanatory Graphs}
+\label{sec:phase41-open-schema}
+
+\subsection{Objective}
+
+Phase 41 tests whether AION can construct a relation schema rather than receive
+a fixed ontology.  The solver observes unfamiliar documents, symbols,
+relation wording, and decision contracts.  Evaluator-only data includes the
+expected schemas, goal operators, missing relation, and final answer; none is
+available to the solver.
+
+\subsection{Structural Schema Invention}
+
+Each conditional relation is represented by an induced structural signature
+\[
+\sigma(r)=
+\left(
+o_{\mathrm{antecedent}},
+n_{\mathrm{antecedent}},
+n_{\mathrm{consequence}},
+d_{\mathrm{temporal}}
+\right).
+\]
+The canonical hash of \(\sigma(r)\) becomes a persistent invented schema
+identifier.  No supplied label such as ``enables'' or ``requires'' is needed.
+Three schemas emerged: unary conjunctive implication, binary all-required
+implication, and binary either-sufficient implication.  All three transferred
+from three development domains into six source-disjoint sealed domains.
+
+\subsection{Goal and Explanation Induction}
+
+Decision prose is independently converted into all-of, any-of,
+\(k\)-of-\(n\), or ordered goal structures.  Forward inference begins with
+cited facts at depth zero.  Each applied relation stores its schema,
+antecedents, consequence, proof depth, source, and provenance.  Inference
+continues until a fixed point is reached.  Ordered goals additionally require
+strictly increasing proof depths.
+
+\subsection{Missing Knowledge and Epistemic Control}
+
+For an unsupported requirement, AION recursively searches for producing
+relations and unresolved antecedents.  A leaf with no producer becomes a
+specific missing-knowledge query.  Conversely, a direct observation of the
+same entity in a conflicting state establishes falsity rather than absence.
+Thus the operational classification is
+\[
+\begin{aligned}
+\text{complete proof path} &\Rightarrow \text{supported},\\
+\text{verified conflicting state} &\Rightarrow \text{unsupported},\\
+\text{no evidence path} &\Rightarrow \text{unknown and clarify}.
+\end{aligned}
+\]
+
+\subsection{Sealed Results}
+
+Development used 18 projects from three domains.  The sealed cohort used 48
+projects from six unrelated domains with project-specific symbol namespaces.
+
+\begin{center}
+\small
+\textbf{Phase 41 open-schema results.}\par\smallskip
+\centering
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Goal accuracy & \(\mathbf{100\%}\) \\
+Weakest-domain accuracy & \(\mathbf{100\%}\) \\
+Schema recovery & \(\mathbf{100\%}\) \\
+Cross-domain validated schemas & \(\mathbf{3/3}\) \\
+Multi-hop explanation rate & \(\mathbf{89.58\%}\) \\
+Missing-knowledge accuracy & \(\mathbf{100\%}\) \\
+Recovery after clarification & \(\mathbf{100\%}\) \\
+Unnecessary questions & \(\mathbf{0}\) \\
+Complete provenance & \(\mathbf{100\%}\) \\
+Verified memories committed & \(\mathbf{48/48}\) \\
+One-hop control accuracy & \(20.83\%\) \\
+Restart relearning & \(\mathbf{0}\) \\
+\hline
+\end{tabular}
+\end{center}
+
+The initial compact cohort was rejected because three negative worlds lacked
+explicit counter-evidence and therefore represented unknown rather than false
+cases.  The generator was corrected without lowering a gate or exposing an
+answer to the solver.
+
+\subsection{Promotion and Boundary}
+
+All capability, weakest-domain, missing-knowledge, provenance, CAU, and
+restart gates passed.  The promoted procedure is
+\begin{center}
+\small\texttt{procedure\_open\_schema\_learning\_1d0456fd3c9f}
+\end{center}
+
+This remains bounded open-schema learning.  The prose grammar, binary
+propositions, conditional operator family, goal operators, documents, and
+oracle remain engineered.  AION invents and validates structural signatures;
+it does not yet perform unrestricted ontology invention, arbitrary scientific
+discovery, general language understanding, or AGI.

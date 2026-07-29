@@ -177,6 +177,8 @@ class HexCorePersistentLearningStore:
             "information_policies": {},
             "open_document_projects": {},
             "document_comprehension_projects": {},
+            "invented_document_schemas": {},
+            "schema_learning_projects": {},
         }
 
     def _load(self) -> Dict[str, Any]:

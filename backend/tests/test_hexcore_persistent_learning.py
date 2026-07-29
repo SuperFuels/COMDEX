@@ -133,6 +133,9 @@ from backend.modules.hexcore.cost_aware_open_document_benchmark import (
 from backend.modules.hexcore.natural_document_comprehension_benchmark import (
     run_natural_document_comprehension_benchmark,
 )
+from backend.modules.hexcore.open_schema_learning_benchmark import (
+    run_open_schema_learning_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -594,6 +597,27 @@ def test_natural_document_comprehension_is_gold_isolated_and_persistent(
     assert result["gate"]["provenance_complete"] == 1.0
     assert result["gold_isolation"]["solver_receives_gold_claims"] is False
     assert result["restart"]["champion_retained"] is True
+
+
+def test_open_schema_learning_invents_transfers_queries_and_persists(
+    tmp_path: Path,
+) -> None:
+    result = run_open_schema_learning_benchmark(
+        state_path=tmp_path / "phase41_state.json",
+        artifact_dir=tmp_path / "phase41_artifacts",
+        result_path=tmp_path / "phase41_result.json",
+        development_projects=8,
+        sealed_projects=12,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["goal_accuracy"] >= 0.90
+    assert result["gate"]["schema_recovery_accuracy"] >= 0.90
+    assert result["gate"]["missing_knowledge_accuracy"] >= 0.90
+    assert result["gate"]["query_recovery_accuracy"] >= 0.90
+    assert result["gate"]["unnecessary_queries"] == 0
+    assert result["gate"]["provenance_complete"] == 1.0
+    assert result["gold_isolation"]["solver_receives_expected_schema"] is False
+    assert result["restart"]["schemas_retained"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
