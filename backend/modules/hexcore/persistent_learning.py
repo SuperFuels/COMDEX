@@ -183,6 +183,9 @@ class HexCorePersistentLearningStore:
             "schema_revision_sessions": [],
             "compositional_theory_programs": {},
             "program_induction_sessions": [],
+            "typed_dsl_programs": {},
+            "verified_subprogram_library": {},
+            "dsl_synthesis_sessions": [],
         }
 
     def _load(self) -> Dict[str, Any]:
