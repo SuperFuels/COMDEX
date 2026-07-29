@@ -145,6 +145,9 @@ from backend.modules.hexcore.compositional_theory_program_induction_benchmark im
 from backend.modules.hexcore.typed_dsl_program_synthesis_benchmark import (
     run_typed_dsl_program_synthesis_benchmark,
 )
+from backend.modules.hexcore.primitive_invention_and_compression_benchmark import (
+    run_primitive_invention_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -684,6 +687,28 @@ def test_typed_dsl_synthesises_transfers_abstains_and_persists(
     assert result["gate"]["safe_ood_abstention"] >= 0.90
     assert result["gate"]["transfer_trial_reduction"] >= 0.10
     assert result["gate"]["unsafe_forced_programs"] == 0
+    assert result["restart"]["champion_retained"] is True
+
+
+def test_primitive_invention_compresses_transfers_and_abstains(
+    tmp_path: Path,
+) -> None:
+    result = run_primitive_invention_benchmark(
+        state_path=tmp_path / "phase45_state.json",
+        result_path=tmp_path / "phase45_result.json",
+        development_worlds=12,
+        transfer_worlds=8,
+        external_worlds=4,
+        novel_worlds=4,
+        ood_worlds=4,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["promoted_primitives"] >= 4
+    assert result["gate"]["transfer_exact_accuracy"] >= 0.95
+    assert result["gate"]["novel_primitive_exact_accuracy"] >= 0.90
+    assert result["gate"]["safe_ood_abstention"] >= 0.90
+    assert result["gate"]["transfer_trial_reduction"] >= 0.15
+    assert result["gate"]["unsafe_forced_primitives"] == 0
     assert result["restart"]["champion_retained"] is True
 
 
