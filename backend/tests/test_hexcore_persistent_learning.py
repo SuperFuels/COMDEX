@@ -148,6 +148,15 @@ from backend.modules.hexcore.typed_dsl_program_synthesis_benchmark import (
 from backend.modules.hexcore.primitive_invention_and_compression_benchmark import (
     run_primitive_invention_benchmark,
 )
+from backend.modules.hexcore.algebraic_continuous_operator_learning_benchmark import (
+    run_algebraic_continuous_operator_benchmark,
+)
+from backend.modules.hexcore.governed_photon_tool_invention_benchmark import (
+    run_governed_photon_tool_invention_benchmark,
+)
+from backend.modules.hexcore.long_horizon_project_intelligence_benchmark import (
+    run_long_horizon_project_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -710,6 +719,63 @@ def test_primitive_invention_compresses_transfers_and_abstains(
     assert result["gate"]["transfer_trial_reduction"] >= 0.15
     assert result["gate"]["unsafe_forced_primitives"] == 0
     assert result["restart"]["champion_retained"] is True
+
+
+def test_algebraic_laws_and_continuous_operators_transfer_and_persist(
+    tmp_path: Path,
+) -> None:
+    result = run_algebraic_continuous_operator_benchmark(
+        state_path=tmp_path / "phase46_state.json",
+        result_path=tmp_path / "phase46_result.json",
+        sealed_worlds=12,
+        external_worlds=4,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["algebraic_primitives_profiled"] == 4
+    assert result["gate"]["support_recovery_accuracy"] >= 0.90
+    assert result["gate"]["mean_validation_rmse"] <= 0.02
+    assert result["gate"]["mean_recursive_rmse"] <= 0.08
+    assert result["gate"]["active_policy_promoted"] is False
+    assert result["restart"]["champion_retained"] is True
+
+
+def test_governed_photon_tools_are_invented_sandboxed_and_retained(
+    tmp_path: Path,
+) -> None:
+    result = run_governed_photon_tool_invention_benchmark(
+        state_path=tmp_path / "photon_tool_invention.json",
+        result_path=tmp_path / "photon_tool_invention_result.json",
+        development_cases=8,
+        sealed_cases=16,
+        external_cases=8,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["tool_families_invented"] == 4
+    assert result["gate"]["sealed_accuracy"] == 1.0
+    assert result["gate"]["external_accuracy"] == 1.0
+    assert result["gate"]["weakest_family_accuracy"] == 1.0
+    assert result["gate"]["execution_cost_reduction"] >= 0.50
+    assert result["gate"]["unsafe_candidates_rejected"] == 1.0
+    assert result["restart"]["tools_retained"] is True
+
+
+def test_long_horizon_projects_resume_revise_and_verify(
+    tmp_path: Path,
+) -> None:
+    result = run_long_horizon_project_benchmark(
+        state_path=tmp_path / "long_horizon_projects.json",
+        result_path=tmp_path / "long_horizon_projects_result.json",
+        development_projects=3,
+        sealed_projects=12,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["project_accuracy"] == 1.0
+    assert result["gate"]["accuracy_gain"] >= 0.20
+    assert result["gate"]["weakest_domain_accuracy"] == 1.0
+    assert result["gate"]["projects_resumed"] == 1.0
+    assert result["gate"]["plan_revision_accuracy"] == 1.0
+    assert result["gate"]["unresolved_questions_closed"] == 1.0
+    assert result["restart"]["all_projects_retained"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

@@ -188,6 +188,12 @@ class HexCorePersistentLearningStore:
             "dsl_synthesis_sessions": [],
             "invented_primitives": {},
             "primitive_invention_sessions": [],
+            "algebraic_law_models": {},
+            "continuous_operator_models": {},
+            "invented_photon_tools": {},
+            "tool_invention_sessions": [],
+            "long_horizon_projects": {},
+            "project_revision_events": [],
         }
 
     def _load(self) -> Dict[str, Any]:
