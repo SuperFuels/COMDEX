@@ -201,6 +201,9 @@ class HexCorePersistentLearningStore:
             "continual_arena_outcomes": [],
             "foundation_substrate_evaluations": {},
             "provider_substrate_registry": {},
+            "external_benchmark_evaluations": {},
+            "open_document_knowledge": {},
+            "autonomous_knowledge_projects": {},
         }
 
     def _load(self) -> Dict[str, Any]:

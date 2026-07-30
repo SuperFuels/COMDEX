@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import pytest
@@ -169,6 +170,11 @@ from backend.modules.hexcore.large_continual_learning_arena_benchmark import (
 from backend.modules.hexcore.stronger_foundation_substrate_benchmark import (
     PARAPHRASES,
     run_stronger_foundation_substrate_benchmark,
+)
+from backend.modules.hexcore.public_external_intelligence_benchmark import (
+    run_phase48_external_evaluation,
+    run_phase49_open_document_intelligence,
+    run_phase50_autonomous_projects,
 )
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
@@ -895,6 +901,122 @@ def test_stronger_substrate_is_replaceable_and_never_authoritative(
     assert result["gate"]["provider_disabled_governed_accuracy"] == 1.0
     assert result["gate"]["backbone_frozen"] is True
     assert result["gate"]["hexcore_authority_independent"] is True
+
+
+def test_public_external_document_and_project_chain_persists(
+    tmp_path: Path,
+) -> None:
+    boolq_path = tmp_path / "boolq.jsonl"
+    arc_path = tmp_path / "arc.jsonl"
+    squad_path = tmp_path / "squad.jsonl"
+    boolq_rows = [
+        {
+            "answer": True,
+            "passage": f"PASSAGE_{index}",
+            "question": f"QYES_{index}",
+            "source_id": "boolq",
+            "source_revision": "test",
+            "source_split": "validation",
+        }
+        for index in range(4)
+    ]
+    arc_rows = [
+        {
+            "answer_key": "A",
+            "choice_labels": ["A", "B", "C", "D"],
+            "choices": ["right", "wrong1", "wrong2", "wrong3"],
+            "question": f"ARCQ_{index}",
+            "source_id": "arc",
+            "source_revision": "test",
+            "source_split": "validation",
+        }
+        for index in range(4)
+    ]
+    squad_rows = []
+    for index in range(32):
+        answerable = index < 24
+        squad_rows.append(
+            {
+                "answer": f"token{index}" if answerable else "",
+                "answerable": answerable,
+                "context": (
+                    f"The verified answer is token{index}."
+                    if answerable
+                    else "This passage deliberately omits the requested value."
+                ),
+                "question": (
+                    f"QANSWERABLE_{index}"
+                    if answerable
+                    else f"QUNANSWERABLE_{index}"
+                ),
+                "source_id": "squad",
+                "source_revision": "test",
+                "source_split": "validation",
+                "title": "fixture",
+            }
+        )
+    for path, rows in (
+        (boolq_path, boolq_rows),
+        (arc_path, arc_rows),
+        (squad_path, squad_rows),
+    ):
+        path.write_text(
+            "\n".join(json.dumps(row) for row in rows) + "\n",
+            encoding="utf-8",
+        )
+
+    def provider(prompt: str) -> Dict[str, Any]:
+        if "Return exactly YES or NO" in prompt:
+            text = "YES"
+        elif "Return only its letter" in prompt:
+            text = "A"
+        elif "SUPPORTED or UNSUPPORTED" in prompt:
+            text = "UNSUPPORTED" if "QUNANSWERABLE" in prompt else "SUPPORTED"
+        elif "QUNANSWERABLE" in prompt:
+            text = "ANSWER: ABSTAIN"
+        else:
+            match = re.search(r"QANSWERABLE_(\d+)", prompt)
+            text = f"ANSWER: token{match.group(1)}" if match else "ANSWER: ABSTAIN"
+        return {"text": text, "latency_ms": 1.0, "cached": False}
+
+    phase48 = run_phase48_external_evaluation(
+        state_path=tmp_path / "phase48_state.json",
+        cache_path=tmp_path / "cache.json",
+        result_path=tmp_path / "phase48.json",
+        boolq_path=boolq_path,
+        arc_path=arc_path,
+        squad_path=squad_path,
+        per_family=4,
+        provider=provider,
+        model="fixture",
+    )
+    assert phase48["passed"] is True
+    assert phase48["gate"]["mean_accuracy"] == 1.0
+    assert phase48["gate"]["pretraining_contamination_excluded"] is False
+
+    phase49 = run_phase49_open_document_intelligence(
+        state_path=tmp_path / "phase49_state.json",
+        cache_path=tmp_path / "cache.json",
+        result_path=tmp_path / "phase49.json",
+        squad_path=squad_path,
+        cases=32,
+        provider=provider,
+        model="fixture",
+    )
+    assert phase49["passed"] is True
+    assert phase49["gate"]["accepted_precision"] == 1.0
+    assert phase49["gate"]["unsafe_committed_answers"] == 0
+
+    phase50 = run_phase50_autonomous_projects(
+        state_path=tmp_path / "phase50_state.json",
+        phase49_result_path=tmp_path / "phase49.json",
+        result_path=tmp_path / "phase50.json",
+        projects=12,
+    )
+    assert phase50["passed"] is True
+    assert phase50["gate"]["project_completion"] == 1.0
+    assert phase50["gate"]["restart_recovery"] == 1.0
+    assert phase50["restart"]["all_projects_retained"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
