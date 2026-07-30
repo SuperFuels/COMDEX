@@ -160,6 +160,9 @@ from backend.modules.hexcore.long_horizon_project_intelligence_benchmark import 
 from backend.modules.hexcore.open_ended_goal_decomposition_benchmark import (
     run_open_ended_goal_decomposition_benchmark,
 )
+from backend.modules.hexcore.multimodal_world_grounding_benchmark import (
+    run_multimodal_world_grounding_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -800,6 +803,29 @@ def test_broad_goals_create_verified_plans_or_request_clarification(
     assert result["gate"]["clarification_accuracy"] == 1.0
     assert result["gate"]["unsafe_forced_plans"] == 0
     assert result["restart"]["all_plans_retained"] is True
+
+
+def test_multimodal_grounding_uses_glyphchain_proofs_and_rejects_conflicts(
+    tmp_path: Path,
+) -> None:
+    result = run_multimodal_world_grounding_benchmark(
+        state_path=tmp_path / "multimodal_state.json",
+        artifact_dir=tmp_path / "multimodal_artifacts",
+        result_path=tmp_path / "multimodal_result.json",
+        development_worlds=5,
+        sealed_worlds=20,
+        external_worlds=10,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["multimodal_accuracy"] == 1.0
+    assert result["gate"]["accuracy_gain"] >= 0.25
+    assert result["gate"]["weakest_family_accuracy"] == 1.0
+    assert result["gate"]["external_accuracy"] == 1.0
+    assert result["gate"]["glyphchain_commitments_verified"] == 1.0
+    assert result["gate"]["tampered_commitments_accepted"] == 0
+    assert result["gate"]["unsafe_false_acceptances"] == 0
+    assert result["gate"]["live_chain_transactions_submitted"] == 0
+    assert result["restart"]["commitments_retained"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

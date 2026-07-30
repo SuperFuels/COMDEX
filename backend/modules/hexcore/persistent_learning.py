@@ -195,6 +195,8 @@ class HexCorePersistentLearningStore:
             "long_horizon_projects": {},
             "project_revision_events": [],
             "autonomous_goal_decompositions": {},
+            "multimodal_evidence_projects": {},
+            "glyphchain_evidence_commitments": {},
         }
 
     def _load(self) -> Dict[str, Any]:
