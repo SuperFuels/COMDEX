@@ -1,0 +1,1016 @@
+{
+  "boundary": "Phase 61 dynamically composes retained repairs across simultaneous project failures. Skill contracts, fact vocabulary, compound failure generator and correctness oracle remain engineered. It does not autonomously decompose arbitrary real-world failures or remove CAU authority.",
+  "contracts": {
+    "commit_project": {
+      "postconditions": [
+        "safe_completion"
+      ],
+      "preconditions": [
+        "artifacts_fresh",
+        "evidence_resolved",
+        "authority_fresh"
+      ],
+      "repair_family": "governed_commit",
+      "skill": "commit_project",
+      "tool_id": null
+    },
+    "refresh_authority": {
+      "postconditions": [
+        "authority_fresh"
+      ],
+      "preconditions": [
+        "authority_stale"
+      ],
+      "repair_family": "commit_time_authority_refresh",
+      "skill": "refresh_authority",
+      "tool_id": "project_repair_0fee4db279ba62a4"
+    },
+    "repair_revision": {
+      "postconditions": [
+        "artifacts_fresh"
+      ],
+      "preconditions": [
+        "source_changed"
+      ],
+      "repair_family": "transitive_revision_repair",
+      "skill": "repair_revision",
+      "tool_id": "project_repair_5da7d48e8a28abc8"
+    },
+    "resolve_conflict": {
+      "postconditions": [
+        "evidence_resolved"
+      ],
+      "preconditions": [
+        "evidence_conflict"
+      ],
+      "repair_family": "independent_evidence_quorum",
+      "skill": "resolve_conflict",
+      "tool_id": "project_repair_2be9e62ebea5ee53"
+    }
+  },
+  "created_at": "2026-07-30T18:39:36.252901+00:00",
+  "development": {
+    "generation_one": {
+      "accuracy": 1.0,
+      "control_accuracy": 0.0,
+      "generation": 1,
+      "new_modes": [
+        "revision_authority",
+        "conflict_authority"
+      ],
+      "promotable": true,
+      "weakest_family_accuracy": 1.0
+    },
+    "generation_two": {
+      "accuracy": 1.0,
+      "backward_retention": 1.0,
+      "generation": 2,
+      "new_modes": [
+        "revision_conflict_authority"
+      ],
+      "promotable": true,
+      "replay_modes": [
+        "revision_authority",
+        "conflict_authority"
+      ],
+      "weakest_family_accuracy": 1.0
+    }
+  },
+  "gate": {
+    "accepted": true,
+    "backward_retention": 1.0,
+    "errors": [],
+    "generation_one_promotable": true,
+    "generation_two_promotable": true,
+    "generations_completed": 2,
+    "mean_composed_actions": 3.3333333333333335,
+    "out_of_contract_abstention": true,
+    "phase59_backward_retention": 1.0,
+    "phase59_unsafe_commitments": 0,
+    "phase60_prerequisite": true,
+    "sealed_accuracy_gain": 1.0,
+    "sealed_challenger_accuracy": 1.0,
+    "sealed_control_accuracy": 0.0,
+    "sealed_weakest_family_accuracy": 1.0,
+    "unsafe_side_effects": 0,
+    "verified_execution_traces": true
+  },
+  "out_of_contract_control": {
+    "condition": "semantic_source_forgery",
+    "decision": "abstain"
+  },
+  "passed": true,
+  "phase": 61,
+  "phase60_prerequisite": {
+    "passed": true,
+    "procedure_id": "procedure_open_repair_invention_310ba8fcee06"
+  },
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "backward_retention": 1.0,
+          "errors": [],
+          "generation_one_promotable": true,
+          "generation_two_promotable": true,
+          "generations_completed": 2,
+          "mean_composed_actions": 3.3333333333333335,
+          "out_of_contract_abstention": true,
+          "phase59_backward_retention": 1.0,
+          "phase59_unsafe_commitments": 0,
+          "phase60_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0,
+          "verified_execution_traces": true
+        },
+        "session_id": "compound_session_017e6518a0b7acea"
+      },
+      "goal": "compound_project_repair_composition",
+      "procedure_id": "procedure_compound_project_repair_077066167290",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_open_repair_invention_310ba8fcee06",
+        "procedure_outcome_grounded_projects_f314900848fe"
+      ],
+      "steps": [
+        "load_verified_repair_skill_contracts",
+        "infer_multiple_unsatisfied_project_conditions",
+        "construct_minimal_repair_dependency_graph",
+        "execute_each_private_repair_under_its_sandbox",
+        "verify_postconditions_before_next_skill",
+        "replay_protect_atomic_and_pairwise_repairs",
+        "abstain_when_no_contract_can_establish_required_fact"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_compound_project_repair_077066167290",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase61_compound_project_repair_authority"
+        },
+        "reason": "procedure_promotion:procedure_compound_project_repair_077066167290",
+        "state_hash": "8d844fb46ef640e0690cb52843cc064fde0fb6e4ade160f778666f20fef4b453"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "contracts_retained": true,
+    "phase60_tools_retained": true,
+    "relearning_episodes": 0,
+    "session_retained": true,
+    "two_generations_retained": true
+  },
+  "schema_version": "aion.hexcore.compound_project_repair.v1",
+  "sealed": {
+    "challenger_accuracy": 1.0,
+    "control_accuracy": 0.0,
+    "episodes": 54,
+    "mean_actions": 3.3333333333333335,
+    "portfolios": 3,
+    "rows": [
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_e31acc2c1141f8fb",
+        "family": "financial_document",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_0dcb962d21367f6a",
+        "family": "financial_document",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_96cc7cdd4e563e2b",
+        "family": "financial_document",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_861c721e7b69ecb3",
+        "family": "financial_document",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_fd2270117ba3869f",
+        "family": "financial_document",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_76d2adf6bca8f0a4",
+        "family": "financial_document",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_fd615cbcf3c55e30",
+        "family": "financial_document",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_03a68a8e5a739fce",
+        "family": "financial_document",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_c555497b8caebcf7",
+        "family": "financial_document",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_bfe442a6503851d9",
+        "family": "financial_document",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_aead6e5cff7e214f",
+        "family": "financial_document",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_ce6d16e75c8c6eb5",
+        "family": "financial_document",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_161b9095c0df4ea9",
+        "family": "financial_document",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_868db7d4ddfd3773",
+        "family": "financial_document",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_3cc20924fd344579",
+        "family": "financial_document",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_9adc1e80dc246cc5",
+        "family": "financial_document",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_c68b7e8df756d0c4",
+        "family": "financial_document",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_0323ecb9cf3d51d5",
+        "family": "financial_document",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_financial_results",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_bb4dbca5cad7a618",
+        "family": "scientific_chart",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_ee0d8864bc9e2832",
+        "family": "scientific_chart",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_f31d527596c57d44",
+        "family": "scientific_chart",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_7b44c7c45b1248f0",
+        "family": "scientific_chart",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_26201f44772819cb",
+        "family": "scientific_chart",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_7c286a231990c70a",
+        "family": "scientific_chart",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_0ca714de2abfe24a",
+        "family": "scientific_chart",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_3ab632aa255e28f0",
+        "family": "scientific_chart",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_18bf59dfda758c67",
+        "family": "scientific_chart",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_8b9040658ed9d5c7",
+        "family": "scientific_chart",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_7bd986791118f59a",
+        "family": "scientific_chart",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_a5f22b1430516839",
+        "family": "scientific_chart",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_edfcef6dd4a1f54a",
+        "family": "scientific_chart",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_e9e4f4486efa26c3",
+        "family": "scientific_chart",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_ef45701afd24d195",
+        "family": "scientific_chart",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_cc22f67debbe5449",
+        "family": "scientific_chart",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_2b32c6ccd1291ad3",
+        "family": "scientific_chart",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_45eb8c05393d63cd",
+        "family": "scientific_chart",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_fourier_chart",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_8403637c10d996ed",
+        "family": "software_architecture",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_d632b4cfc7164ca0",
+        "family": "software_architecture",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_58ecbcabfeda14ad",
+        "family": "software_architecture",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_74a301f3f2d1eb39",
+        "family": "software_architecture",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_107016b810850aa2",
+        "family": "software_architecture",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_dcf9875067a563e9",
+        "family": "software_architecture",
+        "mode": "revision_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_7b21869a47ba9564",
+        "family": "software_architecture",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_ac8562fcbe187d27",
+        "family": "software_architecture",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_cd282bf8d40fa5c8",
+        "family": "software_architecture",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_297322fc58bf652c",
+        "family": "software_architecture",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_24a23826be8c0e17",
+        "family": "software_architecture",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 3,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_80974f791cb3890d",
+        "family": "software_architecture",
+        "mode": "conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_744363fc1110e05a",
+        "family": "software_architecture",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_403f2464d6b6b84b",
+        "family": "software_architecture",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_601eb0d312d0379f",
+        "family": "software_architecture",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_eeb1c69ceccdf787",
+        "family": "software_architecture",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_72993051b3d6cb5b",
+        "family": "software_architecture",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      },
+      {
+        "actions": 4,
+        "challenger_success": true,
+        "control_success": false,
+        "episode_id": "compound_b5a6b7fd5118c45f",
+        "family": "software_architecture",
+        "mode": "revision_conflict_authority",
+        "plan": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "portfolio_id": "sealed_glyphos_architecture",
+        "verified_trace": true
+      }
+    ],
+    "weakest_family_accuracy": 1.0
+  }
+}

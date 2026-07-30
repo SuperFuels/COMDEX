@@ -222,6 +222,12 @@ class HexCorePersistentLearningStore:
             "project_failure_models": {},
             "project_learning_challengers": {},
             "project_learning_generations": {},
+            "invented_project_repairs": {},
+            "project_repair_invention_sessions": [],
+            "project_repair_counterexamples": [],
+            "compound_repair_contracts": {},
+            "compound_repair_generations": {},
+            "compound_repair_sessions": [],
         }
 
     def _load(self) -> Dict[str, Any]:

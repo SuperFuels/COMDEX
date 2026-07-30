@@ -201,6 +201,12 @@ from backend.modules.hexcore.open_multimodal_project_intelligence_benchmark impo
 from backend.modules.hexcore.outcome_grounded_project_learning_benchmark import (
     run_phase59_outcome_grounded_project_learning,
 )
+from backend.modules.hexcore.open_project_repair_invention_benchmark import (
+    run_phase60_open_project_repair_invention,
+)
+from backend.modules.hexcore.compound_project_repair_composition_benchmark import (
+    run_phase61_compound_project_repair_composition,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1239,6 +1245,51 @@ def test_outcome_grounded_projects_learn_repair_and_transfer(
     assert result["gate"]["unsafe_final_commitments"] == 0
     assert result["gate"]["backward_retention"] >= 0.98
     assert result["gate"]["unknown_failure_abstention"] == 1.0
+    assert result["restart"]["relearning_episodes"] == 0
+
+
+def test_open_project_repair_invention_synthesises_and_transfers(
+    tmp_path: Path,
+) -> None:
+    result = run_phase60_open_project_repair_invention(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "phase60_state.json",
+        workspace_root=tmp_path / "phase60_workspaces",
+        result_path=tmp_path / "phase60_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["repair_families_invented"] == 3
+    assert result["gate"]["mean_sealed_accuracy"] >= 0.95
+    assert result["gate"]["weakest_repair_accuracy"] >= 0.90
+    assert result["gate"]["source_identity_overlap"] == 0
+    assert result["gate"]["counterexamples_generated"] > 0
+    assert result["gate"]["malicious_opcodes_rejected"] == 1.0
+    assert result["gate"]["phase59_backward_retention"] >= 0.98
+    assert result["gate"]["phase59_unsafe_commitments"] == 0
+    assert result["gate"]["out_of_grammar_abstention"] is True
+    assert result["restart"]["relearning_tools"] == 0
+
+
+def test_compound_project_repairs_compose_and_retain_prior_skills(
+    tmp_path: Path,
+) -> None:
+    result = run_phase61_compound_project_repair_composition(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "phase61_state.json",
+        workspace_root=tmp_path / "phase61_workspaces",
+        result_path=tmp_path / "phase61_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["phase60_prerequisite"] is True
+    assert result["gate"]["generations_completed"] == 2
+    assert result["gate"]["sealed_challenger_accuracy"] >= 0.95
+    assert result["gate"]["sealed_accuracy_gain"] >= 0.50
+    assert result["gate"]["sealed_weakest_family_accuracy"] >= 0.90
+    assert result["gate"]["verified_execution_traces"] is True
+    assert result["gate"]["backward_retention"] >= 0.98
+    assert result["gate"]["phase59_backward_retention"] >= 0.98
+    assert result["gate"]["out_of_contract_abstention"] is True
+    assert result["gate"]["unsafe_side_effects"] == 0
     assert result["restart"]["relearning_episodes"] == 0
 
 
