@@ -218,6 +218,10 @@ class HexCorePersistentLearningStore:
             "open_multimodal_projects": {},
             "multimodal_schema_models": {},
             "multimodal_project_outcomes": [],
+            "project_outcome_ledger": [],
+            "project_failure_models": {},
+            "project_learning_challengers": {},
+            "project_learning_generations": {},
         }
 
     def _load(self) -> Dict[str, Any]:

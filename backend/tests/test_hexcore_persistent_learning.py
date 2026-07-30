@@ -198,6 +198,9 @@ from backend.modules.hexcore.richer_real_file_world_model_benchmark import (
 from backend.modules.hexcore.open_multimodal_project_intelligence_benchmark import (
     run_phase58_open_multimodal_projects,
 )
+from backend.modules.hexcore.outcome_grounded_project_learning_benchmark import (
+    run_phase59_outcome_grounded_project_learning,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1215,6 +1218,28 @@ def test_open_multimodal_projects_invent_schema_plan_and_verify(
     assert result["gate"]["accuracy_gain_over_cold"] >= 0.20
     assert result["gate"]["information_action_reduction"] >= 0.10
     assert result["restart"]["relearning_projects"] == 0
+
+
+def test_outcome_grounded_projects_learn_repair_and_transfer(
+    tmp_path: Path,
+) -> None:
+    result = run_phase59_outcome_grounded_project_learning(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "phase59_state.json",
+        workspace_root=tmp_path / "phase59_workspaces",
+        result_path=tmp_path / "phase59_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["source_identity_overlap"] == 0
+    assert result["gate"]["generations_completed"] == 2
+    assert result["gate"]["sealed_challenger_accuracy"] >= 0.90
+    assert result["gate"]["sealed_accuracy_gain"] >= 0.30
+    assert result["gate"]["sealed_weakest_family_accuracy"] >= 0.85
+    assert result["gate"]["sealed_diagnosis_accuracy"] >= 0.90
+    assert result["gate"]["unsafe_final_commitments"] == 0
+    assert result["gate"]["backward_retention"] >= 0.98
+    assert result["gate"]["unknown_failure_abstention"] == 1.0
+    assert result["restart"]["relearning_episodes"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
