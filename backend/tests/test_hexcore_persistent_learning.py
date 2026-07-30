@@ -195,6 +195,9 @@ from backend.modules.hexcore.real_file_long_horizon_project_benchmark import (
 from backend.modules.hexcore.richer_real_file_world_model_benchmark import (
     run_phase57_richer_world_models,
 )
+from backend.modules.hexcore.open_multimodal_project_intelligence_benchmark import (
+    run_phase58_open_multimodal_projects,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1191,6 +1194,27 @@ def test_richer_world_model_predicts_revisions_and_criticises_novelty(
     assert result["gate"]["competing_models_retained"] >= 2
     assert result["gate"]["cost_reduction_vs_cold"] >= 0.15
     assert result["restart"]["relearning_events"] == 0
+
+
+def test_open_multimodal_projects_invent_schema_plan_and_verify(
+    tmp_path: Path,
+) -> None:
+    result = run_phase58_open_multimodal_projects(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "phase58_state.json",
+        workspace_root=tmp_path / "phase58_workspaces",
+        result_path=tmp_path / "phase58_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["broad_goal_only"] is True
+    assert result["gate"]["project_completion"] >= 0.90
+    assert result["gate"]["weakest_family_accuracy"] >= 0.85
+    assert result["gate"]["schema_invention"] == 1.0
+    assert result["gate"]["goal_graph_construction"] == 1.0
+    assert result["gate"]["unsafe_knowledge_commitments"] == 0
+    assert result["gate"]["accuracy_gain_over_cold"] >= 0.20
+    assert result["gate"]["information_action_reduction"] >= 0.10
+    assert result["restart"]["relearning_projects"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

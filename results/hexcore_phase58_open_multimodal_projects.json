@@ -1,0 +1,456 @@
+{
+  "boundary": "Phase 58 receives broad goals and real multimodal folders without a supplied workflow, entity list or dependency graph. It invents a bounded evidence schema and plan, but file parsers, candidate semantic features, portfolio selection, revision controller and independent oracle remain engineered. This is not unrestricted vision, arbitrary document understanding or AGI.",
+  "created_at": "2026-07-30T17:47:14.129386+00:00",
+  "development": {
+    "learned_relation_kinds": [
+      [
+        "document",
+        "executable_code"
+      ],
+      [
+        "document",
+        "structured_configuration"
+      ],
+      [
+        "executable_code",
+        "structured_configuration"
+      ],
+      [
+        "natural_chart_or_image",
+        "numeric_table"
+      ]
+    ],
+    "portfolios": 3,
+    "schema_model_id": "multimodal_schema_032957e513e06eb5"
+  },
+  "gate": {
+    "accepted": true,
+    "accuracy_gain_over_cold": 0.6666666666666666,
+    "broad_goal_only": true,
+    "changed_evidence_detection": 1.0,
+    "cold_control_accuracy": 0.3333333333333333,
+    "cold_information_actions": 10,
+    "contradiction_detection": 1.0,
+    "errors": [],
+    "goal_graph_construction": 1.0,
+    "information_action_reduction": 0.19999999999999996,
+    "learned_information_actions": 8,
+    "natural_modalities": [
+      "executable_code",
+      "natural_chart_or_image",
+      "numeric_table",
+      "paginated_document",
+      "structured_configuration"
+    ],
+    "original_repository_files_mutated": false,
+    "project_completion": 1.0,
+    "provenance_completeness": 1.0,
+    "restart_recovery": 1.0,
+    "schema_invention": 1.0,
+    "sealed_portfolios": 3,
+    "unsafe_knowledge_commitments": 0,
+    "weakest_family_accuracy": 1.0
+  },
+  "passed": true,
+  "phase": 58,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase58_sealed_open_multimodal",
+        "gate": {
+          "accepted": true,
+          "accuracy_gain_over_cold": 0.6666666666666666,
+          "broad_goal_only": true,
+          "changed_evidence_detection": 1.0,
+          "cold_control_accuracy": 0.3333333333333333,
+          "cold_information_actions": 10,
+          "contradiction_detection": 1.0,
+          "errors": [],
+          "goal_graph_construction": 1.0,
+          "information_action_reduction": 0.19999999999999996,
+          "learned_information_actions": 8,
+          "natural_modalities": [
+            "executable_code",
+            "natural_chart_or_image",
+            "numeric_table",
+            "paginated_document",
+            "structured_configuration"
+          ],
+          "original_repository_files_mutated": false,
+          "project_completion": 1.0,
+          "provenance_completeness": 1.0,
+          "restart_recovery": 1.0,
+          "schema_invention": 1.0,
+          "sealed_portfolios": 3,
+          "unsafe_knowledge_commitments": 0,
+          "weakest_family_accuracy": 1.0
+        }
+      },
+      "goal": "open_multimodal_project_intelligence",
+      "procedure_id": "procedure_open_multimodal_projects_3cbe82ceb6c9",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.6666666666666665,
+      "source_rules": [
+        "procedure_real_file_projects_3aff718b5c0d",
+        "procedure_richer_world_model_0d316f0f69ad"
+      ],
+      "steps": [
+        "interpret_broad_goal_without_supplied_workflow",
+        "discover_natural_multimodal_sources",
+        "invent_fields_relations_and_success_criteria",
+        "construct_information_and_verification_graph",
+        "cross_check_visual_numeric_document_and_code_evidence",
+        "detect_changed_evidence_and_revise",
+        "abstain_on_unresolved_cross_modal_conflict",
+        "independently_recompute_outcome"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_open_multimodal_projects_3cbe82ceb6c9",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase58_open_multimodal_project_authority"
+        },
+        "reason": "procedure_promotion:procedure_open_multimodal_projects_3cbe82ceb6c9",
+        "state_hash": "cec886fd505a155e803390ce23dcecd54bf9162a4ac0d9b51f0d9d3756a8017a"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "all_projects_retained": true,
+    "champion_retained": true,
+    "relearning_projects": 0,
+    "schema_model_retained": true
+  },
+  "schema_version": "aion.hexcore.open_multimodal_projects.v1",
+  "sealed": {
+    "portfolios": 3,
+    "rows": [
+      {
+        "cold_correct": true,
+        "cold_information_actions": 1,
+        "contradiction_detected": true,
+        "correct": true,
+        "family": "financial_document",
+        "goal_graph_constructed": true,
+        "learned_information_actions": 1,
+        "no_workflow_supplied": true,
+        "outcome": {
+          "answer": "both_declined",
+          "contradictions": [],
+          "decision": "supported",
+          "evidence": [
+            {
+              "end": 400,
+              "exact_text": "Revenue \u00a3798.4m \u00a3898.0m -11.1%",
+              "source_id": "source_bcd0b2707bc0109c",
+              "start": 370
+            },
+            {
+              "end": 487,
+              "exact_text": "Operating profit \u00a32.1m \u00a328.4m -92.5%",
+              "source_id": "source_bcd0b2707bc0109c",
+              "start": 451
+            }
+          ],
+          "figures": {
+            "operating_profit": {
+              "current": 2.1,
+              "prior": 28.4,
+              "reported_change_percent": -92.5
+            },
+            "revenue": {
+              "current": 798.4,
+              "prior": 898.0,
+              "reported_change_percent": -11.1
+            }
+          },
+          "verified_by": "independent_numeric_comparison"
+        },
+        "portfolio_id": "sealed_financial_results",
+        "provenance_complete": true,
+        "restart_recovered": true,
+        "revision_detected": true,
+        "schema": {
+          "invented_fields": [
+            "document_revision",
+            "page_location",
+            "reported_claim"
+          ],
+          "invented_relationships": [
+            {
+              "relation": "grounds",
+              "source": "source_bcd0b2707bc0109c",
+              "target": "evidence:paginated_document"
+            }
+          ],
+          "schema_id": "invented_schema_ec340dc6ce2fec37",
+          "source_kinds": {
+            "paginated_document": 1
+          },
+          "success_criteria": [
+            "every accepted conclusion has a checksum-bound source",
+            "contradictions remain explicit until resolved",
+            "reported statements are not silently marked verified",
+            "compare current and prior financial values"
+          ],
+          "supplied_dependency_graph": false,
+          "supplied_entity_list": false,
+          "supplied_transition_grammar": false,
+          "supplied_workflow": false
+        },
+        "schema_invented": true,
+        "unsafe_knowledge_commitments": 0
+      },
+      {
+        "cold_correct": false,
+        "cold_information_actions": 3,
+        "contradiction_detected": true,
+        "correct": true,
+        "family": "scientific_chart",
+        "goal_graph_constructed": true,
+        "learned_information_actions": 3,
+        "no_workflow_supplied": true,
+        "outcome": {
+          "answer": "inconsistent",
+          "contradictions": [
+            "insufficient_cross_modal_series",
+            "numeric_visual_rank_mismatch"
+          ],
+          "decision": "abstain",
+          "evidence": [
+            {
+              "sha256": "d2a53bd492b794752396af0111a8b904867735449e31e085f662064758bfa566",
+              "source_id": "source_d2a53bd492b79475"
+            },
+            {
+              "sha256": "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d",
+              "source_id": "source_ac92585cb1ee32f6"
+            }
+          ],
+          "numeric_order": [
+            "bw_half"
+          ],
+          "verified_by": "cross_modal_series_structure",
+          "visual_named_order": [
+            "bw_half",
+            "unknown",
+            "unknown"
+          ],
+          "visual_order": [
+            [
+              31,
+              119,
+              180
+            ],
+            [
+              255,
+              127,
+              14
+            ],
+            [
+              44,
+              160,
+              44
+            ]
+          ]
+        },
+        "portfolio_id": "sealed_fourier_chart",
+        "provenance_complete": true,
+        "restart_recovered": true,
+        "revision_detected": true,
+        "schema": {
+          "invented_fields": [
+            "series:bw_half",
+            "visual_ordering",
+            "visual_series"
+          ],
+          "invented_relationships": [
+            {
+              "relation": "grounds",
+              "source": "source_d2a53bd492b79475",
+              "target": "evidence:numeric_table"
+            },
+            {
+              "relation": "grounds",
+              "source": "source_ac92585cb1ee32f6",
+              "target": "evidence:natural_chart_or_image"
+            },
+            {
+              "relation": "candidate_corroboration",
+              "shared_terms": [],
+              "source": "source_d2a53bd492b79475",
+              "target": "source_ac92585cb1ee32f6"
+            }
+          ],
+          "schema_id": "invented_schema_1a0d02c7f4c656dd",
+          "source_kinds": {
+            "natural_chart_or_image": 1,
+            "numeric_table": 1
+          },
+          "success_criteria": [
+            "every accepted conclusion has a checksum-bound source",
+            "contradictions remain explicit until resolved",
+            "reported statements are not silently marked verified",
+            "compare numerical and visual series structure"
+          ],
+          "supplied_dependency_graph": false,
+          "supplied_entity_list": false,
+          "supplied_transition_grammar": false,
+          "supplied_workflow": false
+        },
+        "schema_invented": true,
+        "unsafe_knowledge_commitments": 0
+      },
+      {
+        "cold_correct": false,
+        "cold_information_actions": 6,
+        "contradiction_detected": true,
+        "correct": true,
+        "family": "software_architecture",
+        "goal_graph_constructed": true,
+        "learned_information_actions": 4,
+        "no_workflow_supplied": true,
+        "outcome": {
+          "answer": "current_and_future_separated",
+          "contradictions": [],
+          "current_corroborated_claims": [
+            {
+              "claim": "GlyphOS Architecture & Integration Overview # GlyphOS Architecture & Integration Overview ## Purpose of GlyphOS GlyphOS is the symbolic operating system powering AION's cognition, memory, logic execution, and container intelligence.",
+              "status": "corroborated",
+              "support_terms": [
+                "memory"
+              ]
+            },
+            {
+              "claim": "It manages logic flow, symbolic memory, mutation, and compression for AION's mind.",
+              "status": "corroborated",
+              "support_terms": [
+                "memory"
+              ]
+            },
+            {
+              "claim": "It bridges CodexLang, container memory, dream logic, and runtime decisions using compact, recursive glyph trees.",
+              "status": "corroborated",
+              "support_terms": [
+                "memory"
+              ]
+            }
+          ],
+          "decision": "supported",
+          "evidence": [
+            {
+              "exact_text": "GlyphOS Architecture & Integration Overview # GlyphOS Architecture & Integration Overview ## Purpose of GlyphOS GlyphOS is the symbolic operating system powering AION's cognition, memory, logic execution, and container intelligence.",
+              "source_id": "source_fae135c84dadbdd5"
+            },
+            {
+              "exact_text": "It manages logic flow, symbolic memory, mutation, and compression for AION's mind.",
+              "source_id": "source_fae135c84dadbdd5"
+            },
+            {
+              "exact_text": "It bridges CodexLang, container memory, dream logic, and runtime decisions using compact, recursive glyph trees.",
+              "source_id": "source_fae135c84dadbdd5"
+            }
+          ],
+          "future_unverified_claims": [
+            "It enables: - Symbolic logic compression - Live cognition via glyphs - Mutation, dreams, and reflection - Secure transmission and decoding Future upgrades will give GlyphOS full quantum-symbolic reasoning, integrated vault encryption, and scroll-to-glyph bidirectional learning.",
+            "GlyphOS Architecture & Integration Overview --- For maintainers or new developers: This system replaces conventional logic, CPU ops, and code with a recursive symbolic mind rooted in glyphs.",
+            "Learn the glyphs.",
+            "Trace the trees.",
+            "The mind emerges from the pattern."
+          ],
+          "verified_by": "document_configuration_code_corroboration"
+        },
+        "portfolio_id": "sealed_glyphos_architecture",
+        "provenance_complete": true,
+        "restart_recovered": true,
+        "revision_detected": true,
+        "schema": {
+          "invented_fields": [
+            "active_rule",
+            "configured_authority",
+            "document_revision",
+            "executable_control",
+            "implemented_symbol",
+            "page_location",
+            "reported_claim"
+          ],
+          "invented_relationships": [
+            {
+              "relation": "grounds",
+              "source": "source_fae135c84dadbdd5",
+              "target": "evidence:paginated_document"
+            },
+            {
+              "relation": "grounds",
+              "source": "source_5f742064a6f9f912",
+              "target": "evidence:structured_configuration"
+            },
+            {
+              "relation": "grounds",
+              "source": "source_842427c611cc7243",
+              "target": "evidence:executable_code"
+            },
+            {
+              "relation": "candidate_corroboration",
+              "shared_terms": [
+                "aion",
+                "for",
+                "from",
+                "future",
+                "glyph",
+                "glyphs",
+                "integration",
+                "memory",
+                "not",
+                "the",
+                "this",
+                "upgrades"
+              ],
+              "source": "source_fae135c84dadbdd5",
+              "target": "source_842427c611cc7243"
+            },
+            {
+              "relation": "candidate_corroboration",
+              "shared_terms": [
+                "aion",
+                "for",
+                "name",
+                "parent",
+                "true"
+              ],
+              "source": "source_5f742064a6f9f912",
+              "target": "source_842427c611cc7243"
+            }
+          ],
+          "schema_id": "invented_schema_6a5842a41b7d84b2",
+          "source_kinds": {
+            "executable_code": 1,
+            "paginated_document": 1,
+            "structured_configuration": 1
+          },
+          "success_criteria": [
+            "every accepted conclusion has a checksum-bound source",
+            "contradictions remain explicit until resolved",
+            "reported statements are not silently marked verified",
+            "separate current implementation from future aspiration"
+          ],
+          "supplied_dependency_graph": false,
+          "supplied_entity_list": false,
+          "supplied_transition_grammar": false,
+          "supplied_workflow": false
+        },
+        "schema_invented": true,
+        "unsafe_knowledge_commitments": 0
+      }
+    ]
+  }
+}

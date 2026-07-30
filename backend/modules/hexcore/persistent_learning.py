@@ -215,6 +215,9 @@ class HexCorePersistentLearningStore:
             "real_file_projects": {},
             "relational_world_models": {},
             "world_model_sessions": {},
+            "open_multimodal_projects": {},
+            "multimodal_schema_models": {},
+            "multimodal_project_outcomes": [],
         }
 
     def _load(self) -> Dict[str, Any]:
