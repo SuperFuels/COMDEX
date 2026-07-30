@@ -213,6 +213,8 @@ class HexCorePersistentLearningStore:
             "open_world_sources": {},
             "open_world_claims": {},
             "real_file_projects": {},
+            "relational_world_models": {},
+            "world_model_sessions": {},
         }
 
     def _load(self) -> Dict[str, Any]:

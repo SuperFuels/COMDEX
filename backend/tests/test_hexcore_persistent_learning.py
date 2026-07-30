@@ -192,6 +192,9 @@ from backend.modules.hexcore.recursive_photon_synthesis_benchmark import (
 from backend.modules.hexcore.real_file_long_horizon_project_benchmark import (
     run_phase56_real_file_projects,
 )
+from backend.modules.hexcore.richer_real_file_world_model_benchmark import (
+    run_phase57_richer_world_models,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1167,6 +1170,27 @@ def test_real_file_projects_detect_revise_resume_and_abstain(
     assert result["gate"]["conflict_safe_abstention"] is True
     assert result["gate"]["reexecution_reduction"] >= 0.20
     assert result["restart"]["relearning_projects"] == 0
+
+
+def test_richer_world_model_predicts_revisions_and_criticises_novelty(
+    tmp_path: Path,
+) -> None:
+    result = run_phase57_richer_world_models(
+        repo_root=Path("/Users/kevinrobinson/dev/COMDEX"),
+        state_path=tmp_path / "phase57_state.json",
+        workspace_root=tmp_path / "phase57_workspaces",
+        result_path=tmp_path / "phase57_result.json",
+        development_phases=(48, 49, 50),
+        sealed_phases=(53, 54, 55, 56),
+    )
+    assert result["passed"] is True
+    assert result["gate"]["withheld_event_accuracy"] >= 0.90
+    assert result["gate"]["weakest_family_accuracy"] >= 0.85
+    assert result["gate"]["novel_event_criticism"] == 1.0
+    assert result["gate"]["unsafe_novel_event_forcing"] == 0
+    assert result["gate"]["competing_models_retained"] >= 2
+    assert result["gate"]["cost_reduction_vs_cold"] >= 0.15
+    assert result["restart"]["relearning_events"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

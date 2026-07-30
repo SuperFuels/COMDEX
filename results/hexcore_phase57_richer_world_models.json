@@ -1,0 +1,400 @@
+{
+  "boundary": "Phase 57 learns a lifted dependency/revision model from real-file project events, predicts withheld events on unseen topologies and criticises an out-of-family event. Entity roles, candidate operator grammar, dependency graphs, revision controller and correctness oracle remain engineered. It is not unrestricted world modelling or autonomous causal discovery from raw reality.",
+  "created_at": "2026-07-30T17:02:52.715665+00:00",
+  "gate": {
+    "accepted": true,
+    "candidate_models_compared": 12,
+    "cold_reexecution_cost": 26,
+    "competing_models_retained": 3,
+    "cost_reduction_vs_cold": 0.23076923076923073,
+    "development_projects": 5,
+    "errors": [],
+    "learned_reexecution_cost": 20,
+    "novel_event_criticism": 1.0,
+    "original_repository_files_mutated": false,
+    "provenance_completeness": 1.0,
+    "sealed_projects": 4,
+    "unsafe_novel_event_forcing": 0,
+    "unseen_topologies_evaluated": 2,
+    "weakest_family_accuracy": 1.0,
+    "withheld_event_accuracy": 1.0
+  },
+  "model": {
+    "competing_models": [
+      {
+        "complexity": 5,
+        "conflict_policy": "abstain",
+        "exact_accuracy": 1.0,
+        "field_accuracy": 1.0,
+        "invalidation_operator": "transitive",
+        "model_id": "world_model_df26dab2510e",
+        "posterior": 0.7128115629160634
+      },
+      {
+        "complexity": 5,
+        "conflict_policy": "rebuild",
+        "exact_accuracy": 0.8235294117647058,
+        "field_accuracy": 0.9117647058823529,
+        "invalidation_operator": "transitive",
+        "model_id": "world_model_345471ab2e4c",
+        "posterior": 0.17372131754958112
+      },
+      {
+        "complexity": 4,
+        "conflict_policy": "ignore",
+        "exact_accuracy": 0.7058823529411765,
+        "field_accuracy": 0.8529411764705882,
+        "invalidation_operator": "transitive",
+        "model_id": "world_model_4ede59775854",
+        "posterior": 0.06984481981401816
+      }
+    ],
+    "complexity": 5,
+    "conflict_policy": "abstain",
+    "created_at": "2026-07-30T17:02:52.711098+00:00",
+    "development_exact_accuracy": 1.0,
+    "development_field_accuracy": 1.0,
+    "invalidation_operator": "transitive",
+    "model_id": "world_model_df26dab2510e",
+    "posterior": 0.7128115629160634,
+    "schema_version": "aion.hexcore.relational_world_model.v1",
+    "source_projects": [
+      "development_world_model_phase_48",
+      "development_world_model_phase_49",
+      "development_world_model_phase_50",
+      "development_world_model_phase_51",
+      "development_world_model_phase_52"
+    ]
+  },
+  "passed": true,
+  "phase": 57,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase57_sealed_world_models",
+        "gate": {
+          "accepted": true,
+          "candidate_models_compared": 12,
+          "cold_reexecution_cost": 26,
+          "competing_models_retained": 3,
+          "cost_reduction_vs_cold": 0.23076923076923073,
+          "development_projects": 5,
+          "errors": [],
+          "learned_reexecution_cost": 20,
+          "novel_event_criticism": 1.0,
+          "original_repository_files_mutated": false,
+          "provenance_completeness": 1.0,
+          "sealed_projects": 4,
+          "unsafe_novel_event_forcing": 0,
+          "unseen_topologies_evaluated": 2,
+          "weakest_family_accuracy": 1.0,
+          "withheld_event_accuracy": 1.0
+        }
+      },
+      "goal": "richer_real_file_world_model_learning",
+      "procedure_id": "procedure_richer_world_model_0d316f0f69ad",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.2307692307692308,
+      "source_rules": [
+        "procedure_real_file_projects_3aff718b5c0d"
+      ],
+      "steps": [
+        "infer_typed_entities_from_real_project_sources",
+        "compare_competing_relational_transition_models",
+        "retain_posterior_uncertainty",
+        "predict_withheld_revision_and_reconciliation_events",
+        "criticise_events_outside_model_family",
+        "minimise_reexecution_with_dependency_dynamics",
+        "persist_model_sessions_and_provenance"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_richer_world_model_0d316f0f69ad",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase57_relational_world_model_authority"
+        },
+        "reason": "procedure_promotion:procedure_richer_world_model_0d316f0f69ad",
+        "state_hash": "641f5633ce6c331d25cb5861f109e3fdbb1bdeb7c4d790729c8c5742b265c34d"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "all_sessions_retained": true,
+    "champion_retained": true,
+    "model_retained": true,
+    "relearning_events": 0
+  },
+  "schema_version": "aion.hexcore.richer_world_models.v1",
+  "sealed": {
+    "phases": [
+      53,
+      54,
+      55,
+      56
+    ],
+    "projects": 4,
+    "rows": [
+      {
+        "all_withheld_events_exact": true,
+        "cold_reexecution_cost": 7,
+        "family": "blind_evaluation",
+        "learned_reexecution_cost": 5,
+        "novel_event": {
+          "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+          "invalidated": [],
+          "model_adequate": false,
+          "project_state": "abstained"
+        },
+        "novel_event_safely_criticised": true,
+        "phase": 53,
+        "project_id": "sealed_world_model_phase_53",
+        "provenance_complete": true,
+        "reconcile_exact": true,
+        "revision_exact": true,
+        "source_revision": {
+          "after_sha256": "d49f6be6826add3f954e0ddf59895394d9bc2b9f399d29576e78731517df8d36",
+          "before_sha256": "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+          "changed": true,
+          "path": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_53/policy_governance_config.yaml",
+          "source_role": "policy"
+        },
+        "source_roles": [
+          "policy",
+          "report",
+          "result"
+        ],
+        "withheld_reconcile_event": "reconcile_confirmed",
+        "withheld_reconcile_expected": {
+          "invalidated": [],
+          "project_state": "ready_for_verification"
+        },
+        "withheld_reconcile_prediction": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "ready_for_verification"
+        },
+        "withheld_revision_expected": {
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt"
+          ],
+          "project_state": "revision_required"
+        },
+        "withheld_revision_prediction": {
+          "criticism": null,
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      },
+      {
+        "all_withheld_events_exact": true,
+        "cold_reexecution_cost": 6,
+        "family": "open_world_ingestion",
+        "learned_reexecution_cost": 4,
+        "novel_event": {
+          "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+          "invalidated": [],
+          "model_adequate": false,
+          "project_state": "abstained"
+        },
+        "novel_event_safely_criticised": true,
+        "phase": 54,
+        "project_id": "sealed_world_model_phase_54",
+        "provenance_complete": true,
+        "reconcile_exact": true,
+        "revision_exact": true,
+        "source_revision": {
+          "after_sha256": "f7be7c51257e3cdf899c11fde7bad33cd3417aa12963ade62f43099de668d21e",
+          "before_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "changed": true,
+          "path": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_54/report_HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+          "source_role": "report"
+        },
+        "source_roles": [
+          "policy",
+          "report",
+          "result"
+        ],
+        "withheld_reconcile_event": "reconcile_confirmed",
+        "withheld_reconcile_expected": {
+          "invalidated": [],
+          "project_state": "ready_for_verification"
+        },
+        "withheld_reconcile_prediction": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "ready_for_verification"
+        },
+        "withheld_revision_expected": {
+          "invalidated": [
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "project_state": "revision_required"
+        },
+        "withheld_revision_prediction": {
+          "criticism": null,
+          "invalidated": [
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      },
+      {
+        "all_withheld_events_exact": true,
+        "cold_reexecution_cost": 7,
+        "family": "recursive_synthesis",
+        "learned_reexecution_cost": 7,
+        "novel_event": {
+          "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+          "invalidated": [],
+          "model_adequate": false,
+          "project_state": "abstained"
+        },
+        "novel_event_safely_criticised": true,
+        "phase": 55,
+        "project_id": "sealed_world_model_phase_55",
+        "provenance_complete": true,
+        "reconcile_exact": true,
+        "revision_exact": true,
+        "source_revision": {
+          "after_sha256": "2b6fdfb34cc91680e0dbfc77aae7dcd4dc365e7c9319bdbff428ae01aae010dc",
+          "before_sha256": "2831304347d08149993d94d185dd8f690553aaf64a62f2edfb3474c77d21d7e4",
+          "changed": true,
+          "path": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_55/result_hexcore_phase55_recursive_photon.json",
+          "source_role": "result"
+        },
+        "source_roles": [
+          "policy",
+          "report",
+          "result"
+        ],
+        "withheld_reconcile_event": "reconcile_conflict",
+        "withheld_reconcile_expected": {
+          "invalidated": [],
+          "project_state": "abstained"
+        },
+        "withheld_reconcile_prediction": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "abstained"
+        },
+        "withheld_revision_expected": {
+          "invalidated": [
+            "authority_check",
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt",
+            "status_projection"
+          ],
+          "project_state": "revision_required"
+        },
+        "withheld_revision_prediction": {
+          "criticism": null,
+          "invalidated": [
+            "authority_check",
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt",
+            "status_projection"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      },
+      {
+        "all_withheld_events_exact": true,
+        "cold_reexecution_cost": 6,
+        "family": "real_file_projects",
+        "learned_reexecution_cost": 4,
+        "novel_event": {
+          "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+          "invalidated": [],
+          "model_adequate": false,
+          "project_state": "abstained"
+        },
+        "novel_event_safely_criticised": true,
+        "phase": 56,
+        "project_id": "sealed_world_model_phase_56",
+        "provenance_complete": true,
+        "reconcile_exact": true,
+        "revision_exact": true,
+        "source_revision": {
+          "after_sha256": "d49f6be6826add3f954e0ddf59895394d9bc2b9f399d29576e78731517df8d36",
+          "before_sha256": "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+          "changed": true,
+          "path": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_56/policy_governance_config.yaml",
+          "source_role": "policy"
+        },
+        "source_roles": [
+          "policy",
+          "report",
+          "result"
+        ],
+        "withheld_reconcile_event": "reconcile_confirmed",
+        "withheld_reconcile_expected": {
+          "invalidated": [],
+          "project_state": "ready_for_verification"
+        },
+        "withheld_reconcile_prediction": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "ready_for_verification"
+        },
+        "withheld_revision_expected": {
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "project_state": "revision_required"
+        },
+        "withheld_revision_prediction": {
+          "criticism": null,
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      }
+    ]
+  }
+}
