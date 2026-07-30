@@ -14,11 +14,11 @@ The next objective is not to add more impressive-looking isolated demonstrations
 |---|---|---|
 | Broad natural-language understanding | Natural document and open-schema phases exist; native 150M continuation did not pass all protected gates; Gemma/OpenAI remain replaceable language substrates | Partial; major bottleneck |
 | Open-ended knowledge ingestion | Provenance, contradictions, revisions, executable knowledge and natural-document projects exist | Substantial bounded capability; arbitrary media not solved |
-| Domain-general reasoning | Strong causal, planning, program and document benchmarks; no large human-authored multi-domain arena yet | Partial |
+| Domain-general reasoning | Phase 46 V1 now unifies 2,040 executable mathematics, logic, evidence, causal, planning and tool-routing tasks; strong causal, program and document benchmarks also exist | Substantial procedural evidence; large human-authored and creative arenas remain open |
 | Autonomous project decomposition | Phase 42 V2 now creates subgoals, dependencies, information requirements, approvals and verification strategies from broad outcomes and shuffled capability contracts; persistent workspaces and Phase 48 revision control also exist | Strong bounded success; arbitrary goals, hundreds of subgoals and external systems remain open |
 | Tool and experiment invention | Primitive invention, experiment-policy learning, Phase 47 Photon numeric tool invention | Bounded success; unrestricted APIs/code not solved |
 | Commonsense and social intelligence | No credible broad benchmark or preference-governed social model | Open |
-| Lifelong learning without forgetting | Governed challenger cycles, retention tests, reversible neural generations and persistent skill memory | Strong bounded evidence; thousands of unrelated tasks not tested |
+| Lifelong learning without forgetting | Phase 46 V1 completed three cumulative generations across 2,040 tasks with zero measured forgetting; governed challenger cycles, reversible neural generations and persistent skill memory also exist | Strong bounded evidence; long-running human-authored streams remain open |
 | Stronger native cognitive foundation | 150M model retained; FineWeb continuations rejected when protected skills regressed | Open; pretrained 500M--3B integration is preferred next |
 | Real-world grounding and external evaluation | Phase 45 now combines text, table, pixel-image and software-state evidence with GlyphChain commitments; independent reference implementations and source-disjoint simulators also exist | Substantial bounded grounding; general vision/audio, live sensors and external organizations remain open |
 
@@ -35,7 +35,7 @@ The next objective is not to add more impressive-looking isolated demonstrations
 ### Track B — Foundational breakthroughs
 
 1. **Stronger replaceable substrate.** Integrate a pretrained open 500M--3B encoder/decoder behind the existing HexCore interfaces. Do not transfer authority to it.
-2. **Large continual-learning arena.** Begin with 1,000 source-tracked tasks across reading, mathematics, code, causal discovery, planning, science, creative work and tool use. Expand only after contamination and forgetting audits pass.
+2. **Continual arena V2.** Add human-authored reading, code, science and creative tasks to the procedural 2,040-task V1 arena. Expand only after contamination and forgetting audits pass.
 3. **General tool invention.** Move from the bounded numeric Photon subset to typed, resource-limited Photon programs with property tests, counterexample generation and rollback.
 4. **Learned experiment invention.** Let AION design new measurements and simulators, not merely choose from supplied interventions.
 5. **Independent external evaluation.** Freeze interfaces and task-generation code, then invite evaluators who did not design the benchmarks.
@@ -66,6 +66,6 @@ The present system shows genuine bounded learning mechanisms, including accumula
 | 43 — Tool and experiment invention | **Bounded V1 promoted.** Four restricted Photon numeric tools transferred exactly; unsafe capsules were rejected. Earlier causal phases also learned experiment policies. | General typed Photon programs, counterexample-guided synthesis, richer APIs and truly novel experiment construction. |
 | 44 — Long-horizon project intelligence | **Bounded V1 promoted.** Forty-eight projects survived three forced restarts, rule changes and plan revision. | Real elapsed time, live external changes, resource contention, multi-user approvals and large project graphs. |
 | 45 — Multimodal world grounding | **Bounded V1 promoted.** AION grounded 140 decisions across actual text, CSV, pixel-image and JSON software-state artifacts, with exact contradiction handling and verified GlyphChain evidence commitments. | Natural images, audio, video, live sensors, learned cross-modal alignment and independently collected media. |
-| 46 — Large continual-learning arena | **Next phase.** Many separate tests exist, but no thousand-task mixed human/procedural arena. | Build contamination-controlled task registry, generation cycles, retention matrix and fresh sealed cohorts. |
-| 47 — Stronger native cognitive foundation | **Open.** The 150M model remains protected; FineWeb continuation was rejected when protected tasks regressed. | Integrate and compare replaceable pretrained 500M--3B models behind HexCore interfaces. |
+| 46 — Large continual-learning arena | **Procedural V1 promoted.** Three generations trained on 1,200 development tasks and were tested across 480 sealed, 240 external and 120 OOD tasks. Final attempt reduction was 84.46% with 100% accuracy and zero measured forgetting. | Add contamination-controlled human-authored reading, code, science, social and creative tasks with suitable authorities. |
+| 47 — Stronger native cognitive foundation | **Next phase.** The 150M model remains protected; FineWeb continuation was rejected when protected tasks regressed. | Integrate and compare replaceable pretrained 500M--3B models behind HexCore interfaces. |
 | 48 — External evaluation | **Open.** Current external-symbol/reference paths remain internally authored. | Independent task authors, frozen protocols, frontier/agent/human baselines and third-party reproduction. |

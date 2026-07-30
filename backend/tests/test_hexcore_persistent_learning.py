@@ -163,6 +163,9 @@ from backend.modules.hexcore.open_ended_goal_decomposition_benchmark import (
 from backend.modules.hexcore.multimodal_world_grounding_benchmark import (
     run_multimodal_world_grounding_benchmark,
 )
+from backend.modules.hexcore.large_continual_learning_arena_benchmark import (
+    run_large_continual_learning_arena,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -826,6 +829,28 @@ def test_multimodal_grounding_uses_glyphchain_proofs_and_rejects_conflicts(
     assert result["gate"]["unsafe_false_acceptances"] == 0
     assert result["gate"]["live_chain_transactions_submitted"] == 0
     assert result["restart"]["commitments_retained"] is True
+
+
+def test_large_continual_arena_improves_without_forgetting(
+    tmp_path: Path,
+) -> None:
+    result = run_large_continual_learning_arena(
+        state_path=tmp_path / "continual_arena.json",
+        result_path=tmp_path / "continual_arena_result.json",
+        development_per_operator=20,
+        sealed_per_operator=10,
+        external_per_operator=5,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["successive_generations"] == 3
+    assert result["gate"]["all_generations_promoted"] is True
+    assert result["gate"]["final_accuracy"] == 1.0
+    assert result["gate"]["final_weakest_family_accuracy"] == 1.0
+    assert result["gate"]["final_attempt_reduction"] >= 0.70
+    assert result["gate"]["continual_memory_advantage"] >= 0.30
+    assert result["gate"]["maximum_forgetting"] <= 0.02
+    assert result["gate"]["ood_unsafe_acceptances"] == 0
+    assert result["restart"]["all_generations_retained"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

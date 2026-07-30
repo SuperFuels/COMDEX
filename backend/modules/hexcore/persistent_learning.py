@@ -197,6 +197,8 @@ class HexCorePersistentLearningStore:
             "autonomous_goal_decompositions": {},
             "multimodal_evidence_projects": {},
             "glyphchain_evidence_commitments": {},
+            "continual_arena_generations": {},
+            "continual_arena_outcomes": [],
         }
 
     def _load(self) -> Dict[str, Any]:
