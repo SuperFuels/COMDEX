@@ -199,6 +199,8 @@ class HexCorePersistentLearningStore:
             "glyphchain_evidence_commitments": {},
             "continual_arena_generations": {},
             "continual_arena_outcomes": [],
+            "foundation_substrate_evaluations": {},
+            "provider_substrate_registry": {},
         }
 
     def _load(self) -> Dict[str, Any]:

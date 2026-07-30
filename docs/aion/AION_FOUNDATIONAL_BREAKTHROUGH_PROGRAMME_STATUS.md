@@ -12,14 +12,14 @@ The next objective is not to add more impressive-looking isolated demonstrations
 
 | Foundational target | Current evidence | Status |
 |---|---|---|
-| Broad natural-language understanding | Natural document and open-schema phases exist; native 150M continuation did not pass all protected gates; Gemma/OpenAI remain replaceable language substrates | Partial; major bottleneck |
+| Broad natural-language understanding | Phase 47 V1 integrated frozen local Gemma 5.1B and improved source-disjoint natural-paraphrase procedure proposals from 8.33% to 90.97%; natural document and open-schema phases also exist | Strong substrate signal, but broad reading, discourse, generation and independent language tasks remain open |
 | Open-ended knowledge ingestion | Provenance, contradictions, revisions, executable knowledge and natural-document projects exist | Substantial bounded capability; arbitrary media not solved |
 | Domain-general reasoning | Phase 46 V1 now unifies 2,040 executable mathematics, logic, evidence, causal, planning and tool-routing tasks; strong causal, program and document benchmarks also exist | Substantial procedural evidence; large human-authored and creative arenas remain open |
 | Autonomous project decomposition | Phase 42 V2 now creates subgoals, dependencies, information requirements, approvals and verification strategies from broad outcomes and shuffled capability contracts; persistent workspaces and Phase 48 revision control also exist | Strong bounded success; arbitrary goals, hundreds of subgoals and external systems remain open |
 | Tool and experiment invention | Primitive invention, experiment-policy learning, Phase 47 Photon numeric tool invention | Bounded success; unrestricted APIs/code not solved |
 | Commonsense and social intelligence | No credible broad benchmark or preference-governed social model | Open |
 | Lifelong learning without forgetting | Phase 46 V1 completed three cumulative generations across 2,040 tasks with zero measured forgetting; governed challenger cycles, reversible neural generations and persistent skill memory also exist | Strong bounded evidence; long-running human-authored streams remain open |
-| Stronger native cognitive foundation | 150M model retained; FineWeb continuations rejected when protected skills regressed | Open; pretrained 500M--3B integration is preferred next |
+| Stronger native cognitive foundation | Frozen, replaceable local Gemma 5.1B is now integrated behind HexCore; the protected 150M model remains retained and FineWeb regressions remain rejected | Bounded V1 integration complete; broader transfer, adaptation and AION-native consolidation remain |
 | Real-world grounding and external evaluation | Phase 45 now combines text, table, pixel-image and software-state evidence with GlyphChain commitments; independent reference implementations and source-disjoint simulators also exist | Substantial bounded grounding; general vision/audio, live sensors and external organizations remain open |
 
 ## Execution order
@@ -34,7 +34,7 @@ The next objective is not to add more impressive-looking isolated demonstrations
 
 ### Track B — Foundational breakthroughs
 
-1. **Stronger replaceable substrate.** Integrate a pretrained open 500M--3B encoder/decoder behind the existing HexCore interfaces. Do not transfer authority to it.
+1. **Stronger substrate V2.** Extend the frozen Gemma 5.1B integration from procedure classification to natural-document reading, open-schema extraction, multimodal proposals and verified generation. Do not transfer authority to it.
 2. **Continual arena V2.** Add human-authored reading, code, science and creative tasks to the procedural 2,040-task V1 arena. Expand only after contamination and forgetting audits pass.
 3. **General tool invention.** Move from the bounded numeric Photon subset to typed, resource-limited Photon programs with property tests, counterexample generation and rollback.
 4. **Learned experiment invention.** Let AION design new measurements and simulators, not merely choose from supplied interventions.
@@ -67,5 +67,5 @@ The present system shows genuine bounded learning mechanisms, including accumula
 | 44 — Long-horizon project intelligence | **Bounded V1 promoted.** Forty-eight projects survived three forced restarts, rule changes and plan revision. | Real elapsed time, live external changes, resource contention, multi-user approvals and large project graphs. |
 | 45 — Multimodal world grounding | **Bounded V1 promoted.** AION grounded 140 decisions across actual text, CSV, pixel-image and JSON software-state artifacts, with exact contradiction handling and verified GlyphChain evidence commitments. | Natural images, audio, video, live sensors, learned cross-modal alignment and independently collected media. |
 | 46 — Large continual-learning arena | **Procedural V1 promoted.** Three generations trained on 1,200 development tasks and were tested across 480 sealed, 240 external and 120 OOD tasks. Final attempt reduction was 84.46% with 100% accuracy and zero measured forgetting. | Add contamination-controlled human-authored reading, code, science, social and creative tasks with suitable authorities. |
-| 47 — Stronger native cognitive foundation | **Next phase.** The 150M model remains protected; FineWeb continuation was rejected when protected tasks regressed. | Integrate and compare replaceable pretrained 500M--3B models behind HexCore interfaces. |
-| 48 — External evaluation | **Open.** Current external-symbol/reference paths remain internally authored. | Independent task authors, frozen protocols, frontier/agent/human baselines and third-party reproduction. |
+| 47 — Stronger native cognitive foundation | **Bounded V1 promoted.** Frozen local Gemma 5.1B improved natural-paraphrase proposals from 8.33% to 90.97%, while HexCore preserved 100% governed and provider-disabled accuracy. | Broader reading/generation transfer, learned adapters, verified trajectory consolidation and comparison with other open backbones. |
+| 48 — External evaluation | **Next phase.** Current external-symbol/reference paths remain internally authored. | Independent task authors, frozen protocols, frontier/agent/human baselines and third-party reproduction. |

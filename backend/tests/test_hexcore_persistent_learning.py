@@ -166,6 +166,10 @@ from backend.modules.hexcore.multimodal_world_grounding_benchmark import (
 from backend.modules.hexcore.large_continual_learning_arena_benchmark import (
     run_large_continual_learning_arena,
 )
+from backend.modules.hexcore.stronger_foundation_substrate_benchmark import (
+    PARAPHRASES,
+    run_stronger_foundation_substrate_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -851,6 +855,46 @@ def test_large_continual_arena_improves_without_forgetting(
     assert result["gate"]["maximum_forgetting"] <= 0.02
     assert result["gate"]["ood_unsafe_acceptances"] == 0
     assert result["restart"]["all_generations_retained"] is True
+
+
+def test_stronger_substrate_is_replaceable_and_never_authoritative(
+    tmp_path: Path,
+) -> None:
+    labels = {
+        phrase: operator
+        for operator, phrases in PARAPHRASES.items()
+        for phrase in phrases
+    }
+
+    def provider(instruction: str) -> Dict[str, Any]:
+        label = next(
+            (
+                operator
+                for phrase, operator in labels.items()
+                if phrase in instruction
+            ),
+            "abstain",
+        )
+        return {"label": label, "latency_ms": 1.0, "cached": False}
+
+    result = run_stronger_foundation_substrate_benchmark(
+        state_path=tmp_path / "foundation_substrate.json",
+        cache_path=tmp_path / "provider_cache.json",
+        result_path=tmp_path / "foundation_substrate_result.json",
+        sealed_per_operator=2,
+        external_per_operator=1,
+        provider=provider,
+        model="deterministic_test_provider",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["substrate_proposal_accuracy"] == 1.0
+    assert result["gate"]["proposal_accuracy_gain"] >= 0.20
+    assert result["gate"]["governed_accuracy"] == 1.0
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["gate"]["ood_abstention_accuracy"] == 1.0
+    assert result["gate"]["provider_disabled_governed_accuracy"] == 1.0
+    assert result["gate"]["backbone_frozen"] is True
+    assert result["gate"]["hexcore_authority_independent"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
