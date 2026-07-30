@@ -209,6 +209,10 @@ class HexCorePersistentLearningStore:
             "multi_track_challengers": {},
             "self_improvement_generations": {},
             "neural_proposal_models": {},
+            "blind_evaluation_protocols": {},
+            "open_world_sources": {},
+            "open_world_claims": {},
+            "real_file_projects": {},
         }
 
     def _load(self) -> Dict[str, Any]:

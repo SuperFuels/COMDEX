@@ -1,0 +1,47 @@
+{
+  "schema_version": "aion.hexcore.phase53_protocol.v1",
+  "phase": 53,
+  "infrastructure_complete": true,
+  "capability_promoted": false,
+  "protocol": {
+    "schema_version": "aion.blind_external_evaluation.v1",
+    "protocol_id": "phase53_blind_external_v1",
+    "frozen_code_commit": "06208df1",
+    "accepted_families": [
+      "reading",
+      "research",
+      "mathematics",
+      "code",
+      "science",
+      "planning",
+      "causal",
+      "tool_use"
+    ],
+    "task_envelope_required": [
+      "task_id",
+      "family",
+      "payload",
+      "answer_commitment"
+    ],
+    "reveal_required": [
+      "task_id",
+      "answer",
+      "salt"
+    ],
+    "scoring_rules": {
+      "labels_hidden_until_predictions_frozen": true,
+      "commitment_must_match_reveal": true,
+      "task_authors_must_be_external": true,
+      "source_overlap_audit_required": true,
+      "mean_and_worst_family_reported": true,
+      "provider_and_tool_budgets_matched": true
+    },
+    "promotion_authority": "external_evaluator_plus_CAU",
+    "created_at": "2026-07-30T13:25:38.361618+00:00"
+  },
+  "restart": {
+    "protocol_retained": true,
+    "relearning_tasks": 0
+  },
+  "blocked_gate": "Final Phase 53 capability promotion requires sealed tasks and answer commitments supplied by an evaluator who did not develop the system. The developer process cannot self-certify independence."
+}

@@ -180,6 +180,15 @@ from backend.modules.hexcore.general_tool_self_improvement_benchmark import (
     run_phase51_general_tool_invention,
     run_phase52_continual_self_improvement,
 )
+from backend.modules.hexcore.open_world_evaluation_ingestion import (
+    _canonical_commitment,
+    freeze_phase53_protocol,
+    run_phase54_open_world_ingestion,
+    score_blind_reveal,
+)
+from backend.modules.hexcore.recursive_photon_synthesis_benchmark import (
+    run_phase55_recursive_photon_synthesis,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1062,6 +1071,78 @@ def test_general_tools_and_multitrack_self_improvement_are_governed(
     assert phase52["gate"]["independent_reversible_tracks"] == 5
     assert phase52["gate"]["symbolic_component_replacement_accuracy"] == 1.0
     assert phase52["restart"]["relearning_tasks"] == 0
+
+
+def test_blind_protocol_open_ingestion_and_recursive_photon_persist(
+    tmp_path: Path,
+) -> None:
+    phase53 = freeze_phase53_protocol(
+        state_path=tmp_path / "phase53_state.json",
+        result_path=tmp_path / "phase53.json",
+        code_commit="fixture-commit",
+    )
+    assert phase53["infrastructure_complete"] is True
+    assert phase53["capability_promoted"] is False
+    salt = "external-secret"
+    envelopes = [
+        {
+            "task_id": "task-1",
+            "family": "reading",
+            "payload": {"question": "hidden"},
+            "answer_commitment": _canonical_commitment("task-1", "yes", salt),
+        }
+    ]
+    score = score_blind_reveal(
+        {"task-1": "yes"},
+        envelopes,
+        [{"task_id": "task-1", "answer": "yes", "salt": salt}],
+    )
+    assert score["accuracy"] == 1.0
+    assert score["invalid_reveals"] == 0
+
+    sources = []
+    suffixes = (".md", ".tex", ".json", ".csv", ".pdf")
+    for index in range(10):
+        path = tmp_path / f"source_{index}{suffixes[index % len(suffixes)]}"
+        if path.suffix == ".json":
+            content = json.dumps(
+                {
+                    "phase": index,
+                    "result": f"verified result {index}",
+                    "total_accuracy": 100,
+                }
+            )
+        elif path.suffix == ".csv":
+            content = (
+                f"phase,result\n{index},verified result {index}\n"
+                f"{index + 1},total accuracy 100 percent\n"
+            )
+        else:
+            content = (
+                f"Phase {index} result is recorded.\n"
+                f"Total accuracy for phase {index} is 100 percent.\n"
+            )
+        path.write_text(content, encoding="utf-8")
+        sources.append(path)
+    phase54 = run_phase54_open_world_ingestion(
+        state_path=tmp_path / "phase54_state.json",
+        source_paths=sources,
+        result_path=tmp_path / "phase54.json",
+    )
+    assert phase54["passed"] is True
+    assert phase54["gate"]["formats"] == 5
+    assert phase54["gate"]["evidence_recoverability"] == 1.0
+    assert phase54["gate"]["reported_claims_mislabeled_as_verified"] == 0
+
+    phase55 = run_phase55_recursive_photon_synthesis(
+        state_path=tmp_path / "phase55_state.json",
+        result_path=tmp_path / "phase55.json",
+        worlds_per_arity=2,
+    )
+    assert phase55["passed"] is True
+    assert phase55["gate"]["mean_external_accuracy"] == 1.0
+    assert phase55["gate"]["out_of_grammar_abstention"] is True
+    assert phase55["restart"]["relearning_tools"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
