@@ -1,0 +1,411 @@
+{
+  "schema_version": "aion.hexcore.continual_multitrack.v1",
+  "phase": 52,
+  "passed": true,
+  "gate": {
+    "generations": 3,
+    "capability_families": 9,
+    "final_mean_accuracy": 1.0,
+    "final_weakest_family_accuracy": 1.0,
+    "final_external_accuracy": 1.0,
+    "maximum_forgetting": 0.0,
+    "ood_confidence": 0.1111111119389534,
+    "ood_safe_abstention": true,
+    "independent_reversible_tracks": 5,
+    "all_source_trajectories_verified": true,
+    "unsafe_self_modifications": 0,
+    "symbolic_component_replacement_accuracy": 1.0,
+    "accepted": true,
+    "errors": []
+  },
+  "generations": [
+    {
+      "generation": 1,
+      "new_families": [
+        "reading",
+        "research",
+        "science"
+      ],
+      "cumulative_families": [
+        "reading",
+        "research",
+        "science"
+      ],
+      "training": {
+        "generation": 1,
+        "training_examples": 216,
+        "parameters": 864,
+        "losses": [
+          {
+            "epoch": 1,
+            "loss": 2.218186616897583
+          },
+          {
+            "epoch": 25,
+            "loss": 0.0879150778055191
+          },
+          {
+            "epoch": 50,
+            "loss": 0.0028605740517377853
+          },
+          {
+            "epoch": 100,
+            "loss": 0.0013211558107286692
+          }
+        ]
+      },
+      "sealed": {
+        "accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "family_accuracy": {
+          "reading": 1.0,
+          "research": 1.0,
+          "science": 1.0
+        }
+      },
+      "external": {
+        "accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "family_accuracy": {
+          "reading": 1.0,
+          "research": 1.0,
+          "science": 1.0
+        }
+      },
+      "gate": {
+        "mean_accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "external_accuracy": 1.0,
+        "backward_forgetting": 0.0,
+        "unsafe_acceptances": 0,
+        "component_replacement_accuracy": 1.0,
+        "accepted": true,
+        "errors": []
+      },
+      "model_checksum": "68d0c9f0d4d0dd6e72062e6589fddc74503ae197371591575bd2acda3dffd426"
+    },
+    {
+      "generation": 2,
+      "new_families": [
+        "mathematics",
+        "code",
+        "tool_use"
+      ],
+      "cumulative_families": [
+        "reading",
+        "research",
+        "science",
+        "mathematics",
+        "code",
+        "tool_use"
+      ],
+      "training": {
+        "generation": 2,
+        "training_examples": 432,
+        "parameters": 864,
+        "losses": [
+          {
+            "epoch": 1,
+            "loss": 2.1854302883148193
+          },
+          {
+            "epoch": 25,
+            "loss": 0.15295475721359253
+          },
+          {
+            "epoch": 50,
+            "loss": 0.003260356606915593
+          },
+          {
+            "epoch": 100,
+            "loss": 0.0012769532622769475
+          }
+        ]
+      },
+      "sealed": {
+        "accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "family_accuracy": {
+          "reading": 1.0,
+          "research": 1.0,
+          "science": 1.0,
+          "mathematics": 1.0,
+          "code": 1.0,
+          "tool_use": 1.0
+        }
+      },
+      "external": {
+        "accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "family_accuracy": {
+          "reading": 1.0,
+          "research": 1.0,
+          "science": 1.0,
+          "mathematics": 1.0,
+          "code": 1.0,
+          "tool_use": 1.0
+        }
+      },
+      "gate": {
+        "mean_accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "external_accuracy": 1.0,
+        "backward_forgetting": 0.0,
+        "unsafe_acceptances": 0,
+        "component_replacement_accuracy": 1.0,
+        "accepted": true,
+        "errors": []
+      },
+      "model_checksum": "98fc6548e87ddfcc9d316536d2664c19e5e50a1a5fb24cc3792991c76137c1d6"
+    },
+    {
+      "generation": 3,
+      "new_families": [
+        "planning",
+        "causal_discovery",
+        "multimodal"
+      ],
+      "cumulative_families": [
+        "reading",
+        "research",
+        "science",
+        "mathematics",
+        "code",
+        "tool_use",
+        "planning",
+        "causal_discovery",
+        "multimodal"
+      ],
+      "training": {
+        "generation": 3,
+        "training_examples": 648,
+        "parameters": 864,
+        "losses": [
+          {
+            "epoch": 1,
+            "loss": 2.1955604553222656
+          },
+          {
+            "epoch": 25,
+            "loss": 0.13036499917507172
+          },
+          {
+            "epoch": 50,
+            "loss": 0.0030141144525259733
+          },
+          {
+            "epoch": 100,
+            "loss": 0.0013925485545769334
+          }
+        ]
+      },
+      "sealed": {
+        "accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "family_accuracy": {
+          "reading": 1.0,
+          "research": 1.0,
+          "science": 1.0,
+          "mathematics": 1.0,
+          "code": 1.0,
+          "tool_use": 1.0,
+          "planning": 1.0,
+          "causal_discovery": 1.0,
+          "multimodal": 1.0
+        }
+      },
+      "external": {
+        "accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "family_accuracy": {
+          "reading": 1.0,
+          "research": 1.0,
+          "science": 1.0,
+          "mathematics": 1.0,
+          "code": 1.0,
+          "tool_use": 1.0,
+          "planning": 1.0,
+          "causal_discovery": 1.0,
+          "multimodal": 1.0
+        }
+      },
+      "gate": {
+        "mean_accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "external_accuracy": 1.0,
+        "backward_forgetting": 0.0,
+        "unsafe_acceptances": 0,
+        "component_replacement_accuracy": 1.0,
+        "accepted": true,
+        "errors": []
+      },
+      "model_checksum": "14f878dc0811800032b0e939953f5a08c5e27246b7482fe84b95bdc4d2b3ce7c"
+    }
+  ],
+  "tracks": {
+    "concepts": {
+      "candidate": "external_supported_knowledge_taxonomy",
+      "evidence": {
+        "documents": 60,
+        "presence_accuracy": 0.8166666666666667,
+        "raw_exact_or_abstain_accuracy": 0.48333333333333334,
+        "verified_answer_coverage": 0.4523809523809524,
+        "accepted_precision": 1.0,
+        "unanswerable_abstention_accuracy": 0.5555555555555556,
+        "unsafe_substring_acceptances_before_authority": 19,
+        "unsafe_committed_answers": 0,
+        "provenance_completeness": 1.0,
+        "multi_document_syntheses": 9,
+        "errors": [],
+        "accepted": true
+      },
+      "private_before_gate": true,
+      "promoted": true,
+      "reversible": true,
+      "created_at": "2026-07-30T11:59:13.354282+00:00"
+    },
+    "procedures": {
+      "candidate": "autonomous_verified_project_graph",
+      "evidence": {
+        "projects": 5,
+        "project_completion": 1.0,
+        "dynamic_subgoal_graphs": 1.0,
+        "artifact_verification": 1.0,
+        "citation_completeness": 1.0,
+        "forced_restarts": 10,
+        "restart_recovery": 1.0,
+        "unsafe_external_actions": 0,
+        "errors": [],
+        "accepted": true
+      },
+      "private_before_gate": true,
+      "promoted": true,
+      "reversible": true,
+      "created_at": "2026-07-30T11:59:13.354290+00:00"
+    },
+    "experiment_policies": {
+      "candidate": "information_gain_probe_selector",
+      "evidence": {
+        "tool_families_invented": 6,
+        "sealed_accuracy": 1.0,
+        "external_accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "evaluation_reduction": 0.7142857142857143,
+        "malicious_candidates_rejected": 1.0,
+        "experiment_policy_invented": true,
+        "provenance_completeness": 1.0,
+        "unsafe_side_effects": 0,
+        "errors": [],
+        "accepted": true
+      },
+      "private_before_gate": true,
+      "promoted": true,
+      "reversible": true,
+      "created_at": "2026-07-30T11:59:13.354292+00:00"
+    },
+    "tool_programs": {
+      "candidate": "typed_general_tool_bank",
+      "evidence": {
+        "tool_families_invented": 6,
+        "sealed_accuracy": 1.0,
+        "external_accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "evaluation_reduction": 0.7142857142857143,
+        "malicious_candidates_rejected": 1.0,
+        "experiment_policy_invented": true,
+        "provenance_completeness": 1.0,
+        "unsafe_side_effects": 0,
+        "errors": [],
+        "accepted": true
+      },
+      "private_before_gate": true,
+      "promoted": true,
+      "reversible": true,
+      "created_at": "2026-07-30T11:59:13.354293+00:00"
+    },
+    "neural_proposals": {
+      "candidate": "14f878dc0811800032b0e939953f5a08c5e27246b7482fe84b95bdc4d2b3ce7c",
+      "evidence": {
+        "mean_accuracy": 1.0,
+        "weakest_family_accuracy": 1.0,
+        "external_accuracy": 1.0,
+        "backward_forgetting": 0.0,
+        "unsafe_acceptances": 0,
+        "component_replacement_accuracy": 1.0,
+        "accepted": true,
+        "errors": []
+      },
+      "private_before_gate": true,
+      "promoted": true,
+      "reversible": true,
+      "created_at": "2026-07-30T11:59:13.354294+00:00"
+    }
+  },
+  "source_checksums": {
+    "phase48": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+    "phase49": "374854194740cf2920e37f7f4b3aa4358f36b83871e918250e0809e4e561e347",
+    "phase50": "e730686067a4a9bdccbd64efbba6147e2364aad1e28cfc822ad31d366fdf27a6",
+    "phase51": "985cca3d79ef44a8b4ce1c44e937d7fac4f2d9388bd00ad74c1c05bf2ef5f554"
+  },
+  "promotion": {
+    "candidate": {
+      "procedure_id": "procedure_continual_multitrack_2f6e7dc25bd6",
+      "goal": "continual_multi_track_self_improvement",
+      "steps": [
+        "collect_only_verified_outcomes",
+        "create_private_track_challengers",
+        "train_with_backward_replay",
+        "test_fresh_external_families",
+        "measure_forgetting_and_ood",
+        "promote_reversible_components_via_cau"
+      ],
+      "score": 2.0,
+      "success": true,
+      "evidence": {
+        "gate": {
+          "generations": 3,
+          "capability_families": 9,
+          "final_mean_accuracy": 1.0,
+          "final_weakest_family_accuracy": 1.0,
+          "final_external_accuracy": 1.0,
+          "maximum_forgetting": 0.0,
+          "ood_confidence": 0.1111111119389534,
+          "ood_safe_abstention": true,
+          "independent_reversible_tracks": 5,
+          "all_source_trajectories_verified": true,
+          "unsafe_self_modifications": 0,
+          "symbolic_component_replacement_accuracy": 1.0,
+          "accepted": true,
+          "errors": []
+        }
+      },
+      "source_rules": [],
+      "schema_version": "aion.hexcore.procedure_candidate.v1"
+    },
+    "decision": {
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT",
+      "champion_id": "procedure_continual_multitrack_2f6e7dc25bd6",
+      "commit": {
+        "reason": "procedure_promotion:procedure_continual_multitrack_2f6e7dc25bd6",
+        "authority": {
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase51_52_general_invention_authority",
+          "S": 1.0,
+          "H": 0.0
+        },
+        "state_hash": "d9e72e2cf99ab360dd97451551826a21eca9b2849e97cb9867cdbdd7410b4269"
+      }
+    }
+  },
+  "restart": {
+    "generations_retained": true,
+    "tracks_retained": true,
+    "neural_models_retained": true,
+    "champion_retained": true,
+    "relearning_tasks": 0
+  },
+  "boundary": "Phase 52 demonstrates governed continual consolidation across nine structured capability fingerprints. It does not establish open-ended neural representation learning or autonomous authority."
+}

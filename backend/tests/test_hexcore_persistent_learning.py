@@ -176,6 +176,10 @@ from backend.modules.hexcore.public_external_intelligence_benchmark import (
     run_phase49_open_document_intelligence,
     run_phase50_autonomous_projects,
 )
+from backend.modules.hexcore.general_tool_self_improvement_benchmark import (
+    run_phase51_general_tool_invention,
+    run_phase52_continual_self_improvement,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1017,6 +1021,47 @@ def test_public_external_document_and_project_chain_persists(
     assert phase50["gate"]["project_completion"] == 1.0
     assert phase50["gate"]["restart_recovery"] == 1.0
     assert phase50["restart"]["all_projects_retained"] is True
+
+
+def test_general_tools_and_multitrack_self_improvement_are_governed(
+    tmp_path: Path,
+) -> None:
+    phase51_path = tmp_path / "phase51.json"
+    phase51 = run_phase51_general_tool_invention(
+        state_path=tmp_path / "phase51_state.json",
+        result_path=phase51_path,
+        development_cases=8,
+        sealed_cases=12,
+        external_cases=8,
+    )
+    assert phase51["passed"] is True
+    assert phase51["gate"]["tool_families_invented"] == 6
+    assert phase51["gate"]["malicious_candidates_rejected"] == 1.0
+    assert phase51["gate"]["experiment_policy_invented"] is True
+
+    source_paths = {}
+    for phase in (48, 49, 50):
+        path = tmp_path / f"phase{phase}.json"
+        path.write_text(
+            json.dumps({"passed": True, "gate": {"accepted": True}}),
+            encoding="utf-8",
+        )
+        source_paths[phase] = path
+    phase52 = run_phase52_continual_self_improvement(
+        state_path=tmp_path / "phase52_state.json",
+        phase48_path=source_paths[48],
+        phase49_path=source_paths[49],
+        phase50_path=source_paths[50],
+        phase51_path=phase51_path,
+        result_path=tmp_path / "phase52.json",
+    )
+    assert phase52["passed"] is True
+    assert phase52["gate"]["capability_families"] == 9
+    assert phase52["gate"]["maximum_forgetting"] == 0.0
+    assert phase52["gate"]["ood_safe_abstention"] is True
+    assert phase52["gate"]["independent_reversible_tracks"] == 5
+    assert phase52["gate"]["symbolic_component_replacement_accuracy"] == 1.0
+    assert phase52["restart"]["relearning_tasks"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

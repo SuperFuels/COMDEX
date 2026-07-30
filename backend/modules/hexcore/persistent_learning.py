@@ -204,6 +204,11 @@ class HexCorePersistentLearningStore:
             "external_benchmark_evaluations": {},
             "open_document_knowledge": {},
             "autonomous_knowledge_projects": {},
+            "general_invented_tools": {},
+            "general_experiment_inventions": {},
+            "multi_track_challengers": {},
+            "self_improvement_generations": {},
+            "neural_proposal_models": {},
         }
 
     def _load(self) -> Dict[str, Any]:
