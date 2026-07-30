@@ -194,6 +194,7 @@ class HexCorePersistentLearningStore:
             "tool_invention_sessions": [],
             "long_horizon_projects": {},
             "project_revision_events": [],
+            "autonomous_goal_decompositions": {},
         }
 
     def _load(self) -> Dict[str, Any]:

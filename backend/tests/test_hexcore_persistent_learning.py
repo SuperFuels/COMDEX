@@ -157,6 +157,9 @@ from backend.modules.hexcore.governed_photon_tool_invention_benchmark import (
 from backend.modules.hexcore.long_horizon_project_intelligence_benchmark import (
     run_long_horizon_project_benchmark,
 )
+from backend.modules.hexcore.open_ended_goal_decomposition_benchmark import (
+    run_open_ended_goal_decomposition_benchmark,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -776,6 +779,27 @@ def test_long_horizon_projects_resume_revise_and_verify(
     assert result["gate"]["plan_revision_accuracy"] == 1.0
     assert result["gate"]["unresolved_questions_closed"] == 1.0
     assert result["restart"]["all_projects_retained"] is True
+
+
+def test_broad_goals_create_verified_plans_or_request_clarification(
+    tmp_path: Path,
+) -> None:
+    result = run_open_ended_goal_decomposition_benchmark(
+        state_path=tmp_path / "open_goal_decomposition.json",
+        result_path=tmp_path / "open_goal_decomposition_result.json",
+        development_worlds=5,
+        sealed_worlds=20,
+        external_worlds=10,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["resolvable_accuracy"] == 1.0
+    assert result["gate"]["weakest_domain_accuracy"] == 1.0
+    assert result["gate"]["external_accuracy"] == 1.0
+    assert result["gate"]["graph_exactness"] == 1.0
+    assert result["gate"]["approval_boundary_accuracy"] == 1.0
+    assert result["gate"]["clarification_accuracy"] == 1.0
+    assert result["gate"]["unsafe_forced_plans"] == 0
+    assert result["restart"]["all_plans_retained"] is True
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
