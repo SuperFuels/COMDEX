@@ -1,0 +1,2081 @@
+{
+  "ambiguous_control": {
+    "decision": "abstain",
+    "outcomes": [
+      true,
+      false,
+      true,
+      false,
+      true,
+      false,
+      true,
+      false
+    ]
+  },
+  "boundary": "Phase 63 learns ordering constraints from controlled pairwise execution experiments. The temporal state variables, skill set, microenvironment dynamics and success oracle remain engineered. It is not unrestricted discovery of arbitrary software effects.",
+  "created_at": "2026-07-30T19:17:25.884032+00:00",
+  "development": {
+    "experiments": [
+      {
+        "experiment_id": "interference_15193fed8e2d4676",
+        "forward": {
+          "facts": [
+            "artifacts_fresh",
+            "authority_stale",
+            "evidence_conflict",
+            "evidence_resolved",
+            "source_changed"
+          ],
+          "score": 2,
+          "sequence": [
+            "repair_revision",
+            "resolve_conflict"
+          ],
+          "traces": [
+            {
+              "added": [
+                "artifacts_fresh"
+              ],
+              "after_facts": [
+                "artifacts_fresh",
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 3,
+              "removed": [],
+              "skill": "repair_revision"
+            },
+            {
+              "added": [
+                "evidence_resolved"
+              ],
+              "after_facts": [
+                "artifacts_fresh",
+                "authority_stale",
+                "evidence_conflict",
+                "evidence_resolved",
+                "source_changed"
+              ],
+              "before_facts": [
+                "artifacts_fresh",
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 5,
+              "removed": [],
+              "skill": "resolve_conflict"
+            }
+          ]
+        },
+        "information_gain_bits": 1.0,
+        "learned_ordering": [
+          "repair_revision",
+          "resolve_conflict"
+        ],
+        "observed_at": "2026-07-30T19:17:25.869217+00:00",
+        "reverse": {
+          "facts": [
+            "artifacts_fresh",
+            "authority_stale",
+            "evidence_conflict",
+            "source_changed"
+          ],
+          "score": 1,
+          "sequence": [
+            "resolve_conflict",
+            "repair_revision"
+          ],
+          "traces": [
+            {
+              "added": [
+                "evidence_resolved"
+              ],
+              "after_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "evidence_resolved",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 2,
+              "removed": [],
+              "skill": "resolve_conflict"
+            },
+            {
+              "added": [
+                "artifacts_fresh"
+              ],
+              "after_facts": [
+                "artifacts_fresh",
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "evidence_resolved",
+                "source_changed"
+              ],
+              "clock": 5,
+              "removed": [
+                "evidence_resolved"
+              ],
+              "skill": "repair_revision"
+            }
+          ]
+        },
+        "skills": [
+          "repair_revision",
+          "resolve_conflict"
+        ]
+      },
+      {
+        "experiment_id": "interference_ce4e096133bf5888",
+        "forward": {
+          "facts": [
+            "artifacts_fresh",
+            "authority_fresh",
+            "evidence_conflict",
+            "source_changed"
+          ],
+          "score": 2,
+          "sequence": [
+            "repair_revision",
+            "refresh_authority"
+          ],
+          "traces": [
+            {
+              "added": [
+                "artifacts_fresh"
+              ],
+              "after_facts": [
+                "artifacts_fresh",
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 3,
+              "removed": [],
+              "skill": "repair_revision"
+            },
+            {
+              "added": [
+                "authority_fresh"
+              ],
+              "after_facts": [
+                "artifacts_fresh",
+                "authority_fresh",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "before_facts": [
+                "artifacts_fresh",
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 3,
+              "removed": [
+                "authority_stale"
+              ],
+              "skill": "refresh_authority"
+            }
+          ]
+        },
+        "information_gain_bits": 1.0,
+        "learned_ordering": [
+          "repair_revision",
+          "refresh_authority"
+        ],
+        "observed_at": "2026-07-30T19:17:25.871552+00:00",
+        "reverse": {
+          "facts": [
+            "artifacts_fresh",
+            "authority_stale",
+            "evidence_conflict",
+            "source_changed"
+          ],
+          "score": 1,
+          "sequence": [
+            "refresh_authority",
+            "repair_revision"
+          ],
+          "traces": [
+            {
+              "added": [
+                "authority_fresh"
+              ],
+              "after_facts": [
+                "authority_fresh",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 0,
+              "removed": [
+                "authority_stale"
+              ],
+              "skill": "refresh_authority"
+            },
+            {
+              "added": [
+                "artifacts_fresh",
+                "authority_stale"
+              ],
+              "after_facts": [
+                "artifacts_fresh",
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_fresh",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 3,
+              "removed": [
+                "authority_fresh"
+              ],
+              "skill": "repair_revision"
+            }
+          ]
+        },
+        "skills": [
+          "repair_revision",
+          "refresh_authority"
+        ]
+      },
+      {
+        "experiment_id": "interference_7d771ebb35c9c28f",
+        "forward": {
+          "facts": [
+            "authority_fresh",
+            "evidence_conflict",
+            "evidence_resolved",
+            "source_changed"
+          ],
+          "score": 2,
+          "sequence": [
+            "resolve_conflict",
+            "refresh_authority"
+          ],
+          "traces": [
+            {
+              "added": [
+                "evidence_resolved"
+              ],
+              "after_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "evidence_resolved",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 2,
+              "removed": [],
+              "skill": "resolve_conflict"
+            },
+            {
+              "added": [
+                "authority_fresh"
+              ],
+              "after_facts": [
+                "authority_fresh",
+                "evidence_conflict",
+                "evidence_resolved",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "evidence_resolved",
+                "source_changed"
+              ],
+              "clock": 2,
+              "removed": [
+                "authority_stale"
+              ],
+              "skill": "refresh_authority"
+            }
+          ]
+        },
+        "information_gain_bits": 1.0,
+        "learned_ordering": [
+          "resolve_conflict",
+          "refresh_authority"
+        ],
+        "observed_at": "2026-07-30T19:17:25.871570+00:00",
+        "reverse": {
+          "facts": [
+            "authority_stale",
+            "evidence_conflict",
+            "evidence_resolved",
+            "source_changed"
+          ],
+          "score": 1,
+          "sequence": [
+            "refresh_authority",
+            "resolve_conflict"
+          ],
+          "traces": [
+            {
+              "added": [
+                "authority_fresh"
+              ],
+              "after_facts": [
+                "authority_fresh",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 0,
+              "removed": [
+                "authority_stale"
+              ],
+              "skill": "refresh_authority"
+            },
+            {
+              "added": [
+                "authority_stale",
+                "evidence_resolved"
+              ],
+              "after_facts": [
+                "authority_stale",
+                "evidence_conflict",
+                "evidence_resolved",
+                "source_changed"
+              ],
+              "before_facts": [
+                "authority_fresh",
+                "evidence_conflict",
+                "source_changed"
+              ],
+              "clock": 2,
+              "removed": [
+                "authority_fresh"
+              ],
+              "skill": "resolve_conflict"
+            }
+          ]
+        },
+        "skills": [
+          "resolve_conflict",
+          "refresh_authority"
+        ]
+      }
+    ],
+    "generation_one": {
+      "edges": [
+        [
+          "repair_revision",
+          "resolve_conflict"
+        ]
+      ],
+      "experiments": 1,
+      "generation": 1,
+      "plan": [
+        "repair_revision",
+        "resolve_conflict"
+      ],
+      "promotable": true,
+      "skills": [
+        "repair_revision",
+        "resolve_conflict"
+      ]
+    },
+    "generation_two": {
+      "backward_retention": 1.0,
+      "development_accuracy": 1.0,
+      "generation": 2,
+      "new_edges": [
+        [
+          "repair_revision",
+          "refresh_authority"
+        ],
+        [
+          "resolve_conflict",
+          "refresh_authority"
+        ]
+      ],
+      "new_skill": "refresh_authority",
+      "plan": [
+        "repair_revision",
+        "resolve_conflict",
+        "refresh_authority",
+        "commit_project"
+      ],
+      "promotable": true,
+      "replay_edges": [
+        [
+          "repair_revision",
+          "resolve_conflict"
+        ]
+      ]
+    },
+    "learned_plan": [
+      "repair_revision",
+      "resolve_conflict",
+      "refresh_authority",
+      "commit_project"
+    ],
+    "naive_plan": [
+      "refresh_authority",
+      "repair_revision",
+      "resolve_conflict",
+      "commit_project"
+    ]
+  },
+  "effect_model": {
+    "learned_edges": [
+      [
+        "repair_revision",
+        "resolve_conflict"
+      ],
+      [
+        "repair_revision",
+        "refresh_authority"
+      ],
+      [
+        "resolve_conflict",
+        "refresh_authority"
+      ]
+    ],
+    "model_id": "interference_model_297dab56400d7b46",
+    "observed_effects": {
+      "refresh_authority": {
+        "adds": [
+          "authority_fresh"
+        ],
+        "duration": 0
+      },
+      "repair_revision": {
+        "adds": [
+          "artifacts_fresh"
+        ],
+        "duration": 3,
+        "may_remove": [
+          "evidence_resolved",
+          "authority_fresh"
+        ]
+      },
+      "resolve_conflict": {
+        "adds": [
+          "evidence_resolved"
+        ],
+        "duration": 2,
+        "may_remove": [
+          "authority_fresh"
+        ]
+      }
+    },
+    "status": "promoted"
+  },
+  "gate": {
+    "accepted": true,
+    "active_pair_experiments": 3,
+    "ambiguous_interference_abstention": true,
+    "errors": [],
+    "exact_safe_plan": true,
+    "experiment_reduction_vs_exhaustive_orders": 0.5,
+    "generation_one_retention": 1.0,
+    "generations_completed": 2,
+    "learned_ordering_edges": 3,
+    "phase62_prerequisite": true,
+    "sealed_accuracy_gain": 1.0,
+    "sealed_challenger_accuracy": 1.0,
+    "sealed_control_accuracy": 0.0,
+    "sealed_weakest_family_accuracy": 1.0,
+    "unsafe_side_effects": 0
+  },
+  "passed": true,
+  "phase": 63,
+  "phase62_prerequisite": {
+    "passed": true,
+    "procedure_id": "procedure_learned_repair_contracts_79b4d663777a"
+  },
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "active_pair_experiments": 3,
+          "ambiguous_interference_abstention": true,
+          "errors": [],
+          "exact_safe_plan": true,
+          "experiment_reduction_vs_exhaustive_orders": 0.5,
+          "generation_one_retention": 1.0,
+          "generations_completed": 2,
+          "learned_ordering_edges": 3,
+          "phase62_prerequisite": true,
+          "sealed_accuracy_gain": 1.0,
+          "sealed_challenger_accuracy": 1.0,
+          "sealed_control_accuracy": 0.0,
+          "sealed_weakest_family_accuracy": 1.0,
+          "unsafe_side_effects": 0
+        },
+        "interference_model_id": "interference_model_297dab56400d7b46"
+      },
+      "goal": "learned_repair_interference_and_ordering",
+      "procedure_id": "procedure_learned_repair_interference_aa6e13558060",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [
+        "procedure_learned_repair_contracts_79b4d663777a",
+        "procedure_compound_project_repair_077066167290"
+      ],
+      "steps": [
+        "observe_skill_effects_over_time",
+        "identify_uncertain_skill_pairs",
+        "execute_both_orders_in_private_microexperiments",
+        "infer_destructive_and_temporal_interference",
+        "construct_safe_partial_order",
+        "replan_before_project_execution",
+        "abstain_on_stochastic_unresolved_interference"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_learned_repair_interference_aa6e13558060",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase63_repair_interference_authority"
+        },
+        "reason": "procedure_promotion:procedure_learned_repair_interference_aa6e13558060",
+        "state_hash": "0cb5d94d3613f5cd6ad338ea5dcdbcd847cf51643f988e5f50245f12c1e0c32a"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "champion_retained": true,
+    "experiments_retained": true,
+    "interference_model_retained": true,
+    "learned_contracts_retained": true,
+    "relearning_experiments": 0,
+    "two_generations_retained": true
+  },
+  "schema_version": "aion.hexcore.learned_repair_interference.v1",
+  "sealed": {
+    "challenger_accuracy": 1.0,
+    "control_accuracy": 0.0,
+    "episodes": 60,
+    "portfolios": 3,
+    "rows": [
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_492266b254c3aa9d",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_b9915cf95c9487d2",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_dcc1c8b7c71a253c",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_50e4979a9bb0dc03",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_5f6f96a6524890d5",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_d5826e2046705f99",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_ecddd95ed374162b",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_f134ce48dd5cd88e",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_6c692a9d34fe4255",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_f2c866d1abcef1f6",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_b6a032d8a5e6f71c",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_1f9f2aa519bd0934",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_4bb47c90a9dde635",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_da538c3c46908ffd",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_b300d0ccbb0bf077",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_0e0c8d9ef34a6c93",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_16e0ffb28f8324e4",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_c78c0033add843b1",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_e188eeab9d11e1f8",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_395cc3952e225b44",
+        "family": "financial_document",
+        "portfolio_id": "sealed_financial_results"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_0a673953019c5a57",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_1742d35dff7801ea",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_843780555943cf8a",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_de38253ee5cf8492",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_ae8665e71edc4452",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_f10552e349570ce2",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_264726ce2423243a",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_60106ab5b591493b",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_c1db4caaccf30f0b",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_6303a3b8fd3fbaf0",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_8439e52d65d9e7c3",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_1f9866f54c588deb",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_36294293b81b774d",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_6591d456ccf6b6b8",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_79558b2fcf85794b",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_75d49539083d8ce1",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_ae9f9b70b76b5553",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_ee06e615d2774725",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_a52cfb412b85db3f",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_dfb4939a8b62340c",
+        "family": "scientific_chart",
+        "portfolio_id": "sealed_fourier_chart"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_6ad49b67ab1448fa",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_33bccd90031558c6",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_0eb7bf6f1fcde152",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_5d2e89ef5d16c459",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_ec86e3445b2e9865",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_58cabb2f348f0cd7",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_c5ea42ceba2fc73e",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_ec38b0ce23dc4e0b",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_359f8f5c1e2e78da",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_887a67ceb413f616",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_6723d434b7916010",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_37ddea5d613820f3",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_34408bf199496467",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_61b2efa516f88265",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_31f97392285ab8e0",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_f0286d1f5814ef9b",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_6c165c70f567dc7f",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_ee47582eda58d877",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_61471bb2d3043d69",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      },
+      {
+        "challenger_sequence": [
+          "repair_revision",
+          "resolve_conflict",
+          "refresh_authority",
+          "commit_project"
+        ],
+        "challenger_success": true,
+        "challenger_trace_hash": "12545d20be31d470b0fd705fbd846b34f2705fb2e702f73955b8ad5898dd03f7",
+        "control_sequence": [
+          "refresh_authority",
+          "repair_revision",
+          "resolve_conflict",
+          "commit_project"
+        ],
+        "control_success": false,
+        "episode_id": "temporal_7a73b1a291f9654a",
+        "family": "software_architecture",
+        "portfolio_id": "sealed_glyphos_architecture"
+      }
+    ],
+    "trace_samples": [
+      {
+        "episode_id": "temporal_492266b254c3aa9d",
+        "trace": [
+          {
+            "added": [
+              "artifacts_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 3,
+            "removed": [],
+            "skill": "repair_revision"
+          },
+          {
+            "added": [
+              "evidence_resolved"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [],
+            "skill": "resolve_conflict"
+          },
+          {
+            "added": [
+              "authority_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [
+              "authority_stale"
+            ],
+            "skill": "refresh_authority"
+          },
+          {
+            "added": [
+              "safe_completion"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "safe_completion",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [],
+            "skill": "commit_project"
+          }
+        ]
+      },
+      {
+        "episode_id": "temporal_b9915cf95c9487d2",
+        "trace": [
+          {
+            "added": [
+              "artifacts_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 3,
+            "removed": [],
+            "skill": "repair_revision"
+          },
+          {
+            "added": [
+              "evidence_resolved"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [],
+            "skill": "resolve_conflict"
+          },
+          {
+            "added": [
+              "authority_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [
+              "authority_stale"
+            ],
+            "skill": "refresh_authority"
+          },
+          {
+            "added": [
+              "safe_completion"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "safe_completion",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [],
+            "skill": "commit_project"
+          }
+        ]
+      },
+      {
+        "episode_id": "temporal_dcc1c8b7c71a253c",
+        "trace": [
+          {
+            "added": [
+              "artifacts_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "before_facts": [
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 3,
+            "removed": [],
+            "skill": "repair_revision"
+          },
+          {
+            "added": [
+              "evidence_resolved"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [],
+            "skill": "resolve_conflict"
+          },
+          {
+            "added": [
+              "authority_fresh"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_stale",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [
+              "authority_stale"
+            ],
+            "skill": "refresh_authority"
+          },
+          {
+            "added": [
+              "safe_completion"
+            ],
+            "after_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "safe_completion",
+              "source_changed"
+            ],
+            "before_facts": [
+              "artifacts_fresh",
+              "authority_fresh",
+              "evidence_conflict",
+              "evidence_resolved",
+              "source_changed"
+            ],
+            "clock": 5,
+            "removed": [],
+            "skill": "commit_project"
+          }
+        ]
+      }
+    ],
+    "weakest_family_accuracy": 1.0
+  }
+}

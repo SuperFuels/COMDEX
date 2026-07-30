@@ -228,6 +228,12 @@ class HexCorePersistentLearningStore:
             "compound_repair_contracts": {},
             "compound_repair_generations": {},
             "compound_repair_sessions": [],
+            "learned_repair_contracts": {},
+            "contract_discovery_sessions": [],
+            "contract_counterfactual_experiments": [],
+            "repair_interference_models": {},
+            "repair_interference_experiments": [],
+            "repair_interference_generations": {},
         }
 
     def _load(self) -> Dict[str, Any]:

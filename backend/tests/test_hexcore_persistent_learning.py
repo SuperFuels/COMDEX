@@ -207,6 +207,12 @@ from backend.modules.hexcore.open_project_repair_invention_benchmark import (
 from backend.modules.hexcore.compound_project_repair_composition_benchmark import (
     run_phase61_compound_project_repair_composition,
 )
+from backend.modules.hexcore.learned_repair_contract_discovery_benchmark import (
+    run_phase62_learned_repair_contract_discovery,
+)
+from backend.modules.hexcore.learned_repair_interference_benchmark import (
+    run_phase63_learned_repair_interference,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1291,6 +1297,51 @@ def test_compound_project_repairs_compose_and_retain_prior_skills(
     assert result["gate"]["out_of_contract_abstention"] is True
     assert result["gate"]["unsafe_side_effects"] == 0
     assert result["restart"]["relearning_episodes"] == 0
+
+
+def test_repair_contracts_are_learned_by_active_counterfactuals(
+    tmp_path: Path,
+) -> None:
+    result = run_phase62_learned_repair_contract_discovery(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "phase62_state.json",
+        workspace_root=tmp_path / "phase62_workspaces",
+        result_path=tmp_path / "phase62_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["phase61_prerequisite"] is True
+    assert result["gate"]["contracts_inferred"] == 4
+    assert result["gate"]["exact_contract_recovery"] >= 0.95
+    assert result["gate"]["active_contract_sealed_accuracy"] >= 0.95
+    assert result["gate"]["sealed_accuracy_gain"] >= 0.50
+    assert result["gate"]["sealed_weakest_family_accuracy"] >= 0.90
+    assert result["gate"]["experiment_reduction_vs_exhaustive"] >= 0.40
+    assert result["gate"]["ambiguous_contract_abstention"] is True
+    assert result["gate"]["unsafe_side_effects"] == 0
+    assert result["restart"]["relearning_contracts"] == 0
+
+
+def test_repair_interference_is_learned_and_reorders_composition(
+    tmp_path: Path,
+) -> None:
+    result = run_phase63_learned_repair_interference(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "phase63_state.json",
+        workspace_root=tmp_path / "phase63_workspaces",
+        result_path=tmp_path / "phase63_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["phase62_prerequisite"] is True
+    assert result["gate"]["generations_completed"] == 2
+    assert result["gate"]["learned_ordering_edges"] == 3
+    assert result["gate"]["exact_safe_plan"] is True
+    assert result["gate"]["sealed_challenger_accuracy"] >= 0.95
+    assert result["gate"]["sealed_accuracy_gain"] >= 0.50
+    assert result["gate"]["sealed_weakest_family_accuracy"] >= 0.90
+    assert result["gate"]["generation_one_retention"] == 1.0
+    assert result["gate"]["ambiguous_interference_abstention"] is True
+    assert result["gate"]["unsafe_side_effects"] == 0
+    assert result["restart"]["relearning_experiments"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(
