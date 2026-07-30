@@ -189,6 +189,9 @@ from backend.modules.hexcore.open_world_evaluation_ingestion import (
 from backend.modules.hexcore.recursive_photon_synthesis_benchmark import (
     run_phase55_recursive_photon_synthesis,
 )
+from backend.modules.hexcore.real_file_long_horizon_project_benchmark import (
+    run_phase56_real_file_projects,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1143,6 +1146,27 @@ def test_blind_protocol_open_ingestion_and_recursive_photon_persist(
     assert phase55["gate"]["mean_external_accuracy"] == 1.0
     assert phase55["gate"]["out_of_grammar_abstention"] is True
     assert phase55["restart"]["relearning_tools"] == 0
+
+
+def test_real_file_projects_detect_revise_resume_and_abstain(
+    tmp_path: Path,
+) -> None:
+    result = run_phase56_real_file_projects(
+        repo_root=Path("/Users/kevinrobinson/dev/COMDEX"),
+        state_path=tmp_path / "phase56_state.json",
+        workspace_root=tmp_path / "phase56_workspaces",
+        result_path=tmp_path / "phase56_result.json",
+        development_phases=(48,),
+        sealed_phases=(53, 54, 55),
+    )
+    assert result["passed"] is True
+    assert result["gate"]["project_outcome_accuracy"] == 1.0
+    assert result["gate"]["weakest_family_accuracy"] == 1.0
+    assert result["gate"]["source_change_detection"] == 1.0
+    assert result["gate"]["restart_recovery"] == 1.0
+    assert result["gate"]["conflict_safe_abstention"] is True
+    assert result["gate"]["reexecution_reduction"] >= 0.20
+    assert result["restart"]["relearning_projects"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

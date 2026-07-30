@@ -1,0 +1,151 @@
+{
+  "boundary": "Phase 56 executes persistent projects over real repository files, detects controlled revisions in isolated copies, selectively invalidates dependent work and independently verifies outputs. The goal schema, revision injection and correctness evaluator remain engineered; this is not unrestricted autonomous project execution or external certification.",
+  "created_at": "2026-07-30T16:47:40.963509+00:00",
+  "development": {
+    "phases": [
+      48,
+      49,
+      50,
+      51,
+      52
+    ],
+    "projects": 5
+  },
+  "gate": {
+    "accepted": true,
+    "accepted_manifest_accuracy": 1.0,
+    "conflict_safe_abstention": true,
+    "errors": [],
+    "mean_dependency_aware_reruns": 5.0,
+    "original_repository_files_mutated": false,
+    "project_outcome_accuracy": 1.0,
+    "provenance_completeness": 1.0,
+    "real_source_files": 6,
+    "reexecution_reduction": 0.2857142857142857,
+    "restart_recovery": 1.0,
+    "sealed_projects": 3,
+    "source_change_detection": 1.0,
+    "stateless_full_replay_tasks": 7,
+    "weakest_family_accuracy": 1.0
+  },
+  "passed": true,
+  "phase": 56,
+  "promotion": {
+    "candidate": {
+      "evidence": {
+        "evaluation": "phase56_sealed_real_files",
+        "gate": {
+          "accepted": true,
+          "accepted_manifest_accuracy": 1.0,
+          "conflict_safe_abstention": true,
+          "errors": [],
+          "mean_dependency_aware_reruns": 5.0,
+          "original_repository_files_mutated": false,
+          "project_outcome_accuracy": 1.0,
+          "provenance_completeness": 1.0,
+          "real_source_files": 6,
+          "reexecution_reduction": 0.2857142857142857,
+          "restart_recovery": 1.0,
+          "sealed_projects": 3,
+          "source_change_detection": 1.0,
+          "stateless_full_replay_tasks": 7,
+          "weakest_family_accuracy": 1.0
+        }
+      },
+      "goal": "real_file_long_horizon_project_intelligence",
+      "procedure_id": "procedure_real_file_projects_3aff718b5c0d",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.2857142857142856,
+      "source_rules": [
+        "procedure_open_world_ingestion_d83f863ebb24",
+        "phase53_blind_external_v1"
+      ],
+      "steps": [
+        "bind_goal_to_real_checksum_sources",
+        "construct_persistent_dependency_graph",
+        "checkpoint_each_project_milestone",
+        "detect_external_file_revision",
+        "invalidate_only_dependent_work",
+        "reconcile_or_abstain_on_conflict",
+        "independently_reread_and_verify_final_manifest"
+      ],
+      "success": true
+    },
+    "decision": {
+      "champion_id": "procedure_real_file_projects_3aff718b5c0d",
+      "commit": {
+        "authority": {
+          "H": 0.0,
+          "S": 1.0,
+          "allow_learn": true,
+          "deny_reason": null,
+          "goal": "maintain_coherence",
+          "source": "phase56_real_file_project_authority"
+        },
+        "reason": "procedure_promotion:procedure_real_file_projects_3aff718b5c0d",
+        "state_hash": "0c4f3a64c1be7f8492accdc33ff8973cad059f62f572b47370f1333d67c44bf7"
+      },
+      "promoted": true,
+      "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+    }
+  },
+  "restart": {
+    "all_projects_retained": true,
+    "all_revisions_retained": true,
+    "champion_retained": true,
+    "relearning_projects": 0
+  },
+  "schema_version": "aion.hexcore.real_file_projects.v1",
+  "sealed": {
+    "phases": [
+      53,
+      54,
+      55
+    ],
+    "projects": 3,
+    "rows": [
+      {
+        "accepted": true,
+        "correct": true,
+        "correct_abstention": false,
+        "expected_acceptance": true,
+        "family": "blind_evaluation",
+        "invalidated_tasks": 5,
+        "phase": 53,
+        "project_id": "sealed_real_file_phase_53",
+        "provenance_complete": true,
+        "rerun_tasks": 5,
+        "restarts": 6,
+        "revision_detected": true
+      },
+      {
+        "accepted": true,
+        "correct": true,
+        "correct_abstention": false,
+        "expected_acceptance": true,
+        "family": "open_world_ingestion",
+        "invalidated_tasks": 5,
+        "phase": 54,
+        "project_id": "sealed_real_file_phase_54",
+        "provenance_complete": true,
+        "rerun_tasks": 5,
+        "restarts": 6,
+        "revision_detected": true
+      },
+      {
+        "accepted": false,
+        "correct": true,
+        "correct_abstention": true,
+        "expected_acceptance": false,
+        "family": "recursive_synthesis",
+        "invalidated_tasks": 5,
+        "phase": 55,
+        "project_id": "sealed_real_file_phase_55",
+        "provenance_complete": true,
+        "rerun_tasks": 5,
+        "restarts": 6,
+        "revision_detected": true
+      }
+    ]
+  }
+}
