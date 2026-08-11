@@ -87,3 +87,25 @@ def test_parallel_localstorage_business_map_compiler_is_inert():
     legacy_builder = APP.index("function buildCanonicalBusinessMap()")
     assert disabled < legacy_builder
     assert "return;" in APP[disabled:legacy_builder]
+
+
+def test_discovery_workspace_buttons_route_through_the_department_pilot_authority():
+    assert 'data-aion-open-discovery-section=' in APP
+    assert 'window.aionSetLiveAgentsDepartmentAuthorityO14M(destination)' in APP
+    assert 'state.activeTab = "live_agents";' in APP
+    assert 'window.AionOperatingModelWorkspace.state.activeTab = section;' in APP
+    assert 'event.stopImmediatePropagation?.();' in APP
+
+
+def test_boardroom_analysis_uses_a_light_reading_surface_with_coloured_gates():
+    visible_start = APP.index("function renderAionVisibleAskBoardResultHtmlV1")
+    visible_end = APP.index("/* END AION PATCH: Visible Ask Board Result v1 */", visible_start)
+    visible = APP[visible_start:visible_end]
+    assert "background:#ffffff;" in visible
+    assert "color:#29465b;" in visible
+
+    inbox_start = APP.index("function renderAionDiscoveryQuestionInboxHtmlV1")
+    inbox_end = APP.index("function installAionDiscoveryQuestionInboxBindingsV1", inbox_start)
+    inbox = APP[inbox_start:inbox_end]
+    assert "background:#f7fbfd;" in inbox
+    assert "background:#fffbeb" in inbox

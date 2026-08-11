@@ -41565,8 +41565,8 @@ function renderAionBoardroomConsensusResultHtml() {
       style="
         margin-top:12px;
         border:1px solid rgba(34,197,94,0.28);
-        background:#07111f;
-        color:#dbeafe;
+        background:#ffffff;
+        color:#29465b;
         padding:14px;
         font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
         font-size:12px;
@@ -41574,7 +41574,7 @@ function renderAionBoardroomConsensusResultHtml() {
         box-shadow:inset 4px 0 0 #22c55e;
       "
     >
-      <div style="font-weight:900; color:#86efac; letter-spacing:0.08em; text-transform:uppercase;">
+      <div style="font-weight:900; color:#0f766e; letter-spacing:0.08em; text-transform:uppercase;">
         &gt; Board consensus result · ${escapeHtml(result.department || "department")}
       </div>
       <div>&gt; Execution mode: ${escapeHtml(result.execution_mode || "local")}</div>
@@ -42320,8 +42320,8 @@ function renderAionBoardroomPushbackGateHtmlV1(result = {}) {
       style="
         margin-top:12px;
         border:1px solid rgba(251,191,36,0.50);
-        background:#1f1307;
-        color:#fde68a;
+        background:#fffbeb;
+        color:#713f12;
         padding:14px;
         font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
         font-size:12px;
@@ -42329,7 +42329,7 @@ function renderAionBoardroomPushbackGateHtmlV1(result = {}) {
         box-shadow:inset 4px 0 0 #f59e0b;
       "
     >
-      <div style="font-weight:900;color:#fbbf24;letter-spacing:0.08em;text-transform:uppercase;">
+      <div style="font-weight:900;color:#b45309;letter-spacing:0.08em;text-transform:uppercase;">
         &gt; AI Pushback / Discovery Gate
       </div>
       <div>&gt; Decision: ${escapeHtml(pushback.decision || "")}</div>
@@ -42337,17 +42337,17 @@ function renderAionBoardroomPushbackGateHtmlV1(result = {}) {
 
       ${safeArray(pushback.gates).map((gate, index) => `
         <div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(251,191,36,0.22);">
-          <div style="color:#ffffff;font-weight:900;">&gt; Gate ${index + 1}: ${escapeHtml(gate.gate || "")}</div>
+          <div style="color:#422006;font-weight:900;">&gt; Gate ${index + 1}: ${escapeHtml(gate.gate || "")}</div>
           <div>&gt; Owner: ${escapeHtml(gate.owner || "Boardroom")}</div>
           <div>&gt; Severity: ${escapeHtml(gate.severity || "review_gate")}</div>
-          <div style="margin-top:5px;color:#fed7aa;">&gt; Board challenge: ${escapeHtml(gate.challenge || "")}</div>
-          <div style="margin-top:5px;color:#fde68a;">&gt; Required before launch</div>
+          <div style="margin-top:5px;color:#9a3412;">&gt; Board challenge: ${escapeHtml(gate.challenge || "")}</div>
+          <div style="margin-top:5px;color:#92400e;">&gt; Required before launch</div>
           ${safeArray(gate.required_inputs).map((line) => `<div>&gt; + ${escapeHtml(line)}</div>`).join("") || "<div>&gt; + discovery input required</div>"}
         </div>
       `).join("")}
 
       ${safeArray(pushback.provider_missing_inputs).length ? `
-        <div style="margin-top:10px;color:#fbbf24;font-weight:900;">&gt; Provider-raised missing inputs</div>
+        <div style="margin-top:10px;color:#b45309;font-weight:900;">&gt; Provider-raised missing inputs</div>
         ${safeArray(pushback.provider_missing_inputs).slice(0, 10).map((line) => `<div>&gt; ? ${escapeHtml(line)}</div>`).join("")}
       ` : ""}
     </div>
@@ -42582,15 +42582,15 @@ function getAionDiscoveryWorkspaceDestinationsV1(group = {}) {
   const department = String(group.department || "boardroom").toLowerCase();
   const text = safeArray(group.questions).map((item) => item.question || "").join(" ").toLowerCase();
   const destinations = [];
-  const add = (tab, label, purpose) => {
-    if (!destinations.some((item) => item.tab === tab)) destinations.push({ tab, label, purpose });
+  const add = (tab, label, purpose, section = "") => {
+    if (!destinations.some((item) => item.tab === tab && item.section === section)) destinations.push({ tab, label, purpose, section });
   };
   if (department === "hr" || /work email|personnel|employee|contractor|pay rate|labour rate/.test(text)) {
     add("hr", "Open HR", "Complete people, work emails and confidential workforce costing.");
   }
   if (department === "finance" || /cash buffer|budget|margin|profit|cost/.test(text)) {
     if (/unit|job|material|subcontract|engineer|labour|labor|rate|margin|minimum profitable/.test(text)) {
-      add("products_services", "Open Products & Services", "Complete offerings, HR-linked labour, jobs, materials and unit economics.");
+      add("products_services", "Open Products & Services", "Complete offerings, HR-linked labour, jobs, materials and unit economics.", "offerings");
     }
     if (/cash buffer|budget|spend|finance|gross margin|target margin/.test(text)) {
       add("finance", "Open Finance", "Confirm cash protection, budgets, targets and verified financial assumptions.");
@@ -42598,7 +42598,7 @@ function getAionDiscoveryWorkspaceDestinationsV1(group = {}) {
   }
   if (department === "operations" || /capacity|workflow|availability|jobs per week|coverage radius|scheduling/.test(text)) {
     add("operations", "Open Operations", "Complete capacity, coverage, scheduling and operating constraints.");
-    add("products_services", "Open Workforce & Jobs", "Connect capacity to people, delivery units and quoted jobs.");
+    add("products_services", "Open Workforce & Jobs", "Connect capacity to people, delivery units and quoted jobs.", "workforce");
   }
   if (department === "marketing") add("marketing", "Open Marketing", "Complete the CMO strategy, channels, acquisition plan and approved budget source.");
   if (department === "sales") add("sales", "Open Sales", "Complete pipeline, qualification, quoting and conversion inputs.");
@@ -42645,8 +42645,8 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
       style="
         margin-top:12px;
         border:1px solid rgba(56,189,248,0.52);
-        background:#061724;
-        color:#bae6fd;
+        background:#f7fbfd;
+        color:#29465b;
         padding:14px;
         font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
         font-size:12px;
@@ -42654,7 +42654,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
         box-shadow:inset 4px 0 0 #38bdf8;
       "
     >
-      <div style="font-weight:900;color:#7dd3fc;letter-spacing:0.08em;text-transform:uppercase;">
+      <div style="font-weight:900;color:#0369a1;letter-spacing:0.08em;text-transform:uppercase;">
         &gt; Discovery Question Inbox
       </div>
       <div>&gt; Answered: ${answeredCount} / ${questions.length}</div>
@@ -42674,7 +42674,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
         data-group-id="${escapeHtml(group.group_id || "")}"
         style="margin-top:9px;padding-top:12px;border-top:1px solid rgba(56,189,248,0.32);"
       >
-        <div style="color:#ffffff;font-weight:900;">&gt; Group ${groupIndex + 1} · ${escapeHtml(group.department || "boardroom")}</div>
+        <div style="color:#102a43;font-weight:900;">&gt; Group ${groupIndex + 1} · ${escapeHtml(group.department || "boardroom")}</div>
         <div>&gt; Source: ${escapeHtml(group.source_label || "")}</div>
         <div>&gt; Group answered: ${groupAnswered} / ${groupQuestions.length}</div>
 
@@ -42692,13 +42692,13 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
     });
 
     html.push(destinations.length ? `
-        <div style="margin-top:9px;border:1px solid rgba(251,191,36,.6);background:#1c1917;padding:11px;">
-          <div style="font-weight:900;color:#fde68a;">&gt; STRUCTURED INPUT REQUIRED · COMPLETE OUTSIDE THE MEETING</div>
+        <div style="margin-top:9px;border:1px solid #f2c14e;background:#fffbeb;padding:11px;color:#7c4a03;">
+          <div style="font-weight:900;color:#92400e;">&gt; STRUCTURED INPUT REQUIRED · COMPLETE OUTSIDE THE MEETING</div>
           <div>&gt; Save these facts in the owning workspace. The next Board analysis will read the updated Business Map automatically.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;">
-            ${destinations.map((destination) => `<button type="button" class="aion-council-session-action" data-aion-open-discovery-workspace="${escapeHtml(destination.tab)}" title="${escapeHtml(destination.purpose)}" style="border-color:#f59e0b;background:#fffbeb;color:#7c2d12;">${escapeHtml(destination.label)}</button>`).join("")}
+            ${destinations.map((destination) => `<button type="button" class="aion-council-session-action" data-aion-open-discovery-workspace="${escapeHtml(destination.tab)}" data-aion-open-discovery-section="${escapeHtml(destination.section || "")}" title="${escapeHtml(destination.purpose)}" style="border:1px solid #d4a72c;background:#ffffff;color:#713f12;padding:8px 12px;font-weight:900;cursor:pointer;">${escapeHtml(destination.label)}</button>`).join("")}
           </div>
-          ${destinations.map((destination) => `<div style="margin-top:5px;color:#fde68a;">&gt; ${escapeHtml(destination.purpose)}</div>`).join("")}
+          ${destinations.map((destination) => `<div style="margin-top:5px;color:#8a5a08;">&gt; ${escapeHtml(destination.purpose)}</div>`).join("")}
         </div>
       ` : `
         <textarea
@@ -42709,8 +42709,8 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
             width:100%;
             min-height:64px;
             margin-top:8px;
-            background:#020617;
-            color:#e0f2fe;
+            background:#ffffff;
+            color:#102a43;
             border:1px solid rgba(56,189,248,0.45);
             border-radius:8px;
             padding:8px;
@@ -42724,7 +42724,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
           <select
             data-aion-discovery-group-answer-type="true"
             data-group-id="${escapeHtml(group.group_id || "")}"
-            style="background:#020617;color:#bae6fd;border:1px solid rgba(56,189,248,0.45);border-radius:8px;padding:7px;"
+            style="background:#ffffff;color:#102a43;border:1px solid #8fc5d8;border-radius:8px;padding:7px;"
           >
             <option value="context">context</option>
             <option value="correction">correction</option>
@@ -42739,7 +42739,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
             data-aion-save-discovery-group-answer="true"
             data-group-id="${escapeHtml(group.group_id || "")}"
             data-group-questions="${escapeHtml(groupPayload)}"
-            style="border-color:rgba(56,189,248,0.8);background:#082f49;color:#e0f2fe;"
+            style="border-color:#5fa8c5;background:#edf8fc;color:#102a43;"
           >
             Save Group Answer
           </button>
@@ -42750,7 +42750,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
     html.push(`
 
         <details style="margin-top:10px;">
-          <summary style="cursor:pointer;color:#bae6fd;">Answer individual questions</summary>
+          <summary style="cursor:pointer;color:#0369a1;">Answer individual questions</summary>
     `);
 
     groupQuestions.forEach((item, index) => {
@@ -42761,13 +42761,13 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
           data-aion-discovery-question-id="${escapeHtml(item.id || "")}"
           style="margin-top:10px;padding-top:10px;border-top:1px solid rgba(56,189,248,0.18);"
         >
-          <div style="color:#ffffff;font-weight:900;">&gt; Question ${index + 1} · ${escapeHtml(item.department || "boardroom")}</div>
-          <div style="margin-top:4px;color:#e0f2fe;">&gt; ${escapeHtml(item.question || "")}</div>
+          <div style="color:#102a43;font-weight:900;">&gt; Question ${index + 1} · ${escapeHtml(item.department || "boardroom")}</div>
+          <div style="margin-top:4px;color:#29465b;">&gt; ${escapeHtml(item.question || "")}</div>
 
           ${
             saved
               ? `
-                <div style="margin-top:6px;color:#86efac;">&gt; Saved answer: ${escapeHtml(saved.answer || "")}</div>
+                <div style="margin-top:6px;color:#15803d;">&gt; Saved answer: ${escapeHtml(saved.answer || "")}</div>
                 <div>&gt; Answer type: ${escapeHtml(saved.answer_type || "context")}</div>
               `
               : ""
@@ -42783,8 +42783,8 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
               width:100%;
               min-height:54px;
               margin-top:8px;
-              background:#020617;
-              color:#e0f2fe;
+              background:#ffffff;
+              color:#102a43;
               border:1px solid rgba(56,189,248,0.45);
               border-radius:8px;
               padding:8px;
@@ -42798,7 +42798,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
             <select
               data-aion-discovery-answer-type="true"
               data-question-id="${escapeHtml(item.id || "")}"
-              style="background:#020617;color:#bae6fd;border:1px solid rgba(56,189,248,0.45);border-radius:8px;padding:7px;"
+              style="background:#ffffff;color:#102a43;border:1px solid #8fc5d8;border-radius:8px;padding:7px;"
             >
               <option value="context" ${saved?.answer_type === "context" ? "selected" : ""}>context</option>
               <option value="correction" ${saved?.answer_type === "correction" ? "selected" : ""}>correction</option>
@@ -42814,7 +42814,7 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
               data-question-id="${escapeHtml(item.id || "")}"
               data-question="${escapeHtml(item.question || "")}"
               data-department="${escapeHtml(item.department || "boardroom")}"
-              style="border-color:rgba(56,189,248,0.8);background:#082f49;color:#e0f2fe;"
+              style="border-color:#5fa8c5;background:#edf8fc;color:#102a43;"
             >
               Save Answer
             </button>
@@ -42841,9 +42841,27 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
   document.addEventListener("click", (event) => {
     const routeButton = event.target?.closest?.("[data-aion-open-discovery-workspace]");
     if (routeButton) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation?.();
       const destination = routeButton.getAttribute("data-aion-open-discovery-workspace") || "";
-      if (typeof window.setAionSidebarActiveTabHardV1 === "function") window.setAionSidebarActiveTabHardV1(destination);
-      else document.querySelector(`[data-tab="${CSS.escape(destination)}"]`)?.click();
+      const section = routeButton.getAttribute("data-aion-open-discovery-section") || "";
+      if (destination === "products_services" && window.AionOperatingModelWorkspace?.state && section) {
+        window.AionOperatingModelWorkspace.state.activeTab = section;
+      }
+      if (typeof window.aionSetLiveAgentsDepartmentAuthorityO14M === "function") {
+        window.aionSetLiveAgentsDepartmentAuthorityO14M(destination);
+      } else {
+        try {
+          state.activeTab = "live_agents";
+          state.selectedLiveAgentDepartment = destination;
+          state.liveAgentsSelectedDepartment = destination;
+          window.__aionLiveAgentsFocusDepartment = destination;
+          localStorage.setItem("aion.liveAgents.focusDepartment.v1", destination);
+        } catch {}
+        if (typeof requestRender === "function") requestRender();
+        else if (typeof render === "function") render();
+      }
       return;
     }
 
@@ -42922,8 +42940,8 @@ function renderAionVisibleAskBoardResultHtmlV1() {
       style="
         margin-top:12px;
         border:1px solid rgba(34,197,94,0.34);
-        background:#07111f;
-        color:#dbeafe;
+        background:#ffffff;
+        color:#29465b;
         padding:14px;
         font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
         font-size:12px;
@@ -42931,7 +42949,7 @@ function renderAionVisibleAskBoardResultHtmlV1() {
         box-shadow:inset 4px 0 0 #22c55e;
       "
     >
-      <div style="font-weight:900; color:#86efac; letter-spacing:0.08em; text-transform:uppercase;">
+      <div style="font-weight:900; color:#0f766e; letter-spacing:0.08em; text-transform:uppercase;">
         &gt; Ask the Board result · live provider fanout
       </div>
       <div>&gt; Session: ${escapeHtml(result.session_id || "")}</div>
@@ -42940,20 +42958,20 @@ function renderAionVisibleAskBoardResultHtmlV1() {
       <div>&gt; Boundary: ${escapeHtml(result.execution_boundary || "")}</div>
       <div>&gt; Result hash: ${escapeHtml(result.result_hash || "")}</div>
 
-      <div style="margin-top:10px;border:1px solid rgba(14,165,233,.45);background:#082f49;padding:10px;color:#bae6fd;">
-        <div style="font-weight:900;color:#7dd3fc;">&gt; ROUND 1 COMPLETE · CONTINUE THIS MEETING</div>
+      <div style="margin-top:10px;border:1px solid #8fc5d8;background:#edf8fc;padding:10px;color:#29465b;">
+        <div style="font-weight:900;color:#0369a1;">&gt; ROUND 1 COMPLETE · CONTINUE THIS MEETING</div>
         <div>&gt; Answer relevant discovery questions or add founder feedback, then select <strong>Debate Plan</strong>.</div>
         <div>&gt; The top button now says Restart Board Analysis because using it again deliberately starts a new Round 1 and unresolved evidence may produce similar conclusions.</div>
       </div>
 
-      <div style="margin-top:10px; color:#ffffff; font-weight:900;">&gt; Consensus</div>
+      <div style="margin-top:10px; color:#102a43; font-weight:900;">&gt; Consensus</div>
       <div>&gt; ${escapeHtml(consensus.summary || "")}</div>
 
       ${typeof renderAionBoardroomPushbackGateHtmlV1 === "function" ? renderAionBoardroomPushbackGateHtmlV1(result) : ""}
       ${typeof renderAionFounderFeedbackGateResolutionHtmlV1 === "function" ? renderAionFounderFeedbackGateResolutionHtmlV1(result) : ""}
       ${typeof renderAionDiscoveryQuestionInboxHtmlV1 === "function" ? renderAionDiscoveryQuestionInboxHtmlV1(result, "ask_board") : ""}
 
-      <div style="margin-top:10px; color:#93c5fd; font-weight:900;">
+      <div style="margin-top:10px; color:#0369a1; font-weight:900;">
         &gt; ${result.live_provider_fanout ? "Connected provider responses" : "Council responses"} · ${responses.length}
       </div>
       <div>&gt; Live provider fanout: ${result.live_provider_fanout ? "yes" : "no"} · simulated responses: ${result.simulated_responses ? "yes" : "no"}</div>
@@ -42966,22 +42984,22 @@ function renderAionVisibleAskBoardResultHtmlV1() {
       ` : ""}
       ${responses.map((item) => `
         <div style="margin-top:7px;">
-          <span style="color:#ffffff; font-weight:900;">${escapeHtml(item.member || "Member")}:</span>
+          <span style="color:#102a43; font-weight:900;">${escapeHtml(item.member || "Member")}:</span>
           ${escapeHtml(item.view || "")}
-          <div style="color:#86efac;">&gt; action: ${escapeHtml(item.action || "")}</div>
+          <div style="color:#15803d;">&gt; action: ${escapeHtml(item.action || "")}</div>
         </div>
       `).join("")}
 
-      <div style="margin-top:10px; color:#86efac; font-weight:900;">&gt; Agreed plan</div>
+      <div style="margin-top:10px; color:#15803d; font-weight:900;">&gt; Agreed plan</div>
       ${safeArray(consensus.plan).map((line, index) => `<div>&gt; ${index + 1}. ${escapeHtml(line)}</div>`).join("")}
 
-      <div style="margin-top:10px; color:#fbbf24; font-weight:900;">&gt; Open questions</div>
+      <div style="margin-top:10px; color:#b45309; font-weight:900;">&gt; Open questions</div>
       ${safeArray(consensus.open_questions).map((line) => `<div>&gt; ? ${escapeHtml(line)}</div>`).join("")}
 
-      <div style="margin-top:10px; color:#fb7185; font-weight:900;">&gt; Risks</div>
+      <div style="margin-top:10px; color:#be123c; font-weight:900;">&gt; Risks</div>
       ${safeArray(consensus.risks).map((line) => `<div>&gt; ! ${escapeHtml(line)}</div>`).join("")}
 
-      <div style="margin-top:10px; color:#ffffff;">&gt; Decision: ${escapeHtml(consensus.decision || "")}</div>
+      <div style="margin-top:10px; color:#102a43;">&gt; Decision: ${escapeHtml(consensus.decision || "")}</div>
       ${typeof renderAionFounderFeedbackBoxV3 === "function" ? renderAionFounderFeedbackBoxV3(
         "ask_board",
         "after Round 1 consensus",
@@ -44901,8 +44919,8 @@ function renderBoardroomCouncilSessionTerminal() {
       style="
         margin-top:0;
         border:1px solid rgba(17,17,17,0.14);
-        background:#0f172a;
-        color:#dbeafe;
+        background:#f7fbfd;
+        color:#29465b;
         padding:7px 12px;
         font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
         font-size:12px;
@@ -44923,7 +44941,7 @@ function renderBoardroomCouncilSessionTerminal() {
           align-items:center;
           gap:8px;
           margin-top:2px;
-          color:#dbeafe;
+          color:#29465b;
         "
       >
         <span>&gt;</span>
@@ -44937,7 +44955,7 @@ function renderBoardroomCouncilSessionTerminal() {
             border:0;
             outline:0;
             background:transparent;
-            color:#dbeafe;
+            color:#29465b;
             font:inherit;
             padding:0;
           "
@@ -44948,11 +44966,11 @@ function renderBoardroomCouncilSessionTerminal() {
             display:inline-block;
             width:7px;
             height:16px;
-            background:#dbeafe;
+            background:#0369a1;
             animation:aionTerminalCursorBlink 1s steps(1,end) infinite;
           "
         ></span>
-        <span style="color:rgba(219,234,254,0.55);">press Enter to open board meeting</span>
+        <span style="color:#64748b;">press Enter to open board meeting</span>
       </label>
     </div>
   `;
@@ -44969,12 +44987,12 @@ function renderBoardroomCouncilSessionTerminal() {
       style="
         margin-top:0;
         border:1px solid rgba(17,17,17,0.18);
-        background:#0f172a;
+        background:#f7fbfd;
         padding:12px;
         font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation Mono',monospace;
         font-size:12px;
         line-height:1.68;
-        color:#dbeafe;
+        color:#29465b;
         min-height:250px;
         max-height:390px;
         overflow:auto;
