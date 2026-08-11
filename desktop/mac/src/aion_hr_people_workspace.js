@@ -173,7 +173,9 @@
     const panel = state.panel;
     if (panel.type === 'person') {
       const founder = panel.employmentType === 'owner' ? founderDefaults() : { name: '', email: '' };
-      const person = panel.item || { id: id('person'), name: founder.name, email: founder.email, employment_type: panel.employmentType || 'employee', position_title: panel.employmentType === 'owner' ? 'Managing Director' : '', status: 'active', manager_id: null, department_ids: [], role_ids: [] };
+      const initialPerson = panel.item || { id: id('person'), name: founder.name, email: founder.email, employment_type: panel.employmentType || 'employee', position_title: panel.employmentType === 'owner' ? 'Managing Director' : '', status: 'active', manager_id: null, department_ids: [], role_ids: [] };
+      if (!panel.draft) panel.draft = clone(initialPerson);
+      const person = panel.draft;
       const defaultRole = person.employment_type === 'owner' ? 'role.owner_director' : ['self_employed','contractor','freelancer'].includes(person.employment_type) ? 'role.self_employed_contractor' : 'role.employee';
       const selectedRoles = new Set(person.role_ids?.length ? person.role_ids : [defaultRole]);
       return `<aside class="hrw-panel"><form data-hrw-person-form data-person-id="${esc(person.id)}"><header><div><span>${panel.item ? 'EDIT PERSON' : 'ADD PERSON'}</span><h2>${panel.item ? esc(person.name) : 'Who are you adding?'}</h2></div><button type="button" data-hrw-close>×</button></header>
@@ -220,6 +222,20 @@
     if (!target) return;
     target.setAttribute('data-aion-hr-authority-installed', 'true');
     target.innerHTML = view();
+    if (state.panel) {
+      requestAnimationFrame(() => {
+        const panel = target.querySelector('.hrw-panel');
+        if (panel && state.panel?.scrollTop) panel.scrollTop = state.panel.scrollTop;
+        const focusName = state.panel?.focusName;
+        const field = focusName ? target.querySelector(`[data-hrw-person-form] [name="${CSS.escape(focusName)}"]`) : null;
+        if (field) {
+          field.focus({ preventScroll: true });
+          if (typeof field.setSelectionRange === 'function' && Number.isInteger(state.panel.selectionStart)) {
+            field.setSelectionRange(state.panel.selectionStart, state.panel.selectionEnd ?? state.panel.selectionStart);
+          }
+        }
+      });
+    }
   }
 
   async function load() {
@@ -258,6 +274,54 @@
     const data = new FormData(form);
     return Object.fromEntries([...data.entries()].filter(([key]) => !['department_ids','role_ids'].includes(key)));
   }
+
+  function syncPersonDraft(form) {
+    if (!state.panel || state.panel.type !== 'person' || !form) return;
+    const values = formObject(form);
+    values.department_ids = [...form.querySelectorAll('[name="department_ids"]:checked')].map((item) => item.value);
+    values.role_ids = [...form.querySelectorAll('[name="role_ids"]:checked')].map((item) => item.value);
+    values.manager_id = values.manager_id || null;
+    values.workforce_costing = {
+      ...(state.panel.draft?.workforce_costing || {}),
+      basis: values.workforce_costing_basis || 'hourly',
+      base_rate: values.workforce_costing_base_rate,
+      employer_on_cost_percent: values.workforce_costing_employer_on_cost_percent,
+      monthly_bonus: values.workforce_costing_monthly_bonus,
+      commission_percent: values.workforce_costing_commission_percent,
+      productive_hours_month: values.workforce_costing_productive_hours_month,
+      hours_per_day: values.workforce_costing_hours_per_day,
+    };
+    Object.keys(values).filter((key) => key.startsWith('workforce_costing_')).forEach((key) => delete values[key]);
+    state.panel.draft = { ...(state.panel.draft || {}), ...values };
+  }
+
+  function rememberPersonDraftFocus(field) {
+    if (!state.panel || state.panel.type !== 'person' || !field?.name) return;
+    state.panel.focusName = field.name;
+    state.panel.selectionStart = Number.isInteger(field.selectionStart) ? field.selectionStart : null;
+    state.panel.selectionEnd = Number.isInteger(field.selectionEnd) ? field.selectionEnd : null;
+  }
+
+  document.addEventListener('input', (event) => {
+    const form = event.target?.closest?.('[data-hrw-person-form]');
+    if (form) {
+      syncPersonDraft(form);
+      rememberPersonDraftFocus(event.target);
+    }
+  }, true);
+
+  document.addEventListener('change', (event) => {
+    const form = event.target?.closest?.('[data-hrw-person-form]');
+    if (form) {
+      syncPersonDraft(form);
+      rememberPersonDraftFocus(event.target);
+    }
+  }, true);
+
+  document.addEventListener('scroll', (event) => {
+    const panel = event.target?.closest?.('.hrw-panel');
+    if (panel && state.panel) state.panel.scrollTop = panel.scrollTop;
+  }, true);
 
   document.addEventListener('click', async (event) => {
     const target = event.target.closest('[data-aion-hr-workspace] button, .hrw-panel button');

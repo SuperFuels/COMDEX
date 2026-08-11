@@ -60,3 +60,13 @@ def test_marketing_and_operations_no_longer_embed_the_legacy_terminal_surface():
     operations = APP_JS[operations_start:operations_end]
     assert "renderAionDepartmentScopedPilotSurface" not in operations
     assert 'data-aion-operations-delivery-workspace="true"' in operations
+
+
+def test_hr_person_modal_preserves_unsaved_draft_during_background_refreshes():
+    assert "if (!panel.draft) panel.draft = clone(initialPerson);" in HR_JS
+    assert "function syncPersonDraft(form)" in HR_JS
+    assert "state.panel.draft = { ...(state.panel.draft || {}), ...values };" in HR_JS
+    assert "function rememberPersonDraftFocus(field)" in HR_JS
+    assert "field.focus({ preventScroll: true });" in HR_JS
+    assert "field.setSelectionRange(state.panel.selectionStart" in HR_JS
+    assert "state.panel.scrollTop = panel.scrollTop" in HR_JS
