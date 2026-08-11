@@ -192,6 +192,22 @@ data/photon_sci/*.jsonl
 data/logs/**
 exports/**
 
+# Experiment evidence and simulator checkpoints remain local. Curated reports
+# and source contracts live under docs/ and backend/; existing tracked result
+# fixtures remain tracked, but new multi-gigabyte run output must not enter Git.
+results/**
+MUJOCO_LOG.TXT
+
+# Live AION service coordination and failed-state recovery snapshots are
+# machine-local runtime data rather than reproducible source.
+backend/modules/hexcore/data/service_locks/
+backend/modules/hexcore/data/**/*.lock
+backend/modules/hexcore/data/**/*.malformed.*
+backend/modules/hexcore/data/phase45_artifacts/
+backend/modules/hexcore/data/**/provider_cache.json
+backend/modules/hexcore/data/**/openai_provider_cache.json
+backend/modules/hexcore/data/**/teacher_cache.json
+
 # optional: if you never want ANY runtime data tracked
 # data/**# INERTIA artifacts: keep only what is already tracked; ignore future runs
 INERTIA/artifacts/programmable_inertia/**/*

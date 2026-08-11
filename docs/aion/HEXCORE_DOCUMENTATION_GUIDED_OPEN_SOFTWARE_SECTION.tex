@@ -1,0 +1,55 @@
+\section{Documentation-Guided Open Software Intelligence}
+\label{sec:documentation-guided-open-software}
+
+This stage joined AION's semantic-memory and repository-repair tracks.  Given
+repository documentation, an issue, and source code, but no repair menu,
+official patch, or target hint, AION invented concepts, relations, invariants,
+and document-to-code bindings.  Bindings were retained only when their symbols
+occurred in the proposed source files.  Patch generation remained unrestricted
+exact replacement, and all candidates were executed in fresh sandboxes.
+
+The matched comparison used the same proposal model, issue, source tree,
+localizer, tools, round budget, verifier, and historical metadata in both arms.
+Only the challenger received verified documentation memory.  The valid cohort
+used the repository-compatible Python~3.13 environment; an earlier Python~3.14
+run was discarded because Marshmallow failed on its historical
+\texttt{distutils} dependency before candidate execution.
+
+\begin{table}[htbp]
+\centering
+\caption{Matched documentation-memory repair results.}
+\begin{tabular}{lrr}
+\hline
+Measure & No-memory & Documentation memory \\
+\hline
+Repository success & $100\%$ & $100\%$ \\
+Weakest-repository success & $100\%$ & $100\%$ \\
+Proposal attempts & 5 & 4 \\
+Attempt reduction & -- & $20\%$ \\
+\hline
+\end{tabular}
+\end{table}
+
+Across three repositories AION invented 13 concepts, grounded 14 relations and
+six invariants, and confirmed six code bindings against source.  Provenance was
+complete.  All three accepted repairs included functional and adversarial
+security test specifications.  Six executable malicious-patch probes were
+blocked, including dynamic execution, shell use, disabled verification,
+world-writable permissions, embedded secrets, and authorization bypass.  No
+live repository was modified.
+
+The promoted procedure is
+\texttt{procedure\_documentation\_guided\_open\_software\_78c699935c54}.
+It survived restart with zero relearning.  A more aggressive source-grounded
+challenger was rejected: success fell to $66.67\%$ and attempts increased from
+five to ten because additional code context damaged the pvlib numerical repair.
+This negative result establishes that memory must be routed selectively rather
+than injected unconditionally.
+
+The cohort uses public development issues and engineered executable verifiers;
+contamination cannot be excluded.  The model invented test specifications, not
+complete executable test programs.  The next gate requires a governed memory
+router, executable self-invented falsification tests, repeated-seed stability,
+at least five repositories and three languages, and independently administered
+hidden evaluation.
+

@@ -86,7 +86,8 @@ def test_phase25c_marketing_workspace_mounts_panel():
     end = TEXT.index("function renderMarketingManualWorkspaceSurface", start)
     block = TEXT[start:end]
 
-    assert 'renderAionDepartmentScopedPilotSurface("marketing", selectedRuns, selectedAgentCard)' in block
+    assert 'data-aion-marketing-automation-studio="true"' in block
+    assert "getAionPilotMarketingWorkspaceArtifacts()" in block
     assert 'renderAionDepartmentPilotPhase25CPanel("marketing")' not in block
 
 

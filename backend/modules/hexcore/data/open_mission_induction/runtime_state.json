@@ -1,0 +1,2764 @@
+{
+  "active_cycle": null,
+  "authorized_missions": {
+    "mission:climate_explanation": {
+      "action_budget": 8,
+      "actions_used": 4,
+      "allowed_authorities": [
+        "portfolio_outcome_authority:climate_explanation"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T21:43:29.245846+00:00",
+      "capability_requirements": [
+        {
+          "capability": "independent_verification",
+          "dependencies": [
+            "natural_document_comprehension",
+            "provenance_binding"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:climate_explanation",
+              "capability": "independent_verification",
+              "cohort": "transfer",
+              "portfolio_id": "climate_explanation",
+              "task_id": "climate_explanation:independent_verification"
+            }
+          ]
+        },
+        {
+          "capability": "natural_document_comprehension",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:climate_explanation",
+              "capability": "natural_document_comprehension",
+              "cohort": "transfer",
+              "portfolio_id": "climate_explanation",
+              "task_id": "climate_explanation:natural_document_comprehension"
+            }
+          ]
+        },
+        {
+          "capability": "provenance_binding",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:climate_explanation",
+              "capability": "provenance_binding",
+              "cohort": "transfer",
+              "portfolio_id": "climate_explanation",
+              "task_id": "climate_explanation:provenance_binding"
+            }
+          ]
+        },
+        {
+          "capability": "source_inventory",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:climate_explanation",
+              "capability": "source_inventory",
+              "cohort": "transfer",
+              "portfolio_id": "climate_explanation",
+              "task_id": "climate_explanation:source_inventory"
+            }
+          ]
+        }
+      ],
+      "mission_id": "mission:climate_explanation",
+      "objective": "Explain how climate differs from weather while preserving exact source provenance and epistemic status.",
+      "objective_hash": "a85e3f557e60752cce9f55aa32b967c874e70ffe2fed42bd713eb4d759f839f2",
+      "priority": 5.0,
+      "status": "capability_complete"
+    },
+    "mission:financial_change": {
+      "action_budget": 9,
+      "actions_used": 5,
+      "allowed_authorities": [
+        "portfolio_outcome_authority:financial_change"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T21:43:25.776340+00:00",
+      "capability_requirements": [
+        {
+          "capability": "independent_verification",
+          "dependencies": [
+            "layout_aware_document_reasoning",
+            "quantitative_claim_verification",
+            "provenance_binding"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:financial_change",
+              "capability": "independent_verification",
+              "cohort": "development",
+              "portfolio_id": "financial_change",
+              "task_id": "financial_change:independent_verification"
+            }
+          ]
+        },
+        {
+          "capability": "layout_aware_document_reasoning",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:financial_change",
+              "capability": "layout_aware_document_reasoning",
+              "cohort": "development",
+              "portfolio_id": "financial_change",
+              "task_id": "financial_change:layout_aware_document_reasoning"
+            }
+          ]
+        },
+        {
+          "capability": "provenance_binding",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:financial_change",
+              "capability": "provenance_binding",
+              "cohort": "development",
+              "portfolio_id": "financial_change",
+              "task_id": "financial_change:provenance_binding"
+            }
+          ]
+        },
+        {
+          "capability": "quantitative_claim_verification",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:financial_change",
+              "capability": "quantitative_claim_verification",
+              "cohort": "development",
+              "portfolio_id": "financial_change",
+              "task_id": "financial_change:quantitative_claim_verification"
+            }
+          ]
+        },
+        {
+          "capability": "source_inventory",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:financial_change",
+              "capability": "source_inventory",
+              "cohort": "development",
+              "portfolio_id": "financial_change",
+              "task_id": "financial_change:source_inventory"
+            }
+          ]
+        }
+      ],
+      "mission_id": "mission:financial_change",
+      "objective": "Determine whether revenue and operating profit declined and quantify the reported evidence without converting reporting into independent truth.",
+      "objective_hash": "ca718e32479df1b5288bcb81713a94f9137699d0bec52f952ed63eb99a9a25ed",
+      "priority": 5.0,
+      "status": "capability_complete"
+    },
+    "mission:fourier_alignment": {
+      "action_budget": 11,
+      "actions_used": 7,
+      "allowed_authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T21:43:28.830684+00:00",
+      "capability_requirements": [
+        {
+          "capability": "cross_modal_synthesis",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:fourier_alignment",
+              "capability": "cross_modal_synthesis",
+              "cohort": "transfer",
+              "portfolio_id": "fourier_alignment",
+              "task_id": "fourier_alignment:cross_modal_synthesis"
+            }
+          ]
+        },
+        {
+          "capability": "independent_verification",
+          "dependencies": [
+            "cross_modal_synthesis",
+            "quantitative_claim_verification",
+            "quantitative_table_reasoning",
+            "visual_evidence_grounding",
+            "provenance_binding"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:fourier_alignment",
+              "capability": "independent_verification",
+              "cohort": "transfer",
+              "portfolio_id": "fourier_alignment",
+              "task_id": "fourier_alignment:independent_verification"
+            }
+          ]
+        },
+        {
+          "capability": "provenance_binding",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:fourier_alignment",
+              "capability": "provenance_binding",
+              "cohort": "transfer",
+              "portfolio_id": "fourier_alignment",
+              "task_id": "fourier_alignment:provenance_binding"
+            }
+          ]
+        },
+        {
+          "capability": "quantitative_claim_verification",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:fourier_alignment",
+              "capability": "quantitative_claim_verification",
+              "cohort": "transfer",
+              "portfolio_id": "fourier_alignment",
+              "task_id": "fourier_alignment:quantitative_claim_verification"
+            }
+          ]
+        },
+        {
+          "capability": "quantitative_table_reasoning",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:fourier_alignment",
+              "capability": "quantitative_table_reasoning",
+              "cohort": "transfer",
+              "portfolio_id": "fourier_alignment",
+              "task_id": "fourier_alignment:quantitative_table_reasoning"
+            }
+          ]
+        },
+        {
+          "capability": "source_inventory",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:fourier_alignment",
+              "capability": "source_inventory",
+              "cohort": "transfer",
+              "portfolio_id": "fourier_alignment",
+              "task_id": "fourier_alignment:source_inventory"
+            }
+          ]
+        },
+        {
+          "capability": "visual_evidence_grounding",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 1,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:fourier_alignment",
+              "capability": "visual_evidence_grounding",
+              "cohort": "transfer",
+              "portfolio_id": "fourier_alignment",
+              "task_id": "fourier_alignment:visual_evidence_grounding"
+            }
+          ]
+        }
+      ],
+      "mission_id": "mission:fourier_alignment",
+      "objective": "Determine whether the Fourier image and numerical table are consistent, and abstain if their evidence cannot be aligned.",
+      "objective_hash": "efb4336e14a237648afda1463f7fc67c3aa059f98d24e76d5ca8ed3cbe57efc0",
+      "priority": 5.0,
+      "status": "capability_complete"
+    },
+    "mission:software_governance": {
+      "action_budget": 12,
+      "actions_used": 8,
+      "allowed_authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T21:43:25.477302+00:00",
+      "capability_requirements": [
+        {
+          "capability": "cross_modal_synthesis",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "cross_modal_synthesis",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:cross_modal_synthesis"
+            }
+          ]
+        },
+        {
+          "capability": "epistemic_conflict_resolution",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "epistemic_conflict_resolution",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:epistemic_conflict_resolution"
+            }
+          ]
+        },
+        {
+          "capability": "executable_code_reasoning",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "executable_code_reasoning",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:executable_code_reasoning"
+            }
+          ]
+        },
+        {
+          "capability": "independent_verification",
+          "dependencies": [
+            "cross_modal_synthesis",
+            "epistemic_conflict_resolution",
+            "executable_code_reasoning",
+            "natural_document_comprehension",
+            "structured_configuration_reasoning",
+            "provenance_binding"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "independent_verification",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:independent_verification"
+            }
+          ]
+        },
+        {
+          "capability": "natural_document_comprehension",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "natural_document_comprehension",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:natural_document_comprehension"
+            }
+          ]
+        },
+        {
+          "capability": "provenance_binding",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "provenance_binding",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:provenance_binding"
+            }
+          ]
+        },
+        {
+          "capability": "source_inventory",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "source_inventory",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:source_inventory"
+            }
+          ]
+        },
+        {
+          "capability": "structured_configuration_reasoning",
+          "dependencies": [
+            "source_inventory"
+          ],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 0,
+          "minimum_verified_outcomes": 1,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "portfolio_outcome_authority:software_governance",
+              "capability": "structured_configuration_reasoning",
+              "cohort": "development",
+              "portfolio_id": "software_governance",
+              "task_id": "software_governance:structured_configuration_reasoning"
+            }
+          ]
+        }
+      ],
+      "mission_id": "mission:software_governance",
+      "objective": "Determine which governance capabilities are implemented and which remain aspirations, preserving executable and documentary evidence.",
+      "objective_hash": "d06edb892bb28f12418f6d5bd02ec8766ca3060ee6d0ccc570507f718a15ff27",
+      "priority": 5.0,
+      "status": "capability_complete"
+    }
+  },
+  "capability_map": {
+    "mission:climate_explanation:independent_verification": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:climate_explanation"
+      ],
+      "capability": "independent_verification",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:climate_explanation",
+      "outcome_ids": [
+        "climate_explanation:independent_verification"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:climate_explanation:natural_document_comprehension": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:climate_explanation"
+      ],
+      "capability": "natural_document_comprehension",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:climate_explanation",
+      "outcome_ids": [
+        "climate_explanation:natural_document_comprehension"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:climate_explanation:provenance_binding": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:climate_explanation"
+      ],
+      "capability": "provenance_binding",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:climate_explanation",
+      "outcome_ids": [
+        "climate_explanation:provenance_binding"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:climate_explanation:source_inventory": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:climate_explanation"
+      ],
+      "capability": "source_inventory",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:climate_explanation",
+      "outcome_ids": [
+        "climate_explanation:source_inventory"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:financial_change:independent_verification": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:financial_change"
+      ],
+      "capability": "independent_verification",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:financial_change",
+      "outcome_ids": [
+        "financial_change:independent_verification"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:financial_change:layout_aware_document_reasoning": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:financial_change"
+      ],
+      "capability": "layout_aware_document_reasoning",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:financial_change",
+      "outcome_ids": [
+        "financial_change:layout_aware_document_reasoning"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:financial_change:provenance_binding": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:financial_change"
+      ],
+      "capability": "provenance_binding",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:financial_change",
+      "outcome_ids": [
+        "financial_change:provenance_binding"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:financial_change:quantitative_claim_verification": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:financial_change"
+      ],
+      "capability": "quantitative_claim_verification",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:financial_change",
+      "outcome_ids": [
+        "financial_change:quantitative_claim_verification"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:financial_change:source_inventory": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:financial_change"
+      ],
+      "capability": "source_inventory",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:financial_change",
+      "outcome_ids": [
+        "financial_change:source_inventory"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:fourier_alignment:cross_modal_synthesis": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "capability": "cross_modal_synthesis",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:fourier_alignment",
+      "outcome_ids": [
+        "fourier_alignment:cross_modal_synthesis"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:fourier_alignment:independent_verification": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "capability": "independent_verification",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:fourier_alignment",
+      "outcome_ids": [
+        "fourier_alignment:independent_verification"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:fourier_alignment:provenance_binding": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "capability": "provenance_binding",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:fourier_alignment",
+      "outcome_ids": [
+        "fourier_alignment:provenance_binding"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:fourier_alignment:quantitative_claim_verification": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "capability": "quantitative_claim_verification",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:fourier_alignment",
+      "outcome_ids": [
+        "fourier_alignment:quantitative_claim_verification"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:fourier_alignment:quantitative_table_reasoning": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "capability": "quantitative_table_reasoning",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:fourier_alignment",
+      "outcome_ids": [
+        "fourier_alignment:quantitative_table_reasoning"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:fourier_alignment:source_inventory": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "capability": "source_inventory",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:fourier_alignment",
+      "outcome_ids": [
+        "fourier_alignment:source_inventory"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:fourier_alignment:visual_evidence_grounding": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:fourier_alignment"
+      ],
+      "capability": "visual_evidence_grounding",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:fourier_alignment",
+      "outcome_ids": [
+        "fourier_alignment:visual_evidence_grounding"
+      ],
+      "transfer_successes": 1,
+      "verified_successes": 1
+    },
+    "mission:software_governance:cross_modal_synthesis": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "cross_modal_synthesis",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:cross_modal_synthesis"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:software_governance:epistemic_conflict_resolution": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "epistemic_conflict_resolution",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:epistemic_conflict_resolution"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:software_governance:executable_code_reasoning": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "executable_code_reasoning",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:executable_code_reasoning"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:software_governance:independent_verification": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "independent_verification",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:independent_verification"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:software_governance:natural_document_comprehension": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "natural_document_comprehension",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:natural_document_comprehension"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:software_governance:provenance_binding": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "provenance_binding",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:provenance_binding"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:software_governance:source_inventory": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "source_inventory",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:source_inventory"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    },
+    "mission:software_governance:structured_configuration_reasoning": {
+      "attempts": 1,
+      "authorities": [
+        "portfolio_outcome_authority:software_governance"
+      ],
+      "capability": "structured_configuration_reasoning",
+      "lower_confidence_bound": 0.20654329147389294,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission:software_governance",
+      "outcome_ids": [
+        "software_governance:structured_configuration_reasoning"
+      ],
+      "transfer_successes": 0,
+      "verified_successes": 1
+    }
+  },
+  "completed_cycles": [
+    {
+      "completed_at": "2026-07-31T21:43:25.519935+00:00",
+      "cycle_id": "cycle_a3e1318159864799",
+      "goal_id": "learn:mission:software_governance:source_inventory:software_governance:source_inventory",
+      "mastery_receipt_id": "receipt_bf601562bac640f2",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_06aefb623547",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_06aefb623547",
+          "state_hash": "1dbffb71d0d29c0191b31376ac4d56b22bea4d974e2cf6448b997bf55abf2da5"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:25.554353+00:00",
+      "cycle_id": "cycle_c872f4f16e0f4e8b",
+      "goal_id": "learn:mission:software_governance:cross_modal_synthesis:software_governance:cross_modal_synthesis",
+      "mastery_receipt_id": "receipt_ffbd27f61fd9f809",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_47671c6331a2",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_47671c6331a2",
+          "state_hash": "e426fbc2e1db0e6b5bad2c4088e3e5db110b89b3b9ffed12c5b9869b4b13e489"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:25.593662+00:00",
+      "cycle_id": "cycle_bd5a2903b15a447c",
+      "goal_id": "learn:mission:software_governance:epistemic_conflict_resolution:software_governance:epistemic_conflict_resolution",
+      "mastery_receipt_id": "receipt_606403b2377f3fc0",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_1d2639ab4d75",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_1d2639ab4d75",
+          "state_hash": "5fa7c6183c0aa1c4d7a1aca854eba24104e104183906cdcb016b99bbc5770728"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:25.629773+00:00",
+      "cycle_id": "cycle_139196dde6114d92",
+      "goal_id": "learn:mission:software_governance:executable_code_reasoning:software_governance:executable_code_reasoning",
+      "mastery_receipt_id": "receipt_8cacbcffce1d434c",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_7aac5c1c4d48",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_7aac5c1c4d48",
+          "state_hash": "75862b0b82660da03bb83f74bc46b6312bbf904df1114c7da9d31529f09f4120"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:25.664802+00:00",
+      "cycle_id": "cycle_1710f71d68384f88",
+      "goal_id": "learn:mission:software_governance:natural_document_comprehension:software_governance:natural_document_comprehension",
+      "mastery_receipt_id": "receipt_991caa7fe07c208a",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_b4589052adf4",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_b4589052adf4",
+          "state_hash": "28b37055b6712927c3f4e2ca738d18812843eb3431b280f7b3451c0bf08cde70"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:25.700980+00:00",
+      "cycle_id": "cycle_ac0f249d40944256",
+      "goal_id": "learn:mission:software_governance:provenance_binding:software_governance:provenance_binding",
+      "mastery_receipt_id": "receipt_1c19d12a493a0882",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_0bf004ef77e6",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_0bf004ef77e6",
+          "state_hash": "ec474cf1564e5279b171376f2a58170ce9fe73de52e9d8a92cfdb581bf7339fe"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:25.737331+00:00",
+      "cycle_id": "cycle_5a879517e5c84d90",
+      "goal_id": "learn:mission:software_governance:structured_configuration_reasoning:software_governance:structured_configuration_reasoning",
+      "mastery_receipt_id": "receipt_c5417fcecc66a689",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_2e4890f6e1df",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_2e4890f6e1df",
+          "state_hash": "ae30f36b1c97e0cbce3ab7214f09a3a8bf6548f1c1f1286863959c295749bb5a"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:25.773438+00:00",
+      "cycle_id": "cycle_9666af4d3112461c",
+      "goal_id": "learn:mission:software_governance:independent_verification:software_governance:independent_verification",
+      "mastery_receipt_id": "receipt_c67ce7c5ea945bcd",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_c6a705e18f32",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_c6a705e18f32",
+          "state_hash": "25ac11d0843e36deb4693a5b2dde77fe58dd721ae0933744a3c67f705505f15d"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:26.376050+00:00",
+      "cycle_id": "cycle_d0ff5faeae204efb",
+      "goal_id": "learn:mission:financial_change:source_inventory:financial_change:source_inventory",
+      "mastery_receipt_id": "receipt_a77ca28e64b94dbe",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_c2c168ab064b",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_c2c168ab064b",
+          "state_hash": "021f97e14a5f5d552399a02c1cb0a3533710ac679467cbe1e4dbffe373639d42"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:26.983371+00:00",
+      "cycle_id": "cycle_051c3d18a8ba40d8",
+      "goal_id": "learn:mission:financial_change:layout_aware_document_reasoning:financial_change:layout_aware_document_reasoning",
+      "mastery_receipt_id": "receipt_c4c9960bc0e07d99",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_7e3f956a8329",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_7e3f956a8329",
+          "state_hash": "473767692a35ec5f45a981500ca2e4dd43015cc1e2e7618f9c468f8d092430df"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:27.598532+00:00",
+      "cycle_id": "cycle_d3353ea835394cc7",
+      "goal_id": "learn:mission:financial_change:provenance_binding:financial_change:provenance_binding",
+      "mastery_receipt_id": "receipt_31627ee4885e503e",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_748833e59c8d",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_748833e59c8d",
+          "state_hash": "ab5ee9d452a47a3c0aaf307e91146ef65f42aaa809c76ceaa6f02adc51839315"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:28.213007+00:00",
+      "cycle_id": "cycle_0dc78670448e4ae1",
+      "goal_id": "learn:mission:financial_change:quantitative_claim_verification:financial_change:quantitative_claim_verification",
+      "mastery_receipt_id": "receipt_7966f52f9a57d42c",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_542dc9a1ef69",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_542dc9a1ef69",
+          "state_hash": "02e4b0b91c4a70d0bb564e0ead1949a2423a9a43c8be540fe6e357176aa135d1"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:28.826208+00:00",
+      "cycle_id": "cycle_a1ba71fefa9f4413",
+      "goal_id": "learn:mission:financial_change:independent_verification:financial_change:independent_verification",
+      "mastery_receipt_id": "receipt_12c419c7c5e4dee5",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_ab5627b40aa2",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_ab5627b40aa2",
+          "state_hash": "e623ccedb104dea4c1e0a66875bafcbe02d0c56627c34362cc26d7eff7aec39b"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:28.888217+00:00",
+      "cycle_id": "cycle_61046acdd35a4ba7",
+      "goal_id": "learn:mission:fourier_alignment:source_inventory:fourier_alignment:source_inventory",
+      "mastery_receipt_id": "receipt_83780a767b274883",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_b8e7f4319d95",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_b8e7f4319d95",
+          "state_hash": "b057f65129074b9d05255b3b9984571ab50b107d2761ea8b8b0026747ffdc709"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:28.943478+00:00",
+      "cycle_id": "cycle_2e9c95cb40c84258",
+      "goal_id": "learn:mission:fourier_alignment:cross_modal_synthesis:fourier_alignment:cross_modal_synthesis",
+      "mastery_receipt_id": "receipt_0c050e8d088b0905",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_e1215d78598a",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_e1215d78598a",
+          "state_hash": "3e4fad3d685776980937dd796ebb787f9c6d7a80b86d09fb3c60a6fcb920f56d"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.001198+00:00",
+      "cycle_id": "cycle_4aed4c0bf4e642f5",
+      "goal_id": "learn:mission:fourier_alignment:provenance_binding:fourier_alignment:provenance_binding",
+      "mastery_receipt_id": "receipt_81825a25cf827cbc",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_ec67f12a8abe",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_ec67f12a8abe",
+          "state_hash": "dbfde9e9e1d67c9558c5297d26c618e6d316ead23e72a7567ba91f4c77e90d04"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.058699+00:00",
+      "cycle_id": "cycle_837c17434ee34638",
+      "goal_id": "learn:mission:fourier_alignment:quantitative_claim_verification:fourier_alignment:quantitative_claim_verification",
+      "mastery_receipt_id": "receipt_304c35535654e9d5",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_9a12ac6c1304",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_9a12ac6c1304",
+          "state_hash": "70aba1e56605a238ec1228f9dd1b095903681f58b7e8976fb97cb99ff4874f64"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.117327+00:00",
+      "cycle_id": "cycle_3616d2d055ad4648",
+      "goal_id": "learn:mission:fourier_alignment:quantitative_table_reasoning:fourier_alignment:quantitative_table_reasoning",
+      "mastery_receipt_id": "receipt_2a4d6c5e25434e03",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_319e258d3cbb",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_319e258d3cbb",
+          "state_hash": "bf9b2bdd8126350774b43c6a37af7d2811cd1514d38b5c6d6af1cac62e1bf748"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.176750+00:00",
+      "cycle_id": "cycle_b17b0bdd60604a8e",
+      "goal_id": "learn:mission:fourier_alignment:visual_evidence_grounding:fourier_alignment:visual_evidence_grounding",
+      "mastery_receipt_id": "receipt_1f9badddf131fbbb",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_96c168011124",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_96c168011124",
+          "state_hash": "1d2f716432dc9ad3a9edafd3ecb72b255c741fdc5ab3ada77616a4c95abf6789"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.239596+00:00",
+      "cycle_id": "cycle_df570fa182554158",
+      "goal_id": "learn:mission:fourier_alignment:independent_verification:fourier_alignment:independent_verification",
+      "mastery_receipt_id": "receipt_b3597b25c7fe9ff3",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_3813b2b497ff",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_3813b2b497ff",
+          "state_hash": "d86fa4fcd5688a49c3761d9c2d75d24046c84681d11d02e8db835b83c2ec82a7"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.313652+00:00",
+      "cycle_id": "cycle_f5af8ca4128740b9",
+      "goal_id": "learn:mission:climate_explanation:source_inventory:climate_explanation:source_inventory",
+      "mastery_receipt_id": "receipt_537764bd0d7051f3",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_9a71aca429ce",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_9a71aca429ce",
+          "state_hash": "dbbc955866ad8e2f6483b2b2d1eb9bf78feb19b4b1b21cc310f8b25ece475555"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.381599+00:00",
+      "cycle_id": "cycle_a9a6076f11454951",
+      "goal_id": "learn:mission:climate_explanation:natural_document_comprehension:climate_explanation:natural_document_comprehension",
+      "mastery_receipt_id": "receipt_6ddd2078a3f84aad",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_165bc26f39c0",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_165bc26f39c0",
+          "state_hash": "eb4bef343708b6e9db0f24670433ca4991911f276573ae494c57564b2c5e12bb"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.450774+00:00",
+      "cycle_id": "cycle_6b527afb67ce43b7",
+      "goal_id": "learn:mission:climate_explanation:provenance_binding:climate_explanation:provenance_binding",
+      "mastery_receipt_id": "receipt_4544e9702ccc3209",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_5d2eacedffc3",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_5d2eacedffc3",
+          "state_hash": "6d9ba5516789f1ecd2069ddd067a1d47b82a21b0b61687bd1cd5d0a73f89c8d3"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:43:29.521663+00:00",
+      "cycle_id": "cycle_f5f949f197fc453a",
+      "goal_id": "learn:mission:climate_explanation:independent_verification:climate_explanation:independent_verification",
+      "mastery_receipt_id": "receipt_0a3be2650b700fe9",
+      "promotion": {
+        "champion_id": "procedure_open_portfolio_1db2ba150c7f",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_mission_cau"
+          },
+          "reason": "procedure_promotion:procedure_open_portfolio_1db2ba150c7f",
+          "state_hash": "14aabf4c26a8314f20d444ab197335054ebc275d7743a661a1da9f38a3dd64e7"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    }
+  ],
+  "created_at": "2026-07-31T21:43:25.477144+00:00",
+  "curriculum_history": [
+    {
+      "capability": "source_inventory",
+      "goal_id": "learn:mission:software_governance:source_inventory:software_governance:source_inventory",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:source_inventory",
+      "timestamp": "2026-07-31T21:43:25.479157+00:00"
+    },
+    {
+      "capability": "cross_modal_synthesis",
+      "goal_id": "learn:mission:software_governance:cross_modal_synthesis:software_governance:cross_modal_synthesis",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:cross_modal_synthesis",
+      "timestamp": "2026-07-31T21:43:25.522007+00:00"
+    },
+    {
+      "capability": "epistemic_conflict_resolution",
+      "goal_id": "learn:mission:software_governance:epistemic_conflict_resolution:software_governance:epistemic_conflict_resolution",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:epistemic_conflict_resolution",
+      "timestamp": "2026-07-31T21:43:25.557214+00:00"
+    },
+    {
+      "capability": "executable_code_reasoning",
+      "goal_id": "learn:mission:software_governance:executable_code_reasoning:software_governance:executable_code_reasoning",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:executable_code_reasoning",
+      "timestamp": "2026-07-31T21:43:25.596635+00:00"
+    },
+    {
+      "capability": "natural_document_comprehension",
+      "goal_id": "learn:mission:software_governance:natural_document_comprehension:software_governance:natural_document_comprehension",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:natural_document_comprehension",
+      "timestamp": "2026-07-31T21:43:25.632224+00:00"
+    },
+    {
+      "capability": "provenance_binding",
+      "goal_id": "learn:mission:software_governance:provenance_binding:software_governance:provenance_binding",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:provenance_binding",
+      "timestamp": "2026-07-31T21:43:25.667678+00:00"
+    },
+    {
+      "capability": "structured_configuration_reasoning",
+      "goal_id": "learn:mission:software_governance:structured_configuration_reasoning:software_governance:structured_configuration_reasoning",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:structured_configuration_reasoning",
+      "timestamp": "2026-07-31T21:43:25.704618+00:00"
+    },
+    {
+      "capability": "independent_verification",
+      "goal_id": "learn:mission:software_governance:independent_verification:software_governance:independent_verification",
+      "mission_id": "mission:software_governance",
+      "reason": {
+        "dependencies": [
+          "cross_modal_synthesis",
+          "epistemic_conflict_resolution",
+          "executable_code_reasoning",
+          "natural_document_comprehension",
+          "structured_configuration_reasoning",
+          "provenance_binding"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "software_governance:independent_verification",
+      "timestamp": "2026-07-31T21:43:25.740058+00:00"
+    },
+    {
+      "capability": "source_inventory",
+      "goal_id": "learn:mission:financial_change:source_inventory:financial_change:source_inventory",
+      "mission_id": "mission:financial_change",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "financial_change:source_inventory",
+      "timestamp": "2026-07-31T21:43:25.779646+00:00"
+    },
+    {
+      "capability": "layout_aware_document_reasoning",
+      "goal_id": "learn:mission:financial_change:layout_aware_document_reasoning:financial_change:layout_aware_document_reasoning",
+      "mission_id": "mission:financial_change",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "financial_change:layout_aware_document_reasoning",
+      "timestamp": "2026-07-31T21:43:26.379651+00:00"
+    },
+    {
+      "capability": "provenance_binding",
+      "goal_id": "learn:mission:financial_change:provenance_binding:financial_change:provenance_binding",
+      "mission_id": "mission:financial_change",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "financial_change:provenance_binding",
+      "timestamp": "2026-07-31T21:43:26.987141+00:00"
+    },
+    {
+      "capability": "quantitative_claim_verification",
+      "goal_id": "learn:mission:financial_change:quantitative_claim_verification:financial_change:quantitative_claim_verification",
+      "mission_id": "mission:financial_change",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "financial_change:quantitative_claim_verification",
+      "timestamp": "2026-07-31T21:43:27.602447+00:00"
+    },
+    {
+      "capability": "independent_verification",
+      "goal_id": "learn:mission:financial_change:independent_verification:financial_change:independent_verification",
+      "mission_id": "mission:financial_change",
+      "reason": {
+        "dependencies": [
+          "layout_aware_document_reasoning",
+          "quantitative_claim_verification",
+          "provenance_binding"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "financial_change:independent_verification",
+      "timestamp": "2026-07-31T21:43:28.217275+00:00"
+    },
+    {
+      "capability": "source_inventory",
+      "goal_id": "learn:mission:fourier_alignment:source_inventory:fourier_alignment:source_inventory",
+      "mission_id": "mission:fourier_alignment",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "fourier_alignment:source_inventory",
+      "timestamp": "2026-07-31T21:43:28.835324+00:00"
+    },
+    {
+      "capability": "cross_modal_synthesis",
+      "goal_id": "learn:mission:fourier_alignment:cross_modal_synthesis:fourier_alignment:cross_modal_synthesis",
+      "mission_id": "mission:fourier_alignment",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "fourier_alignment:cross_modal_synthesis",
+      "timestamp": "2026-07-31T21:43:28.893242+00:00"
+    },
+    {
+      "capability": "provenance_binding",
+      "goal_id": "learn:mission:fourier_alignment:provenance_binding:fourier_alignment:provenance_binding",
+      "mission_id": "mission:fourier_alignment",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "fourier_alignment:provenance_binding",
+      "timestamp": "2026-07-31T21:43:28.948747+00:00"
+    },
+    {
+      "capability": "quantitative_claim_verification",
+      "goal_id": "learn:mission:fourier_alignment:quantitative_claim_verification:fourier_alignment:quantitative_claim_verification",
+      "mission_id": "mission:fourier_alignment",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "fourier_alignment:quantitative_claim_verification",
+      "timestamp": "2026-07-31T21:43:29.006642+00:00"
+    },
+    {
+      "capability": "quantitative_table_reasoning",
+      "goal_id": "learn:mission:fourier_alignment:quantitative_table_reasoning:fourier_alignment:quantitative_table_reasoning",
+      "mission_id": "mission:fourier_alignment",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "fourier_alignment:quantitative_table_reasoning",
+      "timestamp": "2026-07-31T21:43:29.064401+00:00"
+    },
+    {
+      "capability": "visual_evidence_grounding",
+      "goal_id": "learn:mission:fourier_alignment:visual_evidence_grounding:fourier_alignment:visual_evidence_grounding",
+      "mission_id": "mission:fourier_alignment",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "fourier_alignment:visual_evidence_grounding",
+      "timestamp": "2026-07-31T21:43:29.123048+00:00"
+    },
+    {
+      "capability": "independent_verification",
+      "goal_id": "learn:mission:fourier_alignment:independent_verification:fourier_alignment:independent_verification",
+      "mission_id": "mission:fourier_alignment",
+      "reason": {
+        "dependencies": [
+          "cross_modal_synthesis",
+          "quantitative_claim_verification",
+          "quantitative_table_reasoning",
+          "visual_evidence_grounding",
+          "provenance_binding"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "fourier_alignment:independent_verification",
+      "timestamp": "2026-07-31T21:43:29.182671+00:00"
+    },
+    {
+      "capability": "source_inventory",
+      "goal_id": "learn:mission:climate_explanation:source_inventory:climate_explanation:source_inventory",
+      "mission_id": "mission:climate_explanation",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "climate_explanation:source_inventory",
+      "timestamp": "2026-07-31T21:43:29.252276+00:00"
+    },
+    {
+      "capability": "natural_document_comprehension",
+      "goal_id": "learn:mission:climate_explanation:natural_document_comprehension:climate_explanation:natural_document_comprehension",
+      "mission_id": "mission:climate_explanation",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "climate_explanation:natural_document_comprehension",
+      "timestamp": "2026-07-31T21:43:29.320421+00:00"
+    },
+    {
+      "capability": "provenance_binding",
+      "goal_id": "learn:mission:climate_explanation:provenance_binding:climate_explanation:provenance_binding",
+      "mission_id": "mission:climate_explanation",
+      "reason": {
+        "dependencies": [
+          "source_inventory"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "climate_explanation:provenance_binding",
+      "timestamp": "2026-07-31T21:43:29.388476+00:00"
+    },
+    {
+      "capability": "independent_verification",
+      "goal_id": "learn:mission:climate_explanation:independent_verification:climate_explanation:independent_verification",
+      "mission_id": "mission:climate_explanation",
+      "reason": {
+        "dependencies": [
+          "natural_document_comprehension",
+          "provenance_binding"
+        ],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "climate_explanation:independent_verification",
+      "timestamp": "2026-07-31T21:43:29.457733+00:00"
+    }
+  ],
+  "failure_queues": {},
+  "goal_runtime": {},
+  "last_error": null,
+  "last_event": "mission_capability_complete:mission:climate_explanation",
+  "last_heartbeat_at": "2026-07-31T21:43:29.521659+00:00",
+  "mission_goals": [],
+  "next_wake_at": 1785534209.571697,
+  "outcome_receipts": [
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "source_inventory",
+      "cohort": "development",
+      "cycle_id": "cycle_a3e1318159864799",
+      "evidence_hash": "e08ebcfdd497570e78ab8d4168d32253dfc40b0b86dea3fe5a15f03939aa1e75",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_bf601562bac640f2",
+      "received_at": "2026-07-31T21:43:25.519963+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:source_inventory",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "cross_modal_synthesis",
+      "cohort": "development",
+      "cycle_id": "cycle_c872f4f16e0f4e8b",
+      "evidence_hash": "5598bc7a8c5743c6c5e16451c3c3ae281a66bf7a7f5890e6f629ecbffcda82fc",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_ffbd27f61fd9f809",
+      "received_at": "2026-07-31T21:43:25.554376+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:cross_modal_synthesis",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "epistemic_conflict_resolution",
+      "cohort": "development",
+      "cycle_id": "cycle_bd5a2903b15a447c",
+      "evidence_hash": "2fd35ba371d8b7b9da591963992675c3027e4e5e340b0324e8e937a340fd25af",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_606403b2377f3fc0",
+      "received_at": "2026-07-31T21:43:25.593688+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:epistemic_conflict_resolution",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "executable_code_reasoning",
+      "cohort": "development",
+      "cycle_id": "cycle_139196dde6114d92",
+      "evidence_hash": "111c6fb683b603e19e3636f5bf92b14ce48af97e06bc18abff01412912f5f807",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_8cacbcffce1d434c",
+      "received_at": "2026-07-31T21:43:25.629793+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:executable_code_reasoning",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "natural_document_comprehension",
+      "cohort": "development",
+      "cycle_id": "cycle_1710f71d68384f88",
+      "evidence_hash": "0bd2f294e2d7977187d35f075d3e68d7a0a51e2a629928ecf9ba3f25c8199cf3",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_991caa7fe07c208a",
+      "received_at": "2026-07-31T21:43:25.664824+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:natural_document_comprehension",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "provenance_binding",
+      "cohort": "development",
+      "cycle_id": "cycle_ac0f249d40944256",
+      "evidence_hash": "e2c61c8b0ea3225315b9d57bf5586ee6c39c775f958f1ae661d8795f56cabe2c",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_1c19d12a493a0882",
+      "received_at": "2026-07-31T21:43:25.701004+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:provenance_binding",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "structured_configuration_reasoning",
+      "cohort": "development",
+      "cycle_id": "cycle_5a879517e5c84d90",
+      "evidence_hash": "a2005e1d46873ba864723e97b5c110607c9a7453feb322b59856845e1ffee652",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_c5417fcecc66a689",
+      "received_at": "2026-07-31T21:43:25.737349+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:structured_configuration_reasoning",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:software_governance",
+      "authority_allowed": true,
+      "capability": "independent_verification",
+      "cohort": "development",
+      "cycle_id": "cycle_9666af4d3112461c",
+      "evidence_hash": "d0dfcc68e5b18dd62f42f409a5747ceeb5eb0fbd570f514de2dad35cdc856aca",
+      "mission_id": "mission:software_governance",
+      "receipt_id": "receipt_c67ce7c5ea945bcd",
+      "received_at": "2026-07-31T21:43:25.773455+00:00",
+      "score": 1.0,
+      "task_id": "software_governance:independent_verification",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:financial_change",
+      "authority_allowed": true,
+      "capability": "source_inventory",
+      "cohort": "development",
+      "cycle_id": "cycle_d0ff5faeae204efb",
+      "evidence_hash": "11c34961fc9aa4db62c00abdb58581908d2e54a8d14e1b7753bbec75e35e03bd",
+      "mission_id": "mission:financial_change",
+      "receipt_id": "receipt_a77ca28e64b94dbe",
+      "received_at": "2026-07-31T21:43:26.376068+00:00",
+      "score": 1.0,
+      "task_id": "financial_change:source_inventory",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:financial_change",
+      "authority_allowed": true,
+      "capability": "layout_aware_document_reasoning",
+      "cohort": "development",
+      "cycle_id": "cycle_051c3d18a8ba40d8",
+      "evidence_hash": "cfe8ab3886548f5e68b9a53e55f6aeb5ef62c57222e93a14ef4f6059229a4f7c",
+      "mission_id": "mission:financial_change",
+      "receipt_id": "receipt_c4c9960bc0e07d99",
+      "received_at": "2026-07-31T21:43:26.983389+00:00",
+      "score": 1.0,
+      "task_id": "financial_change:layout_aware_document_reasoning",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:financial_change",
+      "authority_allowed": true,
+      "capability": "provenance_binding",
+      "cohort": "development",
+      "cycle_id": "cycle_d3353ea835394cc7",
+      "evidence_hash": "acfbaad5c9de25e51f9f91c06abf1984ac8281945ae9e4831b3048e291cbf5f0",
+      "mission_id": "mission:financial_change",
+      "receipt_id": "receipt_31627ee4885e503e",
+      "received_at": "2026-07-31T21:43:27.598551+00:00",
+      "score": 1.0,
+      "task_id": "financial_change:provenance_binding",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:financial_change",
+      "authority_allowed": true,
+      "capability": "quantitative_claim_verification",
+      "cohort": "development",
+      "cycle_id": "cycle_0dc78670448e4ae1",
+      "evidence_hash": "9edd1c69345c0dae8a64bb79546eacdf1e5d6ccb742f7ef5c31b468f1e906f80",
+      "mission_id": "mission:financial_change",
+      "receipt_id": "receipt_7966f52f9a57d42c",
+      "received_at": "2026-07-31T21:43:28.213025+00:00",
+      "score": 1.0,
+      "task_id": "financial_change:quantitative_claim_verification",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:financial_change",
+      "authority_allowed": true,
+      "capability": "independent_verification",
+      "cohort": "development",
+      "cycle_id": "cycle_a1ba71fefa9f4413",
+      "evidence_hash": "bf3af0798779c2c2e3f85779c67120a2444e18d4e90f27fef04f6b2c65f42fd1",
+      "mission_id": "mission:financial_change",
+      "receipt_id": "receipt_12c419c7c5e4dee5",
+      "received_at": "2026-07-31T21:43:28.826229+00:00",
+      "score": 1.0,
+      "task_id": "financial_change:independent_verification",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:fourier_alignment",
+      "authority_allowed": true,
+      "capability": "source_inventory",
+      "cohort": "transfer",
+      "cycle_id": "cycle_61046acdd35a4ba7",
+      "evidence_hash": "2a78f4a4e11e56de8dec67dfbb748f5074e7087b0fb4252d29fbcbbae4cc92b5",
+      "mission_id": "mission:fourier_alignment",
+      "receipt_id": "receipt_83780a767b274883",
+      "received_at": "2026-07-31T21:43:28.888236+00:00",
+      "score": 1.0,
+      "task_id": "fourier_alignment:source_inventory",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:fourier_alignment",
+      "authority_allowed": true,
+      "capability": "cross_modal_synthesis",
+      "cohort": "transfer",
+      "cycle_id": "cycle_2e9c95cb40c84258",
+      "evidence_hash": "a3140da5150d7ae08754f25ab846b3f97998e1fa42199a55906f92fafeaeab52",
+      "mission_id": "mission:fourier_alignment",
+      "receipt_id": "receipt_0c050e8d088b0905",
+      "received_at": "2026-07-31T21:43:28.943521+00:00",
+      "score": 1.0,
+      "task_id": "fourier_alignment:cross_modal_synthesis",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:fourier_alignment",
+      "authority_allowed": true,
+      "capability": "provenance_binding",
+      "cohort": "transfer",
+      "cycle_id": "cycle_4aed4c0bf4e642f5",
+      "evidence_hash": "41daf440707116525042dc670534e002a0de2c39bf685f43dc86e51e5c5de814",
+      "mission_id": "mission:fourier_alignment",
+      "receipt_id": "receipt_81825a25cf827cbc",
+      "received_at": "2026-07-31T21:43:29.001215+00:00",
+      "score": 1.0,
+      "task_id": "fourier_alignment:provenance_binding",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:fourier_alignment",
+      "authority_allowed": true,
+      "capability": "quantitative_claim_verification",
+      "cohort": "transfer",
+      "cycle_id": "cycle_837c17434ee34638",
+      "evidence_hash": "93deb4904aa0b48ecc9eadc1a844d0411e7c3de9d1506004aabcfab39453af81",
+      "mission_id": "mission:fourier_alignment",
+      "receipt_id": "receipt_304c35535654e9d5",
+      "received_at": "2026-07-31T21:43:29.058716+00:00",
+      "score": 1.0,
+      "task_id": "fourier_alignment:quantitative_claim_verification",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:fourier_alignment",
+      "authority_allowed": true,
+      "capability": "quantitative_table_reasoning",
+      "cohort": "transfer",
+      "cycle_id": "cycle_3616d2d055ad4648",
+      "evidence_hash": "07f44bc4ca503efe15a034153af2c4c150520547d1f6c406b615aa4d3e82595b",
+      "mission_id": "mission:fourier_alignment",
+      "receipt_id": "receipt_2a4d6c5e25434e03",
+      "received_at": "2026-07-31T21:43:29.117345+00:00",
+      "score": 1.0,
+      "task_id": "fourier_alignment:quantitative_table_reasoning",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:fourier_alignment",
+      "authority_allowed": true,
+      "capability": "visual_evidence_grounding",
+      "cohort": "transfer",
+      "cycle_id": "cycle_b17b0bdd60604a8e",
+      "evidence_hash": "bc8205a11890010beb5409aeb860ca94b65a24ab987b705e83167a253d62ff04",
+      "mission_id": "mission:fourier_alignment",
+      "receipt_id": "receipt_1f9badddf131fbbb",
+      "received_at": "2026-07-31T21:43:29.176771+00:00",
+      "score": 1.0,
+      "task_id": "fourier_alignment:visual_evidence_grounding",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:fourier_alignment",
+      "authority_allowed": true,
+      "capability": "independent_verification",
+      "cohort": "transfer",
+      "cycle_id": "cycle_df570fa182554158",
+      "evidence_hash": "f9ce6c9647265dccb5690e9e1b8d1243be8b6dfb65fe07f10375990cfd83b637",
+      "mission_id": "mission:fourier_alignment",
+      "receipt_id": "receipt_b3597b25c7fe9ff3",
+      "received_at": "2026-07-31T21:43:29.239616+00:00",
+      "score": 1.0,
+      "task_id": "fourier_alignment:independent_verification",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:climate_explanation",
+      "authority_allowed": true,
+      "capability": "source_inventory",
+      "cohort": "transfer",
+      "cycle_id": "cycle_f5af8ca4128740b9",
+      "evidence_hash": "71530eadd7fbfcd18cbc0b03d260c5b8bb76abcf2eaf0ff3e25e55689737b6ed",
+      "mission_id": "mission:climate_explanation",
+      "receipt_id": "receipt_537764bd0d7051f3",
+      "received_at": "2026-07-31T21:43:29.313670+00:00",
+      "score": 1.0,
+      "task_id": "climate_explanation:source_inventory",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:climate_explanation",
+      "authority_allowed": true,
+      "capability": "natural_document_comprehension",
+      "cohort": "transfer",
+      "cycle_id": "cycle_a9a6076f11454951",
+      "evidence_hash": "27bf218f631fc5b6f87679d5e1d7e3831c36016ae0dcd237c1e694d728938205",
+      "mission_id": "mission:climate_explanation",
+      "receipt_id": "receipt_6ddd2078a3f84aad",
+      "received_at": "2026-07-31T21:43:29.381616+00:00",
+      "score": 1.0,
+      "task_id": "climate_explanation:natural_document_comprehension",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:climate_explanation",
+      "authority_allowed": true,
+      "capability": "provenance_binding",
+      "cohort": "transfer",
+      "cycle_id": "cycle_6b527afb67ce43b7",
+      "evidence_hash": "cc6d1995fe6fddac7edee3f595a3864432e261d4d415b3fa26ff67e3d9052324",
+      "mission_id": "mission:climate_explanation",
+      "receipt_id": "receipt_4544e9702ccc3209",
+      "received_at": "2026-07-31T21:43:29.450792+00:00",
+      "score": 1.0,
+      "task_id": "climate_explanation:provenance_binding",
+      "verified": true
+    },
+    {
+      "authority": "portfolio_outcome_authority:climate_explanation",
+      "authority_allowed": true,
+      "capability": "independent_verification",
+      "cohort": "transfer",
+      "cycle_id": "cycle_f5f949f197fc453a",
+      "evidence_hash": "c8345e5e79ecf3ff4ddb48fdae6a80fdf985b1bdfb66d5cceaf094d5532db193",
+      "mission_id": "mission:climate_explanation",
+      "receipt_id": "receipt_0a3be2650b700fe9",
+      "received_at": "2026-07-31T21:43:29.521683+00:00",
+      "score": 1.0,
+      "task_id": "climate_explanation:independent_verification",
+      "verified": true
+    }
+  ],
+  "pending_outcomes": {},
+  "private_challengers": [
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "39f48db68a110d13f818100591a7fab85d40cc51fe9d2f3b4ef7c60dcf5a2e5b",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:source_inventory"
+      },
+      "goal": "learn:mission:software_governance:source_inventory:software_governance:source_inventory",
+      "procedure_id": "procedure_open_portfolio_06aefb623547",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "b81f58d1c0654a854d74045ef9153cd5580199a176b6829f4aca7568fdbdecb4",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:cross_modal_synthesis"
+      },
+      "goal": "learn:mission:software_governance:cross_modal_synthesis:software_governance:cross_modal_synthesis",
+      "procedure_id": "procedure_open_portfolio_47671c6331a2",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "4c8df0ca528415c87eab871c25d643370c5e5413fb71088f825dff3f2a6f6923",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:epistemic_conflict_resolution"
+      },
+      "goal": "learn:mission:software_governance:epistemic_conflict_resolution:software_governance:epistemic_conflict_resolution",
+      "procedure_id": "procedure_open_portfolio_1d2639ab4d75",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "0ffebcebc41b601b87588e96c29d67261743baf8facab7943b911b456b7eeda7",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:executable_code_reasoning"
+      },
+      "goal": "learn:mission:software_governance:executable_code_reasoning:software_governance:executable_code_reasoning",
+      "procedure_id": "procedure_open_portfolio_7aac5c1c4d48",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "900183c52919edce8a11396417bb602ebea176c5cf26f82eaaa71d4f1976debc",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:natural_document_comprehension"
+      },
+      "goal": "learn:mission:software_governance:natural_document_comprehension:software_governance:natural_document_comprehension",
+      "procedure_id": "procedure_open_portfolio_b4589052adf4",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "7ec69306529e04189008b98be55c978d15be694ed3403c3626b2a907d1c808f6",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:provenance_binding"
+      },
+      "goal": "learn:mission:software_governance:provenance_binding:software_governance:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_0bf004ef77e6",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "ede587feccfd2613280f9f1d75eca916c8d51dbdf48f81c02bd033db56a7a72a",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:structured_configuration_reasoning"
+      },
+      "goal": "learn:mission:software_governance:structured_configuration_reasoning:software_governance:structured_configuration_reasoning",
+      "procedure_id": "procedure_open_portfolio_2e4890f6e1df",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "467932c7752a9e106c893e96f3a64d5d988a3cdc4c4f18554ac8d7c7d2442aac",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:independent_verification"
+      },
+      "goal": "learn:mission:software_governance:independent_verification:software_governance:independent_verification",
+      "procedure_id": "procedure_open_portfolio_c6a705e18f32",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "de0364a5cb92acac854338e8b7cc4506a6bdc680246ea375430a4029c66419c8",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:source_inventory"
+      },
+      "goal": "learn:mission:financial_change:source_inventory:financial_change:source_inventory",
+      "procedure_id": "procedure_open_portfolio_c2c168ab064b",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "c0060ccee0e93c85c7e00778f1ab01c33d1655f91869fbdf85c7898d58cc54c3",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:layout_aware_document_reasoning"
+      },
+      "goal": "learn:mission:financial_change:layout_aware_document_reasoning:financial_change:layout_aware_document_reasoning",
+      "procedure_id": "procedure_open_portfolio_7e3f956a8329",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "e5d9e8a874c262c55816c6b98592d15dfaa01285b1d008c4c9c81a038d92ba35",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:provenance_binding"
+      },
+      "goal": "learn:mission:financial_change:provenance_binding:financial_change:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_748833e59c8d",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "7e12bb5c0d3fc274e1af8f9e163a4324e2a93cc4c9cc436ca6ad02d75aaba777",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:quantitative_claim_verification"
+      },
+      "goal": "learn:mission:financial_change:quantitative_claim_verification:financial_change:quantitative_claim_verification",
+      "procedure_id": "procedure_open_portfolio_542dc9a1ef69",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "e6fa4b64b5ddd859de06f5ba2009d75899279cf3230fea3de12b7d5dc33ffa2b",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:independent_verification"
+      },
+      "goal": "learn:mission:financial_change:independent_verification:financial_change:independent_verification",
+      "procedure_id": "procedure_open_portfolio_ab5627b40aa2",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "1a4ac5fad51458672c9cf933b2d5705bad8a89232ef7062cc0c674c7bf935420",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:source_inventory"
+      },
+      "goal": "learn:mission:fourier_alignment:source_inventory:fourier_alignment:source_inventory",
+      "procedure_id": "procedure_open_portfolio_b8e7f4319d95",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "1a6f59d67d17f422f163eaa5e61f52dc608f7e2f65454793c32ad22c3af79640",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:cross_modal_synthesis"
+      },
+      "goal": "learn:mission:fourier_alignment:cross_modal_synthesis:fourier_alignment:cross_modal_synthesis",
+      "procedure_id": "procedure_open_portfolio_e1215d78598a",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "960519a78d9baa7863da0456f51e8ca1440cbea16955470bc116d2ba0a9c91e8",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:provenance_binding"
+      },
+      "goal": "learn:mission:fourier_alignment:provenance_binding:fourier_alignment:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_ec67f12a8abe",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "0cb8c2910210f2491e7f61f46809c6f1c2f6a98b12abbb41f16efb96427364ec",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:quantitative_claim_verification"
+      },
+      "goal": "learn:mission:fourier_alignment:quantitative_claim_verification:fourier_alignment:quantitative_claim_verification",
+      "procedure_id": "procedure_open_portfolio_9a12ac6c1304",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "6d3e1d8dbd907d23621710f21b84c380f44ef862b2b23d03e013dae15245b3da",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:quantitative_table_reasoning"
+      },
+      "goal": "learn:mission:fourier_alignment:quantitative_table_reasoning:fourier_alignment:quantitative_table_reasoning",
+      "procedure_id": "procedure_open_portfolio_319e258d3cbb",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "257dd29e88ca9ab5476b48957d7e1ef139c72b0819671646afaed397d72bbddd",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:visual_evidence_grounding"
+      },
+      "goal": "learn:mission:fourier_alignment:visual_evidence_grounding:fourier_alignment:visual_evidence_grounding",
+      "procedure_id": "procedure_open_portfolio_96c168011124",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "9089c9ec5a55e0069bccf1b87617a72a996470650c260084338b24c61c77f9ca",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:independent_verification"
+      },
+      "goal": "learn:mission:fourier_alignment:independent_verification:fourier_alignment:independent_verification",
+      "procedure_id": "procedure_open_portfolio_3813b2b497ff",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "b2899356065e678324048ae6b8e0c14e0155c53d7bb7096dc082f26bdf45b35f",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:source_inventory"
+      },
+      "goal": "learn:mission:climate_explanation:source_inventory:climate_explanation:source_inventory",
+      "procedure_id": "procedure_open_portfolio_9a71aca429ce",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "d0140226324aa8d2517510223aaaa74e4f7eaf4c18372c89150d844ee8877bc7",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:natural_document_comprehension"
+      },
+      "goal": "learn:mission:climate_explanation:natural_document_comprehension:climate_explanation:natural_document_comprehension",
+      "procedure_id": "procedure_open_portfolio_165bc26f39c0",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "b430906b4f2f8a5348904bb23b72605b79616d0165d90632b1001ed734454529",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:provenance_binding"
+      },
+      "goal": "learn:mission:climate_explanation:provenance_binding:climate_explanation:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_5d2eacedffc3",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "202eb13f3c07a79b4de42ed749044abc39cd8bdca44d3ec8e42ba9bc55bbe2e0",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:independent_verification"
+      },
+      "goal": "learn:mission:climate_explanation:independent_verification:climate_explanation:independent_verification",
+      "procedure_id": "procedure_open_portfolio_1db2ba150c7f",
+      "score": 1.0,
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true,
+      "verified": true
+    }
+  ],
+  "revision": 368,
+  "schema_version": "aion.hexcore.canonical_cognitive_runtime.v1",
+  "status": "idle",
+  "updated_at": "2026-07-31T21:43:29.525325+00:00"
+}

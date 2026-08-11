@@ -1,0 +1,34 @@
+{
+  "atoms": {
+    "TEMPORAL_NUMERIC_PROJECTION": {
+      "authority": "procedure_recursive_action_atom_runtime_promotion_v1",
+      "capability_class": "pure_read_only_transform",
+      "implementation_sha256": "0097f2b1737ba4a767b4a2bb041ffcbbac4372108364f33aeb1b3dd251f2925d",
+      "promoted_at": "2026-08-01T23:37:52.879867+00:00",
+      "spec": {
+        "atom_id": "TEMPORAL_NUMERIC_PROJECTION",
+        "capability_class": "pure_read_only_transform",
+        "decoders": [
+          "json",
+          "csv"
+        ],
+        "field_strategy": "semantic_profile_with_margin",
+        "filesystem_authority": false,
+        "maximum_bytes": 1000000,
+        "maximum_records": 5000,
+        "minimum_margin": 1.0,
+        "network_authority": false,
+        "numeric_strategy": "finite_decimal_only",
+        "process_authority": false,
+        "time_strategy": "parse_profile"
+      },
+      "verified_authorities": [
+        "World Bank GDP",
+        "Treasury exchange rates",
+        "FRED GDP",
+        "NOAA temperature"
+      ]
+    }
+  },
+  "schema_version": "aion.action_atom_registry.v1"
+}

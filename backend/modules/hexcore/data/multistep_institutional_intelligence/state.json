@@ -1,0 +1,298 @@
+{
+  "created_at": "2026-08-01T23:02:15.489424+00:00",
+  "episodes": [
+    {
+      "domain": "corporate_disclosure",
+      "identifier_lookup_trace": {
+        "response_sha256": "2baefae3506822ee8cea1b11d9400e035ea6d45e3683fb97758e77db9518b333",
+        "status": 200,
+        "url": "https://www.sec.gov/cgi-bin/cik_lookup?company=Apple"
+      },
+      "identity": {
+        "cik": 320193,
+        "cik10": "0000320193",
+        "name": "APPLE INC."
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:07:30.825030+00:00",
+        "outcome_sha256": "d0967903f34d70967ff6fdb2e75ef8cf9632b43c557fa38001d8b70945007d74",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "Identify Apple Incorporated's latest annual SEC filing from official institutional evidence.",
+      "official_documents": [
+        {
+          "sha256": "db0d36de93e2afc79e91ebe6c46496166d7b74e1f20956ce87a3849c9e3fe41e",
+          "url": "https://www.sec.gov/"
+        },
+        {
+          "sha256": "3e1155aaa0eaeeb761fac1a1627f9f5f4460fb4ad1e75de17f6d015e24e04e69",
+          "url": "https://www.sec.gov/search-filings/cik-lookup"
+        },
+        {
+          "sha256": "ab51530d668a925e887dd4a979edae9bfb30f85930ec22eea8eedeea2d4e8f71",
+          "url": "https://www.sec.gov/search-filings/edgar-application-programming-interfaces"
+        },
+        {
+          "sha256": "db103a0be98e29ba52f61f1c52ccec72dd7abe446e1bf5a143eae1aab7926831",
+          "url": "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/understand-edgar-application-programming-interfaces-apis"
+        },
+        {
+          "sha256": "60baf89c22092726afebe254f7be53835eb77a8206b9253a9e1cf9d4ec0b1e1c",
+          "url": "https://www.sec.gov/search-filings"
+        },
+        {
+          "sha256": "0e810685c7b0007917966a58fd8c48ae880396c0944a0c87925b74dbc99cedf1",
+          "url": "https://www.sec.gov/search-filings/mutual-funds-search"
+        },
+        {
+          "sha256": "0f9cea1df081f7e1f3aa5f3d446b7cfd779ec3aa1e23b4a8d40cec8e029a5672",
+          "url": "https://www.sec.gov/search-filings/insurance-products-search"
+        },
+        {
+          "sha256": "77a64476802b14825f81e84448d6393f597dd7f338c85422f415ddf64fe0bd33",
+          "url": "https://www.sec.gov/search-filings/standard-industrial-classification-sic-code-list"
+        },
+        {
+          "sha256": "8ec3ff721ed6326d5a5d3160def79ee22a7446ca85aa13720b7ce6ffed72f052",
+          "url": "https://www.sec.gov/search-filings/public-dissemination-service-system-contact"
+        },
+        {
+          "sha256": "d52620d0462972dff0a55baad75538995277fd5404fcadfbbe78afe31a669885",
+          "url": "https://www.sec.gov/search-filings/edgar-search-assistance"
+        },
+        {
+          "sha256": "08638e35472274a47f0acbb43ca6b6a2d9337e16a8de42970c535e8a7992b6ae",
+          "url": "https://www.sec.gov/newsroom/press-releases/2026-70-small-business-forums-report-congress-highlights-recommendations-improve-capital-raising-policy"
+        },
+        {
+          "sha256": "ed1a3258bde51804ca0221efb95d32eeaac9e1c278a9b7b5cfd3a2fae4a02864",
+          "url": "https://www.sec.gov/search-filings/confidential-treatment-orders-search"
+        },
+        {
+          "sha256": "bb7fad06d695395af0e80a6fe13398f9806c9f521e123efed1130d7249a2a442",
+          "url": "https://www.sec.gov/submit-filings/filer-support-resources/how-do-i-guides/create-manage-filer-user-api-tokens"
+        },
+        {
+          "sha256": "be1406126690e0f1d94c2a735e9231632a382325409daa1e259a1aad9b0e5384",
+          "url": "https://www.sec.gov/files/edgar/filer-information/api-overview.pdf"
+        },
+        {
+          "sha256": "521a6df9f1e76c5fa3bbbb266ac46becc8ec9dd46aeb0c5bb14df9d609c27fb1",
+          "url": "https://api.edgarfiling.sec.gov/docs/index.html"
+        },
+        {
+          "sha256": "200cd0eb9b40e5c31158a0167ce08f7574048cc8dbec09881100d36fa301d051",
+          "url": "https://www.sec.gov/search-filings/mutual-funds-search/mutual-fund-prospectuses-search"
+        },
+        {
+          "sha256": "f0503682d6140e5ea47b841b1293be5e1d1da0e6ebf12089e60cfd219096cc7b",
+          "url": "https://www.sec.gov/search-filings/mutual-funds-search/search-mutual-fund-proxy-voting-records"
+        },
+        {
+          "sha256": "b781b9f000c24226b86034f33b30c144099f53b27e12ba05fa97071a90325b79",
+          "url": "https://www.sec.gov/search-filings/edgar-search-assistance/accessing-edgar-data"
+        },
+        {
+          "sha256": "6632b32e802e28ba330af9575dd25919b239fcea6fbbdc7353cc96f1105b41e7",
+          "url": "https://www.sec.gov/developer"
+        },
+        {
+          "sha256": "24f027be852877f5eac94de112fb88e7d342c77e03700c5f684f13a552f14e13",
+          "url": "https://www.sec.gov/about/developer-resources/open-source-policy-implementation"
+        }
+      ],
+      "passed": true,
+      "plan": {
+        "commitment_sha256": "e35c6c041d942b40111d25ae30d1f8c923c97322871abae0cb860bce589f018f",
+        "forecast": {
+          "cik_continuity": true,
+          "nonempty_accession": true,
+          "required_form": "10-K"
+        },
+        "mission": "Identify Apple Incorporated's latest annual SEC filing from official institutional evidence.",
+        "resolved_identifier": {
+          "cik": 320193,
+          "cik10": "0000320193",
+          "name": "APPLE INC."
+        },
+        "steps": [
+          {
+            "depends_on": [],
+            "id": "discover_docs",
+            "operation": "public_search"
+          },
+          {
+            "depends_on": [
+              "discover_docs"
+            ],
+            "id": "discover_catalogue",
+            "operation": "read_official_interface"
+          },
+          {
+            "depends_on": [
+              "discover_catalogue"
+            ],
+            "id": "resolve_cik",
+            "operation": "resolve_entity_identifier"
+          },
+          {
+            "depends_on": [
+              "resolve_cik"
+            ],
+            "id": "query_submissions",
+            "operation": "parameterized_get"
+          },
+          {
+            "depends_on": [
+              "query_submissions"
+            ],
+            "id": "select_annual_filing",
+            "operation": "semantic_record_selection"
+          }
+        ],
+        "target_authority": "data.sec.gov"
+      },
+      "public_results": 1,
+      "query": "site:sec.gov company tickers JSON submissions API official SEC",
+      "result": {
+        "accessionNumber": "0000320193-25-000079",
+        "filingDate": "2025-10-31",
+        "form": "10-K",
+        "primaryDocument": "aapl-20250927.htm",
+        "reportDate": "2025-09-27"
+      },
+      "search_sha256": "c736b5f79d30276d99b7b73b49be04314a1aa48b26b96bbc72bc3cf0518ac9be",
+      "supplied_final_endpoints": 0,
+      "supplied_identifiers": 0,
+      "target_trace": {
+        "response_sha256": "d0967903f34d70967ff6fdb2e75ef8cf9632b43c557fa38001d8b70945007d74",
+        "status": 200,
+        "url": "https://data.sec.gov/submissions/CIK0000320193.json",
+        "valid_json": true
+      },
+      "target_url": "https://data.sec.gov/submissions/CIK0000320193.json"
+    },
+    {
+      "agency_trace": {
+        "response_sha256": "af020ca393b94983e45c64700bbed356def9a6b9ab95f768522a6a6669f8344c",
+        "status": 200,
+        "url": "https://www.federalregister.gov/api/v1/agencies.json",
+        "valid_json": true
+      },
+      "collection_trace": {
+        "response_sha256": "9dd5a3d276ecec3a1fff924823fc7141bb586faf3140df153a97a2d17751bac0",
+        "status": 200,
+        "url": "https://www.federalregister.gov/api/v1/documents.json?per_page=5&order=newest&conditions%5Bagency_ids%5D%5B%5D=145&conditions%5Btype%5D%5B%5D=RULE",
+        "valid_json": true
+      },
+      "detail_trace": {
+        "response_sha256": "a904075075efa930803ca7a20cb8653ab725cb2685389251dda645471f55c0e8",
+        "status": 200,
+        "url": "https://www.federalregister.gov/api/v1/documents/2026-15634.json",
+        "valid_json": true
+      },
+      "detail_url": "https://www.federalregister.gov/api/v1/documents/2026-15634.json",
+      "domain": "federal_rulemaking",
+      "identity": {
+        "id": 145,
+        "name": "Environmental Protection Agency",
+        "slug": "environmental-protection-agency"
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:07:31.204664+00:00",
+        "outcome_sha256": "a904075075efa930803ca7a20cb8653ab725cb2685389251dda645471f55c0e8",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "Identify the newest final rule issued by the Environmental Protection Agency in the Federal Register.",
+      "official_documents": [
+        {
+          "discovery": "institution_link_traversal",
+          "title": "Federal Register :: Request Access",
+          "url": "https://www.federalregister.gov/"
+        },
+        {
+          "discovery": "institution_link_traversal",
+          "title": "Federal Register :: Request Access",
+          "url": "https://www.federalregister.gov/developers/documentation/api/v1"
+        }
+      ],
+      "passed": true,
+      "plan": {
+        "commitment_sha256": "3165c7c6f3dc41509a44d949c6a83771d1826ebf8d667d927c8170a15a781b6b",
+        "forecast": {
+          "agency_id_continuity": true,
+          "document_number_continuity": true,
+          "required_type": "Rule"
+        },
+        "mission": "Identify the newest final rule issued by the Environmental Protection Agency in the Federal Register.",
+        "record_identifier": "2026-15634",
+        "resolved_identifier": {
+          "id": 145,
+          "name": "Environmental Protection Agency",
+          "slug": "environmental-protection-agency"
+        },
+        "steps": [
+          {
+            "depends_on": [],
+            "id": "discover_docs",
+            "operation": "public_search"
+          },
+          {
+            "depends_on": [
+              "discover_docs"
+            ],
+            "id": "resolve_agency",
+            "operation": "resolve_institution_identifier"
+          },
+          {
+            "depends_on": [
+              "resolve_agency"
+            ],
+            "id": "query_rule_collection",
+            "operation": "parameterized_get"
+          },
+          {
+            "depends_on": [
+              "query_rule_collection"
+            ],
+            "id": "resolve_document_number",
+            "operation": "select_record_identifier"
+          },
+          {
+            "depends_on": [
+              "resolve_document_number"
+            ],
+            "id": "query_document_detail",
+            "operation": "identifier_get"
+          },
+          {
+            "depends_on": [
+              "query_document_detail"
+            ],
+            "id": "verify_identity_chain",
+            "operation": "semantic_continuity"
+          }
+        ],
+        "target_authority": "www.federalregister.gov"
+      },
+      "public_results": 1,
+      "query": "site:federalregister.gov API agencies documents official",
+      "result": {
+        "document_number": "2026-15634",
+        "publication_date": "2026-08-03",
+        "title": "Permethrin; Pesticide Tolerances",
+        "type": "Rule"
+      },
+      "search_sha256": "3a41943f2f04274c59393d2475afeeea1a0b5df05c866a8003eacf01ed26cb19",
+      "supplied_final_endpoints": 0,
+      "supplied_identifiers": 0
+    }
+  ],
+  "schema_version": "aion.hexcore.multistep_institutional_state.v1"
+}

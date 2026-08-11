@@ -1,4 +1,5 @@
-from sentence_transformers import SentenceTransformer, util
+from sentence_transformers import util
+from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 
 # ✅ DNA Switch
 from backend.modules.dna_chain.switchboard import DNA_SWITCH
@@ -10,7 +11,7 @@ _model = None
 def get_model():
     global _model
     if _model is None:
-        _model = SentenceTransformer("./models/all-MiniLM-L6-v2", local_files_only=True)
+        _model = get_sentence_transformer("./models/all-MiniLM-L6-v2", local_files_only=True)
     return _model
 
 def get_embedding(text):

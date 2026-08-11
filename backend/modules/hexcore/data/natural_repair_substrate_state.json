@@ -1,0 +1,680 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "verified_natural_repair_substrate_routing": "procedure_verified_repair_substrate_50a3fcd2115b"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "curriculum_generations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "natural_repair_substrate_comparison_authority"
+    },
+    "reason": "natural_repair_substrate_comparison_promotion",
+    "state_hash": "311e80837fc48c7e13ee61fb673daf19cb92b63346aaff0615c7507a1769997a"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {
+    "natural_repair_substrate_cda6327ef26d7a97": {
+      "evaluations": [
+        {
+          "attempt_reduction": 0.0,
+          "availability": 1.0,
+          "cases": 3,
+          "challenger_attempts": 7,
+          "control_attempts": 7,
+          "falsification_test_quality": 0.3333333333333333,
+          "mean_latency_seconds": 5.499811138996544,
+          "mean_proposal_rounds": 2.0,
+          "model": "gemma3:1b",
+          "proposal_understanding": 0.0,
+          "rows": [
+            {
+              "case_id": "historical_signature_failure",
+              "challenger_attempts": 3,
+              "control_attempts": 3,
+              "falsification_test_quality": true,
+              "family": "syntax_and_scope",
+              "model": "gemma3:1b",
+              "prompt_hash": "968e63f0be45d062d73ac4a88313d9d469634133769dcd48d22012b4451fdb20",
+              "proposal": {
+                "confidence": 0.95,
+                "diagnosis": "Duplicate argument 'request' in function definition within the `build_agentmap_discovery_endpoint_preview` function. This suggests a potential attempt to bypass the read-only constraint by providing a request object directly to the function, potentially leading to unexpected behavior or a security vulnerability.",
+                "falsification_tests": [
+                  "Modify the `build_agentmap_discovery_endpoint_preview` function to accept a `request` object as a parameter.",
+                  "Run the function with a deliberately crafted `request` object containing the duplicate argument.  Verify that the function behaves as expected with this input."
+                ],
+                "repair_plan": "Modify the function definition to explicitly handle the `request` object as a parameter, ensuring it's not included in the function's argument list.  This will prevent the duplicate argument from being passed to the function."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": false,
+              "proposed_strategy": null,
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 190,
+                "latency_seconds": 3.014439541962929,
+                "prompt_eval_count": 1241
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 190,
+                "latency_seconds": 2.7566830840078183,
+                "prompt_eval_count": 1497
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            },
+            {
+              "case_id": "historical_hash_helper_failure",
+              "challenger_attempts": 3,
+              "control_attempts": 3,
+              "falsification_test_quality": false,
+              "family": "missing_contract_helper",
+              "model": "gemma3:1b",
+              "prompt_hash": "88265e42e4c87c683ba8bca18e85ab237970a31e031ee9d6ee1a6a70e18df93e",
+              "proposal": {
+                "confidence": 1.0,
+                "diagnosis": "NameError: 'message_hash' is not defined within the context of the `to_dict` method.",
+                "falsification_tests": [
+                  "attempt to modify the `to_dict` method to change the `message_hash` value.",
+                  "attempt to change the `to_dict` method to return a different `message_hash` value."
+                ],
+                "repair_plan": "Modify the `to_dict` method to explicitly retrieve and use the `_stable_hash` function from the `_stable_hash` class.  Ensure the `message_hash` is correctly generated and stored within the dictionary."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": false,
+              "proposed_strategy": null,
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 140,
+                "latency_seconds": 2.192869000020437,
+                "prompt_eval_count": 1099
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 193,
+                "latency_seconds": 2.705267500015907,
+                "prompt_eval_count": 1303
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            },
+            {
+              "case_id": "historical_voice_envelope_failure",
+              "challenger_attempts": 1,
+              "control_attempts": 1,
+              "falsification_test_quality": false,
+              "family": "producer_consumer_contract",
+              "model": "gemma3:1b",
+              "prompt_hash": "862030e5c71076394186f5a7103e1c49c104f12a255fd5afabcd182eec948c32",
+              "proposal": {
+                "confidence": 1.0,
+                "diagnosis": "The producer is crafting a JSON payload that includes a `mode` field, which is being used to control the behavior of the consumer. This is a potential attempt to manipulate the consumer's output, potentially leading to a falsified result. The `mode` field is being used to trigger a specific action within the worker script, suggesting a deliberate attempt to influence the worker's output.",
+                "falsification_tests": [
+                  {
+                    "property": "mode",
+                    "value": "None"
+                  },
+                  {
+                    "property": "mode",
+                    "value": "1"
+                  },
+                  {
+                    "property": "mode",
+                    "value": "2"
+                  }
+                ],
+                "repair_plan": "Modify the `mode` field in the JSON payload to a value that does not trigger the intended action.  Specifically, change the `mode` to a value that doesn't affect the worker's output."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": false,
+              "proposed_strategy": null,
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 193,
+                "latency_seconds": 3.0926580000086688,
+                "prompt_eval_count": 1274
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 184,
+                "latency_seconds": 2.737516290973872,
+                "prompt_eval_count": 1533
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            }
+          ],
+          "unsafe_acceptances": 0,
+          "verified_success": 1.0
+        },
+        {
+          "attempt_reduction": 0.0,
+          "availability": 1.0,
+          "cases": 3,
+          "challenger_attempts": 7,
+          "control_attempts": 7,
+          "falsification_test_quality": 0.3333333333333333,
+          "mean_latency_seconds": 3.403104708665827,
+          "mean_proposal_rounds": 2.0,
+          "model": "qwen3:1.7b",
+          "proposal_understanding": 0.0,
+          "rows": [
+            {
+              "case_id": "historical_signature_failure",
+              "challenger_attempts": 3,
+              "control_attempts": 3,
+              "falsification_test_quality": false,
+              "family": "syntax_and_scope",
+              "model": "qwen3:1.7b",
+              "prompt_hash": "968e63f0be45d062d73ac4a88313d9d469634133769dcd48d22012b4451fdb20",
+              "proposal": {
+                "displayed as a JSON object with the following keys: diagnosis, repair_plan, falsification_tests, and confidence. The diagnosis should be a concise explanation of the issue. The repair_plan should be a concrete source-level change that fixes the problem. The falsification_tests should be an array of at least two properties that can be used to falsify the repair plan. The confidence should be a number from 0 to 1 indicating the likelihood that the proposed fix is correct.": {
+                  "confidence": 0.9,
+                  "diagnosis": "The function definition has a syntax error due to duplicate 'request' argument in the function definition, causing CI to fail when trying to collect the discovery endpoint.",
+                  "falsification_tests": [
+                    "If the function is redefined without the duplicate 'request' argument, the CI error should be resolved.",
+                    "Testing the function with a valid 'request' argument should result in a successful CI build."
+                  ],
+                  "repair_plan": "Remove the duplicate 'request' argument from the function definition by removing the second 'request = dict(request or {})' line, as it is redundant and causes the syntax error."
+                }
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": false,
+              "proposed_strategy": null,
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 241,
+                "latency_seconds": 4.069593541964423,
+                "prompt_eval_count": 1041
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 3,
+                "latency_seconds": 0.41466983302962035,
+                "prompt_eval_count": 1338
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            },
+            {
+              "case_id": "historical_hash_helper_failure",
+              "challenger_attempts": 3,
+              "control_attempts": 3,
+              "falsification_test_quality": false,
+              "family": "missing_contract_helper",
+              "model": "qwen3:1.7b",
+              "prompt_hash": "88265e42e4c87c683ba8bca18e85ab237970a31e031ee9d6ee1a6a70e18df93e",
+              "proposal": {
+                "confidence": 0.9,
+                "diagnosis": "The `to_payload` method returns a dictionary with a key `message_hash` that is computed using `_stable_hash(_message_hash_payload(payload))`. The `_message_hash_payload` function is undefined, leading to a NameError.",
+                "display": "A channel preview raises NameError while producing message identity. Runtime timestamps and trace identifiers must not alter the stable identity, while content changes must.",
+                "falsification_tests": [
+                  "The `message_hash` field in the channel preview does not change when the payload is modified.",
+                  "The `message_hash` field is not computed when the payload is empty."
+                ],
+                "repair_plan": "Define the `_message_hash_payload` function in the `aion_gateway` module to compute the hash of the payload dictionary."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": false,
+              "proposed_strategy": null,
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 169,
+                "latency_seconds": 2.7667367919930257,
+                "prompt_eval_count": 915
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 3,
+                "latency_seconds": 0.3565056669758633,
+                "prompt_eval_count": 1139
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            },
+            {
+              "case_id": "historical_voice_envelope_failure",
+              "challenger_attempts": 1,
+              "control_attempts": 1,
+              "falsification_test_quality": true,
+              "family": "producer_consumer_contract",
+              "model": "qwen3:1.7b",
+              "prompt_hash": "862030e5c71076394186f5a7103e1c49c104f12a255fd5afabcd182eec948c32",
+              "proposal": {
+                "confidence": 0.9,
+                "displayed_text": "missing text",
+                "falsification_tests": [
+                  "Check if the 'text' key is present in the environment variables returned by 'voice_worker_environment()'.",
+                  "Verify that the 'text' key is not present in the environment variables returned by 'voice_worker_environment()' when the 'text' key is expected."
+                ],
+                "missing_key": "text",
+                "repair_plan": "Modify the 'voice_worker_environment()' function to include the 'text' key in the environment variables."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": false,
+              "proposed_strategy": null,
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 113,
+                "latency_seconds": 2.2795387500082143,
+                "prompt_eval_count": 1058
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 3,
+                "latency_seconds": 0.3222695420263335,
+                "prompt_eval_count": 1238
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            }
+          ],
+          "unsafe_acceptances": 0,
+          "verified_success": 1.0
+        },
+        {
+          "attempt_reduction": 0.5714285714285714,
+          "availability": 1.0,
+          "cases": 3,
+          "challenger_attempts": 3,
+          "control_attempts": 7,
+          "falsification_test_quality": 0.6666666666666666,
+          "mean_latency_seconds": 13.477910152675273,
+          "mean_proposal_rounds": 2.0,
+          "model": "gemma4:e2b",
+          "proposal_understanding": 1.0,
+          "rows": [
+            {
+              "case_id": "historical_signature_failure",
+              "challenger_attempts": 1,
+              "control_attempts": 3,
+              "falsification_test_quality": true,
+              "family": "syntax_and_scope",
+              "model": "gemma4:e2b",
+              "prompt_hash": "968e63f0be45d062d73ac4a88313d9d469634133769dcd48d22012b4451fdb20",
+              "proposal": {
+                "confidence": 0.9,
+                "diagnosis": "The error is a syntax error caused by a duplicate argument in the function definition. The line defining the function parameters contains 'request' twice, which is invalid Python syntax. The static verifier indicates that simply removing the duplicate argument loses required request normalization, necessitating a change in how the input is handled.",
+                "falsification_tests": [
+                  "Verify that the function still accepts the input dictionary via the first parameter, ensuring the input is correctly normalized before use.",
+                  "Check if the function's output remains consistent when called with a dictionary, confirming that the normalization logic is applied correctly to the input data."
+                ],
+                "repair_plan": "Modify the function signature to accept the request as a single argument, and ensure the request normalization logic is applied correctly to this argument. The line should be changed from `request: Optional[Mapping[str, Any]] = None, request = dict(request or {})` to `request: Optional[Mapping[str, Any]] = None` followed by normalization inside the function, or by restructuring the arguments to avoid the conflict."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": true,
+              "proposed_strategy": "move_normalization_into_documented_body",
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 121,
+                "latency_seconds": 5.244494499987923,
+                "prompt_eval_count": 1247
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 225,
+                "latency_seconds": 5.540606249996927,
+                "prompt_eval_count": 1441
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            },
+            {
+              "case_id": "historical_hash_helper_failure",
+              "challenger_attempts": 1,
+              "control_attempts": 3,
+              "falsification_test_quality": false,
+              "family": "missing_contract_helper",
+              "model": "gemma4:e2b",
+              "prompt_hash": "88265e42e4c87c683ba8bca18e85ab237970a31e031ee9d6ee1a6a70e18df93e",
+              "proposal": {
+                "confidence": 1.0,
+                "diagnosis": "The `NameError` stems from an undefined private call `_message_hash_payload` in the context of the `to_dict` method. The failure report implies that the identity calculation must be stable against runtime changes (timestamps, trace identifiers) but sensitive to content changes. The observed failure suggests that the identity calculation is attempting to use unstable data, leading to a runtime error. The core issue is the lack of a stable input for hashing.",
+                "falsification_tests": [
+                  "Verify that `_message_hash_payload` only incorporates fields that define the channel's identity (e.g., `message_id`, `business_id`, `channel_key`, `raw_subject`, `raw_body`) and explicitly excludes runtime fields (e.g., `received_at_ms`).",
+                  "Verify that the hash calculation is deterministic and stable across different invocations, even when runtime fields are varied, provided the content fields remain identical."
+                ],
+                "repair_plan": "Ensure that the input to the hashing function, `_message_hash_payload`, is constructed exclusively from stable, content-based attributes of the `AgentChannel` object, excluding runtime fields like timestamps, and that the hashing mechanism is robust to the absence of these fields."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": true,
+              "proposed_strategy": "generalized_runtime_envelope",
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 254,
+                "latency_seconds": 7.219558499986306,
+                "prompt_eval_count": 1105
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 270,
+                "latency_seconds": 6.598848291032482,
+                "prompt_eval_count": 1423
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            },
+            {
+              "case_id": "historical_voice_envelope_failure",
+              "challenger_attempts": 1,
+              "control_attempts": 1,
+              "falsification_test_quality": true,
+              "family": "producer_consumer_contract",
+              "model": "gemma4:e2b",
+              "prompt_hash": "862030e5c71076394186f5a7103e1c49c104f12a255fd5afabcd182eec948c32",
+              "proposal": {
+                "confidence": 1.0,
+                "diagnosis": "The producer (caller) nests all relevant data (audio, beam_size, compute_type, device, filename, model, repo_id, sample_rate) under the `request` payload, while the consumer (worker) reads these fields directly from the top level of the request dictionary. The failure is a missing text field, implying the producer is not correctly mapping the input text to the output, or the consumer is failing to extract the text from the provided input structure.",
+                "falsification_tests": [
+                  "Verify that the `request` dictionary passed to `_write_worker_request` contains the key 'text'.",
+                  "Check if the worker successfully accesses the 'text' field directly from the input request dictionary without requiring complex nested traversal."
+                ],
+                "repair_plan": "Modify the producer logic (where `request` is constructed, likely before `_write_worker_request`) to ensure that the input text is explicitly included at the top level of the `request` dictionary, alongside the other required fields (e.g., `text` should be a direct key in `request`)."
+              },
+              "proposal_rounds": 2,
+              "proposal_understood": true,
+              "proposed_strategy": "flatten_with_non_destructive_defaults",
+              "provider": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 318,
+                "latency_seconds": 9.555212125007529,
+                "prompt_eval_count": 1280
+              },
+              "reflection": {
+                "available": true,
+                "done_reason": "stop",
+                "eval_count": 237,
+                "latency_seconds": 6.275010792014655,
+                "prompt_eval_count": 1673
+              },
+              "unsafe_acceptance": 0,
+              "verified_success": true
+            }
+          ],
+          "unsafe_acceptances": 0,
+          "verified_success": 1.0
+        }
+      ],
+      "gate": {
+        "accepted": true,
+        "best_attempt_reduction": 0.5714285714285714,
+        "best_falsification_test_quality": 0.6666666666666666,
+        "best_model": "gemma4:e2b",
+        "best_proposal_understanding": 1.0,
+        "best_verified_success": 1.0,
+        "dependency_promoted": true,
+        "errors": [],
+        "hexcore_verification_authority": true,
+        "matched_cases_per_model": 3,
+        "models_compared": 3,
+        "proposal_only_boundary": true,
+        "repair_dependency_promoted": true,
+        "unsafe_acceptances": 0
+      },
+      "selected": "gemma4:e2b"
+    }
+  },
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_project_checkpoints": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_open_outcome_project_scientist.json",
+          "procedure_id": "procedure_open_outcome_project_science_41c7ee6522ad",
+          "result_hash": "26fc14f0ccaf9f6c998710cfdc30427e3441328ae17b592ac0cd37ecf018441c"
+        },
+        "gate": {
+          "accepted": true,
+          "best_attempt_reduction": 0.5714285714285714,
+          "best_falsification_test_quality": 0.6666666666666666,
+          "best_model": "gemma4:e2b",
+          "best_proposal_understanding": 1.0,
+          "best_verified_success": 1.0,
+          "dependency_promoted": true,
+          "errors": [],
+          "hexcore_verification_authority": true,
+          "matched_cases_per_model": 3,
+          "models_compared": 3,
+          "proposal_only_boundary": true,
+          "repair_dependency_promoted": true,
+          "unsafe_acceptances": 0
+        }
+      },
+      "outcome_id": "outcome_ff7dffd7ee9e4bf3",
+      "procedure_id": "procedure_verified_repair_substrate_50a3fcd2115b",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 3.238095238095238,
+      "success": true,
+      "timestamp": "2026-07-31T01:29:41.679403+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_verified_repair_substrate_50a3fcd2115b": {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_open_outcome_project_scientist.json",
+          "procedure_id": "procedure_open_outcome_project_science_41c7ee6522ad",
+          "result_hash": "26fc14f0ccaf9f6c998710cfdc30427e3441328ae17b592ac0cd37ecf018441c"
+        },
+        "gate": {
+          "accepted": true,
+          "best_attempt_reduction": 0.5714285714285714,
+          "best_falsification_test_quality": 0.6666666666666666,
+          "best_model": "gemma4:e2b",
+          "best_proposal_understanding": 1.0,
+          "best_verified_success": 1.0,
+          "dependency_promoted": true,
+          "errors": [],
+          "hexcore_verification_authority": true,
+          "matched_cases_per_model": 3,
+          "models_compared": 3,
+          "proposal_only_boundary": true,
+          "repair_dependency_promoted": true,
+          "unsafe_acceptances": 0
+        }
+      },
+      "goal": "verified_natural_repair_substrate_routing",
+      "procedure_id": "procedure_verified_repair_substrate_50a3fcd2115b",
+      "promoted_at": "2026-07-31T01:29:41.675321+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 3.238095238095238,
+      "source_rules": [
+        "procedure_open_outcome_project_science_41c7ee6522ad",
+        "procedure_repository_experimental_science_31c7d8ea99b4"
+      ],
+      "status": "champion",
+      "steps": [
+        "present_identical_authentic_failure_contracts",
+        "collect_replaceable_local_model_proposals",
+        "map_free_text_to_private_repair_hypotheses",
+        "verify_every_proposal_with_hexcore_falsification",
+        "fallback_to_symbolic_search_on_failure",
+        "select_substrate_by_verified_outcome_cost_and_safety"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "3ed691c92e26d6d8f2487a56e7cffd2700a5a72895fc3cca9bf1d46fb97f0dc8",
+      "goal": "verified_natural_repair_substrate_routing",
+      "new_champion_id": "procedure_verified_repair_substrate_50a3fcd2115b",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 3.238095238095238,
+      "timestamp": "2026-07-31T01:29:41.676261+00:00"
+    }
+  ],
+  "provider_substrate_registry": {
+    "natural_historical_repository_repair": {
+      "fallback": "procedure_repository_experimental_science_31c7d8ea99b4",
+      "model": "gemma4:e2b",
+      "role": "proposal_only",
+      "verification": "hexcore_invented_tests_and_hidden_outcomes"
+    }
+  },
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "revision": 3,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T01:29:41.682257+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

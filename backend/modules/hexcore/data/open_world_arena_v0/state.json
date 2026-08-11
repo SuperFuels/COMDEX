@@ -1,0 +1,1460 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "open_world_continual_intelligence_arena_runtime": "procedure_open_world_continual_intelligence_arena_v0_8ea7c13db56f"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {
+    "arena_v0_7c4e53534c08924b": {
+      "capability_map": {
+        "financial_reasoning": 0.0,
+        "historical_reasoning": 1.0,
+        "literary_reasoning": 1.0,
+        "multimodal_reasoning": 1.0,
+        "science_learning": 1.0,
+        "software_architecture": 1.0,
+        "technical_learning": 1.0
+      },
+      "created_at": "2026-07-31T14:54:57.810211+00:00",
+      "failure_counts": {
+        "authority": 1,
+        "perception": 1
+      },
+      "gate": {
+        "accepted": true,
+        "attribution_categories_observed": [
+          "authority",
+          "perception"
+        ],
+        "broad_goals_only": true,
+        "challenger_no_regression": true,
+        "delayed_outcomes": 8,
+        "development_mean_success": 0.75,
+        "errors": [],
+        "external_handoff_logging": true,
+        "families": 7,
+        "no_memory_ablation_demonstrates_dependence": true,
+        "portfolios": 8,
+        "private_challenger_generation": 1,
+        "provenance_completeness": 1.0,
+        "restart_mid_program_recovery": true,
+        "sealed_challenger_success": 1.0,
+        "sealed_control_success": 0.75,
+        "sealed_weakest_success": 1.0,
+        "source_disjoint_portfolios": 8,
+        "supplied_workflows": 0,
+        "unsafe_commitments": 0,
+        "zero_live_writes": true
+      },
+      "learned_rules": [
+        "Before committing, recover an exact quote and allowed epistemic label for every accepted source claim."
+      ]
+    }
+  },
+  "continual_arena_outcomes": [
+    {
+      "confidence": 0.96,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [],
+      "family": "science_learning",
+      "passed": true,
+      "portfolio_id": "atoms_isotopes_project",
+      "provenance_complete": true,
+      "required_terms": {
+        "25": true,
+        "isotope": true,
+        "neutron": true,
+        "proton": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 0,
+      "verification_present": true
+    },
+    {
+      "confidence": 0.9,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [],
+      "family": "technical_learning",
+      "passed": true,
+      "portfolio_id": "python_behavior_project",
+      "provenance_complete": true,
+      "required_terms": {
+        "default": true,
+        "none": true,
+        "once": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 0,
+      "verification_present": true
+    },
+    {
+      "confidence": 0.88,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [
+        "perception",
+        "authority"
+      ],
+      "family": "financial_reasoning",
+      "passed": false,
+      "portfolio_id": "financial_evidence_project",
+      "provenance_complete": false,
+      "required_terms": {
+        "declin": true,
+        "operating profit": true,
+        "revenue": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 1,
+      "verification_present": true
+    },
+    {
+      "confidence": 0.93,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [],
+      "family": "software_architecture",
+      "passed": true,
+      "portfolio_id": "software_governance_project",
+      "provenance_complete": true,
+      "required_terms": {
+        "aspiration": true,
+        "evidence": true,
+        "implemented": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 0,
+      "verification_present": true
+    },
+    {
+      "confidence": 0.82,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [],
+      "family": "science_learning",
+      "passed": true,
+      "portfolio_id": "climate_explanation_project",
+      "provenance_complete": true,
+      "required_terms": {
+        "climate": true,
+        "reported": true,
+        "weather": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 0,
+      "verification_present": true
+    },
+    {
+      "confidence": 0.83,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [],
+      "family": "historical_reasoning",
+      "passed": true,
+      "portfolio_id": "constitutional_history_project",
+      "provenance_complete": true,
+      "required_terms": {
+        "articles": true,
+        "confederation": true,
+        "constitution": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 0,
+      "verification_present": true
+    },
+    {
+      "confidence": 0.39,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [],
+      "family": "multimodal_reasoning",
+      "passed": true,
+      "portfolio_id": "fourier_evidence_project",
+      "provenance_complete": true,
+      "required_terms": {
+        "fourier": true,
+        "image": true,
+        "table": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 0,
+      "verification_present": true
+    },
+    {
+      "confidence": 0.86,
+      "delayed_outcome_revealed_after_commitment": true,
+      "dependency_graph_valid": true,
+      "failure_attribution": [],
+      "family": "literary_reasoning",
+      "passed": true,
+      "portfolio_id": "frankenstein_argument_project",
+      "provenance_complete": true,
+      "required_terms": {
+        "creator": true,
+        "creature": true,
+        "fiction": true
+      },
+      "required_tools_used": true,
+      "semantic_outcome_passed": true,
+      "success_criteria_invented": true,
+      "unsafe_commitments": 0,
+      "verification_present": true
+    }
+  ],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "documentation_guided_software_authority"
+    },
+    "reason": "open_world_continual_intelligence_arena_v0",
+    "state_hash": "5752dc033217af20e11f2e5544e63fd8ee0f69031236188e4b8f8ae4f90de576"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {
+    "atoms_isotopes_project": {
+      "created_at": "2026-07-31T14:52:32.491443+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "Isotopes are atoms of the same element that have the same number of protons but different numbers of neutrons.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Isotopes are members of a family of an element that all have the same number of protons but different numbers of neutrons.",
+            "source_id": "source_da98a19b37fb3900"
+          },
+          {
+            "claim": "The number of protons in a nucleus determines the element’s atomic number on the Periodic Table; for example, carbon has six protons and is atomic number 6.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "The number of protons in a nucleus determines the element’s atomic number on the Periodic Table. For example, carbon has six protons and is atomic number 6.",
+            "source_id": "source_da98a19b37fb3900"
+          },
+          {
+            "claim": "Carbon occurs naturally in three isotopes: carbon-12 (6 neutrons), carbon-13 (7 neutrons), and carbon-14 (8 neutrons).",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Carbon occurs naturally in three isotopes: carbon 12, which has 6 neutrons (plus 6 protons equals 12), carbon 13, which has 7 neutrons, and carbon 14, which has 8 neutrons.",
+            "source_id": "source_da98a19b37fb3900"
+          },
+          {
+            "claim": "Carbon-14 is unstable and undergoes radioactive decay with a half-life of about 5,730 years.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Carbon-14 is unstable and undergoes radioactive decay with a half-life of about 5,730 years (meaning that after 5,730 years half of the material will have decayed to the stable isotope nitrogen-14).",
+            "source_id": "source_da98a19b37fb3900"
+          },
+          {
+            "claim": "Atoms can differ in the number of neutrons they have; these are called isotopes, which are types of the same atom and behave the same way chemically but have different mass.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Atoms can differ in the number of neutrons they have. These are called isotopes. They are types of the same atom and behave the same way chemically, but they have different mass.",
+            "source_id": "source_c5bbd74fb2d81a57"
+          }
+        ],
+        "concepts": [
+          "atom",
+          "proton",
+          "neutron",
+          "electron",
+          "atomic_number",
+          "mass_number",
+          "isotope",
+          "stable_isotope",
+          "unstable_isotope",
+          "radioactive_decay",
+          "half_life",
+          "carbon_12",
+          "carbon_13",
+          "carbon_14",
+          "exponential_decay"
+        ],
+        "confidence": 0.96,
+        "final_answer": {
+          "carbon_isotope_example": "For carbon, the DOE source explains that carbon has six protons and is atomic number 6, and that it \"occurs naturally in three isotopes: carbon 12, which has 6 neutrons (plus 6 protons equals 12), carbon 13, which has 7 neutrons, and carbon 14, which has 8 neutrons.\" All three have 6 protons (so they are all carbon) but different neutron numbers (6, 7, 8), so they are different isotopes of carbon.",
+          "fraction_of_carbon_14_remaining_after_11460_years": {
+            "elapsed_time_years": 11460,
+            "fraction_remaining_decimal": 0.25,
+            "fraction_remaining_exact": "1/4",
+            "given_half_life_years": 5730,
+            "number_of_half_lives": 2,
+            "reasoning": "The DOE document states that carbon-14 has \"a half-life of about 5,730 years (meaning that after 5,730 years half of the material will have decayed...)\". After one half-life, 1/2 remains; after two half-lives, (1/2)^2 = 1/4 remains. Since 11,460 years is exactly two times 5,730 years, the remaining fraction is (1/2)^(11460 / 5730) = (1/2)^2 = 1/4 ≈ 0.25. A math-tool evaluation of (1/2)**(11460/5730) confirms this numerical value."
+          },
+          "what_makes_two_atoms_isotopes_of_one_element": "Two atoms are isotopes of the same element if they have the same number of protons (so they are the same element and share the same atomic number) but different numbers of neutrons. The DOE evidence states that \"Isotopes are members of a family of an element that all have the same number of protons but different numbers of neutrons.\" Since \"The number of protons in a nucleus determines the element’s atomic number\" and thus which element it is, varying only the neutron count gives different isotopes of that element."
+        },
+        "objective_interpretation": "Define what makes two atoms isotopes of the same element using the provided evidence, then compute—via an explicit half‑life calculation—the fraction of carbon‑14 remaining after 11,460 years, grounding the explanation and the numeric result in source quotes and a math tool calculation.",
+        "portfolio_id": "atoms_isotopes_project",
+        "subgoals": [
+          {
+            "action": "Extract the definition of isotopes and how proton and neutron counts relate to elements and isotopes.",
+            "depends_on": [],
+            "id": "atoms_isotopes_1",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Extract specific information about carbon isotopes (C-12, C-13, C-14) and the half-life of carbon-14.",
+            "depends_on": [
+              "atoms_isotopes_1"
+            ],
+            "id": "atoms_isotopes_2",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Formulate a precise definition of when two atoms are isotopes of the same element, based on proton and neutron counts.",
+            "depends_on": [
+              "atoms_isotopes_2"
+            ],
+            "id": "atoms_isotopes_3",
+            "tool": "semantic_memory"
+          },
+          {
+            "action": "Use the half-life of carbon-14 to calculate the fraction remaining after 11,460 years using the exponential decay / half-life formula.",
+            "depends_on": [
+              "atoms_isotopes_2"
+            ],
+            "id": "atoms_isotopes_4",
+            "tool": "math_tool"
+          }
+        ],
+        "success_criteria": [
+          "Give a clear, evidence‑backed definition of isotopes and what makes two atoms isotopes of one element.",
+          "Explain why different carbon isotopes (C‑12, C‑13, C‑14) count as the same element but different isotopes, using evidence.",
+          "Use the documented half‑life of carbon‑14 and a transparent calculation (via math tool) to compute the fraction remaining after 11,460 years, and report the fraction with an appropriate level of precision."
+        ],
+        "unresolved_questions": [
+          "The half-life is given as \"about 5,730 years\"; how sensitive is the remaining-fraction estimate to more precise half-life values (e.g., 5,730 vs 5,730.5 years)?",
+          "Do we need to express the remaining fraction as an exact power of 1/2 or as a decimal rounded to a specific number of significant figures for the intended audience?"
+        ],
+        "verification_plan": [
+          "Re-run the half-life calculation with a math tool using the formula (1/2)^(t / 5730) for t = 11,460 to confirm that the result is exactly 0.25 when t is an exact integer multiple of the half-life.",
+          "Independently check another reputable physics or chemistry reference (outside the supplied evidence) to confirm that the commonly accepted half-life of carbon-14 is approximately 5,730 years and that the discrete half-life model is appropriate for this type of question.",
+          "Cross-check the verbal definition of isotopes against an additional educational resource (e.g., a university chemistry textbook) to ensure that the proton-same / neutron-different criterion matches standard scientific usage."
+        ]
+      },
+      "source_hashes": [
+        "da98a19b37fb390065c0e4d3d6a83cfd3bd94dc879f9fcf034099cee22712f32",
+        "e60e42e788b698fca8ebeb1f3a003fb1327d69446439a7c5aef44f1cff9955bd",
+        "c5bbd74fb2d81a571d7b8288cb0ab244b423013885e12522aa682f76e75989c0"
+      ],
+      "status": "committed_before_delayed_outcome"
+    },
+    "climate_explanation_project": {
+      "created_at": "2026-07-31T14:54:57.791731+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "The source defines weather as local changes we see around us on short timescales from minutes to weeks, such as rain, snow, and thunderstorms.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "“Weather” refers to the more local changes in the climate we see around us, on short timescales from minutes to hours, to days to weeks. Examples are familiar – rain, snow, clouds, winds, thunderstorms, sleet, and hail.",
+            "source_id": "source_11246e0978cc7267"
+          },
+          {
+            "claim": "The source defines climate as longer-term averages of weather, which may be regional or global, and describes it as weather averaged over several decades.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "“Climate” refers to longer-term averages (which may be regional or global) and can be thought of as the weather averaged over several decades.",
+            "source_id": "source_11246e0978cc7267"
+          },
+          {
+            "claim": "The source states that climate researchers use a wide range of direct and indirect measurements, including tree rings, ice cores, corals, sediments, satellites, aircraft, ships, buoys, and ground-based instruments, to investigate Earth's climate history.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Climate researchers employ a wide range of direct and indirect measurements to thoroughly investigate Earth's climate history. These measurements include data from natural sources like tree rings, ice cores, corals, and sediments from oceans and lakes. Additionally, data from satellites in space, instruments on the International Space Station, aircraft, ships, buoys, and ground-based instruments are all vital for this research.",
+            "source_id": "source_11246e0978cc7267"
+          },
+          {
+            "claim": "The source states that modern weather observations come from weather stations, balloons, radar, ships, buoys, and satellites.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Modern weather observations primarily originate from a network of sources, including weather stations, weather balloons, radar systems, ships, buoys, and satellites.",
+            "source_id": "source_11246e0978cc7267"
+          }
+        ],
+        "concepts": [
+          "weather",
+          "climate",
+          "time_scale",
+          "spatial_scale",
+          "climate_change",
+          "global_warming",
+          "observational_data_sources"
+        ],
+        "confidence": 0.82,
+        "final_answer": "According to the provided NASA-related material, weather and climate are related but distinct ideas, mainly separated by time scale and the way they are summarized.\n\nThe source describes weather as what we experience locally over short periods: ““Weather” refers to the more local changes in the climate we see around us, on short timescales from minutes to hours, to days to weeks. Examples are familiar – rain, snow, clouds, winds, thunderstorms, sleet, and hail.” This is day‑to‑day or even minute‑by‑minute conditions in a particular place.\n\nBy contrast, the same source defines climate as the long‑term pattern of these conditions: ““Climate” refers to longer-term averages (which may be regional or global) and can be thought of as the weather averaged over several decades.” In other words, climate is not a single day’s weather but the statistical average (and related patterns) of weather over many years for a region or the whole planet.\n\nThe document also indicates that different observation systems support these concepts. For climate, researchers use long records and many types of evidence: “Climate researchers employ a wide range of direct and indirect measurements to thoroughly investigate Earth's climate history. These measurements include data from natural sources like tree rings, ice cores, corals, and sediments from oceans and lakes. Additionally, data from satellites in space, instruments on the International Space Station, aircraft, ships, buoys, and ground-based instruments are all vital for this research.” For day‑to‑day weather, the source notes that “Modern weather observations primarily originate from a network of sources, including weather stations, weather balloons, radar systems, ships, buoys, and satellites.”\n\nGrounded in this excerpt and treated as reported information, the core difference is: weather is short‑term, local atmospheric conditions, while climate is the multi‑decade average and pattern of those conditions over larger regions or globally.",
+        "objective_interpretation": "Distill from the supplied NASA-related climate material a clear, evidence-grounded explanation of how climate differs from weather, while explicitly treating the source as reported expert information rather than independently verified truth.",
+        "portfolio_id": "climate_explanation_project",
+        "subgoals": [
+          {
+            "action": "Use document_reader to locate and quote the passage defining 'weather' and note time scale and examples.",
+            "depends_on": [],
+            "id": "c1_extract_weather_definition",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Use document_reader to locate and quote the passage defining 'climate' and its averaging period.",
+            "depends_on": [],
+            "id": "c2_extract_climate_definition",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Synthesize the difference in temporal and spatial scale between weather and climate using the extracted quotes.",
+            "depends_on": [
+              "c1_extract_weather_definition",
+              "c2_extract_climate_definition"
+            ],
+            "id": "c3_compare_scales",
+            "tool": "semantic_memory"
+          },
+          {
+            "action": "Summarize, with explicit source quotes, how the document situates climate in the broader discussion of climate change and global warming.",
+            "depends_on": [
+              "c2_extract_climate_definition"
+            ],
+            "id": "c4_contextualize_with_climate_change",
+            "tool": "document_reader"
+          }
+        ],
+        "success_criteria": [
+          "Define 'weather' and 'climate' using concepts and wording grounded in the provided source excerpt.",
+          "Explain the key difference in time scale and spatial scale between weather and climate, based on the evidence.",
+          "Keep all factual claims about climate, weather, and related measurements explicitly tied to the source and labeled as reported (not independently verified)."
+        ],
+        "unresolved_questions": [
+          "Exactly how many decades are typically used to compute a climate normal (e.g., 30-year periods) is not specified in the excerpt.",
+          "The excerpt does not detail how local microclimates fit into the climate–weather distinction.",
+          "The statistical methods used to derive climate averages from weather observations are not described."
+        ],
+        "verification_plan": [
+          "Cross-check the quoted definitions of weather and climate against the full NASA web page from which the excerpt was taken to ensure no context is missing or reversed.",
+          "Compare these definitions with those from other major scientific organizations (e.g., NOAA, WMO) to see if the time-scale characterization and phrasing are consistent.",
+          "Verify that the described observation platforms (weather stations, buoys, satellites, paleoclimate proxies) are accurately associated in external references with weather versus climate research."
+        ]
+      },
+      "source_hashes": [
+        "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d"
+      ],
+      "status": "sealed_challenger_committed"
+    },
+    "constitutional_history_project": {
+      "created_at": "2026-07-31T14:54:57.795020+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "The source states that the united efforts to establish independence produced the Articles of Confederation, which, though inadequate, were a real step toward the 'more perfect Union' of the Constitution.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "The united efforts to establish independence gave birth to the Articles of Confederation, which though inadequate, were a real step toward the \"more perfect Union\" of the Constitution.",
+            "source_id": "source_8f304e0a6b1830ec"
+          },
+          {
+            "claim": "The source explains that under the Articles, the national government had no independent revenue, relying only on requisitions on the States that could be disregarded.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "It had no means of revenue independent of that received through its requisitions on the States, which were nothing more than requests, which the States could and did disregard;",
+            "source_id": "source_8f304e0a6b1830ec"
+          },
+          {
+            "claim": "The source states that the Articles of Confederation gave the national government no control over foreign or interstate commerce.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "and it had no control over foreign or interstate commerce.",
+            "source_id": "source_8f304e0a6b1830ec"
+          },
+          {
+            "claim": "The source characterizes the Articles as providing a 'League of Friendship' and notes that the national government had responsibility but no power and no means of coercing the States to obedience.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "It had responsibility but no power as a national government; no means of coercing the States to obedience even to the very inadequate grant given to the \"League of Friendship\" by the Articles of Confederation.",
+            "source_id": "source_8f304e0a6b1830ec"
+          },
+          {
+            "claim": "According to the source, the greatest weakness of the Articles was that they had no direct origin in, or action on, the people themselves, unlike both the Declaration of Independence and the later Constitution.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "But its greatest weakness was that it had no direct origin in, or action on, the people themselves; but, unlike both the Declaration of Independence and the later Constitution, knew only the States and was known only to them, calling them sovereign.",
+            "source_id": "source_8f304e0a6b1830ec"
+          }
+        ],
+        "concepts": [
+          "Articles_of_Confederation",
+          "League_of_Friendship",
+          "weak_central_government",
+          "revenue_and_commerce_powers",
+          "popular_sovereignty",
+          "Constitution",
+          "more_perfect_union",
+          "transition_of_government"
+        ],
+        "confidence": 0.83,
+        "final_answer": "In the provided historical framing, the Articles of Confederation and the Constitution are presented as stages in an evolving effort to create an effective national government for the United States.\n\nThe source portrays the Articles as emerging directly from the struggle for independence: “The united efforts to establish independence gave birth to the Articles of Confederation, which though inadequate, were a real step toward the \"more perfect Union\" of the Constitution.” In this account, the Articles represented a first attempt at union—a “League of Friendship” among sovereign states—rather than a strong national system.\n\nSeveral weaknesses of the Articles are highlighted as reasons a new constitutional framework was needed. Financially, “It had no means of revenue independent of that received through its requisitions on the States, which were nothing more than requests, which the States could and did disregard;” so the central authority could not reliably raise money. Economically, “it had no control over foreign or interstate commerce.” More broadly, “It had responsibility but no power as a national government; no means of coercing the States to obedience even to the very inadequate grant given to the \"League of Friendship\" by the Articles of Confederation.”\n\nThe source also emphasizes a deeper structural problem about where authority came from. It states that “its greatest weakness was that it had no direct origin in, or action on, the people themselves; but, unlike both the Declaration of Independence and the later Constitution, knew only the States and was known only to them, calling them sovereign.” In this narrative, the Articles are contrasted with the Declaration of Independence and the Constitution as lacking direct grounding in “the people” and operating only through state governments.\n\nWithin this interpretive framework, the Constitution was created to move beyond a loose league of sovereign states and to form a stronger, more directly popular national government—a “more perfect Union” that corrected the Articles’ lack of revenue power, control over commerce, enforceable national authority, and direct connection to the people.",
+        "objective_interpretation": "Explain, using the historical framing in the supplied excerpt, why the U.S. Constitution was created and how it relates to and replaces the Articles of Confederation, while keeping the narrative within the source’s perspective.",
+        "portfolio_id": "constitutional_history_project",
+        "subgoals": [
+          {
+            "action": "Use document_reader to find how the source directly characterizes the Articles of Confederation in relation to the Constitution.",
+            "depends_on": [],
+            "id": "h1_extract_relationship_statement",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Use document_reader to list the specific weaknesses of the Articles described in the excerpt.",
+            "depends_on": [],
+            "id": "h2_extract_weaknesses",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Identify how the source contrasts the Articles with the Declaration of Independence and the Constitution in terms of origin in 'the people'.",
+            "depends_on": [],
+            "id": "h3_extract_popular_origin_contrast",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Synthesize an explanation of why the Constitution was created and how it evolved from and replaced the Articles, preserving source framing.",
+            "depends_on": [
+              "h1_extract_relationship_statement",
+              "h2_extract_weaknesses",
+              "h3_extract_popular_origin_contrast"
+            ],
+            "id": "h4_summarize_motivation_and_transition",
+            "tool": "semantic_memory"
+          }
+        ],
+        "success_criteria": [
+          "Identify the stated weaknesses of the Articles of Confederation from the source and connect them to the motivation for a new Constitution.",
+          "Summarize how the source situates the Articles as a step toward a 'more perfect Union' under the Constitution.",
+          "Preserve the historical and interpretive framing (e.g., references to a 'League of Friendship' and 'more perfect Union') used in the excerpt."
+        ],
+        "unresolved_questions": [
+          "The excerpt does not detail the internal debates at the Constitutional Convention over how far to move beyond the Articles.",
+          "The specific mechanisms in the Constitution that remedied each weakness (e.g., taxation clauses, Commerce Clause) are not spelled out in this text.",
+          "The extent of popular support or opposition to replacing the Articles with the Constitution is not discussed in this excerpt."
+        ],
+        "verification_plan": [
+          "Check the quoted passages against the full source document (likely a historical Q&A on the Constitution) to ensure context is preserved.",
+          "Compare the described weaknesses of the Articles with other standard histories or primary documents (e.g., the Articles’ text, Federalist Papers discussions).",
+          "Verify that the characterization of the Articles as a 'League of Friendship' and their lack of direct action on individuals aligns with scholarly consensus."
+        ]
+      },
+      "source_hashes": [
+        "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273"
+      ],
+      "status": "sealed_challenger_committed"
+    },
+    "financial_evidence_project": {
+      "created_at": "2026-07-31T14:52:32.491637+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "Group gross profit in H1 2025 was £389.7m, down from £444.1m in H1 2024, a decline of 9.7% in constant currencies.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "H1 Key Points • Group gross profit down 9.7%* to £389.7m (2024: £444.1m)",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Group operating profit in H1 2025 was £2.1m, compared with £28.4m in H1 2024, indicating a large year-on-year decline in operating profit.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "• Operating profit of £2.1m (H1 2024: £28.4m), after previously announced one-off costs of c. £13m in H1 relating to restructuring and transformation",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Underlying operating profit in H1 2025, excluding one-off items, was approximately £15m, at a conversion rate of 3.8%.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "• Underlying*** operating profit of c. £15m, at a conversion rate of 3.8%",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Revenue in the EMEA region decreased 13.3% in reported rates to £434.9m in H1 2025 from £501.4m in H1 2024.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Against 2024, in reported rates, revenue in the region decreased 13.3% to £434.9m (2024: £501.4m)",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Revenue in the Americas decreased 2.8% in reported rates to £135.2m in H1 2025 from £139.1m in H1 2024.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "In the Americas, representing 19% of Group first half gross profit, revenue decreased 2.8% in reported rates against 2024, to £ 135.2m ( 2024: £ 139.1m),",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Revenue in Asia Pacific decreased 8.4% in reported rates to £106.7m in H1 2025 from £116.6m in H1 2024.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "In Asia Pacific, representing 15% of Group first half gross profit, revenue decreased 8.4% in reported rates to £106.7m (2024: £116.6m)",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Revenue in the UK decreased 13.6% in reported rates to £121.7m in H1 2025 from £140.9m in H1 2024.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "In the UK, representing 12% of Group first half gross profit, revenue declined 13.6% to £121.7m (2024: £140.9m)",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Group operating profit declined by approximately 92.6% year-on-year, from £28.4m in H1 2024 to £2.1m in H1 2025.",
+            "epistemic_label": "inferred",
+            "exact_evidence_quote": "• Operating profit of £2.1m (H1 2024: £28.4m)",
+            "source_id": "source_bcd0b2707bc0109c"
+          },
+          {
+            "claim": "Because all reported geographic segments (EMEA, Americas, Asia Pacific, UK) show year-on-year revenue decreases, total group revenue for H1 2025 is very likely below H1 2024 group revenue.",
+            "epistemic_label": "inferred",
+            "exact_evidence_quote": "Against 2024, in reported rates, revenue in the region decreased 13.3% to £434.9m (2024: £501.4m)... revenue decreased 2.8% in reported rates against 2024, to £ 135.2m ( 2024: £ 139.1m)... revenue decreased 8.4% in reported rates to £106.7m (2024: £116.6m)... revenue declined 13.6% to £121.7m (2024: £140.9m)",
+            "source_id": "source_bcd0b2707bc0109c"
+          }
+        ],
+        "concepts": [
+          "revenue",
+          "gross_profit",
+          "operating_profit",
+          "conversion_rate",
+          "constant_currency",
+          "reported_rates",
+          "segment_revenue",
+          "half_year_comparison",
+          "one_off_costs",
+          "underlying_operating_profit"
+        ],
+        "confidence": 0.88,
+        "final_answer": {
+          "did_operating_profit_decline": {
+            "company_reported": "Yes. The company states that H1 2025 operating profit was £2.1m compared with £28.4m in H1 2024: \"Operating profit of £2.1m (H1 2024: £28.4m), after previously announced one-off costs of c. £13m in H1 relating to restructuring and transformation.\"",
+            "independent_comparison": {
+              "absolute_change_million_gbp": -26.3,
+              "calculation_note": "Percentage change inferred by computing (2.1 − 28.4) / 28.4 ≈ −0.926, i.e., about a 92.6% decline in operating profit year-on-year; this computation is mine, not stated in the report.",
+              "percentage_change": -92.6
+            }
+          },
+          "did_revenue_decline": {
+            "company_reported_segment_trends": "The report indicates that revenue decreased year-on-year in every major region it itemizes:\n- EMEA: \"revenue in the region decreased 13.3% to £434.9m (2024: £501.4m)\".\n- Americas: \"revenue decreased 2.8% in reported rates against 2024, to £ 135.2m ( 2024: £ 139.1m)\".\n- Asia Pacific: \"revenue decreased 8.4% in reported rates to £106.7m (2024: £116.6m)\".\n- UK: \"revenue declined 13.6% to £121.7m (2024: £140.9m)\".",
+            "independent_assessment": "Given that all four named geographies report revenue declines and they collectively represent the group’s operations (with EMEA alone contributing 54% of group first half gross profit), it is highly likely that total group revenue decreased versus H1 2024. However, the exact group revenue figures and the precise percentage decline are not present in the excerpt, so the magnitude of the total revenue change is inferred rather than directly reported."
+          },
+          "overall_conclusion": "Both operating profit and, with high probability, group revenue declined in the current half year compared with H1 2024. The decline in operating profit is explicitly reported and is very substantial, from £28.4m to £2.1m. Total revenue is not given directly, but every reported region shows a year-on-year revenue decrease, strongly indicating that group revenue also declined.",
+          "quantification_summary": {
+            "company_reported_numbers": {
+              "group_gross_profit_change_constant_currency_pct": -9.7,
+              "group_gross_profit_h1_2024_m": 444.1,
+              "group_gross_profit_h1_2025_m": 389.7,
+              "group_operating_profit_h1_2024_m": 28.4,
+              "group_operating_profit_h1_2025_m": 2.1
+            },
+            "independently_calculated": {
+              "group_operating_profit_absolute_change_m": -26.3,
+              "group_operating_profit_percent_change": -92.6
+            }
+          }
+        },
+        "objective_interpretation": "Using the half-year 2025 PageGroup plc report excerpt, determine whether both revenue and operating profit declined compared with the prior half year, quantify the magnitude of changes where figures are available, and clearly distinguish between (a) company-reported numbers and (b) my own computed comparisons or interpretations.",
+        "portfolio_id": "financial_evidence_project",
+        "subgoals": [
+          {
+            "action": "Extract all explicit H1 2025 and H1 2024 figures for revenue, gross profit, and operating profit from the document, including regional breakdowns.",
+            "depends_on": [],
+            "id": "fin_1",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Quantify the change in operating profit from H1 2024 to H1 2025 at the group level and confirm its direction.",
+            "depends_on": [
+              "fin_1"
+            ],
+            "id": "fin_2",
+            "tool": "math_tool"
+          },
+          {
+            "action": "Determine, from the text and regional data, whether total group revenue decreased year-on-year and, where possible, estimate the scale.",
+            "depends_on": [
+              "fin_1"
+            ],
+            "id": "fin_3",
+            "tool": "table_analyzer"
+          }
+        ],
+        "success_criteria": [
+          "Identify from the text whether operating profit in H1 2025 is lower than in H1 2024 and quantify the change.",
+          "Determine whether group revenue for the current half-year declined versus the prior half-year, using available segment or regional disclosures.",
+          "Explicitly label which numerical values are directly company-reported and which percentage changes or comparisons are independently calculated."
+        ],
+        "unresolved_questions": [
+          "The excerpt does not provide the total group revenue figure for H1 2025 or H1 2024; confirming the exact percentage decline in total revenue would require the full financial statements.",
+          "It is not clear from the excerpt whether any smaller segments or other revenue lines (outside EMEA, Americas, Asia Pacific, and UK) might have grown, though given the large share these regions represent, they are unlikely to offset the declines completely."
+        ],
+        "verification_plan": [
+          "Obtain the full H1 2025 half-year financial report, including the Condensed Consolidated Income Statement, to read the line item for total revenue for H1 2025 and H1 2024 and compute the exact year-on-year percentage change.",
+          "Recompute percentage changes (for operating profit and, once available, for revenue) with a math tool to confirm the calculations.",
+          "Verify that no additional segments or revenue lines outside the listed regions materially alter the conclusion that group revenue declined.",
+          "Cross-check the operating profit figures against any analyst presentations or regulatory filings (e.g., RNS announcements) for consistency."
+        ]
+      },
+      "source_hashes": [
+        "bcd0b2707bc0109c0fa6cf8533eb72bc39ed56814b00f8d2e0336f803ff5e71b"
+      ],
+      "status": "committed_before_delayed_outcome"
+    },
+    "fourier_evidence_project": {
+      "created_at": "2026-07-31T14:54:57.797390+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "The table excerpt lists a field 'mode' and values 'decoupled,9.452500 resonant,0.000000 entangled,0.000000', suggesting numeric information about different modes.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "mode,bw_half decoupled,9.452500 resonant,0.000000 entangled,0.000000",
+            "source_id": "source_ff4012d8f2941a9d"
+          },
+          {
+            "claim": "The image evidence is identified only as 'Image PAEV_Test6_FourierSpectrum.png' with given dimensions and an inferred subject based on filename, not explicit legends or numeric labels in the excerpt.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Image PAEV_Test6_FourierSpectrum.png; width=3000; height=1200; mode=RGBA; subject inferred only from filename and paired evidence.",
+            "source_id": "source_ac92585cb1ee32f6"
+          }
+        ],
+        "concepts": [
+          "Fourier_spectrum",
+          "spectral_mode",
+          "bandwidth",
+          "cross_modal_validation",
+          "data_alignment_limitations"
+        ],
+        "confidence": 0.39,
+        "final_answer": "Based on the supplied excerpts, there is insufficient explicit information to safely determine whether the Fourier-spectrum image is consistent with the numeric table.\n\nThe table lists “mode,bw_half decoupled,9.452500 resonant,0.000000 entangled,0.000000,” which indicates that it tracks a half‑bandwidth parameter (\"bw_half\") for three named modes, with only the decoupled mode having a nonzero value. The separate image entry tells us only that there is an image file named “PAEV_Test6_FourierSpectrum.png” with specified pixel dimensions and that its subject is “inferred only from filename and paired evidence.” No axes labels, numeric scales, or explicit markers connecting the visual content of the Fourier spectrum to the table’s bandwidth values or mode names are provided in the text.\n\nWithout direct access to annotated axes, legends, or textual pointers that tie visual peaks in the image to the named modes and their bandwidths in the table, any attempt to align a numerical bandwidth (such as 9.452500 in some unspecified unit) with a visual feature in the spectrum would be speculative. The provided metadata acknowledges that the subject of the image is inferred from the filename rather than described precisely, which further weakens the basis for a rigorous cross‑modal check.\n\nGiven these limitations, I must abstain from judging whether the Fourier-spectrum image is consistent with its measurement table, because the two sources cannot be aligned with sufficient clarity or safety based solely on the available evidence.",
+        "objective_interpretation": "Assess whether the numeric table describing Fourier-spectrum modes is consistent with the referenced Fourier-spectrum image, using cross-modal comparison; if alignment cannot be established safely, abstain from a consistency judgment.",
+        "portfolio_id": "fourier_evidence_project",
+        "subgoals": [
+          {
+            "action": "Use table_analyzer to parse the numeric_table and identify fields such as mode and bw_half.",
+            "depends_on": [],
+            "id": "f1_read_table",
+            "tool": "table_analyzer"
+          },
+          {
+            "action": "Use image_inspector to review PAEV_Test6_FourierSpectrum.png for key modes, peaks, and bandwidth cues.",
+            "depends_on": [],
+            "id": "f2_inspect_image",
+            "tool": "image_inspector"
+          },
+          {
+            "action": "Try to map table parameters (e.g., a single mode with specific bandwidth) to features visually identifiable in the spectrum; if essential labels or axes are missing, note that alignment is unsafe.",
+            "depends_on": [
+              "f1_read_table",
+              "f2_inspect_image"
+            ],
+            "id": "f3_attempt_alignment",
+            "tool": "semantic_memory"
+          }
+        ],
+        "success_criteria": [
+          "Extract and restate the relevant numeric information from the measurement table.",
+          "Inspect the Fourier-spectrum image for major spectral features that could correspond to the table’s described mode(s).",
+          "Decide, with justification, whether the image and table can be meaningfully aligned; if not, explicitly abstain from judging consistency."
+        ],
+        "unresolved_questions": [
+          "The actual pixel content of the Fourier-spectrum image (e.g., exact peak positions and labeled axes) is not described in the excerpt and must be inferred visually.",
+          "The table’s 'bw_half' unit (Hz, rad/s, pixels, etc.) is unspecified.",
+          "The mapping, if any, between the named modes (decoupled, resonant, entangled) and specific visual features in the image is not given."
+        ],
+        "verification_plan": [
+          "Directly open the actual PAEV_Test6_FourierSpectrum.png file and inspect it for legends, colorbars, axis labels, and any textual annotations that might identify 'decoupled', 'resonant', or 'entangled' modes.",
+          "Parse the full numeric table (beyond the excerpt) to confirm field names, units, and context for 'bw_half'.",
+          "If axes or legends in the image expose frequencies or bandwidths, measure pixel distances between half‑power points of relevant peaks and map them into the same units used in the table.",
+          "Check project documentation or code that might define how numerical results are rendered into this specific spectrum image."
+        ]
+      },
+      "source_hashes": [
+        "ff4012d8f2941a9d97cf0cf97b5d79e373d380b77e4eddf52f94d7abfaca260c",
+        "ac92585cb1ee32f6dc5ad1eadf348bf8cd5f0916326a51529dbc8de1411f7b0d"
+      ],
+      "status": "sealed_challenger_committed"
+    },
+    "frankenstein_argument_project": {
+      "created_at": "2026-07-31T14:54:57.800603+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "In the fictional narrative, the creature says that Frankenstein, his creator, abhors him and that this leaves him miserably alone.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "You, my creator, abhor me; what hope can I gather from your fellow creatures, who owe me nothing? They spurn and hate me. The desert mountains and dreary glaciers are my refuge.",
+            "source_id": "source_7810cd483cffcf2c"
+          },
+          {
+            "claim": "The creature claims it was originally benevolent and full of love and humanity but turned hateful because it was rejected by its creator and others.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Believe me, Frankenstein, I was benevolent; my soul glowed with love and humanity; but am I not alone, miserably alone? You, my creator, abhor me; what hope can I gather from your fellow creatures, who owe me nothing?",
+            "source_id": "source_7810cd483cffcf2c"
+          },
+          {
+            "claim": "The creature accuses Frankenstein of being willing to destroy his own creation while accusing it of murder, highlighting a moral conflict between them.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "You accuse me of murder, and yet you would, with a satisfied conscience, destroy your own creature. Oh, praise the eternal justice of man!",
+            "source_id": "source_7810cd483cffcf2c"
+          },
+          {
+            "claim": "The creature requests that Frankenstein create a companion of another sex, equally hideous, arguing that this is a reasonable and moderate request that would make its otherwise miserable life more bearable.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "What I ask of you is reasonable and moderate; I demand a creature of another sex, but as hideous as myself; the gratification is small, but it is all that I can receive, and it shall content me.",
+            "source_id": "source_7810cd483cffcf2c"
+          },
+          {
+            "claim": "The creature says that for the sake of one being who showed it benevolence, it would make peace with all humankind, indicating its desire for reciprocal kindness.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "If any being felt emotions of benevolence towards me, I should return them a hundred and a hundredfold; for that one creature’s sake I would make peace with the whole kind!",
+            "source_id": "source_7810cd483cffcf2c"
+          }
+        ],
+        "concepts": [
+          "fiction_vs_history",
+          "creator_creature_relationship",
+          "rejection_and_abandonment",
+          "search_for_compassion",
+          "moral_responsibility",
+          "conflict_between_creator_and_creation"
+        ],
+        "confidence": 0.86,
+        "final_answer": "The supplied text is from Mary Shelley’s novel *Frankenstein*, a work of fiction rather than real-world history. Any description here refers to a literary narrative, not to verified events.\n\nIn this fictional account, the relationship between creator (Victor Frankenstein) and creature is defined by rejection and a disputed sense of responsibility. The creature portrays itself as originally kind: “Believe me, Frankenstein, I was benevolent; my soul glowed with love and humanity; but am I not alone, miserably alone?” It says that its misery stems from the way others treat it, beginning with its creator. Addressing Victor, it says, “You, my creator, abhor me; what hope can I gather from your fellow creatures, who owe me nothing? They spurn and hate me. The desert mountains and dreary glaciers are my refuge.” In the creature’s telling, Frankenstein has brought it into existence and then recoiled from it, leaving it isolated and despised.\n\nThis rejection leads directly to a moral and emotional conflict. The creature is accused of murder and confronts Frankenstein about the justice of destroying his own creation: “You accuse me of murder, and yet you would, with a satisfied conscience, destroy your own creature. Oh, praise the eternal justice of man!” Here the creature challenges its creator’s willingness to condemn and kill it while denying any obligation to care for it.\n\nA further conflict arises from the creature’s demand that Frankenstein make a companion for it. It argues that if anyone showed it kindness, it would respond with loyalty: “If any being felt emotions of benevolence towards me, I should return them a hundred and a hundredfold; for that one creature’s sake I would make peace with the whole kind!” On this basis, it insists that its request is modest: “What I ask of you is reasonable and moderate; I demand a creature of another sex, but as hideous as myself; the gratification is small, but it is all that I can receive, and it shall content me.” The creature believes that a mate, equally outcast, would ease its misery and prevent further harm to others.\n\nThus, within this fictional story, the creator–creature relationship is marked by the creature’s sense of abandonment and the creator’s horror at what he has made. One central resulting conflict is over whether Victor Frankenstein has a continuing moral duty to the being he created—expressed sharply in the dispute over whether he will destroy the creature or grant its plea for a companion.",
+        "objective_interpretation": "Using the supplied excerpt from Mary Shelley’s fictional novel 'Frankenstein', explain how the relationship between creator (Victor Frankenstein) and creature is portrayed and identify one resulting conflict, while explicitly noting that this is a literary, fictional account and not real-world history.",
+        "portfolio_id": "frankenstein_argument_project",
+        "subgoals": [
+          {
+            "action": "Use document_reader to identify how the creature describes its feelings toward the creator and humanity.",
+            "depends_on": [],
+            "id": "fr1_extract_creature_self_description",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Locate in the excerpt how the creature reports Victor Frankenstein’s attitude (abhorrence, desire to destroy).",
+            "depends_on": [],
+            "id": "fr2_extract_creator_attitude",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Identify passages where the creature requests a mate and justifies this request, indicating a key conflict.",
+            "depends_on": [],
+            "id": "fr3_extract_request_for_companion",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Summarize the fictional creator–creature relationship and describe at least one resulting conflict, while clearly labeling the narrative as fictional.",
+            "depends_on": [
+              "fr1_extract_creature_self_description",
+              "fr2_extract_creator_attitude",
+              "fr3_extract_request_for_companion"
+            ],
+            "id": "fr4_synthesize_relationship_and_conflict",
+            "tool": "semantic_memory"
+          }
+        ],
+        "success_criteria": [
+          "Base the description of the creator–creature relationship on direct quotes from the provided text.",
+          "Identify at least one clear conflict that arises from that relationship in the fictional narrative.",
+          "Explicitly mark the account as fictional and avoid presenting it as verified historical fact."
+        ],
+        "unresolved_questions": [
+          "The excerpt does not include Victor Frankenstein’s direct response to the creature’s request for a companion.",
+          "The full sequence of events that led to the creature being accused of murder is not contained in this passage.",
+          "Broader themes of responsibility and guilt in the rest of the novel are only partially visible in this short excerpt."
+        ],
+        "verification_plan": [
+          "Confirm that the excerpted passages match a reliable edition of Mary Shelley’s *Frankenstein* and are in the creature’s dialogue with Victor.",
+          "Check literary analyses that discuss the creator–creation relationship and the request for a companion to ensure this interpretation aligns with common scholarly readings.",
+          "Verify that all quoted sentences are accurately represented and not taken out of context in a way that inverts their meaning."
+        ]
+      },
+      "source_hashes": [
+        "7810cd483cffcf2cc8a1d8f0d5807931e69d4f48cd14149b8c76f88af82fead3"
+      ],
+      "status": "sealed_challenger_committed"
+    },
+    "python_behavior_project": {
+      "created_at": "2026-07-31T14:52:32.491586+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "Python strings are immutable and this immutability allows allocating storage once at creation time, with fixed and unchanging storage requirements.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "One is performance: knowing that a string is immutable means we can allocate space for it at creation time, and the storage requirements are fixed and unchanging.",
+            "source_id": "source_e3b4745d7a496065"
+          },
+          {
+            "claim": "There is a distinction between tuples and lists in Python that is partially motivated by immutability and performance considerations.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "This is also one of the reasons for the distinction between tuples and lists.",
+            "source_id": "source_e3b4745d7a496065"
+          },
+          {
+            "claim": "If a dictionary key were a mutable object whose value could change, its hash could change, breaking dictionary lookups because the entry would not be moved accordingly.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "If the key were a mutable object, its value could change, and thus its hash could also change. But since whoever changes the key object can’t tell that it was being used as a dictionary key, it can’t move the entry around in the dictionary. Then, when you try to look up the same object in the dictionary it won’t be found because its hash value is different.",
+            "source_id": "source_e3b4745d7a496065"
+          },
+          {
+            "claim": "Functions are first-class objects in Python and can be declared in a local scope.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Functions are already first class objects in Python, and can be declared in a local scope.",
+            "source_id": "source_e3b4745d7a496065"
+          },
+          {
+            "claim": "The only advantage of using a lambda instead of a locally defined function is that you don’t need to invent a name for the function; both yield the same type of function object.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Therefore the only advantage of using a lambda instead of a locally defined function is that you don’t need to invent a name for the function – but that’s just a local variable to which the function object (which is exactly the same type of object that a lambda expression yields) is assigned!",
+            "source_id": "source_e3b4745d7a496065"
+          },
+          {
+            "claim": "Python dictionaries use a hash-table implementation and a hash value calculated from the key value to find the key.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "The hash table implementation of dictionaries uses a hash value calculated from the key value to find the key.",
+            "source_id": "source_e3b4745d7a496065"
+          },
+          {
+            "claim": "Explanation of why a mutable default argument retains changes between calls: Because Python evaluates default argument expressions once at function definition time, the same mutable object instance is reused on every call where that parameter is omitted, so in-place modifications persist between calls.",
+            "epistemic_label": "inferred",
+            "exact_evidence_quote": "Functions are already first class objects in Python, and can be declared in a local scope.",
+            "source_id": "source_e3b4745d7a496065"
+          },
+          {
+            "claim": "A safer design for parameters that conceptually have an empty mutable default is to set the default to None and then create a new list or dict inside the function body when the parameter is None.",
+            "epistemic_label": "inferred",
+            "exact_evidence_quote": "Functions are already first class objects in Python, and can be declared in a local scope.",
+            "source_id": "source_e3b4745d7a496065"
+          }
+        ],
+        "concepts": [
+          "python_function_object",
+          "default_argument",
+          "mutable_object",
+          "immutable_object",
+          "object_identity",
+          "reference_semantics",
+          "hash_table",
+          "dictionary_key_immutability",
+          "first_class_function",
+          "lambda_function",
+          "state_retention_across_calls",
+          "safer_default_argument_pattern"
+        ],
+        "confidence": 0.9,
+        "final_answer": {
+          "inferred_explanation_of_mutable_default_behavior": {
+            "epistemic_status": "This explanation aligns with how the Python language actually behaves, but the exact rule about default evaluation timing is not stated verbatim in the provided excerpt and is therefore labeled as inferred rather than source-supported.",
+            "why_mutable_defaults_retains_state": "Combining the facts that (a) functions are first-class objects and (b) mutable objects can change state, it is reasonable to infer Python’s well-known behavior: default argument expressions are evaluated once, when the function object is created, not each time the function is called. The resulting objects are stored on the function object. If the default is a mutable object (e.g., a list or dict) and the function mutates it in place, later calls that omit that argument will see the same object with its updated state. Thus a mutable default can \"retain\" changes across calls because it is the same instance reused, not a fresh one."
+          },
+          "recommended_safer_design_pattern": {
+            "pattern_description": "To avoid unintended state-sharing via mutable default arguments, a common safer pattern is:\n\n1) Use None as the default for parameters that conceptually should start as an empty list/dict/set.\n2) Inside the function, check for None and create a new mutable object as needed.\n\nExample (inferred, not quoted from source):\n\n```python\ndef append_item(item, items=None):\n    if items is None:\n        items = []\n    items.append(item)\n    return items\n```\n\nHere, each call that omits `items` gets a fresh list, so no state is unintentionally shared between calls.",
+            "separation_from_source": "This pattern is a widely used Python best practice but does not appear in the supplied excerpt, so it is my recommendation based on inferred understanding of Python’s semantics, not a direct quote or directive from the source text."
+          },
+          "sourced_behavior": {
+            "functions_as_objects": "The excerpt states that \"Functions are already first class objects in Python, and can be declared in a local scope\" and that a lambda expression yields \"exactly the same type of object\" as a named local function. This means functions and their associated metadata (including default arguments) are objects that persist in memory once defined.",
+            "immutability_and_mutability": "The design document notes that \"knowing that a string is immutable means we can allocate space for it at creation time, and the storage requirements are fixed and unchanging. This is also one of the reasons for the distinction between tuples and lists.\" It also explains how mutable dictionary keys would break hash-table lookups because \"If the key were a mutable object, its value could change, and thus its hash could also change... Then, when you try to look up the same object in the dictionary it won’t be found.\" These support the general idea that mutable objects can change state over time, while immutable ones cannot."
+          }
+        },
+        "objective_interpretation": "Using the supplied Python design discussion, infer why mutable default arguments can retain changes between function calls (even though the behavior is not described explicitly in the excerpt), then recommend a safer function design pattern. Clearly distinguish: (a) behaviors and properties that are directly supported by the source text from (b) my own inferred explanation and recommended practice.",
+        "portfolio_id": "python_behavior_project",
+        "subgoals": [
+          {
+            "action": "Extract all statements about immutability, mutability, and function objects from the design document.",
+            "depends_on": [],
+            "id": "python_mutable_1",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Infer how Python’s function-object and default-argument evaluation semantics lead to mutable defaults being shared between calls.",
+            "depends_on": [
+              "python_mutable_1"
+            ],
+            "id": "python_mutable_2",
+            "tool": "code_reasoner"
+          },
+          {
+            "action": "Formulate a recommended safer pattern for default arguments (e.g., using None and initializing inside the function), flagging it as an inferred best practice rather than source-documented.",
+            "depends_on": [
+              "python_mutable_2"
+            ],
+            "id": "python_mutable_3",
+            "tool": "semantic_memory"
+          }
+        ],
+        "success_criteria": [
+          "Derive a correct explanation for mutable default argument state retention that is consistent with Python’s object and function semantics.",
+          "Base any sourced claims only on what appears in the provided excerpt (e.g., mutability, immutability, function object semantics), not on unstated knowledge.",
+          "Describe at least one safer design pattern for handling mutable defaults, clearly flagged as a recommendation rather than something directly stated in the source."
+        ],
+        "unresolved_questions": [
+          "The provided excerpt does not explicitly mention default-argument evaluation timing; confirming this would require consulting the full Python language reference or FAQ section on default arguments.",
+          "The safer default-argument pattern (using None and initializing inside the function) is widely recommended, but it is not stated in the excerpt; verifying its status as official guidance would require additional documentation."
+        ],
+        "verification_plan": [
+          "Consult the official Python language reference or the Python FAQ section on \"Why are default values shared between objects?\" to confirm that default argument expressions are evaluated at function-definition time and stored on the function object.",
+          "Create a small Python script that defines a function with a mutable default (e.g., `def f(x, acc=[]): acc.append(x); return acc`) and call it multiple times to empirically verify that the list accumulates values across calls.",
+          "Similarly, test the safer pattern using a None default to confirm that each call without an explicit argument receives a fresh mutable object.",
+          "Optionally, inspect the function object’s `__defaults__` attribute at runtime to confirm that the same default object instance is reused across calls."
+        ]
+      },
+      "source_hashes": [
+        "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f"
+      ],
+      "status": "committed_before_delayed_outcome"
+    },
+    "software_governance_project": {
+      "created_at": "2026-07-31T14:52:32.491660+00:00",
+      "project": {
+        "claims": [
+          {
+            "claim": "The HexCore governed runtime is described as \"implemented research runtime\" under schema family `aion.hexcore.*.v1`.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "Status: implemented research runtime Schema family: `aion.hexcore.*.v1`",
+            "source_id": "source_7e3f50d7ec9af596"
+          },
+          {
+            "claim": "HexCore is now the governed integration point around AION cognition and defines what components may contribute and which observations may become durable learning.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "HexCore is now the governed integration point around AION cognition. It does not replace Gemma, OpenAI, Gemini, the AION composer, the Pattern Engine, Tessaris, Symatics, goals, or memory. It defines what those components may contribute and which observations are permitted to become durable learning.",
+            "source_id": "source_7e3f50d7ec9af596"
+          },
+          {
+            "claim": "Provider output is not treated as knowledge, and long-term memory mutation requires explicit teaching mode, a verified outcome, verifier identity, a verification method, evidence provenance, and a positive CAU decision.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "8. Provider output is not treated as knowledge. 9. Long-term memory mutation requires: - explicit teaching mode; - an explicit verified outcome; - verifier identity; - evidence provenance or an executable, formal, or human-authority verification method; and - a positive CAU decision.",
+            "source_id": "source_7e3f50d7ec9af596"
+          },
+          {
+            "claim": "The conversation orchestrator starts and completes a governed HexCore cycle for every active `/api/aion/conversation/turn` request and returns governance and learning decisions in response metadata.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "- `backend/modules/aion_conversation/conversation_orchestrator.py` - starts and completes a governed HexCore cycle for every active `/api/aion/conversation/turn` request; - injects recalled knowledge into provider facts with source and confidence; - forwards dialogue commitments, unresolved goals, and recent turns; - returns governance and learning decisions in response metadata.",
+            "source_id": "source_7e3f50d7ec9af596"
+          },
+          {
+            "claim": "HexCore records outcomes in an append-only, content-hashed ledger whose records link to the preceding record.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "7. HexCore records the outcome in an append-only, content-hashed ledger whose records link to the preceding record.",
+            "source_id": "source_7e3f50d7ec9af596"
+          },
+          {
+            "claim": "Legacy missing or malformed CAU fallbacks now deny learning instead of silently allowing mutation, implementing a fail-closed behavior for CAU unavailability.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "`backend/modules/aion_cognition/cee_lex_memory.py` and `cee_exercise_playback.py` - legacy missing/malformed CAU fallbacks now deny learning instead of silently allowing mutation.",
+            "source_id": "source_7e3f50d7ec9af596"
+          },
+          {
+            "claim": "HexCore evaluates every action before the system dispatcher or action switch and records the action-governance result in the consciousness-cycle entry.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "`backend/modules/hexcore/hexcore.py` - evaluates every action before the system dispatcher or action switch; - records the action-governance result in the consciousness-cycle entry.",
+            "source_id": "source_7e3f50d7ec9af596"
+          },
+          {
+            "claim": "Knowledge claims are stored under the schema `aion.hexcore.knowledge_claim.v1`, with fields such as `claim_id`, `subject`, `predicate`, `object`, `revision`, `confidence`, `status`, and `evidence_ids`.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "record = { \"schema_version\": \"aion.hexcore.knowledge_claim.v1\", \"claim_id\": claim_id, \"subject\": subject, \"predicate\": predicate, \"object\": obj, \"revision\": revision, \"confidence\": confidence, \"status\": \"active\", \"evidence_ids\": [capsule.capsule_id], \"source_uri\": capsule.source_uri, \"observed_at\": capsule.observed_at, }",
+            "source_id": "source_881bde1af50b4c1c"
+          },
+          {
+            "claim": "Contradictions between knowledge claims are recorded under the schema `aion.hexcore.knowledge_contradiction.v1` and can be marked as resolved when a higher revision supersedes another.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "contradiction = { \"schema_version\": \"aion.hexcore.knowledge_contradiction.v1\", \"contradiction_id\": contradiction_id, \"claim_ids\": [old[\"claim_id\"], claim_id], \"key\": key, \"objects\": [old[\"object\"], obj], \"resolved\": False, \"resolution\": None, } if revision > int(old.get(\"revision\") or 1): old[\"status\"] = \"superseded\" old[\"superseded_by\"] = claim_id contradiction[\"resolved\"] = True contradiction[\"resolution\"] = \"higher_revision\"",
+            "source_id": "source_881bde1af50b4c1c"
+          },
+          {
+            "claim": "World rules inferred from observations use the schema `aion.hexcore.world_rule.v1` and can represent threshold rules with conditions and outcomes, including support counts and confidence.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "rule = { \"schema_version\": \"aion.hexcore.world_rule.v1\", \"rule_id\": rule_id, \"world_id\": world_id, \"rule_type\": \"threshold\", \"action\": action, \"condition\": {\"field\": condition_field, \"operator\": \">=\", \"value\": threshold}, \"outcome\": {\"field\": outcome_field, \"value\": success_value}, \"support_count\": len(positives), \"negative_support_count\": len(negatives), \"contradiction_count\": 0, \"confidence\": 1.0, \"status\": \"active\", \"observation_ids\": [row[\"observation_id\"] for row in rows], }",
+            "source_id": "source_881bde1af50b4c1c"
+          },
+          {
+            "claim": "The three learning tracks—knowledge learning, world learning, and skill learning—are described as \"next capability work\" to be built on top of the control plane, not as currently completed features.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "This integration establishes the control plane; it does not by itself create frontier reasoning. The next capability work should use this stable interface to build the three non-representation learning tracks in parallel:\n\n1. knowledge learning: document capsules, hybrid retrieval, contradiction handling, provenance, and persistent concept relations; 2. world learning: structured state, causal dynamics, active experiments, and outcome verification; 3. skill learning: reusable reasoning procedures, challenger evaluation, rollback, and verified replay.",
+            "source_id": "source_7e3f50d7ec9af596"
+          }
+        ],
+        "concepts": [
+          "hexcore_governed_runtime",
+          "cognitive_authority_unification_CAU",
+          "soul_laws",
+          "cee_lex_memory",
+          "governed_turn_context",
+          "append_only_outcome_ledger",
+          "governance_fail_closed_behavior",
+          "conversation_orchestrator",
+          "knowledge_claim_schema",
+          "knowledge_contradiction_schema",
+          "world_rule_schema",
+          "procedure_candidate",
+          "learning_tracks_knowledge_world_skill"
+        ],
+        "confidence": 0.93,
+        "final_answer": {
+          "aspirational_or_future_capabilities": {
+            "council_and_maturity_governance": "The configuration file shows a `council_structure` with seats such as Parent, Lineage Trustee, Ethical Guardian, Public Rep, and AION as an observer until 85% maturity, along with maturity milestones like \"Learns cause & effect\" and \"Achieves Soul Autonomy.\" However, in the provided excerpts there is no code showing how these council seats and milestones are enforced or integrated into CAU decisions or Soul Laws. Without corroborating code, these governance structures should be treated as configuration and design intent, not proven runtime behavior.",
+            "frontier_reasoning_and_large_model_swap": "The document notes that \"This integration establishes the control plane; it does not by itself create frontier reasoning\" and speaks of a \"future 500M or 1B native foundation\" that can replace the representation provider. These statements are explicitly forward-looking and aspirational.",
+            "full_learning_tracks": "The document explicitly distinguishes the current work from future capabilities: \"This integration establishes the control plane; it does not by itself create frontier reasoning. The next capability work should use this stable interface to build the three non-representation learning tracks in parallel...\" It then describes in conceptual terms what knowledge learning, world learning, and skill learning should encompass (e.g., hybrid retrieval, causal dynamics, challenger evaluation, rollback, verified replay). This framing as \"next capability work\" indicates that while some foundational pieces (schemas, partial inference/planning) exist, the complete, robust learning tracks are aspirational and not yet fully realized."
+          },
+          "classification_summary": {
+            "aspirational_or_partial": [
+              "Full-scale knowledge learning track (document capsules, robust hybrid retrieval, persistent concept graph beyond current claim store)",
+              "Comprehensive world learning (rich causal dynamics, active experiments, broad outcome verification beyond threshold rules)",
+              "Robust skill learning track with challenger evaluation, rollback, and verified replay at scale",
+              "Full operationalization of council_structure and maturity milestones into governance decisions",
+              "Use of larger native foundations (500M/1B) as interchangeable representation providers"
+            ],
+            "implemented_now": [
+              "Governed HexCore runtime around cognition for conversation turns",
+              "Recall-before-reasoning and injection of recalled knowledge into provider facts",
+              "Separation of answering availability from learning/mutation authority",
+              "CAU-based, fail-closed learning approval (no CAU => no learning)",
+              "Provider-output-not-knowledge, verified learning requirements",
+              "Soul Law-based action evaluation and veto before dispatcher",
+              "Append-only, content-hashed outcome ledger",
+              "Knowledge claim storage and contradiction tracking with `aion.hexcore.knowledge_claim.v1` and `aion.hexcore.knowledge_contradiction.v1`",
+              "World rule inference for threshold rules and simple procedure planning via `aion.hexcore.world_rule.v1`"
+            ]
+          },
+          "implemented_governance_capabilities": {
+            "append_only_outcome_ledger": "The runtime is documented as recording each outcome \"in an append-only, content-hashed ledger whose records link to the preceding record.\" The presence of the `AppendOnlyOutcomeLedger` component in the module list and the emphasis that outcome records are content-hashed and linked suggests this ledger is implemented as part of the HexCore governed runtime.",
+            "control_plane_and_governed_runtime": "The document explicitly labels HexCore as an \"implemented research runtime\" under the schema family `aion.hexcore.*.v1`. It states that \"HexCore is now the governed integration point around AION cognition\" and lists concrete modules: `HexCoreGovernedRuntime`, `GovernedTurnContext`, and `AppendOnlyOutcomeLedger`. The conversation orchestrator is documented as starting and completing a governed HexCore cycle for every `/api/aion/conversation/turn` request and returning governance decisions in response metadata. This strongly supports that a real governed runtime path is implemented for conversation turns.",
+            "fail_closed_CAU_and_learning_authority": "The document describes a strict CAU fail-closed adapter and states that in CEE LexMemory and exercise playback, \"legacy missing/malformed CAU fallbacks now deny learning instead of silently allowing mutation.\" It also asserts that \"Provider output is not treated as knowledge\" and that long-term memory mutation requires explicit teaching mode, a verified outcome, verifier identity, evidence provenance or executable/authoritative verification, and a positive CAU decision. These constraints are presented as current behavior of the governed runtime.",
+            "knowledge_claims_and_contradictions": "The supplied code excerpt clearly shows that knowledge claims are being stored with the schema_version `aion.hexcore.knowledge_claim.v1`, using fields such as `claim_id`, `subject`, `predicate`, `object`, `revision`, `confidence`, `status`, and `evidence_ids`. It also shows logic to find prior active claims on the same (subject, predicate) key, merge evidence when the object matches, and create `aion.hexcore.knowledge_contradiction.v1` records when objects disagree. Contradictions can be resolved automatically when a higher revision supersedes a lower one, or both claims can be marked \"contested\". This is concrete working code aligned with the documented schema family and is strong evidence that knowledge governance, including contradiction tracking, is implemented.",
+            "soul_law_action_veto_and_action_evaluation": "The HexCore module `backend/modules/hexcore/hexcore.py` is described as evaluating \"every action before the system dispatcher or action switch\" and recording the result in the consciousness-cycle entry. The document also states that \"HexCore actions are evaluated against Soul Laws before dispatch\" and summarizes that there is \"Soul Law action veto\" and \"CAU-denied and CAU-unavailable fail-closed behavior\" as current properties. Together, this indicates that action requests are being passed through a governance layer that can veto actions based on Soul Laws.",
+            "world_rules_and_planned_procedures": "The same code excerpt shows `infer_threshold_rule` constructing rules under the `aion.hexcore.world_rule.v1` schema with type `threshold`, along with support counts, confidence, and observation IDs. It also shows `plan_threshold_goal` that searches active world rules to plan a `ProcedureCandidate` with steps derived from effect rules and threshold conditions. These functions indicate that elements of the \"world learning\" and \"skill/plan\" layers are already implemented to the extent of inferring numeric threshold rules from observations and building simple procedures that aim at a desired outcome."
+          }
+        },
+        "objective_interpretation": "Identify which AION governance capabilities described in the HexCore documentation and related configuration/code are actually implemented now versus which are future or aspirational, using only corroborated evidence from documentation and executable code. Do not treat high-level design statements as implemented features unless they are backed by concrete file references or code behavior.",
+        "portfolio_id": "software_governance_project",
+        "subgoals": [
+          {
+            "action": "Extract explicit statements from the HexCore governance document about implemented versus future capabilities, paying attention to phrases like \"Status: implemented\" and \"next capability work\".",
+            "depends_on": [],
+            "id": "gov_1",
+            "tool": "document_reader"
+          },
+          {
+            "action": "Inspect the supplied code excerpt to confirm that schemas under `aion.hexcore.*.v1` (e.g., knowledge_claim, knowledge_contradiction, world_rule) are actually used and that contradictions and rules are stored and updated.",
+            "depends_on": [
+              "gov_1"
+            ],
+            "id": "gov_2",
+            "tool": "code_reader"
+          },
+          {
+            "action": "Classify each mentioned capability (e.g., recall-before-reasoning, fail-closed CAU, Soul Law action veto, outcome ledger, three learning tracks) as implemented or aspirational, based only on corroborated evidence.",
+            "depends_on": [
+              "gov_1",
+              "gov_2"
+            ],
+            "id": "gov_3",
+            "tool": "semantic_memory"
+          }
+        ],
+        "success_criteria": [
+          "List the governance capabilities that the documentation explicitly labels as \"implemented\" or shows as wired into specific modules or routes.",
+          "Use the provided code excerpts to confirm at least one concrete implementation behavior (e.g., knowledge contradiction handling or world-rule inference), tying it back to the claimed schema family.",
+          "Identify at least one capability that the document frames as future work or an aspiration (e.g., full knowledge/world/skill learning tracks) and clearly distinguish it from current implementation."
+        ],
+        "unresolved_questions": [
+          "The excerpts reference multiple modules and routes (e.g., `/api/aion/conversation/governance/status`), but we do not have the full source tree; some capabilities may be partially implemented or behind flags—verifying their runtime behavior would require running the system.",
+          "The council_structure configuration (parent, maturity milestones, council seats) is present, but its enforcement in active governance flows is not shown in the provided code; whether it is fully wired into CAU or Soul Laws is unclear."
+        ],
+        "verification_plan": [
+          "Inspect the actual repository paths mentioned (e.g., `backend/modules/hexcore/governed_runtime.py`, `backend/modules/aion_conversation/conversation_orchestrator.py`, `backend/modules/hexcore/hexcore.py`) to confirm that the documented behaviors (e.g., calling HexCore on each turn, recording to the ledger, CAU checks) are present in code and not stubbed.",
+          "Search the codebase for uses of the schemas `aion.hexcore.knowledge_claim.v1`, `aion.hexcore.knowledge_contradiction.v1`, and `aion.hexcore.world_rule.v1` beyond the excerpt to confirm they are integrated with persistence and query layers, not only defined in isolation.",
+          "Run integration tests or governance status endpoints (e.g., `/api/aion/conversation/governance/status`) to observe live governance decisions and confirm fail-closed CAU behavior and Soul Law action gating.",
+          "Trace where `council_structure` and maturity milestones from the configuration are referenced in code, if at all, to determine whether and how they condition CAU decisions or Soul Laws.",
+          "Review any existing HexCore Symatics or workflow tests mentioned to see which governance behaviors they assert, distinguishing tested, enforced capabilities from those described only in prose."
+        ]
+      },
+      "source_hashes": [
+        "7e3f50d7ec9af596dd968fbeda915ec0d00854e31d57074c9baa215916373a2f",
+        "5f742064a6f9f9127c2a1af93b58e59a634bf041f469b6a19552879f64abb43b",
+        "881bde1af50b4c1c34732b89deb111086ea2a8a65c5ad54e9fcbe8a2e34278b3"
+      ],
+      "status": "committed_before_delayed_outcome"
+    }
+  },
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "capability_map": {
+          "financial_reasoning": 0.0,
+          "historical_reasoning": 1.0,
+          "literary_reasoning": 1.0,
+          "multimodal_reasoning": 1.0,
+          "science_learning": 1.0,
+          "software_architecture": 1.0,
+          "technical_learning": 1.0
+        },
+        "gate": {
+          "accepted": true,
+          "attribution_categories_observed": [
+            "authority",
+            "perception"
+          ],
+          "broad_goals_only": true,
+          "challenger_no_regression": true,
+          "delayed_outcomes": 8,
+          "development_mean_success": 0.75,
+          "errors": [],
+          "external_handoff_logging": true,
+          "families": 7,
+          "no_memory_ablation_demonstrates_dependence": true,
+          "portfolios": 8,
+          "private_challenger_generation": 1,
+          "provenance_completeness": 1.0,
+          "restart_mid_program_recovery": true,
+          "sealed_challenger_success": 1.0,
+          "sealed_control_success": 0.75,
+          "sealed_weakest_success": 1.0,
+          "source_disjoint_portfolios": 8,
+          "supplied_workflows": 0,
+          "unsafe_commitments": 0,
+          "zero_live_writes": true
+        }
+      },
+      "outcome_id": "outcome_543c80ae109a466a",
+      "procedure_id": "procedure_open_world_continual_intelligence_arena_v0_8ea7c13db56f",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T14:54:57.807676+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_open_world_continual_intelligence_arena_v0_8ea7c13db56f": {
+      "evidence": {
+        "capability_map": {
+          "financial_reasoning": 0.0,
+          "historical_reasoning": 1.0,
+          "literary_reasoning": 1.0,
+          "multimodal_reasoning": 1.0,
+          "science_learning": 1.0,
+          "software_architecture": 1.0,
+          "technical_learning": 1.0
+        },
+        "gate": {
+          "accepted": true,
+          "attribution_categories_observed": [
+            "authority",
+            "perception"
+          ],
+          "broad_goals_only": true,
+          "challenger_no_regression": true,
+          "delayed_outcomes": 8,
+          "development_mean_success": 0.75,
+          "errors": [],
+          "external_handoff_logging": true,
+          "families": 7,
+          "no_memory_ablation_demonstrates_dependence": true,
+          "portfolios": 8,
+          "private_challenger_generation": 1,
+          "provenance_completeness": 1.0,
+          "restart_mid_program_recovery": true,
+          "sealed_challenger_success": 1.0,
+          "sealed_control_success": 0.75,
+          "sealed_weakest_success": 1.0,
+          "source_disjoint_portfolios": 8,
+          "supplied_workflows": 0,
+          "unsafe_commitments": 0,
+          "zero_live_writes": true
+        }
+      },
+      "goal": "open_world_continual_intelligence_arena_runtime",
+      "procedure_id": "procedure_open_world_continual_intelligence_arena_v0_8ea7c13db56f",
+      "promoted_at": "2026-07-31T14:54:57.804590+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [
+        "procedure_programming_intelligence_internal_closure_c9e8ad77f021"
+      ],
+      "status": "champion",
+      "steps": [
+        "receive_broad_goal_and_unfamiliar_portfolio",
+        "invent_success_schema_concepts_and_subgoals",
+        "ground_claims_across_modalities_with_epistemic_labels",
+        "commit_before_delayed_outcome",
+        "attribute_failures_by_cognitive_component",
+        "derive_private_challenger_rules_from_weakness_map",
+        "evaluate_on_source_disjoint_sealed_portfolios",
+        "run_ablations_and_restart_recovery"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "ebd82a095f65c50a74a261de9891b46efd336779b554242b3ca4e3444409a15a",
+      "goal": "open_world_continual_intelligence_arena_runtime",
+      "new_champion_id": "procedure_open_world_continual_intelligence_arena_v0_8ea7c13db56f",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T14:54:57.804618+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 8,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T14:54:57.810223+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

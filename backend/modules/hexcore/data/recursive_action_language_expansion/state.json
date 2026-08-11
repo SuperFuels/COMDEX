@@ -1,0 +1,3801 @@
+{
+  "created_at": "2026-08-01T23:32:40.535065+00:00",
+  "episodes": [
+    {
+      "http_status": 200,
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:37:50.996135+00:00",
+        "not_before_epoch": 1785627458.737407,
+        "outcome_sha256": "de8042dddb940646c19b30dbe11b795ec845da3d8963bf146bf47d85a0d6817f",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the GDP time series",
+      "name": "World Bank GDP",
+      "outcome": {
+        "measure_field": "value",
+        "passed": true,
+        "provenance": {
+          "body_sha256": "f9e1b2101de1eba90831dde5081749d8669250ca66154ef978826ddd3bf5473c",
+          "field_names": [
+            "country",
+            "countryiso3code",
+            "date",
+            "decimal",
+            "indicator",
+            "obs_status",
+            "unit",
+            "value"
+          ]
+        },
+        "representation": "json_metadata_array",
+        "row_count": 66,
+        "rows": [
+          {
+            "source_row": 0,
+            "time": "2025",
+            "value": "4002587541846.01"
+          },
+          {
+            "source_row": 1,
+            "time": "2024",
+            "value": "3695539513534.15"
+          },
+          {
+            "source_row": 2,
+            "time": "2023",
+            "value": "3420796653789.08"
+          },
+          {
+            "source_row": 3,
+            "time": "2022",
+            "value": "3181244350465.41"
+          },
+          {
+            "source_row": 4,
+            "time": "2021",
+            "value": "3194559188925.93"
+          },
+          {
+            "source_row": 5,
+            "time": "2020",
+            "value": "2724001478304.59"
+          },
+          {
+            "source_row": 6,
+            "time": "2019",
+            "value": "2875710080015.3"
+          },
+          {
+            "source_row": 7,
+            "time": "2018",
+            "value": "2897028009916.05"
+          },
+          {
+            "source_row": 8,
+            "time": "2017",
+            "value": "2699118387873.1"
+          },
+          {
+            "source_row": 9,
+            "time": "2016",
+            "value": "2706807606538.73"
+          },
+          {
+            "source_row": 10,
+            "time": "2015",
+            "value": "2945579890258.46"
+          },
+          {
+            "source_row": 11,
+            "time": "2014",
+            "value": "3085362169410.29"
+          },
+          {
+            "source_row": 12,
+            "time": "2013",
+            "value": "2796908333283.39"
+          },
+          {
+            "source_row": 13,
+            "time": "2012",
+            "value": "2719715961539.83"
+          },
+          {
+            "source_row": 14,
+            "time": "2011",
+            "value": "2675590034128.66"
+          },
+          {
+            "source_row": 15,
+            "time": "2010",
+            "value": "2496740681057.14"
+          },
+          {
+            "source_row": 16,
+            "time": "2009",
+            "value": "2429358155475.93"
+          },
+          {
+            "source_row": 17,
+            "time": "2008",
+            "value": "2945251838235.29"
+          },
+          {
+            "source_row": 18,
+            "time": "2007",
+            "value": "3104699879951.98"
+          },
+          {
+            "source_row": 19,
+            "time": "2006",
+            "value": "2719558417663.29"
+          },
+          {
+            "source_row": 20,
+            "time": "2005",
+            "value": "2551361818181.82"
+          },
+          {
+            "source_row": 21,
+            "time": "2004",
+            "value": "2429774807762.72"
+          },
+          {
+            "source_row": 22,
+            "time": "2003",
+            "value": "2061227755102.04"
+          },
+          {
+            "source_row": 23,
+            "time": "2002",
+            "value": "1790536570743.41"
+          },
+          {
+            "source_row": 24,
+            "time": "2001",
+            "value": "1656171009068.66"
+          },
+          {
+            "source_row": 25,
+            "time": "2000",
+            "value": "1671597821152.97"
+          },
+          {
+            "source_row": 26,
+            "time": "1999",
+            "value": "1693458987218.9"
+          },
+          {
+            "source_row": 27,
+            "time": "1998",
+            "value": "1660821464060.95"
+          },
+          {
+            "source_row": 28,
+            "time": "1997",
+            "value": "1569317288801.57"
+          },
+          {
+            "source_row": 29,
+            "time": "1996",
+            "value": "1425287051482.06"
+          },
+          {
+            "source_row": 30,
+            "time": "1995",
+            "value": "1349094208616.06"
+          },
+          {
+            "source_row": 31,
+            "time": "1994",
+            "value": "1140489745944.29"
+          },
+          {
+            "source_row": 32,
+            "time": "1993",
+            "value": "1061388722255.55"
+          },
+          {
+            "source_row": 33,
+            "time": "1992",
+            "value": "1179659529659.53"
+          },
+          {
+            "source_row": 34,
+            "time": "1991",
+            "value": "1142797178130.51"
+          },
+          {
+            "source_row": 35,
+            "time": "1990",
+            "value": "1093169389204.55"
+          },
+          {
+            "source_row": 36,
+            "time": "1989",
+            "value": "926884816753.927"
+          },
+          {
+            "source_row": 37,
+            "time": "1988",
+            "value": "910122732123.799"
+          },
+          {
+            "source_row": 38,
+            "time": "1987",
+            "value": "745162608269.325"
+          },
+          {
+            "source_row": 39,
+            "time": "1986",
+            "value": "601452653180.885"
+          },
+          {
+            "source_row": 40,
+            "time": "1985",
+            "value": "489285164271.047"
+          },
+          {
+            "source_row": 41,
+            "time": "1984",
+            "value": "461487097632.349"
+          },
+          {
+            "source_row": 42,
+            "time": "1983",
+            "value": "489618008185.539"
+          },
+          {
+            "source_row": 43,
+            "time": "1982",
+            "value": "515048916841.37"
+          },
+          {
+            "source_row": 44,
+            "time": "1981",
+            "value": "540765675241.158"
+          },
+          {
+            "source_row": 45,
+            "time": "1980",
+            "value": "564947710899.373"
+          },
+          {
+            "source_row": 46,
+            "time": "1979",
+            "value": "438994070309.191"
+          },
+          {
+            "source_row": 47,
+            "time": "1978",
+            "value": "335883029721.956"
+          },
+          {
+            "source_row": 48,
+            "time": "1977",
+            "value": "263066457352.172"
+          },
+          {
+            "source_row": 49,
+            "time": "1976",
+            "value": "232614555256.065"
+          },
+          {
+            "source_row": 50,
+            "time": "1975",
+            "value": "241756637168.142"
+          },
+          {
+            "source_row": 51,
+            "time": "1974",
+            "value": "206131369798.971"
+          },
+          {
+            "source_row": 52,
+            "time": "1973",
+            "value": "192537971582.558"
+          },
+          {
+            "source_row": 53,
+            "time": "1972",
+            "value": "169965034965.035"
+          },
+          {
+            "source_row": 54,
+            "time": "1971",
+            "value": "148113896325.14"
+          },
+          {
+            "source_row": 55,
+            "time": "1970",
+            "value": "130671946244.3"
+          },
+          {
+            "source_row": 56,
+            "time": "1969",
+            "value": "116464702803.218"
+          },
+          {
+            "source_row": 57,
+            "time": "1968",
+            "value": "107759910067.889"
+          },
+          {
+            "source_row": 58,
+            "time": "1967",
+            "value": "113116888210.787"
+          },
+          {
+            "source_row": 59,
+            "time": "1966",
+            "value": "108572752102.045"
+          },
+          {
+            "source_row": 60,
+            "time": "1965",
+            "value": "101824755078.991"
+          },
+          {
+            "source_row": 61,
+            "time": "1964",
+            "value": "94407558351.1616"
+          },
+          {
+            "source_row": 62,
+            "time": "1963",
+            "value": "86561961812.3249"
+          },
+          {
+            "source_row": 63,
+            "time": "1962",
+            "value": "81247564156.8246"
+          },
+          {
+            "source_row": 64,
+            "time": "1961",
+            "value": "77741965703.3544"
+          },
+          {
+            "source_row": 65,
+            "time": "1960",
+            "value": "73233967692.1028"
+          }
+        ],
+        "time_field": "date"
+      },
+      "response_sha256": "f9e1b2101de1eba90831dde5081749d8669250ca66154ef978826ddd3bf5473c",
+      "role": "development",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?format=json&per_page=100"
+    },
+    {
+      "http_status": 200,
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:37:51.852834+00:00",
+        "not_before_epoch": 1785627459.596108,
+        "outcome_sha256": "48115bb68911ddc19df1f693db9bea450227d6b0ab85d4d20047dddfd87d6f9a",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the exchange rate time series",
+      "name": "Treasury exchange rates",
+      "outcome": {
+        "measure_field": "exchange_rate",
+        "passed": true,
+        "provenance": {
+          "body_sha256": "5474fcbd3b0cc4b624705dc497bc63530da501c87c88ffe883f169634cfd16f9",
+          "field_names": [
+            "country",
+            "country_currency_desc",
+            "currency",
+            "effective_date",
+            "exchange_rate",
+            "record_calendar_day",
+            "record_calendar_month",
+            "record_calendar_quarter",
+            "record_calendar_year",
+            "record_date",
+            "record_fiscal_quarter",
+            "record_fiscal_year",
+            "src_line_nbr"
+          ]
+        },
+        "representation": "json_object_collection",
+        "row_count": 100,
+        "rows": [
+          {
+            "source_row": 0,
+            "time": "2026-06-30",
+            "value": "1.0"
+          },
+          {
+            "source_row": 1,
+            "time": "2026-06-30",
+            "value": "65.09"
+          },
+          {
+            "source_row": 2,
+            "time": "2026-06-30",
+            "value": "82.4"
+          },
+          {
+            "source_row": 3,
+            "time": "2026-06-30",
+            "value": "132.906"
+          },
+          {
+            "source_row": 4,
+            "time": "2026-06-30",
+            "value": "912.048"
+          },
+          {
+            "source_row": 5,
+            "time": "2026-06-30",
+            "value": "2.7"
+          },
+          {
+            "source_row": 6,
+            "time": "2026-06-30",
+            "value": "1495.0"
+          },
+          {
+            "source_row": 7,
+            "time": "2026-06-30",
+            "value": "370.0"
+          },
+          {
+            "source_row": 8,
+            "time": "2026-06-30",
+            "value": "1.451"
+          },
+          {
+            "source_row": 9,
+            "time": "2026-06-30",
+            "value": "1.7"
+          },
+          {
+            "source_row": 10,
+            "time": "2026-06-30",
+            "value": "1.0"
+          },
+          {
+            "source_row": 11,
+            "time": "2026-06-30",
+            "value": "0.377"
+          },
+          {
+            "source_row": 12,
+            "time": "2026-06-30",
+            "value": "123.0"
+          },
+          {
+            "source_row": 13,
+            "time": "2026-06-30",
+            "value": "2.02"
+          },
+          {
+            "source_row": 14,
+            "time": "2026-06-30",
+            "value": "2.907"
+          },
+          {
+            "source_row": 15,
+            "time": "2026-06-30",
+            "value": "2.0"
+          },
+          {
+            "source_row": 16,
+            "time": "2026-06-30",
+            "value": "571.5"
+          },
+          {
+            "source_row": 17,
+            "time": "2026-06-30",
+            "value": "1.0"
+          },
+          {
+            "source_row": 18,
+            "time": "2026-06-30",
+            "value": "6.85"
+          },
+          {
+            "source_row": 19,
+            "time": "2026-06-30",
+            "value": "10.35"
+          },
+          {
+            "source_row": 20,
+            "time": "2026-06-30",
+            "value": "1.716"
+          },
+          {
+            "source_row": 21,
+            "time": "2026-06-30",
+            "value": "12.821"
+          },
+          {
+            "source_row": 22,
+            "time": "2026-06-30",
+            "value": "5.174"
+          },
+          {
+            "source_row": 23,
+            "time": "2026-06-30",
+            "value": "1.295"
+          },
+          {
+            "source_row": 24,
+            "time": "2026-06-30",
+            "value": "0.87"
+          },
+          {
+            "source_row": 25,
+            "time": "2026-06-30",
+            "value": "571.5"
+          },
+          {
+            "source_row": 26,
+            "time": "2026-06-30",
+            "value": "3000.0"
+          },
+          {
+            "source_row": 27,
+            "time": "2026-06-30",
+            "value": "3443.0"
+          },
+          {
+            "source_row": 28,
+            "time": "2026-06-30",
+            "value": "4020.5"
+          },
+          {
+            "source_row": 29,
+            "time": "2026-06-30",
+            "value": "575.55"
+          },
+          {
+            "source_row": 30,
+            "time": "2026-06-30",
+            "value": "1.424"
+          },
+          {
+            "source_row": 31,
+            "time": "2026-06-30",
+            "value": "96.77"
+          },
+          {
+            "source_row": 32,
+            "time": "2026-06-30",
+            "value": "0.82"
+          },
+          {
+            "source_row": 33,
+            "time": "2026-06-30",
+            "value": "575.55"
+          },
+          {
+            "source_row": 34,
+            "time": "2026-06-30",
+            "value": "575.55"
+          },
+          {
+            "source_row": 35,
+            "time": "2026-06-30",
+            "value": "921.6"
+          },
+          {
+            "source_row": 36,
+            "time": "2026-06-30",
+            "value": "6.785"
+          },
+          {
+            "source_row": 37,
+            "time": "2026-06-30",
+            "value": "3449.19"
+          },
+          {
+            "source_row": 38,
+            "time": "2026-06-30",
+            "value": "431.3"
+          },
+          {
+            "source_row": 39,
+            "time": "2026-06-30",
+            "value": "575.55"
+          },
+          {
+            "source_row": 40,
+            "time": "2026-06-30",
+            "value": "451.95"
+          },
+          {
+            "source_row": 41,
+            "time": "2026-06-30",
+            "value": "571.5"
+          },
+          {
+            "source_row": 42,
+            "time": "2026-06-30",
+            "value": "1.0"
+          },
+          {
+            "source_row": 43,
+            "time": "2026-06-30",
+            "value": "24.0"
+          },
+          {
+            "source_row": 44,
+            "time": "2026-06-30",
+            "value": "1.78"
+          },
+          {
+            "source_row": 45,
+            "time": "2026-06-30",
+            "value": "0.877"
+          },
+          {
+            "source_row": 46,
+            "time": "2026-06-30",
+            "value": "20.716"
+          },
+          {
+            "source_row": 47,
+            "time": "2026-06-30",
+            "value": "2277.0"
+          },
+          {
+            "source_row": 48,
+            "time": "2026-06-30",
+            "value": "6.558"
+          },
+          {
+            "source_row": 49,
+            "time": "2026-06-30",
+            "value": "177.0"
+          },
+          {
+            "source_row": 50,
+            "time": "2026-06-30",
+            "value": "59.36"
+          },
+          {
+            "source_row": 51,
+            "time": "2026-06-30",
+            "value": "1.0"
+          },
+          {
+            "source_row": 52,
+            "time": "2026-06-30",
+            "value": "49.18"
+          },
+          {
+            "source_row": 53,
+            "time": "2026-06-30",
+            "value": "1.0"
+          },
+          {
+            "source_row": 54,
+            "time": "2026-06-30",
+            "value": "575.55"
+          },
+          {
+            "source_row": 55,
+            "time": "2026-06-30",
+            "value": "15.0"
+          },
+          {
+            "source_row": 56,
+            "time": "2026-06-30",
+            "value": "16.368"
+          },
+          {
+            "source_row": 57,
+            "time": "2026-06-30",
+            "value": "158.48"
+          },
+          {
+            "source_row": 58,
+            "time": "2026-06-30",
+            "value": "0.877"
+          },
+          {
+            "source_row": 59,
+            "time": "2026-06-30",
+            "value": "2.22"
+          },
+          {
+            "source_row": 60,
+            "time": "2026-06-30",
+            "value": "575.55"
+          },
+          {
+            "source_row": 61,
+            "time": "2026-06-30",
+            "value": "72.0"
+          },
+          {
+            "source_row": 62,
+            "time": "2026-06-30",
+            "value": "2.607"
+          },
+          {
+            "source_row": 63,
+            "time": "2026-06-30",
+            "value": "11.3"
+          },
+          {
+            "source_row": 64,
+            "time": "2026-06-30",
+            "value": "2.7"
+          },
+          {
+            "source_row": 65,
+            "time": "2026-06-30",
+            "value": "7.62"
+          },
+          {
+            "source_row": 66,
+            "time": "2026-06-30",
+            "value": "571.5"
+          },
+          {
+            "source_row": 67,
+            "time": "2026-06-30",
+            "value": "8733.0"
+          },
+          {
+            "source_row": 68,
+            "time": "2026-06-30",
+            "value": "215.0"
+          },
+          {
+            "source_row": 69,
+            "time": "2026-06-30",
+            "value": "130.252"
+          },
+          {
+            "source_row": 70,
+            "time": "2026-06-30",
+            "value": "26.668"
+          },
+          {
+            "source_row": 71,
+            "time": "2026-06-30",
+            "value": "7.842"
+          },
+          {
+            "source_row": 72,
+            "time": "2026-06-30",
+            "value": "312.34"
+          },
+          {
+            "source_row": 73,
+            "time": "2026-06-30",
+            "value": "126.22"
+          },
+          {
+            "source_row": 74,
+            "time": "2026-06-30",
+            "value": "94.66"
+          },
+          {
+            "source_row": 75,
+            "time": "2026-06-30",
+            "value": "17870.69"
+          },
+          {
+            "source_row": 76,
+            "time": "2026-06-30",
+            "value": "1375055.0"
+          },
+          {
+            "source_row": 77,
+            "time": "2026-06-30",
+            "value": "1309.55"
+          },
+          {
+            "source_row": 78,
+            "time": "2026-06-30",
+            "value": "2.977"
+          },
+          {
+            "source_row": 79,
+            "time": "2026-06-30",
+            "value": "159.0"
+          },
+          {
+            "source_row": 80,
+            "time": "2026-06-30",
+            "value": "162.38"
+          },
+          {
+            "source_row": 81,
+            "time": "2026-06-30",
+            "value": "0.708"
+          },
+          {
+            "source_row": 82,
+            "time": "2026-06-30",
+            "value": "478.11"
+          },
+          {
+            "source_row": 83,
+            "time": "2026-06-30",
+            "value": "129.35"
+          },
+          {
+            "source_row": 84,
+            "time": "2026-06-30",
+            "value": "1550.88"
+          },
+          {
+            "source_row": 85,
+            "time": "2026-06-30",
+            "value": "0.308"
+          },
+          {
+            "source_row": 86,
+            "time": "2026-06-30",
+            "value": "87.45"
+          },
+          {
+            "source_row": 87,
+            "time": "2026-06-30",
+            "value": "22320.0"
+          },
+          {
+            "source_row": 88,
+            "time": "2026-06-30",
+            "value": "89500.0"
+          },
+          {
+            "source_row": 89,
+            "time": "2026-06-30",
+            "value": "16.368"
+          },
+          {
+            "source_row": 90,
+            "time": "2026-06-30",
+            "value": "181.0"
+          },
+          {
+            "source_row": 91,
+            "time": "2026-06-30",
+            "value": "6.413"
+          },
+          {
+            "source_row": 92,
+            "time": "2026-06-30",
+            "value": "4180.0"
+          },
+          {
+            "source_row": 93,
+            "time": "2026-06-30",
+            "value": "1751.0"
+          },
+          {
+            "source_row": 94,
+            "time": "2026-06-30",
+            "value": "4.082"
+          },
+          {
+            "source_row": 95,
+            "time": "2026-06-30",
+            "value": "15.42"
+          },
+          {
+            "source_row": 96,
+            "time": "2026-06-30",
+            "value": "571.5"
+          },
+          {
+            "source_row": 97,
+            "time": "2026-06-30",
+            "value": "1.0"
+          },
+          {
+            "source_row": 98,
+            "time": "2026-06-30",
+            "value": "39.9"
+          },
+          {
+            "source_row": 99,
+            "time": "2026-06-30",
+            "value": "47.04"
+          }
+        ],
+        "time_field": "record_date"
+      },
+      "response_sha256": "5474fcbd3b0cc4b624705dc497bc63530da501c87c88ffe883f169634cfd16f9",
+      "role": "transfer",
+      "url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?sort=-record_date&page%5Bsize%5D=100"
+    },
+    {
+      "http_status": 200,
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:37:52.066395+00:00",
+        "not_before_epoch": 1785627459.7872908,
+        "outcome_sha256": "b6828741822adec48c293b54b90e25efe33e421e15191762012bc93e39abc056",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the GDP time series",
+      "name": "FRED GDP",
+      "outcome": {
+        "measure_field": "GDP",
+        "passed": true,
+        "provenance": {
+          "body_sha256": "cb0d9d0ffa4f83eeb53bcc04eaeca9cede6d266c550ec14bd8e825f0f88f8160",
+          "field_names": [
+            "GDP",
+            "observation_date"
+          ]
+        },
+        "representation": "csv",
+        "row_count": 318,
+        "rows": [
+          {
+            "source_row": 0,
+            "time": "1947-01-01",
+            "value": "243.164"
+          },
+          {
+            "source_row": 1,
+            "time": "1947-04-01",
+            "value": "245.968"
+          },
+          {
+            "source_row": 2,
+            "time": "1947-07-01",
+            "value": "249.585"
+          },
+          {
+            "source_row": 3,
+            "time": "1947-10-01",
+            "value": "259.745"
+          },
+          {
+            "source_row": 4,
+            "time": "1948-01-01",
+            "value": "265.742"
+          },
+          {
+            "source_row": 5,
+            "time": "1948-04-01",
+            "value": "272.567"
+          },
+          {
+            "source_row": 6,
+            "time": "1948-07-01",
+            "value": "279.196"
+          },
+          {
+            "source_row": 7,
+            "time": "1948-10-01",
+            "value": "280.366"
+          },
+          {
+            "source_row": 8,
+            "time": "1949-01-01",
+            "value": "275.034"
+          },
+          {
+            "source_row": 9,
+            "time": "1949-04-01",
+            "value": "271.351"
+          },
+          {
+            "source_row": 10,
+            "time": "1949-07-01",
+            "value": "272.889"
+          },
+          {
+            "source_row": 11,
+            "time": "1949-10-01",
+            "value": "270.627"
+          },
+          {
+            "source_row": 12,
+            "time": "1950-01-01",
+            "value": "280.828"
+          },
+          {
+            "source_row": 13,
+            "time": "1950-04-01",
+            "value": "290.383"
+          },
+          {
+            "source_row": 14,
+            "time": "1950-07-01",
+            "value": "308.153"
+          },
+          {
+            "source_row": 15,
+            "time": "1950-10-01",
+            "value": "319.945"
+          },
+          {
+            "source_row": 16,
+            "time": "1951-01-01",
+            "value": "336.000"
+          },
+          {
+            "source_row": 17,
+            "time": "1951-04-01",
+            "value": "344.090"
+          },
+          {
+            "source_row": 18,
+            "time": "1951-07-01",
+            "value": "351.385"
+          },
+          {
+            "source_row": 19,
+            "time": "1951-10-01",
+            "value": "356.178"
+          },
+          {
+            "source_row": 20,
+            "time": "1952-01-01",
+            "value": "359.820"
+          },
+          {
+            "source_row": 21,
+            "time": "1952-04-01",
+            "value": "361.030"
+          },
+          {
+            "source_row": 22,
+            "time": "1952-07-01",
+            "value": "367.701"
+          },
+          {
+            "source_row": 23,
+            "time": "1952-10-01",
+            "value": "380.812"
+          },
+          {
+            "source_row": 24,
+            "time": "1953-01-01",
+            "value": "387.980"
+          },
+          {
+            "source_row": 25,
+            "time": "1953-04-01",
+            "value": "391.749"
+          },
+          {
+            "source_row": 26,
+            "time": "1953-07-01",
+            "value": "391.171"
+          },
+          {
+            "source_row": 27,
+            "time": "1953-10-01",
+            "value": "385.970"
+          },
+          {
+            "source_row": 28,
+            "time": "1954-01-01",
+            "value": "385.345"
+          },
+          {
+            "source_row": 29,
+            "time": "1954-04-01",
+            "value": "386.121"
+          },
+          {
+            "source_row": 30,
+            "time": "1954-07-01",
+            "value": "390.996"
+          },
+          {
+            "source_row": 31,
+            "time": "1954-10-01",
+            "value": "399.734"
+          },
+          {
+            "source_row": 32,
+            "time": "1955-01-01",
+            "value": "413.073"
+          },
+          {
+            "source_row": 33,
+            "time": "1955-04-01",
+            "value": "421.532"
+          },
+          {
+            "source_row": 34,
+            "time": "1955-07-01",
+            "value": "430.221"
+          },
+          {
+            "source_row": 35,
+            "time": "1955-10-01",
+            "value": "437.092"
+          },
+          {
+            "source_row": 36,
+            "time": "1956-01-01",
+            "value": "439.746"
+          },
+          {
+            "source_row": 37,
+            "time": "1956-04-01",
+            "value": "446.010"
+          },
+          {
+            "source_row": 38,
+            "time": "1956-07-01",
+            "value": "451.191"
+          },
+          {
+            "source_row": 39,
+            "time": "1956-10-01",
+            "value": "460.463"
+          },
+          {
+            "source_row": 40,
+            "time": "1957-01-01",
+            "value": "469.779"
+          },
+          {
+            "source_row": 41,
+            "time": "1957-04-01",
+            "value": "472.025"
+          },
+          {
+            "source_row": 42,
+            "time": "1957-07-01",
+            "value": "479.490"
+          },
+          {
+            "source_row": 43,
+            "time": "1957-10-01",
+            "value": "474.864"
+          },
+          {
+            "source_row": 44,
+            "time": "1958-01-01",
+            "value": "467.540"
+          },
+          {
+            "source_row": 45,
+            "time": "1958-04-01",
+            "value": "471.978"
+          },
+          {
+            "source_row": 46,
+            "time": "1958-07-01",
+            "value": "485.841"
+          },
+          {
+            "source_row": 47,
+            "time": "1958-10-01",
+            "value": "499.555"
+          },
+          {
+            "source_row": 48,
+            "time": "1959-01-01",
+            "value": "510.330"
+          },
+          {
+            "source_row": 49,
+            "time": "1959-04-01",
+            "value": "522.653"
+          },
+          {
+            "source_row": 50,
+            "time": "1959-07-01",
+            "value": "525.034"
+          },
+          {
+            "source_row": 51,
+            "time": "1959-10-01",
+            "value": "528.600"
+          },
+          {
+            "source_row": 52,
+            "time": "1960-01-01",
+            "value": "542.648"
+          },
+          {
+            "source_row": 53,
+            "time": "1960-04-01",
+            "value": "541.080"
+          },
+          {
+            "source_row": 54,
+            "time": "1960-07-01",
+            "value": "545.604"
+          },
+          {
+            "source_row": 55,
+            "time": "1960-10-01",
+            "value": "540.197"
+          },
+          {
+            "source_row": 56,
+            "time": "1961-01-01",
+            "value": "545.018"
+          },
+          {
+            "source_row": 57,
+            "time": "1961-04-01",
+            "value": "555.545"
+          },
+          {
+            "source_row": 58,
+            "time": "1961-07-01",
+            "value": "567.664"
+          },
+          {
+            "source_row": 59,
+            "time": "1961-10-01",
+            "value": "580.612"
+          },
+          {
+            "source_row": 60,
+            "time": "1962-01-01",
+            "value": "594.013"
+          },
+          {
+            "source_row": 61,
+            "time": "1962-04-01",
+            "value": "600.366"
+          },
+          {
+            "source_row": 62,
+            "time": "1962-07-01",
+            "value": "609.027"
+          },
+          {
+            "source_row": 63,
+            "time": "1962-10-01",
+            "value": "612.280"
+          },
+          {
+            "source_row": 64,
+            "time": "1963-01-01",
+            "value": "621.672"
+          },
+          {
+            "source_row": 65,
+            "time": "1963-04-01",
+            "value": "629.752"
+          },
+          {
+            "source_row": 66,
+            "time": "1963-07-01",
+            "value": "644.444"
+          },
+          {
+            "source_row": 67,
+            "time": "1963-10-01",
+            "value": "653.938"
+          },
+          {
+            "source_row": 68,
+            "time": "1964-01-01",
+            "value": "669.822"
+          },
+          {
+            "source_row": 69,
+            "time": "1964-04-01",
+            "value": "678.674"
+          },
+          {
+            "source_row": 70,
+            "time": "1964-07-01",
+            "value": "692.031"
+          },
+          {
+            "source_row": 71,
+            "time": "1964-10-01",
+            "value": "697.319"
+          },
+          {
+            "source_row": 72,
+            "time": "1965-01-01",
+            "value": "717.790"
+          },
+          {
+            "source_row": 73,
+            "time": "1965-04-01",
+            "value": "730.191"
+          },
+          {
+            "source_row": 74,
+            "time": "1965-07-01",
+            "value": "749.323"
+          },
+          {
+            "source_row": 75,
+            "time": "1965-10-01",
+            "value": "771.857"
+          },
+          {
+            "source_row": 76,
+            "time": "1966-01-01",
+            "value": "795.734"
+          },
+          {
+            "source_row": 77,
+            "time": "1966-04-01",
+            "value": "804.981"
+          },
+          {
+            "source_row": 78,
+            "time": "1966-07-01",
+            "value": "819.638"
+          },
+          {
+            "source_row": 79,
+            "time": "1966-10-01",
+            "value": "833.302"
+          },
+          {
+            "source_row": 80,
+            "time": "1967-01-01",
+            "value": "844.170"
+          },
+          {
+            "source_row": 81,
+            "time": "1967-04-01",
+            "value": "848.983"
+          },
+          {
+            "source_row": 82,
+            "time": "1967-07-01",
+            "value": "865.233"
+          },
+          {
+            "source_row": 83,
+            "time": "1967-10-01",
+            "value": "881.439"
+          },
+          {
+            "source_row": 84,
+            "time": "1968-01-01",
+            "value": "909.387"
+          },
+          {
+            "source_row": 85,
+            "time": "1968-04-01",
+            "value": "934.344"
+          },
+          {
+            "source_row": 86,
+            "time": "1968-07-01",
+            "value": "950.825"
+          },
+          {
+            "source_row": 87,
+            "time": "1968-10-01",
+            "value": "968.030"
+          },
+          {
+            "source_row": 88,
+            "time": "1969-01-01",
+            "value": "993.337"
+          },
+          {
+            "source_row": 89,
+            "time": "1969-04-01",
+            "value": "1009.020"
+          },
+          {
+            "source_row": 90,
+            "time": "1969-07-01",
+            "value": "1029.956"
+          },
+          {
+            "source_row": 91,
+            "time": "1969-10-01",
+            "value": "1038.147"
+          },
+          {
+            "source_row": 92,
+            "time": "1970-01-01",
+            "value": "1051.200"
+          },
+          {
+            "source_row": 93,
+            "time": "1970-04-01",
+            "value": "1067.375"
+          },
+          {
+            "source_row": 94,
+            "time": "1970-07-01",
+            "value": "1086.059"
+          },
+          {
+            "source_row": 95,
+            "time": "1970-10-01",
+            "value": "1088.608"
+          },
+          {
+            "source_row": 96,
+            "time": "1971-01-01",
+            "value": "1135.156"
+          },
+          {
+            "source_row": 97,
+            "time": "1971-04-01",
+            "value": "1156.271"
+          },
+          {
+            "source_row": 98,
+            "time": "1971-07-01",
+            "value": "1177.675"
+          },
+          {
+            "source_row": 99,
+            "time": "1971-10-01",
+            "value": "1190.297"
+          },
+          {
+            "source_row": 100,
+            "time": "1972-01-01",
+            "value": "1230.609"
+          },
+          {
+            "source_row": 101,
+            "time": "1972-04-01",
+            "value": "1266.369"
+          },
+          {
+            "source_row": 102,
+            "time": "1972-07-01",
+            "value": "1290.566"
+          },
+          {
+            "source_row": 103,
+            "time": "1972-10-01",
+            "value": "1328.904"
+          },
+          {
+            "source_row": 104,
+            "time": "1973-01-01",
+            "value": "1377.490"
+          },
+          {
+            "source_row": 105,
+            "time": "1973-04-01",
+            "value": "1413.887"
+          },
+          {
+            "source_row": 106,
+            "time": "1973-07-01",
+            "value": "1433.838"
+          },
+          {
+            "source_row": 107,
+            "time": "1973-10-01",
+            "value": "1476.289"
+          },
+          {
+            "source_row": 108,
+            "time": "1974-01-01",
+            "value": "1491.209"
+          },
+          {
+            "source_row": 109,
+            "time": "1974-04-01",
+            "value": "1530.056"
+          },
+          {
+            "source_row": 110,
+            "time": "1974-07-01",
+            "value": "1560.026"
+          },
+          {
+            "source_row": 111,
+            "time": "1974-10-01",
+            "value": "1599.679"
+          },
+          {
+            "source_row": 112,
+            "time": "1975-01-01",
+            "value": "1616.116"
+          },
+          {
+            "source_row": 113,
+            "time": "1975-04-01",
+            "value": "1651.853"
+          },
+          {
+            "source_row": 114,
+            "time": "1975-07-01",
+            "value": "1709.820"
+          },
+          {
+            "source_row": 115,
+            "time": "1975-10-01",
+            "value": "1761.831"
+          },
+          {
+            "source_row": 116,
+            "time": "1976-01-01",
+            "value": "1820.487"
+          },
+          {
+            "source_row": 117,
+            "time": "1976-04-01",
+            "value": "1852.332"
+          },
+          {
+            "source_row": 118,
+            "time": "1976-07-01",
+            "value": "1886.558"
+          },
+          {
+            "source_row": 119,
+            "time": "1976-10-01",
+            "value": "1934.273"
+          },
+          {
+            "source_row": 120,
+            "time": "1977-01-01",
+            "value": "1988.648"
+          },
+          {
+            "source_row": 121,
+            "time": "1977-04-01",
+            "value": "2055.909"
+          },
+          {
+            "source_row": 122,
+            "time": "1977-07-01",
+            "value": "2118.473"
+          },
+          {
+            "source_row": 123,
+            "time": "1977-10-01",
+            "value": "2164.270"
+          },
+          {
+            "source_row": 124,
+            "time": "1978-01-01",
+            "value": "2202.760"
+          },
+          {
+            "source_row": 125,
+            "time": "1978-04-01",
+            "value": "2331.633"
+          },
+          {
+            "source_row": 126,
+            "time": "1978-07-01",
+            "value": "2395.053"
+          },
+          {
+            "source_row": 127,
+            "time": "1978-10-01",
+            "value": "2476.949"
+          },
+          {
+            "source_row": 128,
+            "time": "1979-01-01",
+            "value": "2526.610"
+          },
+          {
+            "source_row": 129,
+            "time": "1979-04-01",
+            "value": "2591.247"
+          },
+          {
+            "source_row": 130,
+            "time": "1979-07-01",
+            "value": "2667.565"
+          },
+          {
+            "source_row": 131,
+            "time": "1979-10-01",
+            "value": "2723.883"
+          },
+          {
+            "source_row": 132,
+            "time": "1980-01-01",
+            "value": "2789.842"
+          },
+          {
+            "source_row": 133,
+            "time": "1980-04-01",
+            "value": "2797.352"
+          },
+          {
+            "source_row": 134,
+            "time": "1980-07-01",
+            "value": "2856.483"
+          },
+          {
+            "source_row": 135,
+            "time": "1980-10-01",
+            "value": "2985.557"
+          },
+          {
+            "source_row": 136,
+            "time": "1981-01-01",
+            "value": "3124.206"
+          },
+          {
+            "source_row": 137,
+            "time": "1981-04-01",
+            "value": "3162.532"
+          },
+          {
+            "source_row": 138,
+            "time": "1981-07-01",
+            "value": "3260.609"
+          },
+          {
+            "source_row": 139,
+            "time": "1981-10-01",
+            "value": "3280.818"
+          },
+          {
+            "source_row": 140,
+            "time": "1982-01-01",
+            "value": "3274.302"
+          },
+          {
+            "source_row": 141,
+            "time": "1982-04-01",
+            "value": "3331.972"
+          },
+          {
+            "source_row": 142,
+            "time": "1982-07-01",
+            "value": "3366.322"
+          },
+          {
+            "source_row": 143,
+            "time": "1982-10-01",
+            "value": "3402.561"
+          },
+          {
+            "source_row": 144,
+            "time": "1983-01-01",
+            "value": "3473.413"
+          },
+          {
+            "source_row": 145,
+            "time": "1983-04-01",
+            "value": "3578.848"
+          },
+          {
+            "source_row": 146,
+            "time": "1983-07-01",
+            "value": "3689.179"
+          },
+          {
+            "source_row": 147,
+            "time": "1983-10-01",
+            "value": "3794.706"
+          },
+          {
+            "source_row": 148,
+            "time": "1984-01-01",
+            "value": "3908.054"
+          },
+          {
+            "source_row": 149,
+            "time": "1984-04-01",
+            "value": "4009.601"
+          },
+          {
+            "source_row": 150,
+            "time": "1984-07-01",
+            "value": "4084.250"
+          },
+          {
+            "source_row": 151,
+            "time": "1984-10-01",
+            "value": "4148.551"
+          },
+          {
+            "source_row": 152,
+            "time": "1985-01-01",
+            "value": "4230.168"
+          },
+          {
+            "source_row": 153,
+            "time": "1985-04-01",
+            "value": "4294.887"
+          },
+          {
+            "source_row": 154,
+            "time": "1985-07-01",
+            "value": "4386.773"
+          },
+          {
+            "source_row": 155,
+            "time": "1985-10-01",
+            "value": "4444.094"
+          },
+          {
+            "source_row": 156,
+            "time": "1986-01-01",
+            "value": "4507.894"
+          },
+          {
+            "source_row": 157,
+            "time": "1986-04-01",
+            "value": "4545.340"
+          },
+          {
+            "source_row": 158,
+            "time": "1986-07-01",
+            "value": "4607.669"
+          },
+          {
+            "source_row": 159,
+            "time": "1986-10-01",
+            "value": "4657.627"
+          },
+          {
+            "source_row": 160,
+            "time": "1987-01-01",
+            "value": "4722.156"
+          },
+          {
+            "source_row": 161,
+            "time": "1987-04-01",
+            "value": "4806.160"
+          },
+          {
+            "source_row": 162,
+            "time": "1987-07-01",
+            "value": "4884.555"
+          },
+          {
+            "source_row": 163,
+            "time": "1987-10-01",
+            "value": "5007.994"
+          },
+          {
+            "source_row": 164,
+            "time": "1988-01-01",
+            "value": "5073.372"
+          },
+          {
+            "source_row": 165,
+            "time": "1988-04-01",
+            "value": "5190.036"
+          },
+          {
+            "source_row": 166,
+            "time": "1988-07-01",
+            "value": "5282.835"
+          },
+          {
+            "source_row": 167,
+            "time": "1988-10-01",
+            "value": "5399.509"
+          },
+          {
+            "source_row": 168,
+            "time": "1989-01-01",
+            "value": "5511.253"
+          },
+          {
+            "source_row": 169,
+            "time": "1989-04-01",
+            "value": "5612.463"
+          },
+          {
+            "source_row": 170,
+            "time": "1989-07-01",
+            "value": "5695.365"
+          },
+          {
+            "source_row": 171,
+            "time": "1989-10-01",
+            "value": "5747.237"
+          },
+          {
+            "source_row": 172,
+            "time": "1990-01-01",
+            "value": "5872.701"
+          },
+          {
+            "source_row": 173,
+            "time": "1990-04-01",
+            "value": "5960.028"
+          },
+          {
+            "source_row": 174,
+            "time": "1990-07-01",
+            "value": "6015.116"
+          },
+          {
+            "source_row": 175,
+            "time": "1990-10-01",
+            "value": "6004.733"
+          },
+          {
+            "source_row": 176,
+            "time": "1991-01-01",
+            "value": "6035.178"
+          },
+          {
+            "source_row": 177,
+            "time": "1991-04-01",
+            "value": "6126.862"
+          },
+          {
+            "source_row": 178,
+            "time": "1991-07-01",
+            "value": "6205.937"
+          },
+          {
+            "source_row": 179,
+            "time": "1991-10-01",
+            "value": "6264.540"
+          },
+          {
+            "source_row": 180,
+            "time": "1992-01-01",
+            "value": "6363.102"
+          },
+          {
+            "source_row": 181,
+            "time": "1992-04-01",
+            "value": "6470.763"
+          },
+          {
+            "source_row": 182,
+            "time": "1992-07-01",
+            "value": "6566.641"
+          },
+          {
+            "source_row": 183,
+            "time": "1992-10-01",
+            "value": "6680.803"
+          },
+          {
+            "source_row": 184,
+            "time": "1993-01-01",
+            "value": "6729.459"
+          },
+          {
+            "source_row": 185,
+            "time": "1993-04-01",
+            "value": "6808.939"
+          },
+          {
+            "source_row": 186,
+            "time": "1993-07-01",
+            "value": "6882.098"
+          },
+          {
+            "source_row": 187,
+            "time": "1993-10-01",
+            "value": "7013.738"
+          },
+          {
+            "source_row": 188,
+            "time": "1994-01-01",
+            "value": "7115.652"
+          },
+          {
+            "source_row": 189,
+            "time": "1994-04-01",
+            "value": "7246.931"
+          },
+          {
+            "source_row": 190,
+            "time": "1994-07-01",
+            "value": "7331.075"
+          },
+          {
+            "source_row": 191,
+            "time": "1994-10-01",
+            "value": "7455.288"
+          },
+          {
+            "source_row": 192,
+            "time": "1995-01-01",
+            "value": "7522.289"
+          },
+          {
+            "source_row": 193,
+            "time": "1995-04-01",
+            "value": "7580.997"
+          },
+          {
+            "source_row": 194,
+            "time": "1995-07-01",
+            "value": "7683.125"
+          },
+          {
+            "source_row": 195,
+            "time": "1995-10-01",
+            "value": "7772.586"
+          },
+          {
+            "source_row": 196,
+            "time": "1996-01-01",
+            "value": "7868.468"
+          },
+          {
+            "source_row": 197,
+            "time": "1996-04-01",
+            "value": "8032.840"
+          },
+          {
+            "source_row": 198,
+            "time": "1996-07-01",
+            "value": "8131.408"
+          },
+          {
+            "source_row": 199,
+            "time": "1996-10-01",
+            "value": "8259.771"
+          },
+          {
+            "source_row": 200,
+            "time": "1997-01-01",
+            "value": "8362.655"
+          },
+          {
+            "source_row": 201,
+            "time": "1997-04-01",
+            "value": "8518.825"
+          },
+          {
+            "source_row": 202,
+            "time": "1997-07-01",
+            "value": "8662.823"
+          },
+          {
+            "source_row": 203,
+            "time": "1997-10-01",
+            "value": "8765.907"
+          },
+          {
+            "source_row": 204,
+            "time": "1998-01-01",
+            "value": "8866.480"
+          },
+          {
+            "source_row": 205,
+            "time": "1998-04-01",
+            "value": "8969.699"
+          },
+          {
+            "source_row": 206,
+            "time": "1998-07-01",
+            "value": "9121.097"
+          },
+          {
+            "source_row": 207,
+            "time": "1998-10-01",
+            "value": "9293.991"
+          },
+          {
+            "source_row": 208,
+            "time": "1999-01-01",
+            "value": "9411.682"
+          },
+          {
+            "source_row": 209,
+            "time": "1999-04-01",
+            "value": "9526.210"
+          },
+          {
+            "source_row": 210,
+            "time": "1999-07-01",
+            "value": "9686.626"
+          },
+          {
+            "source_row": 211,
+            "time": "1999-10-01",
+            "value": "9900.169"
+          },
+          {
+            "source_row": 212,
+            "time": "2000-01-01",
+            "value": "10002.179"
+          },
+          {
+            "source_row": 213,
+            "time": "2000-04-01",
+            "value": "10247.720"
+          },
+          {
+            "source_row": 214,
+            "time": "2000-07-01",
+            "value": "10318.165"
+          },
+          {
+            "source_row": 215,
+            "time": "2000-10-01",
+            "value": "10435.744"
+          },
+          {
+            "source_row": 216,
+            "time": "2001-01-01",
+            "value": "10470.231"
+          },
+          {
+            "source_row": 217,
+            "time": "2001-04-01",
+            "value": "10599.000"
+          },
+          {
+            "source_row": 218,
+            "time": "2001-07-01",
+            "value": "10598.020"
+          },
+          {
+            "source_row": 219,
+            "time": "2001-10-01",
+            "value": "10660.465"
+          },
+          {
+            "source_row": 220,
+            "time": "2002-01-01",
+            "value": "10783.500"
+          },
+          {
+            "source_row": 221,
+            "time": "2002-04-01",
+            "value": "10887.460"
+          },
+          {
+            "source_row": 222,
+            "time": "2002-07-01",
+            "value": "10984.040"
+          },
+          {
+            "source_row": 223,
+            "time": "2002-10-01",
+            "value": "11061.433"
+          },
+          {
+            "source_row": 224,
+            "time": "2003-01-01",
+            "value": "11174.129"
+          },
+          {
+            "source_row": 225,
+            "time": "2003-04-01",
+            "value": "11312.766"
+          },
+          {
+            "source_row": 226,
+            "time": "2003-07-01",
+            "value": "11566.669"
+          },
+          {
+            "source_row": 227,
+            "time": "2003-10-01",
+            "value": "11772.234"
+          },
+          {
+            "source_row": 228,
+            "time": "2004-01-01",
+            "value": "11923.447"
+          },
+          {
+            "source_row": 229,
+            "time": "2004-04-01",
+            "value": "12112.815"
+          },
+          {
+            "source_row": 230,
+            "time": "2004-07-01",
+            "value": "12305.307"
+          },
+          {
+            "source_row": 231,
+            "time": "2004-10-01",
+            "value": "12527.214"
+          },
+          {
+            "source_row": 232,
+            "time": "2005-01-01",
+            "value": "12767.286"
+          },
+          {
+            "source_row": 233,
+            "time": "2005-04-01",
+            "value": "12922.656"
+          },
+          {
+            "source_row": 234,
+            "time": "2005-07-01",
+            "value": "13142.642"
+          },
+          {
+            "source_row": 235,
+            "time": "2005-10-01",
+            "value": "13324.204"
+          },
+          {
+            "source_row": 236,
+            "time": "2006-01-01",
+            "value": "13599.160"
+          },
+          {
+            "source_row": 237,
+            "time": "2006-04-01",
+            "value": "13753.424"
+          },
+          {
+            "source_row": 238,
+            "time": "2006-07-01",
+            "value": "13870.188"
+          },
+          {
+            "source_row": 239,
+            "time": "2006-10-01",
+            "value": "14039.560"
+          },
+          {
+            "source_row": 240,
+            "time": "2007-01-01",
+            "value": "14215.651"
+          },
+          {
+            "source_row": 241,
+            "time": "2007-04-01",
+            "value": "14402.082"
+          },
+          {
+            "source_row": 242,
+            "time": "2007-07-01",
+            "value": "14564.117"
+          },
+          {
+            "source_row": 243,
+            "time": "2007-10-01",
+            "value": "14715.058"
+          },
+          {
+            "source_row": 244,
+            "time": "2008-01-01",
+            "value": "14706.538"
+          },
+          {
+            "source_row": 245,
+            "time": "2008-04-01",
+            "value": "14865.701"
+          },
+          {
+            "source_row": 246,
+            "time": "2008-07-01",
+            "value": "14898.999"
+          },
+          {
+            "source_row": 247,
+            "time": "2008-10-01",
+            "value": "14608.209"
+          },
+          {
+            "source_row": 248,
+            "time": "2009-01-01",
+            "value": "14430.902"
+          },
+          {
+            "source_row": 249,
+            "time": "2009-04-01",
+            "value": "14381.236"
+          },
+          {
+            "source_row": 250,
+            "time": "2009-07-01",
+            "value": "14448.882"
+          },
+          {
+            "source_row": 251,
+            "time": "2009-10-01",
+            "value": "14651.249"
+          },
+          {
+            "source_row": 252,
+            "time": "2010-01-01",
+            "value": "14764.610"
+          },
+          {
+            "source_row": 253,
+            "time": "2010-04-01",
+            "value": "14980.193"
+          },
+          {
+            "source_row": 254,
+            "time": "2010-07-01",
+            "value": "15141.607"
+          },
+          {
+            "source_row": 255,
+            "time": "2010-10-01",
+            "value": "15309.474"
+          },
+          {
+            "source_row": 256,
+            "time": "2011-01-01",
+            "value": "15351.448"
+          },
+          {
+            "source_row": 257,
+            "time": "2011-04-01",
+            "value": "15557.539"
+          },
+          {
+            "source_row": 258,
+            "time": "2011-07-01",
+            "value": "15647.680"
+          },
+          {
+            "source_row": 259,
+            "time": "2011-10-01",
+            "value": "15842.259"
+          },
+          {
+            "source_row": 260,
+            "time": "2012-01-01",
+            "value": "16068.805"
+          },
+          {
+            "source_row": 261,
+            "time": "2012-04-01",
+            "value": "16207.115"
+          },
+          {
+            "source_row": 262,
+            "time": "2012-07-01",
+            "value": "16319.541"
+          },
+          {
+            "source_row": 263,
+            "time": "2012-10-01",
+            "value": "16420.419"
+          },
+          {
+            "source_row": 264,
+            "time": "2013-01-01",
+            "value": "16648.189"
+          },
+          {
+            "source_row": 265,
+            "time": "2013-04-01",
+            "value": "16728.687"
+          },
+          {
+            "source_row": 266,
+            "time": "2013-07-01",
+            "value": "16953.838"
+          },
+          {
+            "source_row": 267,
+            "time": "2013-10-01",
+            "value": "17192.019"
+          },
+          {
+            "source_row": 268,
+            "time": "2014-01-01",
+            "value": "17197.738"
+          },
+          {
+            "source_row": 269,
+            "time": "2014-04-01",
+            "value": "17518.508"
+          },
+          {
+            "source_row": 270,
+            "time": "2014-07-01",
+            "value": "17804.228"
+          },
+          {
+            "source_row": 271,
+            "time": "2014-10-01",
+            "value": "17912.079"
+          },
+          {
+            "source_row": 272,
+            "time": "2015-01-01",
+            "value": "18063.529"
+          },
+          {
+            "source_row": 273,
+            "time": "2015-04-01",
+            "value": "18279.784"
+          },
+          {
+            "source_row": 274,
+            "time": "2015-07-01",
+            "value": "18401.626"
+          },
+          {
+            "source_row": 275,
+            "time": "2015-10-01",
+            "value": "18435.137"
+          },
+          {
+            "source_row": 276,
+            "time": "2016-01-01",
+            "value": "18525.933"
+          },
+          {
+            "source_row": 277,
+            "time": "2016-04-01",
+            "value": "18711.702"
+          },
+          {
+            "source_row": 278,
+            "time": "2016-07-01",
+            "value": "18892.639"
+          },
+          {
+            "source_row": 279,
+            "time": "2016-10-01",
+            "value": "19089.379"
+          },
+          {
+            "source_row": 280,
+            "time": "2017-01-01",
+            "value": "19280.084"
+          },
+          {
+            "source_row": 281,
+            "time": "2017-04-01",
+            "value": "19438.643"
+          },
+          {
+            "source_row": 282,
+            "time": "2017-07-01",
+            "value": "19692.595"
+          },
+          {
+            "source_row": 283,
+            "time": "2017-10-01",
+            "value": "20037.088"
+          },
+          {
+            "source_row": 284,
+            "time": "2018-01-01",
+            "value": "20328.553"
+          },
+          {
+            "source_row": 285,
+            "time": "2018-04-01",
+            "value": "20580.912"
+          },
+          {
+            "source_row": 286,
+            "time": "2018-07-01",
+            "value": "20798.730"
+          },
+          {
+            "source_row": 287,
+            "time": "2018-10-01",
+            "value": "20917.867"
+          },
+          {
+            "source_row": 288,
+            "time": "2019-01-01",
+            "value": "21111.600"
+          },
+          {
+            "source_row": 289,
+            "time": "2019-04-01",
+            "value": "21397.938"
+          },
+          {
+            "source_row": 290,
+            "time": "2019-07-01",
+            "value": "21717.171"
+          },
+          {
+            "source_row": 291,
+            "time": "2019-10-01",
+            "value": "21933.217"
+          },
+          {
+            "source_row": 292,
+            "time": "2020-01-01",
+            "value": "21751.238"
+          },
+          {
+            "source_row": 293,
+            "time": "2020-04-01",
+            "value": "19958.291"
+          },
+          {
+            "source_row": 294,
+            "time": "2020-07-01",
+            "value": "21704.437"
+          },
+          {
+            "source_row": 295,
+            "time": "2020-10-01",
+            "value": "22087.160"
+          },
+          {
+            "source_row": 296,
+            "time": "2021-01-01",
+            "value": "22680.693"
+          },
+          {
+            "source_row": 297,
+            "time": "2021-04-01",
+            "value": "23425.910"
+          },
+          {
+            "source_row": 298,
+            "time": "2021-07-01",
+            "value": "23982.379"
+          },
+          {
+            "source_row": 299,
+            "time": "2021-10-01",
+            "value": "24813.600"
+          },
+          {
+            "source_row": 300,
+            "time": "2022-01-01",
+            "value": "25250.347"
+          },
+          {
+            "source_row": 301,
+            "time": "2022-04-01",
+            "value": "25861.292"
+          },
+          {
+            "source_row": 302,
+            "time": "2022-07-01",
+            "value": "26336.304"
+          },
+          {
+            "source_row": 303,
+            "time": "2022-10-01",
+            "value": "26770.514"
+          },
+          {
+            "source_row": 304,
+            "time": "2023-01-01",
+            "value": "27216.445"
+          },
+          {
+            "source_row": 305,
+            "time": "2023-04-01",
+            "value": "27530.055"
+          },
+          {
+            "source_row": 306,
+            "time": "2023-07-01",
+            "value": "28074.846"
+          },
+          {
+            "source_row": 307,
+            "time": "2023-10-01",
+            "value": "28424.722"
+          },
+          {
+            "source_row": 308,
+            "time": "2024-01-01",
+            "value": "28708.161"
+          },
+          {
+            "source_row": 309,
+            "time": "2024-04-01",
+            "value": "29147.044"
+          },
+          {
+            "source_row": 310,
+            "time": "2024-07-01",
+            "value": "29511.664"
+          },
+          {
+            "source_row": 311,
+            "time": "2024-10-01",
+            "value": "29825.182"
+          },
+          {
+            "source_row": 312,
+            "time": "2025-01-01",
+            "value": "30042.113"
+          },
+          {
+            "source_row": 313,
+            "time": "2025-04-01",
+            "value": "30485.729"
+          },
+          {
+            "source_row": 314,
+            "time": "2025-07-01",
+            "value": "31098.027"
+          },
+          {
+            "source_row": 315,
+            "time": "2025-10-01",
+            "value": "31422.526"
+          },
+          {
+            "source_row": 316,
+            "time": "2026-01-01",
+            "value": "31865.721"
+          },
+          {
+            "source_row": 317,
+            "time": "2026-04-01",
+            "value": "32475.210"
+          }
+        ],
+        "time_field": "observation_date"
+      },
+      "response_sha256": "cb0d9d0ffa4f83eeb53bcc04eaeca9cede6d266c550ec14bd8e825f0f88f8160",
+      "role": "transfer",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP"
+    },
+    {
+      "http_status": 200,
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:37:52.879192+00:00",
+        "not_before_epoch": 1785627460.5349262,
+        "outcome_sha256": "f1245267dd0ef0927a33ffe1a884470eedc34045ff1a50c3cbbe3f22705e334d",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the daily temperature time series",
+      "name": "NOAA temperature",
+      "outcome": {
+        "measure_field": "TEMP",
+        "passed": true,
+        "provenance": {
+          "body_sha256": "f468be743db41fb15189b75be817cca33ece3d12271f81f09287dd4f3f6fa412",
+          "field_names": [
+            "DATE",
+            "DEWP",
+            "DEWP_ATTRIBUTES",
+            "ELEVATION",
+            "FRSHTT",
+            "GUST",
+            "LATITUDE",
+            "LONGITUDE",
+            "MAX",
+            "MAX_ATTRIBUTES",
+            "MIN",
+            "MIN_ATTRIBUTES",
+            "MXSPD",
+            "NAME",
+            "PRCP",
+            "PRCP_ATTRIBUTES",
+            "SLP",
+            "SLP_ATTRIBUTES",
+            "SNDP",
+            "STATION",
+            "STP",
+            "STP_ATTRIBUTES",
+            "TEMP",
+            "TEMP_ATTRIBUTES",
+            "VISIB",
+            "VISIB_ATTRIBUTES",
+            "WDSP",
+            "WDSP_ATTRIBUTES"
+          ]
+        },
+        "representation": "csv",
+        "row_count": 236,
+        "rows": [
+          {
+            "source_row": 0,
+            "time": "2025-01-01",
+            "value": "48.8"
+          },
+          {
+            "source_row": 1,
+            "time": "2025-01-02",
+            "value": "36.6"
+          },
+          {
+            "source_row": 2,
+            "time": "2025-01-03",
+            "value": "34.0"
+          },
+          {
+            "source_row": 3,
+            "time": "2025-01-04",
+            "value": "33.3"
+          },
+          {
+            "source_row": 4,
+            "time": "2025-01-05",
+            "value": "46.4"
+          },
+          {
+            "source_row": 5,
+            "time": "2025-01-06",
+            "value": "44.5"
+          },
+          {
+            "source_row": 6,
+            "time": "2025-01-07",
+            "value": "36.9"
+          },
+          {
+            "source_row": 7,
+            "time": "2025-01-08",
+            "value": "33.6"
+          },
+          {
+            "source_row": 8,
+            "time": "2025-01-09",
+            "value": "34.8"
+          },
+          {
+            "source_row": 9,
+            "time": "2025-01-10",
+            "value": "29.7"
+          },
+          {
+            "source_row": 10,
+            "time": "2025-01-11",
+            "value": "30.2"
+          },
+          {
+            "source_row": 11,
+            "time": "2025-01-12",
+            "value": "32.6"
+          },
+          {
+            "source_row": 12,
+            "time": "2025-01-13",
+            "value": "40.0"
+          },
+          {
+            "source_row": 13,
+            "time": "2025-01-14",
+            "value": "43.4"
+          },
+          {
+            "source_row": 14,
+            "time": "2025-01-15",
+            "value": "47.4"
+          },
+          {
+            "source_row": 15,
+            "time": "2025-01-16",
+            "value": "45.3"
+          },
+          {
+            "source_row": 16,
+            "time": "2025-01-17",
+            "value": "41.4"
+          },
+          {
+            "source_row": 17,
+            "time": "2025-01-18",
+            "value": "36.9"
+          },
+          {
+            "source_row": 18,
+            "time": "2025-01-19",
+            "value": "37.3"
+          },
+          {
+            "source_row": 19,
+            "time": "2025-01-20",
+            "value": "39.5"
+          },
+          {
+            "source_row": 20,
+            "time": "2025-01-21",
+            "value": "38.3"
+          },
+          {
+            "source_row": 21,
+            "time": "2025-01-22",
+            "value": "38.4"
+          },
+          {
+            "source_row": 22,
+            "time": "2025-01-23",
+            "value": "40.6"
+          },
+          {
+            "source_row": 23,
+            "time": "2025-01-24",
+            "value": "48.5"
+          },
+          {
+            "source_row": 24,
+            "time": "2025-01-25",
+            "value": "42.1"
+          },
+          {
+            "source_row": 25,
+            "time": "2025-01-26",
+            "value": "41.0"
+          },
+          {
+            "source_row": 26,
+            "time": "2025-01-27",
+            "value": "45.8"
+          },
+          {
+            "source_row": 27,
+            "time": "2025-01-28",
+            "value": "47.7"
+          },
+          {
+            "source_row": 28,
+            "time": "2025-01-29",
+            "value": "43.0"
+          },
+          {
+            "source_row": 29,
+            "time": "2025-01-30",
+            "value": "41.2"
+          },
+          {
+            "source_row": 30,
+            "time": "2025-01-31",
+            "value": "42.8"
+          },
+          {
+            "source_row": 31,
+            "time": "2025-02-01",
+            "value": "40.6"
+          },
+          {
+            "source_row": 32,
+            "time": "2025-02-02",
+            "value": "38.4"
+          },
+          {
+            "source_row": 33,
+            "time": "2025-02-03",
+            "value": "40.5"
+          },
+          {
+            "source_row": 34,
+            "time": "2025-02-04",
+            "value": "46.0"
+          },
+          {
+            "source_row": 35,
+            "time": "2025-02-05",
+            "value": "42.6"
+          },
+          {
+            "source_row": 36,
+            "time": "2025-02-06",
+            "value": "39.9"
+          },
+          {
+            "source_row": 37,
+            "time": "2025-02-07",
+            "value": "38.2"
+          },
+          {
+            "source_row": 38,
+            "time": "2025-02-08",
+            "value": "40.6"
+          },
+          {
+            "source_row": 39,
+            "time": "2025-02-09",
+            "value": "39.0"
+          },
+          {
+            "source_row": 40,
+            "time": "2025-02-10",
+            "value": "38.9"
+          },
+          {
+            "source_row": 41,
+            "time": "2025-02-11",
+            "value": "38.9"
+          },
+          {
+            "source_row": 42,
+            "time": "2025-02-12",
+            "value": "40.2"
+          },
+          {
+            "source_row": 43,
+            "time": "2025-02-13",
+            "value": "39.3"
+          },
+          {
+            "source_row": 44,
+            "time": "2025-02-14",
+            "value": "37.9"
+          },
+          {
+            "source_row": 45,
+            "time": "2025-02-15",
+            "value": "39.3"
+          },
+          {
+            "source_row": 46,
+            "time": "2025-02-16",
+            "value": "37.1"
+          },
+          {
+            "source_row": 47,
+            "time": "2025-02-17",
+            "value": "35.9"
+          },
+          {
+            "source_row": 48,
+            "time": "2025-02-18",
+            "value": "37.7"
+          },
+          {
+            "source_row": 49,
+            "time": "2025-02-19",
+            "value": "40.9"
+          },
+          {
+            "source_row": 50,
+            "time": "2025-02-20",
+            "value": "52.4"
+          },
+          {
+            "source_row": 51,
+            "time": "2025-02-21",
+            "value": "54.8"
+          },
+          {
+            "source_row": 52,
+            "time": "2025-02-22",
+            "value": "51.1"
+          },
+          {
+            "source_row": 53,
+            "time": "2025-02-23",
+            "value": "48.9"
+          },
+          {
+            "source_row": 54,
+            "time": "2025-02-24",
+            "value": "51.0"
+          },
+          {
+            "source_row": 55,
+            "time": "2025-02-25",
+            "value": "47.2"
+          },
+          {
+            "source_row": 56,
+            "time": "2025-02-26",
+            "value": "42.1"
+          },
+          {
+            "source_row": 57,
+            "time": "2025-02-27",
+            "value": "43.5"
+          },
+          {
+            "source_row": 58,
+            "time": "2025-02-28",
+            "value": "40.6"
+          },
+          {
+            "source_row": 59,
+            "time": "2025-03-01",
+            "value": "39.6"
+          },
+          {
+            "source_row": 60,
+            "time": "2025-03-02",
+            "value": "40.6"
+          },
+          {
+            "source_row": 61,
+            "time": "2025-03-03",
+            "value": "41.3"
+          },
+          {
+            "source_row": 62,
+            "time": "2025-03-04",
+            "value": "42.5"
+          },
+          {
+            "source_row": 63,
+            "time": "2025-03-05",
+            "value": "43.4"
+          },
+          {
+            "source_row": 64,
+            "time": "2025-03-06",
+            "value": "48.5"
+          },
+          {
+            "source_row": 65,
+            "time": "2025-03-07",
+            "value": "53.7"
+          },
+          {
+            "source_row": 66,
+            "time": "2025-03-08",
+            "value": "53.8"
+          },
+          {
+            "source_row": 67,
+            "time": "2025-03-09",
+            "value": "53.9"
+          },
+          {
+            "source_row": 68,
+            "time": "2025-03-10",
+            "value": "50.1"
+          },
+          {
+            "source_row": 69,
+            "time": "2025-03-11",
+            "value": "44.6"
+          },
+          {
+            "source_row": 70,
+            "time": "2025-03-12",
+            "value": "42.1"
+          },
+          {
+            "source_row": 71,
+            "time": "2025-03-13",
+            "value": "40.1"
+          },
+          {
+            "source_row": 72,
+            "time": "2025-03-14",
+            "value": "39.6"
+          },
+          {
+            "source_row": 73,
+            "time": "2025-03-15",
+            "value": "40.9"
+          },
+          {
+            "source_row": 74,
+            "time": "2025-03-16",
+            "value": "40.5"
+          },
+          {
+            "source_row": 75,
+            "time": "2025-03-17",
+            "value": "43.4"
+          },
+          {
+            "source_row": 76,
+            "time": "2025-03-18",
+            "value": "43.0"
+          },
+          {
+            "source_row": 77,
+            "time": "2025-03-19",
+            "value": "48.1"
+          },
+          {
+            "source_row": 78,
+            "time": "2025-03-20",
+            "value": "56.2"
+          },
+          {
+            "source_row": 79,
+            "time": "2025-03-21",
+            "value": "56.1"
+          },
+          {
+            "source_row": 80,
+            "time": "2025-03-22",
+            "value": "55.7"
+          },
+          {
+            "source_row": 81,
+            "time": "2025-03-23",
+            "value": "51.2"
+          },
+          {
+            "source_row": 82,
+            "time": "2025-03-24",
+            "value": "48.6"
+          },
+          {
+            "source_row": 83,
+            "time": "2025-03-25",
+            "value": "49.6"
+          },
+          {
+            "source_row": 84,
+            "time": "2025-03-26",
+            "value": "54.8"
+          },
+          {
+            "source_row": 85,
+            "time": "2025-03-27",
+            "value": "48.8"
+          },
+          {
+            "source_row": 86,
+            "time": "2025-03-28",
+            "value": "51.4"
+          },
+          {
+            "source_row": 87,
+            "time": "2025-03-29",
+            "value": "48.1"
+          },
+          {
+            "source_row": 88,
+            "time": "2025-03-30",
+            "value": "54.9"
+          },
+          {
+            "source_row": 89,
+            "time": "2025-03-31",
+            "value": "51.0"
+          },
+          {
+            "source_row": 90,
+            "time": "2025-04-01",
+            "value": "49.4"
+          },
+          {
+            "source_row": 91,
+            "time": "2025-04-02",
+            "value": "52.5"
+          },
+          {
+            "source_row": 92,
+            "time": "2025-04-03",
+            "value": "56.1"
+          },
+          {
+            "source_row": 93,
+            "time": "2025-04-04",
+            "value": "59.5"
+          },
+          {
+            "source_row": 94,
+            "time": "2025-04-05",
+            "value": "53.1"
+          },
+          {
+            "source_row": 95,
+            "time": "2025-04-06",
+            "value": "50.0"
+          },
+          {
+            "source_row": 96,
+            "time": "2025-04-07",
+            "value": "49.0"
+          },
+          {
+            "source_row": 97,
+            "time": "2025-04-08",
+            "value": "49.5"
+          },
+          {
+            "source_row": 98,
+            "time": "2025-04-09",
+            "value": "48.2"
+          },
+          {
+            "source_row": 99,
+            "time": "2025-04-10",
+            "value": "50.6"
+          },
+          {
+            "source_row": 100,
+            "time": "2025-04-11",
+            "value": "56.9"
+          },
+          {
+            "source_row": 101,
+            "time": "2025-04-12",
+            "value": "59.8"
+          },
+          {
+            "source_row": 102,
+            "time": "2025-04-13",
+            "value": "54.8"
+          },
+          {
+            "source_row": 103,
+            "time": "2025-04-14",
+            "value": "51.8"
+          },
+          {
+            "source_row": 104,
+            "time": "2025-04-15",
+            "value": "53.4"
+          },
+          {
+            "source_row": 105,
+            "time": "2025-04-16",
+            "value": "52.0"
+          },
+          {
+            "source_row": 106,
+            "time": "2025-04-17",
+            "value": "52.5"
+          },
+          {
+            "source_row": 107,
+            "time": "2025-04-18",
+            "value": "55.2"
+          },
+          {
+            "source_row": 108,
+            "time": "2025-04-19",
+            "value": "55.7"
+          },
+          {
+            "source_row": 109,
+            "time": "2025-04-20",
+            "value": "49.6"
+          },
+          {
+            "source_row": 110,
+            "time": "2025-04-21",
+            "value": "52.7"
+          },
+          {
+            "source_row": 111,
+            "time": "2025-04-22",
+            "value": "52.9"
+          },
+          {
+            "source_row": 112,
+            "time": "2025-04-23",
+            "value": "50.4"
+          },
+          {
+            "source_row": 113,
+            "time": "2025-04-24",
+            "value": "53.0"
+          },
+          {
+            "source_row": 114,
+            "time": "2025-04-25",
+            "value": "52.0"
+          },
+          {
+            "source_row": 115,
+            "time": "2025-04-26",
+            "value": "55.4"
+          },
+          {
+            "source_row": 116,
+            "time": "2025-04-27",
+            "value": "57.8"
+          },
+          {
+            "source_row": 117,
+            "time": "2025-04-28",
+            "value": "61.2"
+          },
+          {
+            "source_row": 118,
+            "time": "2025-04-29",
+            "value": "61.9"
+          },
+          {
+            "source_row": 119,
+            "time": "2025-04-30",
+            "value": "63.8"
+          },
+          {
+            "source_row": 120,
+            "time": "2025-05-01",
+            "value": "67.9"
+          },
+          {
+            "source_row": 121,
+            "time": "2025-05-02",
+            "value": "65.8"
+          },
+          {
+            "source_row": 122,
+            "time": "2025-05-03",
+            "value": "58.2"
+          },
+          {
+            "source_row": 123,
+            "time": "2025-05-04",
+            "value": "50.2"
+          },
+          {
+            "source_row": 124,
+            "time": "2025-05-05",
+            "value": "49.1"
+          },
+          {
+            "source_row": 125,
+            "time": "2025-05-06",
+            "value": "50.0"
+          },
+          {
+            "source_row": 126,
+            "time": "2025-05-07",
+            "value": "52.1"
+          },
+          {
+            "source_row": 127,
+            "time": "2025-05-08",
+            "value": "53.7"
+          },
+          {
+            "source_row": 128,
+            "time": "2025-05-09",
+            "value": "54.7"
+          },
+          {
+            "source_row": 129,
+            "time": "2025-05-10",
+            "value": "60.9"
+          },
+          {
+            "source_row": 130,
+            "time": "2025-05-11",
+            "value": "64.9"
+          },
+          {
+            "source_row": 131,
+            "time": "2025-05-12",
+            "value": "65.6"
+          },
+          {
+            "source_row": 132,
+            "time": "2025-05-13",
+            "value": "65.1"
+          },
+          {
+            "source_row": 133,
+            "time": "2025-05-14",
+            "value": "60.5"
+          },
+          {
+            "source_row": 134,
+            "time": "2025-05-15",
+            "value": "53.0"
+          },
+          {
+            "source_row": 135,
+            "time": "2025-05-16",
+            "value": "55.9"
+          },
+          {
+            "source_row": 136,
+            "time": "2025-05-17",
+            "value": "57.8"
+          },
+          {
+            "source_row": 137,
+            "time": "2025-05-18",
+            "value": "56.0"
+          },
+          {
+            "source_row": 138,
+            "time": "2025-05-19",
+            "value": "58.5"
+          },
+          {
+            "source_row": 139,
+            "time": "2025-05-20",
+            "value": "60.4"
+          },
+          {
+            "source_row": 140,
+            "time": "2025-05-21",
+            "value": "59.1"
+          },
+          {
+            "source_row": 141,
+            "time": "2025-05-22",
+            "value": "54.2"
+          },
+          {
+            "source_row": 142,
+            "time": "2025-05-23",
+            "value": "56.5"
+          },
+          {
+            "source_row": 143,
+            "time": "2025-05-24",
+            "value": "62.2"
+          },
+          {
+            "source_row": 144,
+            "time": "2025-05-25",
+            "value": "61.8"
+          },
+          {
+            "source_row": 145,
+            "time": "2025-05-26",
+            "value": "58.5"
+          },
+          {
+            "source_row": 146,
+            "time": "2025-05-27",
+            "value": "59.3"
+          },
+          {
+            "source_row": 147,
+            "time": "2025-05-28",
+            "value": "63.2"
+          },
+          {
+            "source_row": 148,
+            "time": "2025-05-29",
+            "value": "65.9"
+          },
+          {
+            "source_row": 149,
+            "time": "2025-05-30",
+            "value": "67.3"
+          },
+          {
+            "source_row": 150,
+            "time": "2025-05-31",
+            "value": "68.6"
+          },
+          {
+            "source_row": 151,
+            "time": "2025-06-01",
+            "value": "62.9"
+          },
+          {
+            "source_row": 152,
+            "time": "2025-06-02",
+            "value": "61.3"
+          },
+          {
+            "source_row": 153,
+            "time": "2025-06-03",
+            "value": "58.0"
+          },
+          {
+            "source_row": 154,
+            "time": "2025-06-04",
+            "value": "58.8"
+          },
+          {
+            "source_row": 155,
+            "time": "2025-06-05",
+            "value": "57.2"
+          },
+          {
+            "source_row": 156,
+            "time": "2025-06-06",
+            "value": "60.2"
+          },
+          {
+            "source_row": 157,
+            "time": "2025-06-07",
+            "value": "56.0"
+          },
+          {
+            "source_row": 158,
+            "time": "2025-06-08",
+            "value": "56.5"
+          },
+          {
+            "source_row": 159,
+            "time": "2025-06-09",
+            "value": "60.8"
+          },
+          {
+            "source_row": 160,
+            "time": "2025-06-10",
+            "value": "64.7"
+          },
+          {
+            "source_row": 161,
+            "time": "2025-06-11",
+            "value": "63.3"
+          },
+          {
+            "source_row": 162,
+            "time": "2025-06-12",
+            "value": "67.6"
+          },
+          {
+            "source_row": 163,
+            "time": "2025-06-13",
+            "value": "71.6"
+          },
+          {
+            "source_row": 164,
+            "time": "2025-06-14",
+            "value": "67.8"
+          },
+          {
+            "source_row": 165,
+            "time": "2025-06-15",
+            "value": "65.5"
+          },
+          {
+            "source_row": 166,
+            "time": "2025-06-16",
+            "value": "68.1"
+          },
+          {
+            "source_row": 167,
+            "time": "2025-06-17",
+            "value": "70.0"
+          },
+          {
+            "source_row": 168,
+            "time": "2025-06-18",
+            "value": "71.7"
+          },
+          {
+            "source_row": 169,
+            "time": "2025-06-19",
+            "value": "76.7"
+          },
+          {
+            "source_row": 170,
+            "time": "2025-06-20",
+            "value": "75.2"
+          },
+          {
+            "source_row": 171,
+            "time": "2025-06-21",
+            "value": "77.2"
+          },
+          {
+            "source_row": 172,
+            "time": "2025-06-22",
+            "value": "71.0"
+          },
+          {
+            "source_row": 173,
+            "time": "2025-06-23",
+            "value": "65.8"
+          },
+          {
+            "source_row": 174,
+            "time": "2025-06-24",
+            "value": "67.6"
+          },
+          {
+            "source_row": 175,
+            "time": "2025-06-25",
+            "value": "71.3"
+          },
+          {
+            "source_row": 176,
+            "time": "2025-06-26",
+            "value": "69.1"
+          },
+          {
+            "source_row": 177,
+            "time": "2025-06-27",
+            "value": "68.4"
+          },
+          {
+            "source_row": 178,
+            "time": "2025-06-28",
+            "value": "75.4"
+          },
+          {
+            "source_row": 179,
+            "time": "2025-06-29",
+            "value": "74.4"
+          },
+          {
+            "source_row": 180,
+            "time": "2025-06-30",
+            "value": "78.6"
+          },
+          {
+            "source_row": 181,
+            "time": "2025-07-01",
+            "value": "81.8"
+          },
+          {
+            "source_row": 182,
+            "time": "2025-07-02",
+            "value": "67.7"
+          },
+          {
+            "source_row": 183,
+            "time": "2025-07-03",
+            "value": "66.2"
+          },
+          {
+            "source_row": 184,
+            "time": "2025-07-04",
+            "value": "69.7"
+          },
+          {
+            "source_row": 185,
+            "time": "2025-07-05",
+            "value": "67.6"
+          },
+          {
+            "source_row": 186,
+            "time": "2025-07-06",
+            "value": "66.2"
+          },
+          {
+            "source_row": 187,
+            "time": "2025-07-07",
+            "value": "63.1"
+          },
+          {
+            "source_row": 188,
+            "time": "2025-07-08",
+            "value": "65.6"
+          },
+          {
+            "source_row": 189,
+            "time": "2025-07-09",
+            "value": "69.8"
+          },
+          {
+            "source_row": 190,
+            "time": "2025-07-10",
+            "value": "76.1"
+          },
+          {
+            "source_row": 191,
+            "time": "2025-07-11",
+            "value": "77.7"
+          },
+          {
+            "source_row": 192,
+            "time": "2025-07-12",
+            "value": "75.7"
+          },
+          {
+            "source_row": 193,
+            "time": "2025-07-13",
+            "value": "71.0"
+          },
+          {
+            "source_row": 194,
+            "time": "2025-07-14",
+            "value": "70.1"
+          },
+          {
+            "source_row": 195,
+            "time": "2025-07-15",
+            "value": "65.3"
+          },
+          {
+            "source_row": 196,
+            "time": "2025-07-16",
+            "value": "68.5"
+          },
+          {
+            "source_row": 197,
+            "time": "2025-07-17",
+            "value": "72.6"
+          },
+          {
+            "source_row": 198,
+            "time": "2025-07-18",
+            "value": "74.4"
+          },
+          {
+            "source_row": 199,
+            "time": "2025-07-19",
+            "value": "67.7"
+          },
+          {
+            "source_row": 200,
+            "time": "2025-07-20",
+            "value": "65.7"
+          },
+          {
+            "source_row": 201,
+            "time": "2025-07-21",
+            "value": "65.5"
+          },
+          {
+            "source_row": 202,
+            "time": "2025-07-22",
+            "value": "67.4"
+          },
+          {
+            "source_row": 203,
+            "time": "2025-07-23",
+            "value": "66.1"
+          },
+          {
+            "source_row": 204,
+            "time": "2025-07-24",
+            "value": "64.8"
+          },
+          {
+            "source_row": 205,
+            "time": "2025-07-25",
+            "value": "71.1"
+          },
+          {
+            "source_row": 206,
+            "time": "2025-07-26",
+            "value": "68.0"
+          },
+          {
+            "source_row": 207,
+            "time": "2025-07-27",
+            "value": "65.8"
+          },
+          {
+            "source_row": 208,
+            "time": "2025-07-28",
+            "value": "67.4"
+          },
+          {
+            "source_row": 209,
+            "time": "2025-07-29",
+            "value": "64.1"
+          },
+          {
+            "source_row": 210,
+            "time": "2025-07-30",
+            "value": "69.0"
+          },
+          {
+            "source_row": 211,
+            "time": "2025-07-31",
+            "value": "66.4"
+          },
+          {
+            "source_row": 212,
+            "time": "2025-08-01",
+            "value": "61.8"
+          },
+          {
+            "source_row": 213,
+            "time": "2025-08-02",
+            "value": "63.5"
+          },
+          {
+            "source_row": 214,
+            "time": "2025-08-03",
+            "value": "67.1"
+          },
+          {
+            "source_row": 215,
+            "time": "2025-08-04",
+            "value": "67.6"
+          },
+          {
+            "source_row": 216,
+            "time": "2025-08-05",
+            "value": "64.5"
+          },
+          {
+            "source_row": 217,
+            "time": "2025-08-06",
+            "value": "64.1"
+          },
+          {
+            "source_row": 218,
+            "time": "2025-08-07",
+            "value": "66.2"
+          },
+          {
+            "source_row": 219,
+            "time": "2025-08-08",
+            "value": "68.6"
+          },
+          {
+            "source_row": 220,
+            "time": "2025-08-09",
+            "value": "67.2"
+          },
+          {
+            "source_row": 221,
+            "time": "2025-08-10",
+            "value": "69.2"
+          },
+          {
+            "source_row": 222,
+            "time": "2025-08-11",
+            "value": "73.6"
+          },
+          {
+            "source_row": 223,
+            "time": "2025-08-12",
+            "value": "77.6"
+          },
+          {
+            "source_row": 224,
+            "time": "2025-08-13",
+            "value": "69.4"
+          },
+          {
+            "source_row": 225,
+            "time": "2025-08-14",
+            "value": "71.7"
+          },
+          {
+            "source_row": 226,
+            "time": "2025-08-15",
+            "value": "73.6"
+          },
+          {
+            "source_row": 227,
+            "time": "2025-08-16",
+            "value": "65.9"
+          },
+          {
+            "source_row": 228,
+            "time": "2025-08-17",
+            "value": "66.8"
+          },
+          {
+            "source_row": 229,
+            "time": "2025-08-18",
+            "value": "66.3"
+          },
+          {
+            "source_row": 230,
+            "time": "2025-08-19",
+            "value": "67.7"
+          },
+          {
+            "source_row": 231,
+            "time": "2025-08-20",
+            "value": "63.0"
+          },
+          {
+            "source_row": 232,
+            "time": "2025-08-21",
+            "value": "62.3"
+          },
+          {
+            "source_row": 233,
+            "time": "2025-08-22",
+            "value": "63.1"
+          },
+          {
+            "source_row": 234,
+            "time": "2025-08-23",
+            "value": "66.4"
+          },
+          {
+            "source_row": 235,
+            "time": "2025-08-24",
+            "value": "66.7"
+          }
+        ],
+        "time_field": "DATE"
+      },
+      "response_sha256": "f468be743db41fb15189b75be817cca33ece3d12271f81f09287dd4f3f6fa412",
+      "role": "transfer",
+      "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2025/03772099999.csv"
+    }
+  ],
+  "implementation_sha256": "0097f2b1737ba4a767b4a2bb041ffcbbac4372108364f33aeb1b3dd251f2925d",
+  "private_registry_path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/recursive_action_language_expansion/private_atom.json",
+  "runtime_registry_path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/recursive_action_runtime/atom_registry.json",
+  "schema_version": "aion.hexcore.recursive_action_language_state.v1",
+  "spec": {
+    "atom_id": "TEMPORAL_NUMERIC_PROJECTION",
+    "capability_class": "pure_read_only_transform",
+    "decoders": [
+      "json",
+      "csv"
+    ],
+    "field_strategy": "semantic_profile_with_margin",
+    "filesystem_authority": false,
+    "maximum_bytes": 1000000,
+    "maximum_records": 5000,
+    "minimum_margin": 1.0,
+    "network_authority": false,
+    "numeric_strategy": "finite_decimal_only",
+    "process_authority": false,
+    "time_strategy": "parse_profile"
+  }
+}

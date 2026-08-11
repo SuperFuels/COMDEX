@@ -1,0 +1,63 @@
+{
+  "action_contract": {
+    "commit_before_act": true,
+    "digit_channels": 5,
+    "maximum": 1.0,
+    "minimum": -1.0
+  },
+  "capsule_digest": "8f16655f81062a5341183ac22bbb14344dd40ffb18361b71347efc7befac7b3a",
+  "gate_digest": "3ba8c3f7083cbc5b3fba86fc3c00e173b8c32ef72d4d9f50cda0baa75367e84a",
+  "observation_contract": {
+    "forbidden": [
+      "target_digit",
+      "actuator_permutation",
+      "ground_truth_contact_geometry",
+      "teacher_action"
+    ],
+    "required": [
+      "rgb",
+      "joint_position",
+      "joint_velocity",
+      "fingertip_touch"
+    ]
+  },
+  "procedure_id": "procedure_self_modelled_tactile_hand_apprenticeship_v1",
+  "retained_method": {
+    "name": "probe_bind_touch_servo_retain_hand_schema",
+    "runtime_inputs": [
+      "rgb",
+      "joint_position",
+      "joint_velocity",
+      "fingertip_touch"
+    ],
+    "stages": [
+      "visually discover hand topology",
+      "probe unfamiliar action channels",
+      "identify digit, direction, gain and latency",
+      "bind touch channels",
+      "select the task-relevant digit",
+      "servo under tactile feedback",
+      "stop before excessive force",
+      "retain morphology-independent schema"
+    ],
+    "teacher_actions": 0
+  },
+  "schema_version": "aion.hand_embodiment_skill.v1",
+  "sealed_body_schema_digests": [
+    "d71d2ca2297c7e2a52154df4dc6e76c9f5624563121c35e673fcad8b27349dff",
+    "f1b5a91ed897ea1e502f54fe19d320f1c33d8c117923c972c417963168f92a81",
+    "1292870a62bf1640eb0617eaddf8151c1afdcfd44ddd19e827c2962a91703ad2",
+    "3a2c314d1c9d1a4eded770dfe100669ef69cb9bce591ae418c2a4806cb98bc8b",
+    "4c65b6e196f21b5c28b9e1b191b2fdc9906912669b8675ff1481396815e65dfc",
+    "10ce915041289691978bdaf960eb815d090119efc4f84282f32010b9b20cf9b5",
+    "ddab951010fcd7f622633ce0f3d17c61254097296c811d14c3140170099f86eb",
+    "b8c6bd6e9eea9e59bfc44c9aaedb9128dd1c6e4d4eece2c1a0e784feb93e65d7",
+    "df83e4287b5339f20835669af5e99bde4bdb0edf99be123fdb9004efeac71542",
+    "038b87e994caf079b2a5cccf2bcb62eb114d1adc7ac18b579194d05c52ea767a",
+    "54102691d41ac84e8eee679bdb2e5df15d26778e16dc558008cdedd872c31966",
+    "ad10a3ba8dd3ace12840111ed6571bd5d8d54e88e544aebae8e13f78d592301b",
+    "c40533b8897e089366be0b77aba8b4571837571d3e7291dbe427c29e9d60f4d2",
+    "8de3bfac9da7f7c488b08c1b5a2a132ef985f29c05ed19439846903ebbf6b0cb",
+    "26e7f33647bed995009c2878e82a305f5d0cadabb254adae3b7837ec13da4a47"
+  ]
+}

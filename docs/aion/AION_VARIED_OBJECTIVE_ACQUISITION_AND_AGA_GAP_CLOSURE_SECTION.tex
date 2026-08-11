@@ -1,0 +1,333 @@
+% ============================================================================
+% AION Varied Objective Acquisition and Autonomous-General-Apprentice Gap
+% Closure
+% Compile-ready section. Requires: amsmath, amssymb, booktabs, tabularx,
+% array, enumitem, url (or hyperref).
+% ============================================================================
+
+\section{North-Star Objective Acquisition and AGA Gap Closure}
+\label{sec:aion-objective-acquisition-aga-gap-closure}
+
+This development increment replaced a fixed three-contract useful-work loop
+with a persistent controller that derives projects from AION's constitutional
+North Star, its current evidence, and the availability of an outcome authority.
+It then widened that controller from three operational families to five
+qualitatively different families, introduced measured cross-domain method
+transfer against cold controls, and installed a fail-closed evidence registry
+for the Autonomous General Apprentice (AGA) claim.
+
+The resulting operating cycle is
+\begin{equation}
+\begin{aligned}
+\text{North Star and current evidence}
+&\rightarrow \text{candidate opportunity induction} \\
+&\rightarrow \text{value, novelty, cost, and authority ranking} \\
+&\rightarrow \text{one selected objective and explicit success contract} \\
+&\rightarrow \text{private work artifact and immutable commitment} \\
+&\rightarrow \text{strictly later outcome authority} \\
+&\rightarrow \text{retain, reject, or revise} \\
+&\rightarrow \text{executive-method update and automatic continuation}.
+\end{aligned}
+\label{eq:aion-varied-objective-loop}
+\end{equation}
+
+The central epistemic restriction is that producing an artifact does not count
+as completing an objective.  Credit is granted only when the authority declared
+before execution evaluates a later consequence.  Immediate replay, internal
+plausibility, and the artifact's own tests cannot close the objective.
+
+\subsection{Varied Useful-Objective Acquisition v1}
+\label{subsec:aion-varied-objective-v1}
+
+The first controller, promoted as
+\texttt{procedure\_varied\_useful\_objective\_acquisition\_v1}, established
+that AION could replace a fixed work bundle with selective, evidence-derived
+projects.  For a candidate objective $o$, the controller calculated
+\begin{equation}
+P(o)=
+\frac{
+0.45V_o+0.25U_o+0.15R_o+0.15L_o
+}{\max(0.1,C_o)}Q_o,
+\label{eq:aion-objective-priority}
+\end{equation}
+where $V_o$ is owner-visible value, $U_o$ is urgency, $R_o$ is risk reduction,
+$L_o$ is learning value, $C_o$ is expected cost, and $Q_o$ is confidence that a
+valid outcome authority is available.  Dependency readiness and a diversity
+bonus were applied before the highest-ranked eligible objective was selected.
+
+For every selection, AION retained the candidate-set size, the rejected
+alternatives, the North-Star relevance, the selected work system, the success
+criterion, and the artifact commitment.  It produced one artifact rather than
+blindly emitting the former three-artifact bundle.  This reduced artifact
+actions by $66.67\%$ while retaining research, software, and data coverage.
+
+\subsubsection{Outcome authorities}
+
+Three bounded work families were supported initially:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Research investigation.} A technical-source assessment was
+          checked against a later independently collected Git or package row.
+    \item \textbf{Software tool construction.} A source-specific integrity
+          guard was generated from the observed evidence contract.  A fresh
+          process had to accept the later genuine row and reject an adversarial
+          mutation.
+    \item \textbf{Data decision.} A bounded environmental monitoring decision
+          was committed before the next public sensor observation.
+\end{enumerate}
+
+The timing condition for objective $o$ and authority observation $a$ was
+\begin{equation}
+\operatorname{Eligible}(a,o)=
+\mathbf{1}\!\left[
+  c_a>c_o
+  \land t_a-t_o\geq 60\ \mathrm{s}
+  \land h_a\neq\varnothing
+\right],
+\label{eq:aion-delayed-authority-eligibility}
+\end{equation}
+where $c$ denotes the public-outcome cycle, $t$ denotes observation time, and
+$h_a$ is the committed outcome hash.  A dedicated timing test demonstrated
+that an observation arriving only thirty seconds later could not award credit.
+
+\begin{table}[htbp]
+\centering
+\caption{Live v1 objective-acquisition result.}
+\label{tab:aion-varied-objective-v1}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}Xr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Later-confirmed objectives & $6/6$ \\
+Unique objectives created at promotion & 7 \\
+Objective families & 3 \\
+Weakest-family success & $100\%$ \\
+Executive outcomes retained & 6 \\
+Shortest authority delay & $70.647$ s \\
+Artifact-action reduction & $66.67\%$ \\
+Owner interventions & 0 \\
+Unsafe live writes & 0 \\
+Restart-safe commitment & Passed \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Diversity-Constrained Objective Acquisition v2}
+\label{subsec:aion-diversity-objective-v2}
+
+The v1 result was positive but exposed a residual optimization risk: unique
+objective identifiers could still conceal repeated preference for CPython
+research and Madrid weather.  Version 2 therefore added source-level and
+subtype-level coverage counts.  If $N(f)$ is the number of prior objectives in
+family or source class $f$, eligible candidates are first restricted to
+under-covered classes,
+\begin{equation}
+\mathcal{O}^{\star}=
+\left\{o\in\mathcal{O}_{\mathrm{eligible}}:
+N(f_o)=\min_{f\in\mathcal{F}_{\mathrm{available}}}N(f)
+\right\},
+\label{eq:aion-diversity-filter}
+\end{equation}
+and the priority score in Equation~\eqref{eq:aion-objective-priority} is applied
+inside $\mathcal{O}^{\star}$.  This makes repetition visible and prevents a
+high-scoring familiar source from permanently excluding a missing family.
+
+Version 2 also added two new authority families:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Machine-checked mathematics.} AION constructs a finite
+          witness, such as the sum of the first $n$ odd integers, and a delayed
+          deterministic checker independently recomputes both the witness and
+          its closed form.
+    \item \textbf{Exact-provenance document evidence.} AION commits the source
+          hash, query, byte offsets, exact span, and epistemic status.  A delayed
+          immutable-source reread must recover the same span and hash.
+\end{itemize}
+
+The v2 promotion predicate was
+\begin{equation}
+\begin{aligned}
+G_{\mathrm{v2}}={}&
+\mathbf{1}\!\left[N_{\mathrm{closed}}\geq 10\right]
+\mathbf{1}\!\left[|\mathcal{F}_{\mathrm{closed}}|=5\right]
+\mathbf{1}\!\left[\min_f A_f\geq 0.75\right] \\
+&\times
+\mathbf{1}\!\left[\min_o(t_{a(o)}-t_o)\geq 60\ \mathrm{s}\right]
+\mathbf{1}\!\left[I_{\mathrm{owner}}=0\right]
+\mathbf{1}\!\left[W_{\mathrm{unsafe}}=0\right].
+\end{aligned}
+\label{eq:aion-v2-promotion-gate}
+\end{equation}
+
+Live operation closed eleven objectives across all five families.  HexCore
+therefore promoted
+\texttt{procedure\_diversity\_constrained\_useful\_objective\_acquisition\_v2}
+and automatically began objective twelve.
+
+\begin{table}[htbp]
+\centering
+\caption{Live diversity-constrained objective-acquisition result.}
+\label{tab:aion-diversity-v2-results}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}Xr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Later-confirmed objectives & 11 \\
+Unique objectives created & 12 \\
+Authority families exercised & $5/5$ \\
+Weakest-family success & $100\%$ \\
+Minimum observed authority delay & $70.647$ s \\
+Executive outcomes recorded & 11 \\
+Artifact actions avoided versus fixed bundle & 24 \\
+Artifact-action reduction & $66.67\%$ \\
+Owner interventions & 0 \\
+Unsafe live writes & 0 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Measured Cross-Domain Method Transfer}
+\label{subsec:aion-measured-method-transfer}
+
+Architectural reuse alone does not establish method transfer.  A separate
+campaign therefore compared a retained method card against a cold candidate
+sequence on three source-disjoint targets.  For transfer task $i$, the measured
+attempt reduction was
+\begin{equation}
+\Delta_i=1-\frac{A_i^{\mathrm{warm}}}{A_i^{\mathrm{cold}}}.
+\label{eq:aion-transfer-attempt-reduction}
+\end{equation}
+
+\begin{table}[htbp]
+\centering
+\caption{Cross-domain method transfer against cold controls.}
+\label{tab:aion-cross-domain-method-transfer}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}Xcc@{}}
+\toprule
+Retained source method & Source-disjoint target & Warm & Cold \\
+\midrule
+Canonical integrity before interpretation & Public-data outcome integrity & 1 & 3 \\
+Exact source endpoint before claim & Real Photon toolchain contract & 1 & 3 \\
+Maximally discriminating counterexample & Mathematical conjecture criticism & 1 & 3 \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+All three warm transfers passed their executable authority in one attempt; the
+cold controls required three attempts.  Mean and weakest-case attempt reduction
+were both $66.67\%$, source and target domains were disjoint, and unsafe actions
+were zero.  HexCore promoted
+\path{procedure_cross_domain_method_transfer_v1}.
+
+The transfer cohort remains bounded.  Target artifacts were real or
+machine-checked, but task definitions and cold candidate ordering were
+development-controlled.  It is evidence of governed method reuse, not an
+independently administered general-intelligence result.
+
+\subsection{Fail-Closed Autonomous-General-Apprentice Evidence Registry}
+\label{subsec:aion-aga-evidence-registry}
+
+A new registry prevents capability scaffolding from being mistaken for earned
+generality.  In particular,
+\begin{equation}
+\text{executor installed}\not\Rightarrow\text{Advanced},\qquad
+\text{catalogue covered}\not\Rightarrow\text{general apprentice}.
+\label{eq:aion-aga-nonimplication}
+\end{equation}
+Only the progressive practical ledger can award Advanced or Expert status, and
+only the eleven evidence gates in Table~\ref{tab:aion-aga-gates} can authorize
+the AGA claim.  Registry snapshots are SHA-256 committed and chained to the
+previous receipt so that later progress cannot silently rewrite earlier denial.
+
+\begin{table}[htbp]
+\centering
+\caption{Autonomous General Apprentice evidence gates after this increment.}
+\label{tab:aion-aga-gates}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}Xrrl@{}}
+\toprule
+Gate & Observed & Required & Status \\
+\midrule
+Advanced practical domains & 0 & 6 & In progress \\
+Expert practical domains & 0 & 2 & In progress \\
+Later-confirmed useful projects & 21 & 20 & Passed \\
+Distinct outcome-authority families & 5 & 5 & Passed \\
+Measured cross-domain method transfers & 3 & 3 & Passed \\
+Later-confirmed natural self-repairs & 2 & 3 & In progress \\
+Distinct repaired subsystems & 2 & 3 & In progress \\
+Later-confirmed cognitive-code improvement & 1 & 1 & Passed \\
+Replay-free elapsed retention & $1.01$ days & 7 days & In progress \\
+Consecutive zero-intervention projects & 9 & 6 & Passed \\
+Human-grounded social/creative cohort & 0 & 1 & Blocked \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Five of eleven gates are presently earned: five-family outcome-authority
+breadth, measured method transfer, the zero-intervention streak, project volume,
+and later-confirmed cognitive-code improvement.  The AGA
+authorization predicate remains false:
+\begin{equation}
+\operatorname{Authorize}_{\mathrm{AGA}}
+=\bigwedge_{g\in\mathcal{G}_{\mathrm{AGA}}}\operatorname{Pass}(g)
+=0.
+\label{eq:aion-aga-authorization-false}
+\end{equation}
+
+\subsection{Verification and Persistent Operation}
+\label{subsec:aion-aga-gap-verification}
+
+The focused integrated cohort passed $13/13$ tests.  It covered objective
+diversity, source rotation, delayed-authority enforcement, adversarial mutation
+rejection, restart deduplication, all three method transfers, registry
+fail-closure, and hash-chained registry history.  The mastery curriculum,
+canonical cognitive runtime, and real-outcome learner remained active during
+the work.  Progressive evidence continued to increase independently of the
+objective campaign.
+
+\subsection{Claim Boundary and Remaining Work}
+\label{subsec:aion-aga-gap-boundary}
+
+This increment closes important architectural gaps but does not establish AGA.
+The following conditions require further operation or unavailable authority:
+\begin{itemize}[leftmargin=*]
+    \item the 20-project gate is complete, but diverse project operation must
+          continue without backward regression;
+    \item six Advanced and two Expert practical domains require unfamiliar
+          projects, debugging recovery, transfer, and elapsed retention;
+    \item a third natural internal failure must occur and its private repair
+          must be confirmed by a later operational consequence;
+    \item the promoted cognitive proposal component must retain protected
+          behavior over longer operation;
+    \item replay-free retention must reach seven calendar days; and
+    \item social and creative competence requires human-grounded multi-rater
+          authority or must remain explicitly outside the claimed scope.
+\end{itemize}
+
+The accurate current statement is therefore that AION possesses an operational,
+governed apprenticeship organism with live five-family objective acquisition,
+measured bounded method transfer, persistent learning, and explicit AGA evidence
+accounting.  Autonomous General Apprentice status is being earned rather than
+inferred from architecture or procedure count.
+
+\subsection{Principal Implementation and Evidence Artifacts}
+\label{subsec:aion-aga-gap-artifacts}
+
+\begin{table}[htbp]
+\centering
+\caption{Principal implementation and evidence artifacts.}
+\label{tab:aion-aga-gap-artifacts}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+Role & Repository path \\
+\midrule
+Objective-acquisition controller & \path{backend/modules/hexcore/open_useful_objective_acquisition.py} \\
+Method-transfer campaign & \path{backend/modules/hexcore/cross_domain_method_transfer_campaign.py} \\
+AGA evidence registry & \path{backend/modules/hexcore/autonomous_general_apprentice_evidence_registry.py} \\
+Persistent outcome service & \path{backend/AION/system/aion_real_outcome_learning_service.py} \\
+Development dashboard & \path{backend/AION/system/aion_development_dashboard.py} \\
+Objective-acquisition result & \path{results/hexcore_open_useful_objectives.json} \\
+Method-transfer result & \path{results/hexcore_cross_domain_method_transfer.json} \\
+AGA registry result & \path{results/hexcore_autonomous_general_apprentice_evidence_registry.json} \\
+AGA registry history & \path{results/hexcore_autonomous_general_apprentice_evidence_history.jsonl} \\
+Technical report & \path{docs/aion/AION_AGA_GAP_CLOSURE_DIVERSITY_TRANSFER_AND_EVIDENCE_REPORT.md} \\
+\bottomrule
+\end{tabularx}
+\end{table}

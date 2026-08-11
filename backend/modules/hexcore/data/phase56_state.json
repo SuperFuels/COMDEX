@@ -1,0 +1,2428 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "real_file_long_horizon_project_intelligence": "procedure_real_file_projects_3aff718b5c0d"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase56_real_file_project_authority"
+    },
+    "reason": "phase56_real_file_projects",
+    "state_hash": "b526dfe09f5d1c13418d36affb5a9d7fd23d3b9a7f6d9379d827e0493381f1bf"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {
+    "development_real_file_phase_48:authoritative_result:6caf629236f9": {
+      "bytes": 48337,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.727725+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48/hexcore_phase48_external_evaluation.json",
+      "project_id": "development_real_file_phase_48",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "6caf629236f9d7ee94b7f6a7edd8b1e35aa2a81cc67c8b6ae39c28dbc6c1ecef",
+      "source_id": "development_real_file_phase_48:authoritative_result:6caf629236f9"
+    },
+    "development_real_file_phase_48:authoritative_result:e4e55ad6cb69": {
+      "bytes": 48132,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.722710+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48/hexcore_phase48_external_evaluation.json",
+      "project_id": "development_real_file_phase_48",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+      "source_id": "development_real_file_phase_48:authoritative_result:e4e55ad6cb69"
+    },
+    "development_real_file_phase_48:technical_report:c232ad1f37c9": {
+      "bytes": 6866,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.727757+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+      "project_id": "development_real_file_phase_48",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "source_id": "development_real_file_phase_48:technical_report:c232ad1f37c9"
+    },
+    "development_real_file_phase_49:authoritative_result:374854194740": {
+      "bytes": 53165,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.735619+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49/hexcore_phase49_open_document.json",
+      "project_id": "development_real_file_phase_49",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "374854194740cf2920e37f7f4b3aa4358f36b83871e918250e0809e4e561e347",
+      "source_id": "development_real_file_phase_49:authoritative_result:374854194740"
+    },
+    "development_real_file_phase_49:authoritative_result:ce48417c186d": {
+      "bytes": 53370,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.742903+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49/hexcore_phase49_open_document.json",
+      "project_id": "development_real_file_phase_49",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "ce48417c186d00c9cacaeefa8d604476028ac4ca25097f4ab8bf6e9c4bffe2a1",
+      "source_id": "development_real_file_phase_49:authoritative_result:ce48417c186d"
+    },
+    "development_real_file_phase_49:technical_report:c232ad1f37c9": {
+      "bytes": 6866,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.742934+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+      "project_id": "development_real_file_phase_49",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "source_id": "development_real_file_phase_49:technical_report:c232ad1f37c9"
+    },
+    "development_real_file_phase_50:authoritative_result:d759fd8cb980": {
+      "bytes": 19036,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.761789+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50/hexcore_phase50_autonomous_projects.json",
+      "project_id": "development_real_file_phase_50",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "d759fd8cb9801e73c23fe5d3c2e762be64b0a3fdab3a0862ab92a44191ccfe1d",
+      "source_id": "development_real_file_phase_50:authoritative_result:d759fd8cb980"
+    },
+    "development_real_file_phase_50:authoritative_result:e730686067a4": {
+      "bytes": 18831,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.753313+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50/hexcore_phase50_autonomous_projects.json",
+      "project_id": "development_real_file_phase_50",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "e730686067a4a9bdccbd64efbba6147e2364aad1e28cfc822ad31d366fdf27a6",
+      "source_id": "development_real_file_phase_50:authoritative_result:e730686067a4"
+    },
+    "development_real_file_phase_50:technical_report:c232ad1f37c9": {
+      "bytes": 6866,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.761818+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+      "project_id": "development_real_file_phase_50",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+      "source_id": "development_real_file_phase_50:technical_report:c232ad1f37c9"
+    },
+    "development_real_file_phase_51:authoritative_result:2a5656f3317b": {
+      "bytes": 6920,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.784007+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51/hexcore_phase51_general_tools.json",
+      "project_id": "development_real_file_phase_51",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "2a5656f3317baeda67dc074f83085c4b3f9691e04a6fed2f5e68b82f9f8a600e",
+      "source_id": "development_real_file_phase_51:authoritative_result:2a5656f3317b"
+    },
+    "development_real_file_phase_51:authoritative_result:985cca3d79ef": {
+      "bytes": 6715,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.773500+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51/hexcore_phase51_general_tools.json",
+      "project_id": "development_real_file_phase_51",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "985cca3d79ef44a8b4ce1c44e937d7fac4f2d9388bd00ad74c1c05bf2ef5f554",
+      "source_id": "development_real_file_phase_51:authoritative_result:985cca3d79ef"
+    },
+    "development_real_file_phase_51:technical_report:4a78c77ec369": {
+      "bytes": 5569,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.784039+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51/HEXCORE_PHASES_51_52_GENERAL_INVENTION_SELF_IMPROVEMENT_REPORT.md",
+      "project_id": "development_real_file_phase_51",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "source_id": "development_real_file_phase_51:technical_report:4a78c77ec369"
+    },
+    "development_real_file_phase_52:authoritative_result:46b3cb426e52": {
+      "bytes": 11701,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.798531+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52/hexcore_phase52_continual_self_improvement.json",
+      "project_id": "development_real_file_phase_52",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+      "source_id": "development_real_file_phase_52:authoritative_result:46b3cb426e52"
+    },
+    "development_real_file_phase_52:authoritative_result:a974c44c6aab": {
+      "bytes": 11906,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.815964+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52/hexcore_phase52_continual_self_improvement.json",
+      "project_id": "development_real_file_phase_52",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "a974c44c6aab2d307bfeead9d613030164f46951a56e4d51d782c0a26a9dd645",
+      "source_id": "development_real_file_phase_52:authoritative_result:a974c44c6aab"
+    },
+    "development_real_file_phase_52:technical_report:4a78c77ec369": {
+      "bytes": 5569,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.815996+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52/HEXCORE_PHASES_51_52_GENERAL_INVENTION_SELF_IMPROVEMENT_REPORT.md",
+      "project_id": "development_real_file_phase_52",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+      "source_id": "development_real_file_phase_52:technical_report:4a78c77ec369"
+    },
+    "sealed_real_file_phase_53:authoritative_result:324fd2bd406b": {
+      "bytes": 1591,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.849438+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53/hexcore_phase53_blind_evaluation_protocol.json",
+      "project_id": "sealed_real_file_phase_53",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "324fd2bd406b502883c5f19c6816b5139dd07a19933c6f6b9074d8e25c9cad75",
+      "source_id": "sealed_real_file_phase_53:authoritative_result:324fd2bd406b"
+    },
+    "sealed_real_file_phase_53:authoritative_result:8a81f3cdb2b6": {
+      "bytes": 1386,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.834357+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53/hexcore_phase53_blind_evaluation_protocol.json",
+      "project_id": "sealed_real_file_phase_53",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "8a81f3cdb2b6edc917e698d0121db52b1d14979abb1e0381d0cf8f15ec3df818",
+      "source_id": "sealed_real_file_phase_53:authoritative_result:8a81f3cdb2b6"
+    },
+    "sealed_real_file_phase_53:technical_report:4670d58ead37": {
+      "bytes": 4007,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.849468+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+      "project_id": "sealed_real_file_phase_53",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+      "source_id": "sealed_real_file_phase_53:technical_report:4670d58ead37"
+    },
+    "sealed_real_file_phase_54:authoritative_result:05b4450583b4": {
+      "bytes": 72469,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.869305+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54/hexcore_phase54_open_world_ingestion.json",
+      "project_id": "sealed_real_file_phase_54",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "05b4450583b452c1ced2fdf3fd56063a4ed64af7f9759320d07f93fc7efe74c5",
+      "source_id": "sealed_real_file_phase_54:authoritative_result:05b4450583b4"
+    },
+    "sealed_real_file_phase_54:authoritative_result:b15dce3e9f6e": {
+      "bytes": 72674,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.888939+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54/hexcore_phase54_open_world_ingestion.json",
+      "project_id": "sealed_real_file_phase_54",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "b15dce3e9f6e9ac87b3f345c7f3b363af211020755fbfea76a5907f3c71ca43e",
+      "source_id": "sealed_real_file_phase_54:authoritative_result:b15dce3e9f6e"
+    },
+    "sealed_real_file_phase_54:technical_report:4670d58ead37": {
+      "bytes": 4007,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.888979+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+      "project_id": "sealed_real_file_phase_54",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+      "source_id": "sealed_real_file_phase_54:technical_report:4670d58ead37"
+    },
+    "sealed_real_file_phase_55:authoritative_result:2831304347d0": {
+      "bytes": 18683,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.913530+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55/hexcore_phase55_recursive_photon.json",
+      "project_id": "sealed_real_file_phase_55",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "2831304347d08149993d94d185dd8f690553aaf64a62f2edfb3474c77d21d7e4",
+      "source_id": "sealed_real_file_phase_55:authoritative_result:2831304347d0"
+    },
+    "sealed_real_file_phase_55:authoritative_result:33f5515e1dcf": {
+      "bytes": 18889,
+      "format": "json",
+      "observed_at": "2026-07-30T16:47:40.934037+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55/hexcore_phase55_recursive_photon.json",
+      "project_id": "sealed_real_file_phase_55",
+      "role": "authoritative_result",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "33f5515e1dcf6db9d28606d57cb64bc23bbe391c3b900d4fda906e9f7f77e1a5",
+      "source_id": "sealed_real_file_phase_55:authoritative_result:33f5515e1dcf"
+    },
+    "sealed_real_file_phase_55:technical_report:4670d58ead37": {
+      "bytes": 4007,
+      "format": "md",
+      "observed_at": "2026-07-30T16:47:40.934068+00:00",
+      "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+      "project_id": "sealed_real_file_phase_55",
+      "role": "technical_report",
+      "schema_version": "aion.open_world.source.v1",
+      "sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+      "source_id": "sealed_real_file_phase_55:technical_report:4670d58ead37"
+    }
+  },
+  "outcomes": [
+    {
+      "evidence": {
+        "evaluation": "phase56_sealed_real_files",
+        "gate": {
+          "accepted": true,
+          "accepted_manifest_accuracy": 1.0,
+          "conflict_safe_abstention": true,
+          "errors": [],
+          "mean_dependency_aware_reruns": 5.0,
+          "original_repository_files_mutated": false,
+          "project_outcome_accuracy": 1.0,
+          "provenance_completeness": 1.0,
+          "real_source_files": 6,
+          "reexecution_reduction": 0.2857142857142857,
+          "restart_recovery": 1.0,
+          "sealed_projects": 3,
+          "source_change_detection": 1.0,
+          "stateless_full_replay_tasks": 7,
+          "weakest_family_accuracy": 1.0
+        }
+      },
+      "outcome_id": "outcome_f2d2897739944fcd",
+      "procedure_id": "procedure_real_file_projects_3aff718b5c0d",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.2857142857142856,
+      "success": true,
+      "timestamp": "2026-07-30T16:47:40.956427+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_real_file_projects_3aff718b5c0d": {
+      "evidence": {
+        "evaluation": "phase56_sealed_real_files",
+        "gate": {
+          "accepted": true,
+          "accepted_manifest_accuracy": 1.0,
+          "conflict_safe_abstention": true,
+          "errors": [],
+          "mean_dependency_aware_reruns": 5.0,
+          "original_repository_files_mutated": false,
+          "project_outcome_accuracy": 1.0,
+          "provenance_completeness": 1.0,
+          "real_source_files": 6,
+          "reexecution_reduction": 0.2857142857142857,
+          "restart_recovery": 1.0,
+          "sealed_projects": 3,
+          "source_change_detection": 1.0,
+          "stateless_full_replay_tasks": 7,
+          "weakest_family_accuracy": 1.0
+        }
+      },
+      "goal": "real_file_long_horizon_project_intelligence",
+      "procedure_id": "procedure_real_file_projects_3aff718b5c0d",
+      "promoted_at": "2026-07-30T16:47:40.952322+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.2857142857142856,
+      "source_rules": [
+        "procedure_open_world_ingestion_d83f863ebb24",
+        "phase53_blind_external_v1"
+      ],
+      "status": "champion",
+      "steps": [
+        "bind_goal_to_real_checksum_sources",
+        "construct_persistent_dependency_graph",
+        "checkpoint_each_project_milestone",
+        "detect_external_file_revision",
+        "invalidate_only_dependent_work",
+        "reconcile_or_abstain_on_conflict",
+        "independently_reread_and_verify_final_manifest"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.727677+00:00",
+      "project_id": "development_real_file_phase_48",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    },
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.742849+00:00",
+      "project_id": "development_real_file_phase_49",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    },
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.761755+00:00",
+      "project_id": "development_real_file_phase_50",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    },
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.783976+00:00",
+      "project_id": "development_real_file_phase_51",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    },
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.815930+00:00",
+      "project_id": "development_real_file_phase_52",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    },
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.849410+00:00",
+      "project_id": "sealed_real_file_phase_53",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    },
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.888872+00:00",
+      "project_id": "sealed_real_file_phase_54",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    },
+    {
+      "changed_roles": [
+        "result"
+      ],
+      "invalidated_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "observed_at": "2026-07-30T16:47:40.933998+00:00",
+      "project_id": "sealed_real_file_phase_55",
+      "schema_version": "aion.hexcore.real_file_revision.v1",
+      "unaffected_tasks": [
+        "register_goal",
+        "ingest_report"
+      ]
+    }
+  ],
+  "promotion_history": [
+    {
+      "evidence_hash": "c8841093ec4b147a106ddb6c0cef52f400f9402a9e54b24bdc43017d4f905887",
+      "goal": "real_file_long_horizon_project_intelligence",
+      "new_champion_id": "procedure_real_file_projects_3aff718b5c0d",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.2857142857142856,
+      "timestamp": "2026-07-30T16:47:40.952343+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "real_file_projects": {
+    "development_real_file_phase_48": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 770,
+            "exact_text": "Phase 48",
+            "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+            "start": 762
+          },
+          "phase": 48,
+          "project_id": "development_real_file_phase_48",
+          "report_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "result_sha256": "e4e55ad6cb696aa37de1aa50b27fef5d82429e43d2a332300aa5fbd7bcda8f68",
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 48,
+            "procedure_id": "procedure_external_evaluation_8e4881f75523"
+          }
+        },
+        "final_manifest": {
+          "evidence": {
+            "end": 770,
+            "exact_text": "Phase 48",
+            "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+            "start": 762
+          },
+          "family": "external_evaluation",
+          "phase": 48,
+          "project_id": "development_real_file_phase_48",
+          "report_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "result_sha256": "6caf629236f9d7ee94b7f6a7edd8b1e35aa2a81cc67c8b6ae39c28dbc6c1ecef",
+          "revision_detected": true,
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {
+              "amendment": "status_manifest_must_use_current_file_hash",
+              "issued_by": "sealed_external_file_controller",
+              "review_status": "confirmed",
+              "revision": 2
+            },
+            "gate_accepted": true,
+            "phase": 48,
+            "procedure_id": "procedure_external_evaluation_8e4881f75523"
+          },
+          "supersedes_draft": "3298f5ad5b2488190b80bc2c7f91c6f79b612f312ca8ce792742a6795ee06435"
+        },
+        "independent_verification": {
+          "accepted": true,
+          "checks": {
+            "exact_evidence_recovers": true,
+            "no_open_questions": true,
+            "phase_matches": true,
+            "report_hash_matches": true,
+            "result_hash_matches": true,
+            "revision_detected": true,
+            "status_matches_current_file": true
+          },
+          "verified_at": "2026-07-30T16:47:40.731966+00:00",
+          "verifier": "independent_disk_reread_v1"
+        },
+        "report_evidence": {
+          "end": 770,
+          "exact_text": "Phase 48",
+          "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "start": 762
+        },
+        "status_projection": {
+          "capability_promoted": true,
+          "completed": true,
+          "external_revision": {
+            "amendment": "status_manifest_must_use_current_file_hash",
+            "issued_by": "sealed_external_file_controller",
+            "review_status": "confirmed",
+            "revision": 2
+          },
+          "gate_accepted": true,
+          "phase": 48,
+          "procedure_id": "procedure_external_evaluation_8e4881f75523"
+        }
+      },
+      "cohort": "development",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.731976+00:00",
+      "created_at": "2026-07-30T16:47:40.721051+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "external_evaluation",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 48,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "development_real_file_phase_48",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 6866,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.727757+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+          "project_id": "development_real_file_phase_48",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "source_id": "development_real_file_phase_48:technical_report:c232ad1f37c9"
+        },
+        "result": {
+          "bytes": 48337,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.727725+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48/hexcore_phase48_external_evaluation.json",
+          "project_id": "development_real_file_phase_48",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "6caf629236f9d7ee94b7f6a7edd8b1e35aa2a81cc67c8b6ae39c28dbc6c1ecef",
+          "source_id": "development_real_file_phase_48:authoritative_result:6caf629236f9"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.727677+00:00",
+          "project_id": "development_real_file_phase_48",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "revision_reconciled_and_manifest_rebuilt"
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": true,
+            "checks": {
+              "exact_evidence_recovers": true,
+              "no_open_questions": true,
+              "phase_matches": true,
+              "report_hash_matches": true,
+              "result_hash_matches": true,
+              "revision_detected": true,
+              "status_matches_current_file": true
+            },
+            "verified_at": "2026-07-30T16:47:40.731966+00:00",
+            "verifier": "independent_disk_reread_v1"
+          }
+        }
+      ],
+      "unresolved_questions": [],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48/hexcore_phase48_external_evaluation.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_48"
+      }
+    },
+    "development_real_file_phase_49": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 2399,
+            "exact_text": "Phase 49",
+            "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+            "start": 2391
+          },
+          "phase": 49,
+          "project_id": "development_real_file_phase_49",
+          "report_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "result_sha256": "374854194740cf2920e37f7f4b3aa4358f36b83871e918250e0809e4e561e347",
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 49,
+            "procedure_id": "procedure_open_document_v2_723cbb2ca787"
+          }
+        },
+        "final_manifest": {
+          "evidence": {
+            "end": 2399,
+            "exact_text": "Phase 49",
+            "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+            "start": 2391
+          },
+          "family": "document_intelligence",
+          "phase": 49,
+          "project_id": "development_real_file_phase_49",
+          "report_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "result_sha256": "ce48417c186d00c9cacaeefa8d604476028ac4ca25097f4ab8bf6e9c4bffe2a1",
+          "revision_detected": true,
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {
+              "amendment": "status_manifest_must_use_current_file_hash",
+              "issued_by": "sealed_external_file_controller",
+              "review_status": "confirmed",
+              "revision": 2
+            },
+            "gate_accepted": true,
+            "phase": 49,
+            "procedure_id": "procedure_open_document_v2_723cbb2ca787"
+          },
+          "supersedes_draft": "bbeabdfb4bd55101600f6b7ebacd9ef6b09d82b967729dd459edbc745c930d2a"
+        },
+        "independent_verification": {
+          "accepted": true,
+          "checks": {
+            "exact_evidence_recovers": true,
+            "no_open_questions": true,
+            "phase_matches": true,
+            "report_hash_matches": true,
+            "result_hash_matches": true,
+            "revision_detected": true,
+            "status_matches_current_file": true
+          },
+          "verified_at": "2026-07-30T16:47:40.748387+00:00",
+          "verifier": "independent_disk_reread_v1"
+        },
+        "report_evidence": {
+          "end": 2399,
+          "exact_text": "Phase 49",
+          "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "start": 2391
+        },
+        "status_projection": {
+          "capability_promoted": true,
+          "completed": true,
+          "external_revision": {
+            "amendment": "status_manifest_must_use_current_file_hash",
+            "issued_by": "sealed_external_file_controller",
+            "review_status": "confirmed",
+            "revision": 2
+          },
+          "gate_accepted": true,
+          "phase": 49,
+          "procedure_id": "procedure_open_document_v2_723cbb2ca787"
+        }
+      },
+      "cohort": "development",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.748402+00:00",
+      "created_at": "2026-07-30T16:47:40.733670+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "document_intelligence",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 49,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "development_real_file_phase_49",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 6866,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.742934+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+          "project_id": "development_real_file_phase_49",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "source_id": "development_real_file_phase_49:technical_report:c232ad1f37c9"
+        },
+        "result": {
+          "bytes": 53370,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.742903+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49/hexcore_phase49_open_document.json",
+          "project_id": "development_real_file_phase_49",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "ce48417c186d00c9cacaeefa8d604476028ac4ca25097f4ab8bf6e9c4bffe2a1",
+          "source_id": "development_real_file_phase_49:authoritative_result:ce48417c186d"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.742849+00:00",
+          "project_id": "development_real_file_phase_49",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "revision_reconciled_and_manifest_rebuilt"
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": true,
+            "checks": {
+              "exact_evidence_recovers": true,
+              "no_open_questions": true,
+              "phase_matches": true,
+              "report_hash_matches": true,
+              "result_hash_matches": true,
+              "revision_detected": true,
+              "status_matches_current_file": true
+            },
+            "verified_at": "2026-07-30T16:47:40.748387+00:00",
+            "verifier": "independent_disk_reread_v1"
+          }
+        }
+      ],
+      "unresolved_questions": [],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49/hexcore_phase49_open_document.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_49"
+      }
+    },
+    "development_real_file_phase_50": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 4045,
+            "exact_text": "Phase 50",
+            "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+            "start": 4037
+          },
+          "phase": 50,
+          "project_id": "development_real_file_phase_50",
+          "report_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "result_sha256": "e730686067a4a9bdccbd64efbba6147e2364aad1e28cfc822ad31d366fdf27a6",
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 50,
+            "procedure_id": "procedure_autonomous_project_v2_8b874b0cc948"
+          }
+        },
+        "final_manifest": {
+          "evidence": {
+            "end": 4045,
+            "exact_text": "Phase 50",
+            "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+            "start": 4037
+          },
+          "family": "project_decomposition",
+          "phase": 50,
+          "project_id": "development_real_file_phase_50",
+          "report_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "result_sha256": "d759fd8cb9801e73c23fe5d3c2e762be64b0a3fdab3a0862ab92a44191ccfe1d",
+          "revision_detected": true,
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {
+              "amendment": "status_manifest_must_use_current_file_hash",
+              "issued_by": "sealed_external_file_controller",
+              "review_status": "confirmed",
+              "revision": 2
+            },
+            "gate_accepted": true,
+            "phase": 50,
+            "procedure_id": "procedure_autonomous_project_v2_8b874b0cc948"
+          },
+          "supersedes_draft": "6e52b710f6bd7686ee4052f8f74bd01f54f191d7c640cd25427e08f8a1b5f86d"
+        },
+        "independent_verification": {
+          "accepted": true,
+          "checks": {
+            "exact_evidence_recovers": true,
+            "no_open_questions": true,
+            "phase_matches": true,
+            "report_hash_matches": true,
+            "result_hash_matches": true,
+            "revision_detected": true,
+            "status_matches_current_file": true
+          },
+          "verified_at": "2026-07-30T16:47:40.767845+00:00",
+          "verifier": "independent_disk_reread_v1"
+        },
+        "report_evidence": {
+          "end": 4045,
+          "exact_text": "Phase 50",
+          "source_sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "start": 4037
+        },
+        "status_projection": {
+          "capability_promoted": true,
+          "completed": true,
+          "external_revision": {
+            "amendment": "status_manifest_must_use_current_file_hash",
+            "issued_by": "sealed_external_file_controller",
+            "review_status": "confirmed",
+            "revision": 2
+          },
+          "gate_accepted": true,
+          "phase": 50,
+          "procedure_id": "procedure_autonomous_project_v2_8b874b0cc948"
+        }
+      },
+      "cohort": "development",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.767853+00:00",
+      "created_at": "2026-07-30T16:47:40.750453+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "project_decomposition",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 50,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "development_real_file_phase_50",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 6866,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.761818+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+          "project_id": "development_real_file_phase_50",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "c232ad1f37c9f89cb0e09f416e8d1fd6b9ed31cee6e63c6babfbc5ddcb6905ac",
+          "source_id": "development_real_file_phase_50:technical_report:c232ad1f37c9"
+        },
+        "result": {
+          "bytes": 19036,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.761789+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50/hexcore_phase50_autonomous_projects.json",
+          "project_id": "development_real_file_phase_50",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "d759fd8cb9801e73c23fe5d3c2e762be64b0a3fdab3a0862ab92a44191ccfe1d",
+          "source_id": "development_real_file_phase_50:authoritative_result:d759fd8cb980"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.761755+00:00",
+          "project_id": "development_real_file_phase_50",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "revision_reconciled_and_manifest_rebuilt"
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": true,
+            "checks": {
+              "exact_evidence_recovers": true,
+              "no_open_questions": true,
+              "phase_matches": true,
+              "report_hash_matches": true,
+              "result_hash_matches": true,
+              "revision_detected": true,
+              "status_matches_current_file": true
+            },
+            "verified_at": "2026-07-30T16:47:40.767845+00:00",
+            "verifier": "independent_disk_reread_v1"
+          }
+        }
+      ],
+      "unresolved_questions": [],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50/HEXCORE_PHASES_48_50_EXTERNAL_OPEN_DOCUMENT_PROJECT_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50/hexcore_phase50_autonomous_projects.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_50"
+      }
+    },
+    "development_real_file_phase_51": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 662,
+            "exact_text": "Phase 51",
+            "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+            "start": 654
+          },
+          "phase": 51,
+          "project_id": "development_real_file_phase_51",
+          "report_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "result_sha256": "985cca3d79ef44a8b4ce1c44e937d7fac4f2d9388bd00ad74c1c05bf2ef5f554",
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 51,
+            "procedure_id": "procedure_general_tool_invention_74b50cc668c1"
+          }
+        },
+        "final_manifest": {
+          "evidence": {
+            "end": 662,
+            "exact_text": "Phase 51",
+            "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+            "start": 654
+          },
+          "family": "tool_invention",
+          "phase": 51,
+          "project_id": "development_real_file_phase_51",
+          "report_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "result_sha256": "2a5656f3317baeda67dc074f83085c4b3f9691e04a6fed2f5e68b82f9f8a600e",
+          "revision_detected": true,
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {
+              "amendment": "status_manifest_must_use_current_file_hash",
+              "issued_by": "sealed_external_file_controller",
+              "review_status": "confirmed",
+              "revision": 2
+            },
+            "gate_accepted": true,
+            "phase": 51,
+            "procedure_id": "procedure_general_tool_invention_74b50cc668c1"
+          },
+          "supersedes_draft": "e64684290a8eee2cdcbbc14c197e305a7b6b75f1e3e8a756650732519346d091"
+        },
+        "independent_verification": {
+          "accepted": true,
+          "checks": {
+            "exact_evidence_recovers": true,
+            "no_open_questions": true,
+            "phase_matches": true,
+            "report_hash_matches": true,
+            "result_hash_matches": true,
+            "revision_detected": true,
+            "status_matches_current_file": true
+          },
+          "verified_at": "2026-07-30T16:47:40.791355+00:00",
+          "verifier": "independent_disk_reread_v1"
+        },
+        "report_evidence": {
+          "end": 662,
+          "exact_text": "Phase 51",
+          "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "start": 654
+        },
+        "status_projection": {
+          "capability_promoted": true,
+          "completed": true,
+          "external_revision": {
+            "amendment": "status_manifest_must_use_current_file_hash",
+            "issued_by": "sealed_external_file_controller",
+            "review_status": "confirmed",
+            "revision": 2
+          },
+          "gate_accepted": true,
+          "phase": 51,
+          "procedure_id": "procedure_general_tool_invention_74b50cc668c1"
+        }
+      },
+      "cohort": "development",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.791360+00:00",
+      "created_at": "2026-07-30T16:47:40.770322+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "tool_invention",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 51,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "development_real_file_phase_51",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 5569,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.784039+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51/HEXCORE_PHASES_51_52_GENERAL_INVENTION_SELF_IMPROVEMENT_REPORT.md",
+          "project_id": "development_real_file_phase_51",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "source_id": "development_real_file_phase_51:technical_report:4a78c77ec369"
+        },
+        "result": {
+          "bytes": 6920,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.784007+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51/hexcore_phase51_general_tools.json",
+          "project_id": "development_real_file_phase_51",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "2a5656f3317baeda67dc074f83085c4b3f9691e04a6fed2f5e68b82f9f8a600e",
+          "source_id": "development_real_file_phase_51:authoritative_result:2a5656f3317b"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.783976+00:00",
+          "project_id": "development_real_file_phase_51",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "revision_reconciled_and_manifest_rebuilt"
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": true,
+            "checks": {
+              "exact_evidence_recovers": true,
+              "no_open_questions": true,
+              "phase_matches": true,
+              "report_hash_matches": true,
+              "result_hash_matches": true,
+              "revision_detected": true,
+              "status_matches_current_file": true
+            },
+            "verified_at": "2026-07-30T16:47:40.791355+00:00",
+            "verifier": "independent_disk_reread_v1"
+          }
+        }
+      ],
+      "unresolved_questions": [],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51/HEXCORE_PHASES_51_52_GENERAL_INVENTION_SELF_IMPROVEMENT_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51/hexcore_phase51_general_tools.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_51"
+      }
+    },
+    "development_real_file_phase_52": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 2307,
+            "exact_text": "Phase 52",
+            "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+            "start": 2299
+          },
+          "phase": 52,
+          "project_id": "development_real_file_phase_52",
+          "report_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "result_sha256": "46b3cb426e524e7d034b90e96b13e49c54799121acb2ce3c81d2226f257e4fdd",
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 52,
+            "procedure_id": "procedure_continual_multitrack_2f6e7dc25bd6"
+          }
+        },
+        "final_manifest": {
+          "evidence": {
+            "end": 2307,
+            "exact_text": "Phase 52",
+            "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+            "start": 2299
+          },
+          "family": "continual_improvement",
+          "phase": 52,
+          "project_id": "development_real_file_phase_52",
+          "report_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "result_sha256": "a974c44c6aab2d307bfeead9d613030164f46951a56e4d51d782c0a26a9dd645",
+          "revision_detected": true,
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {
+              "amendment": "status_manifest_must_use_current_file_hash",
+              "issued_by": "sealed_external_file_controller",
+              "review_status": "confirmed",
+              "revision": 2
+            },
+            "gate_accepted": true,
+            "phase": 52,
+            "procedure_id": "procedure_continual_multitrack_2f6e7dc25bd6"
+          },
+          "supersedes_draft": "9d9463787afccb61af5f348a46a61b498ac9ab018ff8265502d2b7e7c489e081"
+        },
+        "independent_verification": {
+          "accepted": true,
+          "checks": {
+            "exact_evidence_recovers": true,
+            "no_open_questions": true,
+            "phase_matches": true,
+            "report_hash_matches": true,
+            "result_hash_matches": true,
+            "revision_detected": true,
+            "status_matches_current_file": true
+          },
+          "verified_at": "2026-07-30T16:47:40.825787+00:00",
+          "verifier": "independent_disk_reread_v1"
+        },
+        "report_evidence": {
+          "end": 2307,
+          "exact_text": "Phase 52",
+          "source_sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "start": 2299
+        },
+        "status_projection": {
+          "capability_promoted": true,
+          "completed": true,
+          "external_revision": {
+            "amendment": "status_manifest_must_use_current_file_hash",
+            "issued_by": "sealed_external_file_controller",
+            "review_status": "confirmed",
+            "revision": 2
+          },
+          "gate_accepted": true,
+          "phase": 52,
+          "procedure_id": "procedure_continual_multitrack_2f6e7dc25bd6"
+        }
+      },
+      "cohort": "development",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.825794+00:00",
+      "created_at": "2026-07-30T16:47:40.794392+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "continual_improvement",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 52,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "development_real_file_phase_52",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 5569,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.815996+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52/HEXCORE_PHASES_51_52_GENERAL_INVENTION_SELF_IMPROVEMENT_REPORT.md",
+          "project_id": "development_real_file_phase_52",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "4a78c77ec36985dcd4fb8f7c2a3d6859dc429eb6a7ea847f0fa29e1102ff4309",
+          "source_id": "development_real_file_phase_52:technical_report:4a78c77ec369"
+        },
+        "result": {
+          "bytes": 11906,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.815964+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52/hexcore_phase52_continual_self_improvement.json",
+          "project_id": "development_real_file_phase_52",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "a974c44c6aab2d307bfeead9d613030164f46951a56e4d51d782c0a26a9dd645",
+          "source_id": "development_real_file_phase_52:authoritative_result:a974c44c6aab"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.815930+00:00",
+          "project_id": "development_real_file_phase_52",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "revision_reconciled_and_manifest_rebuilt"
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": true,
+            "checks": {
+              "exact_evidence_recovers": true,
+              "no_open_questions": true,
+              "phase_matches": true,
+              "report_hash_matches": true,
+              "result_hash_matches": true,
+              "revision_detected": true,
+              "status_matches_current_file": true
+            },
+            "verified_at": "2026-07-30T16:47:40.825787+00:00",
+            "verifier": "independent_disk_reread_v1"
+          }
+        }
+      ],
+      "unresolved_questions": [],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52/HEXCORE_PHASES_51_52_GENERAL_INVENTION_SELF_IMPROVEMENT_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52/hexcore_phase52_continual_self_improvement.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/development_real_file_phase_52"
+      }
+    },
+    "sealed_real_file_phase_53": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 137,
+            "exact_text": "Phase 53",
+            "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+            "start": 129
+          },
+          "phase": 53,
+          "project_id": "sealed_real_file_phase_53",
+          "report_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "result_sha256": "8a81f3cdb2b6edc917e698d0121db52b1d14979abb1e0381d0cf8f15ec3df818",
+          "status": {
+            "capability_promoted": false,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 53,
+            "procedure_id": null
+          }
+        },
+        "final_manifest": {
+          "evidence": {
+            "end": 137,
+            "exact_text": "Phase 53",
+            "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+            "start": 129
+          },
+          "family": "blind_evaluation",
+          "phase": 53,
+          "project_id": "sealed_real_file_phase_53",
+          "report_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "result_sha256": "324fd2bd406b502883c5f19c6816b5139dd07a19933c6f6b9074d8e25c9cad75",
+          "revision_detected": true,
+          "status": {
+            "capability_promoted": false,
+            "completed": true,
+            "external_revision": {
+              "amendment": "status_manifest_must_use_current_file_hash",
+              "issued_by": "sealed_external_file_controller",
+              "review_status": "confirmed",
+              "revision": 2
+            },
+            "gate_accepted": true,
+            "phase": 53,
+            "procedure_id": null
+          },
+          "supersedes_draft": "8c9c4cf79f18e49fcd593db4f30286aad34c2ddd95c8eac73aca5bf36e7c7c02"
+        },
+        "independent_verification": {
+          "accepted": true,
+          "checks": {
+            "exact_evidence_recovers": true,
+            "no_open_questions": true,
+            "phase_matches": true,
+            "report_hash_matches": true,
+            "result_hash_matches": true,
+            "revision_detected": true,
+            "status_matches_current_file": true
+          },
+          "verified_at": "2026-07-30T16:47:40.860488+00:00",
+          "verifier": "independent_disk_reread_v1"
+        },
+        "report_evidence": {
+          "end": 137,
+          "exact_text": "Phase 53",
+          "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "start": 129
+        },
+        "status_projection": {
+          "capability_promoted": false,
+          "completed": true,
+          "external_revision": {
+            "amendment": "status_manifest_must_use_current_file_hash",
+            "issued_by": "sealed_external_file_controller",
+            "review_status": "confirmed",
+            "revision": 2
+          },
+          "gate_accepted": true,
+          "phase": 53,
+          "procedure_id": null
+        }
+      },
+      "cohort": "sealed",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.860491+00:00",
+      "created_at": "2026-07-30T16:47:40.828911+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "blind_evaluation",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 53,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "sealed_real_file_phase_53",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 4007,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.849468+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+          "project_id": "sealed_real_file_phase_53",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "source_id": "sealed_real_file_phase_53:technical_report:4670d58ead37"
+        },
+        "result": {
+          "bytes": 1591,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.849438+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53/hexcore_phase53_blind_evaluation_protocol.json",
+          "project_id": "sealed_real_file_phase_53",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "324fd2bd406b502883c5f19c6816b5139dd07a19933c6f6b9074d8e25c9cad75",
+          "source_id": "sealed_real_file_phase_53:authoritative_result:324fd2bd406b"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.849410+00:00",
+          "project_id": "sealed_real_file_phase_53",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "revision_reconciled_and_manifest_rebuilt"
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": true,
+            "checks": {
+              "exact_evidence_recovers": true,
+              "no_open_questions": true,
+              "phase_matches": true,
+              "report_hash_matches": true,
+              "result_hash_matches": true,
+              "revision_detected": true,
+              "status_matches_current_file": true
+            },
+            "verified_at": "2026-07-30T16:47:40.860488+00:00",
+            "verifier": "independent_disk_reread_v1"
+          }
+        }
+      ],
+      "unresolved_questions": [],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53/hexcore_phase53_blind_evaluation_protocol.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_53"
+      }
+    },
+    "sealed_real_file_phase_54": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 1037,
+            "exact_text": "Phase 54",
+            "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+            "start": 1029
+          },
+          "phase": 54,
+          "project_id": "sealed_real_file_phase_54",
+          "report_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "result_sha256": "05b4450583b452c1ced2fdf3fd56063a4ed64af7f9759320d07f93fc7efe74c5",
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 54,
+            "procedure_id": "procedure_open_world_ingestion_d83f863ebb24"
+          }
+        },
+        "final_manifest": {
+          "evidence": {
+            "end": 1037,
+            "exact_text": "Phase 54",
+            "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+            "start": 1029
+          },
+          "family": "open_world_ingestion",
+          "phase": 54,
+          "project_id": "sealed_real_file_phase_54",
+          "report_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "result_sha256": "b15dce3e9f6e9ac87b3f345c7f3b363af211020755fbfea76a5907f3c71ca43e",
+          "revision_detected": true,
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {
+              "amendment": "status_manifest_must_use_current_file_hash",
+              "issued_by": "sealed_external_file_controller",
+              "review_status": "confirmed",
+              "revision": 2
+            },
+            "gate_accepted": true,
+            "phase": 54,
+            "procedure_id": "procedure_open_world_ingestion_d83f863ebb24"
+          },
+          "supersedes_draft": "9f3ff75f5b874880a4954c98a1333fb1391222f39385560a807f1ec823249339"
+        },
+        "independent_verification": {
+          "accepted": true,
+          "checks": {
+            "exact_evidence_recovers": true,
+            "no_open_questions": true,
+            "phase_matches": true,
+            "report_hash_matches": true,
+            "result_hash_matches": true,
+            "revision_detected": true,
+            "status_matches_current_file": true
+          },
+          "verified_at": "2026-07-30T16:47:40.903282+00:00",
+          "verifier": "independent_disk_reread_v1"
+        },
+        "report_evidence": {
+          "end": 1037,
+          "exact_text": "Phase 54",
+          "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "start": 1029
+        },
+        "status_projection": {
+          "capability_promoted": true,
+          "completed": true,
+          "external_revision": {
+            "amendment": "status_manifest_must_use_current_file_hash",
+            "issued_by": "sealed_external_file_controller",
+            "review_status": "confirmed",
+            "revision": 2
+          },
+          "gate_accepted": true,
+          "phase": 54,
+          "procedure_id": "procedure_open_world_ingestion_d83f863ebb24"
+        }
+      },
+      "cohort": "sealed",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.903298+00:00",
+      "created_at": "2026-07-30T16:47:40.863762+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "open_world_ingestion",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 54,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "sealed_real_file_phase_54",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 4007,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.888979+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+          "project_id": "sealed_real_file_phase_54",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "source_id": "sealed_real_file_phase_54:technical_report:4670d58ead37"
+        },
+        "result": {
+          "bytes": 72674,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.888939+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54/hexcore_phase54_open_world_ingestion.json",
+          "project_id": "sealed_real_file_phase_54",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "b15dce3e9f6e9ac87b3f345c7f3b363af211020755fbfea76a5907f3c71ca43e",
+          "source_id": "sealed_real_file_phase_54:authoritative_result:b15dce3e9f6e"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.888872+00:00",
+          "project_id": "sealed_real_file_phase_54",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "revision_reconciled_and_manifest_rebuilt"
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": true,
+            "checks": {
+              "exact_evidence_recovers": true,
+              "no_open_questions": true,
+              "phase_matches": true,
+              "report_hash_matches": true,
+              "result_hash_matches": true,
+              "revision_detected": true,
+              "status_matches_current_file": true
+            },
+            "verified_at": "2026-07-30T16:47:40.903282+00:00",
+            "verifier": "independent_disk_reread_v1"
+          }
+        }
+      ],
+      "unresolved_questions": [],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54/hexcore_phase54_open_world_ingestion.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_54"
+      }
+    },
+    "sealed_real_file_phase_55": {
+      "artifacts": {
+        "draft_manifest": {
+          "evidence": {
+            "end": 2157,
+            "exact_text": "Phase 55",
+            "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+            "start": 2149
+          },
+          "phase": 55,
+          "project_id": "sealed_real_file_phase_55",
+          "report_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "result_sha256": "2831304347d08149993d94d185dd8f690553aaf64a62f2edfb3474c77d21d7e4",
+          "status": {
+            "capability_promoted": true,
+            "completed": true,
+            "external_revision": {},
+            "gate_accepted": true,
+            "phase": 55,
+            "procedure_id": "procedure_recursive_photon_b69e4f4c0a74"
+          }
+        },
+        "independent_verification": {
+          "accepted": false,
+          "correct_abstention": true,
+          "reason": "UNRESOLVED_CONFLICT"
+        },
+        "report_evidence": {
+          "end": 2157,
+          "exact_text": "Phase 55",
+          "source_sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "start": 2149
+        },
+        "status_projection": {
+          "capability_promoted": true,
+          "completed": true,
+          "external_revision": {},
+          "gate_accepted": true,
+          "phase": 55,
+          "procedure_id": "procedure_recursive_photon_b69e4f4c0a74"
+        }
+      },
+      "cohort": "sealed",
+      "completed": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "completed_at": "2026-07-30T16:47:40.947980+00:00",
+      "created_at": "2026-07-30T16:47:40.907242+00:00",
+      "dependencies": {
+        "bind_report_evidence": [
+          "ingest_report",
+          "extract_status"
+        ],
+        "close_project": [
+          "independent_verify"
+        ],
+        "extract_status": [
+          "ingest_result"
+        ],
+        "independent_verify": [
+          "synthesize_manifest"
+        ],
+        "ingest_report": [],
+        "ingest_result": [],
+        "synthesize_manifest": [
+          "extract_status",
+          "bind_report_evidence"
+        ]
+      },
+      "family": "recursive_synthesis",
+      "goal": "Produce an independently verifiable status manifest from the current result and technical-report files.",
+      "invalidated": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "milestone": 7,
+      "phase": 55,
+      "plan": [
+        "register_goal_and_dependency_graph",
+        "ingest_real_sources_with_hashes",
+        "extract_status_and_exact_report_evidence",
+        "create_checkpointed_draft_manifest",
+        "monitor_sources_and_invalidate_stale_work",
+        "reconcile_revision_or_abstain",
+        "independently_verify_and_close"
+      ],
+      "project_id": "sealed_real_file_phase_55",
+      "rerun_tasks": [
+        "extract_status",
+        "bind_report_evidence",
+        "synthesize_manifest",
+        "independent_verify",
+        "close_project"
+      ],
+      "restarts": 6,
+      "schema_version": "aion.hexcore.real_file_project.v1",
+      "source_snapshots": {
+        "report": {
+          "bytes": 4007,
+          "format": "md",
+          "observed_at": "2026-07-30T16:47:40.934068+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+          "project_id": "sealed_real_file_phase_55",
+          "role": "technical_report",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "4670d58ead37892747b9ec8207361daf460922a8841e75e843d1af2f570b5705",
+          "source_id": "sealed_real_file_phase_55:technical_report:4670d58ead37"
+        },
+        "result": {
+          "bytes": 18889,
+          "format": "json",
+          "observed_at": "2026-07-30T16:47:40.934037+00:00",
+          "path": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55/hexcore_phase55_recursive_photon.json",
+          "project_id": "sealed_real_file_phase_55",
+          "role": "authoritative_result",
+          "schema_version": "aion.open_world.source.v1",
+          "sha256": "33f5515e1dcf6db9d28606d57cb64bc23bbe391c3b900d4fda906e9f7f77e1a5",
+          "source_id": "sealed_real_file_phase_55:authoritative_result:33f5515e1dcf"
+        }
+      },
+      "status": "complete",
+      "trace": [
+        {
+          "dependency_graph_hash": "2edebe843b162c028271e43c6b4ebadda85108186298ca7bece793be13941953",
+          "event": "project_registered"
+        },
+        {
+          "event": "real_sources_ingested"
+        },
+        {
+          "event": "status_and_evidence_extracted"
+        },
+        {
+          "event": "draft_manifest_checkpointed"
+        },
+        {
+          "changed_roles": [
+            "result"
+          ],
+          "event": "source_change_detected",
+          "invalidated_tasks": [
+            "extract_status",
+            "bind_report_evidence",
+            "synthesize_manifest",
+            "independent_verify",
+            "close_project"
+          ],
+          "observed_at": "2026-07-30T16:47:40.933998+00:00",
+          "project_id": "sealed_real_file_phase_55",
+          "schema_version": "aion.hexcore.real_file_revision.v1",
+          "unaffected_tasks": [
+            "register_goal",
+            "ingest_report"
+          ]
+        },
+        {
+          "event": "project_closed",
+          "status": "complete",
+          "verification": {
+            "accepted": false,
+            "correct_abstention": true,
+            "reason": "UNRESOLVED_CONFLICT"
+          }
+        }
+      ],
+      "unresolved_questions": [
+        {
+          "question": "Can the external amendment be reconciled?",
+          "reason": "EXTERNAL_REVISION_CONFLICT",
+          "status": "open"
+        }
+      ],
+      "workspace": {
+        "report": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55/HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+        "result": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55/hexcore_phase55_recursive_photon.json",
+        "root": "/private/tmp/aion_phase56_real_file_workspaces/sealed_real_file_phase_55"
+      }
+    }
+  },
+  "relation_models": {},
+  "revision": 107,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T16:47:40.959874+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_rules": {}
+}

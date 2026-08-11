@@ -1,0 +1,240 @@
+{
+  "created_at": "2026-08-02T07:18:48.401805+00:00",
+  "experiment": {
+    "ambient_authority": [],
+    "capability_class": "bounded_read_only_diagnostic",
+    "commit_before_outcomes": true,
+    "experiment_id": "ADAPTIVE_CROSSOVER_AUTHORITY_TRIANGULATION",
+    "hypotheses": [
+      "candidate_defect",
+      "evidence_defect",
+      "environment_change",
+      "critic_defect"
+    ],
+    "maximum_actions": 4,
+    "single_cause_assumption": true,
+    "tree": {
+      "action": "alternate_candidate_same_evidence",
+      "if_false": {
+        "action": "changed_rule_later_retest",
+        "if_false": {
+          "action": "independent_outcome_without_critic",
+          "if_false": {
+            "diagnosis": "evidence_defect"
+          },
+          "if_true": {
+            "diagnosis": "critic_defect"
+          }
+        },
+        "if_true": {
+          "diagnosis": "environment_change"
+        }
+      },
+      "if_true": {
+        "diagnosis": "candidate_defect"
+      }
+    },
+    "unknown_signature_policy": "ABSTAIN"
+  },
+  "experiment_registry_path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/recursive_action_runtime/diagnostic_experiment_registry.json",
+  "experiment_sha256": "68d88cf15ea8b91ea4e8773f33a847204d2429540f74f73e88b7a8509ead4ae9",
+  "schema_version": "aion.hexcore.open_diagnostic_experiment_state.v1",
+  "worlds": [
+    {
+      "cause_authority": "candidate_defect",
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "value",
+          "passed": true,
+          "row_count": 66,
+          "time_field": "date"
+        },
+        "response_sha256": "f9e1b2101de1eba90831dde5081749d8669250ca66154ef978826ddd3bf5473c"
+      },
+      "execution": {
+        "actions": 1,
+        "diagnosis": "candidate_defect",
+        "passed": true,
+        "trace": [
+          {
+            "action": "alternate_candidate_same_evidence",
+            "outcome": true
+          }
+        ]
+      },
+      "initial_observation": "same_unresolved_prediction_failure",
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:23:59.044484+00:00",
+        "not_before_epoch": 1785655426.3953621,
+        "outcome_sha256": "55ee949fcd7176c63efd3c3a1c1ff77c482cd570cc60f3e544f02a9002d4b663",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "World Bank GDP",
+      "outcome_sha256": "2003aa0887e974685d1615a5ce1534f78f6d7a62d08c81c81bfff5e91b223193",
+      "outcomes": {
+        "alternate_candidate_same_evidence": true,
+        "changed_rule_later_retest": false,
+        "independent_outcome_without_critic": false,
+        "reacquire_evidence_same_authority": false
+      },
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?format=json&per_page=100",
+      "values": 66
+    },
+    {
+      "cause_authority": "evidence_defect",
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "GDP",
+          "passed": true,
+          "row_count": 318,
+          "time_field": "observation_date"
+        },
+        "response_sha256": "cb0d9d0ffa4f83eeb53bcc04eaeca9cede6d266c550ec14bd8e825f0f88f8160"
+      },
+      "execution": {
+        "actions": 3,
+        "diagnosis": "evidence_defect",
+        "passed": true,
+        "trace": [
+          {
+            "action": "alternate_candidate_same_evidence",
+            "outcome": false
+          },
+          {
+            "action": "changed_rule_later_retest",
+            "outcome": false
+          },
+          {
+            "action": "independent_outcome_without_critic",
+            "outcome": false
+          }
+        ]
+      },
+      "initial_observation": "same_unresolved_prediction_failure",
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:23:59.264442+00:00",
+        "not_before_epoch": 1785655426.607868,
+        "outcome_sha256": "246a9ba4737faf244d7139699234657ac194bf99afd57718ba7ba4d4d1a260a9",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "FRED GDP",
+      "outcome_sha256": "cf62b190d842827d6e2f42759e2656eed215fa53be5e6b3dcdee249aebd53555",
+      "outcomes": {
+        "alternate_candidate_same_evidence": false,
+        "changed_rule_later_retest": false,
+        "independent_outcome_without_critic": false,
+        "reacquire_evidence_same_authority": true
+      },
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP",
+      "values": 318
+    },
+    {
+      "cause_authority": "environment_change",
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "TEMP",
+          "passed": true,
+          "row_count": 236,
+          "time_field": "DATE"
+        },
+        "response_sha256": "f468be743db41fb15189b75be817cca33ece3d12271f81f09287dd4f3f6fa412"
+      },
+      "execution": {
+        "actions": 2,
+        "diagnosis": "environment_change",
+        "passed": true,
+        "trace": [
+          {
+            "action": "alternate_candidate_same_evidence",
+            "outcome": false
+          },
+          {
+            "action": "changed_rule_later_retest",
+            "outcome": true
+          }
+        ]
+      },
+      "initial_observation": "same_unresolved_prediction_failure",
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:24:00.095312+00:00",
+        "not_before_epoch": 1785655427.4705338,
+        "outcome_sha256": "b0cacca9ba6dc62246c1bb7c6dad5839b5d90bba9925ec6017f2717a7353e11d",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "NOAA temperature",
+      "outcome_sha256": "f90608e0ccc2cfb5bf607de36d062fc0b97f063ee5cd6e137389ae1e58446812",
+      "outcomes": {
+        "alternate_candidate_same_evidence": false,
+        "changed_rule_later_retest": true,
+        "independent_outcome_without_critic": false,
+        "reacquire_evidence_same_authority": false
+      },
+      "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2025/03772099999.csv",
+      "values": 236
+    },
+    {
+      "cause_authority": "critic_defect",
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "exchange_rate",
+          "passed": true,
+          "row_count": 100,
+          "time_field": "record_date"
+        },
+        "response_sha256": "5474fcbd3b0cc4b624705dc497bc63530da501c87c88ffe883f169634cfd16f9"
+      },
+      "execution": {
+        "actions": 3,
+        "diagnosis": "critic_defect",
+        "passed": true,
+        "trace": [
+          {
+            "action": "alternate_candidate_same_evidence",
+            "outcome": false
+          },
+          {
+            "action": "changed_rule_later_retest",
+            "outcome": false
+          },
+          {
+            "action": "independent_outcome_without_critic",
+            "outcome": true
+          }
+        ]
+      },
+      "initial_observation": "same_unresolved_prediction_failure",
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:24:00.969038+00:00",
+        "not_before_epoch": 1785655428.401367,
+        "outcome_sha256": "617660c2d4ab9fd263d23e0448957263395ad2217f40a065c174bdc724d501ec",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "Treasury exchange rates",
+      "outcome_sha256": "c0bd14d4b89c3d2fd45f71b8255adaa45cd5ce0f2ff4c6a671748a868ad4aa52",
+      "outcomes": {
+        "alternate_candidate_same_evidence": false,
+        "changed_rule_later_retest": false,
+        "independent_outcome_without_critic": true,
+        "reacquire_evidence_same_authority": false
+      },
+      "url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?sort=-record_date&page%5Bsize%5D=100",
+      "values": 100
+    }
+  ]
+}

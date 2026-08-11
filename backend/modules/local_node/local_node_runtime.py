@@ -459,7 +459,8 @@ class LocalNodeRuntime:
             "email",
             "profile",
             "https://www.googleapis.com/auth/gmail.readonly",
-                "https://www.googleapis.com/auth/gmail.compose",
+            "https://www.googleapis.com/auth/gmail.compose",
+            "https://www.googleapis.com/auth/calendar.events",
         ]
 
         health = self.connector_registry.gmail_health()
@@ -571,6 +572,7 @@ class LocalNodeRuntime:
         """
         import json
         import os
+        import urllib.error
         import urllib.parse
         import urllib.request
 
@@ -3117,10 +3119,11 @@ class LocalNodeRuntime:
 
         return all(term in text for term in meaningful_terms)
 
-    def _refresh_gmail_access_token_if_needed(self) -> Dict[str, Any]:
+    def _refresh_gmail_access_token_if_needed(self, *, force: bool = False) -> Dict[str, Any]:
         import json
         import os
         import time
+        import urllib.error
         import urllib.parse
         import urllib.request
 
@@ -3139,7 +3142,7 @@ class LocalNodeRuntime:
 
         now_epoch = int(time.time())
 
-        if not expires_at:
+        if not expires_at and not force:
             # Conservative default: if we do not know exact expiry, use current access token.
             # If Google rejects it, caller will fail safely.
             return token_payload
@@ -3149,7 +3152,7 @@ class LocalNodeRuntime:
         except Exception:
             expires_at_int = 0
 
-        if access_token and expires_at_int and now_epoch < (expires_at_int - 120):
+        if not force and access_token and expires_at_int and now_epoch < (expires_at_int - 120):
             return token_payload
 
         if not refresh_token:
@@ -3180,8 +3183,11 @@ class LocalNodeRuntime:
             method="POST",
         )
 
-        with urllib.request.urlopen(request, timeout=20) as response:
-            refreshed = json.loads(response.read().decode("utf-8"))
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                refreshed = json.loads(response.read().decode("utf-8"))
+        except urllib.error.HTTPError as exc:
+            raise RuntimeError(f"gmail_oauth_refresh_failed:{exc.code}") from exc
 
         next_payload = {
             **token_payload,
@@ -3451,6 +3457,51 @@ class LocalNodeRuntime:
             "action_type": "gmail_create_draft",
         }
 
+    def _create_google_calendar_event(
+        self,
+        *,
+        summary: str,
+        description: str,
+        starts_at: str,
+        ends_at: str,
+        calendar_id: str = "primary",
+        location: str = "",
+    ) -> Dict[str, Any]:
+        """Create one approved Calendar event without inviting or notifying guests."""
+        import urllib.parse
+
+        token_payload = self._refresh_gmail_access_token_if_needed()
+        access_token = str(token_payload.get("access_token") or "")
+        if not access_token:
+            raise RuntimeError("Google Workspace access token missing")
+        if not summary or not starts_at or not ends_at:
+            raise ValueError("Calendar event summary, start and end are required")
+        payload = {
+            "summary": str(summary).strip()[:500],
+            "description": str(description or "").strip()[:4000],
+            "start": {"dateTime": starts_at},
+            "end": {"dateTime": ends_at},
+        }
+        if str(location or "").strip():
+            payload["location"] = str(location).strip()[:500]
+        encoded_calendar = urllib.parse.quote(str(calendar_id or "primary"), safe="")
+        result = self._gmail_api_post_json(
+            f"https://www.googleapis.com/calendar/v3/calendars/{encoded_calendar}/events?sendUpdates=none",
+            access_token,
+            payload,
+        )
+        return {
+            "ok": True,
+            "created": bool(result.get("id")),
+            "event_id": result.get("id"),
+            "html_link": result.get("htmlLink"),
+            "status": result.get("status"),
+            "calendar_id": calendar_id or "primary",
+            "attendees_notified": False,
+            "external_write": True,
+            "action_type": "google_calendar_event_create",
+        }
+
     def _fetch_gmail_unread_messages(
         self,
         *,
@@ -3475,7 +3526,16 @@ class LocalNodeRuntime:
             )
         )
 
-        listed = self._gmail_api_get_json(list_url, access_token)
+        try:
+            listed = self._gmail_api_get_json(list_url, access_token)
+        except RuntimeError as exc:
+            if "401" not in str(exc):
+                raise
+            token_payload = self._refresh_gmail_access_token_if_needed(force=True)
+            access_token = str(token_payload.get("access_token") or "")
+            if not access_token:
+                raise RuntimeError("Gmail access token refresh returned no access token") from exc
+            listed = self._gmail_api_get_json(list_url, access_token)
         refs = listed.get("messages") or []
 
         messages: List[Dict[str, Any]] = []
@@ -3494,6 +3554,39 @@ class LocalNodeRuntime:
             full_message = self._gmail_api_get_json(get_url, access_token)
             messages.append(self._gmail_message_to_sample_email(full_message))
 
+        return messages
+
+    def fetch_gmail_messages_readonly(
+        self,
+        *,
+        query: str,
+        max_results: int = 10,
+    ) -> List[Dict[str, Any]]:
+        """Read a deliberately narrow Gmail result set without changing Gmail state."""
+        if self._is_broad_gmail_query(query):
+            raise ValueError("broad_gmail_query_blocked")
+        if not hasattr(self, "connector_registry") or self.connector_registry is None:
+            self.connector_registry = ConnectorRegistryStore(str(self.base_dir))
+        health = self.connector_registry.gmail_health()
+        if health.get("auth_status") != "connected":
+            raise PermissionError("gmail_connector_not_connected")
+        try:
+            messages = self._fetch_gmail_unread_messages(query=query, max_results=max_results)
+        except RuntimeError as exc:
+            if "gmail_oauth_refresh_failed" in str(exc):
+                self.connector_registry.save_gmail_config({
+                    "auth_status": "reauthorization_required", "last_poll_at": utc_now_iso(),
+                    "last_poll_status": "failed_reauthorization_required",
+                    "last_error": "Gmail OAuth permission must be reconnected.",
+                })
+                raise PermissionError("gmail_reauthorization_required") from exc
+            raise
+        self._append_audit(
+            event_type="local_node.gmail_sales_intake_read",
+            message="Readonly Gmail messages fetched for canonical Sales intake",
+            payload={"query": query, "message_count": len(messages),
+                     "gmail_mutated": False, "reply_sent": False},
+        )
         return messages
 
     def poll_train_task_gmail_now(self) -> Dict[str, Any]:

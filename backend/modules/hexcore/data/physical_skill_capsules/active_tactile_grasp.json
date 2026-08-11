@@ -1,0 +1,78 @@
+{
+  "action_contract": {
+    "axes": [
+      "wrist_y",
+      "wrist_z",
+      "left_finger",
+      "right_finger"
+    ],
+    "commit_before_act": true,
+    "maximum_delta": [
+      0.008,
+      0.008,
+      0.004,
+      0.004
+    ]
+  },
+  "belief_states": [
+    "no_contact",
+    "left_only",
+    "right_only",
+    "dual_unstable",
+    "attached",
+    "slipping"
+  ],
+  "capsule_digest": "9f484d95bd4b67a17dde61ca7d75fa36893c22afa3ea4ed1fc7d989a534ae0fb",
+  "gate": {
+    "binary_baseline_success": 6,
+    "development_success": 3,
+    "development_total": 3,
+    "malicious_rejected": 4,
+    "privileged_runtime_geometry": 0,
+    "prospective_binary_baseline_success": 27,
+    "prospective_disturbed_success": 13,
+    "prospective_disturbed_total": 16,
+    "prospective_nominal_success": 22,
+    "prospective_nominal_total": 24,
+    "prospective_severe_baseline_success": 3,
+    "prospective_severe_success": 20,
+    "prospective_severe_total": 24,
+    "prospective_success": 42,
+    "prospective_total": 48,
+    "prospective_unsafe_actions": 0,
+    "sealed_success": 12,
+    "sealed_total": 12,
+    "teacher_actions": 0,
+    "unsafe_actions": 0,
+    "weakest_disturbance_group": 1.0
+  },
+  "observation_contract": {
+    "forbidden": [
+      "object_pose",
+      "contact_geometry",
+      "teacher_action",
+      "reward"
+    ],
+    "required": [
+      "rgb",
+      "joint_position",
+      "joint_velocity",
+      "fingertip_touch"
+    ]
+  },
+  "parents": [
+    "procedure_self_modelled_tactile_hand_apprenticeship_v1",
+    "procedure_articulated_precision_cube_lifting_v1"
+  ],
+  "procedure_id": "procedure_active_tactile_grasp_apprenticeship_v2",
+  "retained_method": [
+    "visual_approach",
+    "independent_digit_closure",
+    "opposition_balance",
+    "interruptible_micro_correction",
+    "progressive_test_lift",
+    "slip_recovery",
+    "consequence_confirmed_lift"
+  ],
+  "schema_version": "aion.active_tactile_grasp_skill.v2"
+}

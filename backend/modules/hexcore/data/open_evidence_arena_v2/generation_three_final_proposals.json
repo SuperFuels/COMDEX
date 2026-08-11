@@ -1,0 +1,865 @@
+{
+  "projects": [
+    {
+      "claims": [
+        {
+          "claim": "Earth’s seasons occur because Earth’s axis is tilted by about 23.5° relative to its orbital plane, which changes which parts of the planet receive the Sun’s most direct rays over the year.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "This occurs because of the 23.5° tilt of the Earth, relative to its orbital plane. This means that throughout the year, different parts of the planet receive the Sun’s most direct rays when it is tilted closer.",
+          "source_id": "web_a4b8f0d6ee678b17"
+        },
+        {
+          "claim": "When the North Pole is tilted toward the Sun, it is summer in the Northern Hemisphere and winter in the Southern Hemisphere, and the situation reverses when the South Pole is tilted toward the Sun.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Thus, when the North Pole is tilted toward the Sun, it is summer in the Northern Hemisphere and winter in the Southern Hemisphere. When the South Pole is tilted toward the Sun, it’s summer in the Southern Hemisphere and winter in the Northern Hemisphere.",
+          "source_id": "web_a4b8f0d6ee678b17"
+        },
+        {
+          "claim": "The two solstices occur in June and December and mark when the Sun’s path in the sky is farthest north or south from the Equator; a hemisphere’s winter solstice is its shortest day of the year and its summer solstice is its longest.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The two solstices occur in June and December, and mark when the Sun's path in the sky is the farthest north or south from the Equator. A hemisphere's winter solstice is its shortest day of the year, and its summer solstice is its longest.",
+          "source_id": "web_a4b8f0d6ee678b17"
+        },
+        {
+          "claim": "The Northern Hemisphere receives the most sun on the June solstice, and this seasonal difference in sunlight is caused by Earth’s 23.5° axial tilt.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "-on June solstice, Northern Hemisphere soaks up the most sun of any day of the year\n\n-caused by the 23.5 degree tilt of the Earth’s axis",
+          "source_id": "web_3d8056eab76f6d8b"
+        },
+        {
+          "claim": "Northern and Southern Hemisphere summers and winters are opposite in time, which is inconsistent with a simple explanation based only on Earth being closer to or farther from the Sun.",
+          "epistemic_label": "inferred",
+          "exact_evidence_quote": "Thus, when the North Pole is tilted toward the Sun, it is summer in the Northern Hemisphere and winter in the Southern Hemisphere. When the South Pole is tilted toward the Sun, it’s summer in the Southern Hemisphere and winter in the Northern Hemisphere.",
+          "source_id": "web_a4b8f0d6ee678b17"
+        },
+        {
+          "claim": "Satellite imagery can be used to watch the changing of the seasons over time.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Another solar phenomenon that we can watch over time via satellite imagery is the changing of the seasons.",
+          "source_id": "web_a4b8f0d6ee678b17"
+        },
+        {
+          "claim": "In the Southern Hemisphere, daylight saving time is observed from October to March because their summer occurs when the Northern Hemisphere has winter, reflecting the opposite timing of seasons between hemispheres.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "-in the Southern Hemisphere, DST is observed from October to March since their summer is opposite of the Northern Hemisphere",
+          "source_id": "web_3d8056eab76f6d8b"
+        }
+      ],
+      "concepts": [
+        "Earth's axial tilt (~23.5°) relative to its orbital plane",
+        "Differential solar heating due to changing sun angle",
+        "Seasonal changes in day length (solstices and equinoxes)",
+        "Opposite seasons in Northern and Southern Hemispheres",
+        "Distinction between axial tilt mechanism and Earth–Sun distance",
+        "Observational confirmation via satellite imagery and timing of solstices"
+      ],
+      "confidence": 0.7,
+      "disputed_or_missing": [
+        "No sourced numerical data are provided for Earth–Sun distance at different times of year (perihelion and aphelion) or their exact dates.",
+        "There is no explicit sourced statement that Earth is actually closer to the Sun during Northern Hemisphere winter; this remains an unstated inference from general astronomy knowledge, not supported by the given excerpts.",
+        "No quantitative insolation or temperature datasets (e.g., satellite radiance plots, measured W/m² by latitude) are present in the evidence; the confirmation of the axial-tilt explanation is therefore qualitative, not numeric.",
+        "The misconception that seasons are caused mainly by varying Earth–Sun distance is not mentioned directly in the provided sources; any explicit refutation of that misconception must be framed as inference rather than quoted authority."
+      ],
+      "final_answer": {
+        "explanation_model": {
+          "day_length_and_solstices": [
+            "NOAA NESDIS describes solstices as markers of extreme Sun positions in the sky: \"The two solstices occur in June and December, and mark when the Sun's path in the sky is the farthest north or south from the Equator.\" (web_a4b8f0d6ee678b17).",
+            "The same description links solstices directly to day length: \"A hemisphere's winter solstice is its shortest day of the year, and its summer solstice is its longest.\" (web_a4b8f0d6ee678b17). This is part of the explanatory model: because of the tilt, the Sun’s apparent path is higher and longer in that hemisphere’s summer, leading to longer days and more time for solar heating, and lower and shorter in winter, leading to shorter days and less heating."
+          ],
+          "mechanism_of_seasons": [
+            "The NOAA environmental satellite service states that Earth’s seasons occur because Earth’s axis is tilted by about 23.5° relative to its orbital plane, which changes how directly sunlight strikes different regions through the year: \"This occurs because of the 23.5° tilt of the Earth, relative to its orbital plane. This means that throughout the year, different parts of the planet receive the Sun’s most direct rays when it is tilted closer.\" (web_a4b8f0d6ee678b17).",
+            "When the North Pole tilts toward the Sun, the Northern Hemisphere receives the Sun’s most direct rays and experiences summer, while the Southern Hemisphere is tilted away and experiences winter. The same source explains: \"when the North Pole is tilted toward the Sun, it is summer in the Northern Hemisphere and winter in the Southern Hemisphere. When the South Pole is tilted toward the Sun, it’s summer in the Southern Hemisphere and winter in the Northern Hemisphere.\" (web_a4b8f0d6ee678b17).",
+            "NOAA’s Global Monitoring Laboratory further notes that on the June solstice the Northern Hemisphere gets the most sunlight of any day of the year and explicitly attributes this to Earth’s axial tilt: \"on June solstice, Northern Hemisphere soaks up the most sun of any day of the year\" and this is \"caused by the 23.5 degree tilt of the Earth’s axis\" (web_3d8056eab76f6d8b). This is a conceptual model: the tilt causes changes in sun angle and day length, which change seasonal heating."
+          ],
+          "opposite_seasons_and_hemispheres": [
+            "The NOAA NESDIS explanation makes clear that the two hemispheres’ seasons are opposite in time, due to the tilt: when one pole is tilted toward the Sun, its hemisphere has summer while the opposite hemisphere has winter (web_a4b8f0d6ee678b17).",
+            "NOAA GML gives an everyday-life confirmation of this opposition via daylight saving time: \"in the Southern Hemisphere, DST is observed from October to March since their summer is opposite of the Northern Hemisphere\" (web_3d8056eab76f6d8b). This is observational evidence in the sense of social practice: timekeeping rules differ because the warm season is offset by about half a year between hemispheres."
+          ]
+        },
+        "observational_evidence_and_distinction": {
+          "distinction_between_model_and_observation": [
+            "The axial-tilt description and references to solstices and their associated day lengths are conceptual-geometric explanations: they explain *why* the amount and duration of sunlight vary, in terms of Earth’s orientation in space (web_a4b8f0d6ee678b17; web_3d8056eab76f6d8b).",
+            "The mention of using satellite imagery to watch the changing of the seasons (web_a4b8f0d6ee678b17) and the societal timing of daylight saving time in the Southern Hemisphere (web_3d8056eab76f6d8b) are observational: they indicate how humans and instruments detect and respond to the seasonal cycle."
+          ],
+          "observational_indicators": [
+            "NOAA NESDIS notes that satellite imagery can be used to watch seasons unfold: \"Another solar phenomenon that we can watch over time via satellite imagery is the changing of the seasons.\" (web_a4b8f0d6ee678b17). This indicates that the seasonal cycle is not only a theoretical construct but is observable from space as changes in, for example, snow cover, vegetation, and cloud patterns over the year.",
+            "Independent of detailed datasets, the documented fact that Northern and Southern Hemisphere summers are opposite in time (web_a4b8f0d6ee678b17; web_3d8056eab76f6d8b) functions as an empirical pattern any adequate theory must explain. The axial-tilt model naturally predicts exactly this opposition, because tilting one hemisphere toward the Sun necessarily tilts the other away."
+          ]
+        },
+        "why_northern_hemisphere_winter_is_not_due_to_being_farther_from_the_sun": {
+          "argument_from_opposite_seasons": [
+            "The supplied NOAA evidence shows that the Northern and Southern Hemispheres experience opposite seasons: \"when the North Pole is tilted toward the Sun, it is summer in the Northern Hemisphere and winter in the Southern Hemisphere. When the South Pole is tilted toward the Sun, it’s summer in the Southern Hemisphere and winter in the Northern Hemisphere.\" (web_a4b8f0d6ee678b17).",
+            "It also notes that Southern Hemisphere summer months are opposite to Northern Hemisphere summer months, with Southern Hemisphere daylight saving time running \"from October to March since their summer is opposite of the Northern Hemisphere\" (web_3d8056eab76f6d8b).",
+            "From these quoted patterns, it follows logically that a single Earth–Sun distance at any given moment corresponds simultaneously to opposite seasons in the two hemispheres. Therefore, a simple explanation that \"winter happens when Earth is farther from the Sun\" cannot explain why at that same distance one hemisphere has winter while the other has summer. This conclusion is an inference based on the sourced facts about opposite seasons, not a directly quoted statement, so it is labeled as inferred."
+          ],
+          "limitations_due_to_missing_data": [
+            "The excerpts do not provide measured values of Earth–Sun distance at different times of year or state explicitly that Earth is slightly closer to the Sun during Northern Hemisphere winter. Thus, a direct numerical demonstration that Northern Hemisphere winter coincides with a slightly smaller Earth–Sun distance is missing and cannot be quoted as evidence from these sources.",
+            "However, the combination of (a) the explicit axial-tilt mechanism; (b) the documented opposition of seasons between hemispheres; and (c) the observation that seasons can be seen in satellite imagery (web_a4b8f0d6ee678b17; web_3d8056eab76f6d8b) supports, at a qualitative level, the conclusion that geometry of illumination (tilt, sun angle, and day length) is the controlling factor for seasons, not the modest annual change in Earth–Sun distance."
+          ],
+          "role_of_axial_tilt_vs_distance": [
+            "The sources explicitly attribute seasonal changes in sunlight to axial tilt: NESDIS states that seasonality \"occurs because of the 23.5° tilt of the Earth\" (web_a4b8f0d6ee678b17), and GML notes that the Northern Hemisphere gets the most sun on the June solstice and that this is \"caused by the 23.5 degree tilt of the Earth’s axis\" (web_3d8056eab76f6d8b).",
+            "Because these authoritative explanations identify tilt—not changing Earth–Sun distance—as the driver of when and where the Sun’s rays are most direct and when days are longest or shortest, they implicitly contradict the idea that the main cause of Northern Hemisphere winter is that Earth is farther from the Sun. This tension is an interpretive inference, as the misconception itself is not mentioned in the excerpts."
+          ]
+        }
+      },
+      "subgoals": [
+        "Describe the axial tilt mechanism for seasons using sourced evidence.",
+        "Explain how tilt changes which hemisphere receives more direct sunlight and longer days.",
+        "Use sources to establish that seasons are opposite in the two hemispheres, supporting the axial-tilt model.",
+        "Use available references to connect solstices with maximum and minimum sunlight for a hemisphere.",
+        "Explain, qualitatively, why Northern Hemisphere winter is not due to Earth being farther from the Sun, based on the hemispheres having opposite seasons.",
+        "Distinguish explanatory models from observational evidence using the NOAA sources’ descriptions, including satellite imagery mention."
+      ],
+      "success_criteria": [
+        "Identify and explain the primary physical mechanism for Earth's seasons (including axial tilt, sun angle, and day length) with references to authoritative sources.",
+        "Provide evidence-based data on Earth’s orbital shape and Earth–Sun distance at different times of year, showing that Northern Hemisphere winter does not correspond to maximum distance from the Sun.",
+        "Clearly distinguish between theoretical explanation (geometric/physical model) and independently obtained observational data, citing both types where possible.",
+        "Address and refute the misconception that seasons are caused mainly by varying distance from the Sun, using specific observational-style evidence.",
+        "Use at least one source that presents a conceptual explanation or model of seasons."
+      ],
+      "task_id": "seasons_investigation",
+      "verification_plan": [
+        "Obtain authoritative orbital data (e.g., from NASA or JPL Horizons) that list Earth–Sun distance over the year, specifically perihelion and aphelion distances and dates, and compare these with typical dates of Northern Hemisphere winter and summer to show that Northern winter occurs near minimum rather than maximum distance.",
+        "Find peer-reviewed or agency-level plots of top-of-atmosphere solar irradiance by latitude and date (e.g., from NASA CERES or similar missions) to provide quantitative evidence that the Northern Hemisphere receives less solar energy in its winter despite small variations in Earth–Sun distance.",
+        "Locate educational or research sources (NASA, NOAA, major universities) that explicitly discuss and debunk the misconception that seasons are caused by varying distance from the Sun, and quote their reasoning.",
+        "Acquire resources that show diagrams of Earth’s tilt and illumination geometry throughout the year and connect these diagrams to actual observational datasets, such as daylight length tables for different latitudes.",
+        "Cross-check the 23.5° tilt value and the description of solstices and equinoxes with additional independent authorities (textbooks or other space agencies) to corroborate the qualitative explanation already provided by NOAA."
+      ]
+    },
+    {
+      "claims": [
+        {
+          "claim": "HTTP 304 Not Modified is sent in response to a conditional GET or HEAD that uses If-None-Match or If-Modified-Since when the condition evaluates to false, indicating that the client's cached resource is still valid.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "This response code is sent when the request is a conditional GET or HEAD request with an If-None-Match or an If-Modified-Since header and the condition evaluates to 'false'. It confirms that the resource cached by the client is still valid",
+          "source_id": "web_0025ba7b14e16682"
+        },
+        {
+          "claim": "A 304 Not Modified response indicates there is no need to retransmit the requested resource.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The HTTP 304 Not Modified redirection response status code indicates that there is no need to retransmit the requested resources.",
+          "source_id": "web_0025ba7b14e16682"
+        },
+        {
+          "claim": "If the resource had changed, the server would have sent a 200 OK with the current version instead of a 304.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "It confirms that the resource cached by the client is still valid and that the server would have sent a 200 OK response with the resource if the condition evaluated to 'true'.",
+          "source_id": "web_0025ba7b14e16682"
+        },
+        {
+          "claim": "When a 304 response is sent in the MDN example, it includes ETag, Age and Expires headers, informing the client that its cached version is still current.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Instead, we get a 304 response that includes ETag, Age and Expires headers, telling us our cached version of the resource is still current:",
+          "source_id": "web_0025ba7b14e16682"
+        },
+        {
+          "claim": "For If-None-Match, recipients must use the weak comparison function when comparing entity tags, and weak ETags can be used for cache validation even if there have been changes to the representation data.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "A recipient MUST use the weak comparison function when comparing entity tags for If-None-Match (Section 8.8.3.2), since weak entity tags can be used for cache validation even if there have been changes to the representation data.",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "If-None-Match takes either \"*\" or a list of entity-tags as its value.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "If-None-Match = \"*\" / #entity-tag",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "Weak entity tags are explicitly intended for cache validation, even when the underlying representation data has changed in ways that do not matter for the validator's purpose.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "since weak entity tags can be used for cache validation even if there have been changes to the representation data.",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "A response is cacheable if a cache is allowed to store a copy of the response message for use in answering subsequent requests.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "A response is cacheable if a cache is allowed to store a copy of the response message for use in answering subsequent requests.",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "HTTP places additional constraints, beyond cacheability, on when a cached response can be used for a particular request.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Even when a response is cacheable, there might be additional constraints placed by the client or by the origin server on when that cached response can be used for a particular request.",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "HTTP requirements for cache behavior and cacheable responses are defined in a separate caching specification referenced as [CACHING].",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "HTTP requirements for cache behavior and cacheable responses are defined in [CACHING].",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "Validators such as ETag are not to be sent by an origin server in a successful PUT response unless the stored representation is identical to the content received and the validator reflects the new representation.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "An origin server MUST NOT send a validator field (Section 8.8), such as an ETag or Last-Modified field, in a successful response to PUT unless the request's representation data was saved without any transformation applied to the content (i.e., the resource's new representation data is identical to the content received in the PUT request) and the validator field value reflects the new representation.",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "The purpose of returning a new validator like ETag after a successful, untransformed PUT is to allow the user agent to know that what it sent is now the stored representation and to reuse that validator in future conditional requests.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "This requirement allows a user agent to know when the representation it sent (and retains in memory) is the result of the PUT, and thus it doesn't need to be retrieved again from the origin server. The new validator(s) received in the response can be used for future conditional requests in order to prevent accidental overwrites (Section 13.1).",
+          "source_id": "web_5313be9ca076b647"
+        },
+        {
+          "claim": "In a typical cache validation flow with ETag and If-None-Match, when the server responds 304 Not Modified the client reuses the cached entity body and updates its metadata using headers such as ETag, Age, and Expires from the 304 response.",
+          "epistemic_label": "inferred",
+          "exact_evidence_quote": "Instead, we get a 304 response that includes ETag, Age and Expires headers, telling us our cached version of the resource is still current:",
+          "source_id": "web_0025ba7b14e16682"
+        }
+      ],
+      "concepts": [
+        "HTTP caching",
+        "conditional requests",
+        "ETag header",
+        "If-None-Match header",
+        "304 Not Modified status",
+        "cache validation",
+        "weak vs strong ETags"
+      ],
+      "confidence": 0.73,
+      "disputed_or_missing": [
+        "The exact normative text from the HTTP caching RFC (e.g., RFC 9111) that specifies which headers from a 304 response should replace or augment those of the cached 200 response is not present in the provided excerpts.",
+        "The precise algorithm or decision steps for when a server must send 304 versus 200 in response to every possible combination of conditional headers is not fully available in the excerpts.",
+        "There is no detailed, explicit standard text here about how strong vs weak ETags differ in syntax and semantics beyond the requirement that If-None-Match comparisons use the weak comparison function."
+      ],
+      "final_answer": {
+        "explanation": {
+          "conditional_request_flow_and_304": {
+            "meaning_of_304_for_caching": "MDN characterizes the 304 status: \"The HTTP 304 Not Modified redirection response status code indicates that there is no need to retransmit the requested resources.\" (web_0025ba7b14e16682). Combining this with the earlier statement that 304 \"confirms that the resource cached by the client is still valid\" (web_0025ba7b14e16682), we can summarize: \n- 304 is a validation success signal: the cache’s stored representation is valid for this request.\n- Because the representation is valid, the server omits the message body; there is \"no need to retransmit\" it.",
+            "role_of_cacheability_and_constraints": "The RFC text provides general context for when caches may store and reuse responses: \"A response is cacheable if a cache is allowed to store a copy of the response message for use in answering subsequent requests.\" (web_5313be9ca076b647). It also stresses that, even then, \"there might be additional constraints placed by the client or by the origin server on when that cached response can be used for a particular request\" (web_5313be9ca076b647), and that detailed \"requirements for cache behavior and cacheable responses are defined in [CACHING].\" (web_5313be9ca076b647). Applied to our scenario: a cache can only use the 304 mechanism for a resource whose original 200 response was cacheable and whose validators and caching headers (e.g., Cache-Control, Expires) permit revalidation and reuse.",
+            "when_200_ok_is_returned": "The MDN excerpt contrasts the 304 with the 200 case and makes the relationship explicit: \"It confirms that the resource cached by the client is still valid and that the server would have sent a 200 OK response with the resource if the condition evaluated to 'true'.\" (web_0025ba7b14e16682). This means:\n- If the condition on the validator had indicated a change (e.g., the current ETag is not among those in If-None-Match, or the resource is newer than If-Modified-Since), the server would not send 304; instead it would send a normal 200 OK with a full response body.\nThe same page gives a specific example regarding If-Modified-Since: \"The response would be 200 OK with the current version of the resource if the resource had been updated after the timestamp in the If-Modified-Since header. Instead, we get a 304 response...\" (web_0025ba7b14e16682). While this example uses If-Modified-Since, it illustrates the general rule: a change leads to 200 with a new body; no change (per the condition) leads to 304 with no body.",
+            "when_304_is_returned": "According to MDN, a 304 is tied to conditional GET/HEAD with validators: \"This response code is sent when the request is a conditional GET or HEAD request with an If-None-Match or an If-Modified-Since header and the condition evaluates to 'false'.\" (web_0025ba7b14e16682). In other words:\n- The client includes If-None-Match (with an ETag) or If-Modified-Since in its request.\n- The server evaluates the condition.\n- If the condition is false (meaning, with If-None-Match, that the current resource *does* match one of the ETags supplied, so it has not changed in the sense relevant to that validator), the server returns 304 Not Modified.\nMDN further explains what that 304 signifies: \"It confirms that the resource cached by the client is still valid\" (web_0025ba7b14e16682). So receiving 304 tells the cache that its stored representation is acceptable for reuse."
+          },
+          "etag_and_if_none_match_semantics": {
+            "etag_as_validator": "ETag is a validator header generated by the server that identifies a specific version of a resource. The RFC excerpt treats ETag as a kind of \"validator field\" (Section 8.8) used so that clients can perform conditional requests and cache validation. The text on PUT shows its role: the server \"MUST NOT send a validator field (Section 8.8), such as an ETag or Last-Modified field, in a successful response to PUT unless the request's representation data was saved without any transformation\" and notes that when it is returned, \"The new validator(s) received in the response can be used for future conditional requests\" (web_5313be9ca076b647). This shows ETag's role as the identifier that a client later echoes in a conditional request.",
+            "etag_generation_and_put_context": "Although the question is about GET validation, the PUT-related excerpt helps clarify validator semantics in general. It says: \"An origin server MUST NOT send a validator field (Section 8.8), such as an ETag or Last-Modified field, in a successful response to PUT unless the request's representation data was saved without any transformation applied to the content ... and the validator field value reflects the new representation.\" (web_5313be9ca076b647). This shows that ETags are meant to accurately represent the stored representation's version; when the server returns one after PUT, it allows the client to know its local copy matches the stored resource and to \"use[d] for future conditional requests\" (web_5313be9ca076b647). By analogy, for GET responses, the ETag is likewise a validator that identifies the version of the resource that the client now has cached.",
+            "if_none_match_usage": "If-None-Match is the conditional request header the client uses to say, in effect, \"send me the resource only if it does not match these entity-tags.\" The syntax excerpt says: \"If-None-Match = \"*\" / #entity-tag\" (web_5313be9ca076b647), meaning it can carry \"*\" or one or more ETag values. For this header, the specification requires that \"A recipient MUST use the weak comparison function when comparing entity tags for If-None-Match (Section 8.8.3.2), since weak entity tags can be used for cache validation even if there have been changes to the representation data.\" (web_5313be9ca076b647). This tells us: \n- If-None-Match always uses *weak* comparison.\n- Weak ETags are explicitly allowed for cache validation even when the underlying representation data has changed in some way, as long as the validator logic still considers them equivalent for caching purposes.",
+            "weak_vs_strong_etags": "The excerpt explicitly addresses weak ETags: \"weak entity tags can be used for cache validation even if there have been changes to the representation data.\" (web_5313be9ca076b647). This means that a weak ETag does not promise bit-for-bit identity of the representation; instead, it is sufficient for deciding whether a cached copy is \"good enough\" to reuse. Because \"A recipient MUST use the weak comparison function when comparing entity tags for If-None-Match\" (web_5313be9ca076b647), the conditional cache validation is intentionally tolerant of certain changes when weak ETags are used. The detailed syntactic difference between weak and strong ETags (e.g., the \"W/\" prefix) is not present in the excerpts, so any precise syntax description would require additional reference to the full RFC."
+          },
+          "overview": "HTTP cache validation lets a client avoid downloading a full response body when it already has a cached copy. It does this by sending a conditional request that includes a validator (often an ETag) and allowing the server to either say “your copy is still good” (304 Not Modified) or “here’s a fresh copy” (200 OK).",
+          "strong_vs_weak_validation_in_304_context": {
+            "implication_for_cache_validation": "Because the RFC justifies this mandate by noting that \"weak entity tags can be used for cache validation even if there have been changes to the representation data\" (web_5313be9ca076b647), we can infer that:\n- Cache validation with If-None-Match is intentionally permissive when weak ETags are used.\n- A 304 result in such a case does not guarantee that the entity body is byte-for-byte identical to any past version; instead it means that, under the weak validation semantics defined by HTTP, the cache’s representation is considered sufficiently equivalent for reuse.\nThe precise wording and examples of \"weak comparison\" and \"strong comparison\" are not present in the provided snippets, so a fine-grained explanation of those algorithms would require consulting the full RFC.",
+            "relationship_to_304_behavior": "From the combination of MDN and RFC text we can outline the interaction:\n- The client sends If-None-Match with one or more ETags.\n- The server compares its current ETag for the resource using the mandated weak comparison function (web_5313be9ca076b647).\n- If the comparison shows that the resource has not changed in the sense defined by weak comparison, the server sends 304 Not Modified, which \"confirms that the resource cached by the client is still valid\" (web_0025ba7b14e16682) and indicates \"there is no need to retransmit the requested resources\" (web_0025ba7b14e16682).\n- The client or intermediary then continues to store and serve its cached body, updating metadata from headers like ETag, Age, and Expires in the 304 response as appropriate (inferred from web_0025ba7b14e16682).",
+            "weak_comparison_requirement_for_if_none_match": "The key rule about entity-tag comparison for If-None-Match is explicit: \"A recipient MUST use the weak comparison function when comparing entity tags for If-None-Match\" (web_5313be9ca076b647). This means that, when a server is deciding whether to send 304 or 200 in response to a conditional request that uses If-None-Match, it must follow the weak comparison semantics (as defined elsewhere in the RFC) regardless of whether the ETags involved are weak or strong."
+          },
+          "summary_of_interaction": {
+            "flow_summary": [
+              "1. Initial response and caching: The client sends an unconditional GET and receives a cacheable 200 OK response that contains a representation and a validator, such as an ETag. Because \"A response is cacheable if a cache is allowed to store a copy of the response message for use in answering subsequent requests.\" (web_5313be9ca076b647), the client or intermediary cache stores the body along with headers including ETag and any caching information.",
+              "2. Conditional request using If-None-Match: Later, when the client wants the same resource, it sends a conditional GET with If-None-Match, using the stored ETag (\"If-None-Match = \"*\" / #entity-tag\"; web_5313be9ca076b647).",
+              "3. Server evaluation with weak comparison: The server examines If-None-Match and compares its current ETag to those in the header. It \"MUST use the weak comparison function\" for this header (web_5313be9ca076b647), allowing weak ETags to serve as validators \"even if there have been changes to the representation data.\" (web_5313be9ca076b647).",
+              "4. Decision and response:\n   - If the condition evaluates to false (meaning the current resource matches one of the supplied ETags per weak comparison), the server sends 304 Not Modified. As MDN states: \"This response code is sent when the request is a conditional GET or HEAD request with an If-None-Match or an If-Modified-Since header and the condition evaluates to 'false'. It confirms that the resource cached by the client is still valid\" (web_0025ba7b14e16682), and \"indicates that there is no need to retransmit the requested resources.\" (web_0025ba7b14e16682).\n   - If the condition does not hold (the validator indicates a change), the server sends 200 OK with a new representation; MDN notes that in that case \"the server would have sent a 200 OK response with the resource\" (web_0025ba7b14e16682).",
+              "5. Cache behavior on 304: Upon receiving 304, the client or cache reuses the previously stored entity body and updates its metadata from the 304 response headers. The MDN example illustrates that a 304 response \"includes ETag, Age and Expires headers, telling us our cached version of the resource is still current\" (web_0025ba7b14e16682). The actual merging rules for headers are defined in the caching specification referenced as [CACHING] (web_5313be9ca076b647) but whose specific text is not part of the provided excerpts.",
+              "6. Effect of validators in future requests: By design, validators such as ETag are used again in subsequent conditional requests. The PUT example shows this pattern: returning a validator after PUT enables the client to know it need not retrieve the resource again and that \"The new validator(s) received in the response can be used for future conditional requests\" (web_5313be9ca076b647). The same logic applies to ETags learned from GET responses."
+            ],
+            "what_is_saved_when_validation_succeeds": "Putting it all together, when cache validation via ETag and If-None-Match succeeds and the server returns a 304 Not Modified:\n- The cache keeps the previously stored representation body; there is \"no need to retransmit\" it (web_0025ba7b14e16682).\n- The cache also retains and may refresh associated metadata, incorporating any updated headers such as ETag, Age, and Expires that appear in the 304 response (as illustrated by \"we get a 304 response that includes ETag, Age and Expires headers, telling us our cached version of the resource is still current:\"; web_0025ba7b14e16682).\n- Detailed per-header merging rules are defined in the HTTP caching specification [CACHING] referenced by the RFC (web_5313be9ca076b647), but that detailed text is not included in the provided excerpts."
+          },
+          "what_is_saved_or_updated_on_successful_validation": {
+            "cached_body_reuse": "The MDN 304 description implies that the response body is not sent again and that the client relies on its cached representation: 304 \"indicates that there is no need to retransmit the requested resources\" (web_0025ba7b14e16682) and \"confirms that the resource cached by the client is still valid\" (web_0025ba7b14e16682). From this, it is reasonable to infer that when validation succeeds and the client receives 304, it should reuse the previously stored entity body (from the last 200 OK or equivalent) rather than discarding it.",
+            "header_updates_on_304": "The MDN example shows that the 304 response itself can carry headers that update the cache’s metadata: \"we get a 304 response that includes ETag, Age and Expires headers, telling us our cached version of the resource is still current:\" (web_0025ba7b14e16682). While the exact RFC rules specifying which headers must or may be merged from the 304 into the cached entry are not present in the given excerpts, this example illustrates an important behavior: \n- The cache keeps the old body.\n- The cache can refresh or adjust its stored metadata (e.g., ETag, Age, Expires) based on the 304 response.\nThus, at a high level, what is \"saved\" upon successful validation is the existing representation body, while selected headers such as validators and freshness information may be updated from the 304.",
+            "what_the_304_does_not_provide": "By definition, 304 is a status indicating no retransmission of the resource: \"there is no need to retransmit the requested resources.\" (web_0025ba7b14e16682). Therefore, the 304 response does not include a response body that could replace the cached one. Any change to the actual representation contents would require the server to send 200 with a full body instead. Because the excerpt on weak validators mentions that \"weak entity tags can be used for cache validation even if there have been changes to the representation data\" (web_5313be9ca076b647), the RFC is signaling that small or irrelevant changes in representation data (from the standpoint of that validator) can still yield a \"not modified\" result; however, the precise distinction between acceptable and unacceptable changes, and the detailed header-merging behavior, are defined in parts of the caching specification not included here."
+          }
+        }
+      },
+      "subgoals": [
+        "Define the role of ETag as a validator and how it is used for cache validation.",
+        "Describe how a client uses If-None-Match with a previously stored ETag to perform a conditional GET.",
+        "Explain the conditions under which a server returns 304 Not Modified vs 200 OK.",
+        "Describe what a 304 response tells the client about its cached representation.",
+        "Explain, at a high level, what the client/cache retains and what it may update when validation succeeds.",
+        "Clarify the requirement to use weak comparison for If-None-Match and what that implies for cache validation."
+      ],
+      "success_criteria": [
+        "Accurately describe the semantics and purpose of ETag and If-None-Match headers in HTTP caching as defined by the relevant RFCs.",
+        "Explain the protocol flow of a conditional request using If-None-Match and the conditions under which a server returns a 304 Not Modified response versus a 200 OK with a full representation.",
+        "State clearly what a cache (browser or intermediary) is expected to retain after a successful validation resulting in 304 (e.g., entity body, headers that are reused or updated) according to the specification.",
+        "Reference the appropriate sections of the HTTP caching/conditional request specifications to ground each behavioral claim.",
+        "Clarify any differences between strong and weak ETags, if relevant to validation behavior."
+      ],
+      "task_id": "http_cache_investigation",
+      "verification_plan": [
+        "Consult the full text of RFC 9110 (HTTP Semantics), specifically sections on validators, ETag, If-None-Match, and conditional requests, to confirm and refine the description of strong vs weak ETags and the exact condition evaluation rules for 304 vs 200.",
+        "Consult the current HTTP caching specification (e.g., RFC 9111 or whatever is referenced as [CACHING]) to obtain the normative rules for how caches must handle 304 responses, including which headers are to be updated, merged, or ignored relative to the stored 200 response.",
+        "Check additional normative examples or diagrams in the RFCs that illustrate the conditional GET and 304 workflow, to ensure that the described flow matches the standards’ intent.",
+        "Cross-validate MDN’s explanation with one or more browser or HTTP library implementation notes (e.g., documentation from major browser vendors or HTTP client libraries) to confirm how 304 responses and header updates are handled in practice.",
+        "Verify the syntax and semantics of weak and strong ETags, including the weak ETag prefix and the definitions of weak vs strong comparison, directly from RFC 9110."
+      ]
+    },
+    {
+      "claims": [
+        {
+          "claim": "The relationship between earthquake energy and magnitude is described as logarithmic.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The relationship between earthquake energy and magnitude is said to be logarithmic because the equation relating energy and magnitude includes a logarithmic term.",
+          "source_id": "web_c8e9bbc0fa4dcfd7"
+        },
+        {
+          "claim": "The smallest earthquake that could be located by a local network of seismometers in the USGS example has a total seismic-wave energy of about 2,000 joules and a magnitude of minus 1.0 on the Richter magnitude scale.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The total energy of the seismic waves generated by the smallest earthquake that could be located by a local network of seismometers is about 2,000 joules (J). The largest earthquake ever recorded released 11,200,000,000,000,000,000 J of energy as seismic waves and was observed on seismometers all around the World. As you can imagine, it is not very convenient dealing with numbers that have such a large range. On the Richter magnitude scale, the magnitude of a 2,000 J event is minus 1.0 while the magnitude of the largest recorded earthquake was 9.5.",
+          "source_id": "web_c8e9bbc0fa4dcfd7"
+        },
+        {
+          "claim": "The largest earthquake ever recorded in the USGS example released 11,200,000,000,000,000,000 joules of energy as seismic waves and had a magnitude of 9.5.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The total energy of the seismic waves generated by the smallest earthquake that could be located by a local network of seismometers is about 2,000 joules (J). The largest earthquake ever recorded released 11,200,000,000,000,000,000 J of energy as seismic waves and was observed on seismometers all around the World. As you can imagine, it is not very convenient dealing with numbers that have such a large range. On the Richter magnitude scale, the magnitude of a 2,000 J event is minus 1.0 while the magnitude of the largest recorded earthquake was 9.5.",
+          "source_id": "web_c8e9bbc0fa4dcfd7"
+        },
+        {
+          "claim": "USGS educational material explicitly frames earthquake magnitude as another way to describe the size of an earthquake in terms of the amount of energy it released.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Another way to measure the size of an earthquake is to compute how much energy it released.",
+          "source_id": "web_5d14a0a58acfc8ad"
+        },
+        {
+          "claim": "An earthquake releases energy at many frequencies, and calculating an accurate energy value requires including all frequencies of shaking for the entire event.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "An earthquake releases energy at many frequencies, and in order to compute an accurate value, you have to include all frequencies of shaking for the entire event.",
+          "source_id": "web_5d14a0a58acfc8ad"
+        },
+        {
+          "claim": "Different magnitude scales based purely on waveform amplitudes can mis-estimate the true size of very large earthquakes, so modern practice uses measurements that describe the physical effects of an earthquake.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "When initially developed, all magnitude scales based on measurements of the recorded waveform amplitudes were thought to be equivalent. But for very large earthquakes, some magnitudes overestimate true earthquake size, and some underestimate the size. Thus, we now use measurements that describe the physical effects of an earthquake rather than measurements based only on the amplitude of a waveform recording.",
+          "source_id": "web_5d14a0a58acfc8ad"
+        },
+        {
+          "claim": "The provided excerpts do not state an explicit numerical factor of how much the energy increases for each one‑unit increase in magnitude (such as \"+1 magnitude \\\\u2248 32 times more energy\").",
+          "epistemic_label": "needs_investigation",
+          "exact_evidence_quote": "How much bigger is a magnitude 8.7 earthquake than a magnitude 5.8 earthquake? Try it yourself calculator",
+          "source_id": "web_5d14a0a58acfc8ad"
+        },
+        {
+          "claim": "The moment‑magnitude or Richter‑type energy–magnitude formula commonly used in seismology can yield an approximate factor of about 32 times more energy per unit magnitude, implying roughly 32 \\\\u00d7 32 \\\\u2248 1,000 times more energy for a magnitude 7 compared with a magnitude 5 earthquake.",
+          "epistemic_label": "inferred",
+          "exact_evidence_quote": "The relationship between earthquake energy and magnitude is said to be logarithmic because the equation relating energy and magnitude includes a logarithmic term.",
+          "source_id": "web_c8e9bbc0fa4dcfd7"
+        }
+      ],
+      "concepts": [
+        "Earthquake magnitude",
+        "Energy release",
+        "Logarithmic relationship between magnitude and energy",
+        "Range of earthquake energies in joules",
+        "Magnitude scales (including Richter; modern scales are all logarithmic w.r.t. energy)"
+      ],
+      "confidence": 0.63,
+      "disputed_or_missing": [
+        "No explicit USGS quotation in the provided excerpts gives the standard rule of thumb that each whole‑number step in magnitude corresponds to about 32 times more energy; this factor is therefore inferred from general seismological knowledge, not directly from the quoted text.",
+        "The excerpts do not provide a concrete numeric example comparing the energy of a magnitude 7 and a magnitude 5 earthquake, so the ~1,000× ratio is an approximation derived from a commonly used formula, not from a specific example in the sources.",
+        "The exact magnitude scale (moment magnitude vs. local Richter) for which the per‑unit 32× energy factor is being applied is not specified in the provided text; the text mentions the Richter magnitude scale in the educational example, and modern practice generally uses moment magnitude, but this link is not stated in the excerpts."
+      ],
+      "final_answer": {
+        "approximation_note": "Because the specific numerical factor per unit magnitude (such as 32×) does not appear verbatim in the quoted USGS passages, the ~1,000× energy difference between magnitude 7 and magnitude 5 should be treated as an approximate, inferred value consistent with widely used seismological relations rather than as a directly quoted USGS number.",
+        "energy_ratio_estimate": "Standard seismological formulas (consistent with the statement that the energy–magnitude relationship is logarithmic) imply that each increase of 1.0 magnitude unit corresponds to roughly a factor of 32 increase in released energy. Applying that commonly used approximation to a two‑unit difference, a magnitude 7 earthquake releases about 32 × 32 ≈ 1,000 times as much energy as a magnitude 5 earthquake. This ~1,000× figure is an approximation derived from the general logarithmic relationship described by USGS, but the exact 32× factor per unit magnitude is not explicitly quoted in the provided excerpts.",
+        "relationship_overview": "From the USGS educational material, earthquake size can be described in terms of the energy it releases, and the relationship between magnitude and energy is logarithmic, meaning the underlying formula includes a logarithmic term relating magnitude to energy. The quoted examples show that very small located earthquakes (magnitude about -1.0 on the Richter scale) can release only about 2,000 joules of seismic-wave energy, while the largest recorded earthquake (magnitude 9.5) released about 1.12 × 10^19 joules of seismic energy. This wide range of energies motivates the use of a logarithmic magnitude scale."
+      },
+      "subgoals": [
+        "Extract from sources how earthquake magnitude relates qualitatively and quantitatively to energy release.",
+        "Identify any explicit description that the magnitude–energy relationship is logarithmic.",
+        "Determine or infer an approximate per‑unit magnitude energy scaling factor consistent with the provided USGS examples.",
+        "Use that scaling factor to estimate how much more energy a magnitude 7 earthquake releases than a magnitude 5 earthquake.",
+        "Clearly mark the computation as an approximation and note any limitations from the evidence."
+      ],
+      "success_criteria": [
+        "Identify the commonly used modern magnitude scale and the mathematical or empirical relationship between magnitude and energy release.",
+        "Locate authoritative documentation that states the energy scaling factor between whole magnitude units.",
+        "Compute the approximate energy ratio between magnitude 7 and magnitude 5 earthquakes using the documented relationship, and present both the formula and the resulting factor.",
+        "Clearly label the result as an approximation and preserve the quantitative details and wording from the authoritative source where possible.",
+        "Explain any distinction between historical scales and modern scales only to the extent needed to interpret the energy relationship correctly."
+      ],
+      "task_id": "earthquake_energy_investigation",
+      "verification_plan": [
+        "Retrieve an explicit USGS or other national seismological agency statement that quantifies the factor of increase in energy for each one‑unit increase in magnitude (for example, \"about 32 times more energy\" per magnitude unit).",
+        "Locate the actual formula used by USGS for energy vs. magnitude (e.g., a relation of the form log10(E) = a + bM) and confirm that it yields approximately a 32× energy increase per magnitude unit.",
+        "Use that verified formula to recompute the energy ratio between magnitude 7 and magnitude 5 earthquakes and check that it is close to 10^3 (i.e., about 1,000).",
+        "Confirm from an authoritative source that this energy-scaling rule applies specifically to the modern moment magnitude scale (Mw), and document any differences from the original local (Richter) magnitude scale.",
+        "Check whether USGS or other agencies provide a worked example or an online calculator comparing two magnitudes (e.g., 7 and 5) and directly stating the energy ratio, and compare it with the ~1,000× estimate."
+      ]
+    },
+    {
+      "claims": [
+        {
+          "claim": "Antimicrobial resistance (AMR) occurs when bacteria and other microbes no longer respond to medicines, making infections difficult or sometimes impossible to treat and increasing the risk of severe illness and death.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Antimicrobial resistance (AMR) occurs when bacteria, viruses, fungi and parasites do not respond to antimicrobial medicines. As a result, infections become difficult or impossible to treat, increasing the risk of disease spread, severe illness, disability and death.",
+          "source_id": "web_b4fe18f60ba68423"
+        },
+        {
+          "claim": "Antibiotic exposure exerts selective pressure on bacterial populations and facilitates resistance through genetic changes such as mutation and gene amplification and through horizontal gene transfer.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Antibiotic exposure exerts selective pressure on bacterial populations, thereby facilitating resistance through genetic changes (eg, mutation and gene amplification) and horizontal gene transfer.",
+          "source_id": "web_356ed012ad761069"
+        },
+        {
+          "claim": "Unnecessary antibiotic use provides no benefit to the patient and incurs harm, including contributing to antimicrobial resistance.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Such risks are justifiable only when antibiotics are truly needed; unnecessary use provides no benefit and incurs harm. A critical consequence of the inappropriate use of antibiotics is the emergence of antimicrobial resistance (AMR).",
+          "source_id": "web_356ed012ad761069"
+        },
+        {
+          "claim": "Misuse and overuse of antibiotics, including taking them when they are not needed or taking the wrong type, remain among the main drivers of antimicrobial resistance.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The misuse and overuse of antibiotics, for example taking them when they are not needed or taking the wrong type, remains one of the main drivers of AMR.",
+          "source_id": "web_b4fe18f60ba68423"
+        },
+        {
+          "claim": "Antibiotics are highly beneficial in reducing illness and death from bacterial infections but carry risks such as gastrointestinal disturbances, allergic reactions, and Clostridioides difficile infection.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Antibiotics are among the most transformative developments in modern medicine, drastically reducing morbidity and mortality from bacterial infections. However, their benefits are tempered by potential adverse effects (eg, gastrointestinal disturbances, allergic reactions, Clostridioides difficile infection).",
+          "source_id": "web_356ed012ad761069"
+        },
+        {
+          "claim": "Resistant organisms can spread through direct contact, healthcare environments, or community transmission, affecting even people who have not themselves taken antibiotics.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Resistant organisms can spread via direct contact, healthcare environments, or community transmission, affecting even those without prior antibiotic exposure.",
+          "source_id": "web_356ed012ad761069"
+        },
+        {
+          "claim": "Widespread antimicrobial resistance undermines infection control, can cause hospital outbreaks, and limits treatment options for common infections in the community.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Beyond individual patients, widespread resistance undermines infection control efforts and can lead to hospital outbreaks. In the community, the proliferation of MDR bacteria limits treatment options for common infections.",
+          "source_id": "web_356ed012ad761069"
+        },
+        {
+          "claim": "One in six laboratory-confirmed bacterial infections causing common infections in people worldwide in 2023 were resistant to antibiotic treatments.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "One in six laboratory-confirmed bacterial infections causing common infections in people worldwide in 2023 were resistant to antibiotic treatments.",
+          "source_id": "web_b4fe18f60ba68423"
+        },
+        {
+          "claim": "Between 2018 and 2023, antibiotic resistance rose in over 40% of monitored pathogen–antibiotic combinations, with an average annual increase of 5–15%.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Between 2018 and 2023, antibiotic resistance rose in over 40% of the pathogen-antibiotic combinations monitored with an average annual increase of 5–15%.",
+          "source_id": "web_b4fe18f60ba68423"
+        },
+        {
+          "claim": "In WHO South-East Asia and Eastern Mediterranean Regions, about one in three reported infections are resistant to antibiotics, and resistance is more common and worsening where health systems lack capacity to diagnose or treat bacterial pathogens.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "WHO estimates that antibiotic resistance is highest in the WHO South-East Asia and Eastern Mediterranean Regions, where 1 in 3 reported infections were resistant. Resistance is also more common and worsening in places where health systems lack capacity to diagnose or treat bacterial pathogens.",
+          "source_id": "web_b4fe18f60ba68423"
+        },
+        {
+          "claim": "Drug-resistant Gram-negative bacteria such as E. coli and K. pneumoniae are major causes of severe bloodstream infections that often lead to sepsis, organ failure and death.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Drug-resistant Gram-negative bacteria are becoming more dangerous worldwide, with the greatest burden falling on countries least equipped to respond. Among these, E. coli and K. pneumoniae are the leading drug-resistant Gram-negative bacteria found in bloodstream infections. These are among the most severe bacterial infections that often result in sepsis, organ failure and death.",
+          "source_id": "web_b4fe18f60ba68423"
+        },
+        {
+          "claim": "Access-group antibiotics, recommended as first-choice treatments for most common infections, accounted for about 53% of global human antibiotic use in 2022, while higher-risk Watch antibiotics made up roughly 45% of use and exceeded 70% of total use in nearly one-third of countries, falling short of global targets.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "In 2022, so-called access antibiotics – those recommended as first-choice treatments for most common infections – accounted for only about half (53%) of global human antibiotic use. So-called watch antibiotics, which carry a higher risk of resistance, made up roughly 45% of use and exceeded 70% of total use in nearly one-third of countries. These figures fall short of the global target which calls for at least 70% of antibiotic use to come from the access group by 2030.",
+          "source_id": "web_b4fe18f60ba68423"
+        },
+        {
+          "claim": "Approximately 28–30% of outpatient antibiotic prescriptions in recent U.S. surveillance are considered unnecessary or inappropriate, indicating widespread prescribing inefficiencies.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Results from a 2016 national study estimated that approximately 30% of outpatient antibiotic prescriptions were inappropriate, underscoring widespread prescribing inefficiencies.[2] As of 2022, Centers for Disease Control and Prevention (CDC) surveillance data show that nearly 28% of outpatient antibiotic prescriptions are unnecessary.",
+          "source_id": "web_356ed012ad761069"
+        },
+        {
+          "claim": "Nearly 30% of outpatient antibiotic prescriptions used broad-spectrum Watch-category antibiotics, which are associated with a high risk of promoting resistance.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Moreover, 29.5% of these prescriptions involved broad-spectrum antibiotics classified under the World Health Organization (WHO) Watch category (from Access, Watch, Reserve antibiotic guidance), which are associated with a high risk of promoting resistance.",
+          "source_id": "web_356ed012ad761069"
+        },
+        {
+          "claim": "Widespread antimicrobial resistance increases healthcare costs due to longer care, more investigations and interventions, more expensive alternative drugs, and higher intensive care unit admission rates, and it also causes societal costs like lost productivity and premature deaths.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Economically, AMR imposes high costs on healthcare systems due to prolonged care needs, increased investigations and interventions, more expensive alternative drugs, diversion of staffing and resources (including personal protective equipment), and higher intensive care unit admission rates. Antibiotic resistance also incurs broader societal costs from lost productivity and premature deaths.[10][33]",
+          "source_id": "web_356ed012ad761069"
+        }
+      ],
+      "concepts": [
+        "antimicrobial resistance (AMR)",
+        "antibiotic resistance",
+        "selective pressure from antibiotic exposure",
+        "genetic mutation and gene amplification",
+        "horizontal gene transfer",
+        "misuse and overuse of antibiotics",
+        "broad-spectrum (Watch) vs Access antibiotics",
+        "spread of resistant organisms in healthcare and community settings",
+        "population-level impact on morbidity, mortality, and health systems"
+      ],
+      "confidence": 0.86,
+      "disputed_or_missing": [
+        "The specific molecular resistance mechanisms beyond the general categories of mutation, gene amplification, and horizontal gene transfer (e.g., efflux pumps, target modification, enzyme production) are not detailed in the provided excerpts.",
+        "The excerpts do not enumerate concrete case studies of individual outbreaks driven by a particular misuse pattern (such as a specific viral-illness prescribing campaign leading to an outbreak).",
+        "There is no verbatim wording from sources about incomplete courses of antibiotics, though this is commonly discussed elsewhere; it cannot be quoted or claimed directly from the given texts."
+      ],
+      "final_answer": {
+        "explanation": {
+          "connection_between_unnecessary_use_and_later_infections_being_harder_to_treat": "The evidence links inappropriate or excessive antibiotic use directly to the emergence and spread of resistant bacteria. The NCBI source indicates that antibiotic exposure creates selective pressure that \"facilitat[es] resistance\" via genetic changes and horizontal gene transfer. WHO highlights that misuse and overuse, such as taking antibiotics \"when they are not needed\" or taking \"the wrong type,\" are \"one of the main drivers\" of resistance.\n\nBecause resistant bacteria can then spread \"via direct contact, healthcare environments, or community transmission, affecting even those without prior antibiotic exposure,\" the cumulative effect of many episodes of unnecessary use in a population increases the prevalence of resistant strains. Over time, this leads to more situations where standard antibiotics no longer work well for subsequent infections. This is reflected in surveillance data showing high and rising percentages of infections that are resistant to commonly used drugs worldwide and in specific regions, and in observations that in the community the proliferation of multidrug-resistant bacteria \"limits treatment options for common infections.\"\n\nIn summary, each unnecessary course of antibiotics contributes additional selective pressure on bacteria without medical benefit. That pressure makes it more likely that resistant bacteria will be selected and spread. As resistant strains become more widespread, later infections—whether in the same person or in others—are more likely to involve resistant organisms, making them more difficult, and sometimes impossible, to treat with standard antibiotics.",
+          "how_resistance_develops_in_bacteria": "When bacteria are exposed to an antibiotic, that drug kills or inhibits many susceptible bacteria, but some bacteria may survive because they carry genetic traits that allow them to withstand the drug. The NCBI chapter notes that \"antibiotic exposure exerts selective pressure on bacterial populations, thereby facilitating resistance through genetic changes (eg, mutation and gene amplification) and horizontal gene transfer.\" Under this selective pressure, bacteria with resistance-conferring mutations or acquired genes survive and multiply, while susceptible bacteria are removed. Over time, this process shifts the population toward resistant strains.\n\nTwo major genetic routes mentioned in the evidence are:\n- **Genetic changes in the bacteria themselves**, such as mutation and gene amplification, which can alter bacterial targets, increase production of protective molecules, or otherwise reduce the antibiotic’s effect.\n- **Horizontal gene transfer**, in which bacteria share genetic material with each other (for example via plasmids), allowing resistance genes to spread within and between bacterial species.",
+          "how_resistant_bacteria_and_genes_spread": "Once resistant bacteria have emerged, they do not stay confined to a single treated individual. According to the NCBI source, \"resistant organisms can spread via direct contact, healthcare environments, or community transmission, affecting even those without prior antibiotic exposure.\" This means that a person can acquire a resistant infection from:\n- Contact with another person carrying resistant bacteria,\n- Contact with contaminated surfaces or equipment in healthcare facilities,\n- Transmission in the broader community.\n\nBecause resistance traits can move via horizontal gene transfer, these traits can also pass between different bacterial strains or species, amplifying the problem beyond the original setting where antibiotics were used.",
+          "important_scope_note": "All of the above is general educational information based on public health and medical sources. It is not personalized medical advice, does not diagnose any condition, and does not recommend any specific treatment for an individual.",
+          "population_level_consequences_and_harder_to_treat_infections": "As resistance becomes more common, infections that used to respond to standard treatments become harder to treat. WHO reports that \"one in six laboratory-confirmed bacterial infections causing common infections in people worldwide in 2023 were resistant to antibiotic treatments\" and that between 2018 and 2023, resistance \"rose in over 40% of the pathogen-antibiotic combinations monitored with an average annual increase of 5–15%.\" In some regions, such as WHO South-East Asia and Eastern Mediterranean, \"1 in 3 reported infections were resistant,\" and resistance is \"more common and worsening\" where health systems struggle to diagnose or treat bacterial pathogens.\n\nCertain resistant bacteria cause particularly severe consequences. WHO notes that drug-resistant Gram-negative bacteria like E. coli and K. pneumoniae are \"becoming more dangerous worldwide\" and are leading causes of drug-resistant bloodstream infections, which \"often result in sepsis, organ failure and death.\" The NCBI source further explains that \"widespread resistance undermines infection control efforts and can lead to hospital outbreaks\" and that in the community, \"the proliferation of MDR bacteria limits treatment options for common infections.\" Clinicians may be forced to use second-line or last-resort drugs that can be more toxic, less effective, or more expensive.\n\nHealth systems also bear higher costs: the NCBI chapter states that AMR \"imposes high costs on healthcare systems due to prolonged care needs, increased investigations and interventions, more expensive alternative drugs, diversion of staffing and resources (including personal protective equipment), and higher intensive care unit admission rates\" and that antibiotic resistance also causes \"broader societal costs from lost productivity and premature deaths.\"",
+          "what_antibiotic_resistance_is": "Antimicrobial resistance (AMR), including antibiotic resistance, is when microbes such as bacteria no longer respond to the medicines designed to kill them or stop their growth. The World Health Organization explains that AMR \"occurs when bacteria, viruses, fungi and parasites do not respond to antimicrobial medicines\" and that, as a result, \"infections become difficult or impossible to treat, increasing the risk of disease spread, severe illness, disability and death.\" This means that standard treatments may fail, and infections that were once easily curable can become prolonged, more severe, or even fatal.",
+          "why_unnecessary_antibiotic_use_is_a_key_driver": "Authoritative sources identify misuse and overuse of antibiotics as central drivers of resistance. The WHO states that \"the misuse and overuse of antibiotics, for example taking them when they are not needed or taking the wrong type, remains one of the main drivers of AMR.\" The NCBI chapter emphasizes that antibiotics have important benefits but that \"their benefits are tempered by potential adverse effects\" and that these risks \"are justifiable only when antibiotics are truly needed; unnecessary use provides no benefit and incurs harm. A critical consequence of the inappropriate use of antibiotics is the emergence of antimicrobial resistance (AMR).\"\n\nPutting these statements together, using antibiotics when there is no clear bacterial infection (for instance, using them for conditions that do not require them) or choosing unnecessarily broad or non–first-line agents exposes bacteria to selective pressure without corresponding benefit, increasing the chances that resistant variants will be selected and spread. The NCBI source also documents that this type of inappropriate prescribing is common, noting that about 30% of outpatient antibiotic prescriptions in a 2016 U.S. study were inappropriate and that more recent data show \"nearly 28% of outpatient antibiotic prescriptions are unnecessary,\" with \"29.5% of these prescriptions\" using broad-spectrum Watch-category antibiotics that \"are associated with a high risk of promoting resistance.\""
+        }
+      },
+      "subgoals": [
+        "Define antimicrobial/antibiotic resistance and its clinical consequences.",
+        "Describe how antibiotic exposure drives resistance via selection, mutation, and horizontal gene transfer.",
+        "Explain how resistant organisms spread between people and settings.",
+        "Show how unnecessary or inappropriate antibiotic use increases resistance and makes later infections harder to treat.",
+        "Clarify that the explanation is informational and not personal medical advice."
+      ],
+      "success_criteria": [
+        "Describe, with reference to primary or highly authoritative medical/public health sources, the main mechanisms by which bacteria acquire resistance (e.g., genetic mutation, horizontal gene transfer, selection under antibiotic pressure).",
+        "Explain how antibiotic use creates selective pressure that favors resistant strains, including examples of how this occurs in clinical or community settings.",
+        "Summarize how resistance genes/organisms can spread between individuals, environments, or bacterial species, with evidence-based references.",
+        "Connect unnecessary or inappropriate antibiotic use (e.g., use for viral infections, incomplete courses, broad-spectrum misuse) to increased prevalence of resistant organisms and more difficult-to-treat infections, citing public health data or statements.",
+        "Clearly state that the explanation is general information and not personalized medical advice, in line with public health communication norms."
+      ],
+      "task_id": "antibiotic_resistance_investigation",
+      "verification_plan": [
+        "Cross-check the described mechanisms of resistance (mutation, gene amplification, horizontal gene transfer under selective pressure) against additional authoritative reviews or textbooks to confirm consistency.",
+        "Confirm with further WHO, CDC, or ECDC materials that misuse patterns such as use for viral illnesses and unnecessary broad-spectrum use are consistently identified as major resistance drivers.",
+        "Review updated surveillance reports (e.g., WHO GLASS, CDC resistance reports) to validate the stated prevalence figures and trends for antibiotic resistance regionally and globally.",
+        "Consult independent economic analyses (e.g., from OECD or peer-reviewed health economics literature) to confirm the described cost impacts of antimicrobial resistance.",
+        "Check other educational resources to ensure that the explanatory narrative about unnecessary use leading to harder-to-treat future infections is aligned with current consensus and does not omit key caveats."
+      ]
+    },
+    {
+      "claims": [
+        {
+          "claim": "PostgreSQL's Serializable isolation level provides the strictest transaction isolation and emulates serial execution of committed transactions, as if they ran one after another.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The Serializable isolation level provides the strictest transaction isolation. This level emulates serial transaction execution for all committed transactions; as if transactions had been executed one after another, serially, rather than concurrently.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "In PostgreSQL, the Repeatable Read isolation level prevents all standard phenomena in Table 13.1 except for serialization anomalies.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The Repeatable Read isolation level only sees data committed before the transaction began; it never sees either uncommitted data or changes committed by concurrent transactions during the transaction's execution. ... This is a stronger guarantee than is required by the SQL standard for this isolation level, and prevents all of the phenomena described in Table 13.1 except for serialization anomalies.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "PostgreSQL states that applications using the Serializable isolation level must be prepared to retry transactions due to serialization failures.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "However, like the Repeatable Read level, applications using this level must be prepared to retry transactions due to serialization failures.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "PostgreSQL explains that Serializable works like Repeatable Read plus extra monitoring for conditions that would make concurrent execution inconsistent with all serial executions, and that detecting such conditions triggers serialization failures.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "In fact, this isolation level works exactly the same as Repeatable Read except that it also monitors for conditions which could make execution of a concurrent set of serializable transactions behave in a manner inconsistent with all possible serial (one at a time) executions of those transactions. This monitoring does not introduce any blocking beyond that present in repeatable read, but there is some overhead to the monitoring, and detection of the conditions which could cause a serialization anomaly will trigger a serialization failure.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "PostgreSQL notes that consistent use of Serializable transactions guarantees that any set of successfully committed concurrent Serializable transactions has the same effect as some serial execution, or else a transaction will not successfully commit.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The guarantee that any set of successfully committed concurrent Serializable transactions will have the same effect as if they were run one at a time means that if you can demonstrate that a single transaction, as written, will do the right thing when run by itself, you can have confidence that it will do the right thing in any mix of Serializable transactions, even without any information about what those other transactions might do, or it will not successfully commit.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "The same PostgreSQL documentation stresses that environments using Serializable must have a generalized way to handle serialization failures, which always return SQLSTATE '40001'.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "It is important that an environment which uses this technique have a generalized way of handling serialization failures (which always return with an SQLSTATE value of '40001'), because it will be very hard to predict exactly which transactions might contribute to the read/write dependencies and need to be rolled back to prevent serialization anomalies.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "In PostgreSQL, both Repeatable Read and Serializable isolation levels can produce errors designed to prevent serialization anomalies, and applications using them must be prepared to retry transactions that fail due to serialization errors.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Both Repeatable Read and Serializable isolation levels can produce errors that are designed to prevent serialization anomalies. As previously stated, applications using these levels must be prepared to retry transactions that fail due to serialization errors.",
+          "source_id": "web_4063d95231dc13bb"
+        },
+        {
+          "claim": "PostgreSQL specifies that serialization-related errors always have SQLSTATE code 40001 (serialization_failure).",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Such an error's message text will vary according to the precise circumstances, but it will always have the SQLSTATE code 40001 (serialization_failure).",
+          "source_id": "web_4063d95231dc13bb"
+        },
+        {
+          "claim": "The PostgreSQL documentation recommends that, in some cases, unique-key failures (23505) and exclusion constraint failures (23P01) be treated similarly to serialization failures because they can effectively represent serialization problems.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "In some cases it is also appropriate to retry unique-key failures, which have SQLSTATE code 23505 (unique_violation), and exclusion constraint failures, which have SQLSTATE code 23P01 (exclusion_violation). ... This is effectively a serialization failure, but the server will not detect it as such because it cannot “see” the connection between the inserted value and the previous reads. There are also some corner cases in which the server will issue a unique-key or exclusion constraint error even though in principle it has enough information to determine that a serialization problem is the underlying cause.",
+          "source_id": "web_4063d95231dc13bb"
+        },
+        {
+          "claim": "PostgreSQL emphasizes that when retrying after serialization failures, the application must retry the complete transaction, including all decision logic, and therefore PostgreSQL does not provide automatic retry.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "It is important to retry the complete transaction, including all logic that decides which SQL to issue and/or which values to use. Therefore, PostgreSQL does not offer an automatic retry facility, since it cannot do so with any guarantee of correctness.",
+          "source_id": "web_4063d95231dc13bb"
+        },
+        {
+          "claim": "The PostgreSQL serialization failure handling documentation notes that transaction retry may need to occur multiple times and that, under high contention, many attempts might be required.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Transaction retry does not guarantee that the retried transaction will complete; multiple retries may be needed. In cases with very high contention, it is possible that completion of a transaction may take many attempts.",
+          "source_id": "web_4063d95231dc13bb"
+        },
+        {
+          "claim": "PostgreSQL's description of Serializable isolation explains that it monitors read/write dependencies and uses predicate locks (SIReadLock) to prevent serialization anomalies.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Predicate locks in PostgreSQL, like in most other database systems, are based on data actually accessed by a transaction. These will show up in the pg_locks system view with a mode of SIReadLock. ... A READ ONLY transaction may be able to release its SIRead locks before completion, if it detects that no conflicts can still occur which could lead to a serialization anomaly.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "The PostgreSQL documentation for Read Committed isolation describes that a SELECT sees a snapshot as of the query start, and two SELECTs in the same transaction can see different data if other transactions commit between them.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Read Committed is the default isolation level in PostgreSQL. When a transaction uses this isolation level, a SELECT query (without a FOR UPDATE/SHARE clause) sees only data committed before the query began; it never sees either uncommitted data or changes committed by concurrent transactions during the query's execution. In effect, a SELECT query sees a snapshot of the database as of the instant the query begins to run. ... Also note that two successive SELECT commands can see different data, even though they are within a single transaction, if other transactions commit changes after the first SELECT starts and before the second SELECT starts.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "Serializable isolation’s guarantee of equivalence to serial execution implies that anomalies like lost updates, which cannot occur in any serial schedule, are prevented for successfully committed transactions.",
+          "epistemic_label": "inferred",
+          "exact_evidence_quote": "This level emulates serial transaction execution for all committed transactions; as if transactions had been executed one after another, serially, rather than concurrently.",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "Because PostgreSQL’s Serializable isolation either ensures serial-equivalent behavior or forces a serialization failure, an application that correctly retries on 40001 avoids lost-update-style anomalies in committed results.",
+          "epistemic_label": "inferred",
+          "exact_evidence_quote": "or it will not successfully commit. It is important that an environment which uses this technique have a generalized way of handling serialization failures (which always return with an SQLSTATE value of '40001'),",
+          "source_id": "web_8ed43b413d81bf9d"
+        },
+        {
+          "claim": "A lost-update-style anomaly involves two concurrent transactions reading the same data and each writing based on the stale read, so that one transaction's update is overwritten by the other; such an outcome is not consistent with any serial order of those two transactions.",
+          "epistemic_label": "inferred",
+          "exact_evidence_quote": "The guarantee that any set of successfully committed concurrent Serializable transactions will have the same effect as if they were run one at a time",
+          "source_id": "web_8ed43b413d81bf9d"
+        }
+      ],
+      "concepts": [
+        "transaction isolation",
+        "SQL isolation levels",
+        "Repeatable Read isolation",
+        "Serializable isolation",
+        "serialization anomalies",
+        "lost-update-style anomaly (conceptual target, not explicitly named in sources)",
+        "MVCC (multiversion concurrency control)",
+        "predicate locks / SIReadLock",
+        "serialization failure (SQLSTATE 40001)",
+        "unique constraint and exclusion constraint conflicts",
+        "transaction retry / application-level retry logic"
+      ],
+      "confidence": 0.79,
+      "disputed_or_missing": [
+        "None of the provided excerpts explicitly define or mention the term \"lost update\"; all reasoning about lost-update-style anomalies is inferred from the general serializability guarantees and discussion of \"serialization anomalies\".",
+        "The sources do not explicitly say which weaker isolation levels in PostgreSQL do or do not permit lost updates; any mapping from specific anomalies to specific weaker levels would require additional evidence.",
+        "Implementation details of how other DBMSs (e.g., Oracle, SQL Server) detect and report serialization failures or how they document application retry responsibilities are not covered by the given sources."
+      ],
+      "final_answer": {
+        "how_implementations_detect_conflicts_and_raise_serialization_failures": {
+          "dependency_monitoring": "PostgreSQL’s Serializable isolation is described as identical in visible behavior to Repeatable Read, \"except that it also monitors for conditions\" that could lead to serialization anomalies. When the monitoring detects such a condition, it \"will trigger a serialization failure.\" Internally, this relies on MVCC, predicate locks (SIReadLock), and a conflict-graph or dependency analysis to find dangerous structures among concurrent transactions. If a dangerous structure is found, one of the transactions is rolled back with SQLSTATE 40001.",
+          "other conflict manifestations": "The serialization failure handling text notes that some conflicts that are effectively serialization problems may appear as other error codes, especially \"unique-key failures\" (23505) and \"exclusion constraint failures\" (23P01). In scenarios where an application chooses a new key by reading existing keys and then inserting, concurrent transactions might pick the same key; the resulting unique-key error is \"effectively a serialization failure\" even though the server does not label it as such.",
+          "serialization_failure_error_code": "Both the general Serializable documentation and the serialization failure handling chapter emphasize that serialization errors manifest to the client as SQLSTATE 40001 (serialization_failure). The latter states that errors from Repeatable Read and Serializable \"will always have the SQLSTATE code 40001 (serialization_failure).\""
+        },
+        "how_isolation_relates_to_concurrent_anomalies": {
+          "connection_to_lost_update": "The term \"lost update\" does not appear in the provided text. However, a lost-update-style anomaly—where two concurrent transactions read the same value and then update it based on stale reads so that one update overwrites the other—cannot occur in any serial schedule of those transactions. Because Serializable guarantees that committed transactions are equivalent to some serial execution or are aborted, such lost-update-style outcomes are, by design, prevented for successfully committed transactions.",
+          "read_committed_behavior": "PostgreSQL’s default Read Committed isolation gives each SELECT its own snapshot at query start and two queries in the same transaction can see different committed data if other transactions commit between them. This is described as: a SELECT query \"sees a snapshot of the database as of the instant the query begins to run\" and \"two successive SELECT commands can see different data\" when other transactions commit between them.\n\nThis level is designed to avoid reading uncommitted data, but the documentation does not claim that it prevents serialization anomalies; by implication, anomalies like lost updates can occur at this level.",
+          "repeatable_read_behavior": "PostgreSQL’s Repeatable Read isolation is stronger; it \"only sees data committed before the transaction began\" and \"prevents all of the phenomena described in Table 13.1 except for serialization anomalies.\" The text explicitly distinguishes serialization anomalies as something not fully prevented at this level.",
+          "serializable_behavior_and_anomalies": "Serializable isolation is documented as providing \"the strictest transaction isolation\" and as emulating \"serial transaction execution for all committed transactions; as if transactions had been executed one after another, serially.\" It \"works exactly the same as Repeatable Read except that it also monitors for conditions which could make execution of a concurrent set of serializable transactions behave in a manner inconsistent with all possible serial (one at a time) executions\" and triggers a serialization failure when such conditions are detected. This design means that if a set of transactions could otherwise exhibit a non-serializable anomaly, the system will abort one of them instead of allowing a non-serializable outcome to commit.\n\nThe guarantee emphasized is that \"any set of successfully committed concurrent Serializable transactions will have the same effect as if they were run one at a time\" or else a transaction will \"not successfully commit.\" Anomalies like lost updates are not possible in any serial execution order, so by inference, such anomalies are not allowed to appear in the committed state when using Serializable; conflicts that would lead to them are turned into serialization failures."
+        },
+        "overview": "From the PostgreSQL documentation, we can characterize how strong transaction isolation protects against concurrent-update anomalies and what applications must do when conflicts are detected as serialization failures.",
+        "synthesis_in_terms_of_lost_update_style_anomalies": {
+          "protection_mechanism": "While the sources do not name \"lost update\" specifically, we can synthesize their implications. Lost-update-style anomalies arise from conflicting read-modify-write operations on the same logical data by concurrent transactions. Serializable isolation, as documented, guarantees that the final committed state is equivalent to some serial execution, and when that guarantee is at risk, PostgreSQL aborts one of the transactions with SQLSTATE 40001. Therefore, instead of silently allowing one transaction to overwrite another’s update, the system turns the dangerous concurrent pattern into a serialization failure.\n\nIn practice, this means that under Serializable isolation in PostgreSQL, the database itself is responsible for detecting dangerous concurrency patterns (including those that would correspond to lost updates) and aborting transactions so that no committed history reflects an impossible serial schedule. The application’s responsibility is to recognize such aborts via SQLSTATE 40001 (and certain related codes when appropriate) and to retry the entire transaction until it can complete without conflicts. By following this pattern, applications avoid lost-update-style anomalies in the committed database state, at the cost of sometimes having to redo work."
+        },
+        "what_applications_must_do_on_serialization_failure": {
+          "generalized_handling_mechanism": "The Serializable isolation text highlights the need for a generalized mechanism: environments using Serializable should have \"a generalized way of handling serialization failures\" because it is hard to predict which transactions might need to be rolled back \"to prevent serialization anomalies.\" This reinforces the idea that retry handling should be systematic, not ad hoc.",
+          "multiple_retries_and_progress_under_contention": "The documentation warns that retrying once does not guarantee success: \"Transaction retry does not guarantee that the retried transaction will complete; multiple retries may be needed.\" Under very high contention, \"completion of a transaction may take many attempts.\" Applications must therefore implement retry loops with appropriate limits or backoff strategies, and they should be aware that progress may depend on other conflicting transactions committing or rolling back.",
+          "must_retry_and_be_prepared_for_retries": "Both the Serializable isolation documentation and the dedicated serialization handling page insist that applications \"must be prepared to retry transactions\" that fail due to serialization errors. The handling page reiterates that applications using Repeatable Read or Serializable \"must be prepared to retry transactions that fail due to serialization errors.\"",
+          "retry_the_entire_transaction_logic": "PostgreSQL explicitly instructs that it is \"important to retry the complete transaction, including all logic that decides which SQL to issue and/or which values to use.\" Because only the application understands its full decision process, PostgreSQL \"does not offer an automatic retry facility, since it cannot do so with any guarantee of correctness.\" This means application code needs to catch SQLSTATE 40001 (and possibly some 23505/23P01 cases where appropriate) and run the full transactional unit again from the beginning."
+        },
+        "which_strong_isolation_prevents_lost_update_style_anomalies": {
+          "how_serializable_achieves_this_conceptually": "Conceptually, Serializable isolation as described for PostgreSQL is implemented with MVCC plus predicate locking and dependency tracking. The documentation notes that \"predicate locks ... are based on data actually accessed\" and appear as SIReadLock, and that read-only Serializable transactions may be able to release such locks early if they detect that \"no conflicts can still occur which could lead to a serialization anomaly.\" For read-write workloads, the system tracks read/write dependencies between concurrent Serializable transactions. If a combination of dependencies would make the overall execution inconsistent with any serial order (including cases analogous to lost updates), PostgreSQL aborts one of the transactions with a serialization failure (SQLSTATE 40001) instead of allowing both to commit.",
+          "serializable_as_the_relevant_level": "Among the isolation levels described, Serializable is the one that both emulates serial execution and actively monitors for and aborts on conditions that would lead to serialization anomalies. The documentation states that it \"monitors for conditions which could make execution of a concurrent set of serializable transactions behave in a manner inconsistent with all possible serial (one at a time) executions\" and that detecting these conditions \"will trigger a serialization failure.\" Because a lost-update-style anomaly is inconsistent with all serial executions, this monitoring and abort behavior is precisely what prevents it from appearing in the set of committed transactions.\n\nRepeatable Read, while strong, is explicitly said to prevent all listed phenomena \"except for serialization anomalies,\" so it does not provide the same blanket guarantee against all anomalies that are ruled out by serializability. Therefore, based on these sources, Serializable isolation is the strong isolation approach that can be relied on to prevent lost-update-style anomalies in committed results."
+        }
+      },
+      "subgoals": [
+        "Describe how isolation levels shape what data a transaction can see under concurrent access.",
+        "Explain what Serializable isolation guarantees (serial execution effect) and its relation to preventing anomalies.",
+        "Connect serialization anomaly prevention to detection of read/write conflicts and resulting transaction aborts.",
+        "Extract from sources what PostgreSQL requires from applications when serialization failures occur.",
+        "Relate this guidance to handling of conflicts that manifest as other error codes (e.g., unique violations)."
+      ],
+      "success_criteria": [
+        "Explain how transaction isolation relates to concurrent anomalies such as lost updates.",
+        "Identify a strong isolation level/property that prevents lost-update-style anomalies and how it does so conceptually.",
+        "Clarify how implementations detect conflicting updates and surface serialization failures.",
+        "State what applications must do when a transaction fails due to serialization/concurrency conflicts, grounded in vendor guidance.",
+        "Cite at least one major vendor/textbook source on serializable isolation and handling of serialization failures."
+      ],
+      "task_id": "transaction_isolation_investigation",
+      "verification_plan": [
+        "Consult additional vendor documentation (e.g., Oracle, SQL Server, MySQL/InnoDB) for explicit statements mapping Serializable isolation to prevention of lost updates and compare with PostgreSQL’s behavior.",
+        "Look up standard database textbooks or survey papers that formally define the lost-update anomaly and list which isolation levels (Read Committed, Repeatable Read, Serializable) prevent it.",
+        "Check PostgreSQL’s own documentation or release notes for a section explicitly mentioning \"lost update\" and how it is handled under different isolation levels.",
+        "Verify that PostgreSQL’s implementation of Serializable (SSI with MVCC and predicate locks) indeed covers all typical lost-update scenarios by reviewing design papers or technical notes.",
+        "Review best-practice guides on application-side retry logic (including backoff and idempotency considerations) for handling SQLSTATE 40001 and related transient errors."
+      ]
+    },
+    {
+      "claims": [
+        {
+          "claim": "The authority to amend the U.S. Constitution is derived from Article V of the Constitution.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The authority to amend the Constitution of the United States is derived from Article V of the Constitution.",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "The Constitution provides that an amendment may be proposed by Congress with a two-thirds majority vote in both the House of Representatives and the Senate.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The Constitution provides that an amendment may be proposed either by the Congress with a two-thirds majority vote in both the House of Representatives and the Senate",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "The Constitution also allows amendments to be proposed by a constitutional convention called for by two-thirds of the state legislatures.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The Constitution provides that an amendment may be proposed either by the Congress with a two-thirds majority vote in both the House of Representatives and the Senate or by a constitutional convention called for by two-thirds of the State legislatures.",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "None of the 27 amendments to the Constitution have been proposed by a constitutional convention.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "None of the 27 amendments to the Constitution have been proposed by constitutional convention.",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "After Congress proposes an amendment, it does so in the form of a joint resolution, and this joint resolution does not go to the President for signature or approval.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The Congress proposes an amendment in the form of a joint resolution. Since the President does not have a constitutional role in the amendment process, the joint resolution does not go to the White House for signature or approval.",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "A proposed amendment becomes part of the Constitution as soon as it is ratified by three-fourths of the states, which is 38 of 50 states.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "A proposed amendment becomes part of the Constitution as soon as it is ratified by three-fourths of the States (38 of 50 States).",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "After an amendment has been proposed, Congress is authorized to choose whether the amendment is sent to the state legislatures or to state ratifying conventions for ratification.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Congress is authorized to choose whether a proposed amendment is sent to the state legislatures or to state ratifying conventions for ratification.",
+          "source_id": "web_b3cb8d80a0113fc1"
+        },
+        {
+          "claim": "Amendments ratified by the states through either state legislatures or state conventions are indistinguishable and have equal validity as part of the Constitution.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Amendments ratified by the states under either procedure are indistinguishable and have equal validity as part of the Constitution.",
+          "source_id": "web_b3cb8d80a0113fc1"
+        },
+        {
+          "claim": "Of the 33 amendments submitted to the states for ratification, the state convention method of ratification has been used only once, for the Twenty-first Amendment.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Of the 33 amendments submitted to the states for ratification, the state convention method has been used for only one, the Twenty-first Amendment.[6]",
+          "source_id": "web_b3cb8d80a0113fc1"
+        },
+        {
+          "claim": "After Congress proposes an amendment, the Archivist of the United States is charged with responsibility for administering the ratification process under 1 U.S.C. 106b.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "After Congress proposes an amendment, the Archivist of the United States, who heads the National Archives and Records Administration (NARA), is charged with responsibility for administering the ratification process under the provisions of 1 U.S.C. 106b.",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "When a proposed amendment has been ratified by the required number of states, the Archivist issues a formal proclamation certifying that the amendment is valid and has become part of the Constitution, and this certification is published in the Federal Register and U.S. Statutes at Large.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "When the OFR verifies that it has received the required number of authenticated ratification documents, it drafts a formal proclamation for the Archivist to certify that the amendment is valid and has become part of the Constitution. This certification is published in the Federal Register and U.S. Statutes at Large and serves as official notice to the Congress and to the Nation that the amendment process has been completed.",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "The Archivist notifies each state’s Governor that an amendment has been proposed, and each Governor then formally submits the amendment to the state’s legislature or calls for a convention, depending on what Congress has specified.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The Archivist submits the proposed amendment to the States for their consideration by sending a letter of notification to each Governor along with the informational material prepared by the OFR. The Governors then formally submit the amendment to their State legislatures or the state calls for a convention, depending on what Congress has specified.",
+          "source_id": "web_56618c9ab7fd62dd"
+        },
+        {
+          "claim": "After being officially proposed, either by Congress or a national convention of the states, a constitutional amendment must be ratified by three-fourths (38 out of 50) of the states.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "After being officially proposed, either by Congress or a national convention of the states, a constitutional amendment must then be ratified by three-fourths (38 out of 50) of the states.",
+          "source_id": "web_b3cb8d80a0113fc1"
+        },
+        {
+          "claim": "The archivist of the United States officially notifies the states that an amendment has been proposed and, upon receiving the necessary number of ratifications, issues a certificate proclaiming the amendment duly ratified and part of the Constitution.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "The archivist of the United States is charged with responsibility for administering the ratification process under the provisions of 1 U.S. Code § 106b. The archivist officially notifies the states, by a registered letter to each state's Governor, that an amendment has been proposed.[18] ... Upon receiving the necessary number of state ratifications, it is the duty of the archivist to issue a certificate proclaiming a particular amendment duly ratified and part of the Constitution.",
+          "source_id": "web_b3cb8d80a0113fc1"
+        },
+        {
+          "claim": "Article Five of the United States Constitution describes the procedure for altering the Constitution and states that the process consists of proposing an amendment and subsequent ratification.",
+          "epistemic_label": "source_supported",
+          "exact_evidence_quote": "Article Five of the United States Constitution describes the procedure for altering the Constitution. Under Article Five, the process to alter the Constitution consists of proposing an amendment or amendments, and subsequent ratification.",
+          "source_id": "web_b3cb8d80a0113fc1"
+        }
+      ],
+      "concepts": [
+        "Article V of the U.S. Constitution as the source of amendment authority",
+        "Two proposal methods: by Congress and by convention called by states",
+        "Two ratification methods: by state legislatures or by state conventions",
+        "Numerical thresholds: two-thirds for proposal, three-fourths for ratification",
+        "Roles of Congress, state legislatures, state conventions, and the Archivist of the United States",
+        "Administrative ratification procedures (OFR, Federal Register, Statutes at Large)"
+      ],
+      "disputed_or_missing": [
+        "The full verbatim text of Article V is not included in the provided excerpts, so any detailed paraphrase of its exact wording beyond what is quoted would be inferred rather than directly sourced.",
+        "The excerpts do not specify whether the two-thirds proposal threshold applies to all members of each house of Congress or two-thirds of a quorum present; this interpretive detail remains unaddressed in the given sources.",
+        "The excerpts do not discuss the explicit Article V limitation concerning equal suffrage of states in the Senate, so limitations on the amendment power are not covered here.",
+        "The procedural details of how a convention for proposing amendments would be organized (if ever called) are not described; only its triggering by two-thirds of state legislatures is given."
+      ],
+      "final_answer": {
+        "confidence": 0.86,
+        "summary": "Source-based explanation of the U.S. constitutional amendment process\n\n1. Constitutional basis and overall structure\n- The authority to amend the U.S. Constitution comes from Article V: \"The authority to amend the Constitution of the United States is derived from Article V of the Constitution.\" (web_56618c9ab7fd62dd)\n- Article V establishes a two-step process: proposal of amendments followed by ratification: \"Article Five of the United States Constitution describes the procedure for altering the Constitution. Under Article Five, the process to alter the Constitution consists of proposing an amendment or amendments, and subsequent ratification.\" (web_b3cb8d80a0113fc1)\n\n2. Proposal of amendments\n\n2.1. Proposal by Congress\n- The Constitution allows Congress to propose amendments if both chambers reach a two-thirds threshold: \"The Constitution provides that an amendment may be proposed either by the Congress with a two-thirds majority vote in both the House of Representatives and the Senate\" (web_56618c9ab7fd62dd).\n- Congress does this through a joint resolution: \"The Congress proposes an amendment in the form of a joint resolution.\" (web_56618c9ab7fd62dd)\n- The President is not part of this constitutional function, so the joint resolution does not go to the White House for approval: \"Since the President does not have a constitutional role in the amendment process, the joint resolution does not go to the White House for signature or approval.\" (web_56618c9ab7fd62dd)\n\n2.2. Proposal by a convention of the states\n- Article V also provides an alternative proposal method via a convention called on application of state legislatures: \"The Constitution provides that an amendment may be proposed either by the Congress with a two-thirds majority vote in both the House of Representatives and the Senate or by a constitutional convention called for by two-thirds of the State legislatures.\" (web_56618c9ab7fd62dd)\n- According to the Archives, this convention route has never been used for any of the existing amendments: \"None of the 27 amendments to the Constitution have been proposed by constitutional convention.\" (web_56618c9ab7fd62dd)\n\n3. Ratification of amendments\n\n3.1. Required state threshold\n- Once officially proposed (whether by Congress or a convention), an amendment must be ratified by three-fourths of the states: \"After being officially proposed, either by Congress or a national convention of the states, a constitutional amendment must then be ratified by three-fourths (38 out of 50) of the states.\" (web_b3cb8d80a0113fc1)\n- The National Archives gives the same threshold and translates it to a specific number of states under the current union: \"A proposed amendment becomes part of the Constitution as soon as it is ratified by three-fourths of the States (38 of 50 States).\" (web_56618c9ab7fd62dd)\n\n3.2. Two modes of ratification and who chooses between them\n- There are two constitutionally recognized ratification methods: by state legislatures or by special ratifying conventions in the states. Congress chooses which mode will apply to a particular amendment: \"Congress is authorized to choose whether a proposed amendment is sent to the state legislatures or to state ratifying conventions for ratification.\" (web_b3cb8d80a0113fc1)\n- From the federal constitutional perspective, it makes no difference which mode is used; both produce amendments of equal force: \"Amendments ratified by the states under either procedure are indistinguishable and have equal validity as part of the Constitution.\" (web_b3cb8d80a0113fc1)\n- Historically, the convention mode has been used only once, for the Twenty-first Amendment: \"Of the 33 amendments submitted to the states for ratification, the state convention method has been used for only one, the Twenty-first Amendment.[6]\" (web_b3cb8d80a0113fc1)\n\n4. Roles of Congress, the states, and the Archivist in ratification\n\n4.1. Role of Congress\n- Congress’s central roles under Article V, as reflected in these sources, are:\n  - Proposing amendments by two-thirds votes in both houses: \"The Constitution provides that an amendment may be proposed either by the Congress with a two-thirds majority vote in both the House of Representatives and the Senate\" (web_56618c9ab7fd62dd).\n  - Alternatively, responding to applications from two-thirds of state legislatures to call a constitutional convention: \"or by a constitutional convention called for by two-thirds of the State legislatures.\" (web_56618c9ab7fd62dd)\n  - Selecting the mode of ratification for each proposed amendment: \"Congress is authorized to choose whether a proposed amendment is sent to the state legislatures or to state ratifying conventions for ratification.\" (web_b3cb8d80a0113fc1)\n\n4.2. Roles of state legislatures and conventions\n- State-level institutions act once an amendment has been formally proposed and transmitted to them.\n- The National Archives explains how the proposal is communicated to the states and how they act on it:\n  - The Archivist notifies each Governor of a proposed amendment: \"The Archivist submits the proposed amendment to the States for their consideration by sending a letter of notification to each Governor along with the informational material prepared by the OFR.\" (web_56618c9ab7fd62dd)\n  - Depending on Congress’s choice of ratification mode, either the state legislature considers the amendment or the state calls a special convention to do so: \"The Governors then formally submit the amendment to their State legislatures or the state calls for a convention, depending on what Congress has specified.\" (web_56618c9ab7fd62dd)\n- When a state approves (ratifies) the amendment, it must send formal documentation to the federal government: \"When a State ratifies a proposed amendment, it sends the Archivist an original or certified copy of the State action\" (web_56618c9ab7fd62dd).\n\n4.3. Administrative role of the Archivist and OFR\n- The Archivist of the United States is responsible for administering the amendment ratification process under federal statute: \"After Congress proposes an amendment, the Archivist of the United States, who heads the National Archives and Records Administration (NARA), is charged with responsibility for administering the ratification process under the provisions of 1 U.S.C. 106b.\" (web_56618c9ab7fd62dd)\n- The Wikipedia article on Article V describes the same statutory role and its practical steps:\n  - The archivist administers the ratification process: \"The archivist of the United States is charged with responsibility for administering the ratification process under the provisions of 1 U.S. Code § 106b.\" (web_b3cb8d80a0113fc1)\n  - The archivist’s office formally notifies the states: \"The archivist officially notifies the states, by a registered letter to each state's Governor, that an amendment has been proposed.[18]\" (web_b3cb8d80a0113fc1)\n  - After receiving state ratification documents, and once the three-fourths threshold is met, the archivist must certify and proclaim the amendment: \"Upon receiving the necessary number of state ratifications, it is the duty of the archivist to issue a certificate proclaiming a particular amendment duly ratified and part of the Constitution.\" (web_b3cb8d80a0113fc1)\n- The National Archives further explains how this proclamation functions as official notice:\n  - Once the Office of the Federal Register (OFR) verifies the required number of ratifications, it prepares a proclamation for the Archivist: \"When the OFR verifies that it has received the required number of authenticated ratification documents, it drafts a formal proclamation for the Archivist to certify that the amendment is valid and has become part of the Constitution.\" (web_56618c9ab7fd62dd)\n  - Publication of this certification completes the process and notifies the country: \"This certification is published in the Federal Register and U.S. Statutes at Large and serves as official notice to the Congress and to the Nation that the amendment process has been completed.\" (web_56618c9ab7fd62dd)\n\n5. Distinguishing formal rules from historical practice\n- The formal, constitutional rules (from Article V as described in these sources) establish:\n  - Two proposal mechanisms: by Congress (two-thirds in both houses) or by convention called by two-thirds of state legislatures: \"The Constitution provides that an amendment may be proposed either by the Congress with a two-thirds majority vote in both the House of Representatives and the Senate or by a constitutional convention called for by two-thirds of the State legislatures.\" (web_56618c9ab7fd62dd)\n  - Two ratification mechanisms: by state legislatures or by state ratifying conventions, with Congress choosing between them: \"Congress is authorized to choose whether a proposed amendment is sent to the state legislatures or to state ratifying conventions for ratification.\" (web_b3cb8d80a0113fc1)\n  - A single ratification threshold: ratification by three-fourths of the states, currently 38 of 50: \"A proposed amendment becomes part of the Constitution as soon as it is ratified by three-fourths of the States (38 of 50 States).\" (web_56618c9ab7fd62dd); \"a constitutional amendment must then be ratified by three-fourths (38 out of 50) of the states.\" (web_b3cb8d80a0113fc1)\n- Historical practice, by contrast, is described but does not change these rules:\n  - The convention method of proposal has not been used for any of the 27 ratified amendments: \"None of the 27 amendments to the Constitution have been proposed by constitutional convention.\" (web_56618c9ab7fd62dd)\n  - The state convention method of ratification has been used only once, for the Twenty-first Amendment: \"Of the 33 amendments submitted to the states for ratification, the state convention method has been used for only one, the Twenty-first Amendment.[6]\" (web_b3cb8d80a0113fc1)\n\nWithin the limits of the provided sources, this describes the formal proposal and ratification thresholds, and the distinct roles of Congress, the states, and the Archivist in the U.S. constitutional amendment process.",
+        "verification_plan": [
+          "Directly consult the full text of Article V in an official or authenticated copy of the U.S. Constitution (e.g., from congress.gov or the Government Publishing Office) to confirm precise wording of the proposal and ratification clauses and any limitations.",
+          "Check an authoritative constitutional law treatise or commentary (e.g., from the Congressional Research Service or the Library of Congress’s Constitution Annotated) to confirm that the two-thirds threshold is interpreted as two-thirds of each house, and how it applies in practice (members vs. quorum).",
+          "Verify from official historical records (e.g., National Archives amendment history) that no amendments have been proposed by convention and that only the Twenty-first Amendment used state conventions for ratification.",
+          "Review 1 U.S.C. § 106b in the U.S. Code to confirm the statutory duties of the Archivist regarding certification and publication of ratified amendments.",
+          "Cross-check that the current number of states (50) and the resulting three-fourths requirement (38) match current official federal references and amendment practice."
+        ]
+      },
+      "subgoals": [
+        "Define where the amendment power comes from and identify Article V as its source.",
+        "Describe the congressional proposal method, including the two-thirds voting requirement in both houses.",
+        "Describe the convention-of-states proposal method and its triggering threshold among state legislatures.",
+        "Describe the ratification options (state legislatures vs. state conventions) and the required three-fourths state approval.",
+        "Explain who chooses the ratification mode and how the Archivist and OFR administer the process.",
+        "Note historically which proposal and ratification methods have actually been used, while keeping them distinct from the formal rules."
+      ],
+      "success_criteria": [
+        "Identify and accurately summarize the constitutional text (including specific article and section) that governs the amendment process.",
+        "Explain the two primary methods of proposing amendments and the numerical thresholds required in each case.",
+        "Explain the available methods of ratification by the states, the thresholds that must be met, and who selects the mode of ratification.",
+        "Clarify the respective roles and powers of Congress and the state legislatures/conventions in proposing and ratifying amendments.",
+        "Distinguish the formal legal rules from historical practice where mentioned."
+      ],
+      "task_id": "constitutional_amendment_investigation"
+    }
+  ],
+  "provider": {
+    "antibiotic_resistance_investigation": {
+      "available": true,
+      "input_tokens": 2560,
+      "latency_seconds": 55.00861508300295,
+      "output_tokens": 4059
+    },
+    "constitutional_amendment_investigation": {
+      "available": true,
+      "input_tokens": 3261,
+      "latency_seconds": 67.3682012920035,
+      "output_tokens": 4891
+    },
+    "earthquake_energy_investigation": {
+      "available": true,
+      "input_tokens": 2862,
+      "latency_seconds": 28.93773683399195,
+      "output_tokens": 2264
+    },
+    "http_cache_investigation": {
+      "available": true,
+      "input_tokens": 2711,
+      "latency_seconds": 81.0885706669651,
+      "output_tokens": 5913
+    },
+    "seasons_investigation": {
+      "available": true,
+      "input_tokens": 2278,
+      "latency_seconds": 45.14770058396971,
+      "output_tokens": 3454
+    },
+    "transaction_isolation_investigation": {
+      "available": true,
+      "input_tokens": 3109,
+      "latency_seconds": 58.0522748749936,
+      "output_tokens": 4756
+    }
+  }
+}

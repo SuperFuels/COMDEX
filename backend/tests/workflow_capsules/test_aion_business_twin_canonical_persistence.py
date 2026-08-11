@@ -64,13 +64,18 @@ def test_foundation_commits_identity_structure_map_and_ledger(tmp_path, monkeypa
         ),
     )
     assert appended["appended"] == 1
-    assert api.append_business_map_facts(
+    before_noop = api.get_business_map("home-fixed")
+    duplicate = api.append_business_map_facts(
         "home-fixed",
         api.BusinessMapFactsRequest(
             source="finance_pilot_test",
             facts=[{"function": "finance", "field": "monthly_revenue", "value": 4200, "source_ref": "turn_1"}],
         ),
-    )["appended"] == 0
+    )
+    after_noop = api.get_business_map("home-fixed")
+    assert duplicate["appended"] == 0
+    assert after_noop["payload"]["revision"] == before_noop["payload"]["revision"]
+    assert after_noop["receipt"]["payload_hash"] == before_noop["receipt"]["payload_hash"]
 
     context = api.get_boardroom_context("home-fixed")["context"]
     assert context["persistent_truth_source"] == "business_containers"

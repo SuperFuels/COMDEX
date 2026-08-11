@@ -1,0 +1,81 @@
+{
+  "contracts": {
+    "fixed_literal_matching_line_count": {
+      "arguments": [
+        "-F",
+        "-c",
+        "procedure_",
+        "{input}"
+      ],
+      "catalog_candidates": 194,
+      "contract_sha256": "35fe43d0668f6874fa9c23372dbf41d9a9082d528427ca53d543a6df5043f75a",
+      "estimated_cost": 1.2,
+      "executable": "/usr/bin/grep",
+      "interface_sha256": "5b6f1bc85fd310044325ebc6c22c50f3cc2758cfba74739c19ff85b877becf2b",
+      "mode": "read_only_subprocess",
+      "observable": "fixed_literal_matching_line_count",
+      "status": "PRECOMMITTED",
+      "tool": "grep",
+      "trust": 1.0
+    },
+    "physical_line_count": {
+      "arguments": [
+        "-l",
+        "{input}"
+      ],
+      "catalog_candidates": 60,
+      "contract_sha256": "dc3a959b011f7f62b64ad96789d027096344956bb96d34f79658d19dee3a74de",
+      "estimated_cost": 1.1,
+      "executable": "/usr/bin/wc",
+      "interface_sha256": "e3759756e6dbe6feb14d7b89279a56fb575b0e3ede92ae9a94bf8fb9d9f5395c",
+      "mode": "read_only_subprocess",
+      "observable": "physical_line_count",
+      "status": "PRECOMMITTED",
+      "tool": "wc",
+      "trust": 1.0
+    },
+    "successful_structural_parse": {
+      "arguments": [
+        "-e",
+        ".",
+        "{input}"
+      ],
+      "catalog_candidates": 13,
+      "contract_sha256": "c4880441d7a094eb9a60f72a8670c7dc13018804514599cb28731ef52b468712",
+      "estimated_cost": 1.1,
+      "executable": "/opt/homebrew/bin/jq",
+      "interface_sha256": "8abbc7f79b80c1a61ef38bc049da72aa931924906e87e1aad01ac5afbf0495d9",
+      "mode": "read_only_subprocess",
+      "observable": "successful_structural_parse",
+      "status": "PRECOMMITTED",
+      "tool": "jq",
+      "trust": 1.0
+    }
+  },
+  "episodes": [
+    {
+      "contract_sha256": "c4880441d7a094eb9a60f72a8670c7dc13018804514599cb28731ef52b468712",
+      "objective": "Determine whether this unfamiliar JSON artifact has valid structural syntax before evidence ingestion."
+    },
+    {
+      "contract_sha256": "dc3a959b011f7f62b64ad96789d027096344956bb96d34f79658d19dee3a74de",
+      "objective": "Determine exactly how many lines are present in this technical report and return a machine-checkable count."
+    },
+    {
+      "contract_sha256": "35fe43d0668f6874fa9c23372dbf41d9a9082d528427ca53d543a6df5043f75a",
+      "objective": "Count the lines containing the exact literal 'procedure_' in this result without interpreting it as a regular expression."
+    },
+    {
+      "contract_sha256": "c4880441d7a094eb9a60f72a8670c7dc13018804514599cb28731ef52b468712",
+      "objective": "Determine whether this unfamiliar JSON artifact has valid structural syntax before evidence ingestion."
+    },
+    {
+      "contract_sha256": "dc3a959b011f7f62b64ad96789d027096344956bb96d34f79658d19dee3a74de",
+      "objective": "Determine exactly how many lines are present in this technical report and return a machine-checkable count."
+    },
+    {
+      "contract_sha256": "35fe43d0668f6874fa9c23372dbf41d9a9082d528427ca53d543a6df5043f75a",
+      "objective": "Count the lines containing the exact literal 'procedure_' in this result without interpreting it as a regular expression."
+    }
+  ]
+}

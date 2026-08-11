@@ -1,0 +1,286 @@
+% Tessaris Marketing Intake, Sales-Agent Evaluation and Telephony Sprint
+% Overleaf-ready section. Recommended preamble packages:
+% \usepackage{booktabs}
+% \usepackage{longtable}
+% \usepackage{tabularx}
+% \usepackage{hyperref}
+% \usepackage{xcolor}
+% \usepackage{enumitem}
+
+\section{Marketing Intake, Sales-Agent Evaluation and Governed Telephony}
+\label{sec:marketing-sales-telephony-sprint}
+
+\subsection{Sprint objective and outcome}
+
+This sprint replaced the remaining demonstration-oriented Marketing-to-Sales path with an operational, provider-neutral commercial evidence chain. The completed path is:
+
+\begin{quote}
+secured website form or read-only Gmail
+$\rightarrow$ canonical contact
+$\rightarrow$ attributed opportunity
+$\rightarrow$ qualification
+$\rightarrow$ governed Sales Agent
+$\rightarrow$ exact-approved telephone call
+$\rightarrow$ signed call events
+$\rightarrow$ supervised live console.
+\end{quote}
+
+The canonical customer and opportunity records remain inside Tessaris. Gmail, Retell and future CRM or telephony systems are adapters around this ledger; they are not allowed to become the source of organisational authority or customer truth.
+
+The sprint delivered four substantial capability changes:
+
+\begin{enumerate}[leftmargin=*]
+    \item genuine, authenticated Marketing intake with campaign attribution;
+    \item executable and hash-bound Sales-Agent safety evaluation;
+    \item an implemented production telephone-call adapter with separate preparation, approval and execution stages; and
+    \item a supervised console for verified call state and transcript evidence.
+\end{enumerate}
+
+\subsection{Canonical commercial architecture}
+
+The Sales Revenue Spine is the provider-neutral system of record between Marketing, Sales, Operations, Finance and the Boardroom. Its principal record types are shown in Table~\ref{tab:sales-spine-records}.
+
+\begin{longtable}{p{0.22\textwidth}p{0.31\textwidth}p{0.37\textwidth}}
+\caption{Canonical Sales Revenue Spine records.}\label{tab:sales-spine-records}\\
+\toprule
+\textbf{Record} & \textbf{Purpose} & \textbf{Important controls} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Record} & \textbf{Purpose} & \textbf{Important controls} \\
+\midrule
+\endhead
+Company & Provider-neutral organisation identity shared by multiple contacts. & Canonical name matching, workspace isolation and hash integrity. \\
+Contact & Stable customer or prospect identity. & Email and telephone normalisation; deduplication across new enquiries. \\
+Opportunity & A distinct commercial need belonging to a contact. & Source-reference idempotency, attribution, consent, governed stage transitions and append-only activity evidence. \\
+Qualification & Evidence about need, location, urgency, decision authority and budget context. & The score recommends workflow only; it cannot reject a person or bind the business. \\
+Playbook & Frozen Sales-Agent questions, routes and non-negotiable boundaries. & Versioned content, content hash, executable simulations and exact-hash promotion. \\
+Call draft & A proposed external telephone action. & Promoted playbook, contact permission, E.164 number, separate preparation and exact approval. \\
+Telephony event & Verified provider evidence for call state, transcript and outcome. & HMAC signature verification, replay window and append-only storage. \\
+\bottomrule
+\end{longtable}
+
+The opportunity state machine permits only explicit transitions between the following stages:
+
+\begin{quote}
+\texttt{new}, \texttt{contacted}, \texttt{qualification}, \texttt{qualified},
+\texttt{appointment\_proposed}, \texttt{appointment\_booked},
+\texttt{human\_handoff}, \texttt{proposal}, \texttt{won}, and \texttt{lost}.
+\end{quote}
+
+Invalid jumps fail closed. For example, a newly received enquiry cannot be moved directly to \texttt{won}. Contacts are deduplicated by normalised email address or telephone number, while distinct needs remain distinct opportunities. A repeated external event is deduplicated using its provider/source reference.
+
+\subsection{Secured website enquiry intake}
+
+An authorised person can create a secured website-intake endpoint for a registered business workspace. Endpoint creation generates a cryptographically random token. The clear token is returned once, while Tessaris persists only its SHA-256 digest.
+
+Website submissions are accepted through the following provider-neutral route:
+
+\begin{verbatim}
+POST /api/aion/sales/public-intake/{workspace_id}/{endpoint_id}
+X-Tessaris-Intake-Key: <one-time-issued-secret>
+\end{verbatim}
+
+Every accepted submission must contain an event/idempotency key, a customer name, an enquiry and at least one valid contact method. The intake boundary applies the following controls:
+
+\begin{itemize}[leftmargin=*]
+    \item constant-time comparison of the submitted token digest;
+    \item maximum payload size of 12,000 characters;
+    \item a hidden honeypot field for automated-spam rejection;
+    \item a limit of 20 accepted submissions per minute per endpoint;
+    \item source-reference idempotency;
+    \item email and telephone normalisation;
+    \item an allow-list for campaign and attribution fields; and
+    \item no retention of the raw request payload or clear remote address.
+\end{itemize}
+
+Supported attribution includes campaign identifier, campaign name, channel, content identifier, landing page, referrer, \texttt{utm\_source}, \texttt{utm\_medium}, \texttt{utm\_campaign} and \texttt{utm\_content}. Attribution is stored on the resulting opportunity and is visible to Sales and downstream Boardroom reporting.
+
+Inbound response permission and marketing permission are recorded separately. A customer-initiated website enquiry normally establishes permission to respond to that enquiry; it does not automatically establish permission for unrelated outbound campaigns.
+
+The endpoint contract is operational locally. A real internet website still requires the receiver to be deployed behind public HTTPS, or temporarily exposed through a controlled development tunnel. The local desktop address is not represented as a production internet endpoint.
+
+\subsection{Read-only Gmail enquiry intake}
+
+The existing Gmail OAuth connector was joined to the canonical Sales Revenue Spine. A deliberately narrow query reads messages that are likely to represent enquiries, quotations, bookings or estimates. A typical query is:
+
+\begin{verbatim}
+in:inbox (subject:enquiry OR subject:quote
+          OR subject:booking OR subject:estimate)
+\end{verbatim}
+
+Broad inbox queries fail closed. A matching Gmail message is converted into a canonical opportunity using the Gmail message identifier as the source-reference/idempotency key. The sender identity, subject and plain-text body are normalised before storage.
+
+The Gmail operation is strictly read-only. It does not:
+
+\begin{itemize}[leftmargin=*]
+    \item reply to the sender;
+    \item create or send a draft;
+    \item mark a message as read;
+    \item add or remove labels;
+    \item move or delete a message; or
+    \item alter the Gmail thread.
+\end{itemize}
+
+The sprint also corrected a stale-token defect. Historical token records without an expiry timestamp previously caused Tessaris to reuse an expired access token indefinitely. A Gmail HTTP 401 now forces an OAuth refresh. If Google rejects the refresh grant, connector state becomes \texttt{reauthorization\_required}; the dashboard no longer claims that the connector is healthy.
+
+At the end of this sprint, the local Gmail refresh grant had been rejected by Google. Consequently, the installed interface correctly displays \emph{Reauthorization Required}. One manual OAuth reconnection is required before the first live enquiry import. This is an external credential-state boundary rather than a missing ingestion implementation.
+
+\subsection{Executable Sales-Agent evaluation}
+
+Agent Studio previously exposed a simulation target but did not execute a complete promotion examination. The new evaluator runs eleven frozen scenarios against the governed decision policy:
+
+\begin{enumerate}[leftmargin=*]
+    \item cooperative customer;
+    \item confused customer;
+    \item price objection;
+    \item angry customer;
+    \item wrong number;
+    \item existing customer;
+    \item vulnerable person;
+    \item unsupported question;
+    \item explicit request for a human;
+    \item prompt manipulation; and
+    \item interruptions.
+\end{enumerate}
+
+Each scenario evaluates four mandatory properties:
+
+\begin{enumerate}[leftmargin=*]
+    \item the observed route equals the precommitted expected route;
+    \item AI identity disclosure is present;
+    \item no external action is performed during the examination; and
+    \item no unsupported business claim is introduced.
+\end{enumerate}
+
+The complete run is stored as a hash-bound \texttt{aion.sales.simulation\_run.v1} record. Playbook promotion requires all required scenarios to pass and requires an authorised person to approve the exact current playbook hash. If any question, guardrail, route or simulation result changes after review, the previous hash no longer matches and promotion fails closed.
+
+The Home Fixed Sales Agent passed \textbf{11/11} scenarios. The exact tested version was promoted to \texttt{promoted\_for\_controlled\_use}. This evidence establishes deterministic routing and governance-policy safety. It does not by itself establish natural-language quality, voice realism, persuasion quality or production telephone reliability; those remain separate evaluation layers.
+
+\subsection{Governed production telephony}
+
+The provider-neutral telephony boundary currently contains an implemented Retell adapter. The adapter uses Retell's documented outbound call endpoint:
+
+\begin{verbatim}
+POST https://api.retellai.com/v2/create-phone-call
+Authorization: Bearer <RETELL_API_KEY>
+\end{verbatim}
+
+The payload binds the provider call to the Tessaris workspace, opportunity, call draft and promoted playbook hash. Customer name and the approved enquiry reason may be supplied as bounded dynamic variables. Provider credentials, the Retell caller number and the Retell agent identifier are environment-only configuration and are never embedded in renderer code or canonical customer records.
+
+A production call can execute only when all of the following gates pass:
+
+\begin{enumerate}[leftmargin=*]
+    \item the opportunity contains a normalised E.164 telephone number;
+    \item the recorded contact permission permits the proposed response;
+    \item the referenced Sales playbook is promoted;
+    \item an authorised person prepares the call draft;
+    \item a person with \texttt{sales.approve\_communication} approves the exact draft hash;
+    \item the draft remains unchanged after approval;
+    \item \texttt{RETELL\_API\_KEY}, \texttt{RETELL\_FROM\_NUMBER} and \texttt{RETELL\_AGENT\_ID} are present; and
+    \item \texttt{AION\_SALES\_LIVE\_TELEPHONY\_ENABLED} is explicitly enabled.
+\end{enumerate}
+
+Preparation, approval and execution are intentionally separate actions. Approval does not initiate a call. If credentials or the explicit enable switch are absent, execution returns \texttt{live\_sales\_telephony\_not\_enabled}. No telephone call was placed during this sprint.
+
+\subsection{Signed call events and live supervision}
+
+The Retell webhook receiver validates the provider signature before accepting call state or transcript evidence. Verification follows the documented HMAC-SHA256 contract:
+
+\begin{enumerate}[leftmargin=*]
+    \item parse the timestamp and digest from \texttt{X-Retell-Signature};
+    \item reject timestamps more than five minutes from local time;
+    \item calculate HMAC-SHA256 over the exact raw request body concatenated with the original timestamp; and
+    \item compare the calculated and supplied digests in constant time.
+\end{enumerate}
+
+The raw request body is used for signature verification. The parsed object is never re-serialized for this purpose because differences in whitespace or key order would invalidate a legitimate signature and could weaken the security contract.
+
+Only verified events enter the append-only telephony event ledger. Supported evidence includes call identifier, call status, direction, transcript turns, disconnection reason and post-call analysis. The live Sales console presents:
+
+\begin{itemize}[leftmargin=*]
+    \item prepared, approved and submitted call drafts;
+    \item separate approval and execution controls;
+    \item current provider readiness;
+    \item recent verified transcript turns;
+    \item call and disconnection state; and
+    \item the boundary requiring a publicly reachable HTTPS webhook.
+\end{itemize}
+
+\subsection{Desktop interface and startup reliability}
+
+The legacy dark Sales placeholder is replaced by the light Sales Revenue Spine workspace. The surface exposes genuine Marketing intake, the opportunity pipeline, qualification, human handoff, Agent Studio, telephony readiness and the supervised call console.
+
+A startup race was found during visual verification. The renderer could issue its first Sales request before the desktop backend was listening. The resulting fetch remained pending and prevented the replacement surface from loading. The request layer now uses an abort controller with a six-second timeout, clears its loading state after failure and retries every two seconds until the backend and business identity are available. The installed application was restarted and visually verified to replace the legacy placeholder automatically.
+
+\subsection{Authority and safety model}
+
+The sprint preserves the existing organisational authority model:
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{sales.manage} controls enquiry administration, endpoint creation, qualification workflow and call preparation;
+    \item \texttt{sales.qualify} controls structured qualification and conversation outcomes;
+    \item \texttt{sales.approve\_communication} controls approval and execution of exact external communications; and
+    \item \texttt{department.manage\_all} may delegate these capabilities to an authorised organisational leader.
+\end{itemize}
+
+Every stored record is scoped to one registered workspace. Hash verification detects mutation of contacts, companies, opportunities, playbooks, simulation runs, call drafts and telephony events. Cross-workspace reads fail closed.
+
+\subsection{Verification evidence}
+
+The implemented capability was verified at service, API, renderer and installed-application levels. The principal results were:
+
+\begin{itemize}[leftmargin=*]
+    \item Home Fixed Sales-Agent examination: \textbf{11/11 passed};
+    \item exact tested playbook promoted for controlled use;
+    \item authenticated website intake accepted valid events and rejected an invalid secret;
+    \item repeated website and Gmail source events were deduplicated;
+    \item campaign attribution and inbound consent evidence survived ingestion;
+    \item honeypot submissions created no opportunity;
+    \item Gmail fixture imports changed no Gmail state and sent no reply;
+    \item invalid playbook and call hashes failed closed;
+    \item telephony execution remained disabled without explicit production configuration;
+    \item valid, current Retell signatures passed and stale/invalid signatures failed;
+    \item 30 focused Sales, Gmail and interface tests passed, followed by final targeted regression runs; and
+    \item the installed Tessaris backend reported healthy in desktop mode using CPU embeddings.
+\end{itemize}
+
+\subsection{Primary implementation files}
+
+\begin{itemize}[leftmargin=*]
+    \item \texttt{backend/modules/aion\_business/runtime/sales\_revenue\_service.py}
+    \item \texttt{backend/modules/aion\_business/api/sales\_revenue\_api.py}
+    \item \texttt{backend/modules/local\_node/local\_node\_runtime.py}
+    \item \texttt{backend/desktop\_app.py}
+    \item \texttt{desktop/mac/src/aion\_sales\_revenue\_workspace.js}
+    \item \texttt{backend/tests/test\_sales\_revenue\_service.py}
+    \item \texttt{backend/tests/test\_sales\_revenue\_api.py}
+    \item \texttt{backend/tests/workflow\_capsules/test\_aion\_sales\_revenue\_workspace\_ui.py}
+\end{itemize}
+
+The installed application remains recoverable from:
+
+\begin{verbatim}
+/Applications/Tessaris.app.backup-20260809-before-marketing-intake-telephony
+\end{verbatim}
+
+No Git commit was created during the sprint.
+
+\subsection{Remaining production work}
+
+The sprint completed the internal capability and truthful production adapter, but did not fabricate unavailable external state. The remaining steps are:
+
+\begin{enumerate}[leftmargin=*]
+    \item re-authorise Gmail and perform one narrow live enquiry import;
+    \item deploy the website receiver and telephony webhook behind public HTTPS;
+    \item configure a Retell API key, imported or purchased number and agent identifier;
+    \item execute controlled natural-language and voice-quality simulations;
+    \item make one explicitly approved test call to a controlled number;
+    \item add calendar availability and exact-approved booking execution;
+    \item connect qualified opportunities to quotations, Operations delivery and Finance invoicing;
+    \item add post-call quality scoring, outcome feedback and challenger-versus-retained promotion; and
+    \item add HubSpot and additional CRM/telephony adapters around the same canonical records where commercially justified.
+\end{enumerate}
+
+The next credible production milestone is therefore not another interface mock-up. It is a fully controlled external loop: one genuine enquiry enters through a secured public channel, the promoted agent qualifies it, an authorised person approves the exact call, the provider returns signed call evidence, and the resulting appointment or human handoff is preserved across Sales, Operations, Finance and the Boardroom.
+

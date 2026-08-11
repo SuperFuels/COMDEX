@@ -13,7 +13,7 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any
-from sentence_transformers import SentenceTransformer
+from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ os.makedirs(OUTPUT_PATH.parent, exist_ok=True)
 
 # Initialize model
 MODEL_PATH = "backend/models/all-MiniLM-L6-v2"
-model = SentenceTransformer(MODEL_PATH)
+model = get_sentence_transformer(MODEL_PATH)
 logger.info(f"✅ Using MiniLM model from {MODEL_PATH}")
 
 def normalize_entry(entry: Dict[str, Any]) -> Dict[str, Any]:

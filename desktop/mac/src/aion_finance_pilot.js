@@ -121,6 +121,35 @@
       html body [data-aion-finance-workspace="true"] [data-aion-finance-fact-review] span {
         color:#cbd5e1 !important;
       }
+      html body [data-aion-finance-workspace="true"]>section{
+        background:#ffffff !important;color:#102a43 !important;border:1px solid #cbd9e6 !important;
+        border-left:5px solid #0ea5e9 !important;box-shadow:none !important;
+      }
+      html body [data-aion-finance-workspace="true"] p,
+      html body [data-aion-finance-workspace="true"] span{color:#52667a !important}
+      html body [data-aion-finance-workspace="true"] strong{color:#102a43 !important}
+      html body [data-aion-finance-workspace="true"] [data-aion-finance-accounting],
+      html body [data-aion-finance-workspace="true"] [data-aion-finance-evidence]{
+        background:#ffffff !important;background-image:none !important;color:#102a43 !important;
+        border:1px solid #cbd9e6 !important;box-shadow:inset 4px 0 0 #0284c7 !important;
+      }
+      html body [data-aion-finance-workspace="true"] [data-aion-finance-accounting]:hover,
+      html body [data-aion-finance-workspace="true"] [data-aion-finance-evidence]:hover{background:#edf8fc !important}
+      html body [data-aion-finance-workspace="true"] [aria-pressed="true"]{
+        background:#f0fdf7 !important;background-image:none !important;border:2px solid #15803d !important;
+        box-shadow:inset 4px 0 0 #15803d !important;
+      }
+      html body [data-aion-finance-workspace="true"] [data-aion-finance-accounting] strong,
+      html body [data-aion-finance-workspace="true"] [data-aion-finance-evidence] strong,
+      html body [data-aion-finance-workspace="true"] [aria-pressed="true"] strong{color:#102a43 !important}
+      html body [data-aion-finance-workspace="true"] input,
+      html body [data-aion-finance-workspace="true"] select,
+      html body [data-aion-finance-workspace="true"] textarea{
+        background:#ffffff !important;color:#102a43 !important;-webkit-text-fill-color:#102a43 !important;
+        border:1px solid #b7c8d6 !important;box-shadow:none !important;
+      }
+      html body section[data-aion-finance-workspace="true"] [data-aion-finance-fact-value]{color:#102a43 !important;-webkit-text-fill-color:#102a43 !important}
+      html body [data-aion-finance-workspace="true"] [data-aion-finance-fact-review] span{color:#52667a !important}
     `;
     document.head.appendChild(style);
   }
@@ -641,12 +670,12 @@
       <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start">
         <div>
           <div style="color:${connected ? '#86efac' : '#7dd3fc'};font-weight:900">&gt; Xero · ${esc(String(connection.status || 'not_connected').replaceAll('_', ' '))}</div>
-          <div style="color:#94a3b8;font-size:12px;margin-top:5px">Read-only accounting connection · credentials remain in macOS Keychain · no Xero writes enabled.</div>
+          <div style="color:#94a3b8;font-size:12px;margin-top:5px">Credentials remain in macOS Keychain. Sync is read-only; every Xero bill write requires a separately approved exact payload and provider read-back verification.</div>
           ${connection.tenant_name ? `<div style="color:#e2e8f0;margin-top:6px">Organisation: ${esc(connection.tenant_name)}</div>` : ''}
           ${connection.last_sync_at ? `<div style="color:#94a3b8;margin-top:4px">Last sync: ${esc(connection.last_sync_at)} · ${Number(summary.account_count || 0)} accounts · ${Number(summary.invoice_count || 0)} invoices · ${Number((summary.reports_received || []).length)} reports</div>` : ''}
           ${connection.last_error ? `<div style="color:#fca5a5;margin-top:6px">${esc(connection.last_error)}</div>` : ''}
           ${connection.config_message ? `<div style="color:#facc15;margin-top:6px">${esc(connection.config_message)}</div>` : ''}
-          ${reauthorisationRequired ? `<div style="color:#facc15;margin-top:7px"><strong>Reauthorisation required.</strong> Xero must approve the additional read-only access for manual journals and projects before those records can sync.${missingScopes.length ? `<br><small>Missing: ${esc(missingScopes.join(', '))}</small>` : ''}</div>` : ''}
+          ${reauthorisationRequired ? `<div style="color:#facc15;margin-top:7px"><strong>Reauthorisation required.</strong> Xero must approve the granular invoice, payment, bank-transaction, journal, attachment and contact permissions used by the controlled accounting workflow.${missingScopes.length ? `<br><small>Missing: ${esc(missingScopes.join(', '))}</small>` : ''}</div>` : ''}
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end">
           ${connected ? `${reauthorisationRequired ? '<button type="button" data-aion-xero-connect style="padding:9px 12px;background:#facc15;color:#422006;border:1px solid #fde68a;font-weight:900">Reauthorise Xero</button>' : ''}<button type="button" data-aion-xero-sync style="padding:9px 12px;background:#22c55e;color:#052e16;border:1px solid #86efac;font-weight:900">Sync Xero now</button><button type="button" data-aion-xero-disconnect style="padding:9px 12px;background:transparent;color:#fca5a5;border:1px solid #ef4444">Disconnect</button>` : `<button type="button" data-aion-xero-connect style="padding:9px 12px;background:#22c55e;color:#052e16;border:1px solid #86efac;font-weight:900">${awaiting ? 'Restart connection' : 'Connect Xero'}</button>${awaiting ? '<button type="button" data-aion-xero-status style="padding:9px 12px">Check connection</button>' : ''}`}
@@ -893,12 +922,16 @@
           const model = buildBusinessFinancialModel(latest);
           const sync = await global.AionBusinessContainerClient?.syncFinanceStateNow?.(latest);
           if (!sync?.ok) throw new Error(sync?.reason || 'Canonical Finance Business Container receipt was not returned');
+          const completion = await global.AionBusinessContainerClient?.completeFinanceFoundation?.();
+          if (!completion?.ok) throw new Error('Financial statements and operating model were not completed');
           latest.finalisation = {
             status: 'complete',
             completed_at: latest.completed_at,
             business_id: sync.business_id,
             finance_model_receipt: sync.finance_model || null,
             local_cache_stored: model.local_cache_stored !== false,
+            statements_ready: true,
+            operating_model_created: completion.operating_model_created === true,
           };
           save(latest);
           global.AionBusinessTwinOrchestrator?.completeFinancePilot?.({

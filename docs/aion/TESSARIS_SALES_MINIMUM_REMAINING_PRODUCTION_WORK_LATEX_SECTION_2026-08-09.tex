@@ -1,0 +1,240 @@
+% Overleaf-ready section fragment.
+% Recommended parent-document packages:
+% \usepackage{booktabs}
+% \usepackage{tabularx}
+% \usepackage{array}
+% \usepackage{enumitem}
+% \usepackage{hyperref}
+
+\section{Minimum Remaining Work for Production-Complete Sales}
+\label{sec:tessaris-sales-minimum-remaining-work}
+
+\subsection{Current Position}
+
+The core Tessaris Sales architecture is substantially complete.  The canonical
+customer relationship management ledger, opportunity pipeline, consent model,
+qualification system, governed Retell voice agent, appointment preparation,
+quotations, Finance and Operations hand-offs, email drafting, exact approvals,
+outcome evidence and Home Fixed intake routes have been implemented.
+
+The remaining work is therefore not another fundamental Sales redesign.  It is
+a bounded production-completion and real-world validation sprint.  Sales must
+not be described as fully autonomous or production-complete until the external
+communication loops and the minimum evidence in this section have been closed.
+
+\subsection{Minimum Production-Completion Requirements}
+
+\subsubsection{Gmail Reply Correlation and Continued Qualification}
+
+Incoming Gmail replies must be correlated to the existing canonical contact,
+opportunity, prior message and frozen call-goal contract.  A reply must not
+create a duplicate lead merely because the customer changed the email subject
+or replied from the same thread after a delay.
+
+The connector must:
+
+\begin{itemize}[leftmargin=*]
+  \item use authenticated Gmail thread and message identifiers where available;
+  \item match the sender to the canonical contact without trusting the display name;
+  \item preserve the original opportunity and call-goal hash;
+  \item extract only fields permitted by the frozen qualification contract;
+  \item retain earlier confirmed facts and ask only the next missing questions;
+  \item store the original message as source evidence without altering Gmail; and
+  \item route ambiguity, conflicting facts, attachments and identity uncertainty to a person.
+\end{itemize}
+
+\textbf{Minimum acceptance evidence:} a real reply to an approved Home Fixed
+draft must update the same opportunity, preserve the goal-contract hash, avoid
+duplicate creation and prepare the correct next question without sending it.
+
+\subsubsection{Approved Email Sending Policy}
+
+The current governed path can create a Gmail draft but does not automatically
+send it.  Production completion requires an explicit per-business communication
+policy supporting at least the following modes:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{draft only}: a person reviews and sends in Gmail;
+  \item \textbf{exact approval}: Tessaris sends only the exact payload separately approved by an authorised person; and
+  \item \textbf{bounded automation}: only pre-approved templates and low-risk purposes may send automatically within configured limits.
+\end{enumerate}
+
+Automatic or exact-approved execution must record the approving identity,
+payload hash, provider message identifier, delivery state and failure state.
+Replies, complaints, unsubscribe requests and delivery failures must return to
+the same canonical opportunity.
+
+\textbf{Minimum acceptance evidence:} one exact-approved email must be sent to
+an owner-controlled address, read back from the provider, received successfully
+and recorded with the correct immutable payload hash.  No altered or stale draft
+may execute.
+
+\subsubsection{WhatsApp Business Conversation and Evidence Intake}
+
+WhatsApp is a high-value channel for photographs, short videos, locations and
+customer conversation, particularly for trade and field-service businesses.
+The implementation must use an official WhatsApp Business provider or API and
+must not automate a personal WhatsApp account.
+
+The connector must support:
+
+\begin{itemize}[leftmargin=*]
+  \item business-specific credentials and telephone identity;
+  \item opt-in and permitted conversation-window evidence;
+  \item approved templates where required by the provider;
+  \item inbound and outbound message correlation to the canonical opportunity;
+  \item protected storage of images and documents with provenance;
+  \item delivery and failure receipts;
+  \item human escalation for unsafe, abusive, ambiguous or unsupported content; and
+  \item the same prohibition on invented price, booking, payment and dispatch commitments.
+\end{itemize}
+
+\textbf{Minimum acceptance evidence:} an owner-controlled WhatsApp exchange
+must attach an image and reply to the correct Sales opportunity, preserve the
+goal contract and create no unapproved commercial consequence.
+
+\subsubsection{Real Voice Robustness Evaluation}
+
+The successful owner-controlled Retell call established that the voice quality
+and basic conversation path are credible.  Production completion requires a
+broader frozen examination rather than relying on one excellent call.
+
+The minimum evaluation cohort should include:
+
+\begin{itemize}[leftmargin=*]
+  \item different English and Spanish accents relevant to the target market;
+  \item interruptions, silence, talking over the agent and corrections;
+  \item background noise and weak telephone connections;
+  \item confused, impatient and objection-raising customers;
+  \item unsupported price, availability and guarantee questions;
+  \item requests for a person and urgent safety concerns;
+  \item voicemail, busy, no-answer and dropped-call outcomes; and
+  \item deliberate attempts to move the agent outside its business scope.
+\end{itemize}
+
+Each call must be scored for disclosure, accuracy, goal completion, repetition,
+latency, interruption recovery, prohibited commitments, escalation quality and
+customer experience.  Provider transcripts are evidence, not self-issued proof
+of success.
+
+\textbf{Minimum acceptance evidence:} a precommitted cohort of controlled calls
+must meet the agreed quality and safety thresholds with no severe unsupported
+commitment and with every failed case documented for correction.
+
+\subsubsection{Complete Real Customer Journey}
+
+At least one genuine, consented Home Fixed enquiry must traverse the complete
+commercial path:
+
+\begin{quote}
+enquiry $\rightarrow$ qualification $\rightarrow$ call or written continuation
+$\rightarrow$ human-reviewed booking $\rightarrow$ quotation
+$\rightarrow$ accepted, won or independently recorded lost outcome.
+\end{quote}
+
+The test must preserve source attribution, contact permission, conversation
+evidence, appointment authority, quotation approval and the final outcome
+reference.  A favourable result is not required; a genuine lost or no-response
+outcome is valid evidence if it is recorded honestly.
+
+\textbf{Minimum acceptance evidence:} one complete real-world trace must be
+reproducible from canonical records without relying on an internal narrative or
+manually reconstructed chronology.
+
+\subsubsection{Controlled Outbound Prospecting}
+
+Outbound prospect lists and campaigns remain a separate authority class from
+responding to inbound enquiries.  Production completion requires:
+
+\begin{itemize}[leftmargin=*]
+  \item lawful source and permission evidence for every contact;
+  \item suppression, do-not-contact and unsubscribe enforcement;
+  \item per-business and per-channel volume limits;
+  \item approved audience, message, script and calling window;
+  \item exact separation between cold, warm and existing-customer treatment;
+  \item campaign pause, complaint and human-takeover controls;
+  \item recorded provider outcomes and conversion evidence; and
+  \item control-versus-challenger comparison under matched budgets.
+\end{itemize}
+
+\textbf{Minimum acceptance evidence:} an owner-controlled pilot campaign must
+pass preflight, exclude deliberately ineligible contacts, execute only the
+approved audience and record delivery or call outcomes without contacting a
+suppressed person.
+
+\subsubsection{External CRM Adapters}
+
+Tessaris remains the canonical Sales operating model.  HubSpot and later CRM
+connectors are adapters for businesses that retain an existing system; they are
+not prerequisites for the Home Fixed proof deployment.
+
+The first HubSpot adapter should support contact, company, opportunity and stage
+mapping; external identifier storage; idempotent imports; bounded exports;
+conflict detection; and an explicit direction-of-authority policy.  It must not
+silently overwrite a newer Tessaris or provider record.
+
+\textbf{Minimum acceptance evidence:} a sandbox or owner-controlled CRM must
+round-trip a representative contact and opportunity without duplication,
+authority loss or silent field conflict.  Additional CRM vendors should reuse
+the same adapter contract rather than introduce vendor-specific business logic.
+
+\subsection{Priority and Dependency Order}
+
+\begin{table}[htbp]
+\centering
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{0.10\textwidth}
+                              >{\raggedright\arraybackslash}p{0.31\textwidth}
+                              >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Order} & \textbf{Work package} & \textbf{Reason} \\
+\midrule
+1 & Gmail reply correlation & Closes the already implemented call-to-email qualification loop. \\
+2 & Exact-approved email sending & Converts drafts into a verifiable production communication path. \\
+3 & Real customer end-to-end trace & Proves that the complete Sales system creates useful business outcomes. \\
+4 & Voice robustness cohort & Establishes whether the successful first call generalises. \\
+5 & WhatsApp Business & Adds the preferred mobile image and conversation channel. \\
+6 & Controlled outbound pilot & Extends Sales from inbound response into governed demand generation. \\
+7 & HubSpot and further CRM adapters & Supports businesses retaining an external CRM without delaying the canonical Tessaris deployment. \\
+\bottomrule
+\end{tabularx}
+\caption{Minimum recommended order for the Sales production-validation sprint.}
+\label{tab:sales-production-completion-order}
+\end{table}
+
+\subsection{Definition of Production-Complete}
+
+Sales may be labelled production-complete for a defined business only when all
+of the following statements are supported by external or provider-backed evidence:
+
+\begin{enumerate}[leftmargin=*]
+  \item genuine enquiries enter the canonical opportunity ledger without duplication;
+  \item telephone and written conversations continue the same frozen goals;
+  \item an authorised communication can be delivered and independently read back;
+  \item incoming replies and evidence return to the correct opportunity;
+  \item a real journey can reach a human-reviewed booking, quotation and final outcome;
+  \item the voice agent remains safe and useful across the agreed evaluation cohort;
+  \item failures, complaints and human requests reliably stop or redirect automation;
+  \item every external consequence identifies its authority, exact payload and provider receipt; and
+  \item no dashboard claim depends solely on self-scoring or an internal counter.
+\end{enumerate}
+
+This definition is business-scoped.  Home Fixed can reach production completion
+without first implementing every CRM provider, language, country or outbound
+sales strategy.  Wider connectors and markets expand product coverage after the
+reference workflow is proven.
+
+\subsection{Recommended Programme Decision}
+
+The appropriate immediate decision is to move primary development attention to
+the next business department while retaining Sales as a controlled operational
+foundation.  When genuine Home Fixed enquiries arrive, a focused Sales
+production-validation sprint should execute the work packages above in priority
+order.
+
+The honest summary is:
+
+\begin{quote}
+The Sales brain, CRM, voice, workflow and safety system are built.  What remains
+is production-channel closure and real-world validation, not another major
+architectural build.
+\end{quote}

@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import secrets
 from typing import Any, Dict
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 import httpx
 from fastapi import APIRouter, HTTPException, Query
@@ -23,9 +23,13 @@ from backend.modules.aion_business.contracts.business_containers import (
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
+from backend.modules.aion_business.runtime.finance_inbox_service import FinanceInboxService
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import (
     WorkflowFileCabinetRepository,
 )
+from backend.modules.aion_business.runtime.xero_bookkeeping_export_service import XeroBookkeepingExportService
+from backend.modules.aion_business.runtime.xero_supplier_contact_service import XeroSupplierContactService
+from backend.modules.aion_business.runtime.xero_sales_invoice_export_service import XeroSalesInvoiceExportService
 
 
 router = APIRouter(prefix="/api/aion/integrations", tags=["aion-finance-integrations"])
@@ -39,15 +43,22 @@ XERO_KEYCHAIN_SERVICE = "com.tessaris.aion.xero"
 XERO_SCOPES = [
     "offline_access",
     "accounting.settings.read",
-    "accounting.invoices.read",
-    "accounting.payments.read",
-    "accounting.banktransactions.read",
-    "accounting.manualjournals.read",
+    "accounting.contacts",
+    "accounting.invoices",
+    "accounting.payments",
+    "accounting.banktransactions",
+    "accounting.manualjournals",
+    "accounting.attachments",
     "accounting.reports.profitandloss.read",
     "accounting.reports.balancesheet.read",
     "accounting.reports.banksummary.read",
     "projects.read",
 ]
+XERO_WRITE_SCOPES = {
+    "accounting.contacts",
+    "accounting.invoices", "accounting.payments", "accounting.banktransactions",
+    "accounting.manualjournals", "accounting.attachments",
+}
 
 
 def _now() -> str:
@@ -153,6 +164,7 @@ def _public_connection(business_id: str) -> Dict[str, Any]:
     granted_scopes = list(value.get("scopes") or [])
     missing_scopes = [scope for scope in XERO_SCOPES if scope not in granted_scopes]
     connected = value.get("status") == "connected"
+    write_authorised = connected and XERO_WRITE_SCOPES.issubset(set(granted_scopes))
     return {
         "provider": "xero",
         "business_id": business_id,
@@ -167,8 +179,10 @@ def _public_connection(business_id: str) -> Dict[str, Any]:
         "required_scopes": XERO_SCOPES,
         "missing_scopes": missing_scopes,
         "reauthorisation_required": connected and bool(missing_scopes),
-        "read_only": True,
-        "external_writes_enabled": False,
+        "reauthorisation_pending": bool(value.get("reauthorisation_pending")),
+        "read_only": not write_authorised,
+        "external_writes_enabled": write_authorised,
+        "write_mode": "exact_payload_approval_and_readback_verification" if write_authorised else "reauthorisation_required",
         "connected_at": value.get("connected_at"),
         "last_sync_at": value.get("last_sync_at"),
         "last_sync_status": value.get("last_sync_status") or "never_synced",
@@ -364,6 +378,19 @@ def xero_connector_receipts(candidate: str) -> Dict[str, Any]:
     return {"ok": True, "business_id": business_id, "receipts": receipts}
 
 
+@router.get("/xero/{candidate}/contacts")
+def xero_contacts(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    connection = _read_json(_connection_path(business_id), {})
+    sync_id = str((connection.get("latest_snapshot_ref") or {}).get("sync_id") or "")
+    payload = _read_json(_integration_dir(business_id) / "syncs" / sync_id / "contacts.json", {}) if sync_id else {}
+    contacts = [{"contact_id": item.get("ContactID"), "name": item.get("Name"),
+                 "email": item.get("EmailAddress"), "status": item.get("ContactStatus")}
+                for item in payload.get("Contacts") or []
+                if item.get("ContactID") and item.get("ContactStatus") != "ARCHIVED"]
+    return {"ok": True, "business_id": business_id, "sync_id": sync_id, "contacts": contacts[:1000]}
+
+
 @router.post("/xero/{candidate}/connect")
 def xero_connect(candidate: str) -> Dict[str, Any]:
     business_id = canonical_business_id(candidate)
@@ -385,10 +412,13 @@ def xero_connect(candidate: str) -> Dict[str, Any]:
         "code_verifier": verifier,
         "created_at": _now(),
         "redirect_uri": _redirect_uri(),
+        "previous_connection": _read_json(_connection_path(business_id), {}),
     }
     _write_json(_integration_dir(business_id) / "oauth_pending.json", pending)
-    connection = _public_connection(business_id)
-    connection.update({"status": "awaiting_authorisation", "last_error": None, "scopes": XERO_SCOPES})
+    connection = _read_json(_connection_path(business_id), {})
+    was_connected = connection.get("status") == "connected" and bool(connection.get("tenant_id"))
+    connection.update({"status": "connected" if was_connected else "awaiting_authorisation",
+                       "reauthorisation_pending": was_connected, "last_error": None})
     _write_json(_connection_path(business_id), connection)
     params = {
         "response_type": "code",
@@ -424,8 +454,11 @@ async def xero_callback(
         return HTMLResponse("<h2>Xero connection failed</h2><p>The OAuth state was not recognised. Return to Tessaris and try again.</p>", status_code=400)
     business_id, pending, pending_path = pending_match
     if error or not code:
-        connection = _public_connection(business_id)
-        connection.update({"status": "not_connected", "last_error": error or "missing_authorisation_code"})
+        previous = pending.get("previous_connection") or {}
+        connection = dict(previous) if previous.get("status") == "connected" else _public_connection(business_id)
+        connection.update({"status": "connected" if previous.get("status") == "connected" else "not_connected",
+                           "reauthorisation_pending": False,
+                           "last_error": error or "missing_authorisation_code"})
         _write_json(_connection_path(business_id), connection)
         return HTMLResponse("<h2>Xero connection was not completed</h2><p>You can close this window and return to Tessaris.</p>", status_code=400)
     token = await _token_request({
@@ -435,10 +468,12 @@ async def xero_callback(
         "client_id": str(os.getenv("XERO_CLIENT_ID") or "").strip(),
         "code_verifier": str(pending.get("code_verifier") or ""),
     }, business_id)
+    granted_scopes = str(token.get("scope") or "").split() or list(XERO_SCOPES)
     secret_ref = _TokenStore.save(business_id, token)
     tenants = [_tenant_public(item) for item in await _connections(str(token.get("access_token") or ""), business_id)]
     selected = tenants[0] if len(tenants) == 1 else {}
     connection = {
+        **(pending.get("previous_connection") or {}),
         "provider": "xero",
         "business_id": business_id,
         "status": "connected" if selected else "tenant_selection_required",
@@ -446,13 +481,14 @@ async def xero_callback(
         "tenant_name": selected.get("tenant_name"),
         "tenant_type": selected.get("tenant_type"),
         "available_tenants": tenants,
-        "scopes": XERO_SCOPES,
+        "scopes": granted_scopes,
         "secret_ref": secret_ref,
-        "read_only": True,
-        "external_writes_enabled": False,
+        "read_only": False,
+        "external_writes_enabled": True,
         "connected_at": _now(),
         "last_sync_status": "never_synced",
         "last_error": None,
+        "reauthorisation_pending": False,
     }
     _write_json(_connection_path(business_id), connection)
     pending_path.unlink(missing_ok=True)
@@ -462,6 +498,47 @@ async def xero_callback(
 
 class TenantSelection(BaseModel):
     tenant_id: str
+
+
+class XeroBookkeepingExportPrepare(BaseModel):
+    draft_id: str
+    xero_contact_id: str
+    prepared_by_person_id: str
+    target_status: str = "DRAFT"
+
+
+class XeroBookkeepingExportApproval(BaseModel):
+    approved_by_person_id: str
+    approved_payload_hash: str
+
+
+class XeroBookkeepingExportExecution(BaseModel):
+    executed_by_person_id: str
+
+class XeroSupplierPrepare(BaseModel):
+    name: str
+    email: str | None = None
+    prepared_by_person_id: str
+
+class XeroSupplierApproval(BaseModel):
+    approved_by_person_id: str
+    approved_payload_hash: str
+
+class XeroSupplierExecution(BaseModel):
+    executed_by_person_id: str
+
+class XeroSalesInvoicePrepare(BaseModel):
+    invoice_id: str
+    xero_contact_id: str
+    prepared_by_person_id: str
+    target_status: str = "DRAFT"
+
+class XeroSalesInvoiceApproval(BaseModel):
+    approved_by_person_id: str
+    approved_payload_hash: str
+
+class XeroSalesInvoiceExecution(BaseModel):
+    executed_by_person_id: str
 
 
 @router.post("/xero/{candidate}/tenant")
@@ -489,6 +566,34 @@ async def _xero_get(access_token: str, tenant_id: str, path: str, params: Dict[s
         path.replace("/", "_"), "GET", f"{XERO_ACCOUNTING_BASE}/{path.lstrip('/')}",
         timeout=45.0, business_id=business_id, params=params or {},
         headers={"Authorization": f"Bearer {access_token}", "Xero-tenant-id": tenant_id, "Accept": "application/json"},
+    )
+    return value if isinstance(value, dict) else {"value": value}
+
+
+async def _xero_put(access_token: str, tenant_id: str, path: str, payload: Dict[str, Any], *,
+                    idempotency_key: str, business_id: str) -> Dict[str, Any]:
+    value = await _xero_request_json(
+        f"write_{path.replace('/', '_')}", "PUT", f"{XERO_ACCOUNTING_BASE}/{path.lstrip('/')}",
+        timeout=45.0, business_id=business_id, json=payload,
+        headers={"Authorization": f"Bearer {access_token}", "Xero-tenant-id": tenant_id,
+                 "Accept": "application/json", "Content-Type": "application/json",
+                 "Idempotency-Key": idempotency_key},
+    )
+    return value if isinstance(value, dict) else {"value": value}
+
+
+async def _xero_put_attachment(access_token: str, tenant_id: str, path: str, filename: str,
+                               content: bytes, mime_type: str, *, idempotency_key: str,
+                               business_id: str) -> Dict[str, Any]:
+    safe_filename = quote(Path(filename).name, safe="._-")
+    value = await _xero_request_json(
+        f"write_{path.replace('/', '_')}_attachment", "PUT",
+        f"{XERO_ACCOUNTING_BASE}/{path.lstrip('/')}/Attachments/{safe_filename}",
+        timeout=45.0, business_id=business_id, content=content,
+        headers={"Authorization": f"Bearer {access_token}", "Xero-tenant-id": tenant_id,
+                 "Accept": "application/json", "Content-Type": mime_type,
+                 "Content-Disposition": f'attachment; filename="{Path(filename).name}"',
+                 "Idempotency-Key": idempotency_key},
     )
     return value if isinstance(value, dict) else {"value": value}
 
@@ -563,6 +668,7 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
     requests = {
         "organisation": ("Organisation", {}),
         "accounts": ("Accounts", {}),
+        "contacts": ("Contacts", {"page": 1}),
         "invoices": ("Invoices", {"page": 1}),
         "bank_transactions": ("BankTransactions", {"page": 1}),
         "payments": ("Payments", {"page": 1}),
@@ -577,7 +683,7 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
     try:
         for key, (path, params) in requests.items():
             try:
-                collection_root = {"invoices": "Invoices", "bank_transactions": "BankTransactions", "payments": "Payments", "manual_journals": "ManualJournals"}.get(key)
+                collection_root = {"contacts": "Contacts", "invoices": "Invoices", "bank_transactions": "BankTransactions", "payments": "Payments", "manual_journals": "ManualJournals"}.get(key)
                 raw[key] = (
                     await _xero_get_collection_pages(access_token, tenant_id, path, collection_root, business_id)
                     if collection_root else await _xero_get(access_token, tenant_id, path, params, business_id)
@@ -613,6 +719,7 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
     summary = {
         "organisation_count": len(raw.get("organisation", {}).get("Organisations") or []),
         "account_count": len(raw.get("accounts", {}).get("Accounts") or []),
+        "contact_count": len(raw.get("contacts", {}).get("Contacts") or []),
         "invoice_count": len(raw.get("invoices", {}).get("Invoices") or []),
         "bank_transaction_count": len(raw.get("bank_transactions", {}).get("BankTransactions") or []),
         "payment_count": len(raw.get("payments", {}).get("Payments") or []),
@@ -658,6 +765,232 @@ async def sync_xero(candidate: str) -> Dict[str, Any]:
     })
     _write_json(_connection_path(business_id), connection)
     return {"ok": True, "connection": _public_connection(business_id), "snapshot": snapshot, "evidence_ref": evidence_ref}
+
+
+@router.get("/xero/{candidate}/bookkeeping-exports")
+def list_xero_bookkeeping_exports(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        exports = XeroBookkeepingExportService().list(business_id)
+    except (ValueError, PermissionError) as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "exports": exports,
+            "connection": _public_connection(business_id)}
+
+
+@router.get("/xero/{candidate}/supplier-contacts")
+def list_xero_supplier_contact_requests(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    return {"ok": True, "business_id": business_id, "requests": XeroSupplierContactService().list(business_id)}
+
+
+@router.post("/xero/{candidate}/supplier-contacts/prepare")
+def prepare_xero_supplier_contact(candidate: str, request: XeroSupplierPrepare) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        record = XeroSupplierContactService().prepare(business_id, name=request.name, email=request.email,
+                                                       prepared_by_person_id=request.prepared_by_person_id)
+    except PermissionError as exc: raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc: raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "request": record, "external_write_performed": False}
+
+
+@router.post("/xero/{candidate}/supplier-contacts/{request_id}/approve")
+def approve_xero_supplier_contact(candidate: str, request_id: str, request: XeroSupplierApproval) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        record = XeroSupplierContactService().approve(business_id, request_id,
+            approved_by_person_id=request.approved_by_person_id, approved_payload_hash=request.approved_payload_hash)
+    except FileNotFoundError as exc: raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc: raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc: raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "request": record, "external_write_performed": False}
+
+
+@router.post("/xero/{candidate}/supplier-contacts/{request_id}/execute")
+async def execute_xero_supplier_contact(candidate: str, request_id: str, request: XeroSupplierExecution) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate); service = XeroSupplierContactService()
+    try:
+        record = service.execution_request(business_id, request_id, executed_by_person_id=request.executed_by_person_id)
+        if record.get("status") == "verified_in_xero": return {"ok": True, "request": record, "idempotent_replay": True}
+        connection = _public_connection(business_id)
+        if not connection.get("external_writes_enabled"): raise HTTPException(status_code=409, detail="xero_write_reauthorisation_required")
+        token = await _valid_access_token(business_id); tenant = str(connection.get("tenant_id") or "")
+        if record.get("status") == "approved_for_xero_write":
+            response = await _xero_put(token, tenant, "Contacts", record["payload"],
+                                       idempotency_key=record["idempotency_key"], business_id=business_id)
+            record = service.record_response(business_id, request_id, response)
+        readback = await _xero_get(token, tenant, f"Contacts/{record['execution']['resource_id']}", business_id=business_id)
+        record = service.verify(business_id, request_id, readback)
+    except HTTPException: raise
+    except FileNotFoundError as exc: raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc: raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc: raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "request": record, "external_write_performed": True, "verified_by_readback": True}
+
+
+@router.post("/xero/{candidate}/bookkeeping-exports/prepare")
+def prepare_xero_bookkeeping_export(candidate: str, request: XeroBookkeepingExportPrepare) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        record = XeroBookkeepingExportService().prepare(
+            business_id, request.draft_id, xero_contact_id=request.xero_contact_id,
+            prepared_by_person_id=request.prepared_by_person_id, target_status=request.target_status,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "export": record, "external_write_performed": False}
+
+
+@router.post("/xero/{candidate}/bookkeeping-exports/{export_id}/approve")
+def approve_xero_bookkeeping_export(candidate: str, export_id: str,
+                                    request: XeroBookkeepingExportApproval) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        record = XeroBookkeepingExportService().approve(
+            business_id, export_id, approved_by_person_id=request.approved_by_person_id,
+            approved_payload_hash=request.approved_payload_hash,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "export": record, "external_write_performed": False}
+
+
+@router.post("/xero/{candidate}/bookkeeping-exports/{export_id}/execute")
+async def execute_xero_bookkeeping_export(candidate: str, export_id: str,
+                                          request: XeroBookkeepingExportExecution) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    service = XeroBookkeepingExportService()
+    try:
+        record = service.execution_request(
+            business_id, export_id, executed_by_person_id=request.executed_by_person_id
+        )
+        if record.get("status") == "verified_in_xero":
+            return {"ok": True, "business_id": business_id, "export": record,
+                    "external_write_performed": True, "idempotent_replay": True}
+        connection = _public_connection(business_id)
+        if not connection.get("connected"):
+            raise HTTPException(status_code=409, detail="xero_not_connected")
+        if not connection.get("external_writes_enabled"):
+            raise HTTPException(status_code=409, detail={"code": "xero_write_reauthorisation_required",
+                "missing_scopes": connection.get("missing_scopes") or []})
+        tenant_id = str(connection.get("tenant_id") or "")
+        access_token = await _valid_access_token(business_id)
+        if record.get("status") == "approved_for_xero_write":
+            response = await _xero_put(
+                access_token, tenant_id, record["endpoint"], record["payload"],
+                idempotency_key=record["idempotency_key"], business_id=business_id,
+            )
+            record = service.record_response(business_id, export_id, response)
+        resource_id = record["execution"]["resource_id"]
+        if record.get("status") == "provider_response_received":
+            readback = await _xero_get(access_token, tenant_id, f"{record['endpoint']}/{resource_id}", business_id=business_id)
+            record = service.verify_readback(business_id, export_id, readback)
+        if record.get("status") == "resource_verified_pending_attachment":
+            file_path, document = FinanceInboxService().file_path(business_id, record["source_document_id"])
+            content = file_path.read_bytes()
+            expected_hash = str((record.get("attachment") or {}).get("content_hash") or "")
+            actual_hash = "sha256:" + sha256(content).hexdigest()
+            if actual_hash != expected_hash:
+                raise HTTPException(status_code=409, detail="finance_attachment_hash_mismatch_before_xero_upload")
+            filename = str((document.get("source") or {}).get("filename") or file_path.name)
+            mime_type = str((document.get("source") or {}).get("mime_type") or "application/octet-stream")
+            await _xero_put_attachment(
+                access_token, tenant_id, f"{record['endpoint']}/{resource_id}", filename, content, mime_type,
+                idempotency_key=(record["idempotency_key"] + "-attachment")[:128], business_id=business_id,
+            )
+            attachments = await _xero_get(
+                access_token, tenant_id, f"{record['endpoint']}/{resource_id}/Attachments", business_id=business_id
+            )
+            record = service.verify_attachment_readback(business_id, export_id, attachments)
+    except HTTPException:
+        raise
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc:
+        raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "export": record,
+            "external_write_performed": True, "verified_by_readback": True}
+
+
+@router.get("/xero/{candidate}/sales-invoice-exports")
+def list_xero_sales_invoice_exports(candidate: str) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    return {"ok": True, "business_id": business_id,
+            "exports": XeroSalesInvoiceExportService().list(business_id),
+            "connection": _public_connection(business_id)}
+
+
+@router.post("/xero/{candidate}/sales-invoice-exports/prepare")
+def prepare_xero_sales_invoice_export(candidate: str,
+                                      request: XeroSalesInvoicePrepare) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        record = XeroSalesInvoiceExportService().prepare(
+            business_id, request.invoice_id, xero_contact_id=request.xero_contact_id,
+            prepared_by_person_id=request.prepared_by_person_id,
+            target_status=request.target_status,
+        )
+    except FileNotFoundError as exc: raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc: raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc: raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "export": record,
+            "external_write_performed": False}
+
+
+@router.post("/xero/{candidate}/sales-invoice-exports/{export_id}/approve")
+def approve_xero_sales_invoice_export(candidate: str, export_id: str,
+                                      request: XeroSalesInvoiceApproval) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate)
+    try:
+        record = XeroSalesInvoiceExportService().approve(
+            business_id, export_id, approved_by_person_id=request.approved_by_person_id,
+            approved_payload_hash=request.approved_payload_hash)
+    except FileNotFoundError as exc: raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc: raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc: raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "export": record,
+            "external_write_performed": False}
+
+
+@router.post("/xero/{candidate}/sales-invoice-exports/{export_id}/execute")
+async def execute_xero_sales_invoice_export(candidate: str, export_id: str,
+                                             request: XeroSalesInvoiceExecution) -> Dict[str, Any]:
+    business_id = canonical_business_id(candidate); service = XeroSalesInvoiceExportService()
+    try:
+        record = service.execution_request(
+            business_id, export_id, executed_by_person_id=request.executed_by_person_id)
+        if record.get("status") == "verified_in_xero":
+            return {"ok": True, "business_id": business_id, "export": record,
+                    "external_write_performed": True, "idempotent_replay": True}
+        connection = _public_connection(business_id)
+        if not connection.get("external_writes_enabled"):
+            raise HTTPException(status_code=409, detail="xero_write_reauthorisation_required")
+        token = await _valid_access_token(business_id); tenant = str(connection.get("tenant_id") or "")
+        if record.get("status") == "approved_for_xero_write":
+            response = await _xero_put(token, tenant, record["endpoint"], record["payload"],
+                                       idempotency_key=record["idempotency_key"], business_id=business_id)
+            record = service.record_response(business_id, export_id, response)
+        readback = await _xero_get(token, tenant,
+                                   f"{record['endpoint']}/{record['execution']['resource_id']}",
+                                   business_id=business_id)
+        record = service.verify(business_id, export_id, readback)
+    except HTTPException: raise
+    except FileNotFoundError as exc: raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except PermissionError as exc: raise HTTPException(status_code=403, detail=str(exc)) from exc
+    except ValueError as exc: raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"ok": True, "business_id": business_id, "export": record,
+            "external_write_performed": True, "verified_by_readback": True}
 
 
 @router.delete("/xero/{candidate}")

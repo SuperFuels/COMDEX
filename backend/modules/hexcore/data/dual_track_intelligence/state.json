@@ -1,0 +1,1143 @@
+{
+  "allocation": {
+    "embodied_physical": 3,
+    "practical_apprenticeship": 7
+  },
+  "generation": 3,
+  "learning_dispatch": {
+    "mission_id": "practical_secure_service",
+    "reason": "lowest_evidenced_capability_blocking_practical_work",
+    "status": "progressive_learning_prioritised",
+    "subject_id": "product_project_management"
+  },
+  "portfolio": [
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Build and test an unfamiliar secure software service with transactional storage, failure recovery, and observable operations.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Testing and Debugging",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "testing_debugging",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Software engineering",
+            "overall_level": "expert",
+            "practical_level": "expert",
+            "subject_id": "software_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Security engineering",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "security_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "delivery",
+              "dependencies",
+              "discovery",
+              "goal_definition",
+              "metrics",
+              "prioritisation",
+              "retrospectives",
+              "risk",
+              "scrum",
+              "stakeholders"
+            ],
+            "name": "Product, Project and Scrum Management",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "product_project_management",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Secure Software Engineering",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "secure_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "measured default for service, interface and persistence; benchmark before final choice",
+          "stack": [
+            "Python",
+            "TypeScript",
+            "SQL"
+          ]
+        }
+      },
+      "independent_authority": "fresh repository tests, adversarial checks, and executable service outcomes",
+      "lane": "practical_apprenticeship",
+      "mission_id": "practical_secure_service",
+      "objective": "Build and test an unfamiliar secure software service with transactional storage, failure recovery, and observable operations.",
+      "precommitment_digest": "191c500e429a2275eeeb45adac2532c0fc0de65011229088fc6e78f83ea9e525",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "testing_debugging",
+        "software_engineering",
+        "security_engineering",
+        "product_project_management",
+        "secure_engineering"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "execute_with_strong_verification",
+        "objective": "Investigate a changing public dataset, form a falsifiable forecast, and revise the analysis after a later independently published observation.",
+        "reason": "bounded_competence_requires_outcome_checks",
+        "requirements": [
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Data analysis and statistics",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
+            "subject_id": "data_statistics",
+            "target_level": "advanced",
+            "work_readiness": "bounded_work_with_strong_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Python programming",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "python",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Scientific investigation and causal reasoning",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "rapid evidence work with durable data authority",
+          "stack": [
+            "Python",
+            "SQL"
+          ]
+        }
+      },
+      "independent_authority": "official public-data publication and later observation",
+      "lane": "practical_apprenticeship",
+      "mission_id": "practical_public_data",
+      "objective": "Investigate a changing public dataset, form a falsifiable forecast, and revise the analysis after a later independently published observation.",
+      "precommitment_digest": "5a2f16b2f5a8d0ab89737ff05b4ed8b49a26be33faeda7af9a6ff1dbb82454b9",
+      "readiness_decision": "execute_with_strong_verification",
+      "required_subjects": [
+        "data_statistics",
+        "python",
+        "scientific_method"
+      ],
+      "status": "ready_for_governed_execution",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Solve an unfamiliar mathematical or algorithmic problem and construct a machine-checkable witness plus hostile counterexamples.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Machine Learning and AI Engineering",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
+            "subject_id": "machine_learning_ai",
+            "target_level": "advanced",
+            "work_readiness": "practice_only"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "technology must be selected after requirements and measurements",
+          "stack": []
+        }
+      },
+      "independent_authority": "independent recomputation and property checker",
+      "lane": "practical_apprenticeship",
+      "mission_id": "practical_formal_reasoning",
+      "objective": "Solve an unfamiliar mathematical or algorithmic problem and construct a machine-checkable witness plus hostile counterexamples.",
+      "precommitment_digest": "06a30f9e4f13741095024766c5a1917427b790f2f3298600ecafb6a2d6340860",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "machine_learning_ai"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Research a technical decision across conflicting documents and produce a provenance-complete recommendation with explicit uncertainty.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Research, Writing and Professional Communication",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
+            "subject_id": "research_communication",
+            "target_level": "advanced",
+            "work_readiness": "bounded_work_with_strong_verification"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "English natural-language cognition",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "english",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Scientific investigation and causal reasoning",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "contracts",
+              "employment",
+              "escalation",
+              "ethics",
+              "intellectual_property",
+              "jurisdiction",
+              "legal_research",
+              "privacy",
+              "regulation",
+              "uncertainty"
+            ],
+            "name": "Law, Policy and Applied Ethics",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "law_policy_ethics",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "rapid evidence work with durable data authority",
+          "stack": [
+            "Python",
+            "SQL"
+          ]
+        }
+      },
+      "independent_authority": "exact source spans, contradiction checks, and later source revision",
+      "lane": "practical_apprenticeship",
+      "mission_id": "practical_evidence_synthesis",
+      "objective": "Research a technical decision across conflicting documents and produce a provenance-complete recommendation with explicit uncertainty.",
+      "precommitment_digest": "21a5c7d18fb91490acf03282fbef4999080b2b0beb7975082829be04dae1abcd",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "research_communication",
+        "english",
+        "scientific_method",
+        "law_policy_ethics"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Turn an unfamiliar customer problem into a prioritised product plan, measurable experiment, budget model, and go or no-go decision.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "intermediate",
+            "missing_subskills": [
+              "execution",
+              "finance",
+              "governance",
+              "marketing",
+              "operations",
+              "people",
+              "product",
+              "risk",
+              "sales",
+              "strategy"
+            ],
+            "name": "Business and organisational management",
+            "overall_level": "beginner",
+            "practical_level": "beginner",
+            "subject_id": "business_management",
+            "target_level": "advanced",
+            "work_readiness": "practice_only"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "business_models",
+              "competition",
+              "experimentation",
+              "fundraising",
+              "macroeconomics",
+              "market_research",
+              "microeconomics",
+              "regulation",
+              "unit_economics"
+            ],
+            "name": "Economics and Entrepreneurship",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "economics_entrepreneurship",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "delivery",
+              "dependencies",
+              "discovery",
+              "goal_definition",
+              "metrics",
+              "prioritisation",
+              "retrospectives",
+              "risk",
+              "scrum",
+              "stakeholders"
+            ],
+            "name": "Product, Project and Scrum Management",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "product_project_management",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "beginner",
+            "missing_subskills": [
+              "audit",
+              "bookkeeping",
+              "controls",
+              "corporate_finance",
+              "financial_statements",
+              "forecasting",
+              "management_accounting",
+              "markets",
+              "risk",
+              "tax"
+            ],
+            "name": "Financial management and accounting",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "finance_accounting",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Scientific investigation and causal reasoning",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "technology must be selected after requirements and measurements",
+          "stack": []
+        }
+      },
+      "independent_authority": "precommitted metrics and later usage or market evidence",
+      "lane": "practical_apprenticeship",
+      "mission_id": "practical_product_business",
+      "objective": "Turn an unfamiliar customer problem into a prioritised product plan, measurable experiment, budget model, and go or no-go decision.",
+      "precommitment_digest": "6ad375d0fb4e5ea1848b3af2f894cf9d7137d358990b66197058d05926bfe612",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "business_management",
+        "economics_entrepreneurship",
+        "product_project_management",
+        "finance_accounting",
+        "scientific_method"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Threat-model an unfamiliar application, discover exploitable assumptions, and verify a minimal repair without weakening legitimate behaviour.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Software engineering",
+            "overall_level": "expert",
+            "practical_level": "expert",
+            "subject_id": "software_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Testing and Debugging",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "testing_debugging",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Security engineering",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "security_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "delivery",
+              "dependencies",
+              "discovery",
+              "goal_definition",
+              "metrics",
+              "prioritisation",
+              "retrospectives",
+              "risk",
+              "scrum",
+              "stakeholders"
+            ],
+            "name": "Product, Project and Scrum Management",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "product_project_management",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Secure Software Engineering",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "secure_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Integrated Engineering Capstone",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "integrated_engineering_capstone",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "measured default for service, interface and persistence; benchmark before final choice",
+          "stack": [
+            "Python",
+            "TypeScript",
+            "SQL"
+          ]
+        }
+      },
+      "independent_authority": "executable attack cases, regression tests, and security scanner",
+      "lane": "practical_apprenticeship",
+      "mission_id": "practical_security_review",
+      "objective": "Threat-model an unfamiliar application, discover exploitable assumptions, and verify a minimal repair without weakening legitimate behaviour.",
+      "precommitment_digest": "84d89e7baa20b17bde47eb537a4c0df0cf0a2c99b8d2e469989fe78a8c34380c",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "software_engineering",
+        "testing_debugging",
+        "security_engineering",
+        "product_project_management",
+        "secure_engineering",
+        "integrated_engineering_capstone"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Plan and build a useful application that combines software, data analysis, evidence research, project management, and delayed operational measurement.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Software engineering",
+            "overall_level": "expert",
+            "practical_level": "expert",
+            "subject_id": "software_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Testing and Debugging",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "testing_debugging",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Security engineering",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "security_engineering",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "delivery",
+              "dependencies",
+              "discovery",
+              "goal_definition",
+              "metrics",
+              "prioritisation",
+              "retrospectives",
+              "risk",
+              "scrum",
+              "stakeholders"
+            ],
+            "name": "Product, Project and Scrum Management",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "product_project_management",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Data analysis and statistics",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
+            "subject_id": "data_statistics",
+            "target_level": "advanced",
+            "work_readiness": "bounded_work_with_strong_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Python programming",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "python",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "rapid evidence work with durable data authority",
+          "stack": [
+            "Python",
+            "SQL"
+          ]
+        }
+      },
+      "independent_authority": "independent component tests and later integrated outcome",
+      "lane": "practical_apprenticeship",
+      "mission_id": "practical_cross_domain_system",
+      "objective": "Plan and build a useful application that combines software, data analysis, evidence research, project management, and delayed operational measurement.",
+      "precommitment_digest": "5869ca44a707346acd7b36d608695209bd3ebb755ea9ef5eec6ddb422f3c3b82",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "software_engineering",
+        "testing_debugging",
+        "security_engineering",
+        "product_project_management",
+        "data_statistics",
+        "python"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Discover unknown gravity, actuation, damping, and inertia through safe diagnostic interventions in an unfamiliar physical environment.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "actuators",
+              "communications",
+              "control",
+              "electronics",
+              "hardware_debugging",
+              "microcontrollers",
+              "power",
+              "realtime_systems",
+              "safety",
+              "sensors"
+            ],
+            "name": "Embedded Systems and Robotics",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "embedded_robotics",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "beginner",
+            "missing_subskills": [
+              "electromagnetism",
+              "experimental_physics",
+              "mechanics",
+              "optics",
+              "quantum",
+              "relativity",
+              "thermodynamics",
+              "waves"
+            ],
+            "name": "Physics",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "physics",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Scientific investigation and causal reasoning",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "analytical",
+              "general_chemistry",
+              "inorganic",
+              "laboratory_safety",
+              "materials",
+              "organic",
+              "physical_chemistry"
+            ],
+            "name": "Chemistry and materials",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "chemistry",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "consent",
+              "culture",
+              "disagreement",
+              "emotion",
+              "intent",
+              "negotiation",
+              "norms",
+              "perspective",
+              "physical_commonsense"
+            ],
+            "name": "Social and commonsense intelligence",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "social_commonsense",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "technology must be selected after requirements and measurements",
+          "stack": []
+        }
+      },
+      "independent_authority": "MuJoCo-owned hidden dynamics and committed prediction error",
+      "lane": "embodied_physical",
+      "mission_id": "embodied_system_identification",
+      "objective": "Discover unknown gravity, actuation, damping, and inertia through safe diagnostic interventions in an unfamiliar physical environment.",
+      "precommitment_digest": "298146ea5541788bbf7aa7bc9ed224fffafa7926e56b481d54f685d13995f409",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "embedded_robotics",
+        "physics",
+        "scientific_method",
+        "chemistry",
+        "social_commonsense"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Learn a closed-loop physical controller that reaches a target safely under unfamiliar mass and gravity.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "actuators",
+              "communications",
+              "control",
+              "electronics",
+              "hardware_debugging",
+              "microcontrollers",
+              "power",
+              "realtime_systems",
+              "safety",
+              "sensors"
+            ],
+            "name": "Embedded Systems and Robotics",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "embedded_robotics",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "beginner",
+            "missing_subskills": [
+              "electromagnetism",
+              "experimental_physics",
+              "mechanics",
+              "optics",
+              "quantum",
+              "relativity",
+              "thermodynamics",
+              "waves"
+            ],
+            "name": "Physics",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "physics",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Scientific investigation and causal reasoning",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "analytical",
+              "general_chemistry",
+              "inorganic",
+              "laboratory_safety",
+              "materials",
+              "organic",
+              "physical_chemistry"
+            ],
+            "name": "Chemistry and materials",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "chemistry",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "consent",
+              "culture",
+              "disagreement",
+              "emotion",
+              "intent",
+              "negotiation",
+              "norms",
+              "perspective",
+              "physical_commonsense"
+            ],
+            "name": "Social and commonsense intelligence",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "social_commonsense",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "technology must be selected after requirements and measurements",
+          "stack": []
+        }
+      },
+      "independent_authority": "MuJoCo trajectory, safety envelope, and terminal task score",
+      "lane": "embodied_physical",
+      "mission_id": "embodied_closed_loop_control",
+      "objective": "Learn a closed-loop physical controller that reaches a target safely under unfamiliar mass and gravity.",
+      "precommitment_digest": "1998da95bed4e81606deec1e6292c950851bdd1bf65c138f4c75fe18f37acaa8",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "embedded_robotics",
+        "physics",
+        "scientific_method",
+        "chemistry",
+        "social_commonsense"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    },
+    {
+      "ambient_authority_expansion": false,
+      "capability_readiness": {
+        "action_contract": [
+          "interpret_objective_and_define_success",
+          "retrieve_relevant_verified_knowledge",
+          "close_or_bound_capability_gaps",
+          "select_tools_and_architecture_from_requirements",
+          "decompose_dependencies",
+          "execute_in_governed_environment",
+          "verify_independent_outcome",
+          "reflect_and_update_competency"
+        ],
+        "authority_boundary": "Competency controls readiness; execution outcomes control success.",
+        "decision": "learn_then_execute",
+        "objective": "Transfer an acquired physical method to source-disjoint dynamics and abstain when observations cannot identify a safe action.",
+        "reason": "one_or_more_required_capabilities_below_intermediate",
+        "requirements": [
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "actuators",
+              "communications",
+              "control",
+              "electronics",
+              "hardware_debugging",
+              "microcontrollers",
+              "power",
+              "realtime_systems",
+              "safety",
+              "sensors"
+            ],
+            "name": "Embedded Systems and Robotics",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "embedded_robotics",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "beginner",
+            "missing_subskills": [
+              "electromagnetism",
+              "experimental_physics",
+              "mechanics",
+              "optics",
+              "quantum",
+              "relativity",
+              "thermodynamics",
+              "waves"
+            ],
+            "name": "Physics",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "physics",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "expert",
+            "missing_subskills": [],
+            "name": "Scientific investigation and causal reasoning",
+            "overall_level": "advanced",
+            "practical_level": "advanced",
+            "subject_id": "scientific_method",
+            "target_level": "expert",
+            "work_readiness": "independent_work_with_normal_verification"
+          },
+          {
+            "knowledge_level": "advanced",
+            "missing_subskills": [],
+            "name": "Research, Writing and Professional Communication",
+            "overall_level": "intermediate",
+            "practical_level": "intermediate",
+            "subject_id": "research_communication",
+            "target_level": "advanced",
+            "work_readiness": "bounded_work_with_strong_verification"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "analytical",
+              "general_chemistry",
+              "inorganic",
+              "laboratory_safety",
+              "materials",
+              "organic",
+              "physical_chemistry"
+            ],
+            "name": "Chemistry and materials",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "chemistry",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          },
+          {
+            "knowledge_level": "unassessed",
+            "missing_subskills": [
+              "consent",
+              "culture",
+              "disagreement",
+              "emotion",
+              "intent",
+              "negotiation",
+              "norms",
+              "perspective",
+              "physical_commonsense"
+            ],
+            "name": "Social and commonsense intelligence",
+            "overall_level": "unassessed",
+            "practical_level": "unassessed",
+            "subject_id": "social_commonsense",
+            "target_level": "advanced",
+            "work_readiness": "not_ready"
+          }
+        ],
+        "technology_proposal": {
+          "reason": "technology must be selected after requirements and measurements",
+          "stack": []
+        }
+      },
+      "independent_authority": "sealed MuJoCo worlds, cold control, and out-of-distribution test",
+      "lane": "embodied_physical",
+      "mission_id": "embodied_transfer",
+      "objective": "Transfer an acquired physical method to source-disjoint dynamics and abstain when observations cannot identify a safe action.",
+      "precommitment_digest": "f5996a537b193de209c20a3f4a87b1c56135ca46515349c77342735e596878b3",
+      "readiness_decision": "learn_then_execute",
+      "required_subjects": [
+        "embedded_robotics",
+        "physics",
+        "scientific_method",
+        "research_communication",
+        "chemistry",
+        "social_commonsense"
+      ],
+      "status": "learning_or_contract_acquisition_required",
+      "success_contract": [
+        "define observable success before action",
+        "use a private or sandboxed execution surface",
+        "retain negative as well as positive evidence",
+        "award competence only from an independent outcome"
+      ]
+    }
+  ],
+  "portfolio_digest": "fdb659a6b9614ec9aac041c4c8404f900e4ed8da8943e82ec38dac836f3ad548",
+  "procedure_id": "procedure_dual_track_practical_embodied_portfolio_v1",
+  "schema_version": "aion.dual_track_intelligence.v1",
+  "updated_at": 1786426003.743937
+}

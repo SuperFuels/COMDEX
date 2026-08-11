@@ -268,6 +268,24 @@ class GoalEngine:
         actives.sort(key=lambda g: g.get("priority", 0), reverse=True)
         return actives
 
+    def select_governed_goal(self) -> Optional[Dict[str, Any]]:
+        """Select work by explicit authority and verified dependency state."""
+        candidates = []
+        for goal in self.get_active_goals():
+            approval = str(goal.get("approval_policy") or "proposal_only")
+            if approval not in {"proposal_only", "autonomous_allowed", "human_approved", "human_approval_required"}:
+                continue
+            score = float(goal.get("priority") or 0.0)
+            score += 1.0 if approval in {"autonomous_allowed", "human_approved"} else 0.0
+            score += 0.6 if goal.get("next_outcome_due") or goal.get("deadline") else 0.0
+            score += 0.4 if goal.get("blocks_other_goals") else 0.0
+            score -= 0.8 if goal.get("status") in {"blocked", "waiting_authority"} else 0.0
+            candidates.append((score, goal))
+        if not candidates:
+            return None
+        _, selected = max(candidates, key=lambda row: (row[0], str(row[1].get("name") or "")))
+        return {**selected, "selection_authority": "goal_contract_and_verified_dependencies"}
+
     def mark_complete(self, goal_name, **meta):
         for g in self.goals:
             if g.get("name") == goal_name and goal_name not in self.completed:

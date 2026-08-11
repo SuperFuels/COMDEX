@@ -10,6 +10,8 @@ from backend.modules.aion_business.contracts.business_containers import (
     BusinessContainerKind,
     BusinessFinancialModelContainer,
     BusinessOperatingModelContainer,
+    FinanceInboxContainer,
+    OrganizationAuthorityContainer,
     BusinessIdentityContainer,
     BusinessMapContainer,
     BusinessStructureContainer,
@@ -26,6 +28,8 @@ _CONTAINER_FILE_MAP: dict[BusinessContainerKind, str] = {
     "department_intelligence": "department_intelligence.json",
     "business_financial_model": "business_financial_model.json",
     "business_operating_model": "business_operating_model.json",
+    "organization_authority": "organization_authority.json",
+    "finance_inbox": "finance_inbox.json",
     "brand_foundation": "brand_foundation.json",
     "boardroom_snapshot": "boardroom_snapshot.json",
     "operational_runtime_summary": "operational_runtime_summary.json",
@@ -96,6 +100,12 @@ class BusinessContainerRepository:
 
     def load_business_operating_model(self, workspace_id: str) -> BusinessOperatingModelContainer:
         return BusinessOperatingModelContainer(**self.load_dict(workspace_id, "business_operating_model"))
+
+    def load_organization_authority(self, workspace_id: str) -> OrganizationAuthorityContainer:
+        return OrganizationAuthorityContainer(**self.load_dict(workspace_id, "organization_authority"))
+
+    def load_finance_inbox(self, workspace_id: str) -> FinanceInboxContainer:
+        return FinanceInboxContainer(**self.load_dict(workspace_id, "finance_inbox"))
 
     def load_brand_foundation(self, workspace_id: str) -> BrandFoundationContainer:
         return BrandFoundationContainer(**self.load_dict(workspace_id, "brand_foundation"))

@@ -1,0 +1,1578 @@
+{
+  "active_cycle": null,
+  "authorized_missions": {
+    "mission_full_stack_self_repair_v1": {
+      "action_budget": 20,
+      "actions_used": 12,
+      "allowed_authorities": [
+        "hidden_component_contract_authority"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T22:00:01.974069+00:00",
+      "capability_requirements": [
+        {
+          "capability": "full_stack_private_self_repair",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 6,
+          "minimum_verified_outcomes": 12,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "development",
+              "task_id": "perception:development"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "transfer",
+              "task_id": "perception:transfer"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "development",
+              "task_id": "memory:development"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "transfer",
+              "task_id": "memory:transfer"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "development",
+              "task_id": "reasoning:development"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "transfer",
+              "task_id": "reasoning:transfer"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "development",
+              "task_id": "planning:development"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "transfer",
+              "task_id": "planning:transfer"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "development",
+              "task_id": "tool:development"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "transfer",
+              "task_id": "tool:transfer"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "development",
+              "task_id": "runtime:development"
+            },
+            {
+              "authority": "hidden_component_contract_authority",
+              "cohort": "transfer",
+              "task_id": "runtime:transfer"
+            }
+          ]
+        }
+      ],
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "objective": "Diagnose failures across the complete cognitive stack, construct private repairs, falsify them, preserve protected competence and promote only independently verified component versions.",
+      "objective_hash": "4f7a2609a9b2e6f7ace0ff674a10bc133ab0e1ebab2c5bb85842235d77ed32ad",
+      "priority": 10.0,
+      "status": "capability_complete"
+    }
+  },
+  "capability_map": {
+    "mission_full_stack_self_repair_v1:full_stack_private_self_repair": {
+      "attempts": 12,
+      "authorities": [
+        "hidden_component_contract_authority"
+      ],
+      "capability": "full_stack_private_self_repair",
+      "lower_confidence_bound": 0.7574992425007574,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "outcome_ids": [
+        "perception:development",
+        "perception:transfer",
+        "memory:development",
+        "memory:transfer",
+        "reasoning:development",
+        "reasoning:transfer",
+        "planning:development",
+        "planning:transfer",
+        "tool:development",
+        "tool:transfer",
+        "runtime:development",
+        "runtime:transfer"
+      ],
+      "transfer_successes": 6,
+      "verified_successes": 12
+    }
+  },
+  "completed_cycles": [
+    {
+      "completed_at": "2026-07-31T22:00:02.006515+00:00",
+      "cycle_id": "cycle_477c085e40d2407d",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:perception:development",
+      "mastery_receipt_id": "receipt_2f8ccd912363054b",
+      "promotion": {
+        "champion_id": "procedure_component_repair_aa0571da46f5",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_aa0571da46f5",
+          "state_hash": "bd84879882e8985f586583b246c746ddf48d64cf0cfc4ef4cc602a0049e40df3"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.033924+00:00",
+      "cycle_id": "cycle_1bf36b3c6fd34581",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:perception:transfer",
+      "mastery_receipt_id": "receipt_de1ef6bc8c80f7e1",
+      "promotion": {
+        "champion_id": "procedure_component_repair_63e14e174861",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_63e14e174861",
+          "state_hash": "85d7d6f72be257fc0d98f9c92b2fcd6f3dfa16a2500b41268a9ddd5dfd5c37cd"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.066109+00:00",
+      "cycle_id": "cycle_9ae025e3a3b343a9",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:memory:development",
+      "mastery_receipt_id": "receipt_8fd2ab5025a579d2",
+      "promotion": {
+        "champion_id": "procedure_component_repair_a87a75947f10",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_a87a75947f10",
+          "state_hash": "18dc3a37fd522815d13da45f9475e50ac8d7da5b48041e54361906caddb7025e"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.099605+00:00",
+      "cycle_id": "cycle_e07822f7f45c4373",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:memory:transfer",
+      "mastery_receipt_id": "receipt_2b0e59d5a6ec4723",
+      "promotion": {
+        "champion_id": "procedure_component_repair_3d42b913cea3",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_3d42b913cea3",
+          "state_hash": "22af25e904c2f100807f7ff5530bd5afc102ed30d9d37353fb353d548881e543"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.134869+00:00",
+      "cycle_id": "cycle_be090180ba6743b6",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:reasoning:development",
+      "mastery_receipt_id": "receipt_afce996d5f06f723",
+      "promotion": {
+        "champion_id": "procedure_component_repair_66fe220090da",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_66fe220090da",
+          "state_hash": "9cdbfe8128fa8feb81fec6aa5d7839b4b221a69732c36960e886dfbbec223593"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.177093+00:00",
+      "cycle_id": "cycle_71749a95f1f64241",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:reasoning:transfer",
+      "mastery_receipt_id": "receipt_81368fb6c507aa11",
+      "promotion": {
+        "champion_id": "procedure_component_repair_cd51af2ad53e",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_cd51af2ad53e",
+          "state_hash": "1ad8cc926520dc43f784fe0efe95e60243c3dfc6a3732497d9f42653609e9396"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.218480+00:00",
+      "cycle_id": "cycle_d4584ab0c46c4c75",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:planning:development",
+      "mastery_receipt_id": "receipt_dff7d74cfc579f2f",
+      "promotion": {
+        "champion_id": "procedure_component_repair_a5e3fdca1dbc",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_a5e3fdca1dbc",
+          "state_hash": "3eeebae5b6abbc499f750881323a0d8df277eb5048ce3b54e383bb3919800e18"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.259904+00:00",
+      "cycle_id": "cycle_005cc08bec25489f",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:planning:transfer",
+      "mastery_receipt_id": "receipt_a1c6046921190f2e",
+      "promotion": {
+        "champion_id": "procedure_component_repair_dff4f638dd91",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_dff4f638dd91",
+          "state_hash": "75dfc0479abe8de63f8539c881e11d43371aa4239aa7c52595f990fc6329633c"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.302096+00:00",
+      "cycle_id": "cycle_7c5a3fab627f4ed4",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:tool:development",
+      "mastery_receipt_id": "receipt_e11726f83ac6f71b",
+      "promotion": {
+        "champion_id": "procedure_component_repair_dbfd1bd12512",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_dbfd1bd12512",
+          "state_hash": "a47233ea3c23c2faa8c3da1fd129a72a7104c69dc6bba7740cb50757fa2159d6"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.346063+00:00",
+      "cycle_id": "cycle_ff8ae90bede44eba",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:tool:transfer",
+      "mastery_receipt_id": "receipt_09e9f7e658ffae3b",
+      "promotion": {
+        "champion_id": "procedure_component_repair_901553fd8013",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_901553fd8013",
+          "state_hash": "f7ae7f9a4f570b032b36945be83383351d51166f918440383c823f02af6893f9"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.393202+00:00",
+      "cycle_id": "cycle_9fc0b6b3fe814240",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:runtime:development",
+      "mastery_receipt_id": "receipt_87ea747f8ee65256",
+      "promotion": {
+        "champion_id": "procedure_component_repair_dde89fec978b",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_dde89fec978b",
+          "state_hash": "3a09ca9f46ebfd0a7c3f1627e8cbde7d8512351c5d7065ae3e9063a37ea499d6"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T22:00:02.444097+00:00",
+      "cycle_id": "cycle_5cdee5eddf3949b5",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:runtime:transfer",
+      "mastery_receipt_id": "receipt_bef005f27e419628",
+      "promotion": {
+        "champion_id": "procedure_component_repair_91b3bae8a8d8",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "full_stack_repair_cau"
+          },
+          "reason": "procedure_promotion:procedure_component_repair_91b3bae8a8d8",
+          "state_hash": "58389836fcaf441ac77691c932bdd80981b580b968cbf75f8feeab9c580af5c0"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    }
+  ],
+  "created_at": "2026-07-31T22:00:01.973925+00:00",
+  "curriculum_history": [
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:perception:development",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "perception:development",
+      "timestamp": "2026-07-31T22:00:01.975377+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:perception:transfer",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.20654329147389294,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "perception:transfer",
+      "timestamp": "2026-07-31T22:00:02.008048+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:memory:development",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.3423719528896193,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "memory:development",
+      "timestamp": "2026-07-31T22:00:02.035885+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:memory:transfer",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.4384939195509822,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "memory:transfer",
+      "timestamp": "2026-07-31T22:00:02.068113+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:reasoning:development",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.5100999795960008,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "reasoning:development",
+      "timestamp": "2026-07-31T22:00:02.101868+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:reasoning:transfer",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.565508505247919,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "reasoning:transfer",
+      "timestamp": "2026-07-31T22:00:02.138221+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:planning:development",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6096569663469354,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "planning:development",
+      "timestamp": "2026-07-31T22:00:02.180597+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:planning:transfer",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6456611570247934,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "planning:transfer",
+      "timestamp": "2026-07-31T22:00:02.221520+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:tool:development",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6755843804891231,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "tool:development",
+      "timestamp": "2026-07-31T22:00:02.263034+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:tool:transfer",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.7008472464490406,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "tool:transfer",
+      "timestamp": "2026-07-31T22:00:02.305656+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:runtime:development",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.7224598312333834,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "runtime:development",
+      "timestamp": "2026-07-31T22:00:02.349866+00:00"
+    },
+    {
+      "capability": "full_stack_private_self_repair",
+      "goal_id": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:runtime:transfer",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.7411599827511859,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "runtime:transfer",
+      "timestamp": "2026-07-31T22:00:02.397429+00:00"
+    }
+  ],
+  "failure_queues": {},
+  "goal_runtime": {},
+  "last_error": null,
+  "last_event": "mission_capability_complete:mission_full_stack_self_repair_v1",
+  "last_heartbeat_at": "2026-07-31T22:00:02.444094+00:00",
+  "mission_goals": [],
+  "next_wake_at": 1785535202.494129,
+  "outcome_receipts": [
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "development",
+      "cycle_id": "cycle_477c085e40d2407d",
+      "evidence_hash": "dc08a750374e20d73a0d3d6d87ef0707d38c61aaa7244d8a9849b47b226f5d97",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_2f8ccd912363054b",
+      "received_at": "2026-07-31T22:00:02.006553+00:00",
+      "score": 1.0,
+      "task_id": "perception:development",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "transfer",
+      "cycle_id": "cycle_1bf36b3c6fd34581",
+      "evidence_hash": "dc08a750374e20d73a0d3d6d87ef0707d38c61aaa7244d8a9849b47b226f5d97",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_de1ef6bc8c80f7e1",
+      "received_at": "2026-07-31T22:00:02.033948+00:00",
+      "score": 1.0,
+      "task_id": "perception:transfer",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "development",
+      "cycle_id": "cycle_9ae025e3a3b343a9",
+      "evidence_hash": "ac7c2f363722d6bc6f73939e955c59574fcd9163acb9b52f3161c1980318ec82",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_8fd2ab5025a579d2",
+      "received_at": "2026-07-31T22:00:02.066128+00:00",
+      "score": 1.0,
+      "task_id": "memory:development",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "transfer",
+      "cycle_id": "cycle_e07822f7f45c4373",
+      "evidence_hash": "ac7c2f363722d6bc6f73939e955c59574fcd9163acb9b52f3161c1980318ec82",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_2b0e59d5a6ec4723",
+      "received_at": "2026-07-31T22:00:02.099629+00:00",
+      "score": 1.0,
+      "task_id": "memory:transfer",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "development",
+      "cycle_id": "cycle_be090180ba6743b6",
+      "evidence_hash": "7dbc1e8cd6cda9e5102ed35c0b1634a4b6d8eefe54b63fa79e5f9377b5144000",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_afce996d5f06f723",
+      "received_at": "2026-07-31T22:00:02.134891+00:00",
+      "score": 1.0,
+      "task_id": "reasoning:development",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "transfer",
+      "cycle_id": "cycle_71749a95f1f64241",
+      "evidence_hash": "7dbc1e8cd6cda9e5102ed35c0b1634a4b6d8eefe54b63fa79e5f9377b5144000",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_81368fb6c507aa11",
+      "received_at": "2026-07-31T22:00:02.177114+00:00",
+      "score": 1.0,
+      "task_id": "reasoning:transfer",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "development",
+      "cycle_id": "cycle_d4584ab0c46c4c75",
+      "evidence_hash": "b2522b5e3454979e33c05ea00036a4eddd826c74f14bb2fb66974be46050d6ea",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_dff7d74cfc579f2f",
+      "received_at": "2026-07-31T22:00:02.218498+00:00",
+      "score": 1.0,
+      "task_id": "planning:development",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "transfer",
+      "cycle_id": "cycle_005cc08bec25489f",
+      "evidence_hash": "b2522b5e3454979e33c05ea00036a4eddd826c74f14bb2fb66974be46050d6ea",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_a1c6046921190f2e",
+      "received_at": "2026-07-31T22:00:02.259922+00:00",
+      "score": 1.0,
+      "task_id": "planning:transfer",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "development",
+      "cycle_id": "cycle_7c5a3fab627f4ed4",
+      "evidence_hash": "cc6f3842f21f8267ce3c552cc71333f763b8cf09c3530ab92ff70c514cf8155c",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_e11726f83ac6f71b",
+      "received_at": "2026-07-31T22:00:02.302113+00:00",
+      "score": 1.0,
+      "task_id": "tool:development",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "transfer",
+      "cycle_id": "cycle_ff8ae90bede44eba",
+      "evidence_hash": "cc6f3842f21f8267ce3c552cc71333f763b8cf09c3530ab92ff70c514cf8155c",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_09e9f7e658ffae3b",
+      "received_at": "2026-07-31T22:00:02.346084+00:00",
+      "score": 1.0,
+      "task_id": "tool:transfer",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "development",
+      "cycle_id": "cycle_9fc0b6b3fe814240",
+      "evidence_hash": "0022a4d370c8eba84b68136201001ad8595881dd20076c9388f9534a10f6607a",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_87ea747f8ee65256",
+      "received_at": "2026-07-31T22:00:02.393219+00:00",
+      "score": 1.0,
+      "task_id": "runtime:development",
+      "verified": true
+    },
+    {
+      "authority": "hidden_component_contract_authority",
+      "authority_allowed": true,
+      "capability": "full_stack_private_self_repair",
+      "cohort": "transfer",
+      "cycle_id": "cycle_5cdee5eddf3949b5",
+      "evidence_hash": "0022a4d370c8eba84b68136201001ad8595881dd20076c9388f9534a10f6607a",
+      "mission_id": "mission_full_stack_self_repair_v1",
+      "receipt_id": "receipt_bef005f27e419628",
+      "received_at": "2026-07-31T22:00:02.444114+00:00",
+      "score": 1.0,
+      "task_id": "runtime:transfer",
+      "verified": true
+    }
+  ],
+  "pending_outcomes": {},
+  "private_challengers": [
+    {
+      "evidence": {
+        "task_id": "perception:development",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "127c9bcee4db6d81907eea6af1287d0b526466e6ba94b44e8394d2c48e49371a",
+                  "source": "hidden_contract:perception"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "no_op"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "e617d24e8c3650714c10aa2279b1717c3cf27734221ea201b2d423c450ff8247",
+                  "source": "hidden_contract:perception"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "restore_input_normalization"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:perception:development",
+      "procedure_id": "procedure_component_repair_aa0571da46f5",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "perception:transfer",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "e617d24e8c3650714c10aa2279b1717c3cf27734221ea201b2d423c450ff8247",
+                  "source": "hidden_contract:perception"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "restore_input_normalization"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:perception:transfer",
+      "procedure_id": "procedure_component_repair_63e14e174861",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "memory:development",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "0cbdf00809005c70ac193b87424070a1ca60e02450cc65059e42aa1ad7e8a850",
+                  "source": "hidden_contract:memory"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "no_op"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "00ecca3a830125224295d163cd3be2aa58e4a9258e3b4c1c260eeacd9db660f9",
+                  "source": "hidden_contract:memory"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "restore_input_normalization"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "dd60e21a5ad64c0d02e3d8920bb66e54d7c2229a1148ac11616907eea1f7f22b",
+                  "source": "hidden_contract:memory"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "rebuild_provenance_index"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:memory:development",
+      "procedure_id": "procedure_component_repair_a87a75947f10",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "memory:transfer",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "dd60e21a5ad64c0d02e3d8920bb66e54d7c2229a1148ac11616907eea1f7f22b",
+                  "source": "hidden_contract:memory"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "rebuild_provenance_index"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:memory:transfer",
+      "procedure_id": "procedure_component_repair_3d42b913cea3",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "reasoning:development",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "af925361c4d8f6381066e7dfdacd9df0bdf9a6fc000ea208cd554ab5513fa5ef",
+                  "source": "hidden_contract:reasoning"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "no_op"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "0728645cf5fd8c297eace5bcd94c0066406b9f1a3ce440de82315fa432abc401",
+                  "source": "hidden_contract:reasoning"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "restore_input_normalization"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "8530b200c0393de2b824e0acf3b6c73da938d6d57eb4c1cddb6f05455464cf7c",
+                  "source": "hidden_contract:reasoning"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "rebuild_provenance_index"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "d012353e212b8a3041b6ee9b0406e3d290226b913fe11f1621d62f79f090a169",
+                  "source": "hidden_contract:reasoning"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "correct_boundary_operator"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:reasoning:development",
+      "procedure_id": "procedure_component_repair_66fe220090da",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "reasoning:transfer",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "d012353e212b8a3041b6ee9b0406e3d290226b913fe11f1621d62f79f090a169",
+                  "source": "hidden_contract:reasoning"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "correct_boundary_operator"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:reasoning:transfer",
+      "procedure_id": "procedure_component_repair_cd51af2ad53e",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "planning:development",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "e01f0632cf8ebd22494618a0089e1f2e59e8bb480655aae6f32dfb050e44bf46",
+                  "source": "hidden_contract:planning"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "no_op"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "e659439fa7ca64f5ef47f05304c0044405c8024c66a891df3af39f084daa4269",
+                  "source": "hidden_contract:planning"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "restore_input_normalization"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "3d14a9b7bcf9d1cf8eeac7226ff0f245adf485996367b4558184f7ecea0a3617",
+                  "source": "hidden_contract:planning"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "rebuild_provenance_index"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "0b6357c711ec049c0bb30cf26fd0be44c221559dc7e9476c820ebec6dec69946",
+                  "source": "hidden_contract:planning"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "correct_boundary_operator"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "9255d6eb9439fb99b3dfb33970a865f950b4d54bf37daf71afd4850c1da10590",
+                  "source": "hidden_contract:planning"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "repair_dependency_dag"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:planning:development",
+      "procedure_id": "procedure_component_repair_a5e3fdca1dbc",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "planning:transfer",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "9255d6eb9439fb99b3dfb33970a865f950b4d54bf37daf71afd4850c1da10590",
+                  "source": "hidden_contract:planning"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "repair_dependency_dag"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:planning:transfer",
+      "procedure_id": "procedure_component_repair_dff4f638dd91",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "tool:development",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "d0948e932d7558ee2d3df49ca0611f1ffc7c6f7fbddabb809beafcbae529e9ab",
+                  "source": "hidden_contract:tool"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "no_op"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "7e98d63bf952e60517e2c67f5f7b5d932109e53d29e9935b418ff4568e91d8d7",
+                  "source": "hidden_contract:tool"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "restore_input_normalization"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "140aa7b28369b795e603ca7c18944dd2b11091a4c7775735154af92f10a41369",
+                  "source": "hidden_contract:tool"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "rebuild_provenance_index"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "89bd717b10e3e02ade5796304e0e2f76f1e62b90820ca7d78a99fdb286df221f",
+                  "source": "hidden_contract:tool"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "correct_boundary_operator"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "2f89cb54ae5943f6cb93bad75e0dfed0ece216d7d01610a64591b1cece739d9a",
+                  "source": "hidden_contract:tool"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "repair_dependency_dag"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "5ac709bbb0793067f9da2dbad070a24aba500e2d0ad666cf420d2d7fb2deb90b",
+                  "source": "hidden_contract:tool"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "rebind_tool_schema"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:tool:development",
+      "procedure_id": "procedure_component_repair_dbfd1bd12512",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "tool:transfer",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "5ac709bbb0793067f9da2dbad070a24aba500e2d0ad666cf420d2d7fb2deb90b",
+                  "source": "hidden_contract:tool"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "rebind_tool_schema"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:tool:transfer",
+      "procedure_id": "procedure_component_repair_901553fd8013",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "runtime:development",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "9f906a6ac0e6e6da581516c8b40540cc8d530e9b60fd33088cdc9e1d52b55191",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "no_op"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "39b5c977cfff8640a7000a1eb8fa2f6af127b3881355a31cdb29babffc9c23d8",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "restore_input_normalization"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "4e395e55a5dad276421868368109b6866850b7292b5a1087a41164ad70c31ce4",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "rebuild_provenance_index"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "7bfd9e4038e52ef1c25c2f410d47cebc3189d1ea353d62e0446a18e875e45cc2",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "correct_boundary_operator"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "746f7bd206f893a150d8c964800d25a74811c9c640b741bdf02d88c2e9fda4e9",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "repair_dependency_dag"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "4eb18d93c98db7391113e833d50cd6c0820fbbbd73cb15c4adda86b312941eba",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 0,
+              "forward_tests": 4,
+              "verified": false
+            },
+            "repair": "rebind_tool_schema"
+          },
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "04e1c5b47ba584eeebd46032f5daf8129ea5e2db5a1fa9d5a1a54d0547330d71",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "migrate_checkpoint_schema"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:runtime:development",
+      "procedure_id": "procedure_component_repair_dde89fec978b",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "runtime:transfer",
+        "trials": [
+          {
+            "audit": {
+              "authority": "hidden_component_contract_authority",
+              "backward_passed": 6,
+              "backward_tests": 6,
+              "evidence": [
+                {
+                  "hash": "04e1c5b47ba584eeebd46032f5daf8129ea5e2db5a1fa9d5a1a54d0547330d71",
+                  "source": "hidden_contract:runtime"
+                }
+              ],
+              "forward_passed": 4,
+              "forward_tests": 4,
+              "verified": true
+            },
+            "repair": "migrate_checkpoint_schema"
+          }
+        ]
+      },
+      "goal": "learn:mission_full_stack_self_repair_v1:full_stack_private_self_repair:runtime:transfer",
+      "procedure_id": "procedure_component_repair_91b3bae8a8d8",
+      "score": 1.0,
+      "steps": [
+        "observe_failure_trace",
+        "localize_component",
+        "clone_private_component",
+        "invent_candidate_repairs",
+        "invent_forward_and_backward_tests",
+        "reject_authority_mutations",
+        "promote_or_rollback"
+      ],
+      "success": true,
+      "verified": true
+    }
+  ],
+  "revision": 182,
+  "schema_version": "aion.hexcore.canonical_cognitive_runtime.v1",
+  "status": "idle",
+  "updated_at": "2026-07-31T22:00:02.446423+00:00"
+}

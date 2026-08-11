@@ -1,0 +1,566 @@
+{
+  "missions": [
+    {
+      "archetype": "engineering",
+      "created_at": "2026-08-11T05:26:44.234649+00:00",
+      "external_actions_authorized": 0,
+      "graph_sha256": "0b4ff99d083e9a0a240b18d6787e46d7e65e5a5d303f9f9760ccd9e0d19df920",
+      "milestones": [
+        "mission_4620973e7bec6814ff:milestone:1:situation",
+        "mission_4620973e7bec6814ff:milestone:2:capability",
+        "mission_4620973e7bec6814ff:milestone:3:design",
+        "mission_4620973e7bec6814ff:milestone:4:operation",
+        "mission_4620973e7bec6814ff:milestone:5:learning"
+      ],
+      "mission_id": "mission_4620973e7bec6814ff",
+      "nodes": [
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Understand the situation and define measurable success",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:1:situation",
+          "status": "pending"
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise biology medicine to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:biology_medicine",
+          "status": "ready",
+          "subject_id": "biology_medicine",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise product project management to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:product_project_management",
+          "status": "ready",
+          "subject_id": "product_project_management",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "verified_internal_state",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:biology_medicine",
+            "mission_4620973e7bec6814ff:learn:product_project_management"
+          ],
+          "description": "Observe the current environment, constraints, stakeholders and available evidence",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:1:situation",
+          "node_id": "mission_4620973e7bec6814ff:work:observe_context",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "intermediate",
+              "practical_level": "intermediate",
+              "ready": true,
+              "subject_id": "research_communication"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "english"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "scientific_method"
+            },
+            {
+              "knowledge_level": "unassessed",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "biology_medicine"
+            },
+            {
+              "knowledge_level": "unassessed",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "product_project_management"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "intermediate",
+              "practical_level": "intermediate",
+              "ready": true,
+              "subject_id": "sql_databases"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:observe_context"
+          ],
+          "description": "Define measurable outcome, leading indicators, non-goals and stopping rules",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:1:situation",
+          "node_id": "mission_4620973e7bec6814ff:work:define_success",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Assemble the competence and authority needed for execution",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:2:capability",
+          "status": "pending"
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise cpp to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:cpp",
+          "status": "ready",
+          "subject_id": "cpp",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "authority": "progressive_competency_registry",
+          "depends_on": [],
+          "description": "Raise java to executable Intermediate evidence for this mission",
+          "kind": "learning",
+          "node_id": "mission_4620973e7bec6814ff:learn:java",
+          "status": "ready",
+          "subject_id": "java",
+          "success_criteria": [
+            "intermediate_or_better",
+            "verified_practical_evidence"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "verified_internal_state",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:cpp",
+            "mission_4620973e7bec6814ff:learn:java",
+            "mission_4620973e7bec6814ff:work:define_success"
+          ],
+          "description": "Map required competencies, tools, permissions and independent outcome authorities",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:2:capability",
+          "node_id": "mission_4620973e7bec6814ff:work:map_capabilities",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "operating_systems"
+            },
+            {
+              "knowledge_level": "unassessed",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "cpp"
+            },
+            {
+              "knowledge_level": "unassessed",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "java"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:map_capabilities"
+          ],
+          "description": "Close or explicitly bound every blocking knowledge, skill, tool and authority gap",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:2:capability",
+          "node_id": "mission_4620973e7bec6814ff:work:close_gaps",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Design from requirements and independently testable properties",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "status": "pending"
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:close_gaps"
+          ],
+          "description": "Choose architecture and technology from measured requirements and failure modes",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "node_id": "mission_4620973e7bec6814ff:work:architecture",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "testing_debugging"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "expert",
+              "practical_level": "expert",
+              "ready": true,
+              "subject_id": "networking"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "expert",
+              "practical_level": "expert",
+              "ready": true,
+              "subject_id": "software_engineering"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:architecture"
+          ],
+          "description": "Construct the smallest end-to-end implementation in a private workspace",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "node_id": "mission_4620973e7bec6814ff:work:implementation",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "integrated_engineering_capstone"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "expert",
+              "practical_level": "expert",
+              "ready": true,
+              "subject_id": "software_engineering"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:implementation"
+          ],
+          "description": "Invent and execute functional, adversarial and security tests",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:3:design",
+          "node_id": "mission_4620973e7bec6814ff:work:falsification",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "security_engineering"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "secure_engineering"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Prove transfer, operational recovery and useful outcome",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:4:operation",
+          "status": "pending"
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:learn:product_project_management",
+            "mission_4620973e7bec6814ff:work:falsification"
+          ],
+          "description": "Execute the implementation on an unfamiliar project or environment",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:4:operation",
+          "node_id": "mission_4620973e7bec6814ff:work:source_disjoint",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "unassessed",
+              "overall_level": "unassessed",
+              "practical_level": "unassessed",
+              "ready": false,
+              "subject_id": "product_project_management"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "integrated_engineering_capstone"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "expert",
+              "practical_level": "expert",
+              "ready": true,
+              "subject_id": "software_engineering"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:source_disjoint"
+          ],
+          "description": "Observe later use, reliability, cost and failure-recovery outcomes",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:4:operation",
+          "node_id": "mission_4620973e7bec6814ff:work:operate",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "testing_debugging"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "architecture_operations"
+            },
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "cloud_devops_sre"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "expert",
+              "practical_level": "expert",
+              "ready": true,
+              "subject_id": "networking"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "authority": "aggregate_child_outcomes",
+          "depends_on": [],
+          "description": "Diagnose the outcome and compound verified learning",
+          "kind": "milestone",
+          "node_id": "mission_4620973e7bec6814ff:milestone:5:learning",
+          "status": "pending"
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:operate"
+          ],
+          "description": "Compare prediction with outcome and attribute success or failure",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:5:learning",
+          "node_id": "mission_4620973e7bec6814ff:work:retrospective",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "advanced",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "testing_debugging"
+            },
+            {
+              "knowledge_level": "expert",
+              "overall_level": "expert",
+              "practical_level": "expert",
+              "ready": true,
+              "subject_id": "networking"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        },
+        {
+          "approval_policy": "autonomous_allowed",
+          "authority": "independent_real_outcome",
+          "depends_on": [
+            "mission_4620973e7bec6814ff:work:retrospective"
+          ],
+          "description": "Retest later without replay and feed the verified method into the next objective",
+          "kind": "work",
+          "milestone_id": "mission_4620973e7bec6814ff:milestone:5:learning",
+          "node_id": "mission_4620973e7bec6814ff:work:retention",
+          "recovery": [
+            "diagnose_origin",
+            "replan_affected_branch",
+            "abstain_or_escalate"
+          ],
+          "required_capabilities": [
+            {
+              "knowledge_level": "expert",
+              "overall_level": "advanced",
+              "practical_level": "advanced",
+              "ready": true,
+              "subject_id": "scientific_method"
+            }
+          ],
+          "status": "blocked",
+          "success_criteria": [
+            "measurable_outcome",
+            "counterexample_attempted",
+            "provenance_preserved"
+          ]
+        }
+      ],
+      "north_star_authority": "owner_authorized_mission",
+      "objective": "Build AION into a continuously improving system that completes increasingly valuable cross-domain work from independently verified consequences.",
+      "schema_version": "aion.hexcore.hierarchical_mission_graph.v1",
+      "terminal_goal_mutations": 0
+    }
+  ],
+  "schema_version": "aion.hexcore.hierarchical_mission_state.v1",
+  "updated_at": "2026-08-11T05:26:44.349481+00:00"
+}

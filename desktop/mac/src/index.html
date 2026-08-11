@@ -13,6 +13,12 @@
   <body>
     <div id="app"></div>
 
+    <!--
+      Load the renderer circuit-breaker before any feature bundle.  Tessaris has
+      accumulated a large number of legacy DOM maintenance patches; without a
+      shared scheduler they can amplify one another during a full render.
+    -->
+    <script src="./renderer-stability.js"></script>
     <script src="./lib/desktop-state-contracts.js"></script>
     <script src="./lib/desktop-cache.js"></script>
     <script src="./lib/desktop-store.js"></script>
@@ -48,6 +54,13 @@
     <script src="./aion_department_pilot_backend.js"></script>
     <script src="./aion_business_twin_orchestrator.js"></script>
     <script src="./app.js"></script>
+    <script src="./aion_finance_light_theme.js"></script>
     <script src="./aion_boardroom_department_pilot_producer.js"></script>
+    <script src="./aion_hr_people_workspace.js"></script>
+    <script src="./aion_finance_inbox_workspace.js"></script>
+    <script src="./aion_finance_sales_workspace.js"></script>
+    <script src="./aion_sales_revenue_workspace.js"></script>
+    <script src="./aion_sales_completion_workspace.js"></script>
+    <script src="./aion_support_case_workspace.js"></script>
   </body>
 </html>

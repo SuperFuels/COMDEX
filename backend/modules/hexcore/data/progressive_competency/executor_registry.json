@@ -1,0 +1,1311 @@
+{
+  "adapters": {
+    "advanced_python": {
+      "adapter_id": "progressive:advanced_python",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "advanced_python",
+      "updated_epoch": 1786426127.575338
+    },
+    "algorithms_data_structures": {
+      "adapter_id": "progressive:algorithms_data_structures",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "algorithms_data_structures",
+      "updated_epoch": 1786426127.575339
+    },
+    "architecture_operations": {
+      "adapter_id": "progressive:architecture_operations",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "architecture_operations",
+      "updated_epoch": 1786426127.575339
+    },
+    "cloud_devops_sre": {
+      "adapter_id": "progressive:cloud_devops_sre",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "cloud_devops_sre",
+      "updated_epoch": 1786426127.57534
+    },
+    "data_statistics": {
+      "adapter_id": "progressive:data_statistics",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "data_statistics",
+      "updated_epoch": 1786426127.57534
+    },
+    "distributed_systems": {
+      "adapter_id": "progressive:distributed_systems",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "distributed_systems",
+      "updated_epoch": 1786426127.57534
+    },
+    "english": {
+      "adapter_id": "progressive:english",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "english",
+      "updated_epoch": 1786426127.57534
+    },
+    "integrated_engineering_capstone": {
+      "adapter_id": "progressive:integrated_engineering_capstone",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "integrated_engineering_capstone",
+      "updated_epoch": 1786426127.575341
+    },
+    "javascript_typescript": {
+      "adapter_id": "progressive:javascript_typescript",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "javascript_typescript",
+      "updated_epoch": 1786426127.575341
+    },
+    "machine_learning_ai": {
+      "adapter_id": "progressive:machine_learning_ai",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "machine_learning_ai",
+      "updated_epoch": 1786426127.575341
+    },
+    "mathematics": {
+      "adapter_id": "progressive:mathematics",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "mathematics",
+      "updated_epoch": 1786426127.575341
+    },
+    "networking": {
+      "adapter_id": "progressive:networking",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "networking",
+      "updated_epoch": 1786426127.575341
+    },
+    "operating_systems": {
+      "adapter_id": "progressive:operating_systems",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "operating_systems",
+      "updated_epoch": 1786426127.575341
+    },
+    "python": {
+      "adapter_id": "progressive:python",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "python",
+      "updated_epoch": 1786426127.5753422
+    },
+    "python_core": {
+      "adapter_id": "progressive:python_core",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "python_core",
+      "updated_epoch": 1786426127.5753422
+    },
+    "research_communication": {
+      "adapter_id": "progressive:research_communication",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "research_communication",
+      "updated_epoch": 1786426127.5753422
+    },
+    "rust": {
+      "adapter_id": "progressive:rust",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "rust",
+      "updated_epoch": 1786426127.5753422
+    },
+    "scientific_method": {
+      "adapter_id": "progressive:scientific_method",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "scientific_method",
+      "updated_epoch": 1786426127.5753431
+    },
+    "secure_engineering": {
+      "adapter_id": "progressive:secure_engineering",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "secure_engineering",
+      "updated_epoch": 1786426127.5753431
+    },
+    "security_engineering": {
+      "adapter_id": "progressive:security_engineering",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "security_engineering",
+      "updated_epoch": 1786426127.5753431
+    },
+    "software_engineering": {
+      "adapter_id": "progressive:software_engineering",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "software_engineering",
+      "updated_epoch": 1786426127.5753431
+    },
+    "sql_databases": {
+      "adapter_id": "progressive:sql_databases",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "sql_databases",
+      "updated_epoch": 1786426127.5753431
+    },
+    "testing_debugging": {
+      "adapter_id": "progressive:testing_debugging",
+      "source": "progressive_runner_registry",
+      "status": "verified_available",
+      "subject_id": "testing_debugging",
+      "updated_epoch": 1786426127.575344
+    }
+  },
+  "events": [
+    {
+      "epoch": 1785600615.6706471,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_d447926e2ba3fe6bfa",
+      "subject_id": "database_engineering"
+    },
+    {
+      "epoch": 1785600645.8646998,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_a649f465141cecab8a",
+      "subject_id": "operating_systems"
+    },
+    {
+      "epoch": 1785601410.255309,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_1e08fab805c366e82d",
+      "subject_id": "networking"
+    },
+    {
+      "epoch": 1785601440.4413629,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_45660816d6e90987f2",
+      "subject_id": "distributed_systems"
+    },
+    {
+      "epoch": 1785601470.603515,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_9af72b6abe8784cf87",
+      "subject_id": "secure_engineering"
+    },
+    {
+      "epoch": 1785601500.784331,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_fa31f24264c5242f0b",
+      "subject_id": "architecture_operations"
+    },
+    {
+      "epoch": 1785601530.972461,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_f92c55c1e1ec8394b9",
+      "subject_id": "rust_systems"
+    },
+    {
+      "epoch": 1785601561.1567569,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_6142bab3b3c47a5b01",
+      "subject_id": "integrated_engineering_capstone"
+    },
+    {
+      "epoch": 1785601591.3369641,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_bd157e438f7f12110d",
+      "subject_id": "english"
+    },
+    {
+      "epoch": 1785601621.521594,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_e00f8e0922de603c76",
+      "subject_id": "mathematics"
+    },
+    {
+      "epoch": 1785601651.7032268,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_74a13983c785ea9e93",
+      "subject_id": "scientific_method"
+    },
+    {
+      "epoch": 1785601681.892042,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_c7e6f89803ff50c837",
+      "subject_id": "product_project_management"
+    },
+    {
+      "epoch": 1785601712.0706098,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_858f7888a8be306a7c",
+      "subject_id": "business_management"
+    },
+    {
+      "epoch": 1785601742.240018,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_5ac824eb115edc0719",
+      "subject_id": "finance_accounting"
+    },
+    {
+      "epoch": 1785601772.396103,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_0e7d777a4de4228505",
+      "subject_id": "research_communication"
+    },
+    {
+      "epoch": 1785601802.568985,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_d6327731f728a5b75b",
+      "subject_id": "social_commonsense"
+    },
+    {
+      "epoch": 1785601832.77056,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_a25dccbc5dc5984f1a",
+      "subject_id": "rust"
+    },
+    {
+      "epoch": 1785601862.9626482,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_86f95fdbcea493e05b",
+      "subject_id": "python"
+    },
+    {
+      "epoch": 1785601893.145702,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_0f6f792663359510b9",
+      "subject_id": "security_engineering"
+    },
+    {
+      "epoch": 1785601923.331378,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_503252efa40ebdba26",
+      "subject_id": "sql_databases"
+    },
+    {
+      "epoch": 1785601953.53086,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_badfb688ea24b18e61",
+      "subject_id": "data_statistics"
+    },
+    {
+      "epoch": 1785601983.718326,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_3a89abd373fd458a5a",
+      "subject_id": "biology_medicine"
+    },
+    {
+      "epoch": 1785602013.900107,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_4202ea53b1b496d51e",
+      "subject_id": "javascript_typescript"
+    },
+    {
+      "epoch": 1785602044.083631,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_54b57345ecc8efd4c1",
+      "subject_id": "creative_invention"
+    },
+    {
+      "epoch": 1785602074.25213,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_fc030ce2065ce57241",
+      "subject_id": "physics"
+    },
+    {
+      "epoch": 1785602104.45025,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_c31e0fdecbfcba101c",
+      "subject_id": "ui_product_design"
+    },
+    {
+      "epoch": 1785602134.632158,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_e5f4cf09e35ce3c9bf",
+      "subject_id": "machine_learning_ai"
+    },
+    {
+      "epoch": 1785602164.802808,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_b89fdb88ffba7d72c1",
+      "subject_id": "law_policy_ethics"
+    },
+    {
+      "epoch": 1785602194.969782,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_3182bbbebbd625cc72",
+      "subject_id": "embedded_robotics"
+    },
+    {
+      "epoch": 1785602225.251659,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_35bcb09af92d33498b",
+      "subject_id": "economics_entrepreneurship"
+    },
+    {
+      "epoch": 1785602255.451197,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_a1796c07964e29814d",
+      "subject_id": "computer_graphics"
+    },
+    {
+      "epoch": 1785602285.666646,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_ee3e1a95d866db8370",
+      "subject_id": "compilers_languages"
+    },
+    {
+      "epoch": 1785602315.846818,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_6c91acc276bf79de97",
+      "subject_id": "cloud_devops_sre"
+    },
+    {
+      "epoch": 1785602346.018131,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_00e4ab84167ccf87b7",
+      "subject_id": "chemistry"
+    },
+    {
+      "epoch": 1785602376.190889,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_022df2786ca07149c4",
+      "subject_id": "web_platform"
+    },
+    {
+      "epoch": 1785602406.373429,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_5ad8409c38d015a950",
+      "subject_id": "cpp"
+    },
+    {
+      "epoch": 1785602436.548564,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_b405343fe726d74357",
+      "subject_id": "spanish"
+    },
+    {
+      "epoch": 1785602466.7658272,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_0dd02167e76693bd4a",
+      "subject_id": "java"
+    },
+    {
+      "epoch": 1785602496.9359,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602527.128622,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602557.317816,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602587.506474,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602617.6794639,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602647.854295,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602678.047102,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602708.279815,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602738.465503,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602768.6311512,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602798.817817,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602829.0425558,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602859.2237692,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602889.42125,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602919.611516,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    },
+    {
+      "epoch": 1785602949.813716,
+      "event": "executor_gap_observed",
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "subject_id": "go"
+    }
+  ],
+  "gaps": {
+    "executor_gap_00e4ab84167ccf87b7": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "empirical_dataset_or_experiment",
+      "first_seen_epoch": 1785602346.0181289,
+      "gap_id": "executor_gap_00e4ab84167ccf87b7",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602346.0181289,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for chemistry",
+      "status": "acquisition_required",
+      "subject_id": "chemistry",
+      "subject_name": "Chemistry and materials",
+      "subskills": [
+        "analytical"
+      ]
+    },
+    "executor_gap_022df2786ca07149c4": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785602376.190887,
+      "gap_id": "executor_gap_022df2786ca07149c4",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602376.190887,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for web_platform",
+      "status": "acquisition_required",
+      "subject_id": "web_platform",
+      "subject_name": "HTML, CSS and browser platform",
+      "subskills": [
+        "accessibility"
+      ]
+    },
+    "executor_gap_0dd02167e76693bd4a": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785602466.765825,
+      "gap_id": "executor_gap_0dd02167e76693bd4a",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602466.765825,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for java",
+      "status": "acquisition_required",
+      "subject_id": "java",
+      "subject_name": "Java programming",
+      "subskills": [
+        "build_tools"
+      ]
+    },
+    "executor_gap_0e7d777a4de4228505": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "document_and_delayed_question",
+      "first_seen_epoch": 1785601772.396102,
+      "gap_id": "executor_gap_0e7d777a4de4228505",
+      "kind": "lesson",
+      "last_seen_epoch": 1785601772.396102,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:research_communication",
+      "resolved_epoch": 1785604505.7364879,
+      "resume_condition": "verified adapter registered for research_communication",
+      "status": "resolved",
+      "subject_id": "research_communication",
+      "subject_name": "Research, Writing and Professional Communication",
+      "subskills": [
+        "argument"
+      ]
+    },
+    "executor_gap_0f6f792663359510b9": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "software_project_execution",
+      "first_seen_epoch": 1785601893.1457,
+      "gap_id": "executor_gap_0f6f792663359510b9",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601893.1457,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:security_engineering",
+      "resolved_epoch": 1785607198.062902,
+      "resume_condition": "verified adapter registered for security_engineering",
+      "status": "resolved",
+      "subject_id": "security_engineering",
+      "subject_name": "Security engineering",
+      "subskills": [
+        "adversarial_testing"
+      ]
+    },
+    "executor_gap_1e08fab805c366e82d": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785601410.255306,
+      "gap_id": "executor_gap_1e08fab805c366e82d",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601410.255307,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:networking",
+      "resolved_epoch": 1785607198.062903,
+      "resume_condition": "verified adapter registered for networking",
+      "status": "resolved",
+      "subject_id": "networking",
+      "subject_name": "Computer Networking",
+      "subskills": [
+        "dns"
+      ]
+    },
+    "executor_gap_30b916a6563028464d": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785602496.935898,
+      "gap_id": "executor_gap_30b916a6563028464d",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602949.813714,
+      "legacy_candidate_available": false,
+      "observations": 16,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for go",
+      "status": "acquisition_required",
+      "subject_id": "go",
+      "subject_name": "Go programming",
+      "subskills": [
+        "concurrency"
+      ]
+    },
+    "executor_gap_3182bbbebbd625cc72": {
+      "acquisition_action": "external_authority_required",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "physical_sensor_or_simulator",
+      "first_seen_epoch": 1785602194.9697778,
+      "gap_id": "executor_gap_3182bbbebbd625cc72",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602194.9697778,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for embedded_robotics",
+      "status": "acquisition_required",
+      "subject_id": "embedded_robotics",
+      "subject_name": "Embedded Systems and Robotics",
+      "subskills": [
+        "actuators"
+      ]
+    },
+    "executor_gap_35bcb09af92d33498b": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "transaction_or_project_outcome",
+      "first_seen_epoch": 1785602225.2516558,
+      "gap_id": "executor_gap_35bcb09af92d33498b",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602225.2516558,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for economics_entrepreneurship",
+      "status": "acquisition_required",
+      "subject_id": "economics_entrepreneurship",
+      "subject_name": "Economics and Entrepreneurship",
+      "subskills": [
+        "business_models"
+      ]
+    },
+    "executor_gap_3a89abd373fd458a5a": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "empirical_dataset_or_experiment",
+      "first_seen_epoch": 1785601983.718324,
+      "gap_id": "executor_gap_3a89abd373fd458a5a",
+      "kind": "lesson",
+      "last_seen_epoch": 1785601983.718324,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for biology_medicine",
+      "status": "acquisition_required",
+      "subject_id": "biology_medicine",
+      "subject_name": "Biology and medicine",
+      "subskills": [
+        "bioethics"
+      ]
+    },
+    "executor_gap_4202ea53b1b496d51e": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785602013.900105,
+      "gap_id": "executor_gap_4202ea53b1b496d51e",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785602013.900105,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:javascript_typescript",
+      "resolved_epoch": 1785605841.284611,
+      "resume_condition": "verified adapter registered for javascript_typescript",
+      "status": "resolved",
+      "subject_id": "javascript_typescript",
+      "subject_name": "JavaScript and TypeScript",
+      "subskills": [
+        "architecture"
+      ]
+    },
+    "executor_gap_45660816d6e90987f2": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785601440.441361,
+      "gap_id": "executor_gap_45660816d6e90987f2",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601440.441361,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:distributed_systems",
+      "resolved_epoch": 1785607198.062905,
+      "resume_condition": "verified adapter registered for distributed_systems",
+      "status": "resolved",
+      "subject_id": "distributed_systems",
+      "subject_name": "Distributed Systems",
+      "subskills": [
+        "consensus"
+      ]
+    },
+    "executor_gap_503252efa40ebdba26": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785601923.331376,
+      "gap_id": "executor_gap_503252efa40ebdba26",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601923.331376,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:sql_databases",
+      "resolved_epoch": 1785605841.2846131,
+      "resume_condition": "verified adapter registered for sql_databases",
+      "status": "resolved",
+      "subject_id": "sql_databases",
+      "subject_name": "SQL and database systems",
+      "subskills": [
+        "concurrency"
+      ]
+    },
+    "executor_gap_54b57345ecc8efd4c1": {
+      "acquisition_action": "external_authority_required",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "constraint_and_human_judgment",
+      "first_seen_epoch": 1785602044.0836291,
+      "gap_id": "executor_gap_54b57345ecc8efd4c1",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602044.0836291,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for creative_invention",
+      "status": "acquisition_required",
+      "subject_id": "creative_invention",
+      "subject_name": "Creative synthesis and invention",
+      "subskills": [
+        "aesthetics"
+      ]
+    },
+    "executor_gap_5ac824eb115edc0719": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "transaction_or_project_outcome",
+      "first_seen_epoch": 1785601742.240016,
+      "gap_id": "executor_gap_5ac824eb115edc0719",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601742.240016,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for finance_accounting",
+      "status": "acquisition_required",
+      "subject_id": "finance_accounting",
+      "subject_name": "Financial management and accounting",
+      "subskills": [
+        "audit"
+      ]
+    },
+    "executor_gap_5ad8409c38d015a950": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785602406.3734279,
+      "gap_id": "executor_gap_5ad8409c38d015a950",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602406.3734279,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for cpp",
+      "status": "acquisition_required",
+      "subject_id": "cpp",
+      "subject_name": "C and C++ programming",
+      "subskills": [
+        "build_tools"
+      ]
+    },
+    "executor_gap_6142bab3b3c47a5b01": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785601561.156755,
+      "gap_id": "executor_gap_6142bab3b3c47a5b01",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601561.156755,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:integrated_engineering_capstone",
+      "resolved_epoch": 1785607198.062906,
+      "resume_condition": "verified adapter registered for integrated_engineering_capstone",
+      "status": "resolved",
+      "subject_id": "integrated_engineering_capstone",
+      "subject_name": "Integrated Engineering Capstone",
+      "subskills": [
+        "communication"
+      ]
+    },
+    "executor_gap_6c91acc276bf79de97": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785602315.846816,
+      "gap_id": "executor_gap_6c91acc276bf79de97",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602315.846816,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:cloud_devops_sre",
+      "resolved_epoch": 1785607198.062906,
+      "resume_condition": "verified adapter registered for cloud_devops_sre",
+      "status": "resolved",
+      "subject_id": "cloud_devops_sre",
+      "subject_name": "Cloud, DevOps and Site Reliability",
+      "subskills": [
+        "capacity"
+      ]
+    },
+    "executor_gap_74a13983c785ea9e93": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "empirical_dataset_or_experiment",
+      "first_seen_epoch": 1785601651.7032242,
+      "gap_id": "executor_gap_74a13983c785ea9e93",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601651.7032251,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:scientific_method",
+      "resolved_epoch": 1785604505.73649,
+      "resume_condition": "verified adapter registered for scientific_method",
+      "status": "resolved",
+      "subject_id": "scientific_method",
+      "subject_name": "Scientific investigation and causal reasoning",
+      "subskills": [
+        "experiment_design"
+      ]
+    },
+    "executor_gap_858f7888a8be306a7c": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "transaction_or_project_outcome",
+      "first_seen_epoch": 1785601712.070608,
+      "gap_id": "executor_gap_858f7888a8be306a7c",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601712.070608,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for business_management",
+      "status": "acquisition_required",
+      "subject_id": "business_management",
+      "subject_name": "Business and organisational management",
+      "subskills": [
+        "execution"
+      ]
+    },
+    "executor_gap_86f95fdbcea493e05b": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785601862.962647,
+      "gap_id": "executor_gap_86f95fdbcea493e05b",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601862.962647,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:python",
+      "resolved_epoch": 1785605841.2846138,
+      "resume_condition": "verified adapter registered for python",
+      "status": "resolved",
+      "subject_id": "python",
+      "subject_name": "Python programming",
+      "subskills": [
+        "architecture"
+      ]
+    },
+    "executor_gap_9af72b6abe8784cf87": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785601470.603513,
+      "gap_id": "executor_gap_9af72b6abe8784cf87",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601470.603513,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:secure_engineering",
+      "resolved_epoch": 1785607198.062906,
+      "resume_condition": "verified adapter registered for secure_engineering",
+      "status": "resolved",
+      "subject_id": "secure_engineering",
+      "subject_name": "Secure Software Engineering",
+      "subskills": [
+        "auth"
+      ]
+    },
+    "executor_gap_a1796c07964e29814d": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785602255.4511948,
+      "gap_id": "executor_gap_a1796c07964e29814d",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602255.4511948,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for computer_graphics",
+      "status": "acquisition_required",
+      "subject_id": "computer_graphics",
+      "subject_name": "Computer Graphics and Visual Computing",
+      "subskills": [
+        "accessibility"
+      ]
+    },
+    "executor_gap_a25dccbc5dc5984f1a": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "compiler_and_test_execution",
+      "first_seen_epoch": 1785601832.7705579,
+      "gap_id": "executor_gap_a25dccbc5dc5984f1a",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601832.7705579,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:rust",
+      "resolved_epoch": 1785605841.2846138,
+      "resume_condition": "verified adapter registered for rust",
+      "status": "resolved",
+      "subject_id": "rust",
+      "subject_name": "Rust programming",
+      "subskills": [
+        "ownership"
+      ]
+    },
+    "executor_gap_a649f465141cecab8a": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785600645.864697,
+      "gap_id": "executor_gap_a649f465141cecab8a",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785600645.864697,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:operating_systems",
+      "resolved_epoch": 1785607198.062907,
+      "resume_condition": "verified adapter registered for operating_systems",
+      "status": "resolved",
+      "subject_id": "operating_systems",
+      "subject_name": "Operating Systems",
+      "subskills": [
+        "filesystems"
+      ]
+    },
+    "executor_gap_b405343fe726d74357": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "document_and_delayed_question",
+      "first_seen_epoch": 1785602436.5485618,
+      "gap_id": "executor_gap_b405343fe726d74357",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602436.548563,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for spanish",
+      "status": "acquisition_required",
+      "subject_id": "spanish",
+      "subject_name": "Spanish language",
+      "subskills": [
+        "conversation"
+      ]
+    },
+    "executor_gap_b89fdb88ffba7d72c1": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "document_and_human_judgment",
+      "first_seen_epoch": 1785602164.802806,
+      "gap_id": "executor_gap_b89fdb88ffba7d72c1",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602164.802806,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for law_policy_ethics",
+      "status": "acquisition_required",
+      "subject_id": "law_policy_ethics",
+      "subject_name": "Law, Policy and Applied Ethics",
+      "subskills": [
+        "contracts"
+      ]
+    },
+    "executor_gap_badfb688ea24b18e61": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "data_and_statistical_outcome",
+      "first_seen_epoch": 1785601953.530858,
+      "gap_id": "executor_gap_badfb688ea24b18e61",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601953.530858,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:data_statistics",
+      "resolved_epoch": 1785604505.736491,
+      "resume_condition": "verified adapter registered for data_statistics",
+      "status": "resolved",
+      "subject_id": "data_statistics",
+      "subject_name": "Data analysis and statistics",
+      "subskills": [
+        "causal_analysis"
+      ]
+    },
+    "executor_gap_bd157e438f7f12110d": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "document_and_delayed_question",
+      "first_seen_epoch": 1785601591.336962,
+      "gap_id": "executor_gap_bd157e438f7f12110d",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601591.336962,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:english",
+      "resolved_epoch": 1785604505.736492,
+      "resume_condition": "verified adapter registered for english",
+      "status": "resolved",
+      "subject_id": "english",
+      "subject_name": "English natural-language cognition",
+      "subskills": [
+        "ambiguity"
+      ]
+    },
+    "executor_gap_c31e0fdecbfcba101c": {
+      "acquisition_action": "external_authority_required",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "constraint_and_human_judgment",
+      "first_seen_epoch": 1785602104.450248,
+      "gap_id": "executor_gap_c31e0fdecbfcba101c",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602104.450248,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for ui_product_design",
+      "status": "acquisition_required",
+      "subject_id": "ui_product_design",
+      "subject_name": "User-interface and product design",
+      "subskills": [
+        "accessibility"
+      ]
+    },
+    "executor_gap_c7e6f89803ff50c837": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "transaction_or_project_outcome",
+      "first_seen_epoch": 1785601681.89204,
+      "gap_id": "executor_gap_c7e6f89803ff50c837",
+      "kind": "lesson",
+      "last_seen_epoch": 1785601681.89204,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for product_project_management",
+      "status": "acquisition_required",
+      "subject_id": "product_project_management",
+      "subject_name": "Product, Project and Scrum Management",
+      "subskills": [
+        "delivery"
+      ]
+    },
+    "executor_gap_d447926e2ba3fe6bfa": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785600615.670644,
+      "gap_id": "executor_gap_d447926e2ba3fe6bfa",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785600615.670644,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for database_engineering",
+      "status": "acquisition_required",
+      "subject_id": "database_engineering",
+      "subject_name": "Database Engineering",
+      "subskills": [
+        "concurrency"
+      ]
+    },
+    "executor_gap_d6327731f728a5b75b": {
+      "acquisition_action": "external_authority_required",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "independent_multi_rater",
+      "first_seen_epoch": 1785601802.568983,
+      "gap_id": "executor_gap_d6327731f728a5b75b",
+      "kind": "lesson",
+      "last_seen_epoch": 1785601802.568983,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for social_commonsense",
+      "status": "acquisition_required",
+      "subject_id": "social_commonsense",
+      "subject_name": "Social and commonsense intelligence",
+      "subskills": [
+        "consent"
+      ]
+    },
+    "executor_gap_e00f8e0922de603c76": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "proof_and_calculation",
+      "first_seen_epoch": 1785601621.5215921,
+      "gap_id": "executor_gap_e00f8e0922de603c76",
+      "kind": "lesson",
+      "last_seen_epoch": 1785601621.5215921,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:mathematics",
+      "resolved_epoch": 1785604505.736492,
+      "resume_condition": "verified adapter registered for mathematics",
+      "status": "resolved",
+      "subject_id": "mathematics",
+      "subject_name": "Mathematics",
+      "subskills": [
+        "arithmetic"
+      ]
+    },
+    "executor_gap_e5f4cf09e35ce3c9bf": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785602134.632156,
+      "gap_id": "executor_gap_e5f4cf09e35ce3c9bf",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602134.632156,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:machine_learning_ai",
+      "resolved_epoch": 1785604505.736493,
+      "resume_condition": "verified adapter registered for machine_learning_ai",
+      "status": "resolved",
+      "subject_id": "machine_learning_ai",
+      "subject_name": "Machine Learning and AI Engineering",
+      "subskills": [
+        "data_governance"
+      ]
+    },
+    "executor_gap_ee3e1a95d866db8370": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785602285.6666439,
+      "gap_id": "executor_gap_ee3e1a95d866db8370",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602285.6666439,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for compilers_languages",
+      "status": "acquisition_required",
+      "subject_id": "compilers_languages",
+      "subject_name": "Compilers and Programming Languages",
+      "subskills": [
+        "code_generation"
+      ]
+    },
+    "executor_gap_f92c55c1e1ec8394b9": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785601530.972459,
+      "gap_id": "executor_gap_f92c55c1e1ec8394b9",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601530.972459,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for rust_systems",
+      "status": "acquisition_required",
+      "subject_id": "rust_systems",
+      "subject_name": "Rust Systems Engineering",
+      "subskills": [
+        "concurrency"
+      ]
+    },
+    "executor_gap_fa31f24264c5242f0b": {
+      "acquisition_action": "upgrade_legacy_candidate_to_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "code_and_system_execution",
+      "first_seen_epoch": 1785601500.784329,
+      "gap_id": "executor_gap_fa31f24264c5242f0b",
+      "kind": "knowledge_test",
+      "last_seen_epoch": 1785601500.784329,
+      "legacy_candidate_available": true,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resolution": "progressive:architecture_operations",
+      "resolved_epoch": 1785607198.062908,
+      "resume_condition": "verified adapter registered for architecture_operations",
+      "status": "resolved",
+      "subject_id": "architecture_operations",
+      "subject_name": "Architecture and Production Operations",
+      "subskills": [
+        "architecture_tradeoffs"
+      ]
+    },
+    "executor_gap_fc030ce2065ce57241": {
+      "acquisition_action": "invent_and_verify_progressive_adapter",
+      "authority": "authoritative_source_plus_withheld_assessment",
+      "family": "empirical_dataset_or_experiment",
+      "first_seen_epoch": 1785602074.252128,
+      "gap_id": "executor_gap_fc030ce2065ce57241",
+      "kind": "lesson",
+      "last_seen_epoch": 1785602074.252128,
+      "legacy_candidate_available": false,
+      "observations": 1,
+      "proposal_only": true,
+      "reason": "No verified adapter satisfies the active progressive contract.",
+      "resume_condition": "verified adapter registered for physics",
+      "status": "acquisition_required",
+      "subject_id": "physics",
+      "subject_name": "Physics",
+      "subskills": [
+        "electromagnetism"
+      ]
+    }
+  },
+  "schema_version": "aion.hexcore.progressive_executor_registry.v1",
+  "updated_epoch": 1786426127.57535
+}

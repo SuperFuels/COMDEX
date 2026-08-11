@@ -1,7 +1,15 @@
 (function installAionFinanceModelBuilder(global) {
   'use strict';
   function numbers(value) { return (String(value || '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/g) || []).map(Number).filter(Number.isFinite); }
-  function midpoint(value) { const found = numbers(value); return !found.length ? null : found.length > 1 ? (found[0] + found[1]) / 2 : found[0]; }
+  function midpoint(value) {
+    const found = numbers(value); if (!found.length) return null;
+    const text = String(value || '').toLowerCase();
+    // Evidence summaries commonly contain a monthly amount followed by its
+    // annual total.  Those are two different periods, not a numeric range.
+    if (/average\s+monthly|per\s+month|monthly.+(?:annual|fy\d{4}|total)/i.test(text)) return found[0];
+    const explicitRange = /\bbetween\b|\bfrom\b[^.]{0,30}\bto\b|\d\s*[-–—]\s*[€£$]?\s*\d/i.test(text);
+    return explicitRange && found.length > 1 ? (found[0] + found[1]) / 2 : found[0];
+  }
   function money(value, field) { const amount = midpoint(value); return amount == null ? null : { value: amount, field, source: 'founder_provided_text', verification: 'unverified' }; }
   function build(state = {}) {
     const a = state.answers || {}, monthlyRevenue = money(a.revenue_monthly, 'revenue_monthly'), fixedMonthly = money(a.fixed_cost_monthly, 'fixed_cost_monthly'), directMonthly = money(a.direct_cost_monthly, 'direct_cost_monthly');

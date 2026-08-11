@@ -34,6 +34,14 @@ SERVICES = {
     "feedback": "backend/AION/fabric/aion_fabric_feedback.py",
     "dashboard": "backend/AION/fabric/fabric_stream_dashboard.py",
     "simulator": "backend/tests/test_fabric_stream_heartbeat.py",
+    "cognitive_runtime": "backend/AION/system/aion_cognitive_runtime_service.py",
+    "outcome_learning": "backend/AION/system/aion_real_outcome_learning_service.py",
+    "general_apprentice": "backend/AION/system/aion_general_apprentice_service.py",
+    "north_star_mastery": "backend/AION/system/aion_north_star_mastery_service.py",
+    "mastery_curriculum": "backend/AION/system/aion_mastery_curriculum_service.py",
+    "open_mission_compounding": "backend/AION/system/aion_open_mission_compounding_service.py",
+    "open_mission_executor": "backend/AION/system/aion_open_mission_executor_service.py",
+    "long_duration_campaign": "backend/AION/system/aion_long_duration_real_outcome_campaign_service.py",
 }
 
 HEALTH_ENDPOINTS = {
@@ -201,16 +209,42 @@ def mirror_thread():
 def run_heartbeat():
     hb = HeartbeatSupervisor()
 
-    # Start core services sequentially
-    for name in ("receiver", "stream", "feedback"):
-        hb.start_service(name, SERVICES[name])
-        time.sleep(1)
+    # The legacy Fabric demo services are not part of the open-mission learner.
+    # They used to start unconditionally, even on installations where their
+    # receiver/dashboard immediately exited and entered a restart loop.  Keep
+    # them available for explicit Fabric work without charging every desktop
+    # boot for them.
+    if os.environ.get("AION_FABRIC_CORE", "0") == "1":
+        for name in ("receiver", "stream", "feedback"):
+            hb.start_service(name, SERVICES[name])
+            time.sleep(1)
 
     # Optional modules
-    if os.environ.get("AION_DASHBOARD", "1") == "1":
+    if os.environ.get("AION_DASHBOARD", "0") == "1":
         hb.start_service("dashboard", SERVICES["dashboard"])
-    if os.environ.get("AION_SIMULATOR", "1") == "1":
+    if os.environ.get("AION_SIMULATOR", "0") == "1":
         hb.start_service("simulator", SERVICES["simulator"])
+    # Open-mission compounding is the current governed learning authority.  The
+    # older canonical cognitive runtime is opt-in because its neural startup can
+    # consume every CPU core while duplicating work already owned below.
+    if os.environ.get("AION_COGNITIVE_RUNTIME", "0") == "1":
+        hb.start_service("cognitive_runtime", SERVICES["cognitive_runtime"])
+    # The installed LaunchAgent is the canonical owner of outcome learning.
+    # Set this explicitly to 1 only in installations without that supervisor.
+    if os.environ.get("AION_OUTCOME_LEARNING", "0") == "1":
+        hb.start_service("outcome_learning", SERVICES["outcome_learning"])
+    if os.environ.get("AION_GENERAL_APPRENTICE", "1") == "1":
+        hb.start_service("general_apprentice", SERVICES["general_apprentice"])
+    if os.environ.get("AION_NORTH_STAR_MASTERY", "1") == "1":
+        hb.start_service("north_star_mastery", SERVICES["north_star_mastery"])
+        hb.start_service("mastery_curriculum", SERVICES["mastery_curriculum"])
+    if os.environ.get("AION_OPEN_MISSION_COMPOUNDING", "1") == "1":
+        hb.start_service("open_mission_compounding", SERVICES["open_mission_compounding"])
+        hb.start_service("open_mission_executor", SERVICES["open_mission_executor"])
+        # The rolling public-world mission uses this evaluator-owned ledger as
+        # its later outcome authority.  Keep it under the same reboot-safe
+        # supervisor so the executor cannot wait forever on a stale cursor.
+        hb.start_service("long_duration_campaign", SERVICES["long_duration_campaign"])
 
     # Start monitoring threads
     threading.Thread(target=hb.monitor_loop, daemon=True).start()

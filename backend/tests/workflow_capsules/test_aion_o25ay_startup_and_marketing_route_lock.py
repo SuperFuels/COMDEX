@@ -92,7 +92,7 @@ def test_o25ay_finance_handoff_remains_first_render_exception():
     assert '"finance"' in block
 
 
-def test_o25ay_marketing_stream_is_an_allowed_manual_route():
+def test_o25ay_legacy_marketing_stream_route_redirects_to_unified_department():
     start = APP.index(
         "function renderMainSurface()"
     )
@@ -107,10 +107,12 @@ def test_o25ay_marketing_stream_is_an_allowed_manual_route():
         'if (state.activeTab === "marketing_stream")'
         in block
     )
-    assert "renderMarketingStreamSurface()" in block
+    assert 'state.activeTab = "live_agents";' in block
+    assert 'state.selectedLiveAgentDepartment = "marketing";' in block
+    assert "return renderLiveAgentsSurface();" in block
 
 
-def test_o25ay_canonical_sidebar_keeps_marketing_route():
+def test_o25ay_canonical_compatibility_mapping_keeps_old_links_recoverable():
     assert (
         'marketing_stream: "marketing_stream"'
         in APP
@@ -120,6 +122,8 @@ def test_o25ay_canonical_sidebar_keeps_marketing_route():
         '"marketing_stream",'
         in APP
     )
+    app_tabs = APP[APP.index("const APP_TABS"):APP.index("/*", APP.index("const APP_TABS"))]
+    assert '{ key: "marketing_stream", label: "Marketing Stream" }' not in app_tabs
 
 
 def test_o25ay_startup_selector_has_distinct_route():

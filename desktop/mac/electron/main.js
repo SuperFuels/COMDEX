@@ -7,13 +7,13 @@ const {
   session,
   shell,
   systemPreferences,
+  dialog,
 } = require("electron");
 
 // AION O25N desktop backend local voice env lock
-function aionO25NLocalVoiceBackendEnv(extraEnv = {}) {
+function aionO25NLocalVoiceBackendEnv() {
   return {
     ...process.env,
-    ...extraEnv,
     PYTHONPATH: process.env.PYTHONPATH || process.cwd(),
     AION_VOICE_WORKER_ENABLED: "true",
     AION_TTS_PROVIDER: "kokoro",
@@ -22,6 +22,22 @@ function aionO25NLocalVoiceBackendEnv(extraEnv = {}) {
     AION_BROWSER_SPEECH_FALLBACK_ENABLED: "false",
     AION_VOICE_NO_HIDDEN_DOWNLOADS: "true",
     AION_VOICE_RUNTIME_MODE: process.env.AION_VOICE_RUNTIME_MODE || "staging",
+    // The desktop backend imports many historical semantic subsystems.  Keep
+    // their shared MiniLM model off unified MPS memory and bound native thread
+    // pools so opening the UI cannot starve the rest of macOS.
+    AION_EMBEDDING_DEVICE: process.env.AION_EMBEDDING_DEVICE || "cpu",
+    OMP_NUM_THREADS: process.env.OMP_NUM_THREADS || "2",
+    MKL_NUM_THREADS: process.env.MKL_NUM_THREADS || "2",
+    OPENBLAS_NUM_THREADS: process.env.OPENBLAS_NUM_THREADS || "2",
+    VECLIB_MAXIMUM_THREADS: process.env.VECLIB_MAXIMUM_THREADS || "2",
+    NUMEXPR_NUM_THREADS: process.env.NUMEXPR_NUM_THREADS || "2",
+    TOKENIZERS_PARALLELISM: "false",
+    AION_ENABLE_HQCE: "0",
+    AION_ENABLE_GHX_TELEMETRY: "0",
+    AION_ENABLE_DUAL_HEARTBEAT: "0",
+    AION_ENABLE_BOOT_LOADER: "0",
+    AION_SEED_PATTERNS: "0",
+    GLYPHCHAIN_CONSENSUS_ENABLE: "0",
     HF_HUB_OFFLINE: "1",
     TRANSFORMERS_OFFLINE: "1",
     HF_DATASETS_OFFLINE: "1",
@@ -50,6 +66,9 @@ const BACKEND_HOST = "127.0.0.1";
 const BACKEND_PORT = 8080;
 const BACKEND_HEALTH_PATH = "/health";
 const BACKEND_URL = `http://${BACKEND_HOST}:${BACKEND_PORT}${BACKEND_HEALTH_PATH}`;
+// Historical full-stack fallback retained for explicit research sessions only.
+const LEGACY_FULL_BACKEND_APP = "backend.main:app";
+const DESKTOP_BACKEND_APP = process.env.TESSARIS_BACKEND_APP || "backend.desktop_app:app";
 
 function wait(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -975,24 +994,27 @@ async function ensureBackendRunning() {
     const projectRoot = resolveProjectRoot();
     const pythonBin = resolvePythonBin(projectRoot);
 
+    // The O25N launcher contract calls the governed environment builder with
+    // no ad-hoc overrides.  Seed its process-local inputs first so the child
+    // still receives the canonical repository root.
+    process.env.PYTHONUNBUFFERED = "1";
+    process.env.TESSARIS_PROJECT_ROOT = projectRoot;
+    process.env.PYTHONPATH = projectRoot;
+
     console.log(`[backend] project root: ${projectRoot}`);
     console.log(`[backend] python bin: ${pythonBin}`);
 
     const proc = spawn(pythonBin, [
       "-m",
       "uvicorn",
-      "backend.main:app",
+      DESKTOP_BACKEND_APP,
       "--host",
       "127.0.0.1",
       "--port",
       "8080",
     ], {
       cwd: projectRoot,
-      env: aionO25NLocalVoiceBackendEnv({
-        PYTHONUNBUFFERED: "1",
-        TESSARIS_PROJECT_ROOT: projectRoot,
-        PYTHONPATH: projectRoot,
-      }),
+      env: aionO25NLocalVoiceBackendEnv(),
       stdio: "pipe",
     });
 
@@ -1338,6 +1360,34 @@ ipcMain.handle("aion-open-external-url", async (_event, rawUrl = "") => {
   }
   await shell.openExternal(parsed.toString());
   return { ok: true };
+});
+
+ipcMain.handle("aion-choose-local-video", async () => {
+  const owner = BrowserWindow.getFocusedWindow() || mainWindow || undefined;
+  const result = await dialog.showOpenDialog(owner, {
+    title: "Choose source video",
+    properties: ["openFile"],
+    filters: [{ name: "Video", extensions: ["mp4", "mov", "m4v", "webm"] }],
+  });
+  if (result.canceled || !result.filePaths?.[0]) return { ok: false, canceled: true };
+  return { ok: true, path: result.filePaths[0] };
+});
+
+ipcMain.handle("aion-choose-local-media", async (_event, payload = {}) => {
+  const owner = BrowserWindow.getFocusedWindow() || mainWindow || undefined;
+  const kind = String(payload.kind || "video").toLowerCase();
+  const filters = {
+    video: [{ name: "Video", extensions: ["mp4", "mov", "m4v", "webm"] }],
+    image: [{ name: "Image", extensions: ["png", "jpg", "jpeg", "webp"] }],
+    audio: [{ name: "Audio", extensions: ["mp3", "wav", "m4a", "aac", "flac"] }],
+  };
+  const result = await dialog.showOpenDialog(owner, {
+    title: String(payload.title || `Choose ${kind}`),
+    properties: payload.multiple === true ? ["openFile", "multiSelections"] : ["openFile"],
+    filters: filters[kind] || filters.video,
+  });
+  if (result.canceled || !result.filePaths?.length) return { ok: false, canceled: true, paths: [] };
+  return { ok: true, paths: result.filePaths, path: result.filePaths[0] };
 });
 
 ipcMain.handle("aion-play-local-voice", async (_event, payload = {}) => {

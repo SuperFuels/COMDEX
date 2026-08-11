@@ -1,0 +1,659 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "adaptive_pre_action_metacognition": "procedure_adaptive_metacognitive_deliberation_v1"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "metacognitive_deliberation_cau"
+    },
+    "reason": "adaptive_metacognitive_deliberation",
+    "state_hash": "96188879bd6835d69d8536c3eca09d9c5d46b0547afdb1c995ab6bc52b28476d"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "metacognitive_deliberation": {
+    "metacognition_40e07798ea852a43": {
+      "created_at": "2026-07-31T22:43:59.055364+00:00",
+      "gate": {
+        "accepted": true,
+        "actor_only_success": 0.5,
+        "adaptive_deliberation_units": 55,
+        "always_deep_units": 80,
+        "deliberation_reduction": 0.3125,
+        "domains": 5,
+        "llm_calls": 0,
+        "metacognitive_success": 1.0,
+        "routine_actions_preserved": 5,
+        "routine_actions_total": 5,
+        "sealed_cases": 10,
+        "tempting_traps_prevented": 5,
+        "tempting_traps_total": 5,
+        "unsafe_executions": 0,
+        "weakest_domain_success": 1.0
+      },
+      "history": [
+        {
+          "action_signature": "75d4507da18f1c2c",
+          "action_type": "chess_action",
+          "verified": true
+        },
+        {
+          "action_signature": "75d4507da18f1c2c",
+          "action_type": "chess_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "89cfe9ef2a532449",
+          "action_type": "chess_action",
+          "verified": false
+        },
+        {
+          "action_signature": "89cfe9ef2a532449",
+          "action_type": "chess_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "75d4507da18f1c2c",
+          "action_type": "chess_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "89cfe9ef2a532449",
+          "action_type": "chess_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "0c4b43fd2c61a91f",
+          "action_type": "software_action",
+          "verified": true
+        },
+        {
+          "action_signature": "0c4b43fd2c61a91f",
+          "action_type": "software_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "bc59041fb75d9e70",
+          "action_type": "software_action",
+          "verified": false
+        },
+        {
+          "action_signature": "bc59041fb75d9e70",
+          "action_type": "software_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "0c4b43fd2c61a91f",
+          "action_type": "software_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "bc59041fb75d9e70",
+          "action_type": "software_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "8ef1c6545d6dd458",
+          "action_type": "research_action",
+          "verified": true
+        },
+        {
+          "action_signature": "8ef1c6545d6dd458",
+          "action_type": "research_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "82561d9ed670c982",
+          "action_type": "research_action",
+          "verified": false
+        },
+        {
+          "action_signature": "82561d9ed670c982",
+          "action_type": "research_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "8ef1c6545d6dd458",
+          "action_type": "research_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "82561d9ed670c982",
+          "action_type": "research_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "3888556a289750c0",
+          "action_type": "causal_action",
+          "verified": true
+        },
+        {
+          "action_signature": "3888556a289750c0",
+          "action_type": "causal_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "965620f7f4518372",
+          "action_type": "causal_action",
+          "verified": false
+        },
+        {
+          "action_signature": "965620f7f4518372",
+          "action_type": "causal_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "3888556a289750c0",
+          "action_type": "causal_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "965620f7f4518372",
+          "action_type": "causal_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "f4f246d119e88417",
+          "action_type": "tool_action",
+          "verified": true
+        },
+        {
+          "action_signature": "f4f246d119e88417",
+          "action_type": "tool_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "45512168a2361692",
+          "action_type": "tool_action",
+          "verified": false
+        },
+        {
+          "action_signature": "45512168a2361692",
+          "action_type": "tool_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_signature": "f4f246d119e88417",
+          "action_type": "tool_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_signature": "45512168a2361692",
+          "action_type": "tool_action",
+          "decision": "revise",
+          "verified": true
+        }
+      ]
+    },
+    "metacognition_782403bcaaa82124": {
+      "created_at": "2026-07-31T22:43:25.147752+00:00",
+      "gate": {
+        "accepted": false,
+        "actor_only_success": 0.5,
+        "adaptive_deliberation_units": 80,
+        "always_deep_units": 80,
+        "deliberation_reduction": 0.0,
+        "domains": 5,
+        "llm_calls": 0,
+        "metacognitive_success": 1.0,
+        "routine_actions_preserved": 0,
+        "routine_actions_total": 5,
+        "sealed_cases": 10,
+        "tempting_traps_prevented": 5,
+        "tempting_traps_total": 5,
+        "unsafe_executions": 0,
+        "weakest_domain_success": 1.0
+      },
+      "history": [
+        {
+          "action_type": "chess_action",
+          "verified": true
+        },
+        {
+          "action_type": "chess_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "chess_action",
+          "verified": false
+        },
+        {
+          "action_type": "chess_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "chess_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "chess_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "software_action",
+          "verified": true
+        },
+        {
+          "action_type": "software_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "software_action",
+          "verified": false
+        },
+        {
+          "action_type": "software_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "software_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "software_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "research_action",
+          "verified": true
+        },
+        {
+          "action_type": "research_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "research_action",
+          "verified": false
+        },
+        {
+          "action_type": "research_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "research_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "research_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "causal_action",
+          "verified": true
+        },
+        {
+          "action_type": "causal_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "causal_action",
+          "verified": false
+        },
+        {
+          "action_type": "causal_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "causal_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "causal_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "tool_action",
+          "verified": true
+        },
+        {
+          "action_type": "tool_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "tool_action",
+          "verified": false
+        },
+        {
+          "action_type": "tool_action",
+          "decision": "revise",
+          "verified": true
+        },
+        {
+          "action_type": "tool_action",
+          "decision": "execute",
+          "verified": true
+        },
+        {
+          "action_type": "tool_action",
+          "decision": "revise",
+          "verified": true
+        }
+      ]
+    }
+  },
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "cohort_id": "metacognition_782403bcaaa82124",
+        "gate": {
+          "accepted": false,
+          "actor_only_success": 0.5,
+          "adaptive_deliberation_units": 80,
+          "always_deep_units": 80,
+          "deliberation_reduction": 0.0,
+          "domains": 5,
+          "llm_calls": 0,
+          "metacognitive_success": 1.0,
+          "routine_actions_preserved": 0,
+          "routine_actions_total": 5,
+          "sealed_cases": 10,
+          "tempting_traps_prevented": 5,
+          "tempting_traps_total": 5,
+          "unsafe_executions": 0,
+          "weakest_domain_success": 1.0
+        }
+      },
+      "outcome_id": "outcome_64fe968ba35f48de",
+      "procedure_id": "procedure_adaptive_metacognitive_deliberation_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.5,
+      "success": false,
+      "timestamp": "2026-07-31T22:43:25.147996+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "metacognition_40e07798ea852a43",
+        "gate": {
+          "accepted": true,
+          "actor_only_success": 0.5,
+          "adaptive_deliberation_units": 55,
+          "always_deep_units": 80,
+          "deliberation_reduction": 0.3125,
+          "domains": 5,
+          "llm_calls": 0,
+          "metacognitive_success": 1.0,
+          "routine_actions_preserved": 5,
+          "routine_actions_total": 5,
+          "sealed_cases": 10,
+          "tempting_traps_prevented": 5,
+          "tempting_traps_total": 5,
+          "unsafe_executions": 0,
+          "weakest_domain_success": 1.0
+        }
+      },
+      "outcome_id": "outcome_7f6f665eac0f455e",
+      "procedure_id": "procedure_adaptive_metacognitive_deliberation_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.8125,
+      "success": true,
+      "timestamp": "2026-07-31T22:43:59.057608+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_adaptive_metacognitive_deliberation_v1": {
+      "evidence": {
+        "cohort_id": "metacognition_40e07798ea852a43",
+        "gate": {
+          "accepted": true,
+          "actor_only_success": 0.5,
+          "adaptive_deliberation_units": 55,
+          "always_deep_units": 80,
+          "deliberation_reduction": 0.3125,
+          "domains": 5,
+          "llm_calls": 0,
+          "metacognitive_success": 1.0,
+          "routine_actions_preserved": 5,
+          "routine_actions_total": 5,
+          "sealed_cases": 10,
+          "tempting_traps_prevented": 5,
+          "tempting_traps_total": 5,
+          "unsafe_executions": 0,
+          "weakest_domain_success": 1.0
+        }
+      },
+      "goal": "adaptive_pre_action_metacognition",
+      "procedure_id": "procedure_adaptive_metacognitive_deliberation_v1",
+      "promoted_at": "2026-07-31T22:43:59.055642+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.8125,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "cheap_contract_check",
+        "estimate_uncertainty_risk_and_irreversibility",
+        "recall_similar_failures",
+        "simulate_counterfactual_reply",
+        "compare_alternatives",
+        "execute_revise_investigate_or_escalate",
+        "calibrate_from_outcome"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "63d6872a496f2f684f96614d6a42cfddba0281a3c0540896afbcbe6fea9fb35e",
+      "goal": "adaptive_pre_action_metacognition",
+      "new_champion_id": "procedure_adaptive_metacognitive_deliberation_v1",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.8125,
+      "timestamp": "2026-07-31T22:43:59.055655+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 5,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T22:43:59.058951+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

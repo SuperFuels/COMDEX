@@ -82,6 +82,9 @@ class FinanceDirectorService:
         overdue_sales = [item for item in invoices if item.get("invoice_type") == "sales_invoice" and item.get("is_overdue")]
         overdue_bills = [item for item in invoices if item.get("invoice_type") == "supplier_bill" and item.get("is_overdue")]
         unverified = not bool(financial.get("evidence_refs") or financial.get("integration_evidence"))
+        statement_package = financial.get("financial_statements") or {}
+        source_balance_sheet = statement_package.get("balance_sheet") or {}
+        source_cash_flow = statement_package.get("cash_flow") or {}
         balance_sheet = {
             "cash": cash, "accounts_receivable": receivables,
             "accounts_payable": payables, "inventory": _number(inventory.get("total_stock_value")),
@@ -98,6 +101,26 @@ class FinanceDirectorService:
             "accounts_payable": payables,
             "warning": "Operating-profit proxy excludes financing, tax, capital and timing movements." if monthly_operating_profit else "Insufficient evidence for a monthly cash movement proxy.",
         }
+        if source_cash_flow:
+            cash_flow.update({
+                "statement_status": source_cash_flow.get("status"),
+                "statement_method": source_cash_flow.get("method"),
+                "opening_cash": source_cash_flow.get("opening_cash"),
+                "cash_collections": source_cash_flow.get("cash_collections"),
+                "cash_payments": source_cash_flow.get("cash_payments"),
+                "net_cash_change": source_cash_flow.get("net_cash_change"),
+                "ending_cash": source_cash_flow.get("ending_cash"),
+                "warning": None if source_cash_flow.get("status") == "source_backed_summary" else cash_flow["warning"],
+            })
+        if source_balance_sheet:
+            balance_sheet.update({
+                "statement_status": source_balance_sheet.get("status"),
+                "assets": source_balance_sheet.get("assets") or {},
+                "liabilities": source_balance_sheet.get("liabilities") or {},
+                "equity": source_balance_sheet.get("equity"),
+                "balance_check": source_balance_sheet.get("balance_check") or {},
+                "missing_information": source_balance_sheet.get("missing_information") or [],
+            })
         profitability = {
             "revenue": revenue, "direct_costs": direct_costs, "gross_profit": gross_profit,
             "gross_margin_percent": round(gross_profit / revenue * 100, 2) if revenue else None,
@@ -130,6 +153,8 @@ class FinanceDirectorService:
             "source_financial_model_hash": canonical_contract_hash(financial),
             "ledger_ref": None if not ledger else {"ledger_id": ledger["ledger_id"], "ledger_hash": ledger["ledger_hash"]},
             "profit_and_loss": profitability, "balance_sheet": balance_sheet, "cash_flow": cash_flow,
+            "financial_statements": statement_package,
+            "statement_quality": financial.get("statement_quality") or {},
             "working_capital": working_capital, "commercial_and_operating_context": commercial,
             "proactive_signals": signals, "boardroom_proposals": proposals,
             "verification_state": "unverified_founder_supplied" if unverified else "mixed_provider_and_accepted_evidence",
@@ -225,7 +250,7 @@ class FinanceDirectorService:
         tree["folders"] = folders; tree["root"] = {**(tree.get("root") or {}), "id": "root", "type": "folder", "name": "Workflows", "children": folders}; WorkflowFileCabinetRepository.save(workspace_id, tree)
 
     def _project(self, workspace_id: str, financial: dict[str, Any], record: dict[str, Any], path: Path) -> None:
-        compact = {"director_model_id": record["director_model_id"], "director_model_hash": record["director_model_hash"], "created_at": record["created_at"], "storage_path": str(path), "profit_and_loss": record["profit_and_loss"], "balance_sheet": record["balance_sheet"], "cash_flow": record["cash_flow"], "working_capital": record["working_capital"], "proactive_signals": record["proactive_signals"], "boardroom_proposals": record["boardroom_proposals"], "verification_state": record["verification_state"]}
+        compact = {"director_model_id": record["director_model_id"], "director_model_hash": record["director_model_hash"], "created_at": record["created_at"], "storage_path": str(path), "profit_and_loss": record["profit_and_loss"], "balance_sheet": record["balance_sheet"], "cash_flow": record["cash_flow"], "financial_statements": record.get("financial_statements") or {}, "statement_quality": record.get("statement_quality") or {}, "working_capital": record["working_capital"], "proactive_signals": record["proactive_signals"], "boardroom_proposals": record["boardroom_proposals"], "verification_state": record["verification_state"]}
         financial["finance_director"] = compact; financial["revision"] = int(financial.get("revision") or 0) + 1
         self.repository.save_dict(workspace_id, "business_financial_model", financial)
         intelligence = self.repository.load_optional_dict(workspace_id, "department_intelligence")

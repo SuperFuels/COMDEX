@@ -22,7 +22,7 @@ PROVIDERS: Dict[str, Dict[str, str]] = {
         "env_key": "ANTHROPIC_API_KEY",
         "alt_env_key": "CLAUDE_API_KEY",
         "model_env": "ANTHROPIC_MODEL",
-        "default_model": "claude-3-5-sonnet-20241022",
+        "default_model": "claude-sonnet-4-5",
     },
     "gemini": {
         "label": "Gemini / Google",
@@ -36,7 +36,39 @@ PROVIDERS: Dict[str, Dict[str, str]] = {
         "env_key": "XAI_API_KEY",
         "alt_env_key": "GROK_API_KEY",
         "model_env": "GROK_MODEL",
-        "default_model": "grok-beta",
+        "default_model": "grok-4.5",
+    },
+    "kimi": {
+        "label": "Kimi / Moonshot",
+        "env_key": "MOONSHOT_API_KEY",
+        "alt_env_key": "KIMI_API_KEY",
+        "model_env": "KIMI_MODEL",
+        "default_model": "kimi-k3",
+    },
+    "gemma": {
+        "label": "Gemma / Ollama (local)",
+        "env_key": "AION_LOCAL_GEMMA_TOKEN",
+        "model_env": "AION_LOCAL_GEMMA_MODEL",
+        "default_model": "gemma4:e2b",
+    },
+    "meta": {
+        "label": "Meta AI",
+        "env_key": "MODEL_API_KEY",
+        "alt_env_key": "META_MODEL_API_KEY",
+        "model_env": "META_MODEL_API_MODEL",
+        "default_model": "muse-spark-1.1",
+    },
+    "mistral": {
+        "label": "Mistral AI",
+        "env_key": "MISTRAL_API_KEY",
+        "model_env": "MISTRAL_MODEL",
+        "default_model": "mistral-small-latest",
+    },
+    "deepseek": {
+        "label": "DeepSeek",
+        "env_key": "DEEPSEEK_API_KEY",
+        "model_env": "DEEPSEEK_MODEL",
+        "default_model": "deepseek-v4-pro",
     },
 }
 
@@ -47,6 +79,13 @@ def normalize_provider_id(provider_id: str) -> str:
         "anthropic": "claude",
         "google": "gemini",
         "xai": "grok",
+        "moonshot": "kimi",
+        "local_gemma": "gemma",
+        "ollama": "gemma",
+        "llama": "meta",
+        "meta_ai": "meta",
+        "mistralai": "mistral",
+        "deep_seek": "deepseek",
     }
     return aliases.get(value, value)
 
@@ -128,9 +167,11 @@ def get_ai_provider_public_record(provider_id: str) -> Dict[str, Any]:
             env_key = os.getenv(key_name, "").strip()
             break
 
-    connected = bool(vault_key or env_key)
-    source = "local_desktop_vault" if vault_key else ("env" if env_key else "missing")
+    local_gemma = provider == "gemma" and _local_gemma_status().get("connected") is True
+    connected = bool(vault_key or env_key or local_gemma)
+    source = "local_ollama" if local_gemma else ("local_desktop_vault" if vault_key else ("env" if env_key else "missing"))
 
+    receipt_vision = provider != "deepseek"
     return {
         "id": provider,
         "label": meta.get("label", provider),
@@ -138,9 +179,35 @@ def get_ai_provider_public_record(provider_id: str) -> Dict[str, Any]:
         "source": source,
         "masked_key": mask_secret(vault_key or env_key),
         "model": get_ai_provider_model(provider),
-        "reason": None if connected else "missing_api_key",
+        "reason": None if connected else ("local_vision_model_unavailable" if provider == "gemma" else "missing_api_key"),
         "updated_at": record.get("updated_at"),
+        "capabilities": {"boardroom": True, "receipt_vision": receipt_vision},
+        "capability_note": (
+            "Can serve as a Boardroom member and read receipts locally, but this model uses substantial Mac memory and should be selected explicitly."
+            if provider == "gemma" else
+            "Can serve as a Boardroom member and can read receipts when its selected model supports images."
+            if receipt_vision else
+            "Can serve as a Boardroom member; receipt reconciliation is disabled because the official API has no verified image-input route."
+        ),
     }
+
+
+def _local_gemma_status() -> Dict[str, Any]:
+    import urllib.request
+
+    base_url = os.getenv("AION_OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
+    model = os.getenv("AION_LOCAL_GEMMA_MODEL", PROVIDERS["gemma"]["default_model"])
+    request = urllib.request.Request(
+        f"{base_url}/api/show", data=json.dumps({"model": model}).encode("utf-8"),
+        method="POST", headers={"Content-Type": "application/json"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=0.5) as response:
+            body = json.loads(response.read().decode("utf-8"))
+    except Exception:
+        return {"connected": False, "model": model, "capabilities": []}
+    capabilities = body.get("capabilities") or []
+    return {"connected": "vision" in capabilities, "model": model, "capabilities": capabilities}
 
 
 def list_ai_provider_public_records() -> Dict[str, Any]:

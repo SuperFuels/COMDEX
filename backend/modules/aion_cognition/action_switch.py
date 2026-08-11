@@ -37,7 +37,8 @@ class ActionSwitch:
     with symbolic reflex cognition (R4-R6).
     """
 
-    def __init__(self, tau_theta: float = 0.35):
+    def __init__(self, tau_theta: float = 0.35, *, repo_root: Path | None = None,
+                 competency_gate: bool = True):
         # ⛓ P5 routing layer
         self.strategy_engine = StrategyEngine()
         self.prediction_engine = PredictionEngine()
@@ -52,6 +53,21 @@ class ActionSwitch:
         self.feedback = RuleFeedbackEngine()
         self.rule_index = RuleBookIndex()
         self.reflex = ReflexMemory()
+
+        # Mission -> knowledge -> action binding. This remains a conservative
+        # readiness gate in front of the original resonant/reflex execution
+        # design; it does not replace StrategyEngine or reflex rules.
+        self.capability_harness = None
+        if competency_gate:
+            try:
+                from backend.modules.hexcore.mission_capability_action_harness import (
+                    MissionCapabilityActionHarness,
+                )
+                self.capability_harness = MissionCapabilityActionHarness(
+                    repo_root=(repo_root or Path.cwd()),
+                )
+            except Exception as error:
+                log.warning("Capability harness unavailable; action remains proposal-only: %s", error)
 
         self.last_routed = None
         print("⚙️ ActionSwitch initialized (P5+R6) - Reflex Beam online and Θ-linked.")
@@ -69,8 +85,24 @@ class ActionSwitch:
         resonance_score = plan.get("resonance_score", 0.0)
         deferred = plan.get("deferred", False)
 
+        capability_decision = None
+        if self.capability_harness is not None and not plan.get("skip_competency_gate"):
+            capability_decision = self.capability_harness.evaluate(plan, register_learning=True)
+            plan["capability_decision"] = capability_decision
+            self.rmc.set("last_capability_decision", capability_decision)
+            if capability_decision["decision"] in {"learn_then_execute", "clarify"}:
+                reason = capability_decision["reason"]
+                print(f"📚 Plan paused for capability acquisition: {goal} ({reason})")
+                self._store_deferred(plan, reason=reason)
+                return {"status": capability_decision["decision"],
+                        "goal": goal, "capability_decision": capability_decision}
+
         print(f"⚙️ [ActionSwitch] Routing plan -> Goal: {goal} | Resonance: {resonance_score:.3f}")
-        feasibility = self.prediction_engine.assess_feasibility(goal)
+        feasibility = self.prediction_engine.assess_feasibility({
+            **plan,
+            "objective": plan.get("objective") or goal,
+            "capability_decision": capability_decision or plan.get("capability_decision"),
+        })
         print(f"🔮 Feasibility prediction: {feasibility:.2f}")
 
         self.rmc.set("last_routed_plan", {
@@ -86,9 +118,14 @@ class ActionSwitch:
             return
 
         try:
-            result = self.strategy_engine.execute_plan(plan)
+            result = self.strategy_engine.execute_plan(
+                plan, execution_adapter=plan.get("execution_adapter")
+            )
             self.last_routed = plan
-            print(f"✅ Executed plan via StrategyEngine: {goal}")
+            if result.get("status") == "verified":
+                print(f"✅ Verified plan outcome via StrategyEngine: {goal}")
+            else:
+                print(f"🧭 Plan remains proposal-only: {goal} ({result.get('status')})")
             return result
         except Exception as e:
             print(f"⚠️ ActionSwitch execution failed: {e}")
@@ -160,14 +197,14 @@ class ActionSwitch:
     # ============================================================
     # 🧩 Synchronization + Deferred Plans
     # ============================================================
-    def _store_deferred(self, plan):
+    def _store_deferred(self, plan, *, reason: str = "low_feasibility_or_manual_defer"):
         """Internal helper - store deferred plans into resonant cache."""
         try:
             deferred_plans = self.rmc.get("deferred_plans") or []
             deferred_plans.append({
                 "goal": plan.get("goal"),
                 "timestamp": datetime.now().isoformat(),
-                "reason": "low_feasibility_or_manual_defer"
+                "reason": reason
             })
             self.rmc.set("deferred_plans", deferred_plans)
             print(f"💤 Deferred plan stored: {plan.get('goal')}")

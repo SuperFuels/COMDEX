@@ -1,0 +1,44 @@
+{
+  "commitment": "f6e5a0abe1e155f5839b2983c236c9ac7e67ebfc80fd35ab2bb85b699bd3127c",
+  "created_at": 1786224827.680934,
+  "cursor": 108,
+  "last_known_outcome_hash": "8b15ab76a0931e2b82547470b6cf7019f03f3f5c7671a2d71a14ef6749ad3582",
+  "mission_hash": "14b3bdd587917bf7307ab2cde3b53f5a55c98c3b4ae23d456e77d693e01eb99b",
+  "mission_id": "moonshot_public_change_forecast_v2_cursor_108",
+  "proposals": {
+    "aion_no_memory": {
+      "available": true,
+      "latency_seconds": 0.19016749999997273,
+      "memory": false,
+      "prediction": []
+    },
+    "aion_no_repair": {
+      "available": true,
+      "latency_seconds": 0.22914858400002913,
+      "memory": true,
+      "prediction": []
+    },
+    "cold_aion": {
+      "available": true,
+      "latency_seconds": 0.3773082499999987,
+      "memory": false,
+      "prediction": [
+        "open_meteo_madrid"
+      ]
+    },
+    "full_aion": {
+      "available": true,
+      "latency_seconds": 1.5071140830000331,
+      "memory": true,
+      "prediction": []
+    },
+    "proposer_only": {
+      "available": true,
+      "latency_seconds": 0.393467792000024,
+      "memory": false,
+      "prediction": [
+        "open_meteo_madrid"
+      ]
+    }
+  }
+}

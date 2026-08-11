@@ -657,7 +657,11 @@
       state.webBase,
       defaultWebBase,
     );
-    const resolvedWorkspaceId = state.workspaceId || defaultWorkspaceId;
+    const resolvedWorkspaceId =
+      global.AionBusinessContainerClient?.resolveBusinessId?.() ||
+      global.__aionCanonicalBusinessId ||
+      state.workspaceId ||
+      defaultWorkspaceId;
     const resolvedNodeId = state.nodeId || defaultNodeId;
 
     desktopStore.patch({
@@ -706,12 +710,22 @@
     render();
 
     try {
-      const workspaceId = encodeURIComponent(state.workspaceId);
+      const canonicalWorkspaceId =
+        global.AionBusinessContainerClient?.resolveBusinessId?.() ||
+        global.__aionCanonicalBusinessId ||
+        state.workspaceId;
+      if (canonicalWorkspaceId && canonicalWorkspaceId !== state.workspaceId) {
+        desktopStore.patch({ workspaceId: canonicalWorkspaceId });
+      }
+      const workspaceId = encodeURIComponent(canonicalWorkspaceId);
 
       const requests = await Promise.allSettled([
         apiGetOptional(deps, "/api/local-node/status", state.status),
-        apiGetOptional(deps, "/api/local-node/runs", { items: state.runs || [] }),
-        apiGetOptional(deps, "/api/local-node/approvals", { items: state.approvals || [] }),
+        // The repository may contain years of large workflow payloads.  The
+        // desktop only renders the recent activity list, so do not hydrate the
+        // renderer with the unbounded archive at startup.
+        apiGetOptional(deps, `/api/local-node/runs?limit=50&compact=true&workspace_id=${workspaceId}`, { items: state.runs || [] }),
+        apiGetOptional(deps, `/api/local-node/approvals?workspace_id=${workspaceId}`, { items: state.approvals || [] }),
         apiGetOptional(deps, "/api/local-node/audit", { items: state.audit || [] }),
         apiGetOptional(deps, "/api/local-node/scheduler/status", state.scheduler),
         apiGetOptional(deps, "/api/local-node/dashboard/summary", null),

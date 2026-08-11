@@ -20,6 +20,7 @@ from backend.modules.local_node.contracts_local_node import (
     utc_now_iso,
 )
 from backend.modules.local_node.local_node_runtime import LocalNodeRuntime
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.workflow_capsules.aion_a2a_commercial_ticket import (
     home_fixed_plumbing_hourly_ticket,
     home_fixed_roof_discovery_ticket,
@@ -33,21 +34,33 @@ router = APIRouter(prefix="/api/local-node", tags=["local-node"])
 
 
 _RUNTIME: Optional[LocalNodeRuntime] = None
+_WORKSPACE_RUNTIMES: Dict[str, LocalNodeRuntime] = {}
 
 
-def _build_runtime() -> LocalNodeRuntime:
+def _build_runtime(workspace_id: str | None = None) -> LocalNodeRuntime:
+    resolved_workspace = canonical_business_id(workspace_id or "costa-conexion")
+    legacy_default = resolved_workspace == "costa-conexion"
     config = LocalNodeConfig(
-        node_id="node_mac_local_01",
-        workspace_id="costa-conexion",
+        node_id="node_mac_local_01" if legacy_default else f"node_mac_{resolved_workspace}",
+        workspace_id=resolved_workspace,
         deployment_mode=DeploymentMode.LOCAL_FIRST,
+        base_dir=".runtime/local_node" if legacy_default else f".runtime/local_node/workspaces/{resolved_workspace}",
     )
     runtime = LocalNodeRuntime(config)
     runtime.start()
     return runtime
 
 
-def get_runtime() -> LocalNodeRuntime:
+def get_runtime(workspace_id: str | None = None) -> LocalNodeRuntime:
     global _RUNTIME
+    if workspace_id:
+        resolved_workspace = canonical_business_id(workspace_id)
+        if resolved_workspace != "costa-conexion":
+            runtime = _WORKSPACE_RUNTIMES.get(resolved_workspace)
+            if runtime is None:
+                runtime = _build_runtime(resolved_workspace)
+                _WORKSPACE_RUNTIMES[resolved_workspace] = runtime
+            return runtime
     if _RUNTIME is None:
         _RUNTIME = _build_runtime()
     return _RUNTIME
@@ -236,6 +249,7 @@ class LaunchWorkflowRequest(BaseModel):
 
 
 class LaunchMarketingSuggestionRequest(BaseModel):
+    workspace_id: Optional[str] = None
     brief: str = "Draft a Facebook post and simple carousel for spring telecom upgrade offer."
 
     objective: Optional[str] = None
@@ -294,6 +308,12 @@ class ResolveApprovalRequest(BaseModel):
     approve: bool
     resolved_by: str
     resolution_note: Optional[str] = None
+    workspace_id: Optional[str] = None
+
+
+class RetryMarketingImageRequest(BaseModel):
+    workspace_id: str
+    provider: str = "openai"
 
 
 class CancelRunRequest(BaseModel):
@@ -828,8 +848,9 @@ def run_published_generic_train_task_workflow(
 @router.post("/marketing/assets/upload")
 async def upload_marketing_assets(
     files: List[UploadFile] = File(...),
+    workspace_id: str | None = Query(default=None),
 ) -> Dict[str, Any]:
-    runtime = get_runtime()
+    runtime = get_runtime(workspace_id)
     upload_dir = _runtime_upload_dir(runtime)
     items: List[Dict[str, Any]] = []
 
@@ -883,7 +904,7 @@ async def upload_marketing_assets(
 def launch_marketing_suggestion(
     request: LaunchMarketingSuggestionRequest,
 ) -> Dict[str, Any]:
-    runtime = get_runtime()
+    runtime = get_runtime(request.workspace_id)
 
     brand_foundation_state = (
         request.brandFoundationState
@@ -919,6 +940,119 @@ def launch_marketing_suggestion(
         brand_map=brand_map,
     )
 
+
+@router.post("/marketing/runs/{run_id}/retry-image")
+def retry_marketing_run_image(
+    run_id: str,
+    request: RetryMarketingImageRequest,
+) -> Dict[str, Any]:
+    """Retry only the failed local creative render; never publish or spend."""
+    runtime = get_runtime(request.workspace_id)
+    run = runtime.workflow_run_repository.find_one(runtime.config.workspace_id, run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="marketing_run_not_found")
+    workflow = runtime.workflow_definition_repository.get(runtime.config.workspace_id, run.workflow_id)
+    if workflow is None:
+        raise HTTPException(status_code=404, detail="marketing_workflow_not_found")
+    post_step = next((step for step in workflow.steps if str(step.id) == "post_social"), None)
+    if post_step is None:
+        raise HTTPException(status_code=409, detail="marketing_image_step_not_found")
+    post_package = dict(
+        (run.result_payload or {}).get("post_package")
+        or (run.context or {}).get("post_package")
+        or {}
+    )
+    if not post_package:
+        raise HTTPException(status_code=409, detail="marketing_post_package_missing")
+    run_input = dict(run.input_payload or {})
+    run_brand = dict(run_input.get("brand_foundation") or {})
+    if request.provider != "openai":
+        raise HTTPException(status_code=409, detail="unsupported_image_provider")
+    try:
+        raw_result = runtime.workflow_execution_runtime.image_generation_service.generate_marketing_carousel_cards(
+            caption=str(post_package.get("caption") or post_package.get("draft_caption") or ""),
+            carousel=list(post_package.get("carousel") or post_package.get("draft_carousel") or []),
+            provider=request.provider,
+            model=str(post_package.get("selected_image_model") or "gpt-image-1"),
+            size="1024x1536",
+            background="opaque",
+            output_format="png",
+            file_stem_prefix=f"{run.id}_{post_step.id}_retry",
+            metadata={
+                "workspace_id": run.workspace_id,
+                "workflow_id": run.workflow_id,
+                "workflow_run_id": run.id,
+                "step_id": post_step.id,
+                "retry": True,
+            },
+            visual_assets=dict(post_package.get("visual_assets") or {}),
+            brand_name=str(post_package.get("brand_name") or post_package.get("business_name") or run_brand.get("business_name") or str(run.workspace_id).replace("-", " ").title() or "Local business"),
+            primary_channel=str(post_package.get("primary_channel") or "Facebook"),
+            offer=post_package.get("offer"),
+            audience=post_package.get("target_audience"),
+            persona=post_package.get("persona"),
+            objective=post_package.get("objective"),
+        )
+        cards = list(raw_result.get("cards") or [])
+        generated_images = [
+            {
+                "card_index": card.get("card_index"),
+                "card_type": card.get("card_type"),
+                "provider": card.get("provider") or raw_result.get("provider"),
+                "model": card.get("model") or raw_result.get("model"),
+                "status": card.get("status"),
+                "url": card.get("asset_url") or card.get("file_path"),
+                "asset_url": card.get("asset_url"),
+                "asset_id": card.get("asset_id"),
+                "file_path": card.get("file_path"),
+                "mime_type": card.get("mime_type"),
+                "error": card.get("error"),
+            }
+            for card in cards
+        ]
+        primary = next((item for item in generated_images if item.get("status") == "completed"), generated_images[0] if generated_images else None)
+        result = {
+            "provider": (primary or {}).get("provider") or raw_result.get("provider"),
+            "model": raw_result.get("model"),
+            "status": "completed" if raw_result.get("ok") else "partial",
+            "generated_image": primary,
+            "generated_images": generated_images,
+            "carousel_cards": cards,
+            "error": raw_result.get("error"),
+        }
+    except Exception as exc:
+        post_package["image_generation"] = {
+            "provider": request.provider,
+            "status": "failed",
+            "error": str(exc),
+        }
+        run.context["post_package"] = post_package
+        run.result_payload["post_package"] = post_package
+        runtime.workflow_run_repository.save(run)
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    post_package["generated_image"] = result.get("generated_image")
+    post_package["generated_images"] = result.get("generated_images") or []
+    post_package["carousel_cards"] = result.get("carousel_cards") or []
+    post_package["image_generation"] = {
+        "provider": result.get("provider"),
+        "model": result.get("model"),
+        "status": result.get("status"),
+        "asset_url": (result.get("generated_image") or {}).get("asset_url"),
+        "error": result.get("error"),
+        "cards_generated": len(result.get("carousel_cards") or []),
+    }
+    run.context["post_package"] = post_package
+    run.result_payload["post_package"] = post_package
+    runtime.workflow_run_repository.save(run)
+    return {
+        "ok": result.get("status") in {"completed", "partial"},
+        "run_id": run.id,
+        "workspace_id": run.workspace_id,
+        "post_package": post_package,
+        "published": False,
+        "spent": False,
+    }
 
 @router.post("/workflows/launch")
 def launch_workflow(request: LaunchWorkflowRequest) -> Dict[str, Any]:
@@ -984,11 +1118,51 @@ def list_queue_items() -> Dict[str, Any]:
 def list_runs(
     department_key: Optional[str] = Query(default=None),
     limit: Optional[int] = Query(default=None, ge=1, le=500),
+    compact: bool = Query(default=False),
+    workspace_id: Optional[str] = Query(default=None),
 ) -> Dict[str, Any]:
-    return get_runtime().list_workflow_runs(
+    payload = get_runtime(workspace_id).list_workflow_runs(
         department_key=department_key,
         limit=limit,
     )
+    if not compact:
+        return payload
+
+    # Workflow evidence can be several megabytes per run.  List surfaces only
+    # need identity and progress metadata; detailed payloads remain available
+    # from the normal (non-compact) endpoint for explicit inspection/export.
+    compact_items = []
+    for item in payload.get("items", []):
+        if not isinstance(item, dict):
+            continue
+        compact_item = {
+            key: value
+            for key, value in item.items()
+            if key not in {"context", "input_payload", "result_payload", "step_runs"}
+        }
+        compact_item["context"] = {}
+        compact_item["input_payload"] = {}
+        compact_item["result_payload"] = {}
+        compact_item["step_runs"] = [
+            {
+                key: value
+                for key, value in step.items()
+                if key
+                in {
+                    "id",
+                    "step_id",
+                    "step_name",
+                    "status",
+                    "started_at",
+                    "completed_at",
+                    "error_message",
+                }
+            }
+            for step in item.get("step_runs", [])
+            if isinstance(step, dict)
+        ]
+        compact_items.append(compact_item)
+    return {**payload, "items": compact_items, "compact": True}
 
 
 @router.post("/runs/launch")
@@ -1000,6 +1174,68 @@ def launch_run(request: LaunchRunRequest) -> Dict[str, Any]:
         department_key=request.department_key,
         payload=request.context,
     )
+
+
+@router.get("/runs/{run_id}")
+def get_run(
+    run_id: str,
+    workspace_id: Optional[str] = Query(default=None),
+    marketing_view: bool = Query(default=False),
+) -> Dict[str, Any]:
+    runtime = get_runtime(workspace_id)
+    run = runtime.workflow_run_repository.find_one(runtime.config.workspace_id, run_id)
+    if run is None:
+        raise HTTPException(status_code=404, detail="workflow_run_not_found")
+    if marketing_view:
+        context = dict(run.context or {})
+        result_payload = dict(run.result_payload or {})
+        source_post = dict(result_payload.get("post_package") or context.get("post_package") or {})
+        compact_images = [
+            {
+                key: image.get(key)
+                for key in ("card_index", "card_type", "provider", "model", "status", "url", "asset_url", "asset_id", "file_path", "mime_type", "error")
+            }
+            for image in list(source_post.get("generated_images") or [])
+            if isinstance(image, dict)
+        ]
+        compact_post = {
+            key: source_post.get(key)
+            for key in ("caption", "draft_caption", "carousel", "draft_carousel", "primary_channel", "brand_name", "business_name", "offer", "target_audience", "persona", "objective", "image_generation")
+        }
+        compact_post["generated_images"] = compact_images
+        compact_post["generated_image"] = next((image for image in compact_images if image.get("status") == "completed"), compact_images[0] if compact_images else None)
+        compact_post["carousel_cards"] = [
+            {
+                key: card.get(key)
+                for key in ("card_index", "card_type", "headline", "body", "visual_direction", "layout_style", "image_url", "asset_url", "asset_id", "file_path", "mime_type", "status", "provider", "model", "error")
+            }
+            for card in list(source_post.get("carousel_cards") or [])
+            if isinstance(card, dict)
+        ]
+        return {
+            "ok": True,
+            "item": {
+                "id": run.id,
+                "workspace_id": run.workspace_id,
+                "workflow_id": run.workflow_id,
+                "workflow_name": run.workflow_name,
+                "department_key": run.department_key,
+                "status": run.status,
+                "approval_request_id": run.approval_request_id,
+                "created_at": run.created_at,
+                "updated_at": run.updated_at,
+                "input_payload": {
+                    key: (run.input_payload or {}).get(key)
+                    for key in ("brief", "objective", "target_audience", "offer", "channels", "brand_foundation")
+                },
+                "context": {
+                    "approval_packet": context.get("approval_packet"),
+                    "post_package": compact_post,
+                },
+                "result_payload": {"post_package": compact_post},
+            },
+        }
+    return {"ok": True, "item": run.model_dump(mode="json")}
 
 
 @router.post("/runs/run-next")
@@ -1026,8 +1262,9 @@ def resume_approval(queue_item_id: str) -> Dict[str, Any]:
 def list_approvals(
     department_key: Optional[str] = Query(default=None),
     limit: Optional[int] = Query(default=None, ge=1, le=500),
+    workspace_id: Optional[str] = Query(default=None),
 ) -> Dict[str, Any]:
-    return get_runtime().list_runtime_approvals(
+    return get_runtime(workspace_id).list_runtime_approvals(
         department_key=department_key,
         limit=limit,
     )
@@ -1038,7 +1275,7 @@ def resolve_approval(
     approval_id: str,
     request: ResolveApprovalRequest,
 ) -> Dict[str, Any]:
-    return get_runtime().resolve_runtime_approval(
+    return get_runtime(request.workspace_id).resolve_runtime_approval(
         approval_id,
         approve=request.approve,
         resolved_by=request.resolved_by,

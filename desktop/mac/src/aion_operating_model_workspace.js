@@ -44,6 +44,19 @@
       const expected = Number(state.model.revision || 0) || null;
       const result = await global.AionBusinessContainerClient.saveOperatingModel(state.model, expected);
       state.model = { ...state.model, ...(result.payload || {}) };
+      // A saved operating model is a Finance input, not an isolated catalogue.
+      // Rebuild the source-backed Finance package so its unit economics and the
+      // Boardroom projection reflect the owner's latest approved assumptions.
+      try {
+        const completion = await global.AionBusinessContainerClient.completeFinanceFoundation?.();
+        if (completion?.operating_model) {
+          state.model = { ...state.model, ...completion.operating_model };
+        }
+      } catch (completionError) {
+        // The operating-model save remains valid if Finance discovery has not
+        // been completed yet. Its next Finance finalisation will perform this.
+        console.warn('Finance completion deferred after operating-model save', completionError);
+      }
       state.savedAt = new Date().toLocaleTimeString();
       persistDraft();
       global.dispatchEvent(new CustomEvent('aion:operating-model-saved', { detail: result }));

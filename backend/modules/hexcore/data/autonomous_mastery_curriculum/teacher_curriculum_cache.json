@@ -1,0 +1,4324 @@
+{
+  "proposals": {
+    "01c248a651301833f105e4e130d106f9bc24cdb1cd2efeed432631ab3035a4f8": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:41:32.860539+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "04969f9736172325621262fba57e325919d5c016899d68c2ff7895a7bf7023c0",
+      "proposal_id": "teacher_01c248a651301833",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Rust programming",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "129d470124d0f3471415b26c0cec160e3d23beeac2810e1544922a6189fa5c9e": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:41:02.831641+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "9c39301128a56313f9e00e2a99c8b386d8d84de909f9d231a214d81422f466e7",
+      "proposal_id": "teacher_129d470124d0f347",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "English natural-language cognition",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "1883b9cfebe489d0c96ef77080e4759634967ff04b10c61cd0333290301a4c37": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:33:48.094338+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "d8a4fd1c6639031a1a98e67da1fe817aba173c876c0059f1b23f2209bb7ffe69",
+      "proposal_id": "teacher_1883b9cfebe489d0",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Go programming",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "1e101dbe441d4b4a82bf2afdaa792100f60a56c4f21be1fbefdfed10db43f2e5": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:42:32.917733+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "e23a98c8dd01d0cae64a87119b1a98e1fc3b2503b334cc574e91736c9d899212",
+      "proposal_id": "teacher_1e101dbe441d4b4a",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Security engineering",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "1f828b0bf168c5dd29164db9cb9f719696ec660262317d70bb0f8b1830ce7e52": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T07:49:40.841324+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "76c1595c48702ebb8231285f05c017c30bd1e0603bc43626b94da2c9ccfc3830",
+      "proposal_id": "teacher_1f828b0bf168c5dd",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Social and commonsense intelligence",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "1fe301dcd8017f3e65ccbce00a6641c7026d9fa974ad2f1ce8ca52db40cd6cac": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:40:02.767932+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "ba88f0bda4759e5bf46cc59bd4a1ad015e2f47f18f399f50775f470493896b89",
+      "proposal_id": "teacher_1fe301dcd8017f3e",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Software engineering",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "26a450f9922194afd3891578159ab3f3307443edac3e1063420e1574ff491678": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:39:32.749792+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "e07370a134727370e2a6dfa74af5b059551d455c9319917f8e12597646ad6b5c",
+      "proposal_id": "teacher_26a450f9922194af",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "JavaScript and TypeScript",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "55be98281233a865f2fcf06956606f76b5ce3edb03b3ac26f99977ab3ed2c321": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:38:32.712523+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "350e0a708d013021f1d5b9391b4cdbdc49638ca672b694a3d859a6d4ebd0b2e5",
+      "proposal_id": "teacher_55be98281233a865",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Business and organisational management",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "5a10d41b349e568883cd0e91b5304c2d7e52246092011208403312d005523845": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:35:00.136706+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "2e1a5438545d5f57f32bbfb8f07c88dc4ec1a9fed868c65af7bc3cf23fdb5ef0",
+      "proposal_id": "teacher_5a10d41b349e5688",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Spanish language",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "634cc0891021a377e6d6af2148953212c37f149a7f221828f0e0e54d2c79b29c": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:37:32.656767+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "133a84cc7f0d4cf12df1d1082172619ee760a20c2e90bedeaefa778e755efcd5",
+      "proposal_id": "teacher_634cc0891021a377",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Mathematics",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "74db08d3f01ec0b029f957665321a250b390ebcf4a3bda23e995cb218eed2f35": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:38:02.683885+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "116e07bbd067982c7e10c4f92dbd28cfe65fe2c189445932a81f699fc232500e",
+      "proposal_id": "teacher_74db08d3f01ec0b0",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Creative synthesis and invention",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "76e35f5aff43433ab7ba703f81c0f5b82913c8029f1d5fbb111d90bbe934f2a5": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:32:28.919006+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "8cb7dcceb4c838cd756f09d98235ec0c8b28e16e7656296420565c45ff4f79f0",
+      "proposal_id": "teacher_76e35f5aff43433a",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "HTML, CSS and browser platform",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "8c00b9feb8a72998a8475adbbdebaf6889961cb7b05a3730daf184cad2c3753c": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:36:18.122864+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "f89e7600119fa0a2b0dfa6a794cbdb66338d5c8f989f4adb014691fbe66b1921",
+      "proposal_id": "teacher_8c00b9feb8a72998",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "User-interface and product design",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "96176518cb69ad5686bd4bfcc2c07432d3f9b28cd146d35c7a7dcfb347043db1": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:34:24.288750+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "10061f4dc4e9443093dd82c9b8e01733b9ff8af125002c9c499ade3ce435d23b",
+      "proposal_id": "teacher_96176518cb69ad56",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Java programming",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "b28d202aba2924b08ecb8b795b197578962c7ee6c0b6f5f8c5ac796ff145e6c3": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T07:50:57.610090+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "4048543b04d380dc4493664436e14e0946465a5aedaa81fe0fb1751e2b0411a2",
+      "proposal_id": "teacher_b28d202aba2924b0",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Biology and medicine",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "c2f78ac52d0b4d5527f49b6f71b9c162748664d5ee4d649b704b8f94fee0132d": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:37:26.962345+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "52b51d4100296b1537acccdc3d970375ab76a20e15885d0a513a96ecd9e992ab",
+      "proposal_id": "teacher_c2f78ac52d0b4d55",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Physics",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "c93534c67986a1e96d92a6da10f5eabbaeb6ed7295da4ae278349ff55817cdfc": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:35:35.840872+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "db0fbc013fb5f2d4277076f047b7d4df96486ba1fe8e0ca83b95c25cedaa79d1",
+      "proposal_id": "teacher_c93534c67986a1e9",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Financial management and accounting",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "cdc6453ea55e1ba29813a7854b762b521be67fb1b7fa7e39fa66b3f0b35bca91": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:40:32.798610+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "9c1ec8670da24e0603c1217ccc475bdfd00722517a3a5ece1becdccceb2a5e20",
+      "proposal_id": "teacher_cdc6453ea55e1ba2",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "SQL and database systems",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "f545c9694f194c64fdb15f6aced78656cb1841d300416cb0ab0767c22edd6aab": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:33:04.015717+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "b0205307d5a40860be4a552b571846a4041b7a115014ad440b66821628762f0c",
+      "proposal_id": "teacher_f545c9694f194c64",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "C and C++ programming",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "f88cf2981c6fd1a34caf0053c4e5b2cc95fb31ed0d55de26be4a9f7d0ce816f9": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T07:53:05.117236+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "c86839ee007f3f8dac00fb07ff20b43e45c3c8c38e63acafbb91c231a2654f5d",
+      "proposal_id": "teacher_f88cf2981c6fd1a3",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Chemistry and materials",
+        "target": "operational_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "f9756e4f9f0a0302751a8e96f9e6629ba7d0105801900a204786a27a466f94cb": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:42:02.889127+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "3d2f9faa39bd827d3f1d4d20df112236ff4594c69ea8206b027f80f98915d336",
+      "proposal_id": "teacher_f9756e4f9f0a0302",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Scientific investigation and causal reasoning",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "fa3b5c53ba538685bc8a0058b1fcc8d2fefaa729c22d213964e0a2225869d130": {
+      "cache_hit": false,
+      "created_at": "2026-08-01T09:39:02.724595+00:00",
+      "modules": [
+        {
+          "authority": "python_runtime",
+          "module_id": "language_fundamentals",
+          "outcomes": [
+            "values",
+            "control_flow",
+            "functions",
+            "exceptions"
+          ],
+          "practice": [
+            "interpret edge cases",
+            "write total functions"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "data_and_algorithms",
+          "outcomes": [
+            "collections",
+            "iteration",
+            "complexity",
+            "copy_semantics"
+          ],
+          "practice": [
+            "transform records",
+            "choose suitable structures"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "modules_and_packaging",
+          "outcomes": [
+            "imports",
+            "module_boundaries",
+            "dependency_hygiene"
+          ],
+          "practice": [
+            "construct a two-module package"
+          ]
+        },
+        {
+          "authority": "ast_and_runtime",
+          "module_id": "typing_and_contracts",
+          "outcomes": [
+            "annotations",
+            "protocols",
+            "dataclasses",
+            "invariants"
+          ],
+          "practice": [
+            "express and enforce a service contract"
+          ]
+        },
+        {
+          "authority": "fresh_subprocess",
+          "module_id": "errors_and_resources",
+          "outcomes": [
+            "exception_boundaries",
+            "context_management",
+            "rollback"
+          ],
+          "practice": [
+            "preserve state after rejected input"
+          ]
+        },
+        {
+          "authority": "executable_tests",
+          "module_id": "testing_and_debugging",
+          "outcomes": [
+            "unit_tests",
+            "properties",
+            "fault_localisation",
+            "regression"
+          ],
+          "practice": [
+            "reproduce and repair an unfamiliar defect"
+          ]
+        },
+        {
+          "authority": "sqlite_runtime",
+          "module_id": "persistence",
+          "outcomes": [
+            "serialization",
+            "sqlite",
+            "transactions",
+            "migration_awareness"
+          ],
+          "practice": [
+            "transfer a state invariant into SQLite"
+          ]
+        },
+        {
+          "authority": "python_runtime",
+          "module_id": "concurrency",
+          "outcomes": [
+            "asyncio",
+            "thread_safety",
+            "cancellation",
+            "bounded_work"
+          ],
+          "practice": [
+            "execute bounded concurrent work"
+          ]
+        },
+        {
+          "authority": "measured_execution",
+          "module_id": "performance",
+          "outcomes": [
+            "measurement",
+            "algorithmic_cost",
+            "memory",
+            "profiling"
+          ],
+          "practice": [
+            "compare implementations using observed cost"
+          ]
+        },
+        {
+          "authority": "security_scanner",
+          "module_id": "security",
+          "outcomes": [
+            "input_validation",
+            "path_safety",
+            "no_dynamic_execution",
+            "least_authority"
+          ],
+          "practice": [
+            "reject malicious variants before execution"
+          ]
+        },
+        {
+          "authority": "sealed_project_tests",
+          "module_id": "architecture",
+          "outcomes": [
+            "separation_of_concerns",
+            "testability",
+            "observability",
+            "maintenance"
+          ],
+          "practice": [
+            "construct and revise a small maintainable service"
+          ]
+        },
+        {
+          "authority": "hidden_repository_outcome",
+          "module_id": "repository_transfer",
+          "outcomes": [
+            "read_unfamiliar_code",
+            "respect_local_contracts",
+            "verify_change"
+          ],
+          "practice": [
+            "solve a source-disjoint task without solution replay"
+          ]
+        }
+      ],
+      "proposal_hash": "ad8a9decc6871b0c652a2e24401e96581534e16efd66ed328ba594ae48d3fb75",
+      "proposal_id": "teacher_fa3b5c53ba538685",
+      "proposal_only": true,
+      "provider": "retained_teacher_fallback",
+      "request": {
+        "required": [
+          "knowledge",
+          "construction",
+          "debugging",
+          "security",
+          "transfer",
+          "retention"
+        ],
+        "subject": "Data analysis and statistics",
+        "target": "proficient_bounded"
+      },
+      "suggested_overall_threshold": 0.9,
+      "suggested_remediation": "repair failed subskills, then issue a fresh variant"
+    },
+    "ollama_5b0e5442100d9eee79360e4881efe20aa77dcd86d06c87d96cb1de3c83e2a6e6": {
+      "cache_hit": false,
+      "content": {
+        "common_failure_modes": [
+          "Lack of Consistent Grammar & Syntax Practice",
+          "Over-Reliance on Translation \u2013 Difficulty with Nuance",
+          "Insufficient Focus on Practical Application",
+          "Poor Pronunciation & Fluency",
+          "Inability to Adapt to Complex Situations",
+          "Ignoring Cultural Sensitivity",
+          "Insufficient Focus on Security Protocols",
+          "Neglecting Data Integrity",
+          "Poorly Structured Documentation"
+        ],
+        "modules": [
+          "Foundations",
+          "Grammar & Syntax",
+          "Vocabulary & Usage",
+          "Reading Comprehension",
+          "Listening Comprehension",
+          "Speaking & Pronunciation",
+          "Writing & Composition",
+          "Cultural Context & Espionage",
+          "Advanced Topics (Optional - based on operational needs)"
+        ],
+        "practical_projects": [
+          "Real-World Scenario Simulation: Analyzing Intelligence Reports",
+          "Transcription & Analysis of Recorded Conversations (Simulated)",
+          "Drafting a Cover Letter for a Specific Role",
+          "Creating a Short Propaganda Piece (Targeted)",
+          "Analyzing a Classified Document (Simplified)",
+          "Developing a Briefing Report for a Target Agent",
+          "Creating a Simulated Communication Channel (e.g., encrypted message)",
+          "Building a Basic Propaganda Campaign (Low-Level)",
+          "Analyzing a Historical Intelligence Document"
+        ],
+        "recommended_sources": [
+          "Espionage & Intelligence Training Manuals (e.g., from the CIA, MI6, etc.)",
+          "Advanced Spanish Grammar Resources (e.g., SpanishDict, Real Academia Espa\u00f1ola)",
+          "Case Studies of Real-World Intelligence Operations",
+          "Historical Documents & Correspondence (e.g., from the Cold War, WWII)",
+          "Cryptography & Security Principles (e.g., NIST, RSA)",
+          "Spanish-Language Literature (e.g., classic novels, espionage thrillers)",
+          "Espionage-Specific Podcasts & Videos",
+          "Online Courses on Intelligence Analysis & Security",
+          "Academic Journals on Linguistics & Security"
+        ]
+      },
+      "eval_count": 452,
+      "exam_material_shared": false,
+      "latency_ms": 5667.443,
+      "model": "gemma3:1b",
+      "prompt_eval_count": 97,
+      "proposal_hash": "2a31e2d1bb1507ca8cbde841859f4b192bc83bfe043565a9d29a07934e397bca",
+      "proposal_id": "teacher_live_6cb1de3c83e2a6e6",
+      "proposal_only": true,
+      "provider": "ollama"
+    },
+    "ollama_7538b94fb80409a47db681bedfcc02d09615ccf9c75d496be79fc02bb19e7dae": {
+      "cache_hit": false,
+      "error": "JSONDecodeError",
+      "exam_material_shared": false,
+      "latency_ms": 11826.686,
+      "model": "gemma3:1b",
+      "proposal_hash": "3f8c982e137a04ab52503777076bcb1cc8934359beb88926f9d40b1573d44daa",
+      "proposal_id": "teacher_live_e79fc02bb19e7dae",
+      "proposal_only": true,
+      "provider": "ollama",
+      "status": "unavailable"
+    },
+    "ollama_96608eaee054dd2eb163664a9bb503d813b5426608e70a384c239f91ede5e18f": {
+      "cache_hit": false,
+      "content": {
+        "common_failure_modes": [
+          "Lack of foundational understanding of core concepts.",
+          "Difficulty applying concepts to novel scenarios.",
+          "Over-reliance on rote memorization without critical thinking.",
+          "Insufficient attention to detail in experimental design and data analysis.",
+          "Ignoring ethical considerations in research and clinical practice.",
+          "Failure to integrate knowledge across disciplines.",
+          "Poor communication skills \u2013 conveying complex information effectively.",
+          "Resistance to feedback or constructive criticism.",
+          "Insufficient time management and prioritization."
+        ],
+        "modules": [
+          "Fundamentals of Biology",
+          "Cellular & Molecular Biology",
+          "Genetics & Genomics",
+          "Physiology & Pathophysiology",
+          "Immunology & Infectious Diseases",
+          "Neuroscience & Mental Health",
+          "Medical Imaging & Diagnostics",
+          "Pharmacology & Drug Development",
+          "Clinical Medicine - Basic",
+          "Clinical Medicine - Advanced",
+          "Medical Ethics & Law",
+          "Public Health & Epidemiology",
+          "Biotechnology & Translational Research"
+        ],
+        "practical_projects": [
+          "Tissue Culture & Histology: Culturing and analyzing tissue samples to understand cellular processes.",
+          "Microbial Identification & Cultivation: Identifying and growing microorganisms to understand their role in health and disease.",
+          "Drug Delivery Simulation: Designing and simulating the delivery of a drug to a specific target within the body.",
+          "Patient Case Study Analysis: Analyzing a patient's medical history and presenting symptoms to identify potential diagnoses.",
+          "Diagnostic Imaging Interpretation: Interpreting results from X-rays, CT scans, and MRI scans.",
+          "Basic Surgical Simulation: Performing a simulated surgical procedure under supervision.",
+          "Data Analysis & Visualization: Analyzing medical datasets using tools like Excel or Python.",
+          "Clinical Scenario Role-Playing:  Simulating patient interactions and medical diagnoses."
+        ],
+        "recommended_sources": [
+          "Textbooks: *Principles of Biology*, *Molecular Biology of Cells*, *Genetics*, *Human Physiology*",
+          "Scientific Journals: *Nature*, *Science*, *The Lancet*, *JAMA*",
+          "Online Courses: Coursera, edX, Khan Academy (Biology, Genetics, etc.)",
+          "Medical Databases: PubMed, Medline, Cochrane Library",
+          "Medical Imaging Resources:  NIH Image Registry, Medical Imaging Society",
+          "Ethical Frameworks: Belmont Report, Principles of Biomedical Ethics",
+          "Regulatory Guidelines: FDA, EMA",
+          "Case Study Resources:  PubMed, medical case study databases",
+          "Historical Medical Texts:  Early medical journals and reports"
+        ]
+      },
+      "eval_count": 566,
+      "exam_material_shared": false,
+      "latency_ms": 6935.289,
+      "model": "gemma3:1b",
+      "prompt_eval_count": 98,
+      "proposal_hash": "a09701802cdb114c75129e2943389f34150036438fad1d3c29d0acc607d76727",
+      "proposal_id": "teacher_live_4c239f91ede5e18f",
+      "proposal_only": true,
+      "provider": "ollama"
+    },
+    "ollama_98da813b62fc2473ae7f32594963fa4f2a183d06fb6c85b3e708d3c2a4b4c255": {
+      "cache_hit": false,
+      "error": "JSONDecodeError",
+      "exam_material_shared": false,
+      "latency_ms": 4531.725,
+      "model": "gemma3:1b",
+      "proposal_hash": "b525154d8242731125b2cf3bdad49992a11a877fc3f104d214464f31a328064f",
+      "proposal_id": "teacher_live_e708d3c2a4b4c255",
+      "proposal_only": true,
+      "provider": "ollama",
+      "status": "unavailable"
+    },
+    "ollama_9f0b4c725a36162b48932fba63ddbca62118046d6457af7e16c21e3f725f49a5": {
+      "cache_hit": false,
+      "content": {
+        "common_failure_modes": [
+          "Incorrect stoichiometry during reactions.",
+          "Temperature fluctuations during reactions.",
+          "Poor mixing of reactants.",
+          "Incomplete reaction completion.",
+          "Equipment malfunction (e.g., heating, cooling, pressure).",
+          "Incorrect measurement of reactants/products.",
+          "Lack of proper control of reaction conditions.",
+          "Insufficient understanding of reaction mechanisms.",
+          "Material defects during processing.",
+          "Environmental factors affecting material properties."
+        ],
+        "modules": [
+          "Introduction to Chemistry & Fundamentals",
+          "Atomic Structure & Bonding",
+          "Chemical Reactions & Stoichiometry",
+          "Thermodynamics & Kinetics",
+          "Organic Chemistry - Basic Principles",
+          "Physical Chemistry - Solutions & Equilibrium",
+          "Analytical Chemistry - Techniques & Interpretation",
+          "Materials Science - Properties & Processing",
+          "Materials Characterization & Testing",
+          "Materials Fabrication & Design",
+          "Materials Degradation & Stability",
+          "Advanced Materials - Nanomaterials & Composites",
+          "Sustainability & Green Chemistry",
+          "Regulatory Compliance & Safety"
+        ],
+        "practical_projects": [
+          "Synthesis of a Simple Compound (e.g., Sodium Chloride)",
+          "Determination of Molar Mass of a Compound",
+          "Titration of a Solution",
+          "Simple Chemical Reaction Observation & Analysis",
+          "Building a Simple Crystal Structure",
+          "Characterizing a Polymer with UV-Vis Spectroscopy",
+          "Analyzing the Properties of a Metal Oxide",
+          "Creating a Simple Composite Material (e.g., Clay & Sand)",
+          "Designing a Prototype Device using a Specific Material"
+        ],
+        "recommended_sources": [
+          "Textbooks: Fundamentals of Chemistry, Organic Chemistry, Physical Chemistry, Materials Science",
+          "Khan Academy Chemistry & Physics: [https://www.khanacademy.org/](https://www.khanacademy.org/)",
+          "MIT OpenCourseWare: Chemistry: [https://ocw.mit.edu/](https://ocw.mit.edu/)",
+          "CRC Chemistry: [https://www.crcchemistry.com/](https://www.crcchemistry.com/)",
+          "Materials Project: [https://www.materialsproject.org/](https://www.materialsproject.org/)",
+          "Scientific American - Chemistry Section: [https://www.scientificamerican.com/topic/chemistry/](https://www.scientificamerican.com/topic/chemistry/)",
+          "ResearchGate - Chemistry Publications: [https://www.researchgate.net/](https://www.researchgate.net/)",
+          "Peer-Reviewed Journals: *Journal of Applied Polymer Science*, *ACS Chemical and Engineering Letters*, *Advanced Materials*"
+        ]
+      },
+      "eval_count": 602,
+      "exam_material_shared": false,
+      "latency_ms": 7413.1,
+      "model": "gemma3:1b",
+      "prompt_eval_count": 98,
+      "proposal_hash": "09ab0cfa2e27556d0eb2e5ea2f26169ced423eca8efe8761b43fe69f9ee75520",
+      "proposal_id": "teacher_live_16c21e3f725f49a5",
+      "proposal_only": true,
+      "provider": "ollama"
+    },
+    "ollama_acf57a06cedb79bf508ce2d14b2e54a444631f047c3589153d301ff5c271313c": {
+      "cache_hit": false,
+      "content": {
+        "common_failure_modes": [
+          "Memory Leaks",
+          "Concurrency Issues (Race Conditions, Deadlocks)",
+          "Incorrect Error Handling",
+          "Missing Input Validation",
+          "Unoptimized Code",
+          "Lack of Testing",
+          "Ignoring Security Best Practices",
+          "Ignoring Deployment Considerations",
+          "Over-Reliance on Specific Libraries"
+        ],
+        "modules": [
+          "Introduction to Go & Build System",
+          "Data Structures & Algorithms Fundamentals",
+          "Concurrency & Parallelism",
+          "Error Handling & Robustness",
+          "System Design & Architecture",
+          "Testing & Validation",
+          "Security & Cryptography (Basic)",
+          "Transfer & Deployment",
+          "Maintenance & Evolution"
+        ],
+        "practical_projects": [
+          "Simple To-Do List Application",
+          "Basic Calculator",
+          "Number Guessing Game",
+          "Simple Web Server (using Flask/Go)",
+          "Basic File Processing Tool",
+          "Simple Chat Application (using Goroutines)"
+        ],
+        "recommended_sources": [
+          "Official Go Documentation: [https://go.dev/doc/](https://go.dev/doc/)",
+          "Effective Go: [https://go.dev/doc/effective_go](https://go.dev/doc/effective_go)",
+          "Go by Example: [https://go.dev/tour/welcome/](https://go.dev/tour/welcome/)",
+          "Learn Go: [https://www.learngo.org/](https://www.learngo.org/)",
+          "Concurrency in Go: [https://go.dev/doc/concurrency](https://go.dev/doc/concurrency)",
+          "Security in Go: [https://go.dev/doc/security](https://go.dev/doc/security)",
+          "Go Modules: [https://go.dev/doc/modules](https://go.dev/doc/modules)",
+          "Docker & Kubernetes Basics: [https://www.docker.com/](https://www.docker.com/)",
+          "Git & Version Control: [https://git-scm.com/](https://git-scm.com/)"
+        ]
+      },
+      "eval_count": 493,
+      "exam_material_shared": false,
+      "latency_ms": 6143.804,
+      "model": "gemma3:1b",
+      "prompt_eval_count": 97,
+      "proposal_hash": "e65f3ded8742c54d6e693bea307581f148a9b41c0b9858ed52b668f738b238f3",
+      "proposal_id": "teacher_live_3d301ff5c271313c",
+      "proposal_only": true,
+      "provider": "ollama"
+    },
+    "ollama_d13517f5f43b00360d02db9f508bbf2e62078873b1451d0c047a2f2c9386ee70": {
+      "cache_hit": false,
+      "content": {
+        "common_failure_modes": [
+          "NullPointerExceptions",
+          "IndexOutOfBoundsExceptions",
+          "Concurrency Issues (Race Conditions, Deadlocks)",
+          "Incorrect Data Handling",
+          "Memory Leaks",
+          "Incorrect Error Handling",
+          "Missing Security Measures",
+          "Poorly Written Code",
+          "Ignoring Best Practices",
+          "Lack of Testing"
+        ],
+        "modules": [
+          "Introduction to Java & Fundamentals",
+          "Object-Oriented Programming (OOP) - Core Concepts",
+          "Data Structures & Algorithms",
+          "Java Collections Framework",
+          "Error Handling & Exception Management",
+          "Concurrency & Multithreading",
+          "Java APIs & Libraries (e.g., JDBC, Apache Commons)",
+          "Design Patterns",
+          "Testing & Debugging Techniques",
+          "Java Security & Best Practices",
+          "Java Transfer & Maintenance",
+          "Java Retention & Legacy Code"
+        ],
+        "practical_projects": [
+          "Simple Calculator",
+          "To-Do List Application",
+          "Basic Weather App",
+          "Simple Inventory Management System",
+          "Password Manager (basic functionality)"
+        ],
+        "recommended_sources": [
+          "Java Official Documentation: [https://docs.oracle.com/en/java/docs/latest/index.html](https://docs.oracle.com/en/java/docs/latest/index.html)",
+          "Tutorialspoint Java: [https://www.tutorialspoint.com/java/index.htm](https://www.tutorialspoint.com/java/index.htm)",
+          "GeeksforGeeks Java: [https://www.geeksforgeeks.org/java-programming-language/](https://www.geeksforgeeks.org/java-programming-language/)",
+          "Effective Java: [https://www.effectivejava.com/](https://www.effectivejava.com/)",
+          "Stack Overflow Java: [https://stackoverflow.com/questions/tagged/java](https://stackoverflow.com/questions/tagged/java)"
+        ]
+      },
+      "eval_count": 463,
+      "exam_material_shared": false,
+      "latency_ms": 5795.917,
+      "model": "gemma3:1b",
+      "prompt_eval_count": 97,
+      "proposal_hash": "30c98eda9db406c2ff6a78c7683c915d1ffc9ec3eb403dc668d447aa997b0a7a",
+      "proposal_id": "teacher_live_047a2f2c9386ee70",
+      "proposal_only": true,
+      "provider": "ollama"
+    },
+    "ollama_d9b4a45b1faf49b37f98bfa83514711592dc5cdb4c0f0ff2a7ffc963a279c93b": {
+      "cache_hit": false,
+      "error": "JSONDecodeError",
+      "exam_material_shared": false,
+      "latency_ms": 12226.996,
+      "model": "gemma3:1b",
+      "proposal_hash": "7644e3070ae0695adbb33841aabd59e2c0e33636095b609132a2d8c59a259dfb",
+      "proposal_id": "teacher_live_a7ffc963a279c93b",
+      "proposal_only": true,
+      "provider": "ollama",
+      "status": "unavailable"
+    },
+    "ollama_db0fa49501d57d2ca7e558f602affa8484a4e72b1b2438ccf2a70c0ad78a06c6": {
+      "cache_hit": false,
+      "content": {
+        "common_failure_modes": [
+          "Broken Responsive Design",
+          "Poorly Written JavaScript",
+          "Lack of Thorough Testing",
+          "Ignoring Browser Compatibility",
+          "Security Vulnerabilities (XSS, CSRF)",
+          "Inconsistent Styling",
+          "Poor Code Organization",
+          "Ignoring Accessibility Guidelines",
+          "Insufficient Documentation"
+        ],
+        "modules": [
+          "Foundations",
+          "HTML Structure & Semantics",
+          "CSS Styling & Layout",
+          "JavaScript Fundamentals",
+          "Responsive Design & Mobile-First",
+          "Browser Compatibility & Standards",
+          "Web Security & Privacy",
+          "Data Management & API Integration",
+          "Advanced Concepts (Optional)",
+          "Portfolio Development & Maintenance"
+        ],
+        "practical_projects": [
+          "Personal Portfolio Website",
+          "Interactive To-Do List App",
+          "Simple Blog with Dynamic Content",
+          "E-commerce Product Listing Page",
+          "Interactive Quiz Application"
+        ],
+        "recommended_sources": [
+          "MDN Web Docs (https://developer.mozilla.org/en-US/docs/Web/HTML)",
+          "W3Schools (https://www.w3schools.com/html/)",
+          "CSS-Tricks (https://css-tricks.com/)",
+          "JavaScript.info (https://javascript.info/)",
+          "FreeCodeCamp (https://www.freecodecamp.org/) - HTML/CSS/JavaScript courses",
+          "Scrimba (https://scrimba.com/learn/)",
+          "YouTube - Web Development Tutorials (Various Channels)",
+          "Browser Developer Tools (Chrome DevTools, Firefox Developer Tools)"
+        ]
+      },
+      "eval_count": 378,
+      "exam_material_shared": false,
+      "latency_ms": 5069.883,
+      "model": "gemma3:1b",
+      "prompt_eval_count": 101,
+      "proposal_hash": "93e6a4516319cb05adbcc87eb361f9e4007f67d3eac09f32ce6d1cf4225c3b62",
+      "proposal_id": "teacher_live_f2a70c0ad78a06c6",
+      "proposal_only": true,
+      "provider": "ollama"
+    }
+  },
+  "schema_version": "aion.teacher_cache.v1"
+}

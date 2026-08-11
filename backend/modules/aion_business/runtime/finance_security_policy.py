@@ -12,6 +12,8 @@ FINANCE_SECURITY_POLICY: dict[str, Any] = {
     "default_posture": "deny_external_write",
     "business_isolation_required": True,
     "exact_payload_approval_required": True,
+    "authority_source": "organization_authority.v1",
+    "viewer_projection_required": True,
     "credential_storage": "macos_keychain_only",
     "credential_material_allowed_in_business_container": False,
     "data_classes": {
@@ -58,6 +60,7 @@ FINANCE_SECURITY_POLICY: dict[str, Any] = {
         "finance_director_signals": {"mode": "safe_internal", "approval": "boardroom_review_for_proposed_action", "enabled": True},
         "create_cross_department_proposal": {"mode": "safe_internal", "approval": "boardroom_approval_before_routing", "enabled": True},
         "draft_invoice_or_credit_control": {"mode": "staged_external", "approval": "exact_payload", "enabled": True},
+        "create_xero_sales_invoice": {"mode": "approved_live_external", "approval": "exact_payload_and_readback", "enabled": True},
         "post_reconciliation_or_journal": {"mode": "approved_live_external", "approval": "individual_capability_enablement_and_exact_payload", "enabled": False},
         "reconcile_xero_bank_statement_line": {"mode": "provider_unsupported", "approval": "not_available", "enabled": False,
                                                    "reason": "xero_bank_statement_reconciliation_api_not_supported"},

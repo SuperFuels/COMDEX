@@ -1,0 +1,2028 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "cross_domain_semantic_transfer": "procedure_cross_domain_semantic_transfer_58eae51b7d20"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {
+    "cross_domain_memory_94850013cfd11ac1": {
+      "arguments": [
+        {
+          "claim": "Python strings are designed to be immutable because this provides performance benefits and aligns them with the conceptual model of numbers as elemental values.",
+          "domain": "technical",
+          "evidence_quote": "There are several advantages. One is performance: knowing that a string is immutable means we can allocate space for it at creation time, and the storage requirements are fixed and unchanging. This is also one of the reasons for the distinction between tuples and lists. Another advantage is that strings in Python are considered as “elemental” as numbers. No amount of activity will change the value 8 to anything else, and in Python, no amount of activity will change the string “eight” to anything else.",
+          "memory_id": "technical:argument:0",
+          "premises": [
+            "One is performance: knowing that a string is immutable means we can allocate space for it at creation time, and the storage requirements are fixed and unchanging.",
+            "Another advantage is that strings in Python are considered as “elemental” as numbers.",
+            "No amount of activity will change the value 8 to anything else, and in Python, no amount of activity will change the string “eight” to anything else."
+          ],
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "Differences in memory management between CPython and other Python implementations can cause subtle porting problems, especially when code relies on reference counting semantics such as deterministic object destruction.",
+          "domain": "technical",
+          "evidence_quote": "The details of Python memory management depend on the implementation. The standard implementation of Python, CPython, uses reference counting to detect inaccessible objects, and another mechanism to collect reference cycles, periodically executing a cycle detection algorithm which looks for inaccessible cycles and deletes the objects involved. The gc module provides functions to perform a garbage collection, obtain debugging statistics, and tune the collector’s parameters. Other implementations (such as Jython or PyPy), however, can rely on a different mechanism such as a full-blown garbage collector. This difference can cause some subtle porting problems if your Python code depends on the behavior of the reference counting implementation. In some Python implementations, the following code (which is fine in CPython) will probably run out of file descriptors: Indeed, using CPython’s reference counting and destructor scheme, each new assignment to f closes the previous file. With a traditional GC, however, those file objects will only get collected (and closed) at varying and possibly long intervals.",
+          "memory_id": "technical:argument:1",
+          "premises": [
+            "The standard implementation of Python, CPython, uses reference counting to detect inaccessible objects, and another mechanism to collect reference cycles, periodically executing a cycle detection algorithm which looks for inaccessible cycles and deletes the objects involved.",
+            "Other implementations (such as Jython or PyPy), however, can rely on a different mechanism such as a full-blown garbage collector.",
+            "This difference can cause some subtle porting problems if your Python code depends on the behavior of the reference counting implementation.",
+            "Indeed, using CPython’s reference counting and destructor scheme, each new assignment to f closes the previous file.",
+            "With a traditional GC, however, those file objects will only get collected (and closed) at varying and possibly long intervals."
+          ],
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "To write portable Python code that manages file resources correctly across implementations, developers should explicitly close files or use the with statement instead of relying on garbage collection.",
+          "domain": "technical",
+          "evidence_quote": "This difference can cause some subtle porting problems if your Python code depends on the behavior of the reference counting implementation. In some Python implementations, the following code (which is fine in CPython) will probably run out of file descriptors: Indeed, using CPython’s reference counting and destructor scheme, each new assignment to f closes the previous file. With a traditional GC, however, those file objects will only get collected (and closed) at varying and possibly long intervals. If you want to write code that will work with any Python implementation, you should explicitly close the file or use the with statement; this will work regardless of memory management scheme:",
+          "memory_id": "technical:argument:2",
+          "premises": [
+            "In some Python implementations, the following code (which is fine in CPython) will probably run out of file descriptors:",
+            "Indeed, using CPython’s reference counting and destructor scheme, each new assignment to f closes the previous file.",
+            "With a traditional GC, however, those file objects will only get collected (and closed) at varying and possibly long intervals.",
+            "If you want to write code that will work with any Python implementation, you should explicitly close the file or use the with statement; this will work regardless of memory management scheme:"
+          ],
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "Tuples are suitable as dictionary keys, and lists can be used as keys by converting them to tuples first, because tuples are immutable.",
+          "domain": "technical",
+          "evidence_quote": "If you want a dictionary indexed with a list, simply convert the list to a tuple first; the function tuple(L) creates a tuple with the same entries as the list L. Tuples are immutable and can therefore be used as dictionary keys.",
+          "memory_id": "technical:argument:4",
+          "premises": [
+            "If you want a dictionary indexed with a list, simply convert the list to a tuple first; the function tuple(L) creates a tuple with the same entries as the list L.",
+            "Tuples are immutable and can therefore be used as dictionary keys."
+          ],
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "In Python, disciplined testing can substitute for and even surpass formal interface specifications for building large applications.",
+          "domain": "technical",
+          "evidence_quote": "A good test suite for a module can both provide a regression test and serve as a module interface specification and a set of examples. Many Python modules can be run as a script to provide a simple “self test.” Even modules which use complex external interfaces can often be tested in isolation using trivial “stub” emulations of the external interface. The doctest and unittest modules or third-party test frameworks can be used to construct exhaustive test suites that exercise every line of code in a module. An appropriate testing discipline can help build large complex applications in Python as well as having interface specifications would. In fact, it can be better because an interface specification cannot test certain properties of a program. For example, the list.append() method is expected to add new elements to the end of some internal list; an interface specification cannot test that your list.append() implementation will actually do this correctly, but it’s trivial to check this property in a test suite.",
+          "memory_id": "technical:argument:6",
+          "premises": [
+            "A good test suite for a module can both provide a regression test and serve as a module interface specification and a set of examples.",
+            "An appropriate testing discipline can help build large complex applications in Python as well as having interface specifications would.",
+            "In fact, it can be better because an interface specification cannot test certain properties of a program.",
+            "For example, the list.append() method is expected to add new elements to the end of some internal list; an interface specification cannot test that your list.append() implementation will actually do this correctly, but it’s trivial to check this property in a test suite."
+          ],
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "Test-driven development is a recommended technique in Python that encourages designing code for testability by writing tests before implementation.",
+          "domain": "technical",
+          "evidence_quote": "Writing test suites is very helpful, and you might want to design your code to make it easily tested. One increasingly popular technique, test-driven development, calls for writing parts of the test suite first, before you write any of the actual code. Of course Python allows you to be sloppy and not write test cases at all.",
+          "memory_id": "technical:argument:8",
+          "premises": [
+            "Writing test suites is very helpful, and you might want to design your code to make it easily tested.",
+            "One increasingly popular technique, test-driven development, calls for writing parts of the test suite first, before you write any of the actual code."
+          ],
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "Climate change is a broader concept than global warming, encompassing global warming and additional planetary changes.",
+          "domain": "scientific",
+          "evidence_quote": "“Global warming” refers to the long-term warming of the planet. “Climate change” encompasses global warming, but refers to the broader range of changes that are happening to our planet, including rising sea levels; shrinking mountain glaciers; accelerating ice melt in Greenland, Antarctica and the Arctic; and shifts in flower/plant blooming times.",
+          "memory_id": "scientific:argument:0",
+          "premises": [
+            "“Global warming” refers to the long-term warming of the planet.",
+            "“Climate change” encompasses global warming, but refers to the broader range of changes that are happening to our planet, including rising sea levels; shrinking mountain glaciers; accelerating ice melt in Greenland, Antarctica and the Arctic; and shifts in flower/plant blooming times."
+          ],
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "The greenhouse effect warms Earth’s surface because greenhouse gases trap heat like a blanket.",
+          "domain": "scientific",
+          "evidence_quote": "The greenhouse effect is the process through which heat is trapped near Earth's surface by substances known as 'greenhouse gases.' Imagine these gases as a cozy blanket enveloping our planet, helping to maintain a warmer temperature than it would have otherwise.",
+          "memory_id": "scientific:argument:1",
+          "premises": [
+            "The greenhouse effect is the process through which heat is trapped near Earth's surface by substances known as 'greenhouse gases.'",
+            "Imagine these gases as a cozy blanket enveloping our planet, helping to maintain a warmer temperature than it would have otherwise."
+          ],
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "Water vapor acts as a feedback that amplifies initial warming forces.",
+          "domain": "scientific",
+          "evidence_quote": "Water vapor, which reacts to temperature changes, is referred to as a 'feedback', because it amplifies the effect of forces that initially caused the warming.",
+          "memory_id": "scientific:argument:2",
+          "premises": [
+            "Water vapor, which reacts to temperature changes, is referred to as a 'feedback',",
+            "because it amplifies the effect of forces that initially caused the warming."
+          ],
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "Data processing does not destroy the original climate data records.",
+          "domain": "scientific",
+          "evidence_quote": "No, the original records are preserved and are available at no cost online. You can access the National Climatic Data Center's (NCDC) U.S. and global records here.",
+          "memory_id": "scientific:argument:3",
+          "premises": [
+            "No, the original records are preserved and are available at no cost online.",
+            "You can access the National Climatic Data Center's (NCDC) U.S. and global records here."
+          ],
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "The temperature record on NASA's 'Vital Signs' page begins in 1880 because earlier global data are too sparse for reliable global averages.",
+          "domain": "scientific",
+          "evidence_quote": "Three of the world’s most complete temperature tracking records, maintained by NASA’s Goddard Institute for Space Studies, the National Oceanic and Atmospheric Administration’s National Climactic Data Center and the UK Meteorological Office’s Hadley Centre, begin in 1880. The oldest continuous temperature record is the Central England Temperature Data Series, which began in 1659, and the Hadley Centre has some measurements beginning in 1850, but there are too few data before 1880 for scientists to estimate average temperatures for the entire planet.",
+          "memory_id": "scientific:argument:4",
+          "premises": [
+            "Three of the world’s most complete temperature tracking records, maintained by NASA’s Goddard Institute for Space Studies, the National Oceanic and Atmospheric Administration’s National Climactic Data Center and the UK Meteorological Office’s Hadley Centre, begin in 1880.",
+            "The oldest continuous temperature record is the Central England Temperature Data Series, which began in 1659, and the Hadley Centre has some measurements beginning in 1850,",
+            "but there are too few data before 1880 for scientists to estimate average temperatures for the entire planet."
+          ],
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "james_madison_is_called_father_of_the_constitution",
+          "domain": "historical",
+          "evidence_quote": "James Madison, of Virginia, because in point of erudition and actual contributions to the formation of the Constitution he was preeminent.",
+          "memory_id": "historical:argument:0",
+          "premises": [
+            "James Madison, of Virginia, because in point of erudition and actual contributions to the formation of the Constitution he was preeminent."
+          ],
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "deputies_were_selected_by_state_legislatures",
+          "domain": "historical",
+          "evidence_quote": "They were appointed by the legislatures of the different States.",
+          "memory_id": "historical:argument:1",
+          "premises": [
+            "They were appointed by the legislatures of the different States."
+          ],
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "rhode_island_and_providence_plantations_did_not_participate_in_the_constitutional_convention",
+          "domain": "historical",
+          "evidence_quote": "Rhode Island and Providence Plantations.",
+          "memory_id": "historical:argument:2",
+          "premises": [
+            "Rhode Island and Providence Plantations."
+          ],
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_argument"
+        },
+        {
+          "claim": "the_constitution_was_drafted_in_less_than_one_hundred_working_days",
+          "domain": "historical",
+          "evidence_quote": "It was drafted in fewer than one hundred working days.",
+          "memory_id": "historical:argument:3",
+          "premises": [
+            "It was drafted in fewer than one hundred working days."
+          ],
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_argument"
+        }
+      ],
+      "canonical_mappings": [
+        {
+          "canonical_predicate": "is_motivated_by",
+          "domain": "technical",
+          "justification": "",
+          "original_predicate": "motivated_by",
+          "relation_id": "technical:relation:0",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "supports_distinction_between",
+          "domain": "technical",
+          "justification": "‘Supports_distinction_between’ means the subject helps maintain or clarify a contrast between two categories (tuple vs list mutability), which is not covered by existing predicates dealing more generally with causes, associations, or contrasts but not with enabling a specific conceptual distinction.",
+          "original_predicate": "supports_distinction_between",
+          "relation_id": "technical:relation:1",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "applies_to",
+          "domain": "technical",
+          "justification": "The predicate explicitly matches the retained ‘applies_to’ sense: rules about elemental values hold for string immutability.",
+          "original_predicate": "applies_to",
+          "relation_id": "technical:relation:2",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "used_by",
+          "domain": "technical",
+          "justification": "‘Used_by’ expresses that the CPython implementation makes use of reference counting; no retained predicate expresses this direction of a utilization relation.",
+          "original_predicate": "used_by",
+          "relation_id": "technical:relation:3",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "supplemented_by",
+          "domain": "technical",
+          "justification": "‘Supplemented_by’ indicates that cycle detection adds to reference counting; existing predicates do not capture an additive, auxiliary relationship.",
+          "original_predicate": "supplemented_by",
+          "relation_id": "technical:relation:4",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "provides",
+          "domain": "technical",
+          "justification": "‘Provides’ indicates that the module supplies garbage-collection functions; none of the retained predicates denotes a generic provisioning relation.",
+          "original_predicate": "provides",
+          "relation_id": "technical:relation:5",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "causally_leads_to",
+          "domain": "technical",
+          "justification": "‘Potentially_causes’ matches ‘causally_leads_to’ since it indicates that alternative collectors can bring about portability issues.",
+          "original_predicate": "potentially_causes",
+          "relation_id": "technical:relation:6",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "has_effect_on",
+          "domain": "technical",
+          "justification": "‘Effect_on’ describes that reference counting and destructors influence file descriptor release timing; no retained predicate covers this generic influence relation.",
+          "original_predicate": "effect_on",
+          "relation_id": "technical:relation:7",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "delays",
+          "domain": "technical",
+          "justification": "‘Delays’ captures a temporal postponement (GC postponing file object collection), which is not represented among the retained predicates.",
+          "original_predicate": "delays",
+          "relation_id": "technical:relation:8",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "improves",
+          "domain": "technical",
+          "justification": "‘Improves’ denotes that explicit closing makes portability better; no existing predicate covers enhancement of a quality or outcome.",
+          "original_predicate": "improves",
+          "relation_id": "technical:relation:9",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "depends_on",
+          "domain": "technical",
+          "justification": "‘Depends_on’ states that a dictionary’s implementation requires key hash values; dependency is not expressed by any retained canonical.",
+          "original_predicate": "depends_on",
+          "relation_id": "technical:relation:10",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "has_reason",
+          "domain": "technical",
+          "justification": "‘Reason’ here indicates that the requirement for immutable keys is justified by a stable hash requirement; this is a justification relation distinct from motivational or causal ones in the retained set.",
+          "original_predicate": "reason",
+          "relation_id": "technical:relation:11",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "causally_leads_to",
+          "domain": "technical",
+          "justification": "‘Leads_to’ directly matches ‘causally_leads_to’ as mutable keys bring about dictionary misbehavior.",
+          "original_predicate": "leads_to",
+          "relation_id": "technical:relation:12",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "can_be_converted_to",
+          "domain": "technical",
+          "justification": "‘Can_be_converted_to’ expresses a type/value conversion possibility; no retained predicate covers a transformability relation.",
+          "original_predicate": "can_be_converted_to",
+          "relation_id": "technical:relation:13",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "enabled_by",
+          "domain": "technical",
+          "justification": "‘Enabled_by’ says tuple keys are made possible by tuple immutability; this enabling condition is not captured by the existing predicates.",
+          "original_predicate": "enabled_by",
+          "relation_id": "technical:relation:14",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "requires",
+          "domain": "technical",
+          "justification": "‘Requires’ expresses that the contract needs a fixed hash while in a dict; a necessity relation is not present among retained predicates.",
+          "original_predicate": "requires",
+          "relation_id": "technical:relation:15",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "formalized_as",
+          "domain": "technical",
+          "justification": "‘Formalized_as’ indicates that an invariant is formally stated as a particular rule; no retained predicate expresses a formalization or definitional mapping.",
+          "original_predicate": "formalized_as",
+          "relation_id": "technical:relation:17",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "describes",
+          "domain": "technical",
+          "justification": "‘Describes’ indicates that interface specifications describe prototypes; this is more direct than ‘characterizes’ (which is more about qualities) and not present as such in the retained set.",
+          "original_predicate": "describes",
+          "relation_id": "technical:relation:18",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "introduced_in",
+          "domain": "technical",
+          "justification": "‘Introduced_in’ states when ABCs were first added (Python 2.6); no existing predicate expresses temporal introduction.",
+          "original_predicate": "introduced_in",
+          "relation_id": "technical:relation:19",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "implemented_with",
+          "domain": "technical",
+          "justification": "‘Implemented_with’ indicates the mechanisms used to realize ABC-based checks; this implementation-tool relation is not covered by retained predicates.",
+          "original_predicate": "implemented_with",
+          "relation_id": "technical:relation:20",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "includes_or_contains",
+          "domain": "technical",
+          "justification": "‘Includes’ matches ‘includes_or_contains’: the standard interfaces collection contains iterable, container, mutable mapping, etc.",
+          "original_predicate": "includes",
+          "relation_id": "technical:relation:21",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "provides",
+          "domain": "technical",
+          "justification": "As before, ‘provides’ indicates that tests-as-specification supply regression tests; this provisioning sense is not in the retained set.",
+          "original_predicate": "provides",
+          "relation_id": "technical:relation:22",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "serves_as",
+          "domain": "technical",
+          "justification": "‘Serves_as’ expresses that tests function in the role of module interface examples; no retained predicate marks role-substitution.",
+          "original_predicate": "serves_as",
+          "relation_id": "technical:relation:23",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "has_behavior",
+          "domain": "technical",
+          "justification": "‘Behavior’ here marks what self-testable modules do when run as a script; a generic behavior relation is not among the retained predicates.",
+          "original_predicate": "behavior",
+          "relation_id": "technical:relation:24",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "enables",
+          "domain": "technical",
+          "justification": "‘Enables’ conveys that stub emulations make isolation of complex modules possible; this enabling relation is distinct from generic causal links.",
+          "original_predicate": "enables",
+          "relation_id": "technical:relation:25",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "used_to_construct",
+          "domain": "technical",
+          "justification": "‘Used_to_construct’ describes that frameworks are employed to build exhaustive suites; no retained predicate expresses constructive use.",
+          "original_predicate": "used_to_construct",
+          "relation_id": "technical:relation:26",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "compares_identity_with",
+          "domain": "technical",
+          "justification": "‘Compared_to’ is a comparison relation; among retained predicates, ‘compares_identity_with’ is the closest comparison-oriented predicate, even though the comparison here is conceptual rather than about self-identity.",
+          "original_predicate": "compared_to",
+          "relation_id": "technical:relation:27",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "illustrates",
+          "domain": "technical",
+          "justification": "‘Illustrates’ states that an example demonstrates a testing advantage; no retained predicate covers an exemplification relation.",
+          "original_predicate": "illustrates",
+          "relation_id": "technical:relation:28",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "calls_for",
+          "domain": "technical",
+          "justification": "‘Calls_for’ expresses that TDD prescribes writing tests before code; prescriptive or demand relations are not present among the retained predicates.",
+          "original_predicate": "calls_for",
+          "relation_id": "technical:relation:29",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "includes_or_contains",
+          "domain": "scientific",
+          "justification": "‘Includes_process’ indicates that global warming is one process within climate change; this matches ‘includes_or_contains’ for part–whole membership.",
+          "original_predicate": "includes_process",
+          "relation_id": "scientific:relation:0",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "justification": "‘Associated_with_effect’ means climate change is connected with rising sea levels; ‘is_linked_to’ captures this association without overcommitting to strict causality.",
+          "original_predicate": "associated_with_effect",
+          "relation_id": "scientific:relation:1",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "justification": "Shrinking glaciers are an associated effect of climate change; the general association is best modeled as ‘is_linked_to’.",
+          "original_predicate": "associated_with_effect",
+          "relation_id": "scientific:relation:2",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "justification": "Accelerating ice melt is another associated effect; an associative link is adequately expressed by ‘is_linked_to’.",
+          "original_predicate": "associated_with_effect",
+          "relation_id": "scientific:relation:3",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "justification": "Shifts in blooming times are associated with climate change, fitting the general ‘is_linked_to’ association relation.",
+          "original_predicate": "associated_with_effect",
+          "relation_id": "scientific:relation:4",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "caused_by_substances",
+          "domain": "scientific",
+          "justification": "‘Caused_by_substances’ indicates that specific substances (greenhouse gases) cause the greenhouse effect; this is more specific than the general ‘causally_leads_to’ and not present in the retained set.",
+          "original_predicate": "caused_by_substances",
+          "relation_id": "scientific:relation:5",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "acts_like",
+          "domain": "scientific",
+          "justification": "‘Acts_like’ captures the metaphorical similarity (gases acting like a blanket); no retained predicate covers analogical or role-alike relations.",
+          "original_predicate": "acts_like",
+          "relation_id": "scientific:relation:6",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "results_in_state",
+          "domain": "scientific",
+          "justification": "‘Results_in_state’ expresses that the greenhouse effect leads specifically to a temperature state; this state-result nuance is not encoded in the retained predicates.",
+          "original_predicate": "results_in_state",
+          "relation_id": "scientific:relation:7",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "includes_or_contains",
+          "domain": "scientific",
+          "justification": "‘Consist_of’ indicates that greenhouse gases are made up of items in a list; this is a part–whole containment relationship matching ‘includes_or_contains’ with the list as the set of constituents.",
+          "original_predicate": "consist_of",
+          "relation_id": "scientific:relation:8",
+          "reused_prior": true
+        },
+        {
+          "canonical_predicate": "reacts_to",
+          "domain": "scientific",
+          "justification": "‘Reacts_to’ expresses that water vapor feedback responds to temperature changes; reactive response is not captured by the retained predicates.",
+          "original_predicate": "reacts_to",
+          "relation_id": "scientific:relation:9",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "amplifies",
+          "domain": "scientific",
+          "justification": "‘Amplifies’ states that feedback increases the magnitude of initial warming forces; amplification is different from simple causation.",
+          "original_predicate": "amplifies",
+          "relation_id": "scientific:relation:10",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "does_not_destroy",
+          "domain": "scientific",
+          "justification": "‘Does_not_destroy’ explicitly encodes preservation (processing leaves originals intact); no retained predicate models a negated destruction relation.",
+          "original_predicate": "does_not_destroy",
+          "relation_id": "scientific:relation:11",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "provided_by",
+          "domain": "scientific",
+          "justification": "‘Provided_by’ captures that the NCDC supplies the original records; this source–provider relation is distinct from ‘source_is’ (which is more about origin than institutional provision).",
+          "original_predicate": "provided_by",
+          "relation_id": "scientific:relation:12",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "maintained_by",
+          "domain": "scientific",
+          "justification": "‘Maintained_by’ expresses custodial responsibility over records (NASA GISS in this case); maintenance is not represented among retained predicates.",
+          "original_predicate": "maintained_by",
+          "relation_id": "scientific:relation:13",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "maintained_by",
+          "domain": "scientific",
+          "justification": "Same maintenance relation, now with NOAA NCDC as custodian; reuses the newly defined ‘maintained_by’ semantics.",
+          "original_predicate": "maintained_by",
+          "relation_id": "scientific:relation:14",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "maintained_by",
+          "domain": "scientific",
+          "justification": "Again, ‘maintained_by’ applies to the Hadley Centre as custodian of the records.",
+          "original_predicate": "maintained_by",
+          "relation_id": "scientific:relation:15",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "began_in_year",
+          "domain": "scientific",
+          "justification": "‘Began_in_year’ records the starting year (1659) of the data series; temporal start-year relations are not covered by existing predicates.",
+          "original_predicate": "began_in_year",
+          "relation_id": "scientific:relation:16",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "began_in_year",
+          "domain": "scientific",
+          "justification": "Same start-year relation, here for the Hadley Centre measurements (1850); uses the same newly defined canonical.",
+          "original_predicate": "began_in_year",
+          "relation_id": "scientific:relation:17",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "has_reason",
+          "domain": "scientific",
+          "justification": "‘Reason’ here explains why pre-1880 estimation is limited; this is a justification relation parallel to the technical ‘reason’ case, captured by ‘has_reason’.",
+          "original_predicate": "reason",
+          "relation_id": "scientific:relation:18",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "appointed",
+          "domain": "historical",
+          "justification": "‘Appointed’ expresses that legislatures officially designated deputies; appointment is not expressed by retained predicates.",
+          "original_predicate": "appointed",
+          "relation_id": "historical:relation:0",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "did_not_send",
+          "domain": "historical",
+          "justification": "‘Did_not_send’ encodes the explicit absence of sending deputies; this is a negated participation relation with no analogue in the retained set.",
+          "original_predicate": "did_not_send",
+          "relation_id": "historical:relation:1",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "is_from_state",
+          "domain": "historical",
+          "justification": "‘Is_from_state’ marks Madison’s state affiliation (Virginia); geographic origin/affiliation is not covered by the retained predicates.",
+          "original_predicate": "is_from_state",
+          "relation_id": "historical:relation:2",
+          "reused_prior": false
+        },
+        {
+          "canonical_predicate": "drafted_in_fewer_than",
+          "domain": "historical",
+          "justification": "‘Drafted_in_fewer_than’ captures that the drafting duration was under a certain number of working days; such quantitative temporal bounds are not represented in the retained set.",
+          "original_predicate": "drafted_in_fewer_than",
+          "relation_id": "historical:relation:4",
+          "reused_prior": false
+        }
+      ],
+      "concepts": [
+        {
+          "definition": "The design property that Python string objects cannot be modified after creation; any apparent modification creates a new string object instead of changing the existing one.",
+          "domain": "technical",
+          "evidence_quote": "knowing that a string is immutable means we can allocate space for it at creation time, and the storage requirements are fixed and unchanging.",
+          "label": "string_immutability_in_python",
+          "memory_id": "technical:concept:0",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "A design view that certain data types, such as numbers and strings, are treated as atomic, unchangeable values whose identity does not change through operations.",
+          "domain": "technical",
+          "evidence_quote": "Another advantage is that strings in Python are considered as “elemental” as numbers.",
+          "label": "elemental_values_in_python",
+          "memory_id": "technical:concept:1",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The design separation between tuples (immutable sequences) and lists (mutable sequences), partially motivated by performance and representational reasons similar to string immutability.",
+          "domain": "technical",
+          "evidence_quote": "This is also one of the reasons for the distinction between tuples and lists.",
+          "label": "tuple_list_mutability_distinction",
+          "memory_id": "technical:concept:2",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The memory management strategy used by CPython where each object keeps a count of references, and objects are reclaimed when their count reaches zero, supplemented by cycle detection.",
+          "domain": "technical",
+          "evidence_quote": "The standard implementation of Python, CPython, uses reference counting to detect inaccessible objects, and another mechanism to collect reference cycles, periodically executing a cycle detection algorithm which looks for inaccessible cycles and deletes the objects involved.",
+          "label": "cpython_reference_counting",
+          "memory_id": "technical:concept:3",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The gc standard library module that exposes controls and diagnostics for Python’s garbage collection behavior.",
+          "domain": "technical",
+          "evidence_quote": "The gc module provides functions to perform a garbage collection, obtain debugging statistics, and tune the collector’s parameters.",
+          "label": "python_garbage_collection_module",
+          "memory_id": "technical:concept:4",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Garbage collection mechanisms used by non-CPython implementations, such as full tracing collectors, which may not reclaim objects immediately when they become unreachable.",
+          "domain": "technical",
+          "evidence_quote": "Other implementations (such as Jython or PyPy), however, can rely on a different mechanism such as a full-blown garbage collector.",
+          "label": "alternative_python_garbage_collectors",
+          "memory_id": "technical:concept:5",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Subtle behavioral differences in Python programs that arise when code relies on CPython’s reference counting and destructor timing, which may not hold in other implementations.",
+          "domain": "technical",
+          "evidence_quote": "This difference can cause some subtle porting problems if your Python code depends on the behavior of the reference counting implementation.",
+          "label": "portability_issues_due_to_memory_management",
+          "memory_id": "technical:concept:6",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The recommendation to explicitly close files or use context managers to ensure timely release of file descriptors across Python implementations.",
+          "domain": "technical",
+          "evidence_quote": "If you want to write code that will work with any Python implementation, you should explicitly close the file or use the with statement; this will work regardless of memory management scheme:",
+          "label": "explicit_file_closing_best_practice",
+          "memory_id": "technical:concept:7",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The internal representation of Python dictionaries as hash tables that use a hash value derived from the key to locate entries.",
+          "domain": "technical",
+          "evidence_quote": "The hash table implementation of dictionaries uses a hash value calculated from the key value to find the key.",
+          "label": "dictionary_hash_table_implementation",
+          "memory_id": "technical:concept:8",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The constraint that dictionary keys must be immutable so that their hash values remain stable while used as keys.",
+          "domain": "technical",
+          "evidence_quote": "If the key were a mutable object, its value could change, and thus its hash could also change.",
+          "label": "requirement_for_immutable_dict_keys",
+          "memory_id": "technical:concept:9",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Lookup anomalies and inconsistencies that occur when objects whose hash or equality semantics change are used as keys in hash-based structures.",
+          "domain": "technical",
+          "evidence_quote": "If you fail to meet these restrictions dictionaries and other hash based structures will misbehave.",
+          "label": "dictionary_misbehavior_due_to_mutable_keys",
+          "memory_id": "technical:concept:10",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The practice of using tuples, which are immutable, as dictionary keys, including tuples created by converting lists.",
+          "domain": "technical",
+          "evidence_quote": "Tuples are immutable and can therefore be used as dictionary keys.",
+          "label": "tuple_as_dictionary_key",
+          "memory_id": "technical:concept:11",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "A pattern where a mutable structure is wrapped in a class that defines __eq__ and __hash__, with strict requirements that the hash remains fixed and equality implies equal hashes.",
+          "domain": "technical",
+          "evidence_quote": "You must then make sure that the hash value for all such wrapper objects that reside in a dictionary (or other hash based structure), remain fixed while the object is in the dictionary (or other structure).",
+          "label": "listwrapper_hash_equality_contract",
+          "memory_id": "technical:concept:12",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The rule that if two objects compare equal, their hash values must also be equal, regardless of their use in dictionaries.",
+          "domain": "technical",
+          "evidence_quote": "Furthermore it must always be the case that if o1 == o2 (ie o1.__eq__(o2) is True) then hash(o1) == hash(o2) (ie, o1.__hash__() == o2.__hash__()), regardless of whether the object is in a dictionary or not.",
+          "label": "hash_equality_invariant",
+          "memory_id": "technical:concept:13",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The description of prototypes for methods and functions in modules, as found in languages like C++ and Java, often enforced at compile time.",
+          "domain": "technical",
+          "evidence_quote": "An interface specification for a module as provided by languages such as C++ and Java describes the prototypes for the methods and functions of the module.",
+          "label": "interface_specification_in_static_languages",
+          "memory_id": "technical:concept:14",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "A mechanism introduced in Python 2.6 via the abc module that allows definition of abstract base classes to represent interface-like contracts.",
+          "domain": "technical",
+          "evidence_quote": "Python 2.6 adds an abc module that lets you define Abstract Base Classes (ABCs).",
+          "label": "abstract_base_classes_in_python",
+          "memory_id": "technical:concept:15",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The use of isinstance() and issubclass() with Abstract Base Classes to verify whether an object or class implements a particular interface.",
+          "domain": "technical",
+          "evidence_quote": "You can then use isinstance() and issubclass() to check whether an instance or a class implements a particular ABC.",
+          "label": "abc_based_type_checks",
+          "memory_id": "technical:concept:16",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The standard set of abstract base classes in collections.abc representing common container and mapping interfaces such as Iterable, Container, and MutableMapping.",
+          "domain": "technical",
+          "evidence_quote": "The collections.abc module defines a set of useful ABCs such as Iterable, Container, and MutableMapping.",
+          "label": "collections_abc_standard_interfaces",
+          "memory_id": "technical:concept:17",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The practice of using well-designed test suites to serve both as regression tests and as de facto interface specifications and usage examples for modules.",
+          "domain": "technical",
+          "evidence_quote": "A good test suite for a module can both provide a regression test and serve as a module interface specification and a set of examples.",
+          "label": "tests_as_interface_specification",
+          "memory_id": "technical:concept:18",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Modules that can be executed as scripts to run built-in tests, providing simple self-verification behavior.",
+          "domain": "technical",
+          "evidence_quote": "Many Python modules can be run as a script to provide a simple “self test.”",
+          "label": "self_testable_modules",
+          "memory_id": "technical:concept:19",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The testing technique of replacing complex external interfaces with trivial stub implementations to enable isolated testing of modules.",
+          "domain": "technical",
+          "evidence_quote": "Even modules which use complex external interfaces can often be tested in isolation using trivial “stub” emulations of the external interface.",
+          "label": "use_of_stub_emulations_in_testing",
+          "memory_id": "technical:concept:20",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Standard and third-party tools like doctest and unittest used to build exhaustive test suites for Python modules.",
+          "domain": "technical",
+          "evidence_quote": "The doctest and unittest modules or third-party test frameworks can be used to construct exhaustive test suites that exercise every line of code in a module.",
+          "label": "python_testing_frameworks",
+          "memory_id": "technical:concept:21",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The idea that disciplined testing can provide many of the benefits of formal interface specifications, and in some ways surpass them by checking behavioral properties.",
+          "domain": "technical",
+          "evidence_quote": "An appropriate testing discipline can help build large complex applications in Python as well as having interface specifications would. In fact, it can be better because an interface specification cannot test certain properties of a program.",
+          "label": "testing_as_interface_enforcement",
+          "memory_id": "technical:concept:22",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The specific illustration that tests can verify properties like list.append() adding elements to the end of the list, which interface specs alone cannot guarantee.",
+          "domain": "technical",
+          "evidence_quote": "For example, the list.append() method is expected to add new elements to the end of some internal list; an interface specification cannot test that your list.append() implementation will actually do this correctly, but it’s trivial to check this property in a test suite.",
+          "label": "behavioral_property_testing_example",
+          "memory_id": "technical:concept:23",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "A development technique where tests are written before the implementation code, influencing Python code design for testability.",
+          "domain": "technical",
+          "evidence_quote": "One increasingly popular technique, test-driven development, calls for writing parts of the test suite first, before you write any of the actual code.",
+          "label": "test_driven_development_in_python",
+          "memory_id": "technical:concept:24",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The long-term warming of the planet, referring specifically to the increase in Earth's overall temperature over extended periods.",
+          "domain": "scientific",
+          "evidence_quote": "“Global warming” refers to the long-term warming of the planet.",
+          "label": "global_warming",
+          "memory_id": "scientific:concept:0",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The broader range of changes occurring on Earth, which includes global warming as well as associated environmental changes such as sea level rise, glacier shrinkage, ice melt, and biological timing shifts.",
+          "domain": "scientific",
+          "evidence_quote": "“Climate change” encompasses global warming, but refers to the broader range of changes that are happening to our planet, including rising sea levels; shrinking mountain glaciers; accelerating ice melt in Greenland, Antarctica and the Arctic; and shifts in flower/plant blooming times.",
+          "label": "climate_change",
+          "memory_id": "scientific:concept:1",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "An increase in the average level of the world’s oceans, identified as one of the changes associated with climate change.",
+          "domain": "scientific",
+          "evidence_quote": "including rising sea levels;",
+          "label": "rising_sea_levels",
+          "memory_id": "scientific:concept:2",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The reduction in size or volume of mountain glaciers, cited as a manifestation of climate change.",
+          "domain": "scientific",
+          "evidence_quote": "shrinking mountain glaciers;",
+          "label": "shrinking_mountain_glaciers",
+          "memory_id": "scientific:concept:3",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The increasing rate of ice melting in Greenland, Antarctica, and the Arctic attributed to climate-related changes.",
+          "domain": "scientific",
+          "evidence_quote": "accelerating ice melt in Greenland, Antarctica and the Arctic;",
+          "label": "accelerating_ice_melt_greenland_antarctica_arctic",
+          "memory_id": "scientific:concept:4",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Changes in the timing of flowering or blooming of plants, identified as a biological indicator of climate change.",
+          "domain": "scientific",
+          "evidence_quote": "and shifts in flower/plant blooming times.",
+          "label": "shifts_in_flower_plant_blooming_times",
+          "memory_id": "scientific:concept:5",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "A process in which heat is trapped near Earth’s surface by greenhouse gases, maintaining a warmer temperature than would otherwise occur.",
+          "domain": "scientific",
+          "evidence_quote": "The greenhouse effect is the process through which heat is trapped near Earth's surface by substances known as 'greenhouse gases.'",
+          "label": "greenhouse_effect",
+          "memory_id": "scientific:concept:6",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Substances in Earth’s atmosphere that trap heat near the surface, acting like a blanket and contributing to the greenhouse effect.",
+          "domain": "scientific",
+          "evidence_quote": "The greenhouse effect is the process through which heat is trapped near Earth's surface by substances known as 'greenhouse gases.'",
+          "label": "greenhouse_gases",
+          "memory_id": "scientific:concept:7",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The set of gases identified as greenhouse gases: carbon dioxide, methane, ozone, nitrous oxide, chlorofluorocarbons, and water vapor.",
+          "domain": "scientific",
+          "evidence_quote": "Greenhouse gases consist of carbon dioxide, methane, ozone, nitrous oxide, chlorofluorocarbons, and water vapor.",
+          "label": "greenhouse_gas_list",
+          "memory_id": "scientific:concept:8",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Water vapor in the atmosphere, whose concentration reacts to temperature changes and amplifies initial warming, making it a feedback component of the climate system.",
+          "domain": "scientific",
+          "evidence_quote": "Water vapor, which reacts to temperature changes, is referred to as a 'feedback', because it amplifies the effect of forces that initially caused the warming.",
+          "label": "water_vapor_feedback",
+          "memory_id": "scientific:concept:9",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "A metaphor describing greenhouse gases as a blanket around Earth that helps maintain a warmer temperature.",
+          "domain": "scientific",
+          "evidence_quote": "Imagine these gases as a cozy blanket enveloping our planet, helping to maintain a warmer temperature than it would have otherwise.",
+          "label": "cozy_blanket_metaphor_for_greenhouse_gases",
+          "memory_id": "scientific:concept:10",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The original climate records preserved and made available online at no cost by the National Climatic Data Center.",
+          "domain": "scientific",
+          "evidence_quote": "No, the original records are preserved and are available at no cost online. You can access the National Climatic Data Center's (NCDC) U.S. and global records here.",
+          "label": "ncdc_original_records",
+          "memory_id": "scientific:concept:11",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Three of the world’s most complete temperature tracking records that start in 1880 and are maintained by NASA GISS, NOAA NCDC, and the UK Met Office Hadley Centre.",
+          "domain": "scientific",
+          "evidence_quote": "Three of the world’s most complete temperature tracking records, maintained by NASA’s Goddard Institute for Space Studies, the National Oceanic and Atmospheric Administration’s National Climactic Data Center and the UK Meteorological Office’s Hadley Centre, begin in 1880.",
+          "label": "temperature_tracking_records_beginning_1880",
+          "memory_id": "scientific:concept:12",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The oldest continuous temperature record, known as the Central England Temperature Data Series, which began in 1659.",
+          "domain": "scientific",
+          "evidence_quote": "The oldest continuous temperature record is the Central England Temperature Data Series, which began in 1659,",
+          "label": "central_england_temperature_data_series",
+          "memory_id": "scientific:concept:13",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Temperature measurements beginning in 1850 that are available from the Hadley Centre but are insufficient in coverage before 1880 for global averages.",
+          "domain": "scientific",
+          "evidence_quote": "and the Hadley Centre has some measurements beginning in 1850, but there are too few data before 1880 for scientists to estimate average temperatures for the entire planet.",
+          "label": "hadley_centre_1850_measurements",
+          "memory_id": "scientific:concept:14",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The limitation that data before 1880 are too sparse to estimate average temperatures for the entire planet.",
+          "domain": "scientific",
+          "evidence_quote": "but there are too few data before 1880 for scientists to estimate average temperatures for the entire planet.",
+          "label": "global_average_temperature_estimation_limitation_pre_1880",
+          "memory_id": "scientific:concept:15",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "Individuals selected by state-level bodies to participate in the U.S. Constitutional Convention.",
+          "domain": "historical",
+          "evidence_quote": "They were appointed by the legislatures of the different States.",
+          "label": "deputies_to_the_constitutional_convention",
+          "memory_id": "historical:concept:0",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The legislatures of the several U.S. states that had the authority to appoint deputies to the Constitutional Convention.",
+          "domain": "historical",
+          "evidence_quote": "They were appointed by the legislatures of the different States.",
+          "label": "state_legislatures_appointing_deputies",
+          "memory_id": "historical:concept:1",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "A state that did not send deputies to the U.S. Constitutional Convention.",
+          "domain": "historical",
+          "evidence_quote": "Rhode Island and Providence Plantations.",
+          "label": "non_participating_state_in_constitutional_convention",
+          "memory_id": "historical:concept:2",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The characterization of James Madison as the \"Father of the Constitution\" due to his learning and contributions to framing the document.",
+          "domain": "historical",
+          "evidence_quote": "James Madison, of Virginia, because in point of erudition and actual contributions to the formation of the Constitution he was preeminent.",
+          "label": "james_madison_father_of_the_constitution",
+          "memory_id": "historical:concept:3",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source"
+        },
+        {
+          "definition": "The approximate amount of working time required to draft the U.S. Constitution.",
+          "domain": "historical",
+          "evidence_quote": "It was drafted in fewer than one hundred working days.",
+          "label": "duration_to_frame_the_constitution",
+          "memory_id": "historical:concept:4",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source"
+        }
+      ],
+      "created_at": "2026-07-31T11:54:53.840224+00:00",
+      "qa_memories": [
+        {
+          "answer_evidence": "There are several advantages. One is performance: knowing that a string is immutable means we can allocate space for it at creation time, and the storage requirements are fixed and unchanging. This is also one of the reasons for the distinction between tuples and lists. Another advantage is that strings in Python are considered as “elemental” as numbers. No amount of activity will change the value 8 to anything else, and in Python, no amount of activity will change the string “eight” to anything else.",
+          "domain": "technical",
+          "memory_id": "technical:qa:0",
+          "question": "Why are Python strings immutable?",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "source_url": "https://docs.python.org/3/faq/design.html",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "The details of Python memory management depend on the implementation. The standard implementation of Python, CPython, uses reference counting to detect inaccessible objects, and another mechanism to collect reference cycles, periodically executing a cycle detection algorithm which looks for inaccessible cycles and deletes the objects involved. The gc module provides functions to perform a garbage collection, obtain debugging statistics, and tune the collector’s parameters. Other implementations (such as Jython or PyPy), however, can rely on a different mechanism such as a full-blown garbage collector. This difference can cause some subtle porting problems if your Python code depends on the behavior of the reference counting implementation. In some Python implementations, the following code (which is fine in CPython) will probably run out of file descriptors: Indeed, using CPython’s reference counting and destructor scheme, each new assignment to f closes the previous file. With a traditional GC, however, those file objects will only get collected (and closed) at varying and possibly long intervals. If you want to write code that will work with any Python implementation, you should explicitly close the file or use the with statement; this will work regardless of memory management scheme:",
+          "domain": "technical",
+          "memory_id": "technical:qa:1",
+          "question": "How does Python manage memory?",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "source_url": "https://docs.python.org/3/faq/design.html",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "The hash table implementation of dictionaries uses a hash value calculated from the key value to find the key. If the key were a mutable object, its value could change, and thus its hash could also change. But since whoever changes the key object can’t tell that it was being used as a dictionary key, it can’t move the entry around in the dictionary. Then, when you try to look up the same object in the dictionary it won’t be found because its hash value is different. If you tried to look up the old value it wouldn’t be found either, because the value of the object found in that hash bin would be different. If you want a dictionary indexed with a list, simply convert the list to a tuple first; the function tuple(L) creates a tuple with the same entries as the list L. Tuples are immutable and can therefore be used as dictionary keys. Some unacceptable solutions that have been proposed: There is a trick to get around this if you need to, but use it at your own risk: You can wrap a mutable structure inside a class instance which has both a __eq__() and a __hash__() method. You must then make sure that the hash value for all such wrapper objects that reside in a dictionary (or other hash based structure), remain fixed while the object is in the dictionary (or other structure). Note that the hash computation is complicated by the possibility that some members of the list may be unhashable and also by the possibility of arithmetic overflow. Furthermore it must always be the case that if o1 == o2 (ie o1.__eq__(o2) is True) then hash(o1) == hash(o2) (ie, o1.__hash__() == o2.__hash__()), regardless of whether the object is in a dictionary or not. If you fail to meet these restrictions dictionaries and other hash based structures will misbehave. In the case of ListWrapper, whenever the wrapper object is in a dictionary the wrapped list must not change to avoid anomalies. Don’t do this unless you are prepared to think hard about the requirements and the consequences of not meeting them correctly. Consider yourself warned.",
+          "domain": "technical",
+          "memory_id": "technical:qa:2",
+          "question": "Why must dictionary keys be immutable?",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "source_url": "https://docs.python.org/3/faq/design.html",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "An interface specification for a module as provided by languages such as C++ and Java describes the prototypes for the methods and functions of the module. Many feel that compile-time enforcement of interface specifications helps in the construction of large programs. Python 2.6 adds an abc module that lets you define Abstract Base Classes (ABCs). You can then use isinstance() and issubclass() to check whether an instance or a class implements a particular ABC. The collections.abc module defines a set of useful ABCs such as Iterable, Container, and MutableMapping. For Python, many of the advantages of interface specifications can be obtained by an appropriate test discipline for components. A good test suite for a module can both provide a regression test and serve as a module interface specification and a set of examples. Many Python modules can be run as a script to provide a simple “self test.” Even modules which use complex external interfaces can often be tested in isolation using trivial “stub” emulations of the external interface. The doctest and unittest modules or third-party test frameworks can be used to construct exhaustive test suites that exercise every line of code in a module. An appropriate testing discipline can help build large complex applications in Python as well as having interface specifications would. In fact, it can be better because an interface specification cannot test certain properties of a program. For example, the list.append() method is expected to add new elements to the end of some internal list; an interface specification cannot test that your list.append() implementation will actually do this correctly, but it’s trivial to check this property in a test suite. Writing test suites is very helpful, and you might want to design your code to make it easily tested. One increasingly popular technique, test-driven development, calls for writing parts of the test suite first, before you write any of the actual code. Of course Python allows you to be sloppy and not write test cases at all.",
+          "domain": "technical",
+          "memory_id": "technical:qa:3",
+          "question": "How do you specify and enforce an interface spec in Python?",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "source_url": "https://docs.python.org/3/faq/design.html",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "“Global warming” refers to the long-term warming of the planet. “Climate change” encompasses global warming, but refers to the broader range of changes that are happening to our planet, including rising sea levels; shrinking mountain glaciers; accelerating ice melt in Greenland, Antarctica and the Arctic; and shifts in flower/plant blooming times.",
+          "domain": "scientific",
+          "memory_id": "scientific:qa:0",
+          "question": "What’s the difference between climate change and global warming?",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "source_url": "https://science.nasa.gov/climate-change/faq/",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "The greenhouse effect is the process through which heat is trapped near Earth's surface by substances known as 'greenhouse gases.' Imagine these gases as a cozy blanket enveloping our planet, helping to maintain a warmer temperature than it would have otherwise. Greenhouse gases consist of carbon dioxide, methane, ozone, nitrous oxide, chlorofluorocarbons, and water vapor. Water vapor, which reacts to temperature changes, is referred to as a 'feedback', because it amplifies the effect of forces that initially caused the warming.",
+          "domain": "scientific",
+          "memory_id": "scientific:qa:1",
+          "question": "What is the greenhouse effect?",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "source_url": "https://science.nasa.gov/climate-change/faq/",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "No, the original records are preserved and are available at no cost online. You can access the National Climatic Data Center's (NCDC) U.S. and global records here.",
+          "domain": "scientific",
+          "memory_id": "scientific:qa:2",
+          "question": "Does data processing destroy the original data?",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "source_url": "https://science.nasa.gov/climate-change/faq/",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "Three of the world’s most complete temperature tracking records, maintained by NASA’s Goddard Institute for Space Studies, the National Oceanic and Atmospheric Administration’s National Climactic Data Center and the UK Meteorological Office’s Hadley Centre, begin in 1880. The oldest continuous temperature record is the Central England Temperature Data Series, which began in 1659, and the Hadley Centre has some measurements beginning in 1850, but there are too few data before 1880 for scientists to estimate average temperatures for the entire planet.",
+          "domain": "scientific",
+          "memory_id": "scientific:qa:3",
+          "question": "Why does the temperature record shown on your \"Vital Signs\" page begin at 1880?",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "source_url": "https://science.nasa.gov/climate-change/faq/",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "They were appointed by the legislatures of the different States.",
+          "domain": "historical",
+          "memory_id": "historical:qa:0",
+          "question": "How were deputies to the Constitutional Convention chosen?",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "source_url": "https://www.archives.gov/founding-docs/constitution-q-and-a",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "Rhode Island and Providence Plantations.",
+          "domain": "historical",
+          "memory_id": "historical:qa:1",
+          "question": "Which State did not send deputies to the Constitutional Convention?",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "source_url": "https://www.archives.gov/founding-docs/constitution-q-and-a",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "James Madison, of Virginia, because in point of erudition and actual contributions to the formation of the Constitution he was preeminent.",
+          "domain": "historical",
+          "memory_id": "historical:qa:2",
+          "question": "Who was called the \"Father of the Constitution\"?",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "source_url": "https://www.archives.gov/founding-docs/constitution-q-and-a",
+          "status": "reported_by_official_source"
+        },
+        {
+          "answer_evidence": "It was drafted in fewer than one hundred working days.",
+          "domain": "historical",
+          "memory_id": "historical:qa:3",
+          "question": "How long did it take to frame the Constitution?",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "source_url": "https://www.archives.gov/founding-docs/constitution-q-and-a",
+          "status": "reported_by_official_source"
+        }
+      ],
+      "relations": [
+        {
+          "canonical_predicate": "is_motivated_by",
+          "domain": "technical",
+          "evidence_quote": "One is performance: knowing that a string is immutable means we can allocate space for it at creation time, and the storage requirements are fixed and unchanging.",
+          "memory_id": "technical:relation:0",
+          "object": "performance_advantages",
+          "predicate": "motivated_by",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "string_immutability_in_python"
+        },
+        {
+          "canonical_predicate": "supports_distinction_between",
+          "domain": "technical",
+          "evidence_quote": "This is also one of the reasons for the distinction between tuples and lists.",
+          "memory_id": "technical:relation:1",
+          "object": "tuple_list_mutability_distinction",
+          "predicate": "supports_distinction_between",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "string_immutability_in_python"
+        },
+        {
+          "canonical_predicate": "applies_to",
+          "domain": "technical",
+          "evidence_quote": "Another advantage is that strings in Python are considered as “elemental” as numbers.",
+          "memory_id": "technical:relation:2",
+          "object": "string_immutability_in_python",
+          "predicate": "applies_to",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "elemental_values_in_python"
+        },
+        {
+          "canonical_predicate": "used_by",
+          "domain": "technical",
+          "evidence_quote": "The standard implementation of Python, CPython, uses reference counting to detect inaccessible objects",
+          "memory_id": "technical:relation:3",
+          "object": "cpython_implementation",
+          "predicate": "used_by",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "cpython_reference_counting"
+        },
+        {
+          "canonical_predicate": "supplemented_by",
+          "domain": "technical",
+          "evidence_quote": "and another mechanism to collect reference cycles, periodically executing a cycle detection algorithm which looks for inaccessible cycles and deletes the objects involved.",
+          "memory_id": "technical:relation:4",
+          "object": "cycle_detection_algorithm",
+          "predicate": "supplemented_by",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "cpython_reference_counting"
+        },
+        {
+          "canonical_predicate": "provides",
+          "domain": "technical",
+          "evidence_quote": "The gc module provides functions to perform a garbage collection, obtain debugging statistics, and tune the collector’s parameters.",
+          "memory_id": "technical:relation:5",
+          "object": "garbage_collection_functions",
+          "predicate": "provides",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "python_garbage_collection_module"
+        },
+        {
+          "canonical_predicate": "causally_leads_to",
+          "domain": "technical",
+          "evidence_quote": "This difference can cause some subtle porting problems if your Python code depends on the behavior of the reference counting implementation.",
+          "memory_id": "technical:relation:6",
+          "object": "portability_issues_due_to_memory_management",
+          "predicate": "potentially_causes",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "alternative_python_garbage_collectors"
+        },
+        {
+          "canonical_predicate": "has_effect_on",
+          "domain": "technical",
+          "evidence_quote": "Indeed, using CPython’s reference counting and destructor scheme, each new assignment to f closes the previous file.",
+          "memory_id": "technical:relation:7",
+          "object": "file_descriptor_release_timing",
+          "predicate": "effect_on",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "reference_counting_and_destructors_in_cpython"
+        },
+        {
+          "canonical_predicate": "delays",
+          "domain": "technical",
+          "evidence_quote": "With a traditional GC, however, those file objects will only get collected (and closed) at varying and possibly long intervals.",
+          "memory_id": "technical:relation:8",
+          "object": "file_object_collection",
+          "predicate": "delays",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "traditional_garbage_collector"
+        },
+        {
+          "canonical_predicate": "improves",
+          "domain": "technical",
+          "evidence_quote": "If you want to write code that will work with any Python implementation, you should explicitly close the file or use the with statement; this will work regardless of memory management scheme:",
+          "memory_id": "technical:relation:9",
+          "object": "cross_implementation_portability",
+          "predicate": "improves",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "explicit_file_closing_best_practice"
+        },
+        {
+          "canonical_predicate": "depends_on",
+          "domain": "technical",
+          "evidence_quote": "The hash table implementation of dictionaries uses a hash value calculated from the key value to find the key.",
+          "memory_id": "technical:relation:10",
+          "object": "key_hash_value",
+          "predicate": "depends_on",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "dictionary_hash_table_implementation"
+        },
+        {
+          "canonical_predicate": "has_reason",
+          "domain": "technical",
+          "evidence_quote": "If the key were a mutable object, its value could change, and thus its hash could also change.",
+          "memory_id": "technical:relation:11",
+          "object": "stable_hash_requirement",
+          "predicate": "reason",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "requirement_for_immutable_dict_keys"
+        },
+        {
+          "canonical_predicate": "causally_leads_to",
+          "domain": "technical",
+          "evidence_quote": "If you fail to meet these restrictions dictionaries and other hash based structures will misbehave.",
+          "memory_id": "technical:relation:12",
+          "object": "dictionary_misbehavior_due_to_mutable_keys",
+          "predicate": "leads_to",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "mutable_key_in_dictionary"
+        },
+        {
+          "canonical_predicate": "can_be_converted_to",
+          "domain": "technical",
+          "evidence_quote": "If you want a dictionary indexed with a list, simply convert the list to a tuple first; the function tuple(L) creates a tuple with the same entries as the list L.",
+          "memory_id": "technical:relation:13",
+          "object": "tuple_as_dictionary_key",
+          "predicate": "can_be_converted_to",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "list_object"
+        },
+        {
+          "canonical_predicate": "enabled_by",
+          "domain": "technical",
+          "evidence_quote": "Tuples are immutable and can therefore be used as dictionary keys.",
+          "memory_id": "technical:relation:14",
+          "object": "tuple_immutability",
+          "predicate": "enabled_by",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "tuple_as_dictionary_key"
+        },
+        {
+          "canonical_predicate": "requires",
+          "domain": "technical",
+          "evidence_quote": "You must then make sure that the hash value for all such wrapper objects that reside in a dictionary (or other hash based structure), remain fixed while the object is in the dictionary (or other structure).",
+          "memory_id": "technical:relation:15",
+          "object": "fixed_hash_while_in_dict",
+          "predicate": "requires",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "listwrapper_hash_equality_contract"
+        },
+        {
+          "canonical_predicate": "formalized_as",
+          "domain": "technical",
+          "evidence_quote": "Furthermore it must always be the case that if o1 == o2 (ie o1.__eq__(o2) is True) then hash(o1) == hash(o2) (ie, o1.__hash__() == o2.__hash__())",
+          "memory_id": "technical:relation:17",
+          "object": "equality_implies_equal_hashes",
+          "predicate": "formalized_as",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "hash_equality_invariant"
+        },
+        {
+          "canonical_predicate": "describes",
+          "domain": "technical",
+          "evidence_quote": "describes the prototypes for the methods and functions of the module.",
+          "memory_id": "technical:relation:18",
+          "object": "method_and_function_prototypes",
+          "predicate": "describes",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "interface_specification_in_static_languages"
+        },
+        {
+          "canonical_predicate": "introduced_in",
+          "domain": "technical",
+          "evidence_quote": "Python 2.6 adds an abc module that lets you define Abstract Base Classes (ABCs).",
+          "memory_id": "technical:relation:19",
+          "object": "python_2_6",
+          "predicate": "introduced_in",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "abstract_base_classes_in_python"
+        },
+        {
+          "canonical_predicate": "implemented_with",
+          "domain": "technical",
+          "evidence_quote": "You can then use isinstance() and issubclass() to check whether an instance or a class implements a particular ABC.",
+          "memory_id": "technical:relation:20",
+          "object": "isinstance_and_issubclass",
+          "predicate": "implemented_with",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "abc_based_type_checks"
+        },
+        {
+          "canonical_predicate": "includes_or_contains",
+          "domain": "technical",
+          "evidence_quote": "The collections.abc module defines a set of useful ABCs such as Iterable, Container, and MutableMapping.",
+          "memory_id": "technical:relation:21",
+          "object": "iterable_container_mutablemapping",
+          "predicate": "includes",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "collections_abc_standard_interfaces"
+        },
+        {
+          "canonical_predicate": "provides",
+          "domain": "technical",
+          "evidence_quote": "A good test suite for a module can both provide a regression test and serve as a module interface specification and a set of examples.",
+          "memory_id": "technical:relation:22",
+          "object": "regression_tests",
+          "predicate": "provides",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "tests_as_interface_specification"
+        },
+        {
+          "canonical_predicate": "serves_as",
+          "domain": "technical",
+          "evidence_quote": "serve as a module interface specification and a set of examples.",
+          "memory_id": "technical:relation:23",
+          "object": "module_interface_examples",
+          "predicate": "serves_as",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "tests_as_interface_specification"
+        },
+        {
+          "canonical_predicate": "has_behavior",
+          "domain": "technical",
+          "evidence_quote": "Many Python modules can be run as a script to provide a simple “self test.”",
+          "memory_id": "technical:relation:24",
+          "object": "run_as_script_for_self_test",
+          "predicate": "behavior",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "self_testable_modules"
+        },
+        {
+          "canonical_predicate": "enables",
+          "domain": "technical",
+          "evidence_quote": "Even modules which use complex external interfaces can often be tested in isolation using trivial “stub” emulations of the external interface.",
+          "memory_id": "technical:relation:25",
+          "object": "isolation_of_complex_interface_modules",
+          "predicate": "enables",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "use_of_stub_emulations_in_testing"
+        },
+        {
+          "canonical_predicate": "used_to_construct",
+          "domain": "technical",
+          "evidence_quote": "The doctest and unittest modules or third-party test frameworks can be used to construct exhaustive test suites that exercise every line of code in a module.",
+          "memory_id": "technical:relation:26",
+          "object": "exhaustive_test_suites",
+          "predicate": "used_to_construct",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "python_testing_frameworks"
+        },
+        {
+          "canonical_predicate": "compares_identity_with",
+          "domain": "technical",
+          "evidence_quote": "An appropriate testing discipline can help build large complex applications in Python as well as having interface specifications would. In fact, it can be better because an interface specification cannot test certain properties of a program.",
+          "memory_id": "technical:relation:27",
+          "object": "formal_interface_specifications",
+          "predicate": "compared_to",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "testing_as_interface_enforcement"
+        },
+        {
+          "canonical_predicate": "illustrates",
+          "domain": "technical",
+          "evidence_quote": "an interface specification cannot test that your list.append() implementation will actually do this correctly, but it’s trivial to check this property in a test suite.",
+          "memory_id": "technical:relation:28",
+          "object": "testing_advantage_over_interface_specs",
+          "predicate": "illustrates",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "behavioral_property_testing_example"
+        },
+        {
+          "canonical_predicate": "calls_for",
+          "domain": "technical",
+          "evidence_quote": "One increasingly popular technique, test-driven development, calls for writing parts of the test suite first, before you write any of the actual code.",
+          "memory_id": "technical:relation:29",
+          "object": "writing_tests_before_code",
+          "predicate": "calls_for",
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "status": "reported_by_official_source",
+          "subject": "test_driven_development_in_python"
+        },
+        {
+          "canonical_predicate": "includes_or_contains",
+          "domain": "scientific",
+          "evidence_quote": "“Climate change” encompasses global warming, but refers to the broader range of changes that are happening to our planet",
+          "memory_id": "scientific:relation:0",
+          "object": "global_warming",
+          "predicate": "includes_process",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "climate_change"
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "evidence_quote": "“Climate change” encompasses global warming, but refers to the broader range of changes that are happening to our planet, including rising sea levels;",
+          "memory_id": "scientific:relation:1",
+          "object": "rising_sea_levels",
+          "predicate": "associated_with_effect",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "climate_change"
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "evidence_quote": "including rising sea levels; shrinking mountain glaciers;",
+          "memory_id": "scientific:relation:2",
+          "object": "shrinking_mountain_glaciers",
+          "predicate": "associated_with_effect",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "climate_change"
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "evidence_quote": "including rising sea levels; shrinking mountain glaciers; accelerating ice melt in Greenland, Antarctica and the Arctic;",
+          "memory_id": "scientific:relation:3",
+          "object": "accelerating_ice_melt_greenland_antarctica_arctic",
+          "predicate": "associated_with_effect",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "climate_change"
+        },
+        {
+          "canonical_predicate": "is_linked_to",
+          "domain": "scientific",
+          "evidence_quote": "including rising sea levels; shrinking mountain glaciers; accelerating ice melt in Greenland, Antarctica and the Arctic; and shifts in flower/plant blooming times.",
+          "memory_id": "scientific:relation:4",
+          "object": "shifts_in_flower_plant_blooming_times",
+          "predicate": "associated_with_effect",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "climate_change"
+        },
+        {
+          "canonical_predicate": "caused_by_substances",
+          "domain": "scientific",
+          "evidence_quote": "The greenhouse effect is the process through which heat is trapped near Earth's surface by substances known as 'greenhouse gases.'",
+          "memory_id": "scientific:relation:5",
+          "object": "greenhouse_gases",
+          "predicate": "caused_by_substances",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "greenhouse_effect"
+        },
+        {
+          "canonical_predicate": "acts_like",
+          "domain": "scientific",
+          "evidence_quote": "Imagine these gases as a cozy blanket enveloping our planet, helping to maintain a warmer temperature than it would have otherwise.",
+          "memory_id": "scientific:relation:6",
+          "object": "cozy_blanket_metaphor_for_greenhouse_gases",
+          "predicate": "acts_like",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "greenhouse_gases"
+        },
+        {
+          "canonical_predicate": "results_in_state",
+          "domain": "scientific",
+          "evidence_quote": "helping to maintain a warmer temperature than it would have otherwise.",
+          "memory_id": "scientific:relation:7",
+          "object": "warmer_temperature_near_surface",
+          "predicate": "results_in_state",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "greenhouse_effect"
+        },
+        {
+          "canonical_predicate": "includes_or_contains",
+          "domain": "scientific",
+          "evidence_quote": "Greenhouse gases consist of carbon dioxide, methane, ozone, nitrous oxide, chlorofluorocarbons, and water vapor.",
+          "memory_id": "scientific:relation:8",
+          "object": "greenhouse_gas_list",
+          "predicate": "consist_of",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "greenhouse_gases"
+        },
+        {
+          "canonical_predicate": "reacts_to",
+          "domain": "scientific",
+          "evidence_quote": "Water vapor, which reacts to temperature changes, is referred to as a 'feedback',",
+          "memory_id": "scientific:relation:9",
+          "object": "temperature_changes",
+          "predicate": "reacts_to",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "water_vapor_feedback"
+        },
+        {
+          "canonical_predicate": "amplifies",
+          "domain": "scientific",
+          "evidence_quote": "because it amplifies the effect of forces that initially caused the warming.",
+          "memory_id": "scientific:relation:10",
+          "object": "initial_warming_forces",
+          "predicate": "amplifies",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "water_vapor_feedback"
+        },
+        {
+          "canonical_predicate": "does_not_destroy",
+          "domain": "scientific",
+          "evidence_quote": "No, the original records are preserved and are available at no cost online.",
+          "memory_id": "scientific:relation:11",
+          "object": "original_records",
+          "predicate": "does_not_destroy",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "data_processing"
+        },
+        {
+          "canonical_predicate": "provided_by",
+          "domain": "scientific",
+          "evidence_quote": "You can access the National Climatic Data Center's (NCDC) U.S. and global records here.",
+          "memory_id": "scientific:relation:12",
+          "object": "national_climatic_data_center",
+          "predicate": "provided_by",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "ncdc_original_records"
+        },
+        {
+          "canonical_predicate": "maintained_by",
+          "domain": "scientific",
+          "evidence_quote": "Three of the world’s most complete temperature tracking records, maintained by NASA’s Goddard Institute for Space Studies, the National Oceanic and Atmospheric Administration’s National Climactic Data Center and the UK Meteorological Office’s Hadley Centre, begin in 1880.",
+          "memory_id": "scientific:relation:13",
+          "object": "nasa_goddard_institute_for_space_studies",
+          "predicate": "maintained_by",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "temperature_tracking_records_beginning_1880"
+        },
+        {
+          "canonical_predicate": "maintained_by",
+          "domain": "scientific",
+          "evidence_quote": "Three of the world’s most complete temperature tracking records, maintained by NASA’s Goddard Institute for Space Studies, the National Oceanic and Atmospheric Administration’s National Climactic Data Center and the UK Meteorological Office’s Hadley Centre, begin in 1880.",
+          "memory_id": "scientific:relation:14",
+          "object": "national_oceanic_and_atmospheric_administration_ncdc",
+          "predicate": "maintained_by",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "temperature_tracking_records_beginning_1880"
+        },
+        {
+          "canonical_predicate": "maintained_by",
+          "domain": "scientific",
+          "evidence_quote": "Three of the world’s most complete temperature tracking records, maintained by NASA’s Goddard Institute for Space Studies, the National Oceanic and Atmospheric Administration’s National Climactic Data Center and the UK Meteorological Office’s Hadley Centre, begin in 1880.",
+          "memory_id": "scientific:relation:15",
+          "object": "uk_meteorological_office_hadley_centre",
+          "predicate": "maintained_by",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "temperature_tracking_records_beginning_1880"
+        },
+        {
+          "canonical_predicate": "began_in_year",
+          "domain": "scientific",
+          "evidence_quote": "The oldest continuous temperature record is the Central England Temperature Data Series, which began in 1659,",
+          "memory_id": "scientific:relation:16",
+          "object": "1659",
+          "predicate": "began_in_year",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "central_england_temperature_data_series"
+        },
+        {
+          "canonical_predicate": "began_in_year",
+          "domain": "scientific",
+          "evidence_quote": "and the Hadley Centre has some measurements beginning in 1850,",
+          "memory_id": "scientific:relation:17",
+          "object": "1850",
+          "predicate": "began_in_year",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "hadley_centre_1850_measurements"
+        },
+        {
+          "canonical_predicate": "has_reason",
+          "domain": "scientific",
+          "evidence_quote": "but there are too few data before 1880 for scientists to estimate average temperatures for the entire planet.",
+          "memory_id": "scientific:relation:18",
+          "object": "too_few_data_before_1880",
+          "predicate": "reason",
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "status": "reported_by_official_source",
+          "subject": "global_average_temperature_estimation_limitation_pre_1880"
+        },
+        {
+          "canonical_predicate": "appointed",
+          "domain": "historical",
+          "evidence_quote": "They were appointed by the legislatures of the different States.",
+          "memory_id": "historical:relation:0",
+          "object": "deputies_to_the_constitutional_convention",
+          "predicate": "appointed",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source",
+          "subject": "state_legislatures_appointing_deputies"
+        },
+        {
+          "canonical_predicate": "did_not_send",
+          "domain": "historical",
+          "evidence_quote": "Rhode Island and Providence Plantations.",
+          "memory_id": "historical:relation:1",
+          "object": "deputies_to_the_constitutional_convention",
+          "predicate": "did_not_send",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source",
+          "subject": "rhode_island_and_providence_plantations"
+        },
+        {
+          "canonical_predicate": "is_from_state",
+          "domain": "historical",
+          "evidence_quote": "James Madison, of Virginia, because in point of erudition and actual contributions to the formation of the Constitution he was preeminent.",
+          "memory_id": "historical:relation:2",
+          "object": "virginia",
+          "predicate": "is_from_state",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source",
+          "subject": "james_madison_father_of_the_constitution"
+        },
+        {
+          "canonical_predicate": "drafted_in_fewer_than",
+          "domain": "historical",
+          "evidence_quote": "It was drafted in fewer than one hundred working days.",
+          "memory_id": "historical:relation:4",
+          "object": "one_hundred_working_days",
+          "predicate": "drafted_in_fewer_than",
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "status": "reported_by_official_source",
+          "subject": "constitution"
+        }
+      ],
+      "sources": {
+        "historical": {
+          "questions": 4,
+          "source_hash": "8f304e0a6b1830ec48a744eb5ad3b50ac601509bd70932145f7bb9aacc2c1273",
+          "title": "U.S. National Archives Constitution Questions and Answers",
+          "url": "https://www.archives.gov/founding-docs/constitution-q-and-a"
+        },
+        "scientific": {
+          "questions": 4,
+          "source_hash": "11246e0978cc7267ef9295fa99b2d7b662c80847b8c78f0b8db663715c9ab68d",
+          "title": "NASA Climate Change Questions",
+          "url": "https://science.nasa.gov/climate-change/faq/"
+        },
+        "technical": {
+          "questions": 4,
+          "source_hash": "e3b4745d7a496065d6968de6f114e74f430aefe19e55c424f0cd15566977970f",
+          "title": "Python Design and History FAQ",
+          "url": "https://docs.python.org/3/faq/design.html"
+        }
+      }
+    }
+  },
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "cross_domain_semantic_transfer_authority"
+    },
+    "reason": "cross_domain_semantic_transfer",
+    "state_hash": "ef13da3378618e7d94c8e69cd42ce04d667ffba462899317d8b94f55c6cc94d7"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "cold_control_memory_only_accuracy": 0.0,
+          "delayed_memory_only_accuracy": 0.9166666666666666,
+          "domains_with_prior_relation_reuse": 2,
+          "errors": [],
+          "externally_authored_questions": 12,
+          "invented_concepts": 46,
+          "invented_relations": 52,
+          "mapping_coverage": 1.0,
+          "mean_token_f1": 0.586285075179717,
+          "prior_canonical_relations_reused": 12,
+          "provenance_completeness": 1.0,
+          "reported_arguments": 15,
+          "restart_relearning": 0,
+          "software_documentation_bridge": true,
+          "source_domains": 3,
+          "source_rereads_during_delayed_evaluation": 0,
+          "unsafe_knowledge_commitments": 0,
+          "unsupported_abstention": 1.0,
+          "weakest_domain_accuracy": 0.75
+        },
+        "memory_id": "cross_domain_memory_94850013cfd11ac1"
+      },
+      "outcome_id": "outcome_6c7d903106764744",
+      "procedure_id": "procedure_cross_domain_semantic_transfer_58eae51b7d20",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.5833333333333333,
+      "success": true,
+      "timestamp": "2026-07-31T11:55:28.248232+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_cross_domain_semantic_transfer_58eae51b7d20": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "cold_control_memory_only_accuracy": 0.0,
+          "delayed_memory_only_accuracy": 0.9166666666666666,
+          "domains_with_prior_relation_reuse": 2,
+          "errors": [],
+          "externally_authored_questions": 12,
+          "invented_concepts": 46,
+          "invented_relations": 52,
+          "mapping_coverage": 1.0,
+          "mean_token_f1": 0.586285075179717,
+          "prior_canonical_relations_reused": 12,
+          "provenance_completeness": 1.0,
+          "reported_arguments": 15,
+          "restart_relearning": 0,
+          "software_documentation_bridge": true,
+          "source_domains": 3,
+          "source_rereads_during_delayed_evaluation": 0,
+          "unsafe_knowledge_commitments": 0,
+          "unsupported_abstention": 1.0,
+          "weakest_domain_accuracy": 0.75
+        },
+        "memory_id": "cross_domain_memory_94850013cfd11ac1"
+      },
+      "goal": "cross_domain_semantic_transfer",
+      "procedure_id": "procedure_cross_domain_semantic_transfer_58eae51b7d20",
+      "promoted_at": "2026-07-31T11:55:28.234859+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.5833333333333333,
+      "source_rules": [
+        "procedure_open_relation_argument_memory_189258f3d567"
+      ],
+      "status": "champion",
+      "steps": [
+        "ingest_source_disjoint_official_domains",
+        "invent_and_ground_open_semantic_structures",
+        "reuse_prior_relations_only_when_semantically_compatible",
+        "restart_and_close_all_sources",
+        "answer_externally_authored_questions_from_memory_only",
+        "abstain_on_unsupported_questions",
+        "apply_verified_technical_memory_to_software_test_reasoning"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "37e6066f466fef704109da43a133bf6953ea41ec9381992dff762a537a83778b",
+      "goal": "cross_domain_semantic_transfer",
+      "new_champion_id": "procedure_cross_domain_semantic_transfer_58eae51b7d20",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.5833333333333333,
+      "timestamp": "2026-07-31T11:55:28.234956+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "revision": 4,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_transfer_evaluations": [
+    {
+      "created_at": "2026-07-31T11:55:28.258737+00:00",
+      "gate": {
+        "accepted": true,
+        "cold_control_memory_only_accuracy": 0.0,
+        "delayed_memory_only_accuracy": 0.9166666666666666,
+        "domains_with_prior_relation_reuse": 2,
+        "errors": [],
+        "externally_authored_questions": 12,
+        "invented_concepts": 46,
+        "invented_relations": 52,
+        "mapping_coverage": 1.0,
+        "mean_token_f1": 0.586285075179717,
+        "prior_canonical_relations_reused": 12,
+        "provenance_completeness": 1.0,
+        "reported_arguments": 15,
+        "restart_relearning": 0,
+        "software_documentation_bridge": true,
+        "source_domains": 3,
+        "source_rereads_during_delayed_evaluation": 0,
+        "unsafe_knowledge_commitments": 0,
+        "unsupported_abstention": 1.0,
+        "weakest_domain_accuracy": 0.75
+      },
+      "memory_id": "cross_domain_memory_94850013cfd11ac1"
+    }
+  ],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T11:55:28.258778+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

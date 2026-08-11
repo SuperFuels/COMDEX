@@ -81,13 +81,14 @@ def test_phase23y_marketing_workspace_has_manual_and_pilot_tabs():
     assert "Pilot Marketing" in APP_JS
 
 
-def test_phase23y_marketing_branch_uses_shared_role_scoped_pilot_runtime():
+def test_phase23y_marketing_branch_uses_unified_operational_workspace():
     body = _live_agents_workspace_body()
     branch_start = body.index('if (departmentKey === "marketing")')
     finance_start = body.index('if (departmentKey === "finance")', branch_start)
     branch = body[branch_start:finance_start]
 
-    assert 'return renderAionDepartmentPilotRuntime("marketing", selectedRuns, scopedSelectedAgentCard);' in branch
+    assert "return renderPilotMarketingWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in branch
+    assert 'renderAionDepartmentPilotRuntime("marketing"' not in branch
 
 
 def test_phase23y_pilot_marketing_workspace_surfaces_pilot_outputs():
@@ -98,11 +99,12 @@ def test_phase23y_pilot_marketing_workspace_surfaces_pilot_outputs():
     assert "step_outputs" in APP_JS
 
 
-def test_phase23y_manual_workspace_preserves_existing_manual_generator_link():
+def test_phase23y_manual_workspace_is_consolidated_into_the_governed_studio():
     assert "function renderMarketingManualWorkspaceSurface" in APP_JS
-    assert "data-aion-open-manual-marketing-stream" in APP_JS
-    assert 'state.activeTab = "marketing_stream";' in APP_JS
-    assert "Open manual generator" in APP_JS
+    assert "return renderPilotMarketingWorkspaceSurface([], null);" in APP_JS
+    assert "renderMarketingStreamSurface({ embedded: true })" in APP_JS
+    assert 'data-aion-marketing-automation-studio="true"' in APP_JS
+    assert 'data-aion-marketing-creation-studio=' in APP_JS
 
 
 def test_phase23y_persistent_pilot_bar_can_start_task():

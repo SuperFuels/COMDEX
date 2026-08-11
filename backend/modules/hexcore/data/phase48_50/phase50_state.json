@@ -1,0 +1,630 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {
+    "phase50:public_project:000": {
+      "artifact": {
+        "artifact_hash": "a450952303e1ee1eb6e73be31f09c18f45f9b2c68e004a54c9ba9f72a250fb22",
+        "citations": [
+          {
+            "answer": "1606",
+            "content_sha256": "73afbad581995770bafda2ce0aebd8167d519734331003f9017bf02a85371773",
+            "record_id": "squad:0003:73afbad58199"
+          },
+          {
+            "answer": "Melbourne",
+            "content_sha256": "2f4205298894876b510bd47b3ec642ab534c15428a4b1df1010ece22c9c17979",
+            "record_id": "squad:0006:2f4205298894"
+          },
+          {
+            "answer": "Fresno Normal School",
+            "content_sha256": "7e9ee265449fa22688d3f8cc460a08187bf8f5ac34d69544390c50c250eb0448",
+            "record_id": "squad:0009:7e9ee265449f"
+          },
+          {
+            "answer": "O2",
+            "content_sha256": "fd80faaf43d6d56307f1567cba40b08ce93dcfb538d6704d48b9c014969757ef",
+            "record_id": "squad:0014:fd80faaf43d6"
+          }
+        ],
+        "claims": [
+          "1606",
+          "Melbourne",
+          "Fresno Normal School",
+          "O2"
+        ],
+        "unresolved": [],
+        "verified": true
+      },
+      "broad_goal": "Produce an evidence-backed briefing that resolves every supported question, discloses missing knowledge, and preserves exact sources.",
+      "dependency_graph": {
+        "resolve:squad:0003:73afbad58199": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0006:2f4205298894": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0009:7e9ee265449f": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0014:fd80faaf43d6": [
+          "assemble_briefing"
+        ]
+      },
+      "project_id": "phase50:public_project:000",
+      "schema_version": "aion.autonomous_knowledge_project.v1",
+      "status": "complete",
+      "subgoals": [
+        {
+          "evidence_record": "squad:0003:73afbad58199",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0003:73afbad58199",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0006:2f4205298894",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0006:2f4205298894",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0009:7e9ee265449f",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0009:7e9ee265449f",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0014:fd80faaf43d6",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0014:fd80faaf43d6",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "status": "complete",
+          "subgoal_id": "assemble_briefing",
+          "type": "synthesis"
+        }
+      ],
+      "success_criteria": [
+        "all accepted claims cite immutable evidence records",
+        "unsupported items remain explicitly unresolved",
+        "final artifact passes provenance audit"
+      ],
+      "trace": [
+        {
+          "event": "goal_interpreted"
+        },
+        {
+          "event": "dependency_graph_constructed"
+        },
+        {
+          "event": "evidence_retrieved"
+        },
+        {
+          "event": "artifact_verified"
+        }
+      ]
+    },
+    "phase50:public_project:001": {
+      "artifact": {
+        "artifact_hash": "540ceb947f810691e08ec518d62d9ba07e22701b7be61e3d6860f7f4f4d0cbba",
+        "citations": [
+          {
+            "answer": "Transform boundaries",
+            "content_sha256": "c8c47f5e5a648817ff11f913f97ee8b366aaf758a4bd7ff32582d54df2a8fa31",
+            "record_id": "squad:0015:c8c47f5e5a64"
+          },
+          {
+            "answer": "2011",
+            "content_sha256": "ec0145a8460051b10a8900bf9b7695d3054720a4e9802b0ca8152f7b919b72c6",
+            "record_id": "squad:0022:ec0145a84600"
+          },
+          {
+            "answer": "loss of soil fertility and weed invasion",
+            "content_sha256": "1e78d27475aecd3ec0eb73d6278e6a3cbe36d5f520963ba6b65f7dc7602a6dd3",
+            "record_id": "squad:0023:1e78d27475ae"
+          },
+          {
+            "answer": "Mortgage bankers, accountants, and cost engineers",
+            "content_sha256": "e32237eb13f46727755bd53347a189c0620b3ffff778cecbcd627a94fbebc022",
+            "record_id": "squad:0025:e32237eb13f4"
+          }
+        ],
+        "claims": [
+          "Transform boundaries",
+          "2011",
+          "loss of soil fertility and weed invasion",
+          "Mortgage bankers, accountants, and cost engineers"
+        ],
+        "unresolved": [],
+        "verified": true
+      },
+      "broad_goal": "Produce an evidence-backed briefing that resolves every supported question, discloses missing knowledge, and preserves exact sources.",
+      "dependency_graph": {
+        "resolve:squad:0015:c8c47f5e5a64": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0022:ec0145a84600": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0023:1e78d27475ae": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0025:e32237eb13f4": [
+          "assemble_briefing"
+        ]
+      },
+      "project_id": "phase50:public_project:001",
+      "schema_version": "aion.autonomous_knowledge_project.v1",
+      "status": "complete",
+      "subgoals": [
+        {
+          "evidence_record": "squad:0015:c8c47f5e5a64",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0015:c8c47f5e5a64",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0022:ec0145a84600",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0022:ec0145a84600",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0023:1e78d27475ae",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0023:1e78d27475ae",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0025:e32237eb13f4",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0025:e32237eb13f4",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "status": "complete",
+          "subgoal_id": "assemble_briefing",
+          "type": "synthesis"
+        }
+      ],
+      "success_criteria": [
+        "all accepted claims cite immutable evidence records",
+        "unsupported items remain explicitly unresolved",
+        "final artifact passes provenance audit"
+      ],
+      "trace": [
+        {
+          "event": "goal_interpreted"
+        },
+        {
+          "event": "dependency_graph_constructed"
+        },
+        {
+          "event": "evidence_retrieved"
+        },
+        {
+          "event": "artifact_verified"
+        }
+      ]
+    },
+    "phase50:public_project:002": {
+      "artifact": {
+        "artifact_hash": "4278bc1367ed9d818dd39765b554b70ec5e468d7388dc1bd2277c6c0b49abc89",
+        "citations": [
+          {
+            "answer": "Steymann v Staatssecretaris van Justitie",
+            "content_sha256": "9b37608c96e15deba5be60fd99f3bbf701e5b780225fc1b43915af95af47077c",
+            "record_id": "squad:0026:9b37608c96e1"
+          },
+          {
+            "answer": "Trio Tribe",
+            "content_sha256": "f4dabeabfa17830c3d2d8edab044167839ef11bb080d2f91289d80dffa01dc27",
+            "record_id": "squad:0027:f4dabeabfa17"
+          },
+          {
+            "answer": "Article 17(3)",
+            "content_sha256": "6cbc27f4f6c138ccfcb20b6f35d4cfadf8769e46c293c5a0c77d0edbf311f58d",
+            "record_id": "squad:0035:6cbc27f4f6c1"
+          },
+          {
+            "answer": "villes de sûreté",
+            "content_sha256": "385d26c2d9938088181ecd6b3120582d075635f9838e132747efaaf577e28109",
+            "record_id": "squad:0044:385d26c2d993"
+          }
+        ],
+        "claims": [
+          "Steymann v Staatssecretaris van Justitie",
+          "Trio Tribe",
+          "Article 17(3)",
+          "villes de sûreté"
+        ],
+        "unresolved": [],
+        "verified": true
+      },
+      "broad_goal": "Produce an evidence-backed briefing that resolves every supported question, discloses missing knowledge, and preserves exact sources.",
+      "dependency_graph": {
+        "resolve:squad:0026:9b37608c96e1": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0027:f4dabeabfa17": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0035:6cbc27f4f6c1": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0044:385d26c2d993": [
+          "assemble_briefing"
+        ]
+      },
+      "project_id": "phase50:public_project:002",
+      "schema_version": "aion.autonomous_knowledge_project.v1",
+      "status": "complete",
+      "subgoals": [
+        {
+          "evidence_record": "squad:0026:9b37608c96e1",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0026:9b37608c96e1",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0027:f4dabeabfa17",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0027:f4dabeabfa17",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0035:6cbc27f4f6c1",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0035:6cbc27f4f6c1",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0044:385d26c2d993",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0044:385d26c2d993",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "status": "complete",
+          "subgoal_id": "assemble_briefing",
+          "type": "synthesis"
+        }
+      ],
+      "success_criteria": [
+        "all accepted claims cite immutable evidence records",
+        "unsupported items remain explicitly unresolved",
+        "final artifact passes provenance audit"
+      ],
+      "trace": [
+        {
+          "event": "goal_interpreted"
+        },
+        {
+          "event": "dependency_graph_constructed"
+        },
+        {
+          "event": "evidence_retrieved"
+        },
+        {
+          "event": "artifact_verified"
+        }
+      ]
+    },
+    "phase50:public_project:003": {
+      "artifact": {
+        "artifact_hash": "167018a375bf64ecc27782a7bb2bf5d64d531b8c033198da581722c1d1e3af9d",
+        "citations": [
+          {
+            "answer": "267",
+            "content_sha256": "30b96d00b6abd2b913c23d97aa914ef7cf8a50107f4b66ea802e13359d9c0d58",
+            "record_id": "squad:0046:30b96d00b6ab"
+          },
+          {
+            "answer": "automation",
+            "content_sha256": "dbfbff5b6105a52bac9a00a207444dd2cba3a97e33a1d1a82edb0389f6cac1e9",
+            "record_id": "squad:0047:dbfbff5b6105"
+          },
+          {
+            "answer": "African-American",
+            "content_sha256": "891950705a403bc6367740ae6d2db4901c0b1890a28fc1726ed1f707a2909c32",
+            "record_id": "squad:0050:891950705a40"
+          },
+          {
+            "answer": "Brazil",
+            "content_sha256": "c7c7ec362f0439a4c9ad1edead0e0f7505b22fd24ce7be23b8711356cdcda6a3",
+            "record_id": "squad:0051:c7c7ec362f04"
+          }
+        ],
+        "claims": [
+          "267",
+          "automation",
+          "African-American",
+          "Brazil"
+        ],
+        "unresolved": [],
+        "verified": true
+      },
+      "broad_goal": "Produce an evidence-backed briefing that resolves every supported question, discloses missing knowledge, and preserves exact sources.",
+      "dependency_graph": {
+        "resolve:squad:0046:30b96d00b6ab": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0047:dbfbff5b6105": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0050:891950705a40": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0051:c7c7ec362f04": [
+          "assemble_briefing"
+        ]
+      },
+      "project_id": "phase50:public_project:003",
+      "schema_version": "aion.autonomous_knowledge_project.v1",
+      "status": "complete",
+      "subgoals": [
+        {
+          "evidence_record": "squad:0046:30b96d00b6ab",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0046:30b96d00b6ab",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0047:dbfbff5b6105",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0047:dbfbff5b6105",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0050:891950705a40",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0050:891950705a40",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0051:c7c7ec362f04",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0051:c7c7ec362f04",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "status": "complete",
+          "subgoal_id": "assemble_briefing",
+          "type": "synthesis"
+        }
+      ],
+      "success_criteria": [
+        "all accepted claims cite immutable evidence records",
+        "unsupported items remain explicitly unresolved",
+        "final artifact passes provenance audit"
+      ],
+      "trace": [
+        {
+          "event": "goal_interpreted"
+        },
+        {
+          "event": "dependency_graph_constructed"
+        },
+        {
+          "event": "evidence_retrieved"
+        },
+        {
+          "event": "artifact_verified"
+        }
+      ]
+    },
+    "phase50:public_project:004": {
+      "artifact": {
+        "artifact_hash": "7e4ed4dfb3b0f0803657fae6f40089c4c1670eb8b9d143f6f909506d46ead0e0",
+        "citations": [
+          {
+            "answer": "closed Huguenot schools",
+            "content_sha256": "291631d73d5dcdb57b0941017d7b1ab7a9501e869a33f4c995211b70c5487c88",
+            "record_id": "squad:0052:291631d73d5d"
+          },
+          {
+            "answer": "Pedro Menéndez de Avilés",
+            "content_sha256": "9867017bbd82b6ead270fd4186419e6e4523be5168798139a5848593a87e9cb4",
+            "record_id": "squad:0054:9867017bbd82"
+          },
+          {
+            "answer": "the owner",
+            "content_sha256": "083e9d9d0cfbbf2b79a24cc1f179a5db6a5e51a410187c56fa5c8d726cd26992",
+            "record_id": "squad:0059:083e9d9d0cfb"
+          }
+        ],
+        "claims": [
+          "closed Huguenot schools",
+          "Pedro Menéndez de Avilés",
+          "the owner"
+        ],
+        "unresolved": [],
+        "verified": true
+      },
+      "broad_goal": "Produce an evidence-backed briefing that resolves every supported question, discloses missing knowledge, and preserves exact sources.",
+      "dependency_graph": {
+        "resolve:squad:0052:291631d73d5d": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0054:9867017bbd82": [
+          "assemble_briefing"
+        ],
+        "resolve:squad:0059:083e9d9d0cfb": [
+          "assemble_briefing"
+        ]
+      },
+      "project_id": "phase50:public_project:004",
+      "schema_version": "aion.autonomous_knowledge_project.v1",
+      "status": "complete",
+      "subgoals": [
+        {
+          "evidence_record": "squad:0052:291631d73d5d",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0052:291631d73d5d",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0054:9867017bbd82",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0054:9867017bbd82",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "evidence_record": "squad:0059:083e9d9d0cfb",
+          "status": "complete",
+          "subgoal_id": "resolve:squad:0059:083e9d9d0cfb",
+          "type": "retrieve_and_verify_claim"
+        },
+        {
+          "status": "complete",
+          "subgoal_id": "assemble_briefing",
+          "type": "synthesis"
+        }
+      ],
+      "success_criteria": [
+        "all accepted claims cite immutable evidence records",
+        "unsupported items remain explicitly unresolved",
+        "final artifact passes provenance audit"
+      ],
+      "trace": [
+        {
+          "event": "goal_interpreted"
+        },
+        {
+          "event": "dependency_graph_constructed"
+        },
+        {
+          "event": "evidence_retrieved"
+        },
+        {
+          "event": "artifact_verified"
+        }
+      ]
+    }
+  },
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "autonomous_knowledge_projects": "procedure_autonomous_project_v2_8b874b0cc948"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase48_50_public_external_authority"
+    },
+    "reason": "phase50_autonomous_project_promotion",
+    "state_hash": "e5476b6d2ce5c4b892c259baba23c795131f0757047cc2b9d9bd23ef7acf79e4"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multimodal_evidence_projects": {},
+  "neural_consolidation": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_world_projects": {},
+  "outcomes": [],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_autonomous_project_v2_8b874b0cc948": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "artifact_verification": 1.0,
+          "citation_completeness": 1.0,
+          "dynamic_subgoal_graphs": 1.0,
+          "errors": [],
+          "forced_restarts": 10,
+          "project_completion": 1.0,
+          "projects": 5,
+          "restart_recovery": 1.0,
+          "unsafe_external_actions": 0
+        }
+      },
+      "goal": "autonomous_knowledge_projects",
+      "procedure_id": "procedure_autonomous_project_v2_8b874b0cc948",
+      "promoted_at": "2026-07-30T09:39:59.737814+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 2.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "interpret_broad_goal",
+        "invent_success_criteria",
+        "construct_dependency_graph",
+        "retrieve_verified_knowledge",
+        "execute_with_restart_recovery",
+        "audit_and_close"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "6188c6a0c0b87dfa34a8c3a578063e220a08d21074f09c61c778564a715a272d",
+      "goal": "autonomous_knowledge_projects",
+      "new_champion_id": "procedure_autonomous_project_v2_8b874b0cc948",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 2.0,
+      "timestamp": "2026-07-30T09:39:59.737825+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "relation_models": {},
+  "revision": 12,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T09:39:59.738917+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_rules": {}
+}

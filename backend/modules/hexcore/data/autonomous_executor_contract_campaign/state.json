@@ -1,0 +1,427 @@
+{
+  "episodes": [
+    {
+      "authority": "local_executable:cargo",
+      "episode": 1,
+      "executor_contract": null,
+      "gate": "autonomous_curriculum",
+      "generation": {
+        "closed_at": "2026-08-01T06:41:21.842388+00:00",
+        "compounding_delta": 0.0,
+        "curriculum_tasks": 4,
+        "generation": 4,
+        "mean_score": 1.0,
+        "retained_outcomes": 1,
+        "transfer_families": [
+          "public_change_monitoring",
+          "transactional_data_integrity"
+        ],
+        "verified_outcomes": 2
+      },
+      "outcome": {
+        "authorities": [
+          "local_executable:cargo",
+          "local_executable:rustc"
+        ],
+        "capabilities": [
+          "authorize_immutable_mastery_mission",
+          "recover_primary_compiler_explanations",
+          "construct_private_multifile_crates",
+          "invent_and_execute_self_tests",
+          "repair_from_public_compiler_criticism",
+          "open_hidden_tests_after_candidate_selection",
+          "transfer_to_renamed_project",
+          "reconstruct_and_test_retention_without_source_replay"
+        ],
+        "independent_outcomes": 4,
+        "live_writes": 0,
+        "passed": true,
+        "procedure_id": "procedure_real_rust_apprenticeship_v1",
+        "result_hash": "4720366cb2b083d52b1716933a4813bdc5f87056fb235d6fab64978898726ad4",
+        "retention_verified": false,
+        "summary": {
+          "accepted": true,
+          "development_success": 1.0,
+          "hidden_authority_success": 1.0,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "multi_file_projects": 4,
+          "objective_mutations": 0,
+          "official_resources_available": true,
+          "restart_projects_retained": 4,
+          "restart_retention_success": 1.0,
+          "self_test_minimum": 3,
+          "source_disjoint_transfer_success": 1.0,
+          "source_replay_into_retention": 0,
+          "unsafe_candidates_executed": 0,
+          "verified_projects": 4
+        },
+        "transfer_family": "compiler_grounded_systems_engineering",
+        "unsafe_actions": 0
+      },
+      "receipt": {
+        "authority_id": "local_executable:cargo",
+        "gate": "autonomous_curriculum",
+        "outcome_hash": "b6b3fb1c97f8522c8463fcf37d2396d076ddc9ccc030d16875f5bf1e2d29ad35",
+        "receipt_id": "receipt_ee1c6967dfe7629e",
+        "recorded_at": "2026-08-01T06:41:21.828347+00:00",
+        "retention_verified": false,
+        "score": 0.0,
+        "task_id": "apprentice_16155758769f123b",
+        "transfer_family": "compiler_grounded_systems_engineering",
+        "verified": false
+      },
+      "recorded_at": "2026-08-01T06:41:21.856470+00:00",
+      "status": "rejected",
+      "task_id": "apprentice_16155758769f123b"
+    },
+    {
+      "authority": "local_executable:cargo",
+      "episode": 2,
+      "executor_contract": {
+        "authorities": [
+          "local_executable:cargo",
+          "local_executable:rustc"
+        ],
+        "capabilities": [
+          "authorize_immutable_mastery_mission",
+          "construct_private_curriculum",
+          "construct_private_multifile_crates",
+          "execute_public_criticism",
+          "invent_and_execute_self_tests",
+          "open_hidden_outcome_after_selection",
+          "open_hidden_tests_after_candidate_selection",
+          "reconstruct_and_retest",
+          "reconstruct_and_test_retention_without_source_replay",
+          "recover_authority_contract",
+          "recover_primary_compiler_explanations",
+          "repair_from_public_compiler_criticism",
+          "transfer_to_renamed_project",
+          "transfer_to_unfamiliar_family"
+        ],
+        "contract_hash": "72f582b1b3dfe8c2fdedcc662abdfa5691f760edf796d6f0c4fb1c8049e870da",
+        "gate": "autonomous_curriculum",
+        "input_features": [
+          "available_verified_method_cards",
+          "gate:autonomous_curriculum",
+          "installed_outcome_authority",
+          "restart_retention_required",
+          "source_disjoint_transfer_required",
+          "unfamiliar_objective"
+        ],
+        "procedure_id": "procedure_executor_2c9d7974ff9960f7061b",
+        "proposal_only": true,
+        "receipt_id": "receipt_03dff9695c1d932e",
+        "registered_at": "2026-08-01T06:42:39.269261+00:00",
+        "task_id": "apprentice_16155758769f123b",
+        "transfer_families": [
+          "compiler_grounded_systems_engineering"
+        ]
+      },
+      "gate": "autonomous_curriculum",
+      "generation": {
+        "closed_at": "2026-08-01T06:42:39.283480+00:00",
+        "compounding_delta": 0.0,
+        "curriculum_tasks": 4,
+        "generation": 5,
+        "mean_score": 1.0,
+        "retained_outcomes": 2,
+        "transfer_families": [
+          "compiler_grounded_systems_engineering",
+          "public_change_monitoring",
+          "transactional_data_integrity"
+        ],
+        "verified_outcomes": 3
+      },
+      "outcome": {
+        "authorities": [
+          "local_executable:cargo",
+          "local_executable:rustc"
+        ],
+        "capabilities": [
+          "authorize_immutable_mastery_mission",
+          "recover_primary_compiler_explanations",
+          "construct_private_multifile_crates",
+          "invent_and_execute_self_tests",
+          "repair_from_public_compiler_criticism",
+          "open_hidden_tests_after_candidate_selection",
+          "transfer_to_renamed_project",
+          "reconstruct_and_test_retention_without_source_replay"
+        ],
+        "independent_outcomes": 4,
+        "live_writes": 0,
+        "passed": true,
+        "procedure_id": "procedure_real_rust_apprenticeship_v1",
+        "result_hash": "22952e48886da6835342171e2693b47af05376b8b71f89cd5762b853937a8d92",
+        "retention_verified": true,
+        "summary": {
+          "accepted": true,
+          "development_success": 1.0,
+          "hidden_authority_success": 1.0,
+          "live_repository_writes": 0,
+          "malicious_variants_rejected": 6,
+          "malicious_variants_total": 6,
+          "multi_file_projects": 4,
+          "objective_mutations": 0,
+          "official_resources_available": true,
+          "restart_projects_retained": 4,
+          "restart_retention_success": 1.0,
+          "self_test_minimum": 3,
+          "source_disjoint_transfer_success": 1.0,
+          "source_replay_into_retention": 0,
+          "unsafe_candidates_executed": 0,
+          "verified_projects": 4
+        },
+        "transfer_family": "compiler_grounded_systems_engineering",
+        "unsafe_actions": 0
+      },
+      "receipt": {
+        "authority_id": "local_executable:cargo",
+        "gate": "autonomous_curriculum",
+        "outcome_hash": "11d4a2b5c8ce61aad4de500d2b15fc6d96f7af24fd5ba6e62d39e54ac46c872c",
+        "receipt_id": "receipt_03dff9695c1d932e",
+        "recorded_at": "2026-08-01T06:42:39.253875+00:00",
+        "retention_verified": true,
+        "score": 1.0,
+        "task_id": "apprentice_16155758769f123b",
+        "transfer_family": "compiler_grounded_systems_engineering",
+        "verified": true
+      },
+      "recorded_at": "2026-08-01T06:42:39.296859+00:00",
+      "status": "verified",
+      "task_id": "apprentice_16155758769f123b"
+    },
+    {
+      "authority": "cau_verified_artifact_store",
+      "episode": 3,
+      "recorded_at": "2026-08-01T06:42:39.939043+00:00",
+      "status": "needs_new_safe_execution_adapter",
+      "task_id": "apprentice_c5867e70cea284b4"
+    },
+    {
+      "authority": "local_executable:node",
+      "episode": 4,
+      "executor_contract": {
+        "authorities": [
+          "local_executable:node"
+        ],
+        "capabilities": [
+          "acquire_python_javascript_and_typescript_execution_paths",
+          "compile_or_syntax_check_in_private_workspaces",
+          "construct_private_curriculum",
+          "execute_properties_under_three_process_seeds",
+          "execute_public_criticism",
+          "open_hidden_outcome_after_selection",
+          "read_language_manifests_and_module_contracts",
+          "reconstruct_and_retest",
+          "recover_authority_contract",
+          "reject_language_specific_counterexamples",
+          "transfer_to_unfamiliar_family"
+        ],
+        "contract_hash": "1b8f33df189116281770a1565fabc51719eb37c45b9e76d9d962c4d587050723",
+        "gate": "cross_domain_transfer",
+        "input_features": [
+          "available_verified_method_cards",
+          "gate:cross_domain_transfer",
+          "installed_outcome_authority",
+          "restart_retention_required",
+          "source_disjoint_transfer_required",
+          "unfamiliar_objective"
+        ],
+        "procedure_id": "procedure_executor_2a57cef22300c1767e1c",
+        "proposal_only": true,
+        "receipt_id": "receipt_38d72a16ba9036a7",
+        "registered_at": "2026-08-01T06:43:56.002229+00:00",
+        "task_id": "apprentice_6407d9de4356d46f",
+        "transfer_families": [
+          "event_driven_polyglot_execution"
+        ]
+      },
+      "gate": "cross_domain_transfer",
+      "generation": {
+        "closed_at": "2026-08-01T06:43:56.016124+00:00",
+        "compounding_delta": 0.0,
+        "curriculum_tasks": 6,
+        "generation": 6,
+        "mean_score": 1.0,
+        "retained_outcomes": 3,
+        "transfer_families": [
+          "compiler_grounded_systems_engineering",
+          "event_driven_polyglot_execution",
+          "public_change_monitoring",
+          "transactional_data_integrity"
+        ],
+        "verified_outcomes": 4
+      },
+      "outcome": {
+        "authorities": [
+          "local_executable:node"
+        ],
+        "capabilities": [
+          "read_language_manifests_and_module_contracts",
+          "acquire_python_javascript_and_typescript_execution_paths",
+          "compile_or_syntax_check_in_private_workspaces",
+          "execute_properties_under_three_process_seeds",
+          "reject_language_specific_counterexamples"
+        ],
+        "independent_outcomes": 2,
+        "live_writes": 0,
+        "passed": true,
+        "procedure_id": "procedure_polyglot_execution_contract_536b0c767619",
+        "result_hash": "3c09fa5c1bbfed51672c0c15bdd6af0d9b6a9b283ebe4a644f9d2228cf759518",
+        "retention_verified": true,
+        "summary": {
+          "accepted": true,
+          "all_targets_passed": true,
+          "counterexamples": 4,
+          "counterexamples_rejected": 4,
+          "errors": [],
+          "execution_targets": 5,
+          "five_independent_repositories_met": false,
+          "independent_repository_families": 4,
+          "language_names": [
+            "javascript",
+            "python",
+            "typescript"
+          ],
+          "languages": 3,
+          "project_families": 5,
+          "three_seed_javascript_stability": true,
+          "three_seed_typescript_stability": true,
+          "unsafe_live_writes": 0,
+          "weakest_target_success": 1.0
+        },
+        "transfer_family": "event_driven_polyglot_execution",
+        "unsafe_actions": 0
+      },
+      "receipt": {
+        "authority_id": "local_executable:node",
+        "gate": "cross_domain_transfer",
+        "outcome_hash": "bb075bb6329674c20bb33b11fe3b7cca699cd6dbdaa1796bbbf03c0336e583ff",
+        "receipt_id": "receipt_38d72a16ba9036a7",
+        "recorded_at": "2026-08-01T06:43:55.988930+00:00",
+        "retention_verified": true,
+        "score": 1.0,
+        "task_id": "apprentice_6407d9de4356d46f",
+        "transfer_family": "event_driven_polyglot_execution",
+        "verified": true
+      },
+      "recorded_at": "2026-08-01T06:43:56.029185+00:00",
+      "status": "verified",
+      "task_id": "apprentice_6407d9de4356d46f"
+    },
+    {
+      "authority": "local_executable:sqlite3",
+      "episode": 5,
+      "executor_contract": {
+        "authorities": [
+          "local_executable:sqlite3"
+        ],
+        "capabilities": [
+          "choose_technology_from_measured_costs",
+          "construct_multi_file_rust_with_trait_errors_and_shared_state",
+          "construct_private_curriculum",
+          "construct_reversible_sql_migrations",
+          "execute_public_criticism",
+          "implement_one_workload_in_rust_and_python",
+          "inject_concurrency_atomicity_and_overflow_authority_tests",
+          "open_hidden_outcome_after_selection",
+          "reconstruct_and_retest",
+          "recover_authority_contract",
+          "reject_unsafe_constructs_before_execution",
+          "transfer_to_unfamiliar_family",
+          "verify_rollback_writer_isolation_and_query_plans"
+        ],
+        "contract_hash": "af0f7c8d98e528d1e30f9cce8aeba02f329c0fe8ae0174d003db6b1ba764ef31",
+        "gate": "compounding_self_improvement",
+        "input_features": [
+          "available_verified_method_cards",
+          "gate:compounding_self_improvement",
+          "installed_outcome_authority",
+          "restart_retention_required",
+          "source_disjoint_transfer_required",
+          "unfamiliar_objective"
+        ],
+        "procedure_id": "procedure_executor_1edd5e4b2bc53b3b540c",
+        "proposal_only": true,
+        "receipt_id": "receipt_5871bd98460d89ba",
+        "registered_at": "2026-08-01T06:43:59.206900+00:00",
+        "task_id": "apprentice_97bd0cc45d2ab18f",
+        "transfer_families": [
+          "transactional_schema_and_measurement_reasoning"
+        ]
+      },
+      "gate": "compounding_self_improvement",
+      "generation": {
+        "closed_at": "2026-08-01T06:43:59.220030+00:00",
+        "compounding_delta": 0.0,
+        "curriculum_tasks": 7,
+        "generation": 7,
+        "mean_score": 1.0,
+        "retained_outcomes": 4,
+        "transfer_families": [
+          "compiler_grounded_systems_engineering",
+          "event_driven_polyglot_execution",
+          "public_change_monitoring",
+          "transactional_data_integrity",
+          "transactional_schema_and_measurement_reasoning"
+        ],
+        "verified_outcomes": 5
+      },
+      "outcome": {
+        "authorities": [
+          "local_executable:sqlite3"
+        ],
+        "capabilities": [
+          "construct_multi_file_rust_with_trait_errors_and_shared_state",
+          "inject_concurrency_atomicity_and_overflow_authority_tests",
+          "construct_reversible_sql_migrations",
+          "verify_rollback_writer_isolation_and_query_plans",
+          "implement_one_workload_in_rust_and_python",
+          "choose_technology_from_measured_costs",
+          "reject_unsafe_constructs_before_execution"
+        ],
+        "independent_outcomes": 14,
+        "live_writes": 0,
+        "passed": true,
+        "procedure_id": "procedure_rust_sql_systems_depth_and_measured_selection_97a48e241cb7",
+        "result_hash": "af47986d3d519a530adf1c08c2f42b884792be227845ddc8e4cb0c5b959a8334",
+        "retention_verified": true,
+        "summary": {
+          "accepted": true,
+          "errors": [],
+          "live_repository_writes": 0,
+          "matched_stack_correctness": true,
+          "measurement_based_selection_accuracy": 1.0,
+          "multi_file_rust_depth": true,
+          "selection_explanations_complete": true,
+          "sql_migration_depth": true,
+          "unsafe_programs_executed": 0,
+          "unsafe_rust_rejected": 3,
+          "unsafe_sql_rejected": 3
+        },
+        "transfer_family": "transactional_schema_and_measurement_reasoning",
+        "unsafe_actions": 0
+      },
+      "receipt": {
+        "authority_id": "local_executable:sqlite3",
+        "gate": "compounding_self_improvement",
+        "outcome_hash": "451e008bf73d31b61e0bd21c179b255700f97666cb7cc306db57cce112f8ef48",
+        "receipt_id": "receipt_5871bd98460d89ba",
+        "recorded_at": "2026-08-01T06:43:59.193668+00:00",
+        "retention_verified": true,
+        "score": 1.0,
+        "task_id": "apprentice_97bd0cc45d2ab18f",
+        "transfer_family": "transactional_schema_and_measurement_reasoning",
+        "verified": true
+      },
+      "recorded_at": "2026-08-01T06:43:59.233129+00:00",
+      "status": "verified",
+      "task_id": "apprentice_97bd0cc45d2ab18f"
+    }
+  ],
+  "schema_version": "aion.hexcore.autonomous_executor_contract_campaign.v1",
+  "started_at": "2026-08-01T06:41:09.412429+00:00",
+  "updated_at": "2026-08-01T06:44:56.891590+00:00"
+}

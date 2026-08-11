@@ -1,0 +1,37 @@
+{
+  "properties": {
+    "SPARSE_BOUNDARY_CONTAMINATION_STABILITY": {
+      "authority": "procedure_delayed_property_critic_runtime_promotion_v1",
+      "capability_class": "pure_metamorphic_critic",
+      "promoted_at": "2026-08-02T00:06:24.804600+00:00",
+      "spec": {
+        "ambient_authority": [],
+        "capability_class": "pure_metamorphic_critic",
+        "minimum_observations": 5,
+        "property_id": "SPARSE_BOUNDARY_CONTAMINATION_STABILITY",
+        "relation": {
+          "maximum_normalized_delta": 0.25,
+          "op": "normalized_output_stability"
+        },
+        "transformation": {
+          "direction": "last",
+          "magnitude_ratio": 993,
+          "op": "replace_one_observation",
+          "selector": "witnessed_boundary"
+        }
+      },
+      "spec_sha256": "bd108fd178547e9087146b53cea7c3d14e02ec9186ca17b5d9dbe8e9ec8cda30",
+      "verified_authorities": [
+        "World Bank GDP",
+        "FRED GDP",
+        "NOAA temperature",
+        "Treasury exchange rates"
+      ],
+      "verified_families": [
+        "location",
+        "trend"
+      ]
+    }
+  },
+  "schema_version": "aion.property_critic_registry.v1"
+}

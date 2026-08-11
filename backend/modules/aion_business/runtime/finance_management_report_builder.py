@@ -288,8 +288,14 @@ def build_finance_management_report(
     values = {key: _first(current, aliases) for key, _label, aliases, _format in METRICS}
     artifact_values, artifact_conflicts = _accepted_artifact_values(financial)
     for key, artifact_value in artifact_values.items():
-        if values[key][0] is None:
-            values[key] = artifact_value
+        # Accepted accounting evidence outranks free-text discovery metrics.
+        # Previously a parsed founder sentence could override the workbook that
+        # the founder had explicitly reviewed and accepted.
+        values[key] = artifact_value
+    if "revenue" in artifact_values and "gross_profit" in artifact_values:
+        values["gross_margin_percent"] = (None, None)
+    if "revenue" in artifact_values and "operating_profit" in artifact_values:
+        values["operating_margin_percent"] = (None, None)
     budget_pairs = {key: _first(budget, aliases) for key, _label, aliases, _format in METRICS}
     previous_pairs = {key: _first(previous, aliases) for key, _label, aliases, _format in METRICS}
     derived = _derive_values(values)

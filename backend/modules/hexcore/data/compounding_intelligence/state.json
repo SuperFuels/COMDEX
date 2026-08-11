@@ -1,0 +1,189 @@
+{
+  "active_campaigns": [
+    {
+      "campaign_id": "reliable_dependency_service",
+      "commitment_sha256": "a5613edaea1c379f48a3945afc85eaeb86ed73e7c0b76a5e528eb6fe34a6ae5c",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Build and falsify a dependency service that remains correct under cycles, retries and partial failure.",
+      "required_subjects": [
+        "algorithms_data_structures",
+        "software_engineering"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "algorithms_data_structures"
+    },
+    {
+      "campaign_id": "formal_empirical_model",
+      "commitment_sha256": "ece6061a433b558782c89aee60a9b30c775aeecac5c66b6088e3f6c31e954e5a",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Derive a mathematical model, design a falsifying experiment and revise it under conflicting measurements.",
+      "required_subjects": [
+        "mathematics",
+        "scientific_method"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "mathematics"
+    },
+    {
+      "campaign_id": "ambiguous_software_mission",
+      "commitment_sha256": "35a38f051cf3290d0bfae31be33d09042dee0e3421eb4f97f0d4f6f0c2b34a68",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Resolve an ambiguous natural-language software mission, state assumptions and implement only the verified interpretation.",
+      "required_subjects": [
+        "english",
+        "software_engineering"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "english"
+    },
+    {
+      "campaign_id": "reproducible_python_science",
+      "commitment_sha256": "0cd0bf3b4ae5687e9869fe737acc7c19a8962e201bd9c3d03f8289f5dc5b6bf7",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Create a reproducible Python investigation whose causal conclusion survives counterexamples and fresh execution.",
+      "required_subjects": [
+        "python",
+        "scientific_method"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "python"
+    },
+    {
+      "campaign_id": "algorithmic_proof_and_measurement",
+      "commitment_sha256": "ebb969cd9d2c12f7d578a1697d48b80a86a02448333a24935d200993520d2e49",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Prove an algorithmic invariant and compare its predicted complexity with independently measured growth.",
+      "required_subjects": [
+        "algorithms_data_structures",
+        "mathematics"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "mathematics"
+    },
+    {
+      "campaign_id": "evidence_bound_explanation",
+      "commitment_sha256": "b9958855c075b613027c6f6c3e1d45d54c1986baf39565aeae2f07b3da00c4b3",
+      "competency_award": false,
+      "functional_memory_ready": true,
+      "missing_practical_repetitions": [],
+      "objective": "Investigate a disputed technical claim and produce a clear explanation that separates evidence, inference and uncertainty.",
+      "required_subjects": [
+        "english",
+        "scientific_method"
+      ],
+      "status": "ACTIVE",
+      "success_contract": [
+        "fresh executable or independently revealed outcome",
+        "at least two falsifying counterexamples",
+        "source-disjoint transfer",
+        "failure attribution before revision",
+        "delayed capsule-only reconstruction"
+      ],
+      "weakest_subject": "english"
+    }
+  ],
+  "generations": [
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T08:09:24.563567+00:00",
+      "functional_reconstructions": 6,
+      "generation": 1,
+      "source_hash": "5bdf02a6bf64db9e6e33181c292dabf9fade216acee727b7549355635ac75996",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T08:12:01.834113+00:00",
+      "functional_reconstructions": 6,
+      "generation": 2,
+      "source_hash": "31aed4426887f4599d2c2b3f9c54a4d03592a162a23a4d2c4a0a75d37f9570f7",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T09:53:03.643630+00:00",
+      "functional_reconstructions": 6,
+      "generation": 3,
+      "source_hash": "d875b4f09875d1fe2d24454f4b675d97004f7ce8e007eecc6db66c1a425fd889",
+      "substrate": "deterministic_control_retained"
+    },
+    {
+      "active_campaigns": 6,
+      "created_at": "2026-08-02T10:03:19.391130+00:00",
+      "functional_reconstructions": 6,
+      "generation": 4,
+      "source_hash": "115621813ae38895dfa42ed59b9709ea66c727da27b4ee91da884e55624c1725",
+      "substrate": "deterministic_control_retained"
+    }
+  ],
+  "next_compounding_action": {
+    "campaign_id": "algorithmic_proof_and_measurement",
+    "commitment_sha256": "ebb969cd9d2c12f7d578a1697d48b80a86a02448333a24935d200993520d2e49",
+    "competency_award": false,
+    "functional_memory_ready": true,
+    "missing_practical_repetitions": [],
+    "objective": "Prove an algorithmic invariant and compare its predicted complexity with independently measured growth.",
+    "required_subjects": [
+      "algorithms_data_structures",
+      "mathematics"
+    ],
+    "status": "ACTIVE",
+    "success_contract": [
+      "fresh executable or independently revealed outcome",
+      "at least two falsifying counterexamples",
+      "source-disjoint transfer",
+      "failure attribution before revision",
+      "delayed capsule-only reconstruction"
+    ],
+    "weakest_subject": "mathematics"
+  },
+  "procedure_id": "procedure_compounding_intelligence_engine_v1",
+  "schema_version": "aion.hexcore.compounding_intelligence_state.v1",
+  "status": "PROMOTED_CONTROL_PLANE",
+  "updated_at": "2026-08-11T05:26:52.371762+00:00"
+}

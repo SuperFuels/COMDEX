@@ -2002,6 +2002,16 @@
     if (value == null || typeof value !== "object") return null;
 
     var next = asObject(value);
+    // The old implementation cloned `next` wholesale, including its previous
+    // `raw` member. Each normalization embedded the complete prior payload
+    // inside the next one, growing the local cache recursively until the
+    // renderer exhausted memory. Preserve useful non-recursive source fields
+    // while explicitly excluding recovery wrappers.
+    var rawSource = {};
+    Object.keys(next).forEach(function (key) {
+      if (key === "raw" || key === "recoveryPayload" || key === "recovery_payload") return;
+      rawSource[key] = next[key];
+    });
     var resolvedWorkspaceId = firstDefined(next.workspaceId, next.workspace_id, next.active_workspace_id, DEFAULTS.workspaceId);
     var resolvedNodeId = firstDefined(next.nodeId, next.node_id, DEFAULTS.nodeId);
 
@@ -2043,7 +2053,7 @@
       scheduler: firstDefined(next.scheduler, null),
       syncBoundary: firstDefined(next.syncBoundary, next.sync_boundary, buildDefaultSyncBoundary()),
       lastRefreshAt: firstDefined(next.lastRefreshAt, next.last_refresh_at, next.at, null),
-      raw: clone(next)
+      raw: clone(rawSource)
     };
   }
 

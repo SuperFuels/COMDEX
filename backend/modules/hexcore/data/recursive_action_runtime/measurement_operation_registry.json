@@ -1,0 +1,28 @@
+{
+  "measurements": {
+    "ORDERED_REPLICATE_CHANGE_DISCRIMINATOR": {
+      "authority": "procedure_delayed_measurement_operation_runtime_promotion_v1",
+      "capability_class": "pure_ordered_replica_measurement",
+      "promoted_at": "2026-08-02T07:34:39.245252+00:00",
+      "spec": {
+        "ambient_authority": [],
+        "capability_class": "pure_ordered_replica_measurement",
+        "chronology": "ordered_old_to_new",
+        "maximum_replicas": 5,
+        "maximum_values": 5000,
+        "measurement_id": "ORDERED_REPLICATE_CHANGE_DISCRIMINATOR",
+        "minimum_replicas": 3,
+        "mixed_policy": "ABSTAIN",
+        "relative_tolerance": 0.001
+      },
+      "spec_sha256": "dd720aaf3b8c0ee0b40fe3e3b32557f5cee6256ecb079cdb12a521a45c4684be",
+      "verified_authorities": [
+        "World Bank GDP",
+        "FRED GDP",
+        "NOAA temperature",
+        "Treasury exchange rates"
+      ]
+    }
+  },
+  "schema_version": "aion.measurement_registry.v1"
+}

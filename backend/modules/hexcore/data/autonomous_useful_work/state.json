@@ -1,0 +1,13 @@
+{
+  "completed_projects": [
+    "acquire_real_toolchain_executors",
+    "acquire_system_project_authority"
+  ],
+  "last_result_sha256": "9dd57a8d5daa499b5b30e5b1d03748bb88f9ef42aee13c416fc9eb431a40e19c",
+  "next_opportunity": {
+    "objective": "Run repeated source-disjoint cross-domain projects and route naturally occurring failures into private self-repair.",
+    "requires": "new independently changing outcomes and later verification"
+  },
+  "procedure_id": "procedure_autonomous_useful_work_controller_v2",
+  "updated_at": "2026-08-01T17:59:58.063668+00:00"
+}

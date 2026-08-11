@@ -56,8 +56,7 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
     { key: "boardroom", label: "Boardroom" },
     { key: "dashboard", label: "Dashboard" },
     { key: "business_context", label: "Business" },
-    { key: "marketing_stream", label: "Marketing Stream" },
-    { key: "live_agents", label: "Live Agents" },
+    { key: "live_agents", label: "Department Pilots" },
     { key: "aion_chat", label: "Aion", highlight: true },
     {
       key: "operations_agents",
@@ -831,7 +830,7 @@ function toRuntimeImageUrl(path) {
   }
 
   if (raw.startsWith(".runtime/")) {
-    return `${state.apiBase}/runtime/${raw.slice(".runtime/".length)}`;
+    return `${state.apiBase}/local-runtime/${raw.slice(".runtime/".length)}`;
   }
 
   if (raw.startsWith("runtime/")) {
@@ -860,7 +859,7 @@ function toRuntimeAssetUrl(value) {
   const apiBase = String(state.apiBase || "http://127.0.0.1:8080").replace(/\/+$/, "");
 
   if (raw.startsWith(".runtime/")) {
-    return `${apiBase}/runtime/${raw.slice(".runtime/".length)}`;
+    return `${apiBase}/local-runtime/${raw.slice(".runtime/".length)}`;
   }
 
   if (raw.startsWith("runtime/")) {
@@ -1015,8 +1014,8 @@ function renderFacebookPostMockup(run, options = {}) {
       postPackage?.page_name,
       postPackage?.business_name,
       context?.business_name,
-      "Costa Conexion",
-    ) || "Costa Conexion";
+      prettify(String(run?.workspace_id || getActiveWorkspaceId() || "Business")),
+    ) || "Business";
 
   const publishStatus =
     firstString(
@@ -3070,7 +3069,7 @@ function getAionMainSidebarIcon(tabKey) {
     dashboard: "▦",
     business_context: "◆",
     marketing_stream: "✦",
-    live_agents: "◎",
+    live_agents: "P",
     aion_chat: "AI",
     operations_agents: "⚙",
     operations_flow: "⌁",
@@ -4360,7 +4359,8 @@ function revealReplayForSelectedRun() {
   }, 1400);
 }
 
-function renderMarketingStreamSurface() {
+function renderMarketingStreamSurface(options = {}) {
+  const embedded = options?.embedded === true;
   const marketingRuns = (Array.isArray(state.runs) ? state.runs : [])
     .filter(
       (run) =>
@@ -4455,7 +4455,14 @@ function renderMarketingStreamSurface() {
   );
 
   return `
-    <div class="surface-shell">
+    <div class="${embedded ? "marketing-unified-creation-studio" : "surface-shell"}" data-aion-marketing-creation-studio="${embedded ? "embedded" : "standalone"}">
+      ${embedded ? `
+        <div style="margin:18px 0 12px;border-left:4px solid #0284c7;background:#fff;padding:18px 20px;border-top:1px solid #dbe4ec;border-right:1px solid #dbe4ec;border-bottom:1px solid #dbe4ec;">
+          <div style="color:#0f766e;font-size:10px;letter-spacing:.22em;font-weight:950;">MANUAL CREATION STUDIO</div>
+          <h2 style="margin:7px 0 5px;color:#0f172a;">Create, review and approve content</h2>
+          <p style="margin:0;color:#587087;line-height:1.5;">Build a one-off post or campaign asset with full control. It uses the same Brand Foundation, approval queue, image pipeline and run history as AION automation.</p>
+        </div>
+      ` : `
       <div class="surface-header">
         <div>
           <div class="surface-eyebrow">Aion Business Desktop</div>
@@ -4471,6 +4478,7 @@ function renderMarketingStreamSurface() {
       </div>
 
       ${renderAppTabs()}
+      `}
 
       <div class="dashboard-shell">
         <div class="card-grid">
@@ -22478,6 +22486,29 @@ function getAionVaultAiProviderStatusState() {
   return window.__aionVaultAiProviderStatus;
 }
 
+function getAionSelectedBoardroomProviderIdsV1(fallback = []) {
+  const connected = safeArray(getAionVaultAiProviderStatusState().providers)
+    .filter((item) => item?.connected === true)
+    .map((item) => String(item.id || "").trim())
+    .filter(Boolean);
+  let stored = null;
+  try {
+    const raw = window.localStorage?.getItem("aion.boardroom.selected_provider_ids.v1");
+    if (raw) stored = JSON.parse(raw);
+  } catch {}
+  if (!Array.isArray(stored)) {
+    const safeDefault = connected.filter((id) => id !== "gemma");
+    return safeDefault.length ? safeDefault : safeArray(fallback).filter((id) => id !== "gemma");
+  }
+  return stored.filter((id) => connected.includes(id));
+}
+
+function setAionSelectedBoardroomProviderIdsV1(ids = []) {
+  const clean = [...new Set(safeArray(ids).map((item) => String(item || "").trim()).filter(Boolean))];
+  try { window.localStorage?.setItem("aion.boardroom.selected_provider_ids.v1", JSON.stringify(clean)); } catch {}
+  return clean;
+}
+
 async function refreshAionVaultAiProviderStatusV1() {
   const status = getAionVaultAiProviderStatusState();
   status.loading = true;
@@ -22528,9 +22559,15 @@ function renderAionVaultAiProvidersPanelV1() {
     { id: "claude", label: "Claude / Anthropic", connected: false, reason: "not_checked", model: "claude-3-5-sonnet-20241022", source: "missing" },
     { id: "gemini", label: "Gemini / Google", connected: false, reason: "not_checked", model: "gemini-2.5-flash", source: "missing" },
     { id: "grok", label: "Grok / xAI", connected: false, reason: "not_checked", model: "grok-beta", source: "missing" },
+    { id: "kimi", label: "Kimi / Moonshot", connected: false, reason: "not_checked", model: "kimi-k3", source: "missing" },
+    { id: "gemma", label: "Gemma / Ollama (local)", connected: false, reason: "not_checked", model: "gemma4:e2b", source: "missing" },
+    { id: "meta", label: "Meta AI", connected: false, reason: "not_checked", model: "muse-spark-1.1", source: "missing" },
+    { id: "mistral", label: "Mistral AI", connected: false, reason: "not_checked", model: "mistral-small-latest", source: "missing" },
+    { id: "deepseek", label: "DeepSeek", connected: false, reason: "not_checked", model: "deepseek-v4-pro", source: "missing" },
   ];
 
   const selectedProvider = window.__aionVaultAiSelectedProvider || "openai";
+  const selectedBoardMembers = getAionSelectedBoardroomProviderIdsV1();
   const selectedRecord =
     knownProviders.find((item) => item.id === selectedProvider) ||
     knownProviders[0] ||
@@ -22635,6 +22672,13 @@ function renderAionVaultAiProvidersPanelV1() {
                 <div><strong>Source:</strong> ${escapeHtml(provider.source || "missing")}</div>
                 <div><strong>Model:</strong> ${escapeHtml(provider.model || "not set")}</div>
                 ${provider.masked_key ? `<div><strong>Key:</strong> ${escapeHtml(provider.masked_key)}</div>` : ""}
+                <div><strong>Boardroom:</strong> ${provider.capabilities?.boardroom === false ? "Unavailable" : "Available"}</div>
+                <div><strong>Receipt reading:</strong> ${provider.capabilities?.receipt_vision === false ? "Unavailable for this task" : "Available with a vision-capable model"}</div>
+                ${provider.capability_note ? `<div style="margin-top:5px; color:#5f6b7a;">${escapeHtml(provider.capability_note)}</div>` : ""}
+                <label style="display:flex; align-items:center; gap:7px; margin-top:9px; font-size:11px; font-weight:800;">
+                  <input type="checkbox" data-aion-vault-boardroom-member="${escapeHtml(provider.id || "")}" ${selectedBoardMembers.includes(provider.id) ? "checked" : ""} ${provider.connected ? "" : "disabled"}>
+                  Use as a Boardroom member
+                </label>
               </div>
             </div>
           `).join("")}
@@ -22648,6 +22692,78 @@ function renderAionVaultAiProvidersPanelV1() {
       </div>
     </section>
   `;
+}
+
+if (!window.__aionVaultAiProviderHandlersInstalledV1) {
+  window.__aionVaultAiProviderHandlersInstalledV1 = true;
+
+  document.addEventListener("change", (event) => {
+    const member = event.target?.closest?.("[data-aion-vault-boardroom-member]");
+    if (member) {
+      const provider = String(member.getAttribute("data-aion-vault-boardroom-member") || "").trim();
+      const selected = new Set(getAionSelectedBoardroomProviderIdsV1());
+      if (member.checked) selected.add(provider); else selected.delete(provider);
+      setAionSelectedBoardroomProviderIdsV1([...selected]);
+      requestRender?.();
+      return;
+    }
+    const select = event.target?.closest?.('[data-aion-vault-ai-provider-select="true"]');
+    if (!select) return;
+    window.__aionVaultAiSelectedProvider = String(select.value || "openai");
+    requestRender?.();
+  }, true);
+
+  document.addEventListener("click", async (event) => {
+    const refresh = event.target?.closest?.('[data-aion-vault-ai-refresh="true"]');
+    if (refresh) {
+      event.preventDefault();
+      await refreshAionVaultAiProviderStatusV1();
+      return;
+    }
+
+    const save = event.target?.closest?.("[data-aion-vault-ai-save]");
+    if (save) {
+      event.preventDefault();
+      const provider = String(save.getAttribute("data-aion-vault-ai-save") || "").trim();
+      const keyField = document.querySelector(`[data-aion-vault-ai-key="${CSS.escape(provider)}"]`);
+      const modelField = document.querySelector(`[data-aion-vault-ai-model="${CSS.escape(provider)}"]`);
+      const apiKey = String(keyField?.value || "").trim();
+      if (!apiKey) {
+        window.__aionVaultAiProviderStatus = { ...getAionVaultAiProviderStatusState(), error: "Paste an API key before saving." };
+        requestRender?.();
+        return;
+      }
+      try {
+        const response = await fetch(`http://127.0.0.1:8080/api/vault/ai-providers/${encodeURIComponent(provider)}`, {
+          method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" },
+          body: JSON.stringify({ api_key: apiKey, model: String(modelField?.value || "").trim() || null }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload?.ok === false) throw new Error(payload?.error || payload?.detail || "Provider key could not be saved");
+        if (keyField) keyField.value = "";
+        await refreshAionVaultAiProviderStatusV1();
+      } catch (error) {
+        window.__aionVaultAiProviderStatus = { ...getAionVaultAiProviderStatusState(), loading: false, error: error?.message || String(error) };
+        requestRender?.();
+      }
+      return;
+    }
+
+    const remove = event.target?.closest?.("[data-aion-vault-ai-delete]");
+    if (remove) {
+      event.preventDefault();
+      const provider = String(remove.getAttribute("data-aion-vault-ai-delete") || "").trim();
+      try {
+        const response = await fetch(`http://127.0.0.1:8080/api/vault/ai-providers/${encodeURIComponent(provider)}`, { method: "DELETE", headers: { "Accept": "application/json" } });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok || payload?.ok === false) throw new Error(payload?.error || payload?.detail || "Provider key could not be removed");
+        await refreshAionVaultAiProviderStatusV1();
+      } catch (error) {
+        window.__aionVaultAiProviderStatus = { ...getAionVaultAiProviderStatusState(), loading: false, error: error?.message || String(error) };
+        requestRender?.();
+      }
+    }
+  }, true);
 }
 
 
@@ -24832,9 +24948,11 @@ if (state.activeTab === "vault") {
   }
 
   if (state.activeTab === "marketing_stream") {
-    return typeof renderMarketingStreamSurface === "function"
-      ? renderMarketingStreamSurface()
-      : `<div class="surface-shell"><section class="panel"><div class="surface-eyebrow">Marketing</div><div class="panel-title">Marketing renderer unavailable</div><div class="helper-text">renderMarketingStreamSurface is not loaded in this build.</div></section></div>`;
+    state.activeTab = "live_agents";
+    state.selectedLiveAgentDepartment = "marketing";
+    state.liveAgentsSelectedDepartment = "marketing";
+    state.liveAgentsView = LIVE_AGENT_VIEWS.STREAM;
+    return renderLiveAgentsSurface();
   }
 
   if (state.activeTab === "brand_foundation") {
@@ -36198,6 +36316,8 @@ function normaliseBrowserSkillChainDraft(input) {
 
 function getActiveWorkspaceId() {
   return (
+    window.AionBusinessContainerClient?.resolveBusinessId?.() ||
+    window.__aionCanonicalBusinessId ||
     state.workspaceId ||
     state.workspace_id ||
     state.activeWorkspaceId ||
@@ -40453,7 +40573,6 @@ function renderAionDepartmentPilotPhase25DPanel(departmentKey = "") {
         </button>
         <button
           type="button"
-        data-aion-council-session-ask-board="true"
           class="secondary-btn"
           data-aion-phase25d-run-safe-task="${escapeHtml(key)}"
           ${nextTask ? "" : "disabled"}
@@ -40694,18 +40813,50 @@ function getAionProviderCouncilSummary() {
 
 function buildAionCouncilSessionSnapshot() {
   const feed = buildAionDepartmentAssessmentFeed();
+  const liveContext = window.__aionOriginalBusinessMapStateV2?.boardroom_context || null;
+  const liveDepartments = liveContext?.department_intelligence && typeof liveContext.department_intelligence === "object"
+    ? liveContext.department_intelligence
+    : null;
+  const coreKeys = ["marketing", "sales", "finance", "operations", "support", "hr"];
+  const liveRows = liveDepartments ? coreKeys.map((key) => {
+    const entry = liveDepartments[key] && typeof liveDepartments[key] === "object" ? liveDepartments[key] : {};
+    const status = String(entry.status || "needs_discovery");
+    return {
+      key,
+      label: key.charAt(0).toUpperCase() + key.slice(1),
+      status,
+      result_status: status,
+      evidence_count: Array.isArray(entry.evidence) ? entry.evidence.length : 0,
+      receipt_count: Array.isArray(entry.receipts) ? entry.receipts.length : 0,
+      last_updated: entry.updated_at || entry.last_updated || entry.meta?.updated_at || "not updated",
+      summary: entry.boardroom_summary || "",
+    };
+  }) : [];
+  const usefulLive = liveRows.filter((item) => !["", "missing", "needs_discovery", "not_started"].includes(String(item.status).toLowerCase()));
+  const missingLive = liveRows.filter((item) => !usefulLive.includes(item));
   const providers = getAionProviderCouncilState();
-  const connectedProviders = providers
+  const legacyConnectedProviders = providers
     .filter((provider) => provider.visible_in_council === true)
     .filter((provider) =>
       ["always_on", "connected", "selected"].includes(String(provider.status || "")),
     );
 
+  const authoritativeProviders = safeArray(window.__aionOriginalBusinessMapStateV2?.providers);
+  const selectedIds = typeof getAionLiveSelectedBoardroomProviderIdsV2 === "function"
+    ? getAionLiveSelectedBoardroomProviderIdsV2()
+    : [];
+  const connectedProviders = authoritativeProviders.length
+    ? authoritativeProviders.filter((item) => item.connected === true && selectedIds.includes(item.id))
+    : legacyConnectedProviders;
+
   return {
-    feed,
+    feed: liveRows.length ? { ...feed, departments: liveRows, useful_departments: usefulLive.map((item) => item.key) } : feed,
     connectedProviders,
-    usefulDepartments: feed.useful_departments || [],
-    missingDepartments: safeArray(feed.coverage?.missing_departments),
+    usefulDepartments: liveRows.length ? usefulLive.map((item) => item.key) : feed.useful_departments || [],
+    missingDepartments: liveRows.length ? missingLive.map((item) => item.key) : safeArray(feed.coverage?.missing_departments),
+    persistentTruthSource: liveContext?.persistent_truth_source || "legacy_frontend_cache",
+    sourceRevisions: liveContext?.source_revisions || {},
+    generatedAt: liveContext?.generated_at || "",
   };
 }
 
@@ -40759,29 +40910,70 @@ function saveAionBoardroomSessionArtifacts(records = []) {
 function buildAionBoardroomSessionPacket(sessionType = "business_assessment") {
   const generatedAt = new Date().toISOString();
   const businessContainerId = getAionBoardroomBusinessContainerId();
+  const liveBoardroomContext = typeof getAionLiveBoardroomContextV2 === "function"
+    ? getAionLiveBoardroomContextV2()
+    : null;
+  const liveDepartmentLedger = liveBoardroomContext?.department_intelligence && typeof liveBoardroomContext.department_intelligence === "object"
+    ? liveBoardroomContext.department_intelligence
+    : null;
+  const liveDepartmentRows = liveDepartmentLedger
+    ? ["marketing", "sales", "finance", "operations", "support", "hr"].map((key) => {
+        const entry = liveDepartmentLedger[key] && typeof liveDepartmentLedger[key] === "object" ? liveDepartmentLedger[key] : {};
+        const status = String(entry.status || "needs_discovery");
+        return {
+          key,
+          label: key.charAt(0).toUpperCase() + key.slice(1),
+          status,
+          result_status: status,
+          summary: entry.boardroom_summary || "",
+          evidence_count: Array.isArray(entry.evidence) ? entry.evidence.length : 0,
+          receipt_count: Array.isArray(entry.receipts) ? entry.receipts.length : 0,
+          last_updated: entry.updated_at || entry.last_updated || entry.meta?.updated_at || "",
+        };
+      })
+    : [];
+  const liveUsefulDepartments = liveDepartmentRows
+    .filter((item) => !["", "missing", "needs_discovery", "not_started"].includes(String(item.status).toLowerCase()))
+    .map((item) => item.key);
+  const liveMissingDepartments = liveDepartmentRows
+    .filter((item) => !liveUsefulDepartments.includes(item.key))
+    .map((item) => item.key);
   const assessmentFeed =
-    typeof buildAionDepartmentAssessmentFeed === "function"
+    liveDepartmentRows.length
+      ? {
+          generated_at: liveBoardroomContext.generated_at || generatedAt,
+          confidence: liveMissingDepartments.length ? "partial" : "complete",
+          coverage: {
+            complete_departments: liveUsefulDepartments,
+            missing_departments: liveMissingDepartments,
+          },
+          departments: liveDepartmentRows,
+          useful_departments: liveUsefulDepartments,
+          summary: `Canonical department intelligence loaded from business containers. Ready: ${liveUsefulDepartments.join(", ") || "none"}. Missing discovery: ${liveMissingDepartments.join(", ") || "none"}.`,
+        }
+      : typeof buildAionDepartmentAssessmentFeed === "function"
       ? buildAionDepartmentAssessmentFeed()
       : {};
   const departmentLedger =
-    typeof getAionDepartmentIntelligence === "function"
+    liveDepartmentLedger || (typeof getAionDepartmentIntelligence === "function"
       ? getAionDepartmentIntelligence()
-      : {};
+      : {});
   const departmentContextDraft =
-    typeof getBusinessDepartmentContextDraft === "function"
+    liveDepartmentLedger || (typeof getBusinessDepartmentContextDraft === "function"
       ? getBusinessDepartmentContextDraft()
-      : {};
+      : {});
   const userContext =
     typeof getAionCouncilUserContextEntries === "function"
       ? getAionCouncilUserContextEntries()
       : [];
-  const councilMembers =
-    typeof getAionProviderCouncilModels === "function"
-      ? getAionProviderCouncilModels()
-          .filter((item) => item.enabled !== false)
-          .map((item) => item.label || item.name || item.key)
-          .filter(Boolean)
-      : ["AION"];
+  const liveProviderIds = typeof getAionLiveSelectedBoardroomProviderIdsV2 === "function"
+    ? getAionLiveSelectedBoardroomProviderIdsV2()
+    : [];
+  const liveProviderRecords = safeArray(window.__aionOriginalBusinessMapStateV2?.providers)
+    .filter((item) => item.connected === true && liveProviderIds.includes(item.id));
+  const councilMembers = liveProviderRecords.length
+    ? liveProviderRecords.map((item) => item.label || item.id)
+    : [];
 
   const previousSessionRefs = readAionBoardroomSessionArtifacts()
     .slice(-6)
@@ -40802,7 +40994,7 @@ function buildAionBoardroomSessionPacket(sessionType = "business_assessment") {
     session_type: String(sessionType || "business_assessment"),
     generated_at: generatedAt,
     business_context_packet: {
-      source: "boardroom_terminal",
+      source: liveBoardroomContext ? "canonical_business_container_envelope" : "boardroom_terminal_fallback",
       business_container_id: businessContainerId,
       lines:
         typeof getAionCouncilBusinessContextPacketLines === "function"
@@ -40810,12 +41002,12 @@ function buildAionBoardroomSessionPacket(sessionType = "business_assessment") {
           : [],
     },
     department_intelligence_packet: {
-      source: "aion.departmentIntelligence",
+      source: liveDepartmentLedger ? "canonical_department_intelligence_container" : "aion.departmentIntelligence.frontend_fallback",
       assessment_feed: assessmentFeed,
       ledger: departmentLedger,
     },
     department_context_packet: {
-      source: "aion.businessDepartmentContextDraft",
+      source: liveDepartmentLedger ? "canonical_department_intelligence_container" : "aion.businessDepartmentContextDraft.frontend_fallback",
       departments: departmentContextDraft,
       lines:
         typeof getAionCouncilDepartmentContextPacketLines === "function"
@@ -40825,6 +41017,18 @@ function buildAionBoardroomSessionPacket(sessionType = "business_assessment") {
     user_added_context: userContext,
     council_members: councilMembers,
     previous_session_refs: previousSessionRefs,
+    canonical_context_envelope: liveBoardroomContext ? {
+      snapshot_id: liveBoardroomContext.snapshot_id,
+      generated_at: liveBoardroomContext.generated_at,
+      persistent_truth_source: liveBoardroomContext.persistent_truth_source,
+      source_revisions: liveBoardroomContext.source_revisions,
+      business_identity: liveBoardroomContext.business_identity,
+      business_map_projection: liveBoardroomContext.business_map_projection,
+      function_models: liveBoardroomContext.function_models,
+      operating_model: liveBoardroomContext.operating_model,
+      department_intelligence: liveBoardroomContext.department_intelligence,
+      evidence_index: liveBoardroomContext.evidence_index,
+    } : null,
     boardroom_council_result:
       window.__aionBoardroomCouncilResult &&
       window.__aionBoardroomCouncilResult.session_type === String(sessionType || "business_assessment")
@@ -41036,7 +41240,83 @@ function formatAionCouncilPacketValue(value) {
   return String(value || "").trim();
 }
 
+function getAionLiveSelectedBoardroomProviderIdsV2() {
+  const providers = safeArray(window.__aionOriginalBusinessMapStateV2?.providers);
+  const connected = providers.filter((item) => item?.connected === true).map((item) => String(item.id || "")).filter(Boolean);
+  let stored = [];
+  try { stored = JSON.parse(window.localStorage?.getItem("aion.boardroom.selected_provider_ids.v1") || "[]"); }
+  catch { stored = []; }
+  const selected = safeArray(stored).map((item) => String(item || "")).filter((id) => connected.includes(id));
+  if (selected.length) return [...new Set(selected)];
+  // First-use default: connected hosted providers. Local Gemma remains opt-in
+  // because loading it can consume substantial memory on this Mac.
+  const hosted = connected.filter((id) => id !== "gemma");
+  return hosted.length ? hosted : connected.slice(0, 1);
+}
+
+function getAionLiveBoardroomContextV2() {
+  return window.__aionOriginalBusinessMapStateV2?.boardroom_context || null;
+}
+
+function findAionBusinessMapFactV2(facts, field) {
+  const matches = safeArray(facts).filter((item) => String(item?.field || "") === field);
+  return matches.length ? matches[matches.length - 1] : null;
+}
+
+function formatAionBoardroomMoneyV2(value, currency = "EUR") {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return formatAionCouncilPacketValue(value);
+  try { return new Intl.NumberFormat("en-GB", { style: "currency", currency, maximumFractionDigits: 0 }).format(number); }
+  catch { return `${currency} ${number.toLocaleString("en-GB")}`; }
+}
+
+function getAionLiveBusinessContextPacketLinesV2(context) {
+  if (!context) return [];
+  const identity = context.business_identity || {};
+  const projection = context.business_map_projection || {};
+  const facts = safeArray(projection.facts);
+  const operating = context.operating_model || {};
+  const lines = [];
+  const add = (label, value) => {
+    const text = formatAionCouncilPacketValue(value);
+    if (text && !["unspecified", "unknown", "none"].includes(text.toLowerCase())) lines.push(`> ${label}: ${text}`);
+  };
+  add("Business name", identity.trading_name || identity.legal_name);
+  add("Business type", String(identity.business_type || "").replace(/_/g, " "));
+  add("Sector", String(identity.sector || "").replace(/_/g, " "));
+  add("Website", identity.website_url);
+  add("Region", identity.region || identity.city);
+  add("Business Map", `${identity.workspace_id || context.business_id} · revision ${projection.revision || 0} · ${facts.length} facts`);
+
+  const financeFields = [
+    ["external_data.revenue.net_sales", "FY2025 accepted net sales"],
+    ["external_data.profit.gross_profit", "FY2025 accepted gross profit"],
+    ["external_data.profit.operating_profit", "FY2025 accepted operating profit"],
+    ["external_data.profit.net_profit", "FY2025 accepted net profit"],
+    ["external_data.cash.ending_cash", "FY2025 accepted closing cash"],
+  ];
+  financeFields.forEach(([field, label]) => {
+    const fact = findAionBusinessMapFactV2(facts, field);
+    if (fact) add(label, `${formatAionBoardroomMoneyV2(fact.value, "EUR")} · ${fact.verification_status || "unverified"}`);
+  });
+
+  const offerings = safeArray(operating.offerings);
+  if (offerings.length) {
+    add("Products / services", offerings.slice(0, 8).map((item) => {
+      const price = Number(item?.price);
+      return `${item?.name || "Offering"}${Number.isFinite(price) ? ` (${formatAionBoardroomMoneyV2(price, item?.currency || operating.currency || "EUR")})` : ""}`;
+    }));
+  }
+  const terms = safeArray(operating.payment_terms);
+  if (terms.length) add("Payment terms", terms.map((item) => `${item.name || "Terms"}: ${item.deposit_percent || 0}% deposit, balance ${item.balance_due_days || 0} days`));
+  add("Persistent truth source", context.persistent_truth_source);
+  add("Live snapshot", `${context.snapshot_id || ""} · generated ${context.generated_at || ""}`);
+  return lines;
+}
+
 function getAionCouncilBusinessContextPacketLines() {
+  const liveLines = getAionLiveBusinessContextPacketLinesV2(getAionLiveBoardroomContextV2());
+  if (liveLines.length) return liveLines;
   const foundation =
     (typeof getEditableBusinessContextFoundation === "function"
       ? getEditableBusinessContextFoundation()
@@ -41081,7 +41361,19 @@ function getAionCouncilBusinessContextPacketLines() {
 
 function getAionCouncilDepartmentContextPacketLines() {
   const lines = [];
-  const departments = ["marketing", "sales", "finance", "operations", "support"];
+  const departments = ["marketing", "sales", "finance", "operations", "support", "hr"];
+  const live = getAionLiveBoardroomContextV2()?.department_intelligence;
+  if (live && typeof live === "object") {
+    departments.forEach((department) => {
+      const item = live[department] && typeof live[department] === "object" ? live[department] : {};
+      const status = String(item.status || "needs_discovery");
+      const evidence = Array.isArray(item.evidence) ? item.evidence.length : 0;
+      const receipts = Array.isArray(item.receipts) ? item.receipts.length : 0;
+      const updated = item.updated_at || item.last_updated || item.meta?.updated_at || "not updated";
+      lines.push(`> ${department}: canonical department intelligence · status ${status} · evidence ${evidence} · receipts ${receipts} · updated ${updated}`);
+    });
+    return lines;
+  }
 
   const departmentContext =
     typeof getAionBoardroomDepartmentContextV1 === "function"
@@ -41453,7 +41745,7 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
   const payload = {
     business_id: packet.business_id || "home-fixed",
     session_type: sessionType,
-    requested_providers: ["gemma", "openai", "claude", "gemini", "grok"],
+    requested_providers: getAionLiveSelectedBoardroomProviderIdsV2(),
     objective: [
       `Run a live Boardroom ${sessionType} using only connected providers.`,
       "Review the current business context, founder feedback, missing department context, risks, and next operational plan.",
@@ -41461,6 +41753,10 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     ].join(" "),
     context_packet: {
       business_id: packet.business_id || "home-fixed",
+      business_map_snapshot: packet.business_map_snapshot || null,
+      business_map_confirmation: packet.business_map_confirmation || null,
+      boardroom_workflow_stage: packet.boardroom_workflow_stage || null,
+      canonical_context_envelope: packet.canonical_context_envelope || null,
       business_context_lines: safeArray(packet.business_context_packet?.lines),
       department_context_lines: safeArray(packet.department_context_packet?.lines),
       department_intelligence_packet: packet.department_intelligence_packet || {},
@@ -41474,6 +41770,10 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     },
     founder_feedback: founderFeedback,
   };
+
+  if (!payload.requested_providers.length) {
+    throw new Error("No connected Board members are selected. Connect or select OpenAI, Gemini, Gemma, or another available provider first.");
+  }
 
   const response = await fetch("http://127.0.0.1:8080/api/boardroom/ask", {
     method: "POST",
@@ -41512,6 +41812,9 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     backend_payload: backendPayload,
     council_responses: councilResponses,
     consensus: buildAionLiveConsensusFromProviderFanoutV1(backendPayload),
+    source_business_map_hash: packet.business_map_snapshot?.source_payload_hash || "",
+    source_business_map_revision: packet.business_map_snapshot?.revision || 0,
+    source_business_map_confirmation_hash: packet.business_map_confirmation?.confirmation_hash || "",
   };
 
   try {
@@ -41529,6 +41832,7 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
   window.__aionCouncilTerminalExpanded = true;
   window.__aionCouncilContextInputOpen = false;
   clearAionBoardroomLiveRunStatusV1(runId);
+  window.aionStageBoardroomPackagesToDepartmentPilotsO14A?.();
 
   return result;
 }
@@ -43335,7 +43639,7 @@ async function runAionLiveDebatePlanRoundV1(runId = "") {
         ? getAionBoardroomBusinessContainerId()
         : "home-fixed",
     session_type: "debate_plan",
-    requested_providers: ["gemma", "openai", "gemini", "claude", "grok"],
+    requested_providers: getAionSelectedBoardroomProviderIdsV1(["openai", "gemini", "claude", "grok", "kimi", "meta", "mistral", "deepseek"]),
     objective: [
       "Round 2 Boardroom Debate Plan.",
       "Debate the actual Round 1 provider consensus and plan items.",
@@ -43452,6 +43756,7 @@ async function runAionLiveDebatePlanRoundV1(runId = "") {
   window.__aionCouncilTerminalExpanded = true;
   window.__aionCouncilContextInputOpen = false;
   clearAionBoardroomLiveRunStatusV1(runId);
+  window.aionStageBoardroomPackagesToDepartmentPilotsO14A?.();
 
   return result;
 }
@@ -44026,7 +44331,7 @@ async function buildAionLiveDepartmentTasksFromDebateV1(runId = "") {
         ? getAionBoardroomBusinessContainerId()
         : "home-fixed",
     session_type: "build_department_tasks",
-    requested_providers: ["gemma", "openai", "gemini", "claude", "grok"],
+    requested_providers: getAionSelectedBoardroomProviderIdsV1(["openai", "gemini", "claude", "grok", "kimi", "meta", "mistral", "deepseek"]),
     objective: [
       "Round 3 Build Department Tasks.",
       "Use the live Debate Plan output and founder feedback to produce department-owned task drafts.",
@@ -44160,6 +44465,7 @@ async function buildAionLiveDepartmentTasksFromDebateV1(runId = "") {
   window.__aionCouncilTerminalExpanded = true;
   window.__aionCouncilContextInputOpen = false;
   clearAionBoardroomLiveRunStatusV1(runId);
+  window.aionStageBoardroomPackagesToDepartmentPilotsO14A?.();
 
   return result;
 }
@@ -44418,7 +44724,7 @@ function getAionAllFounderFeedbackForNextRoundV3() {
 
 function renderBoardroomCouncilSessionTerminal() {
   const snapshot = buildAionCouncilSessionSnapshot();
-  const providerNames = snapshot.connectedProviders.map((provider) => provider.label).join(", ") || "AION, Gemma";
+  const providerNames = snapshot.connectedProviders.map((provider) => provider.label || provider.id).join(", ") || "no connected Board members selected";
   const useful = snapshot.usefulDepartments.join(", ") || "none";
   const missing = snapshot.missingDepartments.join(", ") || "none";
   const feed = snapshot.feed || {};
@@ -44445,7 +44751,9 @@ function renderBoardroomCouncilSessionTerminal() {
     };
   });
 
-  const businessContextStatus = feed.confidence || snapshot.usefulDepartments.length ? "present" : "waiting";
+  const businessContextStatus = snapshot.persistentTruthSource === "business_containers"
+    ? `live · business_containers · generated ${snapshot.generatedAt || "now"}`
+    : feed.confidence || snapshot.usefulDepartments.length ? "legacy cache fallback" : "waiting";
   const executionStatus = "approval_gated";
 
   const sessionSelectHtml = terminalExpanded
@@ -44481,9 +44789,19 @@ function renderBoardroomCouncilSessionTerminal() {
 
   const askBoardButtonHtml = terminalExpanded
     ? `
+      ${typeof window.aionGetBusinessMapConfirmationV1 === "function" && !window.aionGetBusinessMapConfirmationV1()?.valid ? `
+        <button
+          type="button"
+          data-aion-confirm-original-business-map="true"
+          style="height:30px;border:1px solid #0284c7;background:#0284c7;color:#fff;padding:0 12px;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;"
+        >
+          ${window.aionGetBusinessMapConfirmationV1()?.map?.revision ? `Confirm Map r${escapeHtml(String(window.aionGetBusinessMapConfirmationV1().map.revision))}` : "Load & Confirm Map"}
+        </button>
+      ` : ""}
       <button
         type="button"
         data-aion-council-session-run="true"
+        ${typeof window.aionGetBusinessMapConfirmationV1 === "function" && !window.aionGetBusinessMapConfirmationV1()?.valid ? 'aria-disabled="true" title="Confirm the original Business Map first"' : ""}
         style="
           height:30px;
           border:1px solid #111111;
@@ -44646,6 +44964,7 @@ function renderBoardroomCouncilSessionTerminal() {
       <div>&gt; Missing Inputs: ${escapeHtml(String(snapshot.missingDepartments.length))} · ${escapeHtml(missing)}</div>
       <div>&gt; User Context Entries: ${escapeHtml(String(userContextEntries.length))}</div>
       <div>&gt; Execution: approval · Pilot waits for user approval</div>
+      <div>&gt; Source revisions: Business Map ${escapeHtml(String(snapshot.sourceRevisions?.business_map ?? "unknown"))} · Department Intelligence ${escapeHtml(String(snapshot.sourceRevisions?.department_intelligence ?? "unknown"))} · Finance ${escapeHtml(String(snapshot.sourceRevisions?.finance ?? "unknown"))} · Operating Model ${escapeHtml(String(snapshot.sourceRevisions?.operating_model ?? "unknown"))}</div>
     </div>
 
     ${
@@ -46705,13 +47024,146 @@ if (!window.__aionFinanceDataSetupHandlersV2) {
 }
 
 
+const AION_UNIFIED_DEPARTMENT_SHELLS = Object.freeze({
+  marketing: {
+    eyebrow: "Marketing Director",
+    title: "Demand and brand adviser",
+    context: "brand, campaigns, channels and attributable growth context",
+  },
+  sales: {
+    eyebrow: "Sales Director",
+    title: "Revenue and conversion adviser",
+    context: "pipeline, qualification, communications and booking context",
+  },
+  finance: {
+    eyebrow: "Finance Director",
+    title: "Financial control adviser",
+    context: "cash, accounting, reporting and commercial-control context",
+  },
+  operations: {
+    eyebrow: "Operations Director",
+    title: "Delivery and execution adviser",
+    context: "workflows, capacity, delivery and cross-department context",
+  },
+  support: {
+    eyebrow: "Support Director",
+    title: "Customer resolution adviser",
+    context: "policy, escalation and service-quality context",
+  },
+  hr: {
+    eyebrow: "People Director",
+    title: "Organisation and authority adviser",
+    context: "people, roles, permissions and workforce context",
+  },
+});
+
+function renderDepartmentCompactDirectorCard(departmentKey) {
+  const key = String(departmentKey || "").toLowerCase();
+  const config = AION_UNIFIED_DEPARTMENT_SHELLS[key] || {
+    eyebrow: `${prettify(key)} Director`,
+    title: `${prettify(key)} adviser`,
+    context: "verified business and department context",
+  };
+  const business =
+    typeof getAionFinanceBusinessTwinContextV2 === "function"
+      ? getAionFinanceBusinessTwinContextV2()
+      : { business_name: "Business" };
+
+  return `
+    <section
+      data-aion-unified-department-director="${escapeHtml(key)}"
+      style="margin:12px 0 10px;display:grid;grid-template-columns:minmax(220px,.72fr) minmax(320px,1.28fr);min-height:176px;border:1px solid rgba(17,17,17,.12);background:#fff;overflow:hidden;"
+    >
+      <div style="padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:8px;">
+        <div style="font-size:10px;letter-spacing:.20em;text-transform:uppercase;color:#0f766e;font-weight:950;">${escapeHtml(config.eyebrow)}</div>
+        <div style="font-size:21px;line-height:1.15;color:#0f172a;font-weight:950;">${escapeHtml(config.title)}</div>
+        <div style="font-size:12px;line-height:1.45;color:#587087;">${escapeHtml(business.business_name || "Business")} · ${escapeHtml(config.context)}</div>
+        <div><span style="display:inline-block;border:1px solid rgba(15,118,110,.28);padding:6px 9px;color:#0f766e;font-size:9px;letter-spacing:.14em;font-weight:950;">ADVISORY · APPROVAL GATED</span></div>
+      </div>
+      <div
+        style="height:176px;min-height:176px;max-height:176px;background:#050817;overflow:hidden;position:relative;"
+      >
+        <div
+          id="aionDepartment121SpatialBoardroomMount-${escapeHtml(key)}"
+          data-aion-o14d-department-121-spatial-boardroom-mount="true"
+          data-aion-o14d-department-key="${escapeHtml(key)}"
+          aria-label="Compact spatial ${escapeHtml(config.eyebrow)}"
+          style="position:absolute;inset:0;background:#050817;overflow:hidden;"
+        ></div>
+        <div style="position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:9px;z-index:3;">
+          <span style="background:rgba(2,6,23,.82);border:1px solid rgba(255,255,255,.24);color:#fff;padding:7px 9px;font-size:9px;letter-spacing:.15em;font-weight:950;text-transform:uppercase;">AION · ${escapeHtml(prettify(key))} Pilot</span>
+          <button
+            type="button"
+            data-aion-unified-department-conversation="${escapeHtml(key)}"
+            style="border:1px solid rgba(255,255,255,.42);background:#fff;color:#0f172a;padding:7px 10px;font-size:9px;letter-spacing:.12em;font-weight:950;text-transform:uppercase;cursor:pointer;"
+          >Talk to Pilot</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function openUnifiedDepartmentPilotConversation(departmentKey) {
+  const key = String(departmentKey || "").toLowerCase();
+  const existing = document.querySelector("[data-aion-unified-pilot-dialog]");
+  if (existing) existing.remove();
+
+  const renderConversation =
+    typeof window.renderAionO18AADepartmentConversationCockpit === "function"
+      ? window.renderAionO18AADepartmentConversationCockpit(key)
+      : "";
+  const fallbackConversation =
+    renderConversation ||
+    (typeof window.renderAionO18ADDepartmentConversationCockpit === "function"
+      ? window.renderAionO18ADDepartmentConversationCockpit(key)
+      : "");
+  if (!fallbackConversation) return;
+
+  const dialog = document.createElement("div");
+  dialog.setAttribute("data-aion-unified-pilot-dialog", key);
+  dialog.setAttribute("role", "dialog");
+  dialog.setAttribute("aria-modal", "true");
+  dialog.style.cssText = "position:fixed;inset:0;z-index:100000;background:rgba(2,6,23,.78);padding:24px;overflow:auto;";
+  dialog.innerHTML = `
+    <div style="max-width:1500px;margin:0 auto;background:#fff;padding:12px;box-shadow:0 30px 90px rgba(0,0,0,.4);">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 5px 12px;">
+        <strong style="color:#0f172a;">AION · ${escapeHtml(prettify(key))} Pilot · department-scoped conversation</strong>
+        <button type="button" data-aion-unified-pilot-close style="border:1px solid #94a3b8;background:#fff;padding:8px 12px;font-weight:900;cursor:pointer;">Close</button>
+      </div>
+      ${fallbackConversation}
+    </div>
+  `;
+  document.body.appendChild(dialog);
+}
+
+document.addEventListener("click", (event) => {
+  const open = event.target?.closest?.("[data-aion-unified-department-conversation]");
+  const close = event.target?.closest?.("[data-aion-unified-pilot-close]");
+  if (open) {
+    openUnifiedDepartmentPilotConversation(
+      open.getAttribute("data-aion-unified-department-conversation"),
+    );
+    event.preventDefault();
+    event.stopPropagation();
+    return;
+  }
+  if (close) {
+    close.closest("[data-aion-unified-pilot-dialog]")?.remove?.();
+    event.preventDefault();
+    event.stopPropagation();
+  }
+}, true);
+
 function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
+  const financeWorkspace =
+    window.AionFinancePilot && typeof window.AionFinancePilot.render === "function"
+      ? window.AionFinancePilot.render()
+      : renderAionFinanceDataSetupPanelV2();
   return `
     <div data-aion-finance-live-agents-workspace-v2="true">
-      ${renderAionDepartment121BoardroomPanelO14D("finance")}
+      ${renderDepartmentCompactDirectorCard("finance")}
       ${renderAionO14KCollapsedPackageDockUnderBoardroom("finance")}
-      ${renderAionFinanceDataSetupPanelV2()}
-      ${renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard)}
+      ${financeWorkspace}
     </div>
   `;
 }
@@ -46719,9 +47171,9 @@ function renderFinanceWorkspaceSurface(selectedRuns, selectedAgentCard) {
 function renderSalesWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
     <div data-aion-sales-live-agents-workspace-o14d="true">
-      ${renderAionDepartment121BoardroomPanelO14D("sales")}
+      ${renderDepartmentCompactDirectorCard("sales")}
       ${renderAionO14KCollapsedPackageDockUnderBoardroom("sales")}
-      ${renderAionDepartmentScopedPilotSurface("sales", selectedRuns, selectedAgentCard)}
+      <div data-aion-sales-revenue-mount="true"></div>
     </div>
   `;
 }
@@ -46729,19 +47181,27 @@ function renderSalesWorkspaceSurface(selectedRuns, selectedAgentCard) {
 function renderOperationsWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
     <div data-aion-operations-live-agents-workspace-o14d="true">
-      ${renderAionDepartment121BoardroomPanelO14D("operations")}
+      ${renderDepartmentCompactDirectorCard("operations")}
       ${renderAionO14KCollapsedPackageDockUnderBoardroom("operations")}
-      ${renderAionDepartmentScopedPilotSurface("operations", selectedRuns, selectedAgentCard)}
+      <section class="panel large-panel" data-aion-operations-delivery-workspace="true" style="background:#fff;border-top:4px solid #0284c7;padding:24px;">
+        <div style="color:#0f766e;font-size:10px;letter-spacing:.22em;font-weight:950;">OPERATIONS WORKSPACE</div>
+        <h2 style="margin:8px 0 6px;color:#0f172a;">Execution control centre</h2>
+        <p style="margin:0;color:#587087;line-height:1.55;">Boardroom instructions, department handoffs, delivery work and approval-gated actions will be coordinated here. The operational engine is the next active department build.</p>
+      </section>
     </div>
   `;
+}
+
+function renderSupportCompactDirectorCard() {
+  return renderDepartmentCompactDirectorCard("support");
 }
 
 function renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
     <div data-aion-support-live-agents-workspace-o14d="true">
-      ${renderAionDepartment121BoardroomPanelO14D("support")}
+      ${renderSupportCompactDirectorCard()}
       ${renderAionO14KCollapsedPackageDockUnderBoardroom("support")}
-      ${renderAionDepartmentScopedPilotSurface("support", selectedRuns, selectedAgentCard)}
+      <div data-aion-support-case-mount="true"></div>
     </div>
   `;
 }
@@ -46749,13 +47209,9 @@ function renderSupportWorkspaceSurface(selectedRuns, selectedAgentCard) {
 function renderHRWorkspaceSurface(selectedRuns, selectedAgentCard) {
   return `
     <div data-aion-hr-live-agents-workspace-o14d="true">
-      ${renderAionDepartment121BoardroomPanelO14D("hr")}
+      ${renderDepartmentCompactDirectorCard("hr")}
       ${renderAionO14KCollapsedPackageDockUnderBoardroom("hr")}
-      ${renderGenericDepartmentWorkspaceSurface(
-        "hr",
-        selectedAgentCard,
-        selectedRuns,
-      )}
+      <div data-aion-hr-people-mount="true"></div>
     </div>
   `;
 }
@@ -47603,7 +48059,788 @@ function renderAionPilotMarketingArtifactCard(item = {}) {
   `;
 }
 
+function getAionMarketingCreativeLabState() {
+  if (!window.__aionMarketingCreativeLab) {
+    window.__aionMarketingCreativeLab = {
+      platforms: ["instagram_feed", "facebook_feed", "tiktok", "youtube_shorts"],
+      formats: ["image", "video", "clip"],
+      variantCount: 3,
+      primaryMetric: "qualified_action_rate",
+      plan: null,
+      evaluation: null,
+      renderProvider: "gemini",
+      renderModel: "veo-3.1-generate-preview",
+      renderCostCeiling: 5,
+      renderJob: null,
+      referenceAssetPaths: [],
+      timelineSourcePath: "",
+      timelineStart: 0,
+      timelineEnd: 8,
+      timelineClips: [],
+      timelinePlatform: "instagram_reels",
+      timelineTransition: "cut",
+      timelineTransitionDuration: 0.5,
+      timelineSubtitlesText: "",
+      timelineOverlayText: "",
+      timelineOverlayPosition: "bottom",
+      timelineOverlayAnimation: "fade",
+      timelineLogoPath: "",
+      timelineMusicPath: "",
+      timelineMusicVolume: 0.2,
+      timelineVoiceoverPath: "",
+      timelineVoiceoverRecording: false,
+      timelineVoiceoverVolume: 1,
+      timelineVoiceoverStart: 0,
+      timelineDuckMusic: true,
+      timelineAudioMastering: "social",
+      timelineBrandPreset: "clean",
+      publicationChannel: "instagram",
+      publicationMode: "organic",
+      publicationCaption: "",
+      publicationCta: "Learn more",
+      publicationSchedule: "",
+      publicationDailyBudget: 0,
+      publicationSpendCeiling: 0,
+      publicationPackage: null,
+      campaignStage: "brief",
+      campaignMessage: "Ready for instructions.",
+      campaignRunId: "",
+      campaignApprovalId: "",
+      campaignDraft: null,
+      campaignResult: null,
+      campaignError: "",
+      strategySource: "boardroom",
+      campaignType: "proof_project",
+      subjectOfferingId: "",
+      campaignAngle: "",
+      proofClaim: "",
+      assetReadiness: "needs_assets",
+      strategyAssets: [],
+      assetRequestPrepared: false,
+      editorCaption: "",
+      editorCarouselText: "",
+      editorSchedule: "",
+      editorImageUrl: "",
+      draggingClipId: "",
+      timeline: null,
+      status: "idle",
+      error: "",
+    };
+  }
+  const storedForm = state.marketingForm || {};
+  if (!window.__aionMarketingCreativeLab.strategyHydrated) {
+    for (const field of ["strategySource", "campaignType", "subjectOfferingId", "campaignAngle", "proofClaim", "assetReadiness", "strategyAssets", "assetRequestPrepared"]) {
+      if (storedForm[field] !== undefined) window.__aionMarketingCreativeLab[field] = storedForm[field];
+    }
+    window.__aionMarketingCreativeLab.strategyHydrated = true;
+  }
+  if (!window.__aionMarketingCreativeLab.plan && storedForm.aionCampaignPlan) {
+    window.__aionMarketingCreativeLab.plan = storedForm.aionCampaignPlan;
+  }
+  const storedRun = storedForm.aionCampaignLatestRun;
+  const activeWorkspaceId = String(getActiveWorkspaceId() || "");
+  const storedWorkspaceId = String(storedRun?.workspace_id || storedRun?.workspaceId || "");
+  if (!window.__aionMarketingCreativeLab.campaignResult && storedRun && (!storedWorkspaceId || storedWorkspaceId === activeWorkspaceId)) {
+    window.__aionMarketingCreativeLab.campaignResult = storedRun;
+    window.__aionMarketingCreativeLab.campaignRunId = storedRun.id || "";
+    window.__aionMarketingCreativeLab.campaignStage = storedRun.status === "completed" ? "complete" : "brief";
+  }
+  return window.__aionMarketingCreativeLab;
+}
+
+function persistAionMarketingCampaignState(lab) {
+  desktopStore.setMarketingField("aionCampaignPlan", lab.plan || null);
+  desktopStore.setMarketingField("aionCampaignLatestRun", compactAionMarketingRun(lab.campaignResult));
+  for (const field of ["strategySource", "campaignType", "subjectOfferingId", "campaignAngle", "proofClaim", "assetReadiness", "strategyAssets", "assetRequestPrepared"]) {
+    desktopStore.setMarketingField(field, lab[field]);
+  }
+  desktopStore.persistCacheSoon(100);
+}
+
+function aionCreativeFileName(path) {
+  const value = String(path || "");
+  return value.split(/[\\/]/).pop() || value;
+}
+
+function parseAionTimelineSubtitles(value) {
+  return String(value || "").split(/\r?\n/).map((line) => {
+    const match = line.match(/^\s*(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)\s*\|\s*(.+?)\s*$/);
+    return match ? { start_seconds: Number(match[1]), end_seconds: Number(match[2]), text: match[3] } : null;
+  }).filter(Boolean);
+}
+
+function renderAionTimelineClipCards(lab) {
+  const clips = Array.isArray(lab.timelineClips) ? lab.timelineClips : [];
+  if (!clips.length) return `<div class="empty-state">Add two or more clips to build a sequence, or add one clip for a polished single-source export.</div>`;
+  return clips.map((clip, index) => `<div draggable="true" data-aion-timeline-clip-card data-clip-id="${escapeHtml(clip.id)}" style="display:grid;grid-template-columns:32px minmax(150px,1fr) 88px 88px 145px auto;gap:8px;align-items:end;border:1px solid #cbd5e1;background:#fff;padding:10px;cursor:grab;">
+    <div style="font-weight:950;color:#0284c7;font-size:18px;text-align:center;" title="Drag to reorder">${index + 1}</div>
+    <div><strong>${escapeHtml(clip.label || aionCreativeFileName(clip.source_path))}</strong><div class="helper-text" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px;">${escapeHtml(clip.source_path)}</div></div>
+    <label class="field-label">In<input class="input" type="number" min="0" step="0.1" value="${escapeHtml(clip.start_seconds)}" data-aion-timeline-clip-field="start_seconds" data-clip-id="${escapeHtml(clip.id)}"/></label>
+    <label class="field-label">Out<input class="input" type="number" min="0.1" step="0.1" value="${escapeHtml(clip.end_seconds)}" data-aion-timeline-clip-field="end_seconds" data-clip-id="${escapeHtml(clip.id)}"/></label>
+    <label class="field-label">Camera motion<select class="input" data-aion-timeline-clip-motion data-clip-id="${escapeHtml(clip.id)}">${[["none","Static"],["slow_zoom_in","Slow zoom in"],["slow_zoom_out","Slow zoom out"],["pan_left","Pan left"],["pan_right","Pan right"]].map(([key,label]) => `<option value="${key}" ${String(clip.motion_preset || "none") === key ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+    <button type="button" class="secondary-btn" data-aion-remove-timeline-clip="${escapeHtml(clip.id)}">Remove</button>
+  </div>`).join("");
+}
+
+function renderAionMarketingCreativeLab() {
+  const lab = getAionMarketingCreativeLabState();
+  const form = state.marketingForm || {};
+  const platformOptions = [
+    ["instagram_feed", "Instagram feed"], ["instagram_reels", "Instagram Reels"],
+    ["facebook_feed", "Facebook feed"], ["facebook_reels", "Facebook Reels"],
+    ["tiktok", "TikTok"], ["youtube_shorts", "YouTube Shorts"],
+    ["linkedin_feed", "LinkedIn feed"], ["linkedin_video", "LinkedIn video"],
+  ];
+  const formatOptions = [["image", "Images"], ["video", "Original video"], ["clip", "Short clips"], ["carousel", "Carousels"]];
+  const plan = lab.plan;
+  const renditions = Array.isArray(plan?.renditions) ? plan.renditions : [];
+  const campaignSchedule = Array.isArray(plan?.campaign_schedule) ? plan.campaign_schedule : [];
+  const variants = Array.isArray(plan?.experiment?.variants) ? plan.experiment.variants : [];
+  lab.metrics = lab.metrics || {};
+  const evaluation = lab.evaluation;
+  const videoJob = (plan?.generation_jobs || []).find((item) => item.render_type === "video") || null;
+  const renderJob = lab.renderJob;
+  const planHtml = plan ? `
+    <div style="margin-top:16px;border-top:1px solid #dbe4ec;padding-top:16px;">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap;">
+        <div><div class="panel-title">Production plan ready</div><div class="helper-text">${escapeHtml(plan.id)} · ${escapeHtml(renditions.length)} platform assets · ${escapeHtml(plan.generation_jobs?.length || 0)} governed render jobs</div></div>
+        <span class="badge">APPROVAL REQUIRED</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:12px;">
+        ${renditions.map((item) => `<div style="border:1px solid #cbd5e1;background:#f8fafc;padding:12px;">
+          <strong>${escapeHtml(item.platform_label)}</strong>
+          <div class="helper-text">${escapeHtml(item.format)} · ${escapeHtml(item.ratio)} · ${escapeHtml(item.width)}×${escapeHtml(item.height)}</div>
+          <div style="font-size:11px;color:#47637a;margin-top:7px;">${escapeHtml(item.caption_contract)}</div>
+        </div>`).join("")}
+      </div>
+      ${campaignSchedule.length ? `<div style="margin-top:16px;"><div style="color:#0f766e;font-size:10px;letter-spacing:.2em;font-weight:950;">CAMPAIGN CALENDAR</div><div class="helper-text" style="margin-top:5px;">AION has turned the instruction into ${escapeHtml(plan.duration_days || campaignSchedule.length)} days of distinct work. Every item remains approval-gated.</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;margin-top:9px;">${campaignSchedule.map((item) => `<div style="border:1px solid #cbd5e1;background:#fff;padding:10px;"><strong>Day ${escapeHtml(item.day)} · ${escapeHtml(item.theme)}</strong><div class="helper-text">${escapeHtml(item.platform_label)} · ${escapeHtml(item.format)}</div><div style="font-size:10px;color:#475569;margin-top:5px;">${escapeHtml(item.direction)}</div></div>`).join("")}</div></div>` : ""}
+      <div style="margin-top:16px;">
+        <div style="color:#0f766e;font-size:10px;letter-spacing:.2em;font-weight:950;">CONTROLLED CREATIVE EXPERIMENT</div>
+        <div class="helper-text" style="margin-top:5px;">One variable changes per challenger. Winners need ${escapeHtml(plan.experiment.minimum_sample_per_variant)} observations per variant, a ${escapeHtml(Math.round(plan.experiment.minimum_relative_improvement * 100))}% improvement and clean safety guardrails.</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:10px;">
+          ${variants.map((item) => `<div style="border-left:3px solid ${item.id === "A" ? "#0f766e" : "#0284c7"};background:#fff;border-top:1px solid #dbe4ec;border-right:1px solid #dbe4ec;border-bottom:1px solid #dbe4ec;padding:12px;">
+            <strong>${escapeHtml(item.id)} · ${escapeHtml(item.name)}</strong>
+            <div style="font-size:11px;color:#334e68;margin-top:6px;">Test: ${escapeHtml(item.controlled_variable)}</div>
+            <div style="font-size:11px;color:#587087;margin-top:5px;">${escapeHtml(item.change)}</div>
+          </div>`).join("")}
+        </div>
+        <div style="margin-top:14px;border:1px solid #dbe4ec;background:#f8fafc;padding:13px;">
+          <strong style="color:#0f172a;">Score imported or manually entered results</strong>
+          <div class="helper-text">Platform connectors can fill these later. Until then, enter comparable evidence for each variant.</div>
+          <div style="display:grid;gap:7px;margin-top:10px;">
+            ${variants.map((item) => {
+              const metric = lab.metrics[item.id] || {};
+              return `<div style="display:grid;grid-template-columns:70px repeat(3,minmax(100px,1fr));gap:7px;align-items:end;">
+                <strong>${escapeHtml(item.id)}</strong>
+                <label class="field-label">Sample<input class="input" type="number" min="0" value="${escapeHtml(metric.sample_size || "")}" data-aion-experiment-metric="sample_size" data-variant-id="${escapeHtml(item.id)}"/></label>
+                <label class="field-label">Result rate<input class="input" type="number" min="0" step="0.001" value="${escapeHtml(metric.primary_metric || "")}" data-aion-experiment-metric="primary_metric" data-variant-id="${escapeHtml(item.id)}"/></label>
+                <label class="field-label">Complaint rate<input class="input" type="number" min="0" step="0.001" value="${escapeHtml(metric.complaint_rate || "")}" data-aion-experiment-metric="complaint_rate" data-variant-id="${escapeHtml(item.id)}"/></label>
+              </div>`;
+            }).join("")}
+          </div>
+          <button type="button" class="secondary-btn" data-aion-evaluate-creative-experiment style="margin-top:10px;">Evaluate evidence</button>
+          ${evaluation ? `<div style="margin-top:10px;border-left:4px solid ${evaluation.status === "winner_candidate" ? "#16a34a" : "#f59e0b"};background:#fff;padding:11px;"><strong>${escapeHtml(String(evaluation.status || "").replaceAll("_", " ").toUpperCase())}</strong><div class="helper-text">${escapeHtml(evaluation.reason || "")}</div>${evaluation.winner_candidate ? `<div style="margin-top:5px;font-size:11px;">Candidate: ${escapeHtml(evaluation.winner_candidate)} · still requires approval before traffic changes.</div>` : ""}</div>` : ""}
+        </div>
+        ${videoJob ? `<div style="margin-top:14px;border:1px solid #cbd5e1;background:#fff;padding:13px;">
+          <div style="color:#0f766e;font-size:10px;letter-spacing:.2em;font-weight:950;">PREMIUM SOURCE RENDER</div>
+          <div class="helper-text" style="margin-top:5px;">Prepare one source-video job first. Preparation is free. Paid execution requires a separate exact approval bound to provider, model, prompt, duration, resolution and a maximum cost.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px;">
+            <label class="field-label">Provider<select class="input" data-aion-render-provider><option value="gemini" ${lab.renderProvider === "gemini" ? "selected" : ""}>Gemini Veo</option><option value="openai" ${lab.renderProvider === "openai" ? "selected" : ""}>OpenAI Sora</option></select></label>
+            <label class="field-label">Maximum approved cost (€)<input class="input" type="number" min="0.01" step="0.01" value="${escapeHtml(lab.renderCostCeiling)}" data-aion-render-cost-ceiling/></label>
+            <label class="field-label">Resolution<select class="input" data-aion-render-resolution><option value="720p">720p economical</option><option value="1080p">1080p premium</option></select></label>
+          </div>
+          <div style="margin-top:10px;border:1px dashed #94a3b8;background:#f8fafc;padding:10px;">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;"><div><strong>Reference images</strong><div class="helper-text">Optional visual guidance · OpenAI accepts 1, Gemini accepts up to 3.</div></div><button type="button" class="secondary-btn" data-aion-choose-render-references>Choose images</button></div>
+            <div class="helper-text" style="margin-top:6px;">${lab.referenceAssetPaths.length ? lab.referenceAssetPaths.map((path) => escapeHtml(aionCreativeFileName(path))).join(" · ") : "No reference images selected."}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+            ${!renderJob ? `<button type="button" class="secondary-btn" data-aion-prepare-video-render>Prepare render contract</button>` : ""}
+            ${renderJob?.status === "prepared" ? `<button type="button" class="primary-btn" data-aion-approve-video-render>Approve up to €${escapeHtml(lab.renderCostCeiling)}</button>` : ""}
+            ${renderJob?.status === "approved" ? `<button type="button" class="primary-btn" data-aion-submit-video-render>Start paid render</button>` : ""}
+            ${["submitted", "processing", "queued"].includes(renderJob?.status) ? `<button type="button" class="secondary-btn" data-aion-poll-video-render>Check render</button>` : ""}
+          </div>
+          ${renderJob ? `<div style="margin-top:9px;font-size:11px;color:#334e68;">Job ${escapeHtml(renderJob.id)} · ${escapeHtml(renderJob.provider)} · status <strong>${escapeHtml(renderJob.status)}</strong>${renderJob.asset?.path ? `<br/>Local owned source: ${escapeHtml(renderJob.asset.path)}` : ""}</div>` : ""}
+        </div>` : ""}
+      </div>
+    </div>` : `<div class="empty-state" style="margin-top:14px;">Build a plan to create the master concept, shot list, platform renditions and a measurable A/B test. This stage does not spend credits.</div>`;
+
+  return `
+    <section class="panel large-panel" id="creative-production" data-aion-marketing-creative-lab style="background:#ffffff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
+      <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;">
+        <div>
+          <div style="color:#0f766e;font-size:10px;letter-spacing:.22em;font-weight:950;">CREATIVE INTELLIGENCE LAB</div>
+          <div class="panel-title" style="margin-top:7px;font-size:22px;">Campaign production tools</div>
+          <div class="helper-text" style="max-width:900px;">AION controls these tools during an automated campaign. You can also use them directly to change platforms, formats, variants, video, clips, subtitles and final exports.</div>
+        </div>
+        <div class="badge-row"><span class="badge">NO AUTO SPEND</span><span class="badge">NO AUTO PUBLISH</span><span class="badge">EVIDENCE GATED</span></div>
+      </div>
+      <div style="margin-top:12px;border-left:4px solid #0284c7;background:#eff6ff;padding:11px;font-size:11px;"><strong>Where the doing happens:</strong> approve AION's campaign draft above to create its governed content package and image assets. Use this section when you want to change the plan or produce premium video and clips manually.</div>
+      <div style="display:grid;grid-template-columns:minmax(260px,1fr) minmax(300px,1.4fr);gap:18px;margin-top:18px;">
+        <div>
+          <label class="field-label">Creative outcome</label>
+          <textarea data-aion-creative-brief class="input input-textarea" placeholder="What should this campaign make the customer understand, feel and do?">${escapeHtml(lab.brief || form.brief || "")}</textarea>
+          <label class="field-label">Platforms</label>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            ${platformOptions.map(([key, label]) => `<label style="border:1px solid #cbd5e1;padding:7px 9px;font-size:11px;background:${lab.platforms.includes(key) ? "#ecfeff" : "#fff"};"><input type="checkbox" data-aion-creative-platform="${key}" ${lab.platforms.includes(key) ? "checked" : ""}/> ${label}</label>`).join("")}
+          </div>
+          <label class="field-label" style="margin-top:12px;">Content types</label>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;">
+            ${formatOptions.map(([key, label]) => `<label style="border:1px solid #cbd5e1;padding:7px 9px;font-size:11px;background:${lab.formats.includes(key) ? "#ecfeff" : "#fff"};"><input type="checkbox" data-aion-creative-format="${key}" ${lab.formats.includes(key) ? "checked" : ""}/> ${label}</label>`).join("")}
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+            <label class="field-label">A/B variants<select class="input" data-aion-creative-variant-count>${[2,3,4].map(value => `<option value="${value}" ${Number(lab.variantCount) === value ? "selected" : ""}>${value}</option>`).join("")}</select></label>
+            <label class="field-label">Success measure<select class="input" data-aion-creative-primary-metric><option value="qualified_action_rate">Qualified actions</option><option value="lead_rate">Leads</option><option value="booking_rate">Bookings</option><option value="watch_completion_rate">Watch completion</option></select></label>
+          </div>
+          <button type="button" class="primary-btn" data-aion-build-creative-plan style="width:100%;margin-top:14px;min-height:44px;">${lab.status === "building" ? "Building…" : "Build creative production plan"}</button>
+          ${lab.error ? `<div style="color:#b91c1c;font-size:11px;margin-top:8px;">${escapeHtml(lab.error)}</div>` : ""}
+        </div>
+        <div style="border:1px solid #dbe4ec;background:#f8fafc;padding:15px;">
+          <div style="color:#0f766e;font-size:10px;letter-spacing:.2em;font-weight:950;">RENDER ENGINE</div>
+          <div class="panel-title" style="margin-top:6px;">Direct first, optional specialists second</div>
+          <div class="helper-text">Primary: Gemini Veo/Imagen and OpenAI Sora/GPT Image. Optional: Runway, Luma and fal. Every output is downloaded into Tessaris, provenance-stamped and converted into platform renditions rather than left on an expiring provider URL.</div>
+          <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px;">
+            ${[["Gemini", "Image + Veo video"], ["OpenAI", "Image + Sora video"], ["Runway / Luma / fal", "Optional specialists"], ["Tessaris", "Clips, subtitles, variants, evidence"]].map(([a,b]) => `<div style="background:#fff;border:1px solid #dbe4ec;padding:10px;"><strong>${a}</strong><div class="helper-text">${b}</div></div>`).join("")}
+          </div>
+        </div>
+      </div>
+      ${planHtml}
+      <div style="margin-top:18px;border:1px solid #bae6fd;border-top:4px solid #0ea5e9;background:#fff;padding:18px;">
+        <div style="color:#0f766e;font-size:10px;letter-spacing:.2em;font-weight:950;">LOCAL TIMELINE & CLIP EXPORTER</div>
+        <div class="panel-title" style="margin-top:6px;">Visual multi-clip production timeline</div>
+        <div class="helper-text">Arrange clips by dragging them, trim each source, add transitions, timed subtitles, a campaign overlay, logo and music, then export an owned platform-ready MP4 locally.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button type="button" class="secondary-btn" data-aion-add-timeline-clips>+ Add video clips</button><button type="button" class="secondary-btn" data-aion-choose-timeline-music>Choose music</button><button type="button" class="secondary-btn" data-aion-choose-timeline-voiceover>Choose voice-over</button><button type="button" class="secondary-btn" data-aion-record-timeline-voiceover style="${lab.timelineVoiceoverRecording ? "background:#fee2e2;border-color:#ef4444;" : ""}">${lab.timelineVoiceoverRecording ? "Stop recording" : "Record narration"}</button><button type="button" class="secondary-btn" data-aion-choose-timeline-logo>Choose logo</button></div>
+        <div style="display:grid;gap:8px;margin-top:10px;">${renderAionTimelineClipCards(lab)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;align-items:end;margin-top:12px;">
+          <label class="field-label">Platform<select class="input" data-aion-timeline-platform>${platformOptions.map(([key,label]) => `<option value="${key}" ${lab.timelinePlatform === key ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+          <label class="field-label">Between clips<select class="input" data-aion-timeline-transition>${[["cut","Clean cut"],["fade","Fade"],["dissolve","Dissolve"],["wipeleft","Wipe left"],["slideleft","Slide left"]].map(([key,label]) => `<option value="${key}" ${lab.timelineTransition === key ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+          <label class="field-label">Transition seconds<input class="input" type="number" min="0" max="2" step="0.1" value="${escapeHtml(lab.timelineTransitionDuration)}" data-aion-timeline-transition-duration/></label>
+          <label class="field-label">Music volume<input class="input" type="range" min="0" max="1" step="0.05" value="${escapeHtml(lab.timelineMusicVolume)}" data-aion-timeline-music-volume/></label>
+        </div>
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:10px;margin-top:10px;">
+          <label class="field-label">Editable subtitle track <span class="helper-text">one per line: 0-3|Your subtitle</span><textarea class="input input-textarea" data-aion-timeline-subtitles placeholder="0-3|A better way to improve your home\n3-7|Built around your project">${escapeHtml(lab.timelineSubtitlesText)}</textarea></label>
+          <div><label class="field-label">Campaign overlay<input class="input" value="${escapeHtml(lab.timelineOverlayText)}" data-aion-timeline-overlay-text placeholder="HomeFixed · Almería"/></label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><label class="field-label">Position<select class="input" data-aion-timeline-overlay-position>${["top","center","bottom"].map((key) => `<option value="${key}" ${lab.timelineOverlayPosition === key ? "selected" : ""}>${key}</option>`).join("")}</select></label><label class="field-label">Animation<select class="input" data-aion-timeline-overlay-animation>${[["none","None"],["fade","Fade"],["slide_up","Slide up"]].map(([key,label]) => `<option value="${key}" ${lab.timelineOverlayAnimation === key ? "selected" : ""}>${label}</option>`).join("")}</select></label></div></div>
+        </div>
+        <div style="margin-top:12px;border:1px solid #bae6fd;background:#f0f9ff;padding:12px;">
+          <div style="color:#075985;font-size:10px;letter-spacing:.18em;font-weight:950;">PREMIUM AUDIO & BRAND FINISH</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:8px;align-items:end;">
+            <label class="field-label">Brand treatment<select class="input" data-aion-timeline-brand-preset>${[["clean","Clean editorial"],["bold","Bold commercial"],["cinematic","Cinematic"]].map(([key,label]) => `<option value="${key}" ${lab.timelineBrandPreset === key ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+            <label class="field-label">Audio master<select class="input" data-aion-timeline-audio-mastering>${[["social","Social -16 LUFS"],["broadcast","Broadcast -14 LUFS"],["off","No mastering"]].map(([key,label]) => `<option value="${key}" ${lab.timelineAudioMastering === key ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+            <label class="field-label">Voice-over starts<input class="input" type="number" min="0" step="0.1" value="${escapeHtml(lab.timelineVoiceoverStart)}" data-aion-timeline-voiceover-start/></label>
+            <label style="display:flex;gap:7px;align-items:center;min-height:40px;font-size:11px;font-weight:800;"><input type="checkbox" data-aion-timeline-duck-music ${lab.timelineDuckMusic ? "checked" : ""}/> Duck music under voice</label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;"><label class="field-label">Voice-over level<input class="input" type="range" min="0" max="2" step="0.05" value="${escapeHtml(lab.timelineVoiceoverVolume)}" data-aion-timeline-voiceover-volume/></label><div class="helper-text">Voice: ${escapeHtml(aionCreativeFileName(lab.timelineVoiceoverPath) || "none")} · Music: ${escapeHtml(aionCreativeFileName(lab.timelineMusicPath) || "none")} · Logo: ${escapeHtml(aionCreativeFileName(lab.timelineLogoPath) || "none")}</div></div>
+        </div>
+        <div class="helper-text" style="margin-top:8px;">Everything remains local until you explicitly approve a publication package.</div>
+        <button type="button" class="primary-btn" data-aion-export-local-clip style="margin-top:10px;">Export finished platform video</button>
+        ${lab.timeline?.export ? `<div style="margin-top:9px;border-left:4px solid #16a34a;background:#f0fdf4;padding:10px;"><strong>Export complete</strong><div class="helper-text">${escapeHtml(lab.timeline.export.path)} · ${escapeHtml(lab.timeline.export.width)}×${escapeHtml(lab.timeline.export.height)} · locally owned</div></div>` : ""}
+        ${lab.timeline?.export ? `<div style="margin-top:14px;border:1px solid #f59e0b;background:#fffbeb;padding:13px;">
+          <div style="color:#92400e;font-size:10px;letter-spacing:.18em;font-weight:950;">GOVERNED PUBLICATION PACKAGE</div>
+          <div class="helper-text" style="margin-top:4px;">Freeze the exact asset, copy, channel, schedule and budget. This prepares a connector-ready package; it does not publish or spend.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-top:9px;">
+            <label class="field-label">Channel<select class="input" data-aion-publication-channel>${[["instagram","Instagram"],["facebook","Facebook"],["linkedin","LinkedIn"],["tiktok","TikTok"],["youtube","YouTube"],["meta_ads","Meta Ads"],["google_ads","Google Ads"]].map(([key,label]) => `<option value="${key}" ${lab.publicationChannel === key ? "selected" : ""}>${label}</option>`).join("")}</select></label>
+            <label class="field-label">Mode<select class="input" data-aion-publication-mode><option value="organic" ${lab.publicationMode === "organic" ? "selected" : ""}>Organic</option><option value="paid" ${lab.publicationMode === "paid" ? "selected" : ""}>Paid campaign</option></select></label>
+            <label class="field-label">Daily budget (€)<input class="input" type="number" min="0" step="0.01" value="${escapeHtml(lab.publicationDailyBudget)}" data-aion-publication-daily-budget/></label>
+            <label class="field-label">Maximum total spend (€)<input class="input" type="number" min="0" step="0.01" value="${escapeHtml(lab.publicationSpendCeiling)}" data-aion-publication-spend-ceiling/></label>
+          </div>
+          <label class="field-label" style="margin-top:8px;">Approved caption<textarea class="input input-textarea" data-aion-publication-caption placeholder="Write the final platform caption…">${escapeHtml(lab.publicationCaption || lab.brief || "")}</textarea></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><label class="field-label">Call to action<input class="input" value="${escapeHtml(lab.publicationCta)}" data-aion-publication-cta/></label><label class="field-label">Schedule (optional ISO date/time)<input class="input" value="${escapeHtml(lab.publicationSchedule)}" data-aion-publication-schedule placeholder="2026-08-12T10:00:00+02:00"/></label></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;">${!lab.publicationPackage ? `<button type="button" class="secondary-btn" data-aion-prepare-publication>Prepare publication package</button>` : ""}${lab.publicationPackage?.status === "prepared" ? `<button type="button" class="primary-btn" data-aion-approve-publication>Approve exact package</button>` : ""}</div>
+          ${lab.publicationPackage ? `<div class="helper-text" style="margin-top:7px;">${escapeHtml(lab.publicationPackage.id)} · ${escapeHtml(lab.publicationPackage.status)} · connector ${lab.publicationPackage.connector?.connected ? "ready" : `waiting for ${escapeHtml((lab.publicationPackage.connector?.missing_credentials || []).join(", "))}`}</div>` : ""}
+        </div>` : ""}
+      </div>
+    </section>`;
+}
+
+const aionMarketingConnectionState = {
+  workspaceId: "", connections: [], loading: false, loaded: false, error: "", tiers: {}, messages: {}, polling: null,
+};
+
+async function loadAionMarketingConnections(force = false) {
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  if (aionMarketingConnectionState.loading || (!force && aionMarketingConnectionState.loaded && aionMarketingConnectionState.workspaceId === workspaceId)) return;
+  aionMarketingConnectionState.loading = true; aionMarketingConnectionState.workspaceId = workspaceId;
+  try {
+    const result = await apiGet(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}`);
+    aionMarketingConnectionState.connections = result.connections || [];
+    aionMarketingConnectionState.loaded = true; aionMarketingConnectionState.error = "";
+  } catch (error) { aionMarketingConnectionState.error = String(error?.message || error); }
+  finally { aionMarketingConnectionState.loading = false; if (typeof render === "function") render(); }
+}
+
+async function connectAionMarketingProvider(provider) {
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  const permission_tier = aionMarketingConnectionState.tiers[provider] || "analytics";
+  try {
+    const result = await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${encodeURIComponent(provider)}/connect`, { acting_person_id: "desktop_user", permission_tier });
+    if (result.authorization_url) {
+      aionMarketingConnectionState.messages[provider] = "Authorisation opened in your browser. Complete it there; Tessaris will detect the connection automatically.";
+      const opened = await window.aionDesktop?.openExternalUrl?.(result.authorization_url);
+      if (!opened) window.open(result.authorization_url, "_blank", "noopener,noreferrer");
+      showToast("Authorize the account in your browser, then return and press Refresh.");
+      startAionMarketingConnectionPolling(provider);
+    } else {
+      const missing = (result.missing || []).join(", ");
+      aionMarketingConnectionState.messages[provider] = `This channel is not activated in Tessaris yet. Platform setup still required: ${missing}.`;
+      showToast(`Platform setup required: ${missing}`);
+      requestRender();
+    }
+  } catch (error) { aionMarketingConnectionState.messages[provider] = String(error?.message || error); showToast(aionMarketingConnectionState.messages[provider]); requestRender(); }
+}
+
+function startAionMarketingConnectionPolling(provider) {
+  if (aionMarketingConnectionState.polling) clearInterval(aionMarketingConnectionState.polling);
+  let checks = 0;
+  aionMarketingConnectionState.polling = setInterval(async () => {
+    checks += 1; await loadAionMarketingConnections(true);
+    const connection = aionMarketingConnectionState.connections.find((item) => item.provider === provider);
+    if (connection?.connected || checks >= 60) {
+      clearInterval(aionMarketingConnectionState.polling); aionMarketingConnectionState.polling = null;
+      aionMarketingConnectionState.messages[provider] = connection?.connected ? "Connected. Choose the business account, then run the read-only test." : "Authorisation was not completed. Press Connect to try again.";
+      requestRender();
+    }
+  }, 2000);
+}
+
+async function examAionMarketingProvider(provider) {
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  try { const result = await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}/exam`, { acting_person_id: "desktop_user" }); showToast(`Read-only exam ${result.status}. No publishing or spend occurred.`); await loadAionMarketingConnections(true); }
+  catch (error) { showToast(String(error?.message || error)); }
+}
+
+async function disconnectAionMarketingProvider(provider) {
+  if (!window.confirm("Disconnect this business account? No content will be deleted from the platform.")) return;
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  try { await apiDelete(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}?acting_person_id=desktop_user`); await loadAionMarketingConnections(true); }
+  catch (error) { showToast(String(error?.message || error)); }
+}
+
+async function selectAionMarketingAccount(provider, kind, accountId) {
+  if (!accountId) return;
+  const workspaceId = String(getActiveWorkspaceId() || "workspace");
+  const connection = aionMarketingConnectionState.connections.find((item) => item.provider === provider) || {};
+  const selected_accounts = { ...(connection.selected_accounts || {}), [kind]: accountId };
+  try { await apiPost(`/api/aion/marketing/connections/${encodeURIComponent(workspaceId)}/${provider}/select`, { acting_person_id: "desktop_user", selected_accounts }); await loadAionMarketingConnections(true); }
+  catch (error) { showToast(String(error?.message || error)); }
+}
+
+function renderAionMarketingConnectionsCentre() {
+  if (!aionMarketingConnectionState.loaded && !aionMarketingConnectionState.loading) setTimeout(() => loadAionMarketingConnections(), 0);
+  const cards = (aionMarketingConnectionState.connections || []).map((item) => {
+    const tier = aionMarketingConnectionState.tiers[item.provider] || item.permission_tier || "analytics";
+    const accountKinds = [...new Set((item.accounts || []).map((account) => account.kind || "primary"))];
+    const ready = item.connected && Object.keys(item.selected_accounts || {}).length && item.health === "healthy";
+    return `<article style="border:1px solid ${ready ? "#86efac" : "#cbd5e1"};padding:14px;background:#fff;display:grid;gap:10px;min-height:245px;">
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:start;"><div style="display:flex;gap:10px;align-items:center;"><div style="width:38px;height:38px;border-radius:10px;background:#eff6ff;color:#1d4ed8;display:grid;place-items:center;font-weight:950;font-size:16px;">${escapeHtml(item.label.slice(0,1))}</div><div><strong>${escapeHtml(item.label)}</strong><div class="helper-text">${ready ? "Ready to use" : item.connected ? "Connected · finish setup" : item.configured ? "Available to connect" : "Not activated in Tessaris yet"}</div></div></div><span class="badge">${ready ? "READY" : item.connected ? "SETUP" : "OFF"}</span></div>
+      <div style="font-size:11px;color:#475569;">${item.connected ? "Step 2 of 3: choose the account, then test it." : item.configured ? "Step 1 of 3: securely authorise your business account." : "The Tessaris platform application must be activated before customers can connect."}</div>
+      <label class="field-label">What should Tessaris be allowed to do?<select class="input" data-aion-connection-tier="${item.provider}"><option value="analytics" ${tier === "analytics" ? "selected" : ""}>Measure results only</option><option value="organic" ${tier === "organic" ? "selected" : ""}>Measure + publish approved posts</option><option value="advertising" ${tier === "advertising" ? "selected" : ""}>Measure + approved posts + ads</option></select></label>
+      ${item.connected && item.accounts?.length ? accountKinds.map((kind) => `<label class="field-label">Choose ${escapeHtml(String(kind).replaceAll("_", " "))}<select class="input" data-aion-connection-account-provider="${item.provider}" data-aion-connection-account-kind="${escapeHtml(kind)}"><option value="">Select account…</option>${item.accounts.filter((account) => (account.kind || "primary") === kind).map((account) => `<option value="${escapeHtml(account.id)}" ${String(item.selected_accounts?.[kind] || "") === String(account.id) ? "selected" : ""}>${escapeHtml(account.name || account.id)}</option>`).join("")}</select></label>`).join("") : ""}
+      ${aionMarketingConnectionState.messages[item.provider] ? `<div style="font-size:11px;padding:9px;background:#f8fafc;border-left:3px solid #2563eb;">${escapeHtml(aionMarketingConnectionState.messages[item.provider])}</div>` : ""}
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:auto;"><button class="secondary-btn" type="button" data-aion-connect-marketing-provider="${item.provider}">${item.connected ? "Change access" : item.configured ? "Connect account" : "Why unavailable?"}</button>${item.connected ? `<button class="secondary-btn" type="button" data-aion-exam-marketing-provider="${item.provider}">Test connection</button><button class="secondary-btn" type="button" data-aion-disconnect-marketing-provider="${item.provider}">Disconnect</button>` : ""}</div>
+    </article>`;
+  }).join("");
+  const readyCount = (aionMarketingConnectionState.connections || []).filter((item) => item.connected && Object.keys(item.selected_accounts || {}).length && item.health === "healthy").length;
+  return `<section class="panel large-panel" id="marketing-connections" data-aion-marketing-connections-centre style="background:#fff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">MARKETING CONNECTIONS CENTRE</div><div class="panel-title" style="margin-top:7px;">Connect each business's own channels</div><div class="helper-text">Customers sign in to their own accounts. Tessaris stores tokens securely, validates access read-only and keeps publishing and advertising spend separately approval-gated.</div></div><button class="secondary-btn" type="button" data-aion-refresh-marketing-connections>Refresh</button></div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:12px;"><span class="badge">${readyCount} READY</span><span class="helper-text">Connect → choose account → test. Publishing remains separately approved.</span></div>
+    ${aionMarketingConnectionState.error ? `<div class="error-state">${escapeHtml(aionMarketingConnectionState.error)}</div>` : ""}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:10px;margin-top:12px;">${cards || `<div class="empty-state">${aionMarketingConnectionState.loading ? "Loading connections…" : "Connection status unavailable."}</div>`}</div>
+  </section>`;
+}
+
+function aionMarketingCampaignPayload(brief) {
+  const form = state.marketingForm || {};
+  const workspaceId = String(getActiveWorkspaceId() || state.workspaceId || "workspace");
+  const selectedChannels = getAionMarketingCreativeLabState().platforms.map((value) => String(value).replaceAll("_", " "));
+  const staleOffer = /spring telecom upgrade/i.test(String(form.offer || ""));
+  const foundation = buildBrandFoundationPayload() || {};
+  const inferredOffer = String(brief || "").match(/target(?:ing|ed at)\s+(.+?)(?:\s+in\s+[A-ZÁÉÍÓÚÑ]|\s+for\s+|[.,]|$)/i)?.[1]?.trim() || "the approved product or service";
+  const staleAudience = /core service towns|local service buyer/i.test(String(form.targetAudience || ""));
+  return {
+    workspace_id: workspaceId,
+    brief,
+    objective: String(form.objective || "Generate qualified enquiries"),
+    funnel_goal: String(form.funnelGoal || "Lead capture"),
+    target_audience: String((staleAudience ? "" : form.targetAudience) || foundation.target_customers || foundation.target_audience || "The business's priority customer"),
+    persona: String(form.persona || "Qualified local buyer"),
+    offer: staleOffer ? inferredOffer : String(form.offer || inferredOffer),
+    channels: selectedChannels.length ? selectedChannels : ["Facebook"],
+    hashtags: splitLines(form.hashtags || ""), keywords: splitLines(form.keywords || ""),
+    hard_rules: [...new Set(["Do not publish automatically.", ...splitLines(form.hardRules || "")])],
+    guidance_notes: splitLines(form.guidanceNotes || ""), campaign_notes: splitLines(form.campaignNotes || ""),
+    creative_assets: [...buildCreativeAssetsPayload(), ...(Array.isArray(getAionMarketingCreativeLabState().strategyAssets) ? getAionMarketingCreativeLabState().strategyAssets : [])], creative_direction: {
+      ...buildCreativeDirectionPayload(),
+      boardroom_source: "marketing_assignment_package",
+      campaign_type: getAionMarketingCreativeLabState().campaignType,
+      subject_offering_id: getAionMarketingCreativeLabState().subjectOfferingId,
+      campaign_angle: getAionMarketingCreativeLabState().campaignAngle,
+      proof_claim: getAionMarketingCreativeLabState().proofClaim,
+      asset_readiness: getAionMarketingCreativeLabState().assetReadiness,
+    },
+    brand_foundation: (() => {
+      return {
+        business_name: foundation.business_name || foundation.name || "",
+        website: foundation.website || foundation.website_url || "",
+        business_type: foundation.business_type || "",
+        products_services: foundation.products_services || foundation.offer_summary || "",
+        target_customers: foundation.target_customers || foundation.target_audience || "",
+        tone_of_voice: foundation.tone_of_voice || foundation.voice_tone || "",
+        service_area: foundation.service_area || "",
+        brand_notes: foundation.brand_notes || "",
+      };
+    })(),
+    brandFoundationState: {},
+    brand_map: {},
+  };
+}
+
+function compactAionMarketingRun(run) {
+  if (!run || typeof run !== "object") return null;
+  const context = run.context || {};
+  const result = run.result_payload || {};
+  return {
+    id: run.id,
+    workspace_id: run.workspace_id,
+    workflow_id: run.workflow_id,
+    workflow_name: run.workflow_name,
+    department_key: run.department_key,
+    status: run.status,
+    created_at: run.created_at,
+    updated_at: run.updated_at,
+    scheduled_for: run.scheduled_for,
+    approval_request_id: run.approval_request_id,
+    context: {
+      business_name: context.business_name,
+      approval_packet: context.approval_packet,
+      post_package: context.post_package,
+      draft_caption: context.draft_caption,
+      draft_carousel: context.draft_carousel,
+    },
+    result_payload: {
+      post_package: result.post_package,
+      draft_caption: result.draft_caption,
+      draft_carousel: result.draft_carousel,
+    },
+  };
+}
+
+function inferAionMarketingPlatformsFromBrief(brief) {
+  const value = String(brief || "").toLowerCase();
+  const inferred = [];
+  if (value.includes("facebook")) inferred.push("facebook_feed", "facebook_reels");
+  if (value.includes("instagram")) inferred.push("instagram_feed", "instagram_reels");
+  if (value.includes("tiktok")) inferred.push("tiktok");
+  if (value.includes("youtube") || value.includes("shorts")) inferred.push("youtube_shorts");
+  if (value.includes("linkedin")) inferred.push("linkedin_feed", "linkedin_video");
+  return [...new Set(inferred)];
+}
+
+function getAionMarketingOfferings() {
+  const workspace = window.AionOperatingModelWorkspace;
+  if (workspace && !workspace.state?.loaded && !workspace.state?.loading) setTimeout(() => workspace.load?.(), 0);
+  return Array.isArray(workspace?.state?.model?.offerings) ? workspace.state.model.offerings.filter((item) => String(item?.name || "").trim()) : [];
+}
+
+function aionMarketingAssetRequirements(campaignType) {
+  return ({
+    proof_project: ["Before/during/after photos or video of the real work", "Customer/location permission where identifiable", "Verified result, specification and approved price claim"],
+    product_service: ["Real product or service photographs/video", "Approved features, options and current price", "Proof of availability or delivery boundary"],
+    founder_story: ["Founder interview or direct-to-camera recording", "Approved founder biography and origin story", "Supporting workplace/product footage"],
+    team_story: ["Real team footage or portraits with permission", "Names, roles and approved story points", "Evidence of the team doing the work"],
+    educational: ["Verified expertise, policy or product source", "Useful demonstration footage or diagrams", "Approved advice boundary and call to action"],
+    brand_story: ["Original brand/founder archive or current footage", "Verified timeline and claims", "Approved brand purpose and customer relevance"],
+    offer: ["Exact product/service and approved price", "Real proof visual", "Terms, exclusions, availability and expiry"],
+  })[campaignType] || ["Original evidence relevant to the campaign", "Verified claims", "Approved call to action"];
+}
+
+function getAionMarketingBoardroomBrief() {
+  const pkg =
+    window.aionGetDepartmentBoardroomPackageO14A?.("marketing") ||
+    window.aion?.departmentIntelligence?.marketing?.active_boardroom_package ||
+    window.aion?.departmentIntelligence?.marketing?.goal_loop_assignment ||
+    window.__aionO14ABoardroomDepartmentPackages?.marketing ||
+    null;
+  const graph =
+    window.__aionBoardroomGoalSheetGraph ||
+    window.__aionO13ABoardroomGoalSheetGraph ||
+    window.__aionO12BActiveGoalSheetGraph ||
+    window.__aionGoalLoopBoardroomGraph ||
+    null;
+  const minuteNode = (Array.isArray(graph?.nodes) ? graph.nodes : []).find((node) => {
+    const identity = `${node?.type || ""} ${node?.id || node?.node_id || ""} ${node?.title || ""}`.toLowerCase();
+    return identity.includes("meeting_minutes") || identity.includes("meeting minutes");
+  });
+  const minutePayload = minuteNode?.data || minuteNode?.payload || minuteNode?.document || minuteNode || {};
+  const candidates = [
+    pkg?.meeting_minutes,
+    pkg?.boardroom_meeting_minutes,
+    pkg?.boardroom_brief,
+    minutePayload?.minutes,
+    minutePayload?.content,
+    minutePayload?.summary,
+    minutePayload?.body,
+    minutePayload?.text,
+    graph?.meeting_minutes,
+    graph?.board_meeting_minutes,
+  ];
+  const stringify = (value) => {
+    if (typeof value === "string") return value.trim();
+    if (Array.isArray(value)) return value.map(stringify).filter(Boolean).join("\n");
+    if (value && typeof value === "object") {
+      return [value.title, value.summary, value.decision, value.action, value.content, value.body]
+        .map(stringify).filter(Boolean).join("\n");
+    }
+    return "";
+  };
+  const minutes = candidates.map(stringify).find((value) => value.length > 20) || "";
+  const goal = String(pkg?.parent_goal_title || graph?.parent_goal_title || "").trim();
+  const summary = String(pkg?.parent_goal_summary || pkg?.assignment?.purpose || "").trim();
+  const body = minutes || [goal, summary].filter(Boolean).join(" — ");
+  const generic = !body || /increase business growth through coordinated department goals/i.test(body);
+  return {
+    packageId: String(pkg?.package_id || ""),
+    title: goal || "Marketing Boardroom assignment",
+    body: body || "No approved Marketing meeting-minutes brief is available yet.",
+    sourceAvailable: Boolean(pkg),
+    specific: Boolean(pkg) && !generic,
+  };
+}
+
+function composeAionMarketingProductionBrief(cmoInstruction = "") {
+  const lab = getAionMarketingCreativeLabState();
+  const boardroom = getAionMarketingBoardroomBrief();
+  const offering = getAionMarketingOfferings().find((item) => String(item.id || item.name) === String(lab.subjectOfferingId || ""));
+  return [
+    "BOARDROOM MEETING-MINUTES BRIEF (governing):",
+    boardroom.body,
+    boardroom.packageId ? `Boardroom package: ${boardroom.packageId}` : "Boardroom package: not recorded",
+    "",
+    "CMO EXECUTION DETAIL:",
+    `Campaign approach: ${lab.campaignType || "not selected"}`,
+    `Product/service: ${offering?.name || "not selected"}`,
+    `CMO angle: ${lab.campaignAngle || "to be developed from the Boardroom brief"}`,
+    `Proof required: ${lab.proofClaim || "no unsupported claim permitted"}`,
+    `Owner refinement: ${String(cmoInstruction || "").trim() || "none"}`,
+    "",
+    "EVIDENCE AND AUTHORITY:",
+    `Original assets: ${Array.isArray(lab.strategyAssets) ? lab.strategyAssets.length : 0}`,
+    `Evidence readiness: ${lab.assetReadiness || "needs_assets"}`,
+    "Do not replace the Boardroom objective with the owner refinement. Do not invent prices, results, customer claims or project evidence.",
+  ].join("\n");
+}
+
+function renderAionMarketingDirectorBrief() {
+  const lab = getAionMarketingCreativeLabState();
+  const boardroom = getAionMarketingBoardroomBrief();
+  const offerings = getAionMarketingOfferings();
+  const selected = offerings.find((item) => String(item.id || item.name) === String(lab.subjectOfferingId || "")) || offerings[0] || null;
+  if (!lab.subjectOfferingId && selected) lab.subjectOfferingId = String(selected.id || selected.name);
+  const requirements = aionMarketingAssetRequirements(lab.campaignType);
+  const assets = Array.isArray(lab.strategyAssets) ? lab.strategyAssets : [];
+  const evidenceReady = lab.assetReadiness === "verified_sources" || assets.length > 0;
+  const subjectLabel = selected?.name || "No product or service selected";
+  const margin = Number(selected?.price || 0) - Number(selected?.material_cost_per_unit || 0) - Number(selected?.labour_cost_per_unit || 0) - Number(selected?.other_direct_cost_per_unit || 0);
+  const recommendation = lab.campaignType === "proof_project"
+    ? `Show a genuine ${subjectLabel} project from problem to finished result. Lead with the customer's situation, demonstrate the work and choices, then invite a qualified enquiry.`
+    : `Build the campaign around verified ${subjectLabel} evidence and adapt that story to each selected channel.`;
+  return `<section data-aion-marketing-director-brief style="border:2px solid #0ea5e9;background:#fff;margin-top:18px;">
+    <header style="padding:20px 22px;border-bottom:1px solid #bae6fd;display:flex;justify-content:space-between;gap:14px;align-items:start;background:#f8fcff;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">BOARDROOM → CMO → PRODUCTION</div><h2 style="margin:8px 0 5px;color:#172033;">Marketing Director campaign brief</h2><div class="helper-text">The Boardroom decides what the business should achieve and why. The CMO turns those meeting minutes into the audience, story, channel plan and exact asset request. Production begins only when the evidence is ready.</div></div><button type="button" class="secondary-btn" data-aion-o18ad-open-package="marketing">Open Boardroom package</button></header>
+    <div style="padding:20px 22px;display:grid;gap:16px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;"><article style="border-left:4px solid #0ea5e9;background:#f0f9ff;padding:14px;"><div class="field-label">1 · Boardroom source · governing</div><strong>${escapeHtml(boardroom.title)}</strong><div style="white-space:pre-wrap;margin-top:7px;font-size:12px;line-height:1.55;color:#334155;">${escapeHtml(boardroom.body)}</div><div class="helper-text">${boardroom.packageId ? `Package ${escapeHtml(boardroom.packageId)}` : "No package identifier recorded"}. The CMO cannot silently overwrite this objective.</div>${!boardroom.specific ? `<div style="margin-top:8px;color:#92400e;font-size:11px;font-weight:800;">The current package is broad. The CMO may prepare a proposal, but the Boardroom must approve a specific campaign direction before publishing or spend.</div>` : ""}</article><article style="border-left:4px solid #087f5b;background:#f0fdf4;padding:14px;"><div class="field-label">2 · CMO recommendation · execution</div><strong>${escapeHtml(recommendation)}</strong>${selected ? `<div class="helper-text">Products & Services evidence: ${escapeHtml(subjectLabel)}${selected.price ? ` · ${escapeHtml(String(selected.price))} ${escapeHtml(window.AionOperatingModelWorkspace?.state?.model?.currency || "EUR")}` : ""}${margin > 0 ? ` · indicative contribution ${escapeHtml(String(margin.toFixed(2)))}` : ""}. Claims still require owner approval.</div>` : `<div class="helper-text">Complete Products & Services before AION makes a product-led recommendation.</div>`}</article></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+        <label class="field-label">Campaign approach<select class="input" data-aion-strategy-field="campaignType"><option value="proof_project" ${lab.campaignType === "proof_project" ? "selected" : ""}>Real project / customer proof</option><option value="product_service" ${lab.campaignType === "product_service" ? "selected" : ""}>Product or service</option><option value="educational" ${lab.campaignType === "educational" ? "selected" : ""}>Useful education</option><option value="founder_story" ${lab.campaignType === "founder_story" ? "selected" : ""}>Founder story</option><option value="team_story" ${lab.campaignType === "team_story" ? "selected" : ""}>Team story</option><option value="brand_story" ${lab.campaignType === "brand_story" ? "selected" : ""}>Brand story</option><option value="offer" ${lab.campaignType === "offer" ? "selected" : ""}>Specific offer</option></select></label>
+        <label class="field-label">Product or service<select class="input" data-aion-strategy-field="subjectOfferingId"><option value="">Choose from Products & Services</option>${offerings.map((item) => `<option value="${escapeHtml(String(item.id || item.name))}" ${String(item.id || item.name) === String(lab.subjectOfferingId) ? "selected" : ""}>${escapeHtml(item.name)}${item.price ? ` · ${escapeHtml(String(item.price))}` : ""}</option>`).join("")}</select></label>
+        <label class="field-label">Evidence readiness<select class="input" data-aion-strategy-field="assetReadiness"><option value="needs_assets" ${lab.assetReadiness === "needs_assets" ? "selected" : ""}>We need original assets</option><option value="assets_uploaded" ${lab.assetReadiness === "assets_uploaded" ? "selected" : ""}>Original assets uploaded</option><option value="verified_sources" ${lab.assetReadiness === "verified_sources" ? "selected" : ""}>Verified source material is sufficient</option></select></label>
+      </div>
+      <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:12px;"><label class="field-label">CMO angle and key message<textarea class="input" data-aion-strategy-input="campaignAngle" placeholder="Example: Show the real installation, explain white versus matt black, name the approved starting price and invite a site assessment.">${escapeHtml(lab.campaignAngle || "")}</textarea></label><label class="field-label">Claim or outcome that must be proven<textarea class="input" data-aion-strategy-input="proofClaim" placeholder="Example: completed project, exact specification, approved customer result or current price.">${escapeHtml(lab.proofClaim || "")}</textarea></label></div>
+      <section style="border:1px solid #bae6fd;background:#f8fcff;padding:15px;"><div style="display:flex;justify-content:space-between;gap:12px;align-items:start;"><div><div class="field-label">3 · Asset request from the CMO</div><strong>AION needs original evidence before it manufactures content</strong></div><span class="badge">${evidenceReady ? "EVIDENCE READY" : "WAITING FOR BUSINESS"}</span></div><ul style="margin:10px 0 12px;padding-left:20px;line-height:1.7;">${requirements.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul><div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap;"><label class="secondary-btn" style="cursor:pointer;">Upload photos, video or documents<input type="file" multiple accept="image/*,video/*,.pdf,.doc,.docx" data-aion-strategy-assets style="display:none;"></label><button type="button" class="secondary-btn" data-aion-prepare-asset-request>Prepare request for founder/team</button><span class="helper-text">${assets.length ? `${assets.length} original asset(s) attached` : "No original assets attached yet"}</span></div>${lab.assetRequestPrepared ? `<div style="margin-top:10px;border-left:4px solid #f59e0b;background:#fffbeb;padding:10px;">Asset request prepared. Collect these materials from the founder, team or customer before approving production.</div>` : ""}</section>
+      <div style="border-left:4px solid ${evidenceReady ? "#16a34a" : "#f59e0b"};background:${evidenceReady ? "#f0fdf4" : "#fffbeb"};padding:12px;"><strong>${evidenceReady ? "Ready for the CMO to write the detailed production brief" : "Campaign production is intentionally paused"}</strong><div class="helper-text">${evidenceReady ? "AION may plan and draft from the Boardroom brief plus these verified assets. Publishing remains approval-gated." : "AION may recommend the strategy and request assets, but it will not create generic AI visuals and call them finished marketing."}</div></div>
+    </div>
+  </section>`;
+}
+
+async function launchAionMarketingCampaign(brief, mode = "aion") {
+  const value = String(brief || "").trim();
+  const lab = getAionMarketingCreativeLabState();
+  if (!value) { lab.campaignError = "Tell AION what outcome you want first."; requestRender(); return; }
+  const hasOriginalAssets = Array.isArray(lab.strategyAssets) && lab.strategyAssets.length > 0;
+  if (lab.assetReadiness === "needs_assets" && !hasOriginalAssets) {
+    lab.campaignError = "The CMO has paused production because this campaign needs original photos, video or verified source material. Upload the requested evidence or explicitly confirm that verified sources are sufficient.";
+    lab.assetRequestPrepared = true;
+    requestRender();
+    document.querySelector("[data-aion-marketing-director-brief]")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (["proof_project", "product_service", "offer"].includes(lab.campaignType) && !lab.subjectOfferingId) {
+    lab.campaignError = "Choose the real product or service this campaign concerns before production starts.";
+    requestRender();
+    return;
+  }
+  const productionBrief = composeAionMarketingProductionBrief(value);
+  const inferredPlatforms = inferAionMarketingPlatformsFromBrief(`${value}\n${productionBrief}`);
+  if (inferredPlatforms.length) lab.platforms = inferredPlatforms;
+  const payload = aionMarketingCampaignPayload(productionBrief);
+  lab.brief = value; lab.campaignStage = "planning"; lab.campaignMessage = "AION is turning the outcome into a campaign plan.";
+  lab.campaignError = ""; lab.campaignRunId = ""; lab.campaignApprovalId = ""; lab.campaignDraft = null; lab.campaignResult = null;
+  desktopStore.setMarketingField("brief", value); desktopStore.persistCache(); requestRender();
+  try {
+    const planResult = await apiPost("/api/aion/marketing/creative/plan", {
+      brief: productionBrief, objective: payload.objective, audience: payload.target_audience, offer: payload.offer,
+      tone: String((state.marketingForm || {}).styleDirection || "Clear, credible and human"),
+      call_to_action: payload.funnel_goal, platforms: lab.platforms, formats: lab.formats,
+      variant_count: Number(lab.variantCount || 3), primary_metric: lab.primaryMetric || "qualified_action_rate",
+    });
+    lab.plan = planResult?.plan || null; lab.status = "ready"; lab.campaignStage = "generating";
+    persistAionMarketingCampaignState(lab);
+    lab.campaignMessage = "Plan ready. AION is drafting the campaign copy and carousel. This can take a few minutes."; requestRender();
+    const launchResult = await apiPost("/api/local-node/marketing/launch", payload);
+    if (!launchResult?.ok || !launchResult?.item) throw new Error(launchResult?.detail || "Campaign draft did not start");
+    const run = launchResult.item; lab.campaignRunId = run.id || ""; lab.campaignApprovalId = run.approval_request_id || "";
+    lab.campaignDraft = run.context?.approval_packet || run.result_payload?.approval_packet || null;
+    lab.campaignStage = run.status === "waiting_approval" ? "approval" : run.status === "completed" ? "complete" : "generating";
+    lab.campaignMessage = lab.campaignStage === "approval" ? "Campaign draft ready. Review the exact copy below, then approve production." : "AION is continuing the campaign build.";
+    lab.campaignResult = compactAionMarketingRun(run); persistAionMarketingCampaignState(lab); requestRender();
+  } catch (error) {
+    lab.campaignStage = "error"; lab.campaignError = String(error?.message || error); lab.campaignMessage = "AION could not complete this stage."; requestRender();
+  }
+}
+
+async function approveAionMarketingCampaign() {
+  const lab = getAionMarketingCreativeLabState();
+  if (!lab.campaignApprovalId) return;
+  lab.campaignStage = "producing"; lab.campaignMessage = "Approved. AION is producing the final local content package and image assets."; lab.campaignError = ""; requestRender();
+  try {
+    const result = await apiPost(`/api/local-node/approvals/${encodeURIComponent(lab.campaignApprovalId)}/resolve`, {
+      approve: true, resolved_by: "desktop_user", resolution_note: "Exact Marketing campaign draft approved in the unified campaign journey.",
+      workspace_id: String(getActiveWorkspaceId() || state.workspaceId || "workspace"),
+    });
+    const run = result?.run || result?.item || result;
+    lab.campaignResult = compactAionMarketingRun(run); lab.campaignStage = run?.status === "completed" ? "complete" : "producing";
+    const imageStatus = run?.result_payload?.post_package?.image_generation?.status || run?.context?.post_package?.image_generation?.status || "";
+    lab.campaignMessage = lab.campaignStage === "complete"
+      ? (imageStatus === "failed" ? "Campaign copy is ready, but the visual needs attention. Retry it below or add your own image." : "Content package complete. Review the copy and assets, then adapt or prepare publication.")
+      : "Production is continuing locally.";
+    persistAionMarketingCampaignState(lab);
+    requestRender();
+  } catch (error) { lab.campaignStage = "error"; lab.campaignError = String(error?.message || error); requestRender(); }
+}
+
+function renderAionMarketingCampaignJourney() {
+  const lab = getAionMarketingCreativeLabState();
+  const stages = [["brief","1. Instructions"],["planning","2. Plan"],["generating","3. Draft"],["approval","4. Approve"],["complete","5. Content ready"]];
+  const order = {brief:0, planning:1, generating:2, approval:3, producing:4, complete:5, error:0};
+  const current = order[lab.campaignStage] ?? 0;
+  const draft = lab.campaignDraft || lab.campaignResult?.context?.approval_packet || {};
+  const post = lab.campaignResult?.result_payload?.post_package || lab.campaignResult?.context?.post_package || {};
+  const caption = draft.draft_caption || post.caption || post.draft_caption || "";
+  const carousel = draft.draft_carousel || post.carousel || [];
+  const imageGeneration = post.image_generation || {};
+  const schedule = Array.isArray(lab.plan?.campaign_schedule) ? lab.plan.campaign_schedule : [];
+  const isPlaceholder = imageGeneration.provider === "tessaris_local";
+  const isOwnedMedia = imageGeneration.provider === "tessaris_owned_media" || imageGeneration.provider === "uploaded_business_asset";
+  return `<div data-aion-marketing-campaign-journey style="margin-top:14px;border:1px solid #bae6fd;background:#fff;padding:14px;">
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">${stages.map(([key,label], index) => `<div style="padding:8px;text-align:center;font-size:10px;font-weight:900;border-bottom:4px solid ${index <= current ? "#0f766e" : "#dbe4ec"};color:${index <= current ? "#0f766e" : "#64748b"};">${label}</div>`).join("")}</div>
+    <div style="margin-top:12px;"><strong>${escapeHtml(lab.campaignMessage || "Ready for instructions.")}</strong>${lab.campaignRunId ? `<div class="helper-text">Campaign run ${escapeHtml(lab.campaignRunId)}</div>` : ""}</div>
+    ${["planning","generating","producing"].includes(lab.campaignStage) ? `<div style="height:5px;background:#dbe4ec;margin-top:10px;overflow:hidden;"><div style="width:55%;height:100%;background:#0f766e;animation:pulse 1.4s infinite;"></div></div>` : ""}
+    ${caption ? `<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:10px;margin-top:12px;"><div style="background:#fff;border:1px solid #dbe4ec;padding:12px;"><div class="field-label">Campaign copy</div><div style="white-space:pre-wrap;font-size:12px;line-height:1.6;">${escapeHtml(caption)}</div></div><div style="background:#fff;border:1px solid #dbe4ec;padding:12px;"><div class="field-label">Carousel/story sequence</div><ol style="padding-left:18px;font-size:12px;line-height:1.6;">${(Array.isArray(carousel) ? carousel : []).map((item) => `<li>${escapeHtml(typeof item === "string" ? item : item.headline || item.body || "")}</li>`).join("")}</ol></div></div>` : ""}
+    ${schedule.length ? `<div style="margin-top:12px;background:#fff;border:1px solid #dbe4ec;padding:12px;"><div class="field-label">${escapeHtml(lab.plan.duration_days || schedule.length)}-day campaign sequence</div><div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:7px;margin-top:8px;">${schedule.map((item) => `<div style="border-left:3px solid #0f766e;background:#f8fafc;padding:9px;"><strong>Day ${escapeHtml(item.day)} · ${escapeHtml(item.theme)}</strong><div class="helper-text">${escapeHtml(item.platform_label)} · ${escapeHtml(item.format)}</div><div style="font-size:10px;color:#475569;margin-top:4px;">${escapeHtml(item.direction)}</div></div>`).join("")}</div></div>` : ""}
+    ${lab.campaignStage === "approval" ? `<div style="display:flex;gap:8px;margin-top:12px;"><button type="button" class="primary-btn" data-aion-approve-current-campaign>Approve draft & create assets</button><button type="button" class="secondary-btn" data-aion-scroll-manual-marketing>Edit inputs first</button></div>` : ""}
+    ${lab.campaignStage === "complete" ? `<div style="margin-top:12px;border-left:4px solid ${imageGeneration.status === "failed" || isPlaceholder ? "#f59e0b" : "#16a34a"};background:#fff;padding:11px;"><strong>${imageGeneration.status === "failed" ? "Copy ready · visual not created" : isPlaceholder ? "Draft layout ready · original evidence still required" : isOwnedMedia ? "Owned-media content package ready" : "AI-assisted content package ready"}</strong><div class="helper-text">${imageGeneration.status === "failed" ? "The image service did not complete. Your copy and schedule are safe; retry the visual or upload your own in Content Studio below." : isPlaceholder ? "This is a clearly labelled layout placeholder, not finished campaign photography. Add real project, product, founder or team media before approval." : `Image assets: ${escapeHtml(imageGeneration.status || "not generated")} · nothing published.`}</div><button type="button" class="primary-btn" data-aion-scroll-creative-tools style="margin-top:8px;">${imageGeneration.status === "failed" || isPlaceholder ? "Add or fix campaign evidence" : "Review & adapt creative assets"}</button></div>` : ""}
+    ${lab.campaignError ? `<div style="margin-top:10px;color:#b91c1c;background:#fef2f2;padding:10px;">${escapeHtml(lab.campaignError)}</div>` : ""}
+  </div>`;
+}
+
+function renderAionMarketingManualQuickStudio() {
+  const form = state.marketingForm || {};
+  return `<section class="panel large-panel" id="manual-marketing-studio" style="background:#fff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">MANUAL CREATION</div><div class="panel-title" style="margin-top:7px;">Create with full control</div><div class="helper-text">Use the same brand, generation, approval and publishing pipeline while choosing every input yourself.</div></div><span class="badge">OPTIONAL</span></div>
+    <label class="field-label" style="margin-top:12px;">Campaign brief<textarea id="marketingBriefInput" class="input input-textarea">${escapeHtml(form.brief || "")}</textarea></label>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;"><label class="field-label">Objective<input id="marketingObjectiveInput" class="input" value="${escapeHtml(form.objective || "Generate qualified enquiries")}"/></label><label class="field-label">Audience<input id="marketingAudienceInput" class="input" value="${escapeHtml(form.targetAudience || "")}"/></label><label class="field-label">Offer<input id="marketingOfferInput" class="input" value="${escapeHtml(/spring telecom/i.test(String(form.offer || "")) ? "" : form.offer || "")}"/></label></div>
+    <label class="field-label">Channels<textarea id="marketingChannelsInput" class="input input-textarea input-textarea-small">${escapeHtml(form.channels || "Facebook")}</textarea></label>
+    <label class="field-label">Add real product, project or reference images<input id="marketingCreativeAssetUploadInput" class="input" type="file" accept="image/*" multiple/></label>
+    ${renderMarketingCreativeAssetList()}
+    <button type="button" class="primary-btn" data-aion-run-manual-marketing style="margin-top:12px;">Create draft with these inputs</button>
+  </section>`;
+}
+
+function getAionMarketingEditableRun() {
+  const lab = getAionMarketingCreativeLabState();
+  const source = compactAionMarketingRun(lab.campaignResult);
+  if (!source) return null;
+  const postPackage = { ...(source.result_payload?.post_package || source.context?.post_package || {}) };
+  if (lab.editorCaption) postPackage.caption = lab.editorCaption;
+  if (lab.editorCarouselText) {
+    postPackage.carousel = lab.editorCarouselText.split(/\r?\n/).map((item) => item.trim()).filter(Boolean);
+  }
+  if (lab.editorImageUrl) {
+    postPackage.generated_image = { status: "completed", asset_url: lab.editorImageUrl, url: lab.editorImageUrl };
+    postPackage.image_generation = { status: "completed", provider: "uploaded_business_asset", asset_url: lab.editorImageUrl, error: null };
+  }
+  source.result_payload.post_package = postPackage;
+  source.context.post_package = postPackage;
+  source.scheduled_for = lab.editorSchedule || source.scheduled_for;
+  return source;
+}
+
+function renderAionMarketingContentStudio() {
+  const lab = getAionMarketingCreativeLabState();
+  const run = getAionMarketingEditableRun();
+  if (!run) return "";
+  const postPackage = getRunPostPackage(run) || {};
+  const imageGeneration = getRunImageGeneration(run) || {};
+  const isPlaceholder = imageGeneration.provider === "tessaris_local";
+  const isOwnedMedia = imageGeneration.provider === "tessaris_owned_media" || imageGeneration.provider === "uploaded_business_asset";
+  const caption = lab.editorCaption || postPackage.caption || "";
+  const carousel = lab.editorCarouselText || (postPackage.carousel || []).map((item) => typeof item === "string" ? item : item.headline || item.body || "").filter(Boolean).join("\n");
+  const schedule = Array.isArray(lab.plan?.campaign_schedule) ? lab.plan.campaign_schedule : [];
+  return `<section class="panel large-panel" id="marketing-content-calendar" style="background:#fff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;flex-wrap:wrap;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">CONTENT STUDIO & CALENDAR</div><div class="panel-title" style="margin-top:7px;">See the actual post, edit it and schedule the campaign</div><div class="helper-text">Real business evidence stays at the centre. AION crops, clips, adapts and tests that owned material for each channel; synthetic generation is optional and visibly identified.</div></div><span class="badge">DRAFT · NOT PUBLISHED</span></div>
+    <div style="display:grid;grid-template-columns:minmax(320px,.8fr) minmax(420px,1.2fr);gap:16px;margin-top:14px;align-items:start;">
+      <div>${renderFacebookPostMockup(run, { activeIndex: Number(state.selectedFacebookCardIndex || 0) })}</div>
+      <div style="display:grid;gap:10px;">
+        <label class="field-label">Post copy<textarea class="input input-textarea" data-aion-content-editor-caption>${escapeHtml(caption)}</textarea></label>
+        <label class="field-label">Carousel cards <span class="helper-text">one card per line</span><textarea class="input input-textarea" data-aion-content-editor-carousel>${escapeHtml(carousel)}</textarea></label>
+        <label class="field-label">First publication date and time<input class="input" type="datetime-local" value="${escapeHtml(lab.editorSchedule || "")}" data-aion-content-editor-schedule/></label>
+        <label class="field-label">Replace the generated visual with your own image<input class="input" type="file" accept="image/*" data-aion-content-editor-image/></label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;"><button type="button" class="secondary-btn" data-aion-apply-content-edits>Update preview</button>${imageGeneration.status === "failed" ? `<button type="button" class="primary-btn" data-aion-retry-campaign-image>Retry image creation</button>` : ""}<button type="button" class="secondary-btn" data-aion-scroll-creative-tools>Open advanced creative tools</button></div>
+        ${imageGeneration.status === "failed" ? `<div style="border-left:4px solid #dc2626;background:#fef2f2;padding:10px;"><strong>Image creation failed</strong><div class="helper-text">${escapeHtml(imageGeneration.error || "The render provider did not return an image.")}</div></div>` : isPlaceholder ? `<div style="border-left:4px solid #f59e0b;background:#fffbeb;padding:10px;"><strong>Layout placeholder—not finished marketing</strong><div class="helper-text">The composition is available for review, but real project, product, founder or team evidence must replace it before campaign approval.</div></div>` : `<div style="border-left:4px solid #16a34a;background:#f0fdf4;padding:10px;"><strong>${isOwnedMedia ? "Original business media adapted" : "AI-assisted visual ready for review"}</strong><div class="helper-text">Use the carousel arrows on the preview to inspect every card. Source and provider provenance remain attached.</div></div>`}
+      </div>
+    </div>
+    ${schedule.length ? `<div style="margin-top:18px;border-top:1px solid #dbe4ec;padding-top:14px;"><div class="panel-title">Seven-day calendar</div><div style="display:grid;grid-template-columns:repeat(7,minmax(145px,1fr));gap:7px;overflow-x:auto;margin-top:10px;">${schedule.map((item) => `<div style="border:1px solid #cbd5e1;background:#f8fafc;padding:10px;min-height:125px;"><strong>Day ${escapeHtml(item.day)}</strong><div style="font-size:11px;font-weight:800;margin-top:5px;">${escapeHtml(item.theme)}</div><div class="helper-text">${escapeHtml(item.platform_label)} · ${escapeHtml(item.format)}</div><div style="font-size:10px;color:#475569;margin-top:6px;">${escapeHtml(item.direction)}</div></div>`).join("")}</div></div>` : ""}
+  </section>`;
+}
+
 function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
+  const lab = getAionMarketingCreativeLabState();
+  if (!lab.campaignResult && Array.isArray(selectedRuns)) {
+    const activeWorkspaceId = String(getActiveWorkspaceId() || "");
+    const latestCampaignRun = selectedRuns.find((run) => {
+      const workspaceMatches = !run?.workspace_id || String(run.workspace_id) === activeWorkspaceId;
+      const isMarketing = String(run?.department_key || "").toLowerCase() === "marketing" || String(run?.workflow_name || "").toLowerCase().includes("marketing");
+      return workspaceMatches && isMarketing && ["completed", "waiting_approval"].includes(String(run?.status || ""));
+    });
+    if (latestCampaignRun) {
+      lab.campaignResult = compactAionMarketingRun(latestCampaignRun);
+      lab.campaignRunId = latestCampaignRun.id || "";
+      lab.campaignApprovalId = latestCampaignRun.approval_request_id || "";
+      lab.campaignStage = latestCampaignRun.status === "completed" ? "complete" : "approval";
+      lab.campaignMessage = latestCampaignRun.status === "completed" ? "Content package complete. Review the post, carousel and calendar below." : "Campaign draft ready for review.";
+      if (!latestCampaignRun?.result_payload?.post_package && window.__aionMarketingRunHydrationId !== latestCampaignRun.id) {
+        window.__aionMarketingRunHydrationId = latestCampaignRun.id;
+        const workspaceId = encodeURIComponent(activeWorkspaceId || "workspace");
+        void apiGet(`/api/local-node/runs/${encodeURIComponent(latestCampaignRun.id)}?workspace_id=${workspaceId}&marketing_view=true`)
+          .then((payload) => {
+            const hydrated = payload?.item || payload;
+            if (!hydrated?.id) return;
+            lab.campaignResult = compactAionMarketingRun(hydrated);
+            lab.campaignRunId = hydrated.id;
+            lab.campaignApprovalId = hydrated.approval_request_id || "";
+            persistAionMarketingCampaignState(lab);
+            requestRender();
+          })
+          .catch((error) => { lab.campaignError = String(error?.message || error); requestRender(); });
+      }
+    }
+  }
   const artifacts = getAionPilotMarketingWorkspaceArtifacts();
   const groupedArtifacts = groupAionPilotMarketingArtifacts(artifacts);
   const pilotState = getAionPilotFrontendInteractionState();
@@ -47641,63 +48878,61 @@ function renderPilotMarketingWorkspaceSurface(selectedRuns, selectedAgentCard) {
 
   return `
     <div data-aion-phase23y-pilot-marketing-workspace>
-      ${typeof renderAionDepartment121BoardroomPanelO14D === "function" ? renderAionDepartment121BoardroomPanelO14D("marketing") : ""}
+      <style>
+        [data-aion-phase23y-pilot-marketing-workspace] .primary-btn {
+          background:#0284c7 !important;
+          border-color:#0284c7 !important;
+          color:#ffffff !important;
+          box-shadow:none !important;
+        }
+        [data-aion-phase23y-pilot-marketing-workspace] .primary-btn:hover,
+        [data-aion-phase23y-pilot-marketing-workspace] .primary-btn:focus {
+          background:#0369a1 !important;
+          border-color:#0369a1 !important;
+          color:#ffffff !important;
+        }
+        [data-aion-phase23y-pilot-marketing-workspace] .primary-btn:disabled {
+          background:#cbd5e1 !important;
+          border-color:#cbd5e1 !important;
+          color:#64748b !important;
+        }
+      </style>
+      ${renderDepartmentCompactDirectorCard("marketing")}
       ${renderAionO14KCollapsedPackageDockUnderBoardroom("marketing")}
-      ${renderLiveAgentsMarketingWorkspaceTabs()}
-      ${renderAionDepartmentScopedPilotSurface("marketing", selectedRuns, selectedAgentCard)}
 
-      <div class="panel large-panel" style="background:#ffffff;">
-        <div class="panel-title">Pilot Marketing workspace</div>
+      ${renderAionMarketingDirectorBrief()}
+
+      <div class="panel large-panel" data-aion-marketing-automation-studio="true" style="background:#ffffff;border:2px solid #0ea5e9;border-top-width:4px;margin-top:18px;">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;background:#f8fcff;border-bottom:1px solid #bae6fd;padding:18px;"><div><div style="color:#087f5b;font-size:10px;letter-spacing:.22em;font-weight:950;">AION CAMPAIGN COMMAND</div>
+        <div class="panel-title" style="margin-top:7px;">Tell AION the result; AION runs the campaign build</div></div><div style="display:flex;gap:7px;"><button type="button" class="primary-btn">AION runs it</button><button type="button" class="secondary-btn" data-aion-scroll-manual-marketing>Create manually</button></div></div>
         <div class="helper-text">
-          Marketing work generated by Pilot missions is grouped here into strategy, messaging, channel plan, lead flow, content assets and approval-blocked live actions.
+          The Boardroom package sets the objective and commercial reason. The CMO adds the campaign approach, product/service, story, audience, evidence and required original assets. A direct instruction is treated as a proposal against that strategy—not permission to generate unsupported content. Nothing is published without approval.
         </div>
 
-        <div class="badge-row" style="margin-top:10px;">
-          <span class="badge">Pilot status ${escapeHtml(pilotState.status || "idle")}</span>
-          <span class="badge">Safe work ${escapeHtml(pilotState.safe_work_status || "idle")}</span>
-          <span class="badge">Artifacts ${escapeHtml(artifacts.length)}</span>
-          <span class="badge">Groups ${escapeHtml(groupedArtifacts.length)}</span>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end;margin-top:14px;">
+          <label style="display:grid;gap:7px;color:#334e68;font-size:11px;font-weight:850;">
+            What result should Marketing produce?
+            <textarea data-aion-phase23y-persistent-pilot-terminal-input class="input" style="min-height:82px;resize:vertical;" placeholder="Example: Create a two-week Facebook and Instagram campaign for HomeFixed bathroom renovations in Almería, aimed at homeowners ready to request a quote.">${escapeHtml(pilotState.last_request || "")}</textarea>
+          </label>
+          <button type="button" class="primary-btn" data-aion-phase23y-persistent-pilot-start style="min-height:44px;padding:0 20px;">Plan & create campaign</button>
         </div>
-
-        ${groupedHtml}
+        ${renderAionMarketingCampaignJourney()}
       </div>
 
-      <!-- Phase 25C-F panels are already mounted inside renderAionDepartmentScopedPilotSurface("marketing"). -->
+      ${renderAionMarketingContentStudio()}
+
+      ${renderAionMarketingCreativeLab()}
+
+      ${renderAionMarketingManualQuickStudio()}
+
+      ${renderAionMarketingConnectionsCentre()}
+
     </div>
   `;
 }
 
 function renderMarketingManualWorkspaceSurface() {
-  return `
-    <div data-aion-phase23y-marketing-manual-workspace>
-      ${typeof renderAionDepartment121BoardroomPanelO14D === "function" ? renderAionDepartment121BoardroomPanelO14D("marketing") : ""}
-      ${renderLiveAgentsMarketingWorkspaceTabs()}
-
-      <div class="panel large-panel">
-        <div class="panel-title">Manual Marketing generator</div>
-        <div class="helper-text">
-          Use the existing Marketing Stream tab for direct one-off content generation.
-        </div>
-        <div class="marketing-form-actions" style="margin-top:12px;">
-          <button
-            type="button"
-            class="primary-btn"
-            data-aion-open-manual-marketing-stream
-          >
-            Open manual generator
-          </button>
-        </div>
-      </div>
-
-      <div class="panel large-panel" style="margin-top:9px;">
-        <div class="panel-title">Manual mode purpose</div>
-        <div class="helper-text">
-          This is for fast human-directed work like “write me one Facebook post” or “create a quick carousel”.
-          Pilot Marketing is for campaign work created by the Pilot agent.
-        </div>
-      </div>
-    </div>
-  `;
+  return renderPilotMarketingWorkspaceSurface([], null);
 }
 
 function ensureAionPhase23YLiveAgentsWhiteSurfaceStyles() {
@@ -47811,7 +49046,532 @@ function renderLiveAgentsPersistentPilotTerminal() {
 if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
   window.__aionPhase23YMarketingWorkspaceHandlersInstalled = true;
 
+  document.addEventListener("change", (event) => {
+    const lab = getAionMarketingCreativeLabState();
+    const connectionTier = event.target?.dataset?.aionConnectionTier;
+    if (connectionTier) {
+      aionMarketingConnectionState.tiers[connectionTier] = String(event.target.value || "analytics");
+      return;
+    }
+    const accountProvider = event.target?.dataset?.aionConnectionAccountProvider;
+    if (accountProvider) {
+      void selectAionMarketingAccount(accountProvider, event.target.dataset.aionConnectionAccountKind || "primary", String(event.target.value || ""));
+      return;
+    }
+    const platform = event.target?.dataset?.aionCreativePlatform;
+    const format = event.target?.dataset?.aionCreativeFormat;
+    if (platform) {
+      lab.platforms = event.target.checked
+        ? Array.from(new Set([...lab.platforms, platform]))
+        : lab.platforms.filter((item) => item !== platform);
+      requestRender();
+      return;
+    }
+    if (format) {
+      lab.formats = event.target.checked
+        ? Array.from(new Set([...lab.formats, format]))
+        : lab.formats.filter((item) => item !== format);
+      requestRender();
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-creative-variant-count]")) {
+      lab.variantCount = Number(event.target.value || 3);
+    }
+    if (event.target?.matches?.("[data-aion-creative-primary-metric]")) {
+      lab.primaryMetric = String(event.target.value || "qualified_action_rate");
+    }
+    if (event.target?.matches?.("[data-aion-render-provider]")) {
+      lab.renderProvider = String(event.target.value || "gemini");
+      lab.renderModel = lab.renderProvider === "openai" ? "sora-2" : "veo-3.1-generate-preview";
+      const maximum = lab.renderProvider === "openai" ? 1 : 3;
+      lab.referenceAssetPaths = (lab.referenceAssetPaths || []).slice(0, maximum);
+      requestRender();
+    }
+    if (event.target?.matches?.("[data-aion-render-resolution]")) {
+      lab.renderResolution = String(event.target.value || "720p");
+    }
+    if (event.target?.matches?.("[data-aion-timeline-platform]")) {
+      lab.timelinePlatform = String(event.target.value || "instagram_reels");
+    }
+    if (event.target?.matches?.("[data-aion-timeline-transition]")) {
+      lab.timelineTransition = String(event.target.value || "cut");
+    }
+    if (event.target?.matches?.("[data-aion-timeline-overlay-position]")) {
+      lab.timelineOverlayPosition = String(event.target.value || "bottom");
+    }
+    if (event.target?.matches?.("[data-aion-timeline-overlay-animation]")) {
+      lab.timelineOverlayAnimation = String(event.target.value || "fade");
+    }
+    if (event.target?.matches?.("[data-aion-timeline-audio-mastering]")) {
+      lab.timelineAudioMastering = String(event.target.value || "social");
+    }
+    if (event.target?.matches?.("[data-aion-timeline-brand-preset]")) {
+      lab.timelineBrandPreset = String(event.target.value || "clean");
+    }
+    if (event.target?.matches?.("[data-aion-timeline-duck-music]")) {
+      lab.timelineDuckMusic = event.target.checked === true;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-clip-motion]")) {
+      const clip = (lab.timelineClips || []).find((item) => item.id === event.target.dataset.clipId);
+      if (clip) clip.motion_preset = String(event.target.value || "none");
+    }
+    if (event.target?.matches?.("[data-aion-publication-channel]")) {
+      lab.publicationChannel = String(event.target.value || "instagram"); lab.publicationPackage = null;
+    }
+    if (event.target?.matches?.("[data-aion-publication-mode]")) {
+      lab.publicationMode = String(event.target.value || "organic"); lab.publicationPackage = null; requestRender();
+    }
+    if (event.target?.matches?.("[data-aion-timeline-source]")) {
+      const file = event.target.files?.[0];
+      lab.timelineSourcePath = String(file?.path || "");
+      if (!lab.timelineSourcePath && file?.name) {
+        lab.error = "This desktop build could not resolve the selected file path. Use a Tessaris-generated local source instead.";
+      }
+      requestRender();
+    }
+    if (event.target?.matches?.("[data-aion-strategy-field]")) {
+      const field = String(event.target.dataset.aionStrategyField || "");
+      if (field) lab[field] = String(event.target.value || "");
+      lab.assetRequestPrepared = false;
+      persistAionMarketingCampaignState(lab);
+      requestRender();
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-strategy-assets]")) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      const form = new FormData();
+      files.forEach((file) => form.append("files", file, file.name));
+      const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || "workspace"));
+      lab.campaignMessage = "Protecting and attaching the original campaign evidence…";
+      void fetch(`http://127.0.0.1:8080/api/local-node/marketing/assets/upload?workspace_id=${workspaceId}`, { method: "POST", body: form })
+        .then(async (response) => { const body = await response.json(); if (!response.ok) throw new Error(body?.detail || "Original asset upload failed"); return body; })
+        .then((body) => {
+          lab.strategyAssets = [...(lab.strategyAssets || []), ...(body?.items || []).map((item) => ({ ...item, source: "business_original", evidence_role: "campaign_source" }))];
+          lab.assetReadiness = "assets_uploaded"; lab.assetRequestPrepared = false; lab.campaignError = "";
+          lab.campaignMessage = `${lab.strategyAssets.length} original asset(s) ready for the CMO brief.`;
+          persistAionMarketingCampaignState(lab); requestRender();
+        })
+        .catch((error) => { lab.campaignError = String(error?.message || error); requestRender(); });
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-content-editor-image]")) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const form = new FormData();
+      form.append("files", file, file.name);
+      const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || "workspace"));
+      void fetch(`http://127.0.0.1:8080/api/local-node/marketing/assets/upload?workspace_id=${workspaceId}`, { method: "POST", body: form })
+        .then(async (response) => { const body = await response.json(); if (!response.ok) throw new Error(body?.detail || "Image upload failed"); return body; })
+        .then((body) => { lab.editorImageUrl = body?.items?.[0]?.url || body?.items?.[0]?.file_path || ""; lab.campaignError = ""; requestRender(); })
+        .catch((error) => { lab.campaignError = String(error?.message || error); requestRender(); });
+    }
+  }, true);
+
+  document.addEventListener("input", (event) => {
+    if (event.target?.matches?.("[data-aion-strategy-input]")) {
+      const lab = getAionMarketingCreativeLabState();
+      const field = String(event.target.dataset.aionStrategyInput || "");
+      if (field) lab[field] = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-creative-brief]")) {
+      getAionMarketingCreativeLabState().brief = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-content-editor-caption]")) {
+      getAionMarketingCreativeLabState().editorCaption = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-content-editor-carousel]")) {
+      getAionMarketingCreativeLabState().editorCarouselText = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-content-editor-schedule]")) {
+      getAionMarketingCreativeLabState().editorSchedule = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-experiment-metric]")) {
+      const lab = getAionMarketingCreativeLabState();
+      lab.metrics = lab.metrics || {};
+      const variantId = String(event.target.dataset.variantId || "");
+      const field = String(event.target.dataset.aionExperimentMetric || "");
+      lab.metrics[variantId] = lab.metrics[variantId] || {};
+      lab.metrics[variantId][field] = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-render-cost-ceiling]")) {
+      getAionMarketingCreativeLabState().renderCostCeiling = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-start]")) {
+      getAionMarketingCreativeLabState().timelineStart = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-end]")) {
+      getAionMarketingCreativeLabState().timelineEnd = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-transition-duration]")) {
+      getAionMarketingCreativeLabState().timelineTransitionDuration = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-music-volume]")) {
+      getAionMarketingCreativeLabState().timelineMusicVolume = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-voiceover-volume]")) {
+      getAionMarketingCreativeLabState().timelineVoiceoverVolume = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-voiceover-start]")) {
+      getAionMarketingCreativeLabState().timelineVoiceoverStart = Number(event.target.value || 0);
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-subtitles]")) {
+      getAionMarketingCreativeLabState().timelineSubtitlesText = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-overlay-text]")) {
+      getAionMarketingCreativeLabState().timelineOverlayText = String(event.target.value || "");
+      return;
+    }
+    if (event.target?.matches?.("[data-aion-timeline-clip-field]")) {
+      const lab = getAionMarketingCreativeLabState();
+      const clip = (lab.timelineClips || []).find((item) => item.id === event.target.dataset.clipId);
+      if (clip) clip[event.target.dataset.aionTimelineClipField] = Number(event.target.value || 0);
+      return;
+    }
+    const publicationFieldMap = {
+      aionPublicationCaption: "publicationCaption", aionPublicationCta: "publicationCta",
+      aionPublicationSchedule: "publicationSchedule", aionPublicationDailyBudget: "publicationDailyBudget",
+      aionPublicationSpendCeiling: "publicationSpendCeiling",
+    };
+    for (const [datasetKey, stateKey] of Object.entries(publicationFieldMap)) {
+      if (event.target?.dataset?.[datasetKey] !== undefined) {
+        lab[stateKey] = datasetKey.includes("Budget") || datasetKey.includes("Ceiling") ? Number(event.target.value || 0) : String(event.target.value || "");
+        lab.publicationPackage = null;
+        return;
+      }
+    }
+  }, true);
+
+  document.addEventListener("dragstart", (event) => {
+    const card = event.target?.closest?.("[data-aion-timeline-clip-card]");
+    if (!card) return;
+    const lab = getAionMarketingCreativeLabState();
+    lab.draggingClipId = String(card.dataset.clipId || "");
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", lab.draggingClipId);
+  }, true);
+
+  document.addEventListener("dragover", (event) => {
+    if (event.target?.closest?.("[data-aion-timeline-clip-card]")) event.preventDefault();
+  }, true);
+
+  document.addEventListener("drop", (event) => {
+    const target = event.target?.closest?.("[data-aion-timeline-clip-card]");
+    if (!target) return;
+    event.preventDefault();
+    const lab = getAionMarketingCreativeLabState();
+    const sourceId = lab.draggingClipId || event.dataTransfer.getData("text/plain");
+    const targetId = String(target.dataset.clipId || "");
+    if (!sourceId || sourceId === targetId) return;
+    const clips = [...(lab.timelineClips || [])];
+    const sourceIndex = clips.findIndex((item) => item.id === sourceId);
+    const targetIndex = clips.findIndex((item) => item.id === targetId);
+    if (sourceIndex < 0 || targetIndex < 0) return;
+    const [moved] = clips.splice(sourceIndex, 1);
+    clips.splice(targetIndex, 0, moved);
+    lab.timelineClips = clips;
+    lab.draggingClipId = "";
+    requestRender();
+  }, true);
+
   document.addEventListener("click", (event) => {
+    const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || "workspace"));
+    const lab = getAionMarketingCreativeLabState();
+    const prepareAssetRequest = event.target?.closest?.("[data-aion-prepare-asset-request]");
+    if (prepareAssetRequest) {
+      event.preventDefault(); event.stopPropagation();
+      lab.assetRequestPrepared = true;
+      lab.campaignMessage = "The CMO asset request is ready for the founder or team. Production remains paused until evidence arrives.";
+      persistAionMarketingCampaignState(lab); requestRender(); return;
+    }
+    const applyContentEdits = event.target?.closest?.("[data-aion-apply-content-edits]");
+    if (applyContentEdits) {
+      event.preventDefault(); event.stopPropagation();
+      lab.publicationCaption = lab.editorCaption || getRunPostPackage(lab.campaignResult)?.caption || "";
+      lab.publicationSchedule = lab.editorSchedule || "";
+      lab.campaignMessage = "Preview updated. The edited content remains a local draft until you approve a publication package.";
+      persistAionMarketingCampaignState(lab); requestRender(); return;
+    }
+    const retryCampaignImage = event.target?.closest?.("[data-aion-retry-campaign-image]");
+    if (retryCampaignImage && lab.campaignRunId) {
+      event.preventDefault(); event.stopPropagation();
+      lab.campaignMessage = "Retrying the image renderer with the corrected provider configuration…";
+      lab.campaignError = ""; requestRender();
+      void apiPost(`/api/local-node/marketing/runs/${encodeURIComponent(lab.campaignRunId)}/retry-image`, {
+        workspace_id: String(getActiveWorkspaceId() || "workspace"), provider: "openai",
+      }).then((result) => {
+        const postPackage = result?.post_package || {};
+        const current = compactAionMarketingRun(lab.campaignResult) || { context: {}, result_payload: {} };
+        current.context.post_package = postPackage; current.result_payload.post_package = postPackage;
+        lab.campaignResult = current; lab.campaignMessage = "Image assets created. Review the real post preview below.";
+        persistAionMarketingCampaignState(lab); requestRender();
+      }).catch((error) => { lab.campaignError = String(error?.message || error); lab.campaignMessage = "Image retry failed. You can still upload a business image as the visual."; requestRender(); });
+      return;
+    }
+    const connectProvider = event.target?.closest?.("[data-aion-connect-marketing-provider]");
+    if (connectProvider) { event.preventDefault(); event.stopPropagation(); void connectAionMarketingProvider(connectProvider.dataset.aionConnectMarketingProvider); return; }
+    const examProvider = event.target?.closest?.("[data-aion-exam-marketing-provider]");
+    if (examProvider) { event.preventDefault(); event.stopPropagation(); void examAionMarketingProvider(examProvider.dataset.aionExamMarketingProvider); return; }
+    const disconnectProvider = event.target?.closest?.("[data-aion-disconnect-marketing-provider]");
+    if (disconnectProvider) { event.preventDefault(); event.stopPropagation(); void disconnectAionMarketingProvider(disconnectProvider.dataset.aionDisconnectMarketingProvider); return; }
+    const refreshConnections = event.target?.closest?.("[data-aion-refresh-marketing-connections]");
+    if (refreshConnections) { event.preventDefault(); event.stopPropagation(); void loadAionMarketingConnections(true); return; }
+    const addTimelineClips = event.target?.closest?.("[data-aion-add-timeline-clips]");
+    if (addTimelineClips) {
+      event.preventDefault(); event.stopPropagation();
+      void window.aionDesktop?.chooseLocalMedia?.({ kind: "video", multiple: true, title: "Add video clips to the timeline" }).then((result) => {
+        if (result?.ok && result.paths?.length) {
+          const existing = new Set((lab.timelineClips || []).map((item) => item.source_path));
+          const additions = result.paths.filter((path) => !existing.has(path)).map((path) => ({ id: `clip_${Date.now()}_${Math.random().toString(16).slice(2)}`, source_path: path, start_seconds: 0, end_seconds: 8, label: aionCreativeFileName(path), motion_preset: "none", motion_intensity: 0.5 }));
+          lab.timelineClips = [...(lab.timelineClips || []), ...additions];
+          lab.error = ""; requestRender();
+        }
+      });
+      return;
+    }
+    const chooseTimelineMusic = event.target?.closest?.("[data-aion-choose-timeline-music]");
+    if (chooseTimelineMusic) {
+      event.preventDefault(); event.stopPropagation();
+      void window.aionDesktop?.chooseLocalMedia?.({ kind: "audio", title: "Choose background music" }).then((result) => { if (result?.ok) { lab.timelineMusicPath = result.path || ""; requestRender(); } });
+      return;
+    }
+    const chooseTimelineLogo = event.target?.closest?.("[data-aion-choose-timeline-logo]");
+    if (chooseTimelineLogo) {
+      event.preventDefault(); event.stopPropagation();
+      void window.aionDesktop?.chooseLocalMedia?.({ kind: "image", title: "Choose a logo or watermark" }).then((result) => { if (result?.ok) { lab.timelineLogoPath = result.path || ""; requestRender(); } });
+      return;
+    }
+    const chooseTimelineVoiceover = event.target?.closest?.("[data-aion-choose-timeline-voiceover]");
+    if (chooseTimelineVoiceover) {
+      event.preventDefault(); event.stopPropagation();
+      void window.aionDesktop?.chooseLocalMedia?.({ kind: "audio", title: "Choose voice-over narration" }).then((result) => { if (result?.ok) { lab.timelineVoiceoverPath = result.path || ""; requestRender(); } });
+      return;
+    }
+    const recordTimelineVoiceover = event.target?.closest?.("[data-aion-record-timeline-voiceover]");
+    if (recordTimelineVoiceover) {
+      event.preventDefault(); event.stopPropagation();
+      if (lab.timelineVoiceoverRecording && lab.timelineMediaRecorder) {
+        lab.timelineMediaRecorder.stop();
+        return;
+      }
+      void (async () => {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          const mimeType = MediaRecorder.isTypeSupported("audio/webm;codecs=opus") ? "audio/webm;codecs=opus" : "audio/webm";
+          const recorder = new MediaRecorder(stream, { mimeType });
+          const chunks = [];
+          recorder.addEventListener("dataavailable", (item) => { if (item.data?.size) chunks.push(item.data); });
+          recorder.addEventListener("stop", () => {
+            lab.timelineVoiceoverRecording = false;
+            stream.getTracks().forEach((track) => track.stop());
+            const blob = new Blob(chunks, { type: mimeType });
+            const form = new FormData();
+            form.append("file", blob, "voiceover.webm");
+            void fetch(`http://127.0.0.1:8080/api/aion/marketing/creative/${workspaceId}/voiceovers`, { method: "POST", body: form })
+              .then(async (response) => { const body = await response.json(); if (!response.ok) throw new Error(body?.detail || "Voice-over upload failed"); return body; })
+              .then((body) => { lab.timelineVoiceoverPath = body?.voiceover?.path || ""; lab.error = ""; requestRender(); })
+              .catch((error) => { lab.error = error instanceof Error ? error.message : "Voice-over save failed"; requestRender(); });
+            requestRender();
+          });
+          recorder.start(250);
+          lab.timelineMediaRecorder = recorder;
+          lab.timelineVoiceoverRecording = true;
+          lab.error = "";
+          requestRender();
+        } catch (error) {
+          lab.timelineVoiceoverRecording = false;
+          lab.error = error instanceof Error ? error.message : "Microphone recording could not start";
+          requestRender();
+        }
+      })();
+      return;
+    }
+    const removeTimelineClip = event.target?.closest?.("[data-aion-remove-timeline-clip]");
+    if (removeTimelineClip) {
+      event.preventDefault(); event.stopPropagation();
+      const id = String(removeTimelineClip.dataset.aionRemoveTimelineClip || "");
+      lab.timelineClips = (lab.timelineClips || []).filter((item) => item.id !== id);
+      requestRender(); return;
+    }
+    const chooseRenderReferences = event.target?.closest?.("[data-aion-choose-render-references]");
+    if (chooseRenderReferences) {
+      event.preventDefault(); event.stopPropagation();
+      void window.aionDesktop?.chooseLocalMedia?.({ kind: "image", multiple: true, title: "Choose visual reference images" }).then((result) => {
+        if (result?.ok) {
+          const maximum = lab.renderProvider === "openai" ? 1 : 3;
+          lab.referenceAssetPaths = (result.paths || []).slice(0, maximum);
+          lab.error = (result.paths || []).length > maximum ? `Only the first ${maximum} reference image${maximum === 1 ? "" : "s"} can be used by this provider.` : "";
+          requestRender();
+        }
+      });
+      return;
+    }
+    const prepareVideoRender = event.target?.closest?.("[data-aion-prepare-video-render]");
+    if (prepareVideoRender) {
+      event.preventDefault(); event.stopPropagation();
+      const videoJob = (lab.plan?.generation_jobs || []).find((item) => item.render_type === "video");
+      if (!videoJob) return;
+      void apiPost(`/api/aion/marketing/creative/${workspaceId}/renders`, {
+        provider: lab.renderProvider || "gemini", model: lab.renderModel || "veo-3.1-generate-preview",
+        prompt: videoJob.prompt, ratio: lab.plan?.renditions?.find((item) => item.id === videoJob.rendition_id)?.ratio || "9:16",
+        duration_seconds: 8, resolution: lab.renderResolution || "720p", rendition_id: videoJob.rendition_id,
+        reference_asset_paths: lab.referenceAssetPaths || [], campaign_plan_hash: lab.plan?.plan_hash, created_by_person_id: "desktop_user",
+      }).then((result) => { lab.renderJob = result?.job || null; lab.error = ""; requestRender(); })
+        .catch((error) => { lab.error = error instanceof Error ? error.message : "Render preparation failed"; requestRender(); });
+      return;
+    }
+    const approveVideoRender = event.target?.closest?.("[data-aion-approve-video-render]");
+    if (approveVideoRender && lab.renderJob) {
+      event.preventDefault(); event.stopPropagation();
+      void apiPost(`/api/aion/marketing/creative/${workspaceId}/renders/${encodeURIComponent(lab.renderJob.id)}/approve`, {
+        expected_approval_hash: lab.renderJob.approval_hash, approved_by_person_id: "desktop_user",
+        maximum_cost_eur: Number(lab.renderCostCeiling || 0), paid_generation_authorized: true,
+      }).then((result) => { lab.renderJob = result?.job || lab.renderJob; lab.error = ""; requestRender(); })
+        .catch((error) => { lab.error = error instanceof Error ? error.message : "Render approval failed"; requestRender(); });
+      return;
+    }
+    const submitVideoRender = event.target?.closest?.("[data-aion-submit-video-render]");
+    if (submitVideoRender && lab.renderJob) {
+      event.preventDefault(); event.stopPropagation();
+      void apiPost(`/api/aion/marketing/creative/${workspaceId}/renders/${encodeURIComponent(lab.renderJob.id)}/submit`, {})
+        .then((result) => { lab.renderJob = result?.job || lab.renderJob; lab.error = ""; requestRender(); })
+        .catch((error) => { lab.error = error instanceof Error ? error.message : "Paid render submission failed"; requestRender(); });
+      return;
+    }
+    const pollVideoRender = event.target?.closest?.("[data-aion-poll-video-render]");
+    if (pollVideoRender && lab.renderJob) {
+      event.preventDefault(); event.stopPropagation();
+      void apiPost(`/api/aion/marketing/creative/${workspaceId}/renders/${encodeURIComponent(lab.renderJob.id)}/poll`, {})
+        .then((result) => { lab.renderJob = result?.job || lab.renderJob; if (lab.renderJob?.asset?.path) lab.timelineSourcePath = lab.renderJob.asset.path; requestRender(); })
+        .catch((error) => { lab.error = error instanceof Error ? error.message : "Render status check failed"; requestRender(); });
+      return;
+    }
+    const exportLocalClip = event.target?.closest?.("[data-aion-export-local-clip]");
+    if (exportLocalClip) {
+      event.preventDefault(); event.stopPropagation();
+      let clips = Array.isArray(lab.timelineClips) ? lab.timelineClips.filter((item) => item.source_path) : [];
+      const sourcePath = lab.timelineSourcePath || lab.renderJob?.asset?.path || "";
+      if (!clips.length && sourcePath) clips = [{ source_path: sourcePath, start_seconds: Number(lab.timelineStart || 0), end_seconds: Number(lab.timelineEnd || 8), label: "Rendered source" }];
+      if (!clips.length) { lab.error = "Add at least one source video first."; requestRender(); return; }
+      const subtitleEntries = parseAionTimelineSubtitles(lab.timelineSubtitlesText);
+      if (String(lab.timelineSubtitlesText || "").trim() && !subtitleEntries.length) { lab.error = "Subtitle lines must use the format 0-3|Your subtitle."; requestRender(); return; }
+      const totalClipSeconds = clips.reduce((sum, clip) => sum + Math.max(0, Number(clip.end_seconds) - Number(clip.start_seconds)), 0);
+      void apiPost(`/api/aion/marketing/creative/${workspaceId}/timelines`, {
+        name: "Creative Lab quick export", platform: lab.timelinePlatform || "instagram_reels",
+        clips: clips.map((clip) => ({ ...clip, motion_preset: clip.motion_preset || "none", motion_intensity: Number(clip.motion_intensity ?? 0.5) })),
+        subtitles: subtitleEntries,
+        transition: { type: lab.timelineTransition || "cut", duration_seconds: lab.timelineTransition === "cut" ? 0 : Number(lab.timelineTransitionDuration || 0.5) },
+        text_overlays: String(lab.timelineOverlayText || "").trim() ? [{ text: String(lab.timelineOverlayText).trim(), start_seconds: 0, end_seconds: totalClipSeconds, position: lab.timelineOverlayPosition || "bottom", animation: lab.timelineOverlayAnimation || "fade", font_size: lab.timelineBrandPreset === "bold" ? 68 : lab.timelineBrandPreset === "cinematic" ? 48 : 54, color: "white" }] : [],
+        logo_path: lab.timelineLogoPath || null,
+        music_path: lab.timelineMusicPath || null,
+        music_volume: Number(lab.timelineMusicVolume || 0),
+        voiceover_path: lab.timelineVoiceoverPath || null,
+        voiceover_volume: Number(lab.timelineVoiceoverVolume || 1),
+        voiceover_start_seconds: Number(lab.timelineVoiceoverStart || 0),
+        duck_music_under_voice: lab.timelineDuckMusic !== false,
+        audio_mastering: lab.timelineAudioMastering || "social",
+        brand_preset: lab.timelineBrandPreset || "clean",
+        created_by_person_id: "desktop_user",
+      }).then((result) => apiPost(`/api/aion/marketing/creative/${workspaceId}/timelines/${encodeURIComponent(result.timeline.id)}/export`, {}))
+        .then((result) => { lab.timeline = result?.timeline || null; lab.error = ""; requestRender(); })
+        .catch((error) => { lab.error = error instanceof Error ? error.message : "Local clip export failed"; requestRender(); });
+      return;
+    }
+    const preparePublication = event.target?.closest?.("[data-aion-prepare-publication]");
+    if (preparePublication && lab.timeline?.export?.path) {
+      event.preventDefault(); event.stopPropagation();
+      void apiPost(`/api/aion/marketing/creative/${workspaceId}/publications`, {
+        asset_path: lab.timeline.export.path, channel: lab.publicationChannel || "instagram",
+        mode: lab.publicationMode || "organic", caption: String(lab.publicationCaption || lab.brief || "").trim(),
+        call_to_action: lab.publicationCta || "Learn more", scheduled_for: lab.publicationSchedule || null,
+        daily_budget_eur: Number(lab.publicationDailyBudget || 0), campaign_name: lab.plan?.title || "Tessaris campaign",
+        created_by_person_id: "desktop_user",
+      }).then((result) => { lab.publicationPackage = result?.publication || null; lab.error = ""; requestRender(); })
+        .catch((error) => { lab.error = error instanceof Error ? error.message : "Publication package preparation failed"; requestRender(); });
+      return;
+    }
+    const approvePublication = event.target?.closest?.("[data-aion-approve-publication]");
+    if (approvePublication && lab.publicationPackage) {
+      event.preventDefault(); event.stopPropagation();
+      void apiPost(`/api/aion/marketing/creative/${workspaceId}/publications/${encodeURIComponent(lab.publicationPackage.id)}/approve`, {
+        expected_approval_hash: lab.publicationPackage.approval_hash, approved_by_person_id: "desktop_user",
+        maximum_total_spend_eur: Number(lab.publicationSpendCeiling || 0), external_publish_authorized: true,
+      }).then((result) => { lab.publicationPackage = result?.publication || lab.publicationPackage; lab.error = ""; requestRender(); })
+        .catch((error) => { lab.error = error instanceof Error ? error.message : "Publication approval failed"; requestRender(); });
+      return;
+    }
+
+    const evaluateExperiment = event.target?.closest?.("[data-aion-evaluate-creative-experiment]");
+    if (evaluateExperiment) {
+      event.preventDefault();
+      event.stopPropagation();
+      const variants = (lab.plan?.experiment?.variants || []).map((variant) => ({
+        id: variant.id,
+        sample_size: Number(lab.metrics?.[variant.id]?.sample_size || 0),
+        primary_metric: Number(lab.metrics?.[variant.id]?.primary_metric || 0),
+        complaint_rate: Number(lab.metrics?.[variant.id]?.complaint_rate || 0),
+        unsafe_or_false_claims: 0,
+      }));
+      void apiPost("/api/aion/marketing/creative/experiment/evaluate", {
+        variants,
+        minimum_sample_per_variant: Number(lab.plan?.experiment?.minimum_sample_per_variant || 100),
+        minimum_relative_improvement: Number(lab.plan?.experiment?.minimum_relative_improvement || 0.15),
+      }).then((result) => {
+        lab.evaluation = result?.evaluation || null;
+        requestRender();
+      }).catch((error) => {
+        lab.error = error instanceof Error ? error.message : "Experiment evaluation failed";
+        requestRender();
+      });
+      return;
+    }
+
+    const buildCreativePlan = event.target?.closest?.("[data-aion-build-creative-plan]");
+    if (buildCreativePlan) {
+      event.preventDefault();
+      event.stopPropagation();
+      const form = state.marketingForm || {};
+      lab.status = "building";
+      lab.error = "";
+      requestRender();
+      void apiPost("/api/aion/marketing/creative/plan", {
+        brief: String(lab.brief || form.brief || "").trim() || "Create a useful campaign for the priority customer.",
+        objective: form.objective || "Generate qualified interest",
+        audience: form.targetAudience || "Priority customer",
+        offer: form.offer || form.offerDetails || "Approved business offer",
+        tone: form.styleDirection || "Clear, credible and human",
+        call_to_action: form.funnelGoal || "Take the next approved step",
+        platforms: lab.platforms,
+        formats: lab.formats,
+        variant_count: Number(lab.variantCount || 3),
+        primary_metric: lab.primaryMetric || "qualified_action_rate",
+      }).then((result) => {
+        lab.plan = result?.plan || null;
+        lab.status = "ready";
+        lab.error = "";
+        requestRender();
+      }).catch((error) => {
+        lab.status = "error";
+        lab.error = error instanceof Error ? error.message : "Creative plan failed";
+        requestRender();
+      });
+      return;
+    }
+
     const modeButton = event.target?.closest?.("[data-aion-marketing-workspace-mode]");
     if (modeButton) {
       event.preventDefault();
@@ -47837,11 +49597,12 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
       if (value) {
         const pilotState = getAionPilotFrontendInteractionState();
         pilotState.last_request = value;
-        pilotState.status = "draft_ready";
-        pilotState.safe_work_status = "waiting_approval";
-        if (typeof createAionPilotFrontendDraftMission === "function") {
-          createAionPilotFrontendDraftMission();
-        }
+        pilotState.status = "campaign_building";
+        pilotState.safe_work_status = "governed_build";
+        desktopStore.setMarketingField("brief", value);
+        desktopStore.persistCache();
+        void launchAionMarketingCampaign(value, "aion");
+        return;
       }
 
       if (typeof requestRender === "function") {
@@ -47850,12 +49611,32 @@ if (!window.__aionPhase23YMarketingWorkspaceHandlersInstalled) {
       return;
     }
 
+    const approveCampaign = event.target?.closest?.("[data-aion-approve-current-campaign]");
+    if (approveCampaign) { event.preventDefault(); event.stopPropagation(); void approveAionMarketingCampaign(); return; }
+
+    const manualCampaign = event.target?.closest?.("[data-aion-run-manual-marketing]");
+    if (manualCampaign) {
+      event.preventDefault(); event.stopPropagation();
+      const value = String(document.getElementById("marketingBriefInput")?.value || state.marketingForm?.brief || "").trim();
+      void launchAionMarketingCampaign(value, "manual");
+      document.querySelector("[data-aion-marketing-automation-studio]")?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    const scrollManual = event.target?.closest?.("[data-aion-scroll-manual-marketing]");
+    if (scrollManual) { event.preventDefault(); document.getElementById("manual-marketing-studio")?.scrollIntoView?.({ behavior: "smooth", block: "start" }); return; }
+    const scrollCreative = event.target?.closest?.("[data-aion-scroll-creative-tools]");
+    if (scrollCreative) { event.preventDefault(); document.getElementById("creative-production")?.scrollIntoView?.({ behavior: "smooth", block: "start" }); return; }
+
     const openManualMarketing = event.target?.closest?.("[data-aion-open-manual-marketing-stream]");
     if (openManualMarketing) {
       event.preventDefault();
       event.stopPropagation();
 
-      state.activeTab = "marketing_stream";
+      state.activeTab = "live_agents";
+      state.selectedLiveAgentDepartment = "marketing";
+      state.liveAgentsSelectedDepartment = "marketing";
+      state.liveAgentsView = LIVE_AGENT_VIEWS.STREAM;
       if (typeof requestRender === "function") {
         requestRender();
       }
@@ -48979,7 +50760,7 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
       return renderLiveAgentSettingsView(scopedSelectedAgentCard);
     }
 
-    return renderAionDepartmentPilotRuntime("marketing", selectedRuns, scopedSelectedAgentCard);
+    return renderPilotMarketingWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (activeView === LIVE_AGENT_VIEWS.SETTINGS) {
@@ -48991,10 +50772,7 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
   }
 
   if (departmentKey === "finance") {
-    if (window.AionFinancePilot && typeof window.AionFinancePilot.render === "function") {
-      return window.AionFinancePilot.render();
-    }
-    return renderAionO18ADDepartmentConversationCockpit("finance", selectedRuns, selectedAgentCard);
+    return renderFinanceWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "products_services") {
@@ -49004,8 +50782,20 @@ function renderLiveAgentsWorkspaceBody(selectedRuns, selectedAgentCard) {
     return renderGenericDepartmentWorkspaceSurface(departmentKey, selectedAgentCard);
   }
 
-  if (["marketing", "sales", "operations", "support", "hr"].includes(departmentKey)) {
-    return renderAionDepartmentPilotRuntime(departmentKey, selectedRuns, scopedSelectedAgentCard);
+  if (departmentKey === "support") {
+    return renderSupportWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
+  }
+
+  if (departmentKey === "sales") {
+    return renderSalesWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
+  }
+
+  if (departmentKey === "operations") {
+    return renderOperationsWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
+  }
+
+  if (departmentKey === "hr") {
+    return renderHRWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);
   }
 
   if (departmentKey === "builder") {
@@ -54000,35 +55790,31 @@ if (action === "capture-browser-approval-checkpoint") {
     marketingCreativeAssetUploadInput.addEventListener("change", async (e) => {
       const files = asFileListArray(e.target?.files);
       if (!files.length) return;
-
-      const existingAssets = getMarketingCreativeAssetDrafts();
-
-      const nextAssets = files.map((file) => {
-        const assetId =
-          `asset_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-
-        return {
-          id: assetId,
-          type: normalizeMarketingAssetType(
-            state.marketingForm?.assetIntent || "product",
-          ),
-          label: file.name,
-          fileName: file.name,
-          mimeType: file.type || "",
-          sizeBytes: file.size || null,
-          previewUrl: URL.createObjectURL(file),
-          url: "",
-          file_path: "",
-          notes: "",
-        };
-      });
-
-      desktopStore.setMarketingField("creativeAssets", [
-        ...existingAssets,
-        ...nextAssets,
-      ]);
-
-      desktopStore.persistCache();
+      const lab = getAionMarketingCreativeLabState();
+      lab.campaignMessage = "Uploading reference images into this business's protected campaign workspace…";
+      requestRender();
+      try {
+        const form = new FormData();
+        files.forEach((file) => form.append("files", file, file.name));
+        const workspaceId = encodeURIComponent(String(getActiveWorkspaceId() || state.workspaceId || "workspace"));
+        const response = await fetch(`http://127.0.0.1:8080/api/local-node/marketing/assets/upload?workspace_id=${workspaceId}`, { method: "POST", body: form });
+        const body = await response.json();
+        if (!response.ok || !body?.ok) throw new Error(body?.detail || "Image upload failed");
+        const existingAssets = getMarketingCreativeAssetDrafts();
+        const nextAssets = (body.items || []).map((item) => ({
+          ...item,
+          type: normalizeMarketingAssetType(state.marketingForm?.assetIntent || "product"),
+          fileName: item.label,
+          mimeType: item.mime_type || "",
+          sizeBytes: item.size_bytes || null,
+          previewUrl: item.url || "",
+        }));
+        desktopStore.setMarketingField("creativeAssets", [...existingAssets, ...nextAssets]);
+        lab.campaignMessage = `${nextAssets.length} reference image${nextAssets.length === 1 ? "" : "s"} ready for AION.`;
+        desktopStore.persistCache();
+      } catch (error) {
+        lab.campaignError = String(error?.message || error);
+      }
       requestRender();
     });
   }
@@ -54158,8 +55944,10 @@ if (action === "capture-browser-approval-checkpoint") {
         await refreshAll();
 
         safeAionDesktopPatch({
-          activeTab: "marketing_stream",
+          activeTab: "live_agents",
           activeZone: "marketing",
+          selectedLiveAgentDepartment: "marketing",
+          liveAgentsSelectedDepartment: "marketing",
           liveAgentsView: LIVE_AGENT_VIEWS.STREAM,
           selectedLiveRunId: launchedRunId,
           selectedInspectorTarget: launchedRunId
@@ -60185,10 +61973,11 @@ async function hydrateRecoveredDesktopState() {
     const recoveryPayload =
       recovery && typeof recovery === "object" ? recovery : null;
 
+    const canonicalWorkspaceId = getActiveWorkspaceId();
     const recoveredWorkspaceId = encodeURIComponent(
       typeof getAionBackendBusinessEndpointId === "function"
-        ? getAionBackendBusinessEndpointId(recoveryPayload?.workspace_id || state.workspaceId)
-        : (recoveryPayload?.workspace_id || state.workspaceId),
+        ? getAionBackendBusinessEndpointId(canonicalWorkspaceId)
+        : canonicalWorkspaceId,
     );
 
     const requests = await Promise.allSettled([
@@ -60207,8 +61996,8 @@ async function hydrateRecoveredDesktopState() {
       apiGetOptional("/api/local-node/dashboard/summary", null),
       apiGetOptional("/api/local-node/marketing/stream", null),
       apiGetOptional("/api/local-node/status", null),
-      apiGetOptional("/api/local-node/runs", { items: [] }),
-      apiGetOptional("/api/local-node/approvals", { items: [] }),
+      apiGetOptional(`/api/local-node/runs?limit=50&compact=true&workspace_id=${recoveredWorkspaceId}`, { items: [] }),
+      apiGetOptional(`/api/local-node/approvals?workspace_id=${recoveredWorkspaceId}`, { items: [] }),
       apiGetOptional("/api/local-node/audit", { items: [] }),
       apiGetOptional("/api/local-node/scheduler/status", null),
     ]);
@@ -123243,7 +125032,7 @@ Preview only. Nothing executed.`);
 
   console.info("[AION] O13H.3 Linked department node is navigation not editor installed");
 
-  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support"];
+  const DEPARTMENTS = ["marketing", "sales", "finance", "operations", "support", "hr"];
   const LABELS = {
     marketing: "Marketing",
     sales: "Sales",
@@ -126601,6 +128390,7 @@ Preview only. Nothing executed.`);
     finance: "Validate pricing, cost, margin, budget, cash impact and safe spend boundaries.",
     operations: "Turn approved demand into feasible scheduling, fulfilment, capacity and delivery planning.",
     support: "Protect customer experience, issue handling, reviews, feedback and service evidence.",
+    hr: "Maintain the people, responsibility, authority and access model required by every department.",
   };
 
   const DEPARTMENT_REQUIRED_DISCOVERY = {
@@ -126646,6 +128436,14 @@ Preview only. Nothing executed.`);
       "review capture",
       "service standards",
       "approval boundary",
+    ],
+    hr: [
+      "people and employment type",
+      "roles and departments",
+      "reporting lines",
+      "approval authority",
+      "system and data access",
+      "business cards and expense ownership",
     ],
   };
 
@@ -126717,29 +128515,86 @@ Preview only. Nothing executed.`);
     };
   }
 
+  function latestBoardroomOutcomeO14A(department) {
+    const ask = window.__aionVisibleAskBoardResult || null;
+    const debate = window.__aionBoardroomDebateRound || null;
+    const taskBuild = window.__aionBoardroomDepartmentTasks || null;
+    const tasks = (Array.isArray(taskBuild?.tasks) ? taskBuild.tasks : []).filter(
+      (task) => String(task?.department || task?.department_domain || "").toLowerCase() === department
+    );
+    const debateItems = (Array.isArray(debate?.debate_items) ? debate.debate_items : []).filter(
+      (item) => !item?.department || String(item.department).toLowerCase() === department
+    );
+    const consensus = ask?.consensus || {};
+    const decisionLines = [
+      ...tasks.map((task) => task.objective || task.task_title || task.title),
+      ...debateItems.map((item) => item.next_action || item.plan_item),
+      ...(Array.isArray(consensus.plan) ? consensus.plan : []),
+      ...(Array.isArray(consensus.agreements) ? consensus.agreements : []),
+    ].map((item) => String(item || "").trim()).filter(Boolean);
+    const risks = [
+      ...(Array.isArray(consensus.risks) ? consensus.risks : []),
+      ...(Array.isArray(debate?.risks) ? debate.risks : []),
+      ...tasks.flatMap((task) => Array.isArray(task.blockers) ? task.blockers : []),
+    ].map((item) => String(item || "").trim()).filter(Boolean);
+    const source = taskBuild?.result_hash ? taskBuild : debate?.result_hash ? debate : ask?.result_hash ? ask : null;
+    const departmentDecision = decisionLines[0] || "";
+    return {
+      source,
+      tasks,
+      decisionLines: [...new Set(decisionLines)].slice(0, 12),
+      risks: [...new Set(risks)].slice(0, 10),
+      summary: String(consensus.summary || debate?.summary || "").trim(),
+      departmentDecision,
+      sourceId: String(source?.result_hash || source?.session_id || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(-48),
+    };
+  }
+
   function buildDepartmentPackageO14A(department) {
     const boardroomGraph = getBoardroomGraphO14A();
     const departmentGraph = getDepartmentGraphO14A(department);
     const parentGoal = boardroomParentGoalO14A(boardroomGraph);
+    const outcome = latestBoardroomOutcomeO14A(department);
+    const mapConfirmation =
+      typeof window.aionGetBusinessMapConfirmationV1 === "function"
+        ? window.aionGetBusinessMapConfirmationV1()
+        : { valid: false, map: null };
+    const founderRatification =
+      typeof window.aionGetBoardroomFounderRatificationV1 === "function"
+        ? window.aionGetBoardroomFounderRatificationV1()
+        : { valid: false };
+    const finalBoardDirectionReady = Boolean(
+      mapConfirmation.valid && founderRatification.valid && outcome.tasks.length
+    );
     const label = department.replace(/_/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
-
-    const packageId = `boardroom_package_${department}_${parentGoal.id}`;
+    const governingGoal = outcome.departmentDecision || parentGoal.title;
+    const governingSummary = outcome.summary || parentGoal.summary;
+    const packageId = `boardroom_package_${department}_${outcome.sourceId || parentGoal.id}`;
+    const boardroomBrief = outcome.departmentDecision
+      ? [governingGoal, ...outcome.decisionLines.slice(1, 5)].join("\n")
+      : `${parentGoal.title} — ${parentGoal.summary}`;
 
     return {
       package_version: "aion.boardroom_to_department_package.v1",
       package_id: packageId,
       package_type: "department_goal_assignment",
       source: "boardroom_goal_sheet",
+      source_board_meeting_id: outcome.source?.session_id || "",
+      source_boardroom_result_hash: outcome.source?.result_hash || "",
+      source_business_map_hash: mapConfirmation.map?.source_payload_hash || "",
+      source_business_map_revision: mapConfirmation.map?.revision || 0,
+      source_business_map_confirmation_hash: mapConfirmation.confirmation_hash || "",
+      source_founder_ratification_hash: founderRatification.ratification_hash || "",
       target_department: department,
       target_pilot: `${department}_pilot`,
       business_id:
         boardroomGraph?.business_id ||
         departmentGraph?.business_id ||
-        "home_fixed",
+        (typeof getAionBoardroomBusinessContainerId === "function" ? getAionBoardroomBusinessContainerId() : "home-fixed"),
       business_container:
         boardroomGraph?.business_container ||
         departmentGraph?.business_container ||
-        "home_fixed",
+        (typeof getAionBoardroomBusinessContainerId === "function" ? getAionBoardroomBusinessContainerId() : "home-fixed"),
       parent_workflow_id:
         boardroomGraph?.workflow_id ||
         boardroomGraph?.id ||
@@ -126749,12 +128604,26 @@ Preview only. Nothing executed.`);
         departmentGraph?.id ||
         `workflow_goal_loop_${department}_goal_sheet`,
       parent_goal_id: parentGoal.id,
-      parent_goal_title: parentGoal.title,
-      parent_goal_summary: parentGoal.summary,
+      parent_goal_title: governingGoal,
+      parent_goal_summary: governingSummary,
+      boardroom_brief: boardroomBrief,
+      meeting_minutes: {
+        title: `${label} assignment from Boardroom meeting`,
+        summary: governingSummary,
+        decision: boardroomBrief,
+        risks: outcome.risks,
+        source_result_hash: outcome.source?.result_hash || "",
+        provider_mode: outcome.source?.provider_mode || (outcome.source?.live_provider_fanout ? "live_provider_fanout" : "goal_sheet"),
+        simulated_responses: outcome.source?.simulated_responses === true,
+        business_map_confirmed: mapConfirmation.valid,
+        founder_direction_ratified: founderRatification.valid,
+      },
       department_label: label,
       assignment: {
         department,
-        purpose: DEPARTMENT_PURPOSE[department],
+        purpose: outcome.departmentDecision || DEPARTMENT_PURPOSE[department],
+        boardroom_decision: boardroomBrief,
+        assigned_tasks: finalBoardDirectionReady ? outcome.tasks : [],
         expected_output: [
           `${label} discovery packet`,
           `${label} plan draft`,
@@ -126762,18 +128631,29 @@ Preview only. Nothing executed.`);
           `${label} measurement plan`,
           `${label} evidence feedback to Boardroom`,
         ],
-        next_action: `Complete ${label} discovery before generating final department plan.`,
+        next_action: finalBoardDirectionReady
+          ? `Review and approve the ${label} task draft produced by the Boardroom before Pilot execution.`
+          : outcome.tasks.length
+            ? "Founder ratification is required before Boardroom tasks can enter this department."
+            : `Complete ${label} discovery and the governed Board meeting sequence before generating a final department plan.`,
       },
       required_discovery: DEPARTMENT_REQUIRED_DISCOVERY[department] || [],
-      status: "discovery_required",
-      plan_status: "missing",
+      status: finalBoardDirectionReady ? "boardroom_task_ready" : "discovery_required",
+      plan_status: finalBoardDirectionReady ? "draft_ready" : "missing",
       approval_status: "not_requested",
       safe_queue_status: "not_ready",
       evidence_status: "waiting",
       receipts_status: "none",
-      boardroom_outcome_linked: Boolean(boardroomGraph),
+      boardroom_outcome_linked: Boolean(finalBoardDirectionReady),
       department_discovery_linked: false,
-      generated_from_boardroom: Boolean(boardroomGraph),
+      generated_from_boardroom: Boolean(finalBoardDirectionReady),
+      governance: {
+        original_business_map_confirmed: mapConfirmation.valid,
+        independent_board_analysis_complete: Boolean(window.__aionVisibleAskBoardResult?.result_hash),
+        live_board_debate_complete: Boolean(window.__aionBoardroomDebateRound?.result_hash),
+        founder_direction_ratified: founderRatification.valid,
+        department_task_build_complete: Boolean(window.__aionBoardroomDepartmentTasks?.result_hash),
+      },
       preview_only: true,
       execution_allowed_now: false,
       connector_call_required: false,
@@ -126847,17 +128727,38 @@ Preview only. Nothing executed.`);
 
   function stageBoardroomPackagesO14A() {
     const result = {};
+    let changed = false;
 
     DEPARTMENTS.forEach((department) => {
       const payload = buildDepartmentPackageO14A(department);
-      writePackageToLedgerO14A(payload);
-      result[department] = payload;
+      const intelligence = ensureAionRootO14A();
+      const existing =
+        intelligence[department]?.active_boardroom_package ||
+        intelligence[department]?.goal_loop_assignment ||
+        intelligence[department]?.inbox?.[0] ||
+        null;
+      const sameAssignment = Boolean(
+        existing
+        && existing.package_id === payload.package_id
+        && existing.parent_goal_id === payload.parent_goal_id
+        && existing.child_workflow_id === payload.child_workflow_id
+        && existing.business_id === payload.business_id
+      );
+
+      if (sameAssignment) {
+        result[department] = existing;
+      } else {
+        writePackageToLedgerO14A(payload);
+        result[department] = payload;
+        changed = true;
+      }
     });
 
     window.__aionO14ABoardroomDepartmentPackages = result;
     window.__aionActiveBoardroomDepartmentPackages = result;
 
     try {
+      if (!changed) return result;
       window.dispatchEvent(new CustomEvent("aion:boardroom-department-packages-staged", {
         detail: {
           packages: result,
@@ -127522,6 +129423,8 @@ Preview only. Nothing executed.`);
     "aion-o14a1-incoming-boardroom-package-panel",
     "aion-o14a2-active-goal-loop-context-panel",
   ];
+  let syncScheduledO14A3 = false;
+  let syncRunningO14A3 = false;
 
   function normaliseO14A3(value) {
     return String(value || "").toLowerCase().trim();
@@ -127652,7 +129555,11 @@ Preview only. Nothing executed.`);
 
     removeWrongDepartmentPanelsO14A3(activeDepartment);
 
-    if (typeof window.aionStageBoardroomPackagesToDepartmentPilotsO14A === "function") {
+    const existingPackage =
+      window.aion?.departmentIntelligence?.[activeDepartment]?.active_boardroom_package ||
+      window.aion?.departmentIntelligence?.[activeDepartment]?.goal_loop_assignment ||
+      null;
+    if (!existingPackage && typeof window.aionStageBoardroomPackagesToDepartmentPilotsO14A === "function") {
       window.aionStageBoardroomPackagesToDepartmentPilotsO14A();
     }
 
@@ -127702,11 +129609,16 @@ Preview only. Nothing executed.`);
   }
 
   function scheduleO14A3() {
+    if (syncScheduledO14A3 || syncRunningO14A3) return;
+    syncScheduledO14A3 = true;
     window.requestAnimationFrame(() => {
+      syncScheduledO14A3 = false;
+      syncRunningO14A3 = true;
       try {
         patchExistingResolversO14A3();
         remountCorrectDepartmentO14A3();
       } catch {}
+      finally { syncRunningO14A3 = false; }
     });
   }
 
@@ -128293,7 +130205,7 @@ Preview only. Nothing executed.`);
     return resolveActiveDepartmentO14A6() || (typeof previousResolver === "function" ? previousResolver() : null);
   };
 
-  window.addEventListener("click", (event) => {
+  window.addEventListener("click", async (event) => {
     const dept = clickedDepartmentButtonO14A6(event.target);
     if (!dept) return;
 
@@ -129797,6 +131709,22 @@ Preview only. Nothing executed.`);
       role: "Challenge LLM",
       focus: "cut weak ideas and push simple action",
     },
+    kimi: {
+      id: "kimi", label: "Kimi / Moonshot", stance: "researcher", role: "Long-context Researcher",
+      focus: "deep document synthesis, long-horizon analysis and alternative plans",
+    },
+    meta: {
+      id: "meta", label: "Meta AI", stance: "builder", role: "Product and Systems Builder",
+      focus: "multimodal product thinking, implementation and operational scale",
+    },
+    mistral: {
+      id: "mistral", label: "Mistral AI", stance: "efficient", role: "European Operations Adviser",
+      focus: "efficient execution, European context and pragmatic alternatives",
+    },
+    deepseek: {
+      id: "deepseek", label: "DeepSeek", stance: "technical", role: "Technical and Cost Analyst",
+      focus: "technical reasoning, efficiency and cost-conscious challenge",
+    },
   };
 
   function normaliseProviderIdO15B(value = "") {
@@ -129810,6 +131738,10 @@ Preview only. Nothing executed.`);
     if (raw.includes("openai") || raw.includes("gpt")) return "openai";
     if (raw.includes("claude") || raw.includes("anthropic")) return "claude";
     if (raw.includes("grok") || raw === "xai" || raw.includes("x_ai")) return "grok";
+    if (raw.includes("kimi") || raw.includes("moonshot")) return "kimi";
+    if (raw.includes("mistral")) return "mistral";
+    if (raw.includes("deepseek") || raw.includes("deep_seek")) return "deepseek";
+    if (raw.includes("meta") || raw.includes("llama") || raw.includes("muse")) return "meta";
     if (raw.includes("gemma") || raw.includes("ollama") || raw.includes("local")) return "gemma";
     return raw;
   }
@@ -129896,7 +131828,8 @@ Preview only. Nothing executed.`);
     return safeArray(status.providers)
       .map((provider) => asProviderCouncilMemberO15B(provider))
       .filter(Boolean)
-      .filter((provider) => provider.connected === true);
+      .filter((provider) => provider.connected === true)
+      .filter((provider) => getAionSelectedBoardroomProviderIdsV1().includes(provider.id));
   }
 
   function getCouncilStateConnectedProvidersO15B() {
@@ -129911,7 +131844,8 @@ Preview only. Nothing executed.`);
     return safeArray(raw)
       .map((provider) => asProviderCouncilMemberO15B(provider))
       .filter(Boolean)
-      .filter((provider) => provider.connected === true || provider.status === "always_on" || provider.visible_in_council === true);
+      .filter((provider) => provider.connected === true || provider.status === "always_on" || provider.visible_in_council === true)
+      .filter((provider) => getAionSelectedBoardroomProviderIdsV1().includes(provider.id));
   }
 
   function getLiveResultConnectedProvidersO15B() {
@@ -129979,7 +131913,7 @@ Preview only. Nothing executed.`);
      * even if Vault only reports external providers.
      */
     const hasGemma = connected.some((provider) => provider.id === "gemma");
-    if (!hasGemma) {
+    if (!hasGemma && getAionSelectedBoardroomProviderIdsV1().includes("gemma")) {
       connected.unshift(asProviderCouncilMemberO15B({
         id: "gemma",
         label: "Gemma",
@@ -130115,6 +132049,10 @@ Preview only. Nothing executed.`);
     if (raw.includes("anthropic") || raw.includes("claude")) return "claude";
     if (raw.includes("openai") || raw.includes("gpt")) return "openai";
     if (raw.includes("xai") || raw.includes("grok")) return "grok";
+    if (raw.includes("kimi") || raw.includes("moonshot")) return "kimi";
+    if (raw.includes("mistral")) return "mistral";
+    if (raw.includes("deepseek")) return "deepseek";
+    if (raw.includes("meta") || raw.includes("llama") || raw.includes("muse")) return "meta";
     if (raw.includes("ollama") || raw.includes("gemma")) return "gemma";
     return raw.replace(/[^a-z0-9_:-]/g, "_");
   }
@@ -130151,6 +132089,22 @@ Preview only. Nothing executed.`);
         stance: "direct",
         role: "Direct Challenge",
         focus: "cut weak ideas and push simple action",
+      },
+      kimi: {
+        label: "Kimi / Moonshot", stance: "researcher", role: "Long-context Researcher",
+        focus: "deep document synthesis, long-horizon analysis and alternative plans",
+      },
+      meta: {
+        label: "Meta AI", stance: "builder", role: "Product and Systems Builder",
+        focus: "multimodal product thinking, implementation and operational scale",
+      },
+      mistral: {
+        label: "Mistral AI", stance: "efficient", role: "European Operations Adviser",
+        focus: "efficient execution, European context and pragmatic alternatives",
+      },
+      deepseek: {
+        label: "DeepSeek", stance: "technical", role: "Technical and Cost Analyst",
+        focus: "technical reasoning, efficiency and cost-conscious challenge",
       },
     };
     return meta[key] || {
@@ -130227,7 +132181,8 @@ Preview only. Nothing executed.`);
         };
       })
       .filter(Boolean)
-      .filter((provider) => provider.connected === true);
+      .filter((provider) => provider.connected === true)
+      .filter((provider) => getAionSelectedBoardroomProviderIdsV1().includes(provider.id));
   }
 
   function uniqueByProviderO15C(list = []) {
@@ -130559,7 +132514,7 @@ Preview only. Nothing executed.`);
     if (!id || !label) return null;
 
     const allowed =
-      ["ceo", "aion", "gemma", "openai", "gemini", "claude", "grok"].includes(id) ||
+      ["ceo", "aion", "gemma", "openai", "gemini", "claude", "grok", "kimi", "meta", "mistral", "deepseek"].includes(id) ||
       seat.seat_type === "connected_provider";
 
     const connected =
@@ -136602,6 +138557,7 @@ Preview only. Nothing executed.`);
       </section>
     `;
   }
+  window.renderAionO18AADepartmentConversationCockpit = renderAionO18AADepartmentConversationCockpit;
 
   function refreshTranscriptO18AA(key) {
     const transcript = document.querySelector(`[data-aion-o18aa-transcript="${CSS.escape(key)}"]`);
@@ -136804,7 +138760,12 @@ Preview only. Nothing executed.`);
           ? String(getSelectedLiveDepartmentKey() || "").toLowerCase()
           : String(window.__aionO16ASelectedLiveAgentsDepartment || "").toLowerCase();
 
-      if (SUPPORTED.includes(key)) {
+      const usesUnifiedDepartmentShell = Object.prototype.hasOwnProperty.call(
+        AION_UNIFIED_DEPARTMENT_SHELLS,
+        key,
+      );
+
+      if (SUPPORTED.includes(key) && !usesUnifiedDepartmentShell) {
         setTimeout(mountDepartmentAgentsO18AA, 0);
         setTimeout(mountDepartmentAgentsO18AA, 200);
         setTimeout(mountDepartmentAgentsO18AA, 750);
@@ -145094,3 +147055,666 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   );
 })();
 /* END AION O25AS INLINE ANSWER EDIT UX POLISH */
+
+
+/* BEGIN AION BOARDROOM CANONICAL BUSINESS MAP + GOVERNED MEETING SEQUENCE V1
+ *
+ * The Board must not reason over scattered, unconfirmed department state.
+ * This bridge compiles one canonical business map, requires founder confirmation,
+ * carries that exact map into live provider analysis, requires a live debate and
+ * founder ratification, and only then allows department tasks to be built.
+ */
+(function installAionBoardroomCanonicalBusinessMapV1() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionBoardroomCanonicalBusinessMapV1Installed === true) return;
+  window.__aionBoardroomCanonicalBusinessMapV1Installed = true;
+  // Superseded by the original BusinessMapContainer bridge below.  This older
+  // localStorage compiler is deliberately inert so it cannot create a parallel
+  // source of truth beside .runtime/AION_BUSINESS/business_containers.
+  return;
+
+  const CONFIRMATION_KEY = "aion.boardroom.businessMapConfirmation.v1";
+  const RATIFICATION_KEY = "aion.boardroom.founderRatification.v1";
+
+  function readJsonStorage(key, fallback = {}) {
+    try {
+      const parsed = JSON.parse(window.localStorage?.getItem(key) || "null");
+      return parsed && typeof parsed === "object" ? parsed : fallback;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function compactDepartmentEntry(entry = {}) {
+    const discovery = entry.discovery && typeof entry.discovery === "object" ? entry.discovery : {};
+    const plan = entry.plan && typeof entry.plan === "object" ? entry.plan : {};
+    return {
+      status: String(entry.status || "needs_discovery"),
+      confidence: String(entry.confidence || "empty"),
+      discovery,
+      plan_summary: {
+        title: String(plan.title || ""),
+        objective: String(plan.objective || ""),
+        approval_boundary: Array.isArray(plan.approval_boundary) ? plan.approval_boundary : [],
+      },
+      boardroom_summary: String(entry.boardroom_summary || ""),
+      evidence_count: Array.isArray(entry.evidence) ? entry.evidence.length : 0,
+      receipt_count: Array.isArray(entry.receipts) ? entry.receipts.length : 0,
+      last_updated: String(entry.last_updated || entry.updated_at || ""),
+    };
+  }
+
+  function meaningfulValue(value) {
+    if (value == null) return false;
+    if (typeof value === "string") return Boolean(value.trim()) && value.trim().toLowerCase() !== "unknown";
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === "object") return Object.keys(value).length > 0;
+    return true;
+  }
+
+  function buildCanonicalBusinessMap() {
+    const foundation =
+      typeof getEditableBusinessContextFoundation === "function"
+        ? getEditableBusinessContextFoundation()
+        : typeof getApprovedSmallBusinessFoundationContext === "function"
+          ? getApprovedSmallBusinessFoundationContext()
+          : {};
+    const ledger =
+      typeof getAionDepartmentIntelligence === "function"
+        ? getAionDepartmentIntelligence()
+        : {};
+    const departmentDrafts =
+      typeof getBusinessDepartmentContextDraft === "function"
+        ? getBusinessDepartmentContextDraft()
+        : {};
+    const businessId =
+      typeof getAionBoardroomBusinessContainerId === "function"
+        ? getAionBoardroomBusinessContainerId()
+        : "home-fixed";
+    const departmentKeys = ["marketing", "sales", "finance", "operations", "support", "hr"];
+    const departments = {};
+
+    departmentKeys.forEach((key) => {
+      departments[key] = {
+        ...compactDepartmentEntry(ledger?.[key] || {}),
+        business_context: departmentDrafts?.[key] || {},
+      };
+    });
+
+    const sourceRecords = {
+      foundation_packet: readJsonStorage("aion.businessTwin.foundationPacket.v1", {}),
+      finance_discovery: readJsonStorage("aion.financePilot.discoveryState.v1", {}),
+      financial_model: readJsonStorage("aion.financePilot.businessFinancialModel.v1", {}),
+      finance_boardroom_packet: readJsonStorage("aion.businessTwin.financePacket.v1", {}),
+      products_services_operating_model: readJsonStorage("aion.businessOperatingModel.draft.v1", {}),
+      organisation_authority: readJsonStorage(`aion.organizationAuthority.summary.${businessId}`, {}),
+    };
+
+    const essentialFields = [
+      ["business_name", "Business name"],
+      ["industry", "Industry"],
+      ["service_area", "Service area"],
+      ["products_services", "Products / services"],
+      ["target_customers", "Target customers"],
+      ["revenue_streams", "Revenue streams"],
+      ["growth_goals", "Growth goals"],
+    ];
+    const missingFoundation = essentialFields
+      .filter(([key]) => !meaningfulValue(foundation?.[key]))
+      .map(([, label]) => label);
+    const departmentCoverage = departmentKeys.map((key) => {
+      const item = departments[key];
+      const hasDiscovery = meaningfulValue(item.discovery) || meaningfulValue(item.business_context);
+      const hasSpecialistSource =
+        (key === "finance" && (meaningfulValue(sourceRecords.finance_discovery) || meaningfulValue(sourceRecords.financial_model))) ||
+        (key === "hr" && meaningfulValue(sourceRecords.organisation_authority)) ||
+        (key === "operations" && meaningfulValue(sourceRecords.products_services_operating_model));
+      return {
+        department: key,
+        ready: hasDiscovery || hasSpecialistSource,
+        status: item.status,
+      };
+    });
+
+    const core = {
+      schema_version: "aion.canonical_business_map.v1",
+      business_id: businessId,
+      foundation,
+      departments,
+      specialist_source_records: sourceRecords,
+      coverage: {
+        foundation_present: essentialFields.length - missingFoundation.length,
+        foundation_total: essentialFields.length,
+        missing_foundation_fields: missingFoundation,
+        departments_present: departmentCoverage.filter((item) => item.ready).map((item) => item.department),
+        departments_missing: departmentCoverage.filter((item) => !item.ready).map((item) => item.department),
+        department_status: departmentCoverage,
+      },
+      provenance: {
+        foundation: "approved/editable Business Foundation",
+        departments: "aion.departmentIntelligence.v1 + department context",
+        finance: "Finance discovery/model/Boardroom packet",
+        products_services: "Business Operating Model draft",
+        hr: "Organisation Authority summary",
+      },
+    };
+    const mapHash =
+      typeof stableAionHash === "function"
+        ? stableAionHash(core)
+        : `sha256:business_map_${businessId}_${JSON.stringify(core).length}`;
+
+    return {
+      ...core,
+      map_hash: String(mapHash || ""),
+      generated_at: new Date().toISOString(),
+    };
+  }
+
+  function readConfirmation() {
+    return readJsonStorage(CONFIRMATION_KEY, {});
+  }
+
+  function getConfirmation() {
+    const map = buildCanonicalBusinessMap();
+    const record = readConfirmation();
+    const valid = Boolean(record?.confirmed === true && record?.map_hash && record.map_hash === map.map_hash);
+    return {
+      ...record,
+      valid,
+      stale: Boolean(record?.confirmed === true && record?.map_hash && record.map_hash !== map.map_hash),
+      current_map_hash: map.map_hash,
+      map,
+    };
+  }
+
+  function confirmBusinessMap() {
+    const map = buildCanonicalBusinessMap();
+    const record = {
+      schema_version: "aion.business_map_confirmation.v1",
+      confirmed: true,
+      business_id: map.business_id,
+      map_hash: map.map_hash,
+      confirmed_by: "founder_or_authorised_operator",
+      confirmed_at: new Date().toISOString(),
+      unresolved_foundation_fields: map.coverage.missing_foundation_fields,
+      unresolved_departments: map.coverage.departments_missing,
+      confirmation_hash:
+        typeof stableAionHash === "function"
+          ? stableAionHash({ business_id: map.business_id, map_hash: map.map_hash, confirmed: true })
+          : `sha256:business_map_confirmation_${Date.now()}`,
+    };
+    try { window.localStorage?.setItem(CONFIRMATION_KEY, JSON.stringify(record)); } catch {}
+
+    // A newly confirmed baseline invalidates conclusions made against an older map.
+    window.__aionVisibleAskBoardResult = null;
+    window.__aionBoardroomDebateRound = null;
+    window.__aionBoardroomDepartmentTasks = null;
+    try { window.localStorage?.removeItem(RATIFICATION_KEY); } catch {}
+    return record;
+  }
+
+  function getRatification() {
+    const debate = window.__aionBoardroomDebateRound || null;
+    const record = readJsonStorage(RATIFICATION_KEY, {});
+    const debateHash = String(debate?.result_hash || "");
+    return {
+      ...record,
+      valid: Boolean(record?.ratified === true && debateHash && record?.debate_hash === debateHash),
+      current_debate_hash: debateHash,
+    };
+  }
+
+  function ratifyBoardDirection() {
+    const confirmation = getConfirmation();
+    const debate = window.__aionBoardroomDebateRound || null;
+    if (!confirmation.valid || !debate?.result_hash) return null;
+    const record = {
+      schema_version: "aion.board_direction_ratification.v1",
+      ratified: true,
+      business_id: confirmation.map.business_id,
+      business_map_hash: confirmation.map.map_hash,
+      debate_hash: debate.result_hash,
+      ratified_by: "founder_or_authorised_operator",
+      ratified_at: new Date().toISOString(),
+    };
+    record.ratification_hash =
+      typeof stableAionHash === "function"
+        ? stableAionHash(record)
+        : `sha256:founder_ratification_${Date.now()}`;
+    try { window.localStorage?.setItem(RATIFICATION_KEY, JSON.stringify(record)); } catch {}
+    return record;
+  }
+
+  function workflowStage() {
+    const confirmation = getConfirmation();
+    const ask = window.__aionVisibleAskBoardResult || null;
+    const debate = window.__aionBoardroomDebateRound || null;
+    const ratification = getRatification();
+    const tasks = window.__aionBoardroomDepartmentTasks || null;
+    if (!confirmation.valid) return "confirm_business_map";
+    if (!ask?.result_hash) return "independent_board_analysis";
+    if (!debate?.result_hash) return "founder_feedback_and_board_debate";
+    if (!ratification.valid) return "founder_ratification";
+    if (!tasks?.result_hash) return "build_department_packages";
+    return "department_packages_ready";
+  }
+
+  function renderGovernancePanel() {
+    const confirmation = getConfirmation();
+    const ratification = getRatification();
+    const map = confirmation.map;
+    const stage = workflowStage();
+    const askReady = confirmation.valid;
+    const debateReady = Boolean(window.__aionVisibleAskBoardResult?.result_hash);
+    const ratifyReady = Boolean(window.__aionBoardroomDebateRound?.result_hash);
+    const tasksReady = ratification.valid;
+    const stageRows = [
+      ["1", "Discovery assembled", `${map.coverage.foundation_present}/${map.coverage.foundation_total} foundation fields · ${map.coverage.departments_present.length}/6 departments`],
+      ["2", "Founder confirms business map", confirmation.valid ? "Confirmed against current evidence" : confirmation.stale ? "Needs reconfirming because business evidence changed" : "Waiting for confirmation"],
+      ["3", "Independent Board analysis", askReady ? (window.__aionVisibleAskBoardResult?.result_hash ? "Completed" : "Ready") : "Locked"],
+      ["4", "Founder feedback + Board debate", debateReady ? (window.__aionBoardroomDebateRound?.result_hash ? "Completed" : "Ready") : "Locked"],
+      ["5", "Founder ratifies direction", ratification.valid ? "Ratified" : ratifyReady ? "Ready" : "Locked"],
+      ["6", "Department packages + actions", window.__aionBoardroomDepartmentTasks?.result_hash ? "Ready" : tasksReady ? "Ready to build" : "Locked"],
+    ];
+
+    return `
+      <section data-aion-boardroom-business-map-governance="true" style="margin:0 0 12px;border:2px solid #0ea5e9;border-top-width:4px;background:#ffffff;padding:16px;">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <div class="panel-kicker">DISCOVERY → BOARD → ACTION</div>
+            <div class="panel-title">Canonical business map and meeting sequence</div>
+            <p class="muted" style="margin:5px 0 0;">The Board receives one founder-confirmed map. Recommendations cannot become department work until analysis, debate and founder ratification are complete.</p>
+          </div>
+          <span class="badge">Current stage · ${escapeHtml(stage.replace(/_/g, " "))}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px;">
+          ${stageRows.map(([number, label, status]) => `
+            <div style="border:1px solid #dbeafe;background:#f8fcff;padding:10px;">
+              <div class="card-label">${escapeHtml(number)} · ${escapeHtml(label)}</div>
+              <div style="margin-top:4px;font-weight:800;color:#0f172a;">${escapeHtml(status)}</div>
+            </div>
+          `).join("")}
+        </div>
+        <div class="notice ${map.coverage.missing_foundation_fields.length || map.coverage.departments_missing.length ? "warning" : "success"}" style="margin-top:12px;">
+          Business map ${escapeHtml(map.map_hash.slice(-16))} · Missing foundation: ${escapeHtml(map.coverage.missing_foundation_fields.join(", ") || "none")} · Missing department context: ${escapeHtml(map.coverage.departments_missing.join(", ") || "none")}
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <button type="button" class="primary-btn" data-aion-confirm-canonical-business-map="true">
+            ${confirmation.valid ? "Business map confirmed" : confirmation.stale ? "Reconfirm updated business map" : "Confirm business map"}
+          </button>
+          ${ratifyReady && !ratification.valid ? `<button type="button" class="primary-btn" data-aion-ratify-board-direction="true">Ratify Board direction</button>` : ""}
+        </div>
+      </section>
+    `;
+  }
+
+  // Carry the exact confirmed source into every Boardroom request and saved session.
+  if (typeof buildAionBoardroomSessionPacket === "function" && !window.__aionOriginalBoardroomSessionPacketV1) {
+    window.__aionOriginalBoardroomSessionPacketV1 = buildAionBoardroomSessionPacket;
+    buildAionBoardroomSessionPacket = function buildAionBoardroomSessionPacketWithCanonicalMapV1(...args) {
+      const packet = window.__aionOriginalBoardroomSessionPacketV1(...args);
+      const confirmation = getConfirmation();
+      return {
+        ...packet,
+        canonical_business_map: confirmation.map,
+        business_map_confirmation: confirmation.valid ? {
+          confirmed: true,
+          map_hash: confirmation.map_hash,
+          confirmation_hash: confirmation.confirmation_hash,
+          confirmed_at: confirmation.confirmed_at,
+          confirmed_by: confirmation.confirmed_by,
+        } : {
+          confirmed: false,
+          current_map_hash: confirmation.current_map_hash,
+          stale: confirmation.stale,
+        },
+        boardroom_workflow_stage: workflowStage(),
+      };
+    };
+  }
+
+  if (typeof renderBoardroomCouncilSessionTerminal === "function" && !window.__aionOriginalBoardroomCouncilTerminalV1) {
+    window.__aionOriginalBoardroomCouncilTerminalV1 = renderBoardroomCouncilSessionTerminal;
+    renderBoardroomCouncilSessionTerminal = function renderBoardroomCouncilSessionTerminalWithGovernanceV1(...args) {
+      return `${renderGovernancePanel()}${window.__aionOriginalBoardroomCouncilTerminalV1(...args)}`;
+    };
+  }
+
+  // Window capture runs before the older document handlers and prevents illegal stage jumps.
+  window.addEventListener("click", (event) => {
+    const confirm = event.target?.closest?.("[data-aion-confirm-canonical-business-map='true']");
+    if (confirm) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      confirmBusinessMap();
+      safeAionDesktopPatch?.({ message: "Business map confirmed. The Board may now analyse this exact evidence packet.", messageTone: "success" });
+      requestRender?.();
+      return;
+    }
+
+    const ratify = event.target?.closest?.("[data-aion-ratify-board-direction='true']");
+    if (ratify) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      const record = ratifyBoardDirection();
+      safeAionDesktopPatch?.({ message: record ? "Board direction ratified. Department task packages may now be built." : "Ratification is not available until a live Board debate is complete.", messageTone: record ? "success" : "warning" });
+      requestRender?.();
+      return;
+    }
+
+    const ask = event.target?.closest?.("[data-aion-council-session-run='true']");
+    if (ask && !getConfirmation().valid) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      safeAionDesktopPatch?.({ message: "Confirm the canonical business map before asking the Board. This prevents analysis of scattered or stale discovery data.", messageTone: "warning" });
+      requestRender?.();
+      return;
+    }
+
+    const debate = event.target?.closest?.("[data-aion-council-session-debate-plan='true']");
+    if (debate && !window.__aionVisibleAskBoardResult?.result_hash) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      safeAionDesktopPatch?.({ message: "Run the independent Board analysis before debating a plan.", messageTone: "warning" });
+      return;
+    }
+
+    const buildTasks = event.target?.closest?.("[data-aion-council-session-build-tasks='true']");
+    if (buildTasks && !getRatification().valid) {
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      safeAionDesktopPatch?.({ message: "The founder must ratify the debated Board direction before department tasks can be built.", messageTone: "warning" });
+      requestRender?.();
+    }
+  }, true);
+
+  window.aionBuildCanonicalBusinessMapV1 = buildCanonicalBusinessMap;
+  window.aionGetBusinessMapConfirmationV1 = getConfirmation;
+  window.aionConfirmCanonicalBusinessMapV1 = confirmBusinessMap;
+  window.aionGetBoardroomFounderRatificationV1 = getRatification;
+  window.aionRatifyBoardDirectionV1 = ratifyBoardDirection;
+  window.aionGetBoardroomWorkflowStageV1 = workflowStage;
+
+  console.info("[AION] canonical Business Map and governed Boardroom meeting sequence installed");
+})();
+/* END AION BOARDROOM CANONICAL BUSINESS MAP + GOVERNED MEETING SEQUENCE V1 */
+
+/* BEGIN AION ORIGINAL BUSINESS MAP → GOVERNED BOARDROOM SEQUENCE V2
+ *
+ * BusinessMapContainer is the source of truth.  Founder confirmation binds to
+ * its committed revision and repository receipt hash; it does not create or
+ * rewrite a second map.  A changed container therefore invalidates confirmation.
+ */
+(function installAionOriginalBusinessMapBoardroomV2() {
+  if (typeof window === "undefined" || typeof document === "undefined") return;
+  if (window.__aionOriginalBusinessMapBoardroomV2Installed) return;
+  window.__aionOriginalBusinessMapBoardroomV2Installed = true;
+
+  const CONFIRMATION_KEY = "aion.boardroom.businessMapConfirmation.v1";
+  const RATIFICATION_KEY = "aion.boardroom.founderRatification.v1";
+  const state = window.__aionOriginalBusinessMapStateV2 = {
+    loading: true, error: "", payload: null, receipt: null, boardroom_context: null, providers: [], loaded_at: "",
+  };
+  let loadInFlight = null;
+
+  function readStored(key) {
+    try { return JSON.parse(window.localStorage?.getItem(key) || "null") || {}; }
+    catch { return {}; }
+  }
+
+  function businessId() {
+    return typeof getAionBoardroomBusinessContainerId === "function"
+      ? getAionBoardroomBusinessContainerId()
+      : window.AionBusinessContainerClient?.resolveBusinessId?.() || "home-fixed";
+  }
+
+  function projectOriginalMap(payload = {}) {
+    return {
+      id: payload.id || "",
+      workspace_id: payload.workspace_id || businessId(),
+      kind: "business_map",
+      meta: payload.meta || {},
+      facts: Array.isArray(payload.facts) ? payload.facts : [],
+      assumptions: Array.isArray(payload.assumptions) ? payload.assumptions : [],
+      unknowns: Array.isArray(payload.unknowns) ? payload.unknowns : [],
+      conflicts: Array.isArray(payload.conflicts) ? payload.conflicts : [],
+      unanswered_fields: Array.isArray(payload.unanswered_fields) ? payload.unanswered_fields : [],
+      department_discovery_gaps: Array.isArray(payload.department_discovery_gaps) ? payload.department_discovery_gaps : [],
+      source_refs: Array.isArray(payload.source_refs) ? payload.source_refs : [],
+      revision: Number(payload.revision || 0),
+    };
+  }
+
+  async function loadOriginalBusinessMap() {
+    if (loadInFlight) return loadInFlight;
+    loadInFlight = (async () => {
+    state.loading = true;
+    state.error = "";
+    try {
+      const response = window.AionBusinessContainerClient?.getBusinessMap
+        ? await window.AionBusinessContainerClient.getBusinessMap(businessId())
+        : await fetch(`http://127.0.0.1:8080/api/aion/business/data/business-map/${encodeURIComponent(businessId())}`).then((item) => {
+            if (!item.ok) throw new Error(`Business Map request failed ${item.status}`);
+            return item.json();
+          });
+      state.payload = projectOriginalMap(response.payload || {});
+      state.receipt = response.receipt || {};
+      try {
+        const contextResponse = await window.AionBusinessContainerClient?.getBoardroomContext?.();
+        state.boardroom_context = contextResponse?.context || null;
+      } catch (error) {
+        console.warn("[AION] live Boardroom context envelope unavailable", error);
+      }
+      try {
+        const providerResponse = await fetch("http://127.0.0.1:8080/api/boardroom/providers/status", { headers: { Accept: "application/json" } }).then((item) => {
+          if (!item.ok) throw new Error(`Boardroom provider status failed ${item.status}`);
+          return item.json();
+        });
+        state.providers = safeArray(providerResponse?.providers);
+      } catch (error) {
+        console.warn("[AION] authoritative Boardroom provider status unavailable", error);
+      }
+      state.loaded_at = new Date().toISOString();
+    } catch (error) {
+      state.error = String(error?.message || error || "business_map_load_failed");
+    } finally {
+      state.loading = false;
+      loadInFlight = null;
+      requestRender?.();
+    }
+    return state;
+    })();
+    return loadInFlight;
+  }
+
+  function mapSnapshot() {
+    const map = state.payload ? projectOriginalMap(state.payload) : null;
+    return map ? {
+      ...map,
+      repository_receipt: state.receipt || {},
+      source_payload_hash: String(state.receipt?.payload_hash || ""),
+      snapshot_loaded_at: state.loaded_at,
+    } : null;
+  }
+
+  function getConfirmation() {
+    const map = mapSnapshot();
+    const record = readStored(CONFIRMATION_KEY);
+    const currentHash = String(map?.source_payload_hash || "");
+    const currentRevision = Number(map?.revision || 0);
+    const valid = Boolean(
+      map && currentHash && record.confirmed === true &&
+      record.business_map_payload_hash === currentHash &&
+      Number(record.business_map_revision || 0) === currentRevision
+    );
+    return {
+      ...record, valid, map,
+      stale: Boolean(record.confirmed && map && !valid),
+      current_payload_hash: currentHash,
+      current_revision: currentRevision,
+    };
+  }
+
+  function confirmBusinessMap() {
+    const current = getConfirmation();
+    if (!current.map?.source_payload_hash) return null;
+    const record = {
+      schema_version: "aion.business_map_confirmation.v2",
+      confirmed: true,
+      business_id: current.map.workspace_id,
+      business_map_id: current.map.id,
+      business_map_revision: current.map.revision,
+      business_map_payload_hash: current.map.source_payload_hash,
+      confirmed_by: "founder_or_authorised_operator",
+      confirmed_at: new Date().toISOString(),
+    };
+    record.confirmation_hash = typeof stableAionHash === "function"
+      ? stableAionHash(record)
+      : `sha256:business_map_confirmation_${Date.now()}`;
+    window.localStorage?.setItem(CONFIRMATION_KEY, JSON.stringify(record));
+    window.localStorage?.removeItem(RATIFICATION_KEY);
+    window.__aionVisibleAskBoardResult = null;
+    window.__aionBoardroomDebateRound = null;
+    window.__aionBoardroomDepartmentTasks = null;
+    return record;
+  }
+
+  function getRatification() {
+    const debateHash = String(window.__aionBoardroomDebateRound?.result_hash || "");
+    const record = readStored(RATIFICATION_KEY);
+    return { ...record, valid: Boolean(record.ratified && debateHash && record.debate_hash === debateHash), current_debate_hash: debateHash };
+  }
+
+  function ratifyBoardDirection() {
+    const confirmation = getConfirmation();
+    const debateHash = String(window.__aionBoardroomDebateRound?.result_hash || "");
+    if (!confirmation.valid || !debateHash) return null;
+    const record = {
+      schema_version: "aion.board_direction_ratification.v2",
+      ratified: true,
+      business_id: confirmation.map.workspace_id,
+      business_map_revision: confirmation.map.revision,
+      business_map_payload_hash: confirmation.map.source_payload_hash,
+      debate_hash: debateHash,
+      ratified_by: "founder_or_authorised_operator",
+      ratified_at: new Date().toISOString(),
+    };
+    record.ratification_hash = typeof stableAionHash === "function" ? stableAionHash(record) : `sha256:founder_ratification_${Date.now()}`;
+    window.localStorage?.setItem(RATIFICATION_KEY, JSON.stringify(record));
+    return record;
+  }
+
+  function workflowStage() {
+    const confirmation = getConfirmation();
+    if (!confirmation.valid) return "confirm_original_business_map";
+    if (!window.__aionVisibleAskBoardResult?.result_hash) return "independent_board_analysis";
+    if (!window.__aionBoardroomDebateRound?.result_hash) return "founder_feedback_and_board_debate";
+    if (!getRatification().valid) return "founder_ratification";
+    if (!window.__aionBoardroomDepartmentTasks?.result_hash) return "build_department_packages";
+    return "department_packages_ready";
+  }
+
+  function renderGovernancePanel() {
+    const confirmation = getConfirmation();
+    const map = confirmation.map;
+    const ratification = getRatification();
+    const facts = map?.facts?.length || 0;
+    const gaps = (map?.unknowns?.length || 0) + (map?.conflicts?.length || 0) + (map?.unanswered_fields?.length || 0) + (map?.department_discovery_gaps?.length || 0);
+    const status = state.loading ? "Loading original Business Map…" : state.error ? `Original Business Map unavailable: ${state.error}` : `Original map ${map?.id || ""} · revision ${map?.revision || 0} · ${facts} facts · ${gaps} open gaps`;
+    return `
+      <section data-aion-boardroom-business-map-governance="true" style="margin:0 0 12px;border:2px solid #0ea5e9;border-top-width:4px;background:#fff;padding:16px;">
+        <div class="panel-kicker">DISCOVERY → ORIGINAL BUSINESS MAP → BOARD → ACTION</div>
+        <div class="panel-title">Founder-confirmed Business Map and meeting sequence</div>
+        <p class="muted" style="margin:5px 0 0;">The Board reads the original persisted BusinessMapContainer used by AION and Department Pilots. Confirmation binds to its exact revision and receipt hash; no parallel map is created.</p>
+        <div class="notice ${state.error || gaps ? "warning" : "success"}" style="margin-top:12px;">${escapeHtml(status)}</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;">
+          <span class="badge">Stage · ${escapeHtml(workflowStage().replace(/_/g, " "))}</span>
+          <span class="badge">Board analysis · ${window.__aionVisibleAskBoardResult?.result_hash ? "complete" : confirmation.valid ? "ready" : "locked"}</span>
+          <span class="badge">Debate · ${window.__aionBoardroomDebateRound?.result_hash ? "complete" : "waiting"}</span>
+          <span class="badge">Founder direction · ${ratification.valid ? "ratified" : "waiting"}</span>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <button type="button" class="primary-btn" data-aion-confirm-original-business-map="true" ${!map?.source_payload_hash ? "disabled" : ""}>${confirmation.valid ? `Original map revision ${map.revision} confirmed` : confirmation.stale ? "Reconfirm updated original map" : "Confirm original Business Map"}</button>
+          <button type="button" class="secondary-btn" data-aion-refresh-original-business-map="true">Refresh original map</button>
+          ${window.__aionBoardroomDebateRound?.result_hash && !ratification.valid ? '<button type="button" class="primary-btn" data-aion-ratify-board-direction="true">Ratify Board direction</button>' : ""}
+        </div>
+      </section>`;
+  }
+
+  if (typeof buildAionBoardroomSessionPacket === "function") {
+    const original = buildAionBoardroomSessionPacket;
+    buildAionBoardroomSessionPacket = function(...args) {
+      const packet = original(...args);
+      const confirmation = getConfirmation();
+      return {
+        ...packet,
+        business_map_snapshot: confirmation.map,
+        business_map_confirmation: confirmation.valid ? {
+          confirmed: true,
+          business_map_id: confirmation.map.id,
+          business_map_revision: confirmation.map.revision,
+          business_map_payload_hash: confirmation.map.source_payload_hash,
+          confirmation_hash: confirmation.confirmation_hash,
+          confirmed_at: confirmation.confirmed_at,
+          confirmed_by: confirmation.confirmed_by,
+        } : { confirmed: false, stale: confirmation.stale, current_revision: confirmation.current_revision, current_payload_hash: confirmation.current_payload_hash },
+        boardroom_workflow_stage: workflowStage(),
+      };
+    };
+  }
+
+  if (typeof renderBoardroomCouncilSessionTerminal === "function") {
+    const original = renderBoardroomCouncilSessionTerminal;
+    renderBoardroomCouncilSessionTerminal = function(...args) { return `${renderGovernancePanel()}${original(...args)}`; };
+  }
+
+  window.addEventListener("click", async (event) => {
+    const refresh = event.target?.closest?.("[data-aion-refresh-original-business-map='true']");
+    if (refresh) { event.preventDefault(); loadOriginalBusinessMap(); return; }
+    const confirm = event.target?.closest?.("[data-aion-confirm-original-business-map='true']");
+    if (confirm) {
+      event.preventDefault(); event.stopImmediatePropagation();
+      if (!getConfirmation().map?.source_payload_hash) await loadOriginalBusinessMap();
+      const record = confirmBusinessMap();
+      if (record) clearAionBoardroomLiveRunStatusV1?.();
+      safeAionDesktopPatch?.({ message: record ? `Original Business Map revision ${record.business_map_revision} confirmed.` : "The original Business Map must load before it can be confirmed.", messageTone: record ? "success" : "warning" });
+      requestRender?.(); return;
+    }
+    const ratify = event.target?.closest?.("[data-aion-ratify-board-direction='true']");
+    if (ratify) { event.preventDefault(); event.stopImmediatePropagation(); ratifyBoardDirection(); requestRender?.(); return; }
+    const ask = event.target?.closest?.("[data-aion-council-session-run='true']");
+    if (ask && !getConfirmation().valid) {
+      event.preventDefault(); event.stopImmediatePropagation();
+      setAionBoardroomLiveRunStatusV1?.("ask", "Board meeting locked: confirm the current original Business Map revision first.", "warning", "business_map_confirmation_required");
+      safeAionDesktopPatch?.({ message: "Confirm the original persisted Business Map before asking the Board.", messageTone: "warning" });
+      requestRender?.(); return;
+    }
+    const debate = event.target?.closest?.("[data-aion-council-session-debate-plan='true']");
+    if (debate && !window.__aionVisibleAskBoardResult?.result_hash) { event.preventDefault(); event.stopImmediatePropagation(); safeAionDesktopPatch?.({ message: "Run independent Board analysis before debate.", messageTone: "warning" }); return; }
+    const tasks = event.target?.closest?.("[data-aion-council-session-build-tasks='true']");
+    if (tasks && !getRatification().valid) { event.preventDefault(); event.stopImmediatePropagation(); safeAionDesktopPatch?.({ message: "The founder must ratify the debated Board direction before department tasks can be built.", messageTone: "warning" }); }
+  }, true);
+
+  window.aionLoadOriginalBusinessMapV2 = loadOriginalBusinessMap;
+  window.aionGetBusinessMapConfirmationV1 = getConfirmation;
+  window.aionConfirmOriginalBusinessMapV2 = confirmBusinessMap;
+  window.aionGetBoardroomFounderRatificationV1 = getRatification;
+  window.aionRatifyBoardDirectionV1 = ratifyBoardDirection;
+  window.aionGetBoardroomWorkflowStageV1 = workflowStage;
+  loadOriginalBusinessMap();
+  // Electron renders before the Python backend has finished its heavy import.
+  // Retry after startup and continue refreshing the read-only Boardroom
+  // envelope so the terminal cannot remain stuck on its frontend fallback.
+  window.setTimeout(loadOriginalBusinessMap, 2500);
+  window.setTimeout(loadOriginalBusinessMap, 7500);
+  window.setInterval(loadOriginalBusinessMap, 30000);
+  window.addEventListener("focus", loadOriginalBusinessMap);
+  window.addEventListener("aion:finance-container-synced", loadOriginalBusinessMap);
+  console.info("[AION] original BusinessMapContainer Boardroom bridge installed");
+})();
+/* END AION ORIGINAL BUSINESS MAP → GOVERNED BOARDROOM SEQUENCE V2 */

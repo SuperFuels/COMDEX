@@ -1,0 +1,425 @@
+% Continuation section for the AION manipulation paper.
+% Snapshot sealed on 8 August 2026 after the final bounded GPU attempt.
+% Required packages are already present in main 4.tex:
+% amsmath, booktabs, array, longtable, hyperref, enumitem, xcolor, float.
+
+\section{Continuation Record: Franka Cube-Lift Attempts}
+\label{sec:cube-lift-continuation-20260808}
+
+\subsection{Purpose and exact claim boundary}
+
+This section records the complete continuation state of the NVIDIA manipulation
+programme as of 8 August 2026.  Its purpose is operational as well as
+scientific: a future development cycle should be able to resume from this
+point without reconstructing the controller history, repeating rejected
+experiments, or confusing contact evidence with a completed lift.
+
+The current direct precision controller has \emph{not} completed the strict
+cube-lift task.  The independent success authority is a post-action cube
+height strictly greater than $0.10\,\mathrm{m}$.  The final fresh-world trial
+scored 0/1, and no controller from this continuation cycle was promoted.  The
+programme nevertheless established four narrower physical capabilities:
+
+\begin{enumerate}
+  \item the Franka can be brought safely into the correct object region by a
+        bounded direct controller;
+  \item table and self-contact can be excluded from grasp evidence;
+  \item genuine object-only opposed fingertip contact can be produced; and
+  \item one sealed trajectory produced a genuine $7.9\,\mathrm{mm}$ physical
+        cube micro-lift.
+\end{enumerate}
+
+These are enabling results, not substitutes for the required lift.  A
+historical protected controller also retains two genuine PhysX lifts in twelve
+trials, which proves that the robot, environment, and lift authority admit the
+task.  It does not prove that the newer direct controller is reliable.
+
+All paid experiments described here used NVIDIA Isaac Lab and PhysX on an
+NVIDIA L40S.  NVIDIA Cosmos was not yet used to train or evaluate the grasp
+controller.  Cosmos-based representation or world-model training remains a
+later stage, to begin only after a reproducible cube-lift baseline exists.
+
+\subsection{Runtime authority and success contract}
+
+The deployed proposal policy was deliberately denied privileged simulator
+state.  At runtime it could use RGB, bounded robot proprioception, the episode
+step, and object-filtered fingertip touch.  It could not use the true cube
+position, reward, teacher action, private contact geometry, or the evaluator's
+success bit.  True post-action cube position and policy mode were recorded
+privately for diagnosis after execution; they were never returned to the
+policy as input.
+
+The causal task contract was
+\begin{equation}
+\begin{aligned}
+\text{safe approach}
+&\rightarrow \text{object-only opposed contact}
+\rightarrow \text{secure closure}\\
+&\rightarrow \text{attachment evidence}
+\rightarrow \text{verification lift}\\
+&\rightarrow h_{\mathrm{cube}}>0.10\,\mathrm{m}.
+\end{aligned}
+\label{eq:direct-franka-lift-contract}
+\end{equation}
+
+The controller was required to fail closed.  One-finger touch, table contact,
+high simulator reward, commanded upward hand motion, or an unverified grasp
+could not be counted as a lift.  This prevented the system from learning from
+false-positive contact or promoting a controller merely because the hand moved
+upward while the cube remained on the table.
+
+\subsection{Why the evaluation design was changed}
+
+Early matched searches revealed a simulator-authority problem.  A retained
+$15\,\mathrm{mm}$ search controller changed from 2/6 to 1/6 under the same
+nominal seed, image, GPU, environment, and frozen policy.  A deterministic
+audit seeded Python, NumPy, Torch, CUDA, and Warp; requested deterministic RTX;
+enabled enhanced PhysX determinism; and compared initial observations plus
+complete observation, action, and outcome chains.  The first reset image was
+reconstructed exactly, but later reset images and causal chains diverged.
+
+The likely boundary was sequential world reuse: later arms or episodes
+inherited solver, rendering, or contact history despite reset calls.  Small
+1/12 versus 2/12 comparisons were therefore too noisy to guide paid
+development.  Subsequent work used one bounded fresh-world episode at a time
+and treated a nominal seed as insufficient proof of identical late-contact
+conditions.  Future tournaments must use either a newly reconstructed world
+for every arm and episode or a precommitted replicated statistical design with
+confidence bounds.
+
+\subsection{Failure-driven controller evolution}
+
+Table~\ref{tab:franka-controller-evolution} records the important faults and
+the retained corrections.  The sequence matters: several apparently sensible
+tuning attempts were invalidated by deeper action-surface or authority errors.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.20\linewidth}
+                  >{\raggedright\arraybackslash}p{0.32\linewidth}
+                  >{\raggedright\arraybackslash}p{0.38\linewidth}}
+\caption{Failure-driven evolution of the direct Franka controller.}
+\label{tab:franka-controller-evolution}\\
+\toprule
+Stage & Observed fault & Retained correction or conclusion \\
+\midrule
+\endfirsthead
+\toprule
+Stage & Observed fault & Retained correction or conclusion \\
+\midrule
+\endhead
+Premature closure & The gripper could begin closing while still
+$32$--$35\,\mathrm{mm}$ from the grasp point. & Enforce approximately
+$8\,\mathrm{mm}$ open-hand alignment, $5\,\mathrm{mm}$ contact alignment,
+and at most $3\,\mathrm{mm}$ closed-loop contact movements. \\
+
+Reset authority & Identical nominal seeds did not reconstruct later
+trajectories. & Treat each arm/episode as an independent world; do not use
+tiny sequential comparisons as a reliable promotion authority. \\
+
+Calibration & The initial contact geometry placed the gripper approximately
+$32\,\mathrm{mm}$ too low. & Correct the hand-to-grasp calibration; this
+produced the first genuine two-finger PhysX contact in the precision probes. \\
+
+Action encoding & Direct joint targets were falsely clipped as though Isaac
+Lab exposed a normalized $[-1,1]$ action surface. & Map absolute joint targets
+through the configured action scale and default offset while retaining Franka
+limits and a $35\,\mathrm{mrad}$ per-frame IK bound. \\
+
+Retry semantics & Retry branches emitted seven zero arm actions; in this task,
+zero means the robot's default pose rather than ``hold current pose.'' & Every
+reopen or retry now emits an absolute current-joint hold. \\
+
+Tactile direction & The original lateral correction moved in the wrong
+direction, and repeated corrections could stack before the arm settled. & Use
+the empirically corrected direction, an execution cooldown, bounded cumulative
+movement, and later a symmetric bracket about the original approach. \\
+
+Close timing & The close window ended before balanced force persisted for the
+four-frame attachment signature. & Extend the bounded close window and allow a
+small tactile force-balancing servo while preserving safety limits. \\
+
+Attachment retention & A grasp signature was incorrectly treated as a force
+condition that had to remain invariant during upward acceleration. & Let the
+earned grasp latch persist while both tactile sensors retain contact; use the
+signature to authorize lift entry, not to demand stationary forces forever. \\
+
+Visual occlusion & Close-range occlusion could move the remembered object
+target. & Ground the target while safely above the object and freeze the
+committed visual belief during the final approach. \\
+
+False contact & Table or robot self-contact could be interpreted as grasp
+evidence. & Bind fingertip sensing to the active object prim; only object-only
+left/right evidence can authorize closure or attachment. \\
+
+Coarse controller & The learned coarse controller approached at roughly
+$5.9\,\mathrm{rad\,s^{-1}}$, trapped the wrist near the table, and left later
+controllers trying to recover from a collision-pinned state. & Remove it from
+the direct probe.  A smooth, bounded direct trajectory owns motion from the
+initial safe pose onward. \\
+
+Compliance and sag & The hand could sag by approximately $18\,\mathrm{cm}$
+under load. & Increase damping, require settled motion before phase changes,
+and use measured Cartesian residual compensation; the observed sag was reduced
+to approximately $6\,\mathrm{cm}$. \\
+
+Lift transition & Older code could return to a less stable fixed joint
+trajectory after grasp verification. & Route approach, contact, verification,
+and full-lift phases through the settled Cartesian controller. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Experimental evidence ladder}
+
+The progression was not monotonic because fresh PhysX worlds produced
+different late-contact states.  Table~\ref{tab:franka-evidence-ladder}
+separates the strongest evidence at each level.
+
+\begin{table}[H]
+\centering
+\caption{Strongest retained evidence from the continuation cycle.}
+\label{tab:franka-evidence-ladder}
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.31\linewidth}
+                >{\raggedright\arraybackslash}p{0.20\linewidth}
+                >{\raggedright\arraybackslash}p{0.38\linewidth}}
+\toprule
+Evidence level & Best observation & Interpretation \\
+\midrule
+Historical task completion & 2/12 protected PhysX lifts & The environment and
+lift pathway are physically feasible, but historical reliability is low. \\
+
+Broad opposed contact & 88 opposed-contact frames in an instrumented probe &
+Both fingers can reach the cube; alternating force prevented the sealed
+four-frame attachment signature. \\
+
+Physical cube motion & $0.0210\rightarrow0.0289\,\mathrm{m}$ & Genuine
+$7.9\,\mathrm{mm}$ micro-lift with median fingertip forces of approximately
+$67\,\mathrm{N}$ and $79\,\mathrm{N}$; below the task threshold. \\
+
+Object-filtered stable contact & 19 consecutive opposed-contact frames & Best
+evidence under the hardened final architecture; finger width was approximately
+$23.1\,\mathrm{mm}$ and forces were about $41\,\mathrm{N}$ and
+$33\,\mathrm{N}$. \\
+
+Final bounded attempt & 0/1; three one-sided frames; no closure & The bracketed
+controller failed to reacquire contact after its first causal correction and
+correctly refused an unverified lift. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The object-filtered contact run failed the deliberately strict attachment
+signature because its force-balance ratio was approximately $0.80$, below the
+required $0.85$.  It subsequently reopened after the bounded close window.
+This run proves that secure-looking grasp geometry is achievable, but it does
+not establish repeatable attachment.
+
+The micro-lift run exposed a different boundary.  Its strongest grasp window
+reached a force-balance ratio of $0.857$, but the measured finger width was
+$28.26\,\mathrm{mm}$, only $0.26\,\mathrm{mm}$ beyond the probe's then-current
+maximum.  A probe-only $3\,\mathrm{mm}$ width margin was added, while the
+default promoted controller retained its stricter sealed threshold.  A fresh
+repeat did not reacquire contact, so the relaxed probe was not credited with a
+full lift.
+
+\subsection{Final attempt and terminal state}
+
+The last authorized paid attempt used a 350-step fresh world with symmetric
+tactile bracketing.  If the first lateral correction failed, a second
+correction was prepared to test the opposite side of the original approach
+rather than continuing farther in the same direction.  Verified grasp and
+lift phases were also assigned to the stable Cartesian controller.
+
+The sealed outcome was:
+\begin{align*}
+N_{\mathrm{lift}} &= 0/1, &
+h_{\mathrm{start}} &= 0.052057\,\mathrm{m},\\
+h_{\mathrm{max}} &= 0.052057\,\mathrm{m}, &
+\Delta h_{\mathrm{cube}} &= 0,\\
+N_{\mathrm{dual}} &= 0, &
+N_{\mathrm{one\mbox{-}sided}} &= 3,\\
+N_{\mathrm{unsafe}} &= 0. &&
+\end{align*}
+
+The controller observed persistent one-sided contact, issued one causal reopen
+and re-centre action, and then failed to regain contact.  The second side of
+the bracket was never reached because persistent tactile evidence did not
+recur.  The fingers never closed, no attachment signature was earned, and no
+lift command was authorized.  This is a safe and correctly rejected episode.
+
+All 33 focused controller, tactile, and evaluator-contract tests passed before
+the final run.  The trajectory archive contains 350 RGB frames, bounded
+proprioception, actions, fingertip touch, rewards for audit only, true
+post-action cube position for private evaluation, and the per-step policy
+mode.  Both NVIDIA workspaces were stopped after evidence retrieval.  No
+additional paid retry was launched, no new controller was promoted, and no Git
+commit was made for the experimental working state.
+
+\subsection{Current diagnosis}
+
+The principal blocker is \textbf{repeatable acquisition of a balanced
+two-finger grasp in a fresh world}.  It is no longer accurate to describe the
+problem as simply ``the arm cannot reach the cube'' or ``the lift command is
+missing.''  The arm has reached the object, generated opposed contact, closed
+around it, and physically begun lifting it.  What remains unreliable is the
+last-centimetre sequence that converts approach into the same balanced contact
+state on demand.
+
+Three effects must not be conflated:
+\begin{enumerate}
+  \item \textbf{world variance:} nominally identical resets can diverge after
+        contact history accumulates;
+  \item \textbf{residual Cartesian error and compliance:} the commanded target
+        is not necessarily the measured loaded hand pose; and
+  \item \textbf{discrete tactile correction:} a one-sided signal can disappear
+        after a large re-centering move before the controller gathers enough
+        evidence to test the opposite side.
+\end{enumerate}
+
+The upward Cartesian path is prepared but remains weakly tested because grasp
+acquisition rarely authorizes it.  The immediate research problem is therefore
+to make attachment entry repeatable, then test whether attachment survives a
+small vertical displacement before attempting the full task lift.
+
+\subsection{Required restart protocol}
+\label{subsec:cube-lift-restart-protocol}
+
+When this work resumes, the following order should be preserved.
+
+\begin{enumerate}
+  \item \textbf{Begin from the retained evidence, not a broad search.}
+        Reanalyse the 19-frame object-filtered opposed-contact window and the
+        $7.9\,\mathrm{mm}$ micro-lift.  Record measured hand pose, finger width,
+        left/right force, velocity, and policy phase at entry, peak balance,
+        closure, and separation.
+
+  \item \textbf{Reconstruct a fresh simulator world for every episode.}
+        Record the initial RGB and bounded-observation hashes.  Never compare
+        arms sequentially in one reused world and call the result matched.
+
+  \item \textbf{Replace the large discrete re-centering jump with a bounded
+        local contact search.}  Around the final measured contact pose, test a
+        precommitted symmetric set of millimetre-scale lateral offsets.  Each
+        move must settle before new touch evidence is interpreted.  The search
+        must use fingertip touch and proprioception only; true cube pose remains
+        evaluator-owned.
+
+  \item \textbf{Separate acquisition from attachment qualification.}
+        First require repeatable opposed object-only contact and a realistic
+        finger-width band.  Then close gradually while the tactile balance
+        servo minimizes left/right force asymmetry.  Log why each candidate
+        window fails the signature rather than changing several thresholds at
+        once.
+
+  \item \textbf{Use a $3$--$4\,\mathrm{cm}$ verification lift.}
+        Once attachment is earned, command a slow Cartesian rise while holding
+        closure.  Attachment is verified only if the cube follows the hand.
+        If it slips, capture the exact force, width, hand acceleration, and
+        object-height frame at separation.
+
+  \item \textbf{Attempt the full lift only after verification.}
+        Continue beyond the independent $0.10\,\mathrm{m}$ cube-height
+        threshold.  Simulator reward must remain diagnostic and cannot replace
+        this authority.
+
+  \item \textbf{Demand replication before promotion.}
+        A single lift is a development breakthrough, not a reliable skill.
+        The initial reliability target should be at least 4/6 safe lifts in
+        independently reconstructed worlds, followed by held-out seeds.
+\end{enumerate}
+
+Each paid cycle should change one causal mechanism, run the smallest experiment
+that can falsify it, retrieve immutable evidence, and stop both GPUs.  If a
+trial does not reach object-only contact, attachment thresholds are irrelevant;
+if it reaches balanced attachment but slips during the verification lift, the
+next change belongs to closure, friction, wrist stability, or acceleration---
+not approach geometry.
+
+\subsection{Path from one cube to general grasp competence}
+
+The present controller is object-generic only in a limited architectural
+sense: contact filtering binds to the active object prim rather than a
+cube-specific collision path, and the runtime contract does not expose the
+cube pose.  Empirical competence has been demonstrated only on the cube.
+
+After the cube gate is repeatable, the curriculum should expand one factor at a
+time across object width, height, aspect ratio, mass, friction, orientation,
+occlusion, and initial lateral offset.  Training should distinguish at least
+four reusable skills:
+\begin{equation}
+\text{visual grounding},\quad
+\text{pre-grasp placement},\quad
+\text{tactile acquisition},\quad
+\text{load-preserving transport}.
+\end{equation}
+
+Only after transfer succeeds across held-out objects should NVIDIA Cosmos be
+introduced for predictive visual or world-model learning.  Cosmos should be
+evaluated as a challenger representation under the same physical authority;
+it must not receive private cube state or convert imagined success into
+competence credit.
+
+\subsection{Continuation artifact manifest}
+
+The following files define the restart point.  Paths are absolute because the
+working programme was executed from the COMDEX repository on the development
+host.
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.28\linewidth}
+                  >{\raggedright\arraybackslash}p{0.62\linewidth}}
+\toprule
+Purpose & Artifact \\
+\midrule
+\endfirsthead
+\toprule
+Purpose & Artifact \\
+\midrule
+\endhead
+Final controller &
+\url{/Users/kevinrobinson/dev/COMDEX/integrations/isaac_lab/aion_precision_franka_policy.py} \\
+Runner and private diagnostic capture &
+\url{/Users/kevinrobinson/dev/COMDEX/integrations/isaac_lab/aion_isaac_lab_runner.py} \\
+Direct probe configuration &
+\url{/Users/kevinrobinson/dev/COMDEX/integrations/isaac_lab/physx_direct_joint_ik_contact_probe.py} \\
+Determinism and precision-contact diagnosis &
+\url{/Users/kevinrobinson/dev/COMDEX/docs/aion/AION_PHYSX_DETERMINISM_AND_PRECISION_CONTACT_REPORT.md} \\
+Fresh-world direct-servo and micro-lift report &
+\url{/Users/kevinrobinson/dev/COMDEX/docs/aion/AION_FRESH_WORLD_DIRECT_JOINT_SERVO_2026-08-08.md} \\
+Object-filtered architecture report &
+\url{/Users/kevinrobinson/dev/COMDEX/docs/aion/AION_OBJECT_FILTERED_GENERAL_GRASP_CONTROL_LEAP_2026-08-08.md} \\
+Final bounded-attempt report &
+\url{/Users/kevinrobinson/dev/COMDEX/docs/aion/AION_FINAL_BRACKETED_CUBE_LIFT_ATTEMPT_2026-08-08.md} \\
+Micro-lift receipt &
+\url{/Users/kevinrobinson/dev/COMDEX/results/immutable/isaac_precision_franka/direct_joint_opposed_cooldown_20260808_v1.json} \\
+Micro-lift trajectory &
+\url{/Users/kevinrobinson/dev/COMDEX/results/immutable/isaac_precision_franka/direct_joint_opposed_cooldown_20260808_v1.npz} \\
+Best final-architecture opposed-contact receipt &
+\url{/Users/kevinrobinson/dev/COMDEX/results/immutable/isaac_precision_franka/object_filtered_phase2_cartesian_20260808_v1.json} \\
+Best final-architecture opposed-contact trajectory &
+\url{/Users/kevinrobinson/dev/COMDEX/results/immutable/isaac_precision_franka/object_filtered_phase2_cartesian_20260808_v1.npz} \\
+Final attempt receipt &
+\url{/Users/kevinrobinson/dev/COMDEX/results/immutable/isaac_precision_franka/object_filtered_final_bracketed_cartesian_lift350_20260808_v1.json} \\
+Final attempt trajectory &
+\url{/Users/kevinrobinson/dev/COMDEX/results/immutable/isaac_precision_franka/object_filtered_final_bracketed_cartesian_lift350_20260808_v1.npz} \\
+Focused controller tests &
+\url{/Users/kevinrobinson/dev/COMDEX/backend/tests/test_precision_franka_adapter.py} \\
+Focused tactile tests &
+\url{/Users/kevinrobinson/dev/COMDEX/backend/tests/test_active_tactile_franka_adapter.py} \\
+Runtime authority/filter tests &
+\url{/Users/kevinrobinson/dev/COMDEX/backend/tests/test_isaac_contract_filters.py} \\
+\bottomrule
+\end{longtable}
+
+\subsection{Handover verdict}
+
+The cube-lift task remains open.  The programme progressed from unstable
+approach and false contact to object-filtered opposed contact, a genuine
+$7.9\,\mathrm{mm}$ micro-lift, stable 19-frame grasp geometry, and a fail-closed
+Cartesian lift architecture.  It did not convert those advances into a fresh
+post-action cube height above $0.10\,\mathrm{m}$ before the bounded development
+cycle ended.
+
+The shortest credible route on resumption is not another broad policy search.
+It is a fresh-world, millimetre-scale acquisition experiment around the proven
+opposed-contact pose, followed by a slow $3$--$4\,\mathrm{cm}$ attachment test
+and then the full lift.  Until that sequence is replicated, 
+\AION{} should be described as having learned important components of grasping
+without yet mastering reliable cube pickup.

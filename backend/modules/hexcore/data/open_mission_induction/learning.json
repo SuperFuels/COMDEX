@@ -1,0 +1,1131 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "learn:mission:climate_explanation:independent_verification:climate_explanation:independent_verification": "procedure_open_portfolio_1db2ba150c7f",
+    "learn:mission:climate_explanation:natural_document_comprehension:climate_explanation:natural_document_comprehension": "procedure_open_portfolio_165bc26f39c0",
+    "learn:mission:climate_explanation:provenance_binding:climate_explanation:provenance_binding": "procedure_open_portfolio_5d2eacedffc3",
+    "learn:mission:climate_explanation:source_inventory:climate_explanation:source_inventory": "procedure_open_portfolio_9a71aca429ce",
+    "learn:mission:financial_change:independent_verification:financial_change:independent_verification": "procedure_open_portfolio_ab5627b40aa2",
+    "learn:mission:financial_change:layout_aware_document_reasoning:financial_change:layout_aware_document_reasoning": "procedure_open_portfolio_7e3f956a8329",
+    "learn:mission:financial_change:provenance_binding:financial_change:provenance_binding": "procedure_open_portfolio_748833e59c8d",
+    "learn:mission:financial_change:quantitative_claim_verification:financial_change:quantitative_claim_verification": "procedure_open_portfolio_542dc9a1ef69",
+    "learn:mission:financial_change:source_inventory:financial_change:source_inventory": "procedure_open_portfolio_c2c168ab064b",
+    "learn:mission:fourier_alignment:cross_modal_synthesis:fourier_alignment:cross_modal_synthesis": "procedure_open_portfolio_e1215d78598a",
+    "learn:mission:fourier_alignment:independent_verification:fourier_alignment:independent_verification": "procedure_open_portfolio_3813b2b497ff",
+    "learn:mission:fourier_alignment:provenance_binding:fourier_alignment:provenance_binding": "procedure_open_portfolio_ec67f12a8abe",
+    "learn:mission:fourier_alignment:quantitative_claim_verification:fourier_alignment:quantitative_claim_verification": "procedure_open_portfolio_9a12ac6c1304",
+    "learn:mission:fourier_alignment:quantitative_table_reasoning:fourier_alignment:quantitative_table_reasoning": "procedure_open_portfolio_319e258d3cbb",
+    "learn:mission:fourier_alignment:source_inventory:fourier_alignment:source_inventory": "procedure_open_portfolio_b8e7f4319d95",
+    "learn:mission:fourier_alignment:visual_evidence_grounding:fourier_alignment:visual_evidence_grounding": "procedure_open_portfolio_96c168011124",
+    "learn:mission:software_governance:cross_modal_synthesis:software_governance:cross_modal_synthesis": "procedure_open_portfolio_47671c6331a2",
+    "learn:mission:software_governance:epistemic_conflict_resolution:software_governance:epistemic_conflict_resolution": "procedure_open_portfolio_1d2639ab4d75",
+    "learn:mission:software_governance:executable_code_reasoning:software_governance:executable_code_reasoning": "procedure_open_portfolio_7aac5c1c4d48",
+    "learn:mission:software_governance:independent_verification:software_governance:independent_verification": "procedure_open_portfolio_c6a705e18f32",
+    "learn:mission:software_governance:natural_document_comprehension:software_governance:natural_document_comprehension": "procedure_open_portfolio_b4589052adf4",
+    "learn:mission:software_governance:provenance_binding:software_governance:provenance_binding": "procedure_open_portfolio_0bf004ef77e6",
+    "learn:mission:software_governance:source_inventory:software_governance:source_inventory": "procedure_open_portfolio_06aefb623547",
+    "learn:mission:software_governance:structured_configuration_reasoning:software_governance:structured_configuration_reasoning": "procedure_open_portfolio_2e4890f6e1df",
+    "open_mission_portfolio_induction": "procedure_open_mission_portfolio_induction_v1"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "open_mission_cau"
+    },
+    "reason": "open_mission_portfolio_induction",
+    "state_hash": "be55aaa7a59c0c40c9fd559488f6664265ecd29bf370f6be6edf3e3a627b2131"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "fixed_curriculum_mean_coverage": 0.6321428571428571,
+          "invented_capability_nodes": 24,
+          "missions_completed": 4,
+          "open_induction_coverage": 1.0,
+          "raw_portfolios": 4,
+          "source_files": 7,
+          "terminal_objective_mutations": 0,
+          "transfer_information_action_reduction": 0.41666666666666663,
+          "unsafe_actions": 0,
+          "variable_graph_sizes": [
+            4,
+            5,
+            7,
+            8
+          ],
+          "verified_runtime_cycles": 24,
+          "weakest_portfolio_success": 1.0
+        },
+        "graph_hashes": {
+          "climate_explanation": "4234ce98b42862ea4294907100efff54dc6d313dc13ac7f6ae61fa44e2104a31",
+          "financial_change": "33e3604fa119ccd9fb0c5633bdef7c6bde37008d86a9700f1f1f9437df01d560",
+          "fourier_alignment": "1f0aba398aa5099ddf23354eed84a68b4b075ac539ece91ff7b11d9a83d7606f",
+          "software_governance": "40fcf28b45b4fb4ad1fb1c448abb7c7052b683fd366888684197a323d0816305"
+        }
+      },
+      "outcome_id": "outcome_cd9950810dcd443c",
+      "procedure_id": "procedure_open_mission_portfolio_induction_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.4166666666666665,
+      "success": true,
+      "timestamp": "2026-07-31T21:43:29.531557+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_open_mission_portfolio_induction_v1": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "fixed_curriculum_mean_coverage": 0.6321428571428571,
+          "invented_capability_nodes": 24,
+          "missions_completed": 4,
+          "open_induction_coverage": 1.0,
+          "raw_portfolios": 4,
+          "source_files": 7,
+          "terminal_objective_mutations": 0,
+          "transfer_information_action_reduction": 0.41666666666666663,
+          "unsafe_actions": 0,
+          "variable_graph_sizes": [
+            4,
+            5,
+            7,
+            8
+          ],
+          "verified_runtime_cycles": 24,
+          "weakest_portfolio_success": 1.0
+        },
+        "graph_hashes": {
+          "climate_explanation": "4234ce98b42862ea4294907100efff54dc6d313dc13ac7f6ae61fa44e2104a31",
+          "financial_change": "33e3604fa119ccd9fb0c5633bdef7c6bde37008d86a9700f1f1f9437df01d560",
+          "fourier_alignment": "1f0aba398aa5099ddf23354eed84a68b4b075ac539ece91ff7b11d9a83d7606f",
+          "software_governance": "40fcf28b45b4fb4ad1fb1c448abb7c7052b683fd366888684197a323d0816305"
+        }
+      },
+      "goal": "open_mission_portfolio_induction",
+      "procedure_id": "procedure_open_mission_portfolio_induction_v1",
+      "promoted_at": "2026-07-31T21:43:29.529513+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.4166666666666665,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_raw_interfaces",
+        "invent_capability_graph",
+        "invent_success_contract",
+        "compile_mission_envelope",
+        "execute_dependency_ordered_curriculum",
+        "learn_format_contracts",
+        "verify_transfer_outcomes"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_06aefb623547": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "39f48db68a110d13f818100591a7fab85d40cc51fe9d2f3b4ef7c60dcf5a2e5b",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:source_inventory"
+      },
+      "goal": "learn:mission:software_governance:source_inventory:software_governance:source_inventory",
+      "procedure_id": "procedure_open_portfolio_06aefb623547",
+      "promoted_at": "2026-07-31T21:43:25.513828+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_0bf004ef77e6": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "7ec69306529e04189008b98be55c978d15be694ed3403c3626b2a907d1c808f6",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:provenance_binding"
+      },
+      "goal": "learn:mission:software_governance:provenance_binding:software_governance:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_0bf004ef77e6",
+      "promoted_at": "2026-07-31T21:43:25.693761+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_165bc26f39c0": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "d0140226324aa8d2517510223aaaa74e4f7eaf4c18372c89150d844ee8877bc7",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:natural_document_comprehension"
+      },
+      "goal": "learn:mission:climate_explanation:natural_document_comprehension:climate_explanation:natural_document_comprehension",
+      "procedure_id": "procedure_open_portfolio_165bc26f39c0",
+      "promoted_at": "2026-07-31T21:43:29.369815+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_1d2639ab4d75": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "4c8df0ca528415c87eab871c25d643370c5e5413fb71088f825dff3f2a6f6923",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:epistemic_conflict_resolution"
+      },
+      "goal": "learn:mission:software_governance:epistemic_conflict_resolution:software_governance:epistemic_conflict_resolution",
+      "procedure_id": "procedure_open_portfolio_1d2639ab4d75",
+      "promoted_at": "2026-07-31T21:43:25.585962+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_1db2ba150c7f": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "202eb13f3c07a79b4de42ed749044abc39cd8bdca44d3ec8e42ba9bc55bbe2e0",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:independent_verification"
+      },
+      "goal": "learn:mission:climate_explanation:independent_verification:climate_explanation:independent_verification",
+      "procedure_id": "procedure_open_portfolio_1db2ba150c7f",
+      "promoted_at": "2026-07-31T21:43:29.508779+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_2e4890f6e1df": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "ede587feccfd2613280f9f1d75eca916c8d51dbdf48f81c02bd033db56a7a72a",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:structured_configuration_reasoning"
+      },
+      "goal": "learn:mission:software_governance:structured_configuration_reasoning:software_governance:structured_configuration_reasoning",
+      "procedure_id": "procedure_open_portfolio_2e4890f6e1df",
+      "promoted_at": "2026-07-31T21:43:25.730510+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_319e258d3cbb": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "6d3e1d8dbd907d23621710f21b84c380f44ef862b2b23d03e013dae15245b3da",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:quantitative_table_reasoning"
+      },
+      "goal": "learn:mission:fourier_alignment:quantitative_table_reasoning:fourier_alignment:quantitative_table_reasoning",
+      "procedure_id": "procedure_open_portfolio_319e258d3cbb",
+      "promoted_at": "2026-07-31T21:43:29.106940+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_3813b2b497ff": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "9089c9ec5a55e0069bccf1b87617a72a996470650c260084338b24c61c77f9ca",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:independent_verification"
+      },
+      "goal": "learn:mission:fourier_alignment:independent_verification:fourier_alignment:independent_verification",
+      "procedure_id": "procedure_open_portfolio_3813b2b497ff",
+      "promoted_at": "2026-07-31T21:43:29.228327+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_47671c6331a2": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "b81f58d1c0654a854d74045ef9153cd5580199a176b6829f4aca7568fdbdecb4",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:cross_modal_synthesis"
+      },
+      "goal": "learn:mission:software_governance:cross_modal_synthesis:software_governance:cross_modal_synthesis",
+      "procedure_id": "procedure_open_portfolio_47671c6331a2",
+      "promoted_at": "2026-07-31T21:43:25.546945+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_542dc9a1ef69": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "7e12bb5c0d3fc274e1af8f9e163a4324e2a93cc4c9cc436ca6ad02d75aaba777",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:quantitative_claim_verification"
+      },
+      "goal": "learn:mission:financial_change:quantitative_claim_verification:financial_change:quantitative_claim_verification",
+      "procedure_id": "procedure_open_portfolio_542dc9a1ef69",
+      "promoted_at": "2026-07-31T21:43:28.204516+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_5d2eacedffc3": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "b430906b4f2f8a5348904bb23b72605b79616d0165d90632b1001ed734454529",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:provenance_binding"
+      },
+      "goal": "learn:mission:climate_explanation:provenance_binding:climate_explanation:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_5d2eacedffc3",
+      "promoted_at": "2026-07-31T21:43:29.438835+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_748833e59c8d": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "e5d9e8a874c262c55816c6b98592d15dfaa01285b1d008c4c9c81a038d92ba35",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:provenance_binding"
+      },
+      "goal": "learn:mission:financial_change:provenance_binding:financial_change:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_748833e59c8d",
+      "promoted_at": "2026-07-31T21:43:27.590176+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_7aac5c1c4d48": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "0ffebcebc41b601b87588e96c29d67261743baf8facab7943b911b456b7eeda7",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:executable_code_reasoning"
+      },
+      "goal": "learn:mission:software_governance:executable_code_reasoning:software_governance:executable_code_reasoning",
+      "procedure_id": "procedure_open_portfolio_7aac5c1c4d48",
+      "promoted_at": "2026-07-31T21:43:25.623134+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_7e3f956a8329": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "c0060ccee0e93c85c7e00778f1ab01c33d1655f91869fbdf85c7898d58cc54c3",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:layout_aware_document_reasoning"
+      },
+      "goal": "learn:mission:financial_change:layout_aware_document_reasoning:financial_change:layout_aware_document_reasoning",
+      "procedure_id": "procedure_open_portfolio_7e3f956a8329",
+      "promoted_at": "2026-07-31T21:43:26.975435+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_96c168011124": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "257dd29e88ca9ab5476b48957d7e1ef139c72b0819671646afaed397d72bbddd",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:visual_evidence_grounding"
+      },
+      "goal": "learn:mission:fourier_alignment:visual_evidence_grounding:fourier_alignment:visual_evidence_grounding",
+      "procedure_id": "procedure_open_portfolio_96c168011124",
+      "promoted_at": "2026-07-31T21:43:29.166106+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_9a12ac6c1304": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "0cb8c2910210f2491e7f61f46809c6f1c2f6a98b12abbb41f16efb96427364ec",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:quantitative_claim_verification"
+      },
+      "goal": "learn:mission:fourier_alignment:quantitative_claim_verification:fourier_alignment:quantitative_claim_verification",
+      "procedure_id": "procedure_open_portfolio_9a12ac6c1304",
+      "promoted_at": "2026-07-31T21:43:29.048307+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_9a71aca429ce": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "b2899356065e678324048ae6b8e0c14e0155c53d7bb7096dc082f26bdf45b35f",
+            "source": "portfolio:climate_explanation"
+          }
+        ],
+        "task_id": "climate_explanation:source_inventory"
+      },
+      "goal": "learn:mission:climate_explanation:source_inventory:climate_explanation:source_inventory",
+      "procedure_id": "procedure_open_portfolio_9a71aca429ce",
+      "promoted_at": "2026-07-31T21:43:29.301854+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_ab5627b40aa2": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "e6fa4b64b5ddd859de06f5ba2009d75899279cf3230fea3de12b7d5dc33ffa2b",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:independent_verification"
+      },
+      "goal": "learn:mission:financial_change:independent_verification:financial_change:independent_verification",
+      "procedure_id": "procedure_open_portfolio_ab5627b40aa2",
+      "promoted_at": "2026-07-31T21:43:28.817407+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_b4589052adf4": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "900183c52919edce8a11396417bb602ebea176c5cf26f82eaaa71d4f1976debc",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:natural_document_comprehension"
+      },
+      "goal": "learn:mission:software_governance:natural_document_comprehension:software_governance:natural_document_comprehension",
+      "procedure_id": "procedure_open_portfolio_b4589052adf4",
+      "promoted_at": "2026-07-31T21:43:25.657983+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_b8e7f4319d95": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "1a4ac5fad51458672c9cf933b2d5705bad8a89232ef7062cc0c674c7bf935420",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:source_inventory"
+      },
+      "goal": "learn:mission:fourier_alignment:source_inventory:fourier_alignment:source_inventory",
+      "procedure_id": "procedure_open_portfolio_b8e7f4319d95",
+      "promoted_at": "2026-07-31T21:43:28.878559+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_c2c168ab064b": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "de0364a5cb92acac854338e8b7cc4506a6bdc680246ea375430a4029c66419c8",
+            "source": "portfolio:financial_change"
+          }
+        ],
+        "task_id": "financial_change:source_inventory"
+      },
+      "goal": "learn:mission:financial_change:source_inventory:financial_change:source_inventory",
+      "procedure_id": "procedure_open_portfolio_c2c168ab064b",
+      "promoted_at": "2026-07-31T21:43:26.368196+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_c6a705e18f32": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "467932c7752a9e106c893e96f3a64d5d988a3cdc4c4f18554ac8d7c7d2442aac",
+            "source": "portfolio:software_governance"
+          }
+        ],
+        "task_id": "software_governance:independent_verification"
+      },
+      "goal": "learn:mission:software_governance:independent_verification:software_governance:independent_verification",
+      "procedure_id": "procedure_open_portfolio_c6a705e18f32",
+      "promoted_at": "2026-07-31T21:43:25.766392+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_e1215d78598a": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "1a6f59d67d17f422f163eaa5e61f52dc608f7e2f65454793c32ad22c3af79640",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:cross_modal_synthesis"
+      },
+      "goal": "learn:mission:fourier_alignment:cross_modal_synthesis:fourier_alignment:cross_modal_synthesis",
+      "procedure_id": "procedure_open_portfolio_e1215d78598a",
+      "promoted_at": "2026-07-31T21:43:28.933528+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    },
+    "procedure_open_portfolio_ec67f12a8abe": {
+      "evidence": {
+        "outcome": [
+          {
+            "outcome_hash": "960519a78d9baa7863da0456f51e8ca1440cbea16955470bc116d2ba0a9c91e8",
+            "source": "portfolio:fourier_alignment"
+          }
+        ],
+        "task_id": "fourier_alignment:provenance_binding"
+      },
+      "goal": "learn:mission:fourier_alignment:provenance_binding:fourier_alignment:provenance_binding",
+      "procedure_id": "procedure_open_portfolio_ec67f12a8abe",
+      "promoted_at": "2026-07-31T21:43:28.990533+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "inspect_interface",
+        "execute_adapter",
+        "bind_provenance",
+        "independent_reverify"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "a677020cbab870104b5d005a35082e26a945354a46c11c46d2e4ffd416fb35e0",
+      "goal": "learn:mission:software_governance:source_inventory:software_governance:source_inventory",
+      "new_champion_id": "procedure_open_portfolio_06aefb623547",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.513840+00:00"
+    },
+    {
+      "evidence_hash": "d34811e517f51581dfded88b9fe92154ded007a03cf4cbe1b6912e5b1524e622",
+      "goal": "learn:mission:software_governance:cross_modal_synthesis:software_governance:cross_modal_synthesis",
+      "new_champion_id": "procedure_open_portfolio_47671c6331a2",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.546954+00:00"
+    },
+    {
+      "evidence_hash": "ecd5ceaa49d3cddd52dd9d14d3dfc6d6ca32d65c3076f2dfa2b3dcee9e925e96",
+      "goal": "learn:mission:software_governance:epistemic_conflict_resolution:software_governance:epistemic_conflict_resolution",
+      "new_champion_id": "procedure_open_portfolio_1d2639ab4d75",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.585971+00:00"
+    },
+    {
+      "evidence_hash": "e456e77becff257ad522f3ca5a166e6ff9d792839b627f8585bd0c53853c468d",
+      "goal": "learn:mission:software_governance:executable_code_reasoning:software_governance:executable_code_reasoning",
+      "new_champion_id": "procedure_open_portfolio_7aac5c1c4d48",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.623142+00:00"
+    },
+    {
+      "evidence_hash": "8cfae0b6b61a1cfed2bf4c638e4f889af64e5f9484fd55f77c0deae59afd6204",
+      "goal": "learn:mission:software_governance:natural_document_comprehension:software_governance:natural_document_comprehension",
+      "new_champion_id": "procedure_open_portfolio_b4589052adf4",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.657992+00:00"
+    },
+    {
+      "evidence_hash": "8878836ee564bb376353ad3ae15877377daaf52ec951ba756b39a4c2036c3722",
+      "goal": "learn:mission:software_governance:provenance_binding:software_governance:provenance_binding",
+      "new_champion_id": "procedure_open_portfolio_0bf004ef77e6",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.693771+00:00"
+    },
+    {
+      "evidence_hash": "501d2c37d283c49b93016afa81320c4be78392140b6fd4aef0a05660d050a507",
+      "goal": "learn:mission:software_governance:structured_configuration_reasoning:software_governance:structured_configuration_reasoning",
+      "new_champion_id": "procedure_open_portfolio_2e4890f6e1df",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.730518+00:00"
+    },
+    {
+      "evidence_hash": "082f1d3de970cd3f61cb3105f2ff45d6ce65efa3249dc7e26045317038fadd92",
+      "goal": "learn:mission:software_governance:independent_verification:software_governance:independent_verification",
+      "new_champion_id": "procedure_open_portfolio_c6a705e18f32",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:25.766399+00:00"
+    },
+    {
+      "evidence_hash": "0b306e57cbf9d10a3a07bcb6ffbf8cc21dc11e38def21e24b810282bb7b23ad0",
+      "goal": "learn:mission:financial_change:source_inventory:financial_change:source_inventory",
+      "new_champion_id": "procedure_open_portfolio_c2c168ab064b",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:26.368207+00:00"
+    },
+    {
+      "evidence_hash": "a0d6a154b37223d96d02214f540ab4da6635cdf31890823c169a7306bb26f3e3",
+      "goal": "learn:mission:financial_change:layout_aware_document_reasoning:financial_change:layout_aware_document_reasoning",
+      "new_champion_id": "procedure_open_portfolio_7e3f956a8329",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:26.975444+00:00"
+    },
+    {
+      "evidence_hash": "7803d36f25c96c6ba3c6a2317c221861fc913ae3b38e4ca46c240523bf30dc10",
+      "goal": "learn:mission:financial_change:provenance_binding:financial_change:provenance_binding",
+      "new_champion_id": "procedure_open_portfolio_748833e59c8d",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:27.590184+00:00"
+    },
+    {
+      "evidence_hash": "9cd31b3e407945a9f94237e95ae559416a9f3a6bf11af49b7ec616107c6f7ba2",
+      "goal": "learn:mission:financial_change:quantitative_claim_verification:financial_change:quantitative_claim_verification",
+      "new_champion_id": "procedure_open_portfolio_542dc9a1ef69",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:28.204524+00:00"
+    },
+    {
+      "evidence_hash": "b457940487b1ef1a6c477be1213dd67c5f4165588fab6905acffd46dd32b4306",
+      "goal": "learn:mission:financial_change:independent_verification:financial_change:independent_verification",
+      "new_champion_id": "procedure_open_portfolio_ab5627b40aa2",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:28.817417+00:00"
+    },
+    {
+      "evidence_hash": "d7138b254159bbb8715a6fbad28e30824e15c2384612c278b95eabe8e540043b",
+      "goal": "learn:mission:fourier_alignment:source_inventory:fourier_alignment:source_inventory",
+      "new_champion_id": "procedure_open_portfolio_b8e7f4319d95",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:28.878568+00:00"
+    },
+    {
+      "evidence_hash": "64498ad1ae70ee08fdcd3ba4de68d97db064ebe47620c00e3da8d5cdbc834b7a",
+      "goal": "learn:mission:fourier_alignment:cross_modal_synthesis:fourier_alignment:cross_modal_synthesis",
+      "new_champion_id": "procedure_open_portfolio_e1215d78598a",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:28.933536+00:00"
+    },
+    {
+      "evidence_hash": "250b8f496380ec067ce0e61bfa38cb01bfc18353f0577c3d5fe6402f688e8d33",
+      "goal": "learn:mission:fourier_alignment:provenance_binding:fourier_alignment:provenance_binding",
+      "new_champion_id": "procedure_open_portfolio_ec67f12a8abe",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:28.990541+00:00"
+    },
+    {
+      "evidence_hash": "deefd79bdbeff016b8e25987d84fee6373e770cdd9b4dbebe1f9c1ed215e33a0",
+      "goal": "learn:mission:fourier_alignment:quantitative_claim_verification:fourier_alignment:quantitative_claim_verification",
+      "new_champion_id": "procedure_open_portfolio_9a12ac6c1304",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.048315+00:00"
+    },
+    {
+      "evidence_hash": "562c81ca8d7891b1638408e7b9620e71ec5de973d7d6825b9ac181a651184193",
+      "goal": "learn:mission:fourier_alignment:quantitative_table_reasoning:fourier_alignment:quantitative_table_reasoning",
+      "new_champion_id": "procedure_open_portfolio_319e258d3cbb",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.106949+00:00"
+    },
+    {
+      "evidence_hash": "50e8256070bb8642f804bb765af9fc7e321e5fee1d0510663fb38575b73f933c",
+      "goal": "learn:mission:fourier_alignment:visual_evidence_grounding:fourier_alignment:visual_evidence_grounding",
+      "new_champion_id": "procedure_open_portfolio_96c168011124",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.166113+00:00"
+    },
+    {
+      "evidence_hash": "a64c4f477a1e360104d8f0816b2cd364f1e6514646de05a322b673843183de84",
+      "goal": "learn:mission:fourier_alignment:independent_verification:fourier_alignment:independent_verification",
+      "new_champion_id": "procedure_open_portfolio_3813b2b497ff",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.228335+00:00"
+    },
+    {
+      "evidence_hash": "f89b0b74f6ad919d6ef6e6a94d3525f8f0987e69b34f8e0dad19f9a6ef7086b9",
+      "goal": "learn:mission:climate_explanation:source_inventory:climate_explanation:source_inventory",
+      "new_champion_id": "procedure_open_portfolio_9a71aca429ce",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.301865+00:00"
+    },
+    {
+      "evidence_hash": "e4773b7dc9cdab0fd9098a857713a8d486e52aa30a96578b1366c701388003f2",
+      "goal": "learn:mission:climate_explanation:natural_document_comprehension:climate_explanation:natural_document_comprehension",
+      "new_champion_id": "procedure_open_portfolio_165bc26f39c0",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.369823+00:00"
+    },
+    {
+      "evidence_hash": "fc134d6e1f2556d7342e99e97dbef33b6f10253e8a65b86c90026a8281f1bff5",
+      "goal": "learn:mission:climate_explanation:provenance_binding:climate_explanation:provenance_binding",
+      "new_champion_id": "procedure_open_portfolio_5d2eacedffc3",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.438842+00:00"
+    },
+    {
+      "evidence_hash": "17b1a5495911907ffe3b335014306dc707e5c6349f600c8e06e89ef6eb7c18d9",
+      "goal": "learn:mission:climate_explanation:independent_verification:climate_explanation:independent_verification",
+      "new_champion_id": "procedure_open_portfolio_1db2ba150c7f",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T21:43:29.508787+00:00"
+    },
+    {
+      "evidence_hash": "5bf5533d0434cc6e2c06e58e7f587e456cff6b9a1043d5a18a17a0e512a6c1b0",
+      "goal": "open_mission_portfolio_induction",
+      "new_champion_id": "procedure_open_mission_portfolio_induction_v1",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.4166666666666665,
+      "timestamp": "2026-07-31T21:43:29.529529+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 27,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T21:43:29.533220+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

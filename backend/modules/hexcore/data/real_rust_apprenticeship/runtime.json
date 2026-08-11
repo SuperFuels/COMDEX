@@ -1,0 +1,791 @@
+{
+  "authorized": true,
+  "authorized_at": "2026-07-31T23:36:22.079843+00:00",
+  "mission_id": "mission_real_rust_apprenticeship_v1",
+  "objective": "Master transferable Rust systems engineering through authoritative compiler evidence, unfamiliar multi-file projects, source-disjoint execution, adversarial testing and restart-separated retention",
+  "objective_hash": "c8367988be6e378ab71c22cc1a6ee7f19064ac46a485c9100cfc62af9ca43066",
+  "projects": [
+    {
+      "cohort": "development",
+      "contract_hash": "249616dcc8e3b7433b8340c80d8d7e39319522da62957f2804ba425fa5be018e",
+      "final_source_hash": "97547e7770c362f2a2e48ca46f25e185f012cef195687b3f789b76ef70177128",
+      "hidden_gate": {
+        "authority": "fresh_hidden_cargo_test_subprocess",
+        "passed": true,
+        "result": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline",
+            "--test",
+            "hidden_authority"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.47230924997711554,
+          "stderr": "   Compiling quota_pool v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_hidden_bm8r5vgf)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s\n     Running tests/hidden_authority.rs (target/debug/deps/hidden_authority-272c1dc03d88251c)\n",
+          "stdout": "\nrunning 1 test\ntest hidden_atomic_errors_and_concurrency ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s\n\n"
+        },
+        "test_hash": "5f9c8ea13f4c26cc121b5dbe07b6448dd316447d033a7c20c6c7f5c324c95888"
+      },
+      "project_id": "quota_pool",
+      "public_gate": {
+        "audit": {
+          "findings": [],
+          "safe": true
+        },
+        "check": {
+          "command": [
+            "cargo",
+            "check",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.11132575001101941,
+          "stderr": "    Checking quota_pool v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_xsnkxfpd)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s\n",
+          "stdout": ""
+        },
+        "clippy": {
+          "command": [
+            "cargo",
+            "clippy",
+            "--offline",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.1969754170277156,
+          "stderr": "    Checking quota_pool v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_xsnkxfpd)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+          "stdout": ""
+        },
+        "format": {
+          "command": [
+            "cargo",
+            "fmt",
+            "--",
+            "--check"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.12465725000947714,
+          "stderr": "",
+          "stdout": ""
+        },
+        "format_normalization": {
+          "command": [
+            "cargo",
+            "fmt"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.12564083299366757,
+          "stderr": "",
+          "stdout": ""
+        },
+        "passed": true,
+        "self_test_count": 3,
+        "self_tests": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.582545040990226,
+          "stderr": "   Compiling quota_pool v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_xsnkxfpd)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s\n     Running unittests src/lib.rs (target/debug/deps/quota_pool-934085002f15e5bb)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-e980bcac89ef828d)\n   Doc-tests quota_pool\n",
+          "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest opens_and_changes_value ... ok\ntest rejects_invalid_changes_atomically ... ok\ntest rejects_duplicate_and_missing_ids ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+        }
+      },
+      "retained_lesson_count": 1,
+      "round_count": 1,
+      "rounds": [
+        {
+          "provider": {
+            "latency_seconds": 0.0,
+            "model": "aion_retained_verified_rust_pattern_bank",
+            "prompt_hash": "ed77612d0c24b75f1aa04d312cc813a12f9c21cd2f4066041221da5ae61fb717",
+            "seed_requested": 7100
+          },
+          "public": {
+            "audit": {
+              "findings": [],
+              "safe": true
+            },
+            "check": {
+              "command": [
+                "cargo",
+                "check",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.12742516602156684,
+              "stderr": "    Checking quota_pool v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_d2n8xyey)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s\n",
+              "stdout": ""
+            },
+            "clippy": {
+              "command": [
+                "cargo",
+                "clippy",
+                "--offline",
+                "--all-targets",
+                "--",
+                "-D",
+                "warnings"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.20168400002876297,
+              "stderr": "    Checking quota_pool v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_d2n8xyey)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+              "stdout": ""
+            },
+            "format": {
+              "command": [
+                "cargo",
+                "fmt",
+                "--",
+                "--check"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.1320685000391677,
+              "stderr": "",
+              "stdout": ""
+            },
+            "format_normalization": {
+              "command": [
+                "cargo",
+                "fmt"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.13952979200985283,
+              "stderr": "",
+              "stdout": ""
+            },
+            "passed": true,
+            "self_test_count": 3,
+            "self_tests": {
+              "command": [
+                "cargo",
+                "test",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.8000127080013044,
+              "stderr": "   Compiling quota_pool v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_d2n8xyey)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s\n     Running unittests src/lib.rs (target/debug/deps/quota_pool-934085002f15e5bb)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-e980bcac89ef828d)\n   Doc-tests quota_pool\n",
+              "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest opens_and_changes_value ... ok\ntest rejects_duplicate_and_missing_ids ... ok\ntest rejects_invalid_changes_atomically ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+            }
+          },
+          "round": 1,
+          "source_hash": "97547e7770c362f2a2e48ca46f25e185f012cef195687b3f789b76ef70177128"
+        }
+      ],
+      "source_replay": false,
+      "verified": true
+    },
+    {
+      "cohort": "development",
+      "contract_hash": "0a46d2cfa604da8fef08a52719ef40421e7cf54cff82d52bf10084fa72626d97",
+      "final_source_hash": "662b43e86cece31adb5acf9b120d0d3eb68b483ab2a33cfd57de73d3644b0a10",
+      "hidden_gate": {
+        "authority": "fresh_hidden_cargo_test_subprocess",
+        "passed": true,
+        "result": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline",
+            "--test",
+            "hidden_authority"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.4746895830030553,
+          "stderr": "   Compiling event_window v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_hidden_nymcuvpk)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s\n     Running tests/hidden_authority.rs (target/debug/deps/hidden_authority-4091040d3792f3da)\n",
+          "stdout": "\nrunning 1 test\ntest hidden_capacity_overflow_and_threads ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+        },
+        "test_hash": "433bef00c7e4bb9c76995dc887798cbc66a13ca3e06cf3159b3e759db03e0182"
+      },
+      "project_id": "event_window",
+      "public_gate": {
+        "audit": {
+          "findings": [],
+          "safe": true
+        },
+        "check": {
+          "command": [
+            "cargo",
+            "check",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.11039512499701232,
+          "stderr": "    Checking event_window v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_vreh3_zb)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s\n",
+          "stdout": ""
+        },
+        "clippy": {
+          "command": [
+            "cargo",
+            "clippy",
+            "--offline",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.19923112500691786,
+          "stderr": "    Checking event_window v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_vreh3_zb)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+          "stdout": ""
+        },
+        "format": {
+          "command": [
+            "cargo",
+            "fmt",
+            "--",
+            "--check"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.1247161669889465,
+          "stderr": "",
+          "stdout": ""
+        },
+        "format_normalization": {
+          "command": [
+            "cargo",
+            "fmt"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.12569487502332777,
+          "stderr": "",
+          "stdout": ""
+        },
+        "passed": true,
+        "self_test_count": 3,
+        "self_tests": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.6033438330050558,
+          "stderr": "   Compiling event_window v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_vreh3_zb)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s\n     Running unittests src/lib.rs (target/debug/deps/event_window-963917b7a50e191e)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-5984d3f3741a40d2)\n   Doc-tests event_window\n",
+          "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest capacity_failure_is_atomic ... ok\ntest rejects_empty_and_missing ... ok\ntest records_and_summarizes ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+        }
+      },
+      "retained_lesson_count": 1,
+      "round_count": 1,
+      "rounds": [
+        {
+          "provider": {
+            "latency_seconds": 0.0,
+            "model": "aion_retained_verified_rust_pattern_bank",
+            "prompt_hash": "38fc247f75235945e462877b7d740dcfa965a05ca0f4d172b357daab08100562",
+            "seed_requested": 7101
+          },
+          "public": {
+            "audit": {
+              "findings": [],
+              "safe": true
+            },
+            "check": {
+              "command": [
+                "cargo",
+                "check",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.10923983296379447,
+              "stderr": "    Checking event_window v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_yb86ezwu)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s\n",
+              "stdout": ""
+            },
+            "clippy": {
+              "command": [
+                "cargo",
+                "clippy",
+                "--offline",
+                "--all-targets",
+                "--",
+                "-D",
+                "warnings"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.19924766599433497,
+              "stderr": "    Checking event_window v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_yb86ezwu)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+              "stdout": ""
+            },
+            "format": {
+              "command": [
+                "cargo",
+                "fmt",
+                "--",
+                "--check"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.12452875002054498,
+              "stderr": "",
+              "stdout": ""
+            },
+            "format_normalization": {
+              "command": [
+                "cargo",
+                "fmt"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.12718395900446922,
+              "stderr": "",
+              "stdout": ""
+            },
+            "passed": true,
+            "self_test_count": 3,
+            "self_tests": {
+              "command": [
+                "cargo",
+                "test",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.5903759159846231,
+              "stderr": "   Compiling event_window v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_yb86ezwu)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s\n     Running unittests src/lib.rs (target/debug/deps/event_window-963917b7a50e191e)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-5984d3f3741a40d2)\n   Doc-tests event_window\n",
+              "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest rejects_empty_and_missing ... ok\ntest capacity_failure_is_atomic ... ok\ntest records_and_summarizes ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+            }
+          },
+          "round": 1,
+          "source_hash": "662b43e86cece31adb5acf9b120d0d3eb68b483ab2a33cfd57de73d3644b0a10"
+        }
+      ],
+      "source_replay": false,
+      "verified": true
+    },
+    {
+      "cohort": "source_disjoint_transfer",
+      "contract_hash": "9be5fc536fd2821d6508b6961f4ff047f12948113dcbda9cada854b4c2ada5d1",
+      "final_source_hash": "7fce117429c12bd4a3d69f934c1b408b3cbcd1724356eb0c718d322bdffa2e54",
+      "hidden_gate": {
+        "authority": "fresh_hidden_cargo_test_subprocess",
+        "passed": true,
+        "result": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline",
+            "--test",
+            "hidden_authority"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.4716944170068018,
+          "stderr": "   Compiling seat_allocator v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_hidden_1fxn73b2)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s\n     Running tests/hidden_authority.rs (target/debug/deps/hidden_authority-13ee2fde76cf358e)\n",
+          "stdout": "\nrunning 1 test\ntest hidden_transfer_structure_and_atomicity ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+        },
+        "test_hash": "a5af9bc7e4d3d0ceeb38a997303fd90fc138f1b546fd77538631aa0034757a89"
+      },
+      "project_id": "seat_allocator",
+      "public_gate": {
+        "audit": {
+          "findings": [],
+          "safe": true
+        },
+        "check": {
+          "command": [
+            "cargo",
+            "check",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.11982600000919774,
+          "stderr": "    Checking seat_allocator v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_sdbtqsgx)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.07s\n",
+          "stdout": ""
+        },
+        "clippy": {
+          "command": [
+            "cargo",
+            "clippy",
+            "--offline",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.19496212498052046,
+          "stderr": "    Checking seat_allocator v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_sdbtqsgx)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+          "stdout": ""
+        },
+        "format": {
+          "command": [
+            "cargo",
+            "fmt",
+            "--",
+            "--check"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.12952216598205268,
+          "stderr": "",
+          "stdout": ""
+        },
+        "format_normalization": {
+          "command": [
+            "cargo",
+            "fmt"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.1304245000355877,
+          "stderr": "",
+          "stdout": ""
+        },
+        "passed": true,
+        "self_test_count": 3,
+        "self_tests": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.6209602080052719,
+          "stderr": "   Compiling seat_allocator v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_sdbtqsgx)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s\n     Running unittests src/lib.rs (target/debug/deps/seat_allocator-7cb582512109e513)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-6e5d36a5db5c99fe)\n   Doc-tests seat_allocator\n",
+          "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest opens_and_changes_value ... ok\ntest rejects_invalid_changes_atomically ... ok\ntest rejects_duplicate_and_missing_ids ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+        }
+      },
+      "retained_lesson_count": 1,
+      "round_count": 1,
+      "rounds": [
+        {
+          "provider": {
+            "latency_seconds": 0.0,
+            "model": "aion_retained_verified_rust_pattern_bank",
+            "prompt_hash": "0425a3a0afefdb7c8da0a9a077ff1895c1e5fb619651e7fe33f5e6a1a0d94775",
+            "seed_requested": 7102
+          },
+          "public": {
+            "audit": {
+              "findings": [],
+              "safe": true
+            },
+            "check": {
+              "command": [
+                "cargo",
+                "check",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.10887270799139515,
+              "stderr": "    Checking seat_allocator v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_jxlwafie)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s\n",
+              "stdout": ""
+            },
+            "clippy": {
+              "command": [
+                "cargo",
+                "clippy",
+                "--offline",
+                "--all-targets",
+                "--",
+                "-D",
+                "warnings"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.20057012501638383,
+              "stderr": "    Checking seat_allocator v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_jxlwafie)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+              "stdout": ""
+            },
+            "format": {
+              "command": [
+                "cargo",
+                "fmt",
+                "--",
+                "--check"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.12331916595576331,
+              "stderr": "",
+              "stdout": ""
+            },
+            "format_normalization": {
+              "command": [
+                "cargo",
+                "fmt"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.13318612496368587,
+              "stderr": "",
+              "stdout": ""
+            },
+            "passed": true,
+            "self_test_count": 3,
+            "self_tests": {
+              "command": [
+                "cargo",
+                "test",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.5992230830015615,
+              "stderr": "   Compiling seat_allocator v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_jxlwafie)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.24s\n     Running unittests src/lib.rs (target/debug/deps/seat_allocator-7cb582512109e513)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-6e5d36a5db5c99fe)\n   Doc-tests seat_allocator\n",
+              "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest rejects_duplicate_and_missing_ids ... ok\ntest opens_and_changes_value ... ok\ntest rejects_invalid_changes_atomically ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+            }
+          },
+          "round": 1,
+          "source_hash": "7fce117429c12bd4a3d69f934c1b408b3cbcd1724356eb0c718d322bdffa2e54"
+        }
+      ],
+      "source_replay": false,
+      "verified": true
+    },
+    {
+      "cohort": "restart_retention",
+      "contract_hash": "9aee135bc122db40127cd57759eab2eb33a573969b6376407a39a43e6ac045c8",
+      "final_source_hash": "3e502003b426e6d0eeadcc34ed4c5862442a6e875094ee0509dbf5847ce983ab",
+      "hidden_gate": {
+        "authority": "fresh_hidden_cargo_test_subprocess",
+        "passed": true,
+        "result": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline",
+            "--test",
+            "hidden_authority"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.46534270799020305,
+          "stderr": "   Compiling credit_bucket v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_hidden_cqrzzusm)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.28s\n     Running tests/hidden_authority.rs (target/debug/deps/hidden_authority-1c336810a6d816ac)\n",
+          "stdout": "\nrunning 1 test\ntest hidden_retention_without_source_replay ... ok\n\ntest result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+        },
+        "test_hash": "88622af0de9ba1101d4d0f6bc33a70544b28be3972045fbe76dabe7b4d04da08"
+      },
+      "project_id": "credit_bucket",
+      "public_gate": {
+        "audit": {
+          "findings": [],
+          "safe": true
+        },
+        "check": {
+          "command": [
+            "cargo",
+            "check",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.1075080829905346,
+          "stderr": "    Checking credit_bucket v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_aaugtb2f)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s\n",
+          "stdout": ""
+        },
+        "clippy": {
+          "command": [
+            "cargo",
+            "clippy",
+            "--offline",
+            "--all-targets",
+            "--",
+            "-D",
+            "warnings"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.1950408749980852,
+          "stderr": "    Checking credit_bucket v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_aaugtb2f)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+          "stdout": ""
+        },
+        "format": {
+          "command": [
+            "cargo",
+            "fmt",
+            "--",
+            "--check"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.12354875000892207,
+          "stderr": "",
+          "stdout": ""
+        },
+        "format_normalization": {
+          "command": [
+            "cargo",
+            "fmt"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.12435325002297759,
+          "stderr": "",
+          "stdout": ""
+        },
+        "passed": true,
+        "self_test_count": 3,
+        "self_tests": {
+          "command": [
+            "cargo",
+            "test",
+            "--offline"
+          ],
+          "passed": true,
+          "returncode": 0,
+          "seconds": 0.5764622919959947,
+          "stderr": "   Compiling credit_bucket v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_aaugtb2f)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.23s\n     Running unittests src/lib.rs (target/debug/deps/credit_bucket-f740a767e2689e8f)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-1ad21e76065181e7)\n   Doc-tests credit_bucket\n",
+          "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest opens_and_changes_value ... ok\ntest rejects_invalid_changes_atomically ... ok\ntest rejects_duplicate_and_missing_ids ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+        }
+      },
+      "retained_lesson_count": 1,
+      "round_count": 1,
+      "rounds": [
+        {
+          "provider": {
+            "latency_seconds": 0.0,
+            "model": "aion_retained_verified_rust_pattern_bank",
+            "prompt_hash": "8a736fb7cd84df89b27354bc994c3b7ca74a7be1a7c4395e47e15783c345e6f3",
+            "seed_requested": 7103
+          },
+          "public": {
+            "audit": {
+              "findings": [],
+              "safe": true
+            },
+            "check": {
+              "command": [
+                "cargo",
+                "check",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.1062932499917224,
+              "stderr": "    Checking credit_bucket v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_1dtvmv6m)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.06s\n",
+              "stdout": ""
+            },
+            "clippy": {
+              "command": [
+                "cargo",
+                "clippy",
+                "--offline",
+                "--all-targets",
+                "--",
+                "-D",
+                "warnings"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.20462233299622312,
+              "stderr": "    Checking credit_bucket v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_1dtvmv6m)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n",
+              "stdout": ""
+            },
+            "format": {
+              "command": [
+                "cargo",
+                "fmt",
+                "--",
+                "--check"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.1262939169537276,
+              "stderr": "",
+              "stdout": ""
+            },
+            "format_normalization": {
+              "command": [
+                "cargo",
+                "fmt"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.12633437500335276,
+              "stderr": "",
+              "stdout": ""
+            },
+            "passed": true,
+            "self_test_count": 3,
+            "self_tests": {
+              "command": [
+                "cargo",
+                "test",
+                "--offline"
+              ],
+              "passed": true,
+              "returncode": 0,
+              "seconds": 0.568465374992229,
+              "stderr": "   Compiling credit_bucket v0.1.0 (/private/var/folders/dd/9j_6l5f568b0qqyy21kfxds00000gn/T/aion_rust_apprentice_public_1dtvmv6m)\n    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.22s\n     Running unittests src/lib.rs (target/debug/deps/credit_bucket-f740a767e2689e8f)\n     Running tests/self_tests.rs (target/debug/deps/self_tests-1ad21e76065181e7)\n   Doc-tests credit_bucket\n",
+              "stdout": "\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 3 tests\ntest opens_and_changes_value ... ok\ntest rejects_invalid_changes_atomically ... ok\ntest rejects_duplicate_and_missing_ids ... ok\n\ntest result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n\nrunning 0 tests\n\ntest result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s\n\n"
+            }
+          },
+          "round": 1,
+          "source_hash": "3e502003b426e6d0eeadcc34ed4c5862442a6e875094ee0509dbf5847ce983ab"
+        }
+      ],
+      "source_replay": false,
+      "verified": true
+    }
+  ],
+  "resources": {
+    "all_available": true,
+    "cargo": {
+      "passed": true,
+      "text": "cargo 1.91.0 (ea2d97820 2025-10-10)"
+    },
+    "explanations": {
+      "E0277": {
+        "authority": "installed_rustc_explanation:E0277",
+        "bytes": 2127,
+        "passed": true,
+        "sha256": "5df7748b0dde37262217e6779533e2b381d4ac53d6ed9353ff7a1d8e68510bf4"
+      },
+      "E0382": {
+        "authority": "installed_rustc_explanation:E0382",
+        "bytes": 3334,
+        "passed": true,
+        "sha256": "55df49b5227962f478784df567f119058dfc997130750aef51eee2615a54a7f7"
+      },
+      "E0499": {
+        "authority": "installed_rustc_explanation:E0499",
+        "bytes": 678,
+        "passed": true,
+        "sha256": "a2a6146b7b4f3192b36062730c7a6ea145033287babdecb248a6d61dddcf0adb"
+      },
+      "E0597": {
+        "authority": "installed_rustc_explanation:E0597",
+        "bytes": 619,
+        "passed": true,
+        "sha256": "1dd8079ccccab43ef59116074556f77cda41be5516e5dbd25a5c666cd1a9c115"
+      }
+    },
+    "rustc": {
+      "passed": true,
+      "text": "rustc 1.91.0 (f8297e351 2025-10-28)\nbinary: rustc\ncommit-hash: f8297e351a40c1439a467bbbb6879088047f50b3\ncommit-date: 2025-10-28\nhost: aarch64-apple-darwin\nrelease: 1.91.0\nLLVM version: 21.1.2"
+    }
+  },
+  "schema_version": "aion.hexcore.real_rust_apprenticeship.v1",
+  "source_replay_into_retention": 0,
+  "verified_lessons": [
+    "validate all errors before mutation; use checked arithmetic and scoped locking"
+  ]
+}

@@ -25,6 +25,7 @@
       packet.workspace_id,
       draft.business_id,
       draft.business_name,
+      global.__aionCanonicalBusinessId,
       global.__AION_DESKTOP_STATE__?.workspaceId,
       global.state?.workspaceId,
     ];
@@ -253,6 +254,14 @@
     return request(`/api/aion/business/data/operating-model/${encodeURIComponent(businessId)}`);
   }
 
+  async function completeFinanceFoundation() {
+    const businessId = resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/finance-completion/${encodeURIComponent(businessId)}`, {
+      method: 'POST',
+    });
+  }
+
   async function saveOperatingModel(payload, expectedRevision = null) {
     const businessId = resolveBusinessId();
     if (!businessId) throw new Error('Registered business ID missing');
@@ -283,6 +292,12 @@
     });
   }
 
+  async function getBusinessMap(candidate) {
+    const businessId = canonicalBusinessId(candidate) || resolveBusinessId();
+    if (!businessId) throw new Error('Registered business ID missing');
+    return request(`/api/aion/business/data/business-map/${encodeURIComponent(businessId)}`);
+  }
+
   async function bootstrap() {
     const packet = readFoundationPacket();
     if (!packet) return;
@@ -307,8 +322,8 @@
     syncFinanceState, syncFinanceStateNow,
     uploadFinanceArtifact, listFinanceArtifacts, analyseFinanceArtifact, acceptFinanceArtifactFacts,
     getXeroStatus, connectXero, selectXeroTenant, syncXero, disconnectXero,
-    getOperatingModel, saveOperatingModel, importOperatingModelSpreadsheet,
-    getBoardroomContext, askFinanceAgent,
+    getOperatingModel, saveOperatingModel, importOperatingModelSpreadsheet, completeFinanceFoundation,
+    getBoardroomContext, askFinanceAgent, getBusinessMap,
   };
   setTimeout(bootstrap, 600);
 })(window);

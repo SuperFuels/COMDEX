@@ -37,3 +37,7 @@ node_modules/@next/swc-darwin-arm64/next-swc.darwin-arm64.node filter=lfs diff=l
 *.photon filter=photon
 photon_src/*.py filter=photonlang
 *.csv text eol=lf
+
+# Large learned-state snapshots needed to resume AION are preserved through
+# Git LFS instead of exceeding GitHub's normal per-file limit.
+backend/modules/hexcore/data/situational_executive_driver/state.json filter=lfs diff=lfs merge=lfs -text

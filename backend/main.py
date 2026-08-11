@@ -1113,6 +1113,15 @@ from backend.modules.aion_business.api.workflow_file_cabinet_api import router a
 from backend.modules.aion_business.api.business_twin_data_api import router as aion_business_twin_data_router
 from backend.modules.aion_business.api.finance_integrations_api import router as aion_finance_integrations_router
 from backend.modules.aion_business.api.department_pilot_api import router as aion_department_pilot_router
+from backend.modules.aion_business.api.organization_authority_api import router as aion_organization_authority_router
+from backend.modules.aion_business.api.finance_inbox_api import router as aion_finance_inbox_router
+from backend.modules.aion_business.api.finance_bookkeeping_api import router as aion_finance_bookkeeping_router
+from backend.modules.aion_business.api.finance_sales_api import router as aion_finance_sales_router
+from backend.modules.aion_business.api.sales_revenue_api import router as aion_sales_revenue_router
+from backend.modules.aion_business.api.sales_completion_api import router as aion_sales_completion_router
+from backend.modules.aion_business.api.support_case_api import router as aion_support_case_router
+from backend.modules.aion_business.api.marketing_creative_api import router as aion_marketing_creative_router
+from backend.modules.aion_business.api.marketing_connections_api import router as aion_marketing_connections_router
 
 # ===== Atomsheet / LightCone / QFC wiring =====
 from backend.routes.dev import glyphwave_test_router        # dev-only routes (mounted elsewhere in your file)  # noqa: F401
@@ -1370,6 +1379,15 @@ app.include_router(aion_business_workflow_file_cabinet_router)
 app.include_router(aion_business_twin_data_router)
 app.include_router(aion_finance_integrations_router)
 app.include_router(aion_department_pilot_router)
+app.include_router(aion_organization_authority_router)
+app.include_router(aion_finance_inbox_router)
+app.include_router(aion_finance_bookkeeping_router)
+app.include_router(aion_finance_sales_router)
+app.include_router(aion_sales_revenue_router)
+app.include_router(aion_sales_completion_router)
+app.include_router(aion_support_case_router)
+app.include_router(aion_marketing_creative_router)
+app.include_router(aion_marketing_connections_router)
 app.include_router(aion_business_role_router)
 app.include_router(aion_business_audit_router)
 app.include_router(aion_business_founder_review_router)

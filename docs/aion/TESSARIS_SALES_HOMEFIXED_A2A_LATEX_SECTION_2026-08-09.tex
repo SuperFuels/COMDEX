@@ -1,0 +1,271 @@
+% Overleaf-ready section fragment.
+% Expected packages in the parent document: hyperref, booktabs, array, longtable, tabularx.
+
+\section{Tessaris Sales Revenue Spine and Home Fixed Agent Commerce}
+\label{sec:tessaris-sales-homefixed-a2a}
+
+\subsection{Purpose and Current Outcome}
+
+The Tessaris Sales function has progressed from an internal customer relationship management prototype into a governed commercial operating system.  It now provides a canonical record from initial enquiry through qualification, appointment preparation, quotation, customer acceptance, departmental hand-off, invoicing preparation, communication control and independently recorded commercial outcomes.
+
+Home Fixed is the first public reference deployment.  Its website now supports both a customer-facing AION quote conversation and a separately authenticated machine-to-machine intake path.  Both routes enter the same canonical Tessaris Sales ledger, but they deliberately operate under different identity, trust and authority rules.
+
+The governing principle is:
+
+\begin{quote}
+Open discovery, restricted consequences and independently verifiable outcomes.
+\end{quote}
+
+No public website visitor or external agent can silently create a confirmed booking, approve a quotation, take payment, post an invoice, dispatch work or make an unsupported commercial commitment.
+
+\subsection{Canonical Sales Revenue Spine}
+
+Tessaris, rather than an external customer relationship management provider, is the canonical commercial system.  External services such as Gmail, HubSpot, calendars, telephony providers and accounting platforms are adapters around this record.  This prevents the business model, authority rules and evidence history from becoming dependent on a single software vendor.
+
+The canonical Sales spine currently supports:
+
+\begin{itemize}
+  \item manual, website, Gmail and authenticated external-agent enquiry sources;
+  \item canonical customer, company and opportunity records;
+  \item contact and company deduplication;
+  \item source-reference idempotency, preventing repeated delivery from creating duplicate opportunities;
+  \item campaign, channel, landing-page, referrer and UTM attribution;
+  \item separate inbound-contact and outbound-marketing consent evidence;
+  \item pipeline stages from new enquiry to contacted, qualification, qualified, appointment, proposal, won or lost;
+  \item qualification evidence covering need, location, urgency, decision-maker and budget context;
+  \item completeness scoring without automatically rejecting a customer;
+  \item explicit human escalation for vulnerability, anger, uncertainty, unsupported questions and unusual commitments;
+  \item structured conversation sessions, dispositions, summaries and next actions;
+  \item projections into the Boardroom, Operations and Finance;
+  \item hash-protected records and fail-closed state transitions.
+\end{itemize}
+
+The principal runtime components are:
+
+\begin{itemize}
+  \item \texttt{sales\_revenue\_service.py}: canonical contacts, companies, opportunities, qualification, intake, conversation evidence, Gmail import and public-queue ingestion;
+  \item \texttt{sales\_completion\_service.py}: availability, controlled booking, quotations, customer acceptance, departmental hand-offs, communications, campaigns and outcome experiments;
+  \item \texttt{sales\_revenue\_api.py} and \texttt{sales\_completion\_api.py}: bounded HTTP interfaces;
+  \item the Sales revenue and completion JavaScript workspaces: the light Tessaris desktop interface.
+\end{itemize}
+
+\subsection{Governed Sales Completion}
+
+\subsubsection{Appointments}
+
+The system can calculate internal availability and detect scheduling collisions.  An appointment is first prepared as an internal draft.  Confirmation requires a separate exact approval bound to the prepared record hash.  Preparing an appointment does not write to an external calendar and does not notify the customer.
+
+\subsubsection{Quotations and Customer Acceptance}
+
+Quotation records support item descriptions, quantities, net values, tax, totals, expiry dates and terms.  Arithmetic is checked before preparation.  Approval is a separate hash-bound action, and customer acceptance requires its own authority evidence.  This separation prevents a generated draft from being mistaken for an approved commercial commitment.
+
+An accepted quotation can create:
+
+\begin{itemize}
+  \item an Operations hand-off describing the agreed delivery requirement; and
+  \item an exact-approval Finance invoice draft.
+\end{itemize}
+
+It does not automatically dispatch labour, post an accounting transaction or collect money.
+
+\subsubsection{Communications and Campaigns}
+
+Email and SMS communications can be prepared against the customer and opportunity record.  Campaign preflight excludes suppressed contacts, missing destinations and contacts without the necessary permission.  Drafting, approval and external execution remain distinct states.  The design therefore permits future autonomous execution without weakening the present consent and approval boundary.
+
+\subsubsection{Outcome Evidence and Experiments}
+
+Appointment, won, lost, no-response and not-qualified outcomes require an independent authority reference.  Control and challenger sales policies can be compared under a frozen experiment contract.  Neither arm can promote automatically, and an experiment remains inconclusive until both arms satisfy the precommitted sample floor.  This provides a path for learning from real conversions without allowing the Sales Agent to self-grade.
+
+\subsection{The Home Fixed Human Intake Door}
+
+The public human route is intentionally open and does not require a partner bearer credential:
+
+\begin{center}
+Customer $\rightarrow$ AION website conversation $\rightarrow$ \texttt{POST /api/lead} $\rightarrow$ private queue $\rightarrow$ Tessaris Sales opportunity.
+\end{center}
+
+The Home Fixed homepage presents the quote conversation in the opening hero rather than hiding a long form at the bottom of the page.  AION asks five short stages:
+
+\begin{enumerate}
+  \item required service or closest service category;
+  \item project description and urgency;
+  \item town or area and optional access information;
+  \item name, email and optional telephone or WhatsApp number;
+  \item summary, contact permission and optional marketing permission.
+\end{enumerate}
+
+The interface states that no price, booking, charge or work is confirmed and that a person reviews every request.  This is a guided, deterministic intake experience rather than an unbounded chatbot making commercial promises.
+
+The form declares \texttt{action="/api/lead" method="post"} directly in the HTML.  JavaScript provides the progressive conversational interface and submits JSON, while the edge handler also accepts conventional form-encoded field names and can generate the idempotency event identifier server-side.  The intake route therefore remains explicit to static inspection and is not dependent on the visual JavaScript layout.
+
+The human intake records:
+
+\begin{itemize}
+  \item explicit permission to respond to the enquiry;
+  \item marketing permission as a separate, optional decision;
+  \item service, message, urgency, location and access information;
+  \item campaign identifiers and UTM attribution;
+  \item landing page and referrer;
+  \item an idempotency identifier and receipt time.
+\end{itemize}
+
+Public abuse controls include origin restriction, input length limits, sanitisation, a honeypot field, rate limiting and canonical server-side validation.  A CAPTCHA or broader abuse-scoring service can be added if observed traffic warrants it.
+
+\subsection{Durable Store-and-Forward Delivery}
+
+The Tessaris desktop backend listens on the local machine and is not exposed directly to the public internet.  Home Fixed therefore uses a private Vercel Blob store as a durable store-and-forward boundary.
+
+If a continuously hosted Tessaris receiver is unavailable, the edge function writes a private event under a pending human or agent namespace.  Tessaris pulls the queue using a server-side bearer secret, passes each event through the canonical authenticated intake endpoint, and acknowledges the private object only after canonical persistence succeeds.
+
+This produces the following safety properties:
+
+\begin{itemize}
+  \item enquiries can be accepted while the Mac is offline;
+  \item private queue objects are not publicly readable;
+  \item secrets are never shipped to browser JavaScript or committed to Git;
+  \item at-least-once delivery is safe because canonical source references are idempotent;
+  \item acknowledgement occurs after, not before, successful persistence;
+  \item a partial network failure cannot silently discard the original enquiry.
+\end{itemize}
+
+The Tessaris Sales interface includes an authorised \emph{Import Home Fixed queue} action and reports received, imported, deduplicated, skipped and acknowledged counts.  Queue import does not send a message, create a booking, take payment or dispatch work.
+
+\subsection{The Home Fixed Agent-to-Agent Door}
+
+The machine route is deliberately separate from the public human route:
+
+\begin{center}
+External agent $\rightarrow$ public discovery $\rightarrow$ partner authentication $\rightarrow$ \texttt{POST /api/agent/request} $\rightarrow$ human-reviewed opportunity.
+\end{center}
+
+An external agent submits on behalf of a customer and must provide:
+
+\begin{itemize}
+  \item a registered requesting-agent identity;
+  \item a unique agent request identifier;
+  \item a customer identity and contact route;
+  \item a customer-authority reference;
+  \item service, location and message;
+  \item optionally, a requested window, maximum fiat price, currency and evidence references.
+\end{itemize}
+
+The external agent authenticates with a partner bearer credential issued outside the public website.  Publishing a universal write key would create a spam and customer-spoofing vulnerability and is explicitly prohibited.
+
+The authority reference is not treated as permission to bypass review.  Tessaris records its evidence, creates an \texttt{external\_agent} opportunity and returns only bounded state.  Initial and accepted responses explicitly report that booking, payment and dispatch remain false.
+
+The status route is scoped to the same authenticated requesting agent and request identifier.  After Tessaris imports a queued machine request, the pending object is replaced by a restricted status receipt such as \texttt{accepted\_by\_tessaris}.  The agent cannot retrieve the full customer record, internal notes or another agent's requests.
+
+\subsection{Public Agent Discovery}
+
+Home Fixed publishes the following machine-readable resources:
+
+\begin{itemize}
+  \item canonical A2A Agent Card: \href{https://www.homefixed.com/.well-known/agent-card.json}{\texttt{/.well-known/agent-card.json}};
+  \item single root backing resource: \href{https://www.homefixed.com/agent-card.json}{\texttt{/agent-card.json}};
+  \item full Home Fixed AgentMap: \href{https://www.homefixed.com/agentmap.json}{\texttt{/agentmap.json}};
+  \item governed commerce binding: \href{https://www.homefixed.com/protocols/aion-a2a-commerce-v1.json}{\texttt{/protocols/aion-a2a-commerce-v1.json}};
+  \item compatibility aliases for legacy A2A and AION discovery clients; all aliases rewrite to the canonical root card.
+\end{itemize}
+
+All discovery aliases rewrite to the same root Agent Card, preventing CDN-specific handling of physical dot-directory files and avoiding manifest drift.  The canonical well-known routes use a short shared-cache lifetime so a stale error cannot persist indefinitely across CDN edges.
+
+The Agent Card declares:
+
+\begin{itemize}
+  \item \emph{Home Fixed Service Intake Agent}, version \texttt{1.0.0};
+  \item the \emph{home-repair-request} skill;
+  \item Home Fixed as the provider;
+  \item no streaming, push notifications or extended private card;
+  \item partner bearer authentication;
+  \item a custom governed HTTPS/JSON commerce binding;
+  \item human review and the absence of automatic booking, payment or dispatch.
+\end{itemize}
+
+The use of the standard Agent Card location provides interoperable discovery.  The current transaction contract is deliberately identified as a custom AION commerce binding; it does not falsely claim to implement every generic A2A task, message, streaming and artifact operation.  A generic A2A client must understand the declared binding or use a future standard task adapter.
+
+\subsection{Trust Model: Two Different Doors}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Lane} & \textbf{Identity and access} & \textbf{Permitted outcome} & \textbf{Explicitly prohibited} \\
+\midrule
+Public human & Browser user; no bearer key; consent, validation and abuse controls & Human-reviewed Sales opportunity & Automatic quote, booking, payment or dispatch \\
+Verified partner agent & Registered agent and bearer credential; customer-authority reference & Structured request and bounded status & Universal access, cross-agent data or automatic consequences \\
+Public agent intent & Unknown agent; four requests per minute per source and minimal fields & Review-only indication of demand & Authority claims, persistent status, quotes, booking, payment or dispatch \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+This model keeps discovery open while increasing privileges only with verified identity and authority.  Large platforms can later use OAuth, signed platform identity or user-consented tokens rather than a secret embedded in a webpage.
+
+\subsection{Verified Evidence}
+
+The implementation was tested at service, installed-application and public-deployment levels.
+
+\begin{itemize}
+  \item Thirty-four focused Sales service, API, authority and interface tests passed after the legacy-role migration and bounded SMS additions.
+  \item The Home Fixed Sales Agent passed all eleven required governance simulations.
+  \item A complete live five-stage browser submission returned a genuine acceptance state.
+  \item The encrypted queue contained the submitted event.
+  \item The installed Tessaris application imported it into the canonical Home Fixed Sales ledger.
+  \item Campaign attribution and inbound-contact permission were preserved.
+  \item Acknowledgement removed the processed pending item and the queue returned to zero.
+  \item A conventional form-encoded submission also produced a canonical opportunity.
+  \item A live authenticated synthetic partner-agent request entered human review and later returned \texttt{accepted\_by\_tessaris}.
+  \item Unauthenticated machine requests returned HTTP \texttt{401}; incomplete public human requests returned HTTP \texttt{400}.
+  \item Canonical and compatibility Agent Card paths returned HTTP \texttt{200} with JSON content from both apex and \texttt{www} domains.
+  \item Tessaris was rebuilt, installed and reported a healthy local backend.
+  \item A live Gmail poll read ten matching enquiry messages, imported no duplicates and performed no mailbox mutation.
+  \item An exact-approved Gmail execution created draft \texttt{r995444334457146260}; the recorded send flag remained false.
+  \item An exact-approved Google Calendar execution created event \texttt{i8q6relnj6c15firl2653e9idk}; guest notification and customer-notified flags remained false.
+  \item A live unknown-agent intent was encrypted, imported and acknowledged in the public-intent lane; it received no status, quotation, booking, payment or dispatch authority.
+\end{itemize}
+
+The website deployment history relevant to this increment includes:
+
+\begin{itemize}
+  \item \texttt{d426280}: durable lead queue and corrected contact number;
+  \item \texttt{d0c36cf}: AION guided quote conversation;
+  \item \texttt{b2b7f9f}: standard discovery and explicit lead action;
+  \item \texttt{2a6915a}: all A2A discovery paths routed to a single Agent Card.
+  \item \texttt{189a3e3}: safe, rate-limited public-agent intent intake.
+\end{itemize}
+
+\subsection{Current Honest Boundaries}
+
+The present system is a strong governed Sales operating foundation, not yet an unrestricted autonomous sales employee.  The remaining boundaries are:
+
+\begin{itemize}
+  \item the public A2A card advertises a custom commerce binding rather than the complete generic A2A task/message protocol;
+  \item partner credential issuance and revocation are currently an administrative process rather than a self-service partner portal;
+  \item the restricted public-intent lane is live, but it deliberately provides no persistent status or commercial authority;
+  \item Google Calendar event creation is operational behind exact approval; the OAuth scope and API service are enabled, while guest invitations and customer notification remain separate actions;
+  \item live telephony depends on a connected and enabled provider and must undergo controlled voice-quality testing;
+  \item Gmail is connected for read-only intake and approved draft creation; automatic send remains disabled by product policy;
+  \item SMS execution is implemented but remains unavailable until a complete Twilio account, sending number and explicit live-send switch are configured;
+  \item HubSpot is connected for contact access but external writes remain dry-run projections around the canonical Tessaris record;
+  \item real conversion experiments need sufficient independent outcomes before any policy promotion;
+  \item customer notifications for newly queued public enquiries should be implemented as a separately governed channel rather than assumed from queue acceptance.
+\end{itemize}
+
+\subsection{Recommended Next Development Sequence}
+
+\begin{enumerate}
+  \item Connect a Retell account and number, then perform interruption, accent, noise, disclosure and human-takeover examinations before one supervised call.
+  \item Connect Twilio only if SMS is commercially required; the execution path already preserves exact approval, consent and suppression checks.
+  \item Productise \emph{Publish my Agent Card} in Tessaris so another small business can expose the same governed discovery and intake model without bespoke engineering.
+  \item Add partner onboarding, credential rotation, revocation, audit history and scoped privileges.
+  \item Complete controlled telephony and SMS transport examinations using exact approval and signed outcome evidence.
+  \item Deploy the pattern to a second business, town or vertical to prove it is not specific to Home Fixed.
+  \item Publish operational metrics including live cards, agent-sourced leads, median response time, conversion, duplicate rate, complaint rate and unsafe-action rate.
+  \item Approach larger platforms only after Tessaris represents a sufficiently dense and trustworthy merchant network.
+\end{enumerate}
+
+The strategic progression is therefore:
+
+\begin{center}
+Unknown protocol $\rightarrow$ reference merchant $\rightarrow$ repeatable installations $\rightarrow$ verified partner agents $\rightarrow$ network density $\rightarrow$ major platform integration.
+\end{center}
+
+In concise terms, A2A is the wire format, Tessaris is the product, and Home Fixed is the proof.

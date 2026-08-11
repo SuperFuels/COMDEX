@@ -1,0 +1,3716 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "long_document_semantic_memory": "procedure_long_document_semantic_memory_6d1736d5906a"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {
+    "book_memory_1a0a54aa5bbcb58b": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "machine",
+          "phrase": "yellow machine",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    },
+    "book_memory_3aa103e282e151ae": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": false,
+          "object": "machine",
+          "phrase": null,
+          "status": "abstained"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    },
+    "book_memory_409938259c07f2e7": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": false,
+          "object": "machine",
+          "phrase": null,
+          "status": "abstained"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    },
+    "book_memory_590b32b7ead5f4a1": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": false,
+          "object": "machine",
+          "phrase": null,
+          "status": "abstained"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    },
+    "book_memory_6575ee31e58ddcd7": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "machine",
+          "phrase": "yellow machine",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    },
+    "book_memory_782ab8391b80e4be": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": false,
+          "object": "machine",
+          "phrase": null,
+          "status": "abstained"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    },
+    "book_memory_9415786156948b60": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "machine",
+          "phrase": "yellow machine",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    },
+    "book_memory_9d635b9c7992b0be": {
+      "compositions": [
+        {
+          "colour": "blue",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "rabbit",
+          "phrase": "blue rabbit",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "yellow",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "machine",
+          "phrase": "yellow machine",
+          "status": "hypothetical_composition"
+        },
+        {
+          "colour": "white",
+          "committed_as_source_fact": false,
+          "components_known": true,
+          "object": "being",
+          "phrase": "white being",
+          "status": "hypothetical_composition"
+        }
+      ],
+      "fact_boundary": "hypothetical_composition_is_not_source_fact"
+    }
+  },
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [
+    {
+      "composition_accuracy": 0.6666666666666666,
+      "created_at": "2026-07-31T07:55:51.000237+00:00",
+      "memory_id": "book_memory_409938259c07f2e7",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    },
+    {
+      "composition_accuracy": 0.6666666666666666,
+      "created_at": "2026-07-31T07:59:00.449454+00:00",
+      "memory_id": "book_memory_590b32b7ead5f4a1",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    },
+    {
+      "composition_accuracy": 0.6666666666666666,
+      "created_at": "2026-07-31T08:03:44.828180+00:00",
+      "memory_id": "book_memory_782ab8391b80e4be",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    },
+    {
+      "composition_accuracy": 0.6666666666666666,
+      "created_at": "2026-07-31T08:05:21.448403+00:00",
+      "memory_id": "book_memory_3aa103e282e151ae",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    },
+    {
+      "composition_accuracy": 1.0,
+      "created_at": "2026-07-31T08:06:19.233118+00:00",
+      "memory_id": "book_memory_9415786156948b60",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    },
+    {
+      "composition_accuracy": 1.0,
+      "created_at": "2026-07-31T08:08:36.387832+00:00",
+      "memory_id": "book_memory_6575ee31e58ddcd7",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    },
+    {
+      "composition_accuracy": 1.0,
+      "created_at": "2026-07-31T08:09:27.838348+00:00",
+      "memory_id": "book_memory_9d635b9c7992b0be",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    },
+    {
+      "composition_accuracy": 1.0,
+      "created_at": "2026-07-31T08:10:29.439071+00:00",
+      "memory_id": "book_memory_1a0a54aa5bbcb58b",
+      "queries": [
+        "alice:rabbit",
+        "alice:watch",
+        "alice:caterpillar",
+        "time:sphinx",
+        "time:missing",
+        "time:underground",
+        "frank:stature",
+        "frank:skin",
+        "frank:eyes"
+      ]
+    }
+  ],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "long_document_semantic_memory_authority"
+    },
+    "reason": "long_document_semantic_memory",
+    "state_hash": "87b943edf832e1b81b1585e190271838ea51504d3b15b7854b016f38fcdc6f4e"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {
+    "book_memory_1a0a54aa5bbcb58b": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 849,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 370,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:blue": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:green": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "colour",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "green"
+        },
+        "colours:pink": {
+          "evidence_quote": "\"when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set”",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "colours:yellow": {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "yellow"
+        },
+        "objects:being": {
+          "evidence_quote": "\"I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.\"",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set”",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:machine": {
+          "evidence_quote": "The Time Machine had gone.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "machine"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        },
+        "objects:skin": {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "skin"
+        },
+        "objects:sphinx": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "sphinx"
+        },
+        "objects:watch": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "watch"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T08:10:29.439053+00:00",
+      "relation_graph": [
+        {
+          "evidence_quote": "\"when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "rabbit",
+          "value": "white"
+        },
+        {
+          "evidence_quote": "\"when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "eyes",
+          "value": "pink"
+        },
+        {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "caterpillar",
+          "value": "blue"
+        },
+        {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "relation": "colour",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "subject": "sphinx",
+          "value": "white"
+        },
+        {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "relation": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "subject": "skin",
+          "value": "yellow"
+        }
+      ],
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "The Rabbit was white and its eyes were pink.",
+          "book_id": "alice",
+          "concepts": [
+            "White Rabbit",
+            "pink eyes"
+          ],
+          "evidence_quote": "\"when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 261,
+            "latency_seconds": 1.6169219170114957,
+            "output_tokens": 58
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "A watch",
+          "book_id": "alice",
+          "concepts": [
+            "Rabbit’s waistcoat-pocket",
+            "watch"
+          ],
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 394,
+            "latency_seconds": 1.4095789170241915,
+            "output_tokens": 63
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "rabbit",
+              "watch"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "Blue",
+          "book_id": "alice",
+          "concepts": [
+            "Caterpillar colour",
+            "blue caterpillar"
+          ],
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 329,
+            "latency_seconds": 1.8560089999809861,
+            "output_tokens": 108
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "White",
+          "book_id": "time_machine",
+          "concepts": [
+            "White Sphinx",
+            "Time Traveller's surroundings"
+          ],
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 555,
+            "latency_seconds": 2.45318445796147,
+            "output_tokens": 79
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "green",
+              "white"
+            ],
+            "objects": [
+              "sphinx"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "His Time Machine",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time Machine",
+            "important object disappearance",
+            "traveller’s machine"
+          ],
+          "evidence_quote": "The Time Machine had gone.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 546,
+            "latency_seconds": 1.6435227079782635,
+            "output_tokens": 49
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "machine"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": false,
+          "answer": "A long-continued subterranean, underground habitat.",
+          "book_id": "time_machine",
+          "concepts": [
+            "subterranean habitat",
+            "long-continued underground habit",
+            "Morlocks"
+          ],
+          "evidence_quote": "“Plainly, this second species of Man was subterranean. There were three circumstances in particular which made me think that its rare emergence above ground was the outcome of a long-continued underground habit.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 681,
+            "latency_seconds": 2.2105289590545,
+            "output_tokens": 99
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 3,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The mysterious being's stature was described as gigantic, about eight feet in height and proportionably large.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature",
+            "about eight feet in height",
+            "proportionably large"
+          ],
+          "evidence_quote": "\"I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.\"",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 576,
+            "latency_seconds": 1.4824586249887943,
+            "output_tokens": 98
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "Yellow",
+          "book_id": "frankenstein",
+          "concepts": [
+            "yellow skin",
+            "creature’s appearance",
+            "Frankenstein’s creation"
+          ],
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 491,
+            "latency_seconds": 1.4063891250407323,
+            "output_tokens": 66
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "yellow"
+            ],
+            "objects": [
+              "skin"
+            ]
+          },
+          "uncertainty": ""
+        },
+        {
+          "accepted": true,
+          "answer": "They were described as “watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set.”",
+          "book_id": "frankenstein",
+          "concepts": [
+            "watery eyes",
+            "similar color to dun-white sockets",
+            "contrast with sockets"
+          ],
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set”",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 541,
+            "latency_seconds": 1.9658905830001459,
+            "output_tokens": 106
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "white"
+            ],
+            "objects": [
+              "eyes"
+            ]
+          },
+          "uncertainty": "low"
+        }
+      ]
+    },
+    "book_memory_3aa103e282e151ae": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 849,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 370,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:blue": {
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:pink": {
+          "evidence_quote": "a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "colours:yellow": {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "yellow"
+        },
+        "objects:being": {
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        },
+        "objects:watch": {
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "watch"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T08:05:21.447757+00:00",
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "The Rabbit was white and had pink eyes.",
+          "book_id": "alice",
+          "concepts": [
+            "White Rabbit"
+          ],
+          "evidence_quote": "a White Rabbit with pink eyes ran close by her.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 259,
+            "latency_seconds": 3.680009541043546,
+            "output_tokens": 66
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "a watch",
+          "book_id": "alice",
+          "concepts": [
+            "watch"
+          ],
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 395,
+            "latency_seconds": 2.655759332992602,
+            "output_tokens": 71
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "rabbit",
+              "watch"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "blue",
+          "book_id": "alice",
+          "concepts": [
+            "caterpillar"
+          ],
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 327,
+            "latency_seconds": 2.3714194580097683,
+            "output_tokens": 75
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "The colour of the Sphinx is not mentioned.",
+          "book_id": "time_machine",
+          "concepts": [],
+          "evidence_quote": "INSUFFICIENT_EVIDENCE",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 543,
+            "latency_seconds": 2.3912931669619866,
+            "output_tokens": 50
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 3,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [],
+          "evidence_quote": "",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 538,
+            "latency_seconds": 24.837816957966425,
+            "output_tokens": 1000
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 3,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "MALFORMED_PROPOSAL"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE}```json_response```",
+          "book_id": "time_machine",
+          "concepts": [
+            "dwelling"
+          ],
+          "evidence_quote": "I could not imagine the Morlocks were strong enough to move it far away.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 674,
+            "latency_seconds": 6.699154500034638,
+            "output_tokens": 203
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 3,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "The passage does not state what kind of habitat the traveller associated with the Morlocks."
+        },
+        {
+          "accepted": true,
+          "answer": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature"
+          ],
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 565,
+            "latency_seconds": 3.72682033397723,
+            "output_tokens": 115
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "His yellow skin scarcely covered the work of muscles and arteries beneath",
+          "book_id": "frankenstein",
+          "concepts": [
+            "skin color"
+          ],
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 482,
+            "latency_seconds": 2.6312357500428334,
+            "output_tokens": 71
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "yellow"
+            ],
+            "objects": []
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set",
+          "book_id": "frankenstein",
+          "concepts": [
+            "eyes",
+            "dun-white sockets"
+          ],
+          "evidence_quote": "his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 527,
+            "latency_seconds": 3.420437375025358,
+            "output_tokens": 88
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "white"
+            ],
+            "objects": [
+              "eyes"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        }
+      ]
+    },
+    "book_memory_409938259c07f2e7": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 781,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 345,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:blue": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:pink": {
+          "evidence_quote": "suddenly a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "suddenly a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "objects:being": {
+          "evidence_quote": "a being which had the shape of a man, but apparently of gigantic stature",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "suddenly a White Rabbit with pink eyes ran close by her.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T07:55:50.999402+00:00",
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "White Rabbit with pink eyes",
+          "book_id": "alice",
+          "concepts": [
+            "White Rabbit"
+          ],
+          "evidence_quote": "suddenly a White Rabbit with pink eyes ran close by her.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 813,
+            "latency_seconds": 3.339974540984258,
+            "output_tokens": 65
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "a watch",
+          "book_id": "alice",
+          "concepts": [
+            "watch"
+          ],
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 761,
+            "latency_seconds": 2.8870319169946015,
+            "output_tokens": 65
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "no"
+        },
+        {
+          "accepted": true,
+          "answer": "blue",
+          "book_id": "alice",
+          "concepts": [
+            "caterpillar"
+          ],
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 434,
+            "latency_seconds": 3.4366377079859376,
+            "output_tokens": 109
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time"
+          ],
+          "evidence_quote": "",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 990,
+            "latency_seconds": 3.4857472499716096,
+            "output_tokens": 65
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "The provided passages do not contain information about the colour of the Sphinx encountered by the Time Traveller."
+        },
+        {
+          "accepted": false,
+          "answer": "The Time Machine",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time Machine"
+          ],
+          "evidence_quote": "So that it was the Psychologist himself who sent forth the model Time Machine on its interminable voyage.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 1009,
+            "latency_seconds": 3.5054280830081552,
+            "output_tokens": 70
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time",
+            "Space"
+          ],
+          "evidence_quote": "INSUFFICIENT_EVIDENCE",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 813,
+            "latency_seconds": 3.8588354579987936,
+            "output_tokens": 87
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "The provided passages discuss the nature of dimensions and time but do not mention a specific habitat associated with the Morlocks."
+        },
+        {
+          "accepted": true,
+          "answer": "a being which had the shape of a man, but apparently of gigantic stature",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature",
+            "shape of a man"
+          ],
+          "evidence_quote": "a being which had the shape of a man, but apparently of gigantic stature",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 1567,
+            "latency_seconds": 5.338166250032373,
+            "output_tokens": 76
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "frankenstein",
+          "concepts": [],
+          "evidence_quote": "",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 1819,
+            "latency_seconds": 30.66606249997858,
+            "output_tokens": 1000
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "MALFORMED_PROPOSAL"
+        },
+        {
+          "accepted": false,
+          "answer": "His eyes, if eyes they may be called, were fixed on me.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "eyes"
+          ],
+          "evidence_quote": "and his eyes, if eyes they may be called, were fixed on me.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 2126,
+            "latency_seconds": 6.975848249974661,
+            "output_tokens": 76
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "not applicable"
+        }
+      ]
+    },
+    "book_memory_590b32b7ead5f4a1": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 781,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 345,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:black": {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath; his hair was of a lustrous black, and flowing",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "black"
+        },
+        "colours:blue": {
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:pink": {
+          "evidence_quote": "a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "colours:yellow": {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath; his hair was of a lustrous black, and flowing",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "yellow"
+        },
+        "objects:being": {
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        },
+        "objects:watch": {
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "watch"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T07:59:00.449037+00:00",
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "White",
+          "book_id": "alice",
+          "concepts": [
+            "Rabbit",
+            "White Rabbit",
+            "pink eyes"
+          ],
+          "evidence_quote": "a White Rabbit with pink eyes ran close by her.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 370,
+            "latency_seconds": 3.0700015000184067,
+            "output_tokens": 90
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "The passage states the Rabbit was White and had pink eyes, but does not explicitly state the color of the Rabbit's eyes."
+        },
+        {
+          "accepted": true,
+          "answer": "a watch",
+          "book_id": "alice",
+          "concepts": [
+            "watch",
+            "waistcoat-pocket"
+          ],
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 659,
+            "latency_seconds": 3.9366874169791117,
+            "output_tokens": 115
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "rabbit",
+              "watch"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "blue",
+          "book_id": "alice",
+          "concepts": [
+            "caterpillar"
+          ],
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 689,
+            "latency_seconds": 3.257607332954649,
+            "output_tokens": 89
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [],
+          "evidence_quote": "",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 1275,
+            "latency_seconds": 27.392642999999225,
+            "output_tokens": 1000
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "MALFORMED_PROPOSAL"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [],
+          "evidence_quote": "",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 923,
+            "latency_seconds": 25.66560591600137,
+            "output_tokens": 1000
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "MALFORMED_PROPOSAL"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [],
+          "evidence_quote": "",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 1595,
+            "latency_seconds": 28.467757583013736,
+            "output_tokens": 1000
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "MALFORMED_PROPOSAL"
+        },
+        {
+          "accepted": true,
+          "answer": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature"
+          ],
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 1306,
+            "latency_seconds": 5.316416791989468,
+            "output_tokens": 115
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "His yellow skin scarcely covered the work of muscles and arteries beneath",
+          "book_id": "frankenstein",
+          "concepts": [
+            "created being's skin",
+            "yellow skin"
+          ],
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath; his hair was of a lustrous black, and flowing",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 835,
+            "latency_seconds": 3.8660738749895245,
+            "output_tokens": 93
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "black",
+              "yellow"
+            ],
+            "objects": []
+          },
+          "uncertainty": "no"
+        },
+        {
+          "accepted": false,
+          "answer": "the dull yellow eye of the creature open",
+          "book_id": "frankenstein",
+          "concepts": [
+            "dull yellow eye"
+          ],
+          "evidence_quote": "when, by the glimmer of the half-extinguished light, I saw the dull yellow eye of the creature open",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 1257,
+            "latency_seconds": 4.4810744999558665,
+            "output_tokens": 77
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "none"
+        }
+      ]
+    },
+    "book_memory_6575ee31e58ddcd7": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 849,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 370,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:blue": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:green": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "colour",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "green"
+        },
+        "colours:pink": {
+          "evidence_quote": "when suddenly a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "\"but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set\"",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "colours:yellow": {
+          "evidence_quote": "\"His yellow skin scarcely covered the work of muscles and arteries beneath;\"",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "yellow"
+        },
+        "objects:being": {
+          "evidence_quote": "“a being which had the shape of a man, but apparently of gigantic stature, sat in the sledge and guided the dogs.”",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "\"but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set\"",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:machine": {
+          "evidence_quote": "The Time Machine had gone.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "machine"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        },
+        "objects:skin": {
+          "evidence_quote": "\"His yellow skin scarcely covered the work of muscles and arteries beneath;\"",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "skin"
+        },
+        "objects:sphinx": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "sphinx"
+        },
+        "objects:watch": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "watch"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T08:08:36.387808+00:00",
+      "relation_graph": [
+        {
+          "evidence_quote": "when suddenly a White Rabbit with pink eyes ran close by her.",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "rabbit",
+          "value": "white"
+        },
+        {
+          "evidence_quote": "when suddenly a White Rabbit with pink eyes ran close by her.",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "rabbit",
+          "value": "pink"
+        },
+        {
+          "evidence_quote": "when suddenly a White Rabbit with pink eyes ran close by her.",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "eyes",
+          "value": "pink"
+        },
+        {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "caterpillar",
+          "value": "blue"
+        },
+        {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "relation": "colour",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "subject": "sphinx",
+          "value": "white"
+        },
+        {
+          "evidence_quote": "\"His yellow skin scarcely covered the work of muscles and arteries beneath;\"",
+          "relation": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "subject": "skin",
+          "value": "yellow"
+        }
+      ],
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "The Rabbit was white and its eyes were pink.",
+          "book_id": "alice",
+          "concepts": [
+            "White Rabbit colour",
+            "pink eyes"
+          ],
+          "evidence_quote": "when suddenly a White Rabbit with pink eyes ran close by her.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 261,
+            "latency_seconds": 1.8028863750514574,
+            "output_tokens": 64
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "A watch",
+          "book_id": "alice",
+          "concepts": [
+            "Rabbit's waistcoat-pocket",
+            "watch"
+          ],
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 394,
+            "latency_seconds": 2.249221625039354,
+            "output_tokens": 69
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "rabbit",
+              "watch"
+            ]
+          },
+          "uncertainty": ""
+        },
+        {
+          "accepted": true,
+          "answer": "Blue",
+          "book_id": "alice",
+          "concepts": [
+            "Caterpillar colour",
+            "Blue caterpillar"
+          ],
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 329,
+            "latency_seconds": 1.779151291004382,
+            "output_tokens": 108
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "White",
+          "book_id": "time_machine",
+          "concepts": [
+            "White Sphinx",
+            "Sphinx colour"
+          ],
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 555,
+            "latency_seconds": 1.6432844169903547,
+            "output_tokens": 78
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "green",
+              "white"
+            ],
+            "objects": [
+              "sphinx"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The Time Machine",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time Machine",
+            "important object missing",
+            "time travel device"
+          ],
+          "evidence_quote": "The Time Machine had gone.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 546,
+            "latency_seconds": 3.387087707989849,
+            "output_tokens": 56
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "machine"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": false,
+          "answer": "A long-continued subterranean, underground habitat, living largely in the dark.",
+          "book_id": "time_machine",
+          "concepts": [
+            "subterranean habitat",
+            "long-continued underground habit",
+            "living largely in the dark"
+          ],
+          "evidence_quote": "“Here was the new view. Plainly, this second species of Man was subterranean. There were three circumstances in particular which made me think that its rare emergence above ground was the outcome of a long-continued underground habit.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 681,
+            "latency_seconds": 2.0454132090089843,
+            "output_tokens": 114
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 3,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The mysterious being’s stature was described as “gigantic.”",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature",
+            "shape of a man",
+            "mysterious being"
+          ],
+          "evidence_quote": "“a being which had the shape of a man, but apparently of gigantic stature, sat in the sledge and guided the dogs.”",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 576,
+            "latency_seconds": 1.7855643749935552,
+            "output_tokens": 82
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The creature’s skin was yellow.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "creature_appearance",
+            "yellow_skin",
+            "monster_physical_description"
+          ],
+          "evidence_quote": "\"His yellow skin scarcely covered the work of muscles and arteries beneath;\"",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 491,
+            "latency_seconds": 1.4358406669925898,
+            "output_tokens": 65
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "yellow"
+            ],
+            "objects": [
+              "skin"
+            ]
+          },
+          "uncertainty": ""
+        },
+        {
+          "accepted": true,
+          "answer": "The eyes were described as \"watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set.\"",
+          "book_id": "frankenstein",
+          "concepts": [
+            "watery eyes",
+            "same colour as dun-white sockets",
+            "contrast with sockets"
+          ],
+          "evidence_quote": "\"but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set\"",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 541,
+            "latency_seconds": 2.1426640830468386,
+            "output_tokens": 107
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "white"
+            ],
+            "objects": [
+              "eyes"
+            ]
+          },
+          "uncertainty": "low"
+        }
+      ]
+    },
+    "book_memory_782ab8391b80e4be": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 849,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 370,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:blue": {
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:pink": {
+          "evidence_quote": "a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "colours:yellow": {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "yellow"
+        },
+        "objects:being": {
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        },
+        "objects:watch": {
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "watch"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T08:03:44.827376+00:00",
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "White",
+          "book_id": "alice",
+          "concepts": [
+            "Rabbit",
+            "White Rabbit",
+            "pink eyes"
+          ],
+          "evidence_quote": "a White Rabbit with pink eyes ran close by her.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 370,
+            "latency_seconds": 3.1144667079788633,
+            "output_tokens": 90
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "The passage states the Rabbit was White and had pink eyes, but does not explicitly state the color of the Rabbit's eyes."
+        },
+        {
+          "accepted": true,
+          "answer": "a watch",
+          "book_id": "alice",
+          "concepts": [
+            "watch",
+            "waistcoat-pocket"
+          ],
+          "evidence_quote": "when the Rabbit actually took a watch out of its waistcoat-pocket_, and looked at it, and then hurried on, Alice started to her feet, for it flashed across her mind that she had never before seen a rabbit with either a waistcoat-pocket, or a watch to take out of it",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 659,
+            "latency_seconds": 3.855795500043314,
+            "output_tokens": 115
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "rabbit",
+              "watch"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "blue",
+          "book_id": "alice",
+          "concepts": [
+            "caterpillar"
+          ],
+          "evidence_quote": "her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 689,
+            "latency_seconds": 3.3061425830237567,
+            "output_tokens": 89
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [],
+          "evidence_quote": "",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 979,
+            "latency_seconds": 26.436267166980542,
+            "output_tokens": 1000
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "MALFORMED_PROPOSAL"
+        },
+        {
+          "accepted": false,
+          "answer": "The Time Machine had gone.",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time Machine"
+          ],
+          "evidence_quote": "The Time Machine had gone.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 1100,
+            "latency_seconds": 4.113598792057019,
+            "output_tokens": 77
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "The Time Traveller vanished three years ago."
+        },
+        {
+          "accepted": false,
+          "answer": "INSUFFICIENT_EVIDENCE",
+          "book_id": "time_machine",
+          "concepts": [],
+          "evidence_quote": "INSUFFICIENT_EVIDENCE",
+          "exact_quote": false,
+          "provider": {
+            "input_tokens": 1234,
+            "latency_seconds": 3.9220825840020552,
+            "output_tokens": 51
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 6,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature"
+          ],
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 1061,
+            "latency_seconds": 4.736714291968383,
+            "output_tokens": 104
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "yellow skin",
+          "book_id": "frankenstein",
+          "concepts": [
+            "skin"
+          ],
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 835,
+            "latency_seconds": 2.9796554999775253,
+            "output_tokens": 61
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "yellow"
+            ],
+            "objects": []
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        },
+        {
+          "accepted": true,
+          "answer": "watery eyes",
+          "book_id": "frankenstein",
+          "concepts": [
+            "eyes",
+            "sockets",
+            "contrast",
+            "color"
+          ],
+          "evidence_quote": "his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 940,
+            "latency_seconds": 4.028966459038202,
+            "output_tokens": 72
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 6,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "white"
+            ],
+            "objects": [
+              "eyes"
+            ]
+          },
+          "uncertainty": "INSUFFICIENT_EVIDENCE"
+        }
+      ]
+    },
+    "book_memory_9415786156948b60": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 849,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 370,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:blue": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:green": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "colour",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "green"
+        },
+        "colours:pink": {
+          "evidence_quote": "when suddenly a White Rabbit with pink eyes ran close by her.",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set”",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "colours:yellow": {
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "yellow"
+        },
+        "objects:being": {
+          "evidence_quote": "\"I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.\"",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set”",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:machine": {
+          "evidence_quote": "The Time Machine had gone.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "machine"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        },
+        "objects:sphinx": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "sphinx"
+        },
+        "objects:watch": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "watch"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T08:06:19.233096+00:00",
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "The Rabbit was white and its eyes were pink.",
+          "book_id": "alice",
+          "concepts": [
+            "White Rabbit colour",
+            "pink eyes"
+          ],
+          "evidence_quote": "when suddenly a White Rabbit with pink eyes ran close by her.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 261,
+            "latency_seconds": 2.390562292013783,
+            "output_tokens": 64
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "A watch",
+          "book_id": "alice",
+          "concepts": [
+            "Rabbit’s waistcoat-pocket",
+            "watch"
+          ],
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on, Alice started to her feet",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 394,
+            "latency_seconds": 1.9766788340057246,
+            "output_tokens": 71
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "rabbit",
+              "watch"
+            ]
+          },
+          "uncertainty": ""
+        },
+        {
+          "accepted": true,
+          "answer": "Blue",
+          "book_id": "alice",
+          "concepts": [
+            "Caterpillar colour",
+            "blue caterpillar"
+          ],
+          "evidence_quote": "She stretched herself up on tiptoe, and peeped over the edge of the mushroom, and her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 329,
+            "latency_seconds": 2.0472039580345154,
+            "output_tokens": 110
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": ""
+        },
+        {
+          "accepted": true,
+          "answer": "White",
+          "book_id": "time_machine",
+          "concepts": [
+            "White Sphinx",
+            "statue colour"
+          ],
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 555,
+            "latency_seconds": 1.8274783749948256,
+            "output_tokens": 78
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "green",
+              "white"
+            ],
+            "objects": [
+              "sphinx"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The Time Machine",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time Machine",
+            "disappearance of machine",
+            "missing object"
+          ],
+          "evidence_quote": "The Time Machine had gone.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 546,
+            "latency_seconds": 1.8047993329819292,
+            "output_tokens": 56
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "machine"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": false,
+          "answer": "A subterranean, long-continued underground habitat, associated with darkness and intolerance of the daylit surface.",
+          "book_id": "time_machine",
+          "concepts": [
+            "subterranean habitat",
+            "long-continued underground habit",
+            "intolerance of daylight",
+            "dark-dwelling species"
+          ],
+          "evidence_quote": "“Plainly, this second species of Man was subterranean. There were three circumstances in particular which made me think that its rare emergence above ground was the outcome of a long-continued underground habit.”",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 681,
+            "latency_seconds": 2.5997239170246758,
+            "output_tokens": 111
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 3,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The being’s stature was described as “gigantic,” about eight feet tall and proportionally large.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature",
+            "about eight feet in height",
+            "proportionably large"
+          ],
+          "evidence_quote": "\"I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.\"",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 576,
+            "latency_seconds": 3.117851790972054,
+            "output_tokens": 98
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "Yellow skin",
+          "book_id": "frankenstein",
+          "concepts": [
+            "creature appearance",
+            "skin color",
+            "yellow skin"
+          ],
+          "evidence_quote": "His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 491,
+            "latency_seconds": 1.524565875006374,
+            "output_tokens": 61
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "yellow"
+            ],
+            "objects": []
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "They were described as “watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set.”",
+          "book_id": "frankenstein",
+          "concepts": [
+            "watery eyes",
+            "eyes same colour as dun-white sockets",
+            "monstrous appearance"
+          ],
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set”",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 541,
+            "latency_seconds": 2.0822907499969006,
+            "output_tokens": 108
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "white"
+            ],
+            "objects": [
+              "eyes"
+            ]
+          },
+          "uncertainty": "low"
+        }
+      ]
+    },
+    "book_memory_9d635b9c7992b0be": {
+      "books": {
+        "alice": {
+          "paragraphs": 783,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/alice_in_wonderland.txt",
+          "sha256": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "title": "Alice's Adventures in Wonderland"
+        },
+        "frankenstein": {
+          "paragraphs": 849,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/frankenstein.txt",
+          "sha256": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "title": "Frankenstein"
+        },
+        "time_machine": {
+          "paragraphs": 370,
+          "path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/public_domain_books/the_time_machine.txt",
+          "sha256": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "title": "The Time Machine"
+        }
+      },
+      "concept_graph": {
+        "colours:blue": {
+          "evidence_quote": "\"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.\"",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "blue"
+        },
+        "colours:green": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "colour",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "green"
+        },
+        "colours:pink": {
+          "evidence_quote": "\"...when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "kind": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "pink"
+        },
+        "colours:white": {
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set,”",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "white"
+        },
+        "colours:yellow": {
+          "evidence_quote": "Beautiful! Great God! His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "kind": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "yellow"
+        },
+        "objects:being": {
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "being"
+        },
+        "objects:caterpillar": {
+          "evidence_quote": "\"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.\"",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "caterpillar"
+        },
+        "objects:eyes": {
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set,”",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "eyes"
+        },
+        "objects:machine": {
+          "evidence_quote": "The Time Machine had gone.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "machine"
+        },
+        "objects:rabbit": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on,",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "rabbit"
+        },
+        "objects:skin": {
+          "evidence_quote": "Beautiful! Great God! His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "kind": "object",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "value": "skin"
+        },
+        "objects:sphinx": {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "kind": "object",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "value": "sphinx"
+        },
+        "objects:watch": {
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on,",
+          "kind": "object",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "value": "watch"
+        }
+      },
+      "conflicts": [
+        {
+          "accepted_truth": null,
+          "relation": "colour",
+          "resolution": "retain_provenance_and_record_contradiction",
+          "source_claims": [
+            {
+              "source": "alice",
+              "status": "reported_by_source",
+              "value": "white"
+            },
+            {
+              "source": "unverified_reader_note",
+              "status": "reported_unverified",
+              "value": "blue"
+            }
+          ],
+          "subject": "rabbit"
+        }
+      ],
+      "created_at": "2026-07-31T08:09:27.838330+00:00",
+      "relation_graph": [
+        {
+          "evidence_quote": "\"...when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "rabbit",
+          "value": "white"
+        },
+        {
+          "evidence_quote": "\"...when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "eyes",
+          "value": "pink"
+        },
+        {
+          "evidence_quote": "\"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.\"",
+          "relation": "colour",
+          "source_book": "alice",
+          "source_hash": "9a6730d17a67f0a73034ab7df4b86779e67c8e19f6a64e1c5d81d0a697288278",
+          "status": "reported_by_source",
+          "subject": "caterpillar",
+          "value": "blue"
+        },
+        {
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "relation": "colour",
+          "source_book": "time_machine",
+          "source_hash": "e15455dd6bf7522eefe6990444c034f87edf149a47b8e58aca97f20e48c3cf07",
+          "status": "reported_by_source",
+          "subject": "sphinx",
+          "value": "white"
+        },
+        {
+          "evidence_quote": "Beautiful! Great God! His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "relation": "colour",
+          "source_book": "frankenstein",
+          "source_hash": "1888b0938bcfc8e127bf00c22054f06c7c999391c11ceeb3c2ffbff73b264fc4",
+          "status": "reported_by_source",
+          "subject": "skin",
+          "value": "yellow"
+        }
+      ],
+      "verified_reading_outcomes": [
+        {
+          "accepted": true,
+          "answer": "The Rabbit was white and its eyes were pink.",
+          "book_id": "alice",
+          "concepts": [
+            "White Rabbit",
+            "pink eyes",
+            "rabbit coloration",
+            "eye colour"
+          ],
+          "evidence_quote": "\"...when suddenly a White Rabbit with pink eyes ran close by her.\"",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 261,
+            "latency_seconds": 1.680083624960389,
+            "output_tokens": 65
+          },
+          "question_id": "alice:rabbit",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "pink",
+              "white"
+            ],
+            "objects": [
+              "eyes",
+              "rabbit"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "A watch",
+          "book_id": "alice",
+          "concepts": [
+            "Rabbit's waistcoat-pocket",
+            "watch as object"
+          ],
+          "evidence_quote": "but when the Rabbit actually took a watch out of its waistcoat-pocket, and looked at it, and then hurried on,",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 394,
+            "latency_seconds": 2.054801416990813,
+            "output_tokens": 72
+          },
+          "question_id": "alice:watch",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "rabbit",
+              "watch"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The Caterpillar was blue.",
+          "book_id": "alice",
+          "concepts": [
+            "Caterpillar colour",
+            "blue caterpillar"
+          ],
+          "evidence_quote": "\"her eyes immediately met those of a large blue caterpillar, that was sitting on the top with its arms folded, quietly smoking a long hookah, and taking not the smallest notice of her or of anything else.\"",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 329,
+            "latency_seconds": 1.5418062919634394,
+            "output_tokens": 87
+          },
+          "question_id": "alice:caterpillar",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "blue"
+            ],
+            "objects": [
+              "caterpillar",
+              "eyes"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "White",
+          "book_id": "time_machine",
+          "concepts": [
+            "White Sphinx",
+            "colour of the Sphinx"
+          ],
+          "evidence_quote": "From its summit I could now make out through a haze of smoke the Palace of Green Porcelain, and from that I could get my bearings for the White Sphinx.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 555,
+            "latency_seconds": 1.924314041971229,
+            "output_tokens": 80
+          },
+          "question_id": "time:sphinx",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "green",
+              "white"
+            ],
+            "objects": [
+              "sphinx"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "His Time Machine",
+          "book_id": "time_machine",
+          "concepts": [
+            "Time Machine",
+            "disappearance of the machine",
+            "important object gone"
+          ],
+          "evidence_quote": "The Time Machine had gone.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 546,
+            "latency_seconds": 2.9757726669777185,
+            "output_tokens": 58
+          },
+          "question_id": "time:missing",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "machine"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": false,
+          "answer": "A subterranean, long-continued underground habitat, associated with darkness and sensitivity to light.",
+          "book_id": "time_machine",
+          "concepts": [
+            "subterranean habitat",
+            "long-continued underground habit",
+            "sensitivity to light",
+            "dark-dwelling species"
+          ],
+          "evidence_quote": "“Plainly, this second species of Man was subterranean. There were three circumstances in particular which made me think that its rare emergence above ground was the outcome of a long-continued underground habit.”",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 681,
+            "latency_seconds": 2.4550333750084974,
+            "output_tokens": 117
+          },
+          "question_id": "time:underground",
+          "retrieval_candidates": 3,
+          "terms_present": false,
+          "typed_concepts": {
+            "colours": [],
+            "objects": []
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "The mysterious being’s stature was described as gigantic, about eight feet in height and proportionably large.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "gigantic stature",
+            "about eight feet in height",
+            "proportionably large"
+          ],
+          "evidence_quote": "I resolved, contrary to my first intention, to make the being of a gigantic stature, that is to say, about eight feet in height, and proportionably large.",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 576,
+            "latency_seconds": 1.5845960829756223,
+            "output_tokens": 104
+          },
+          "question_id": "frank:stature",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [],
+            "objects": [
+              "being"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "Yellow.",
+          "book_id": "frankenstein",
+          "concepts": [
+            "yellow skin",
+            "creature’s appearance"
+          ],
+          "evidence_quote": "Beautiful! Great God! His yellow skin scarcely covered the work of muscles and arteries beneath;",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 491,
+            "latency_seconds": 1.3191570839844644,
+            "output_tokens": 62
+          },
+          "question_id": "frank:skin",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "yellow"
+            ],
+            "objects": [
+              "skin"
+            ]
+          },
+          "uncertainty": "low"
+        },
+        {
+          "accepted": true,
+          "answer": "They were described as “watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set.”",
+          "book_id": "frankenstein",
+          "concepts": [
+            "watery eyes",
+            "eye-socket color similarity",
+            "monster’s facial features"
+          ],
+          "evidence_quote": "“but these luxuriances only formed a more horrid contrast with his watery eyes, that seemed almost of the same colour as the dun-white sockets in which they were set,”",
+          "exact_quote": true,
+          "provider": {
+            "input_tokens": 541,
+            "latency_seconds": 1.995979166997131,
+            "output_tokens": 106
+          },
+          "question_id": "frank:eyes",
+          "retrieval_candidates": 3,
+          "terms_present": true,
+          "typed_concepts": {
+            "colours": [
+              "white"
+            ],
+            "objects": [
+              "eyes"
+            ]
+          },
+          "uncertainty": "low"
+        }
+      ]
+    }
+  },
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_long_document_semantic_memory_6d1736d5906a": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "books": 3,
+          "concept_composition_accuracy": 1.0,
+          "contradiction_preserved": true,
+          "errors": [],
+          "exact_provenance": 1.0,
+          "hypotheticals_committed_as_facts": 0,
+          "question_accuracy": 0.8888888888888888,
+          "reported_equals_verified": false,
+          "source_words": 143164,
+          "unsafe_knowledge_commitments": 0,
+          "weakest_book_accuracy": 0.6666666666666666
+        },
+        "per_book": {
+          "alice": 1.0,
+          "frankenstein": 1.0,
+          "time_machine": 0.6666666666666666
+        }
+      },
+      "goal": "long_document_semantic_memory",
+      "procedure_id": "procedure_long_document_semantic_memory_6d1736d5906a",
+      "promoted_at": "2026-07-31T08:06:19.221277+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.8888888888888888,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "ingest_full_public_domain_books",
+        "retrieve_source_passages",
+        "propose_answer_and_exact_quote",
+        "verify_quote_and_expected_relation",
+        "form_provenance_bound_concepts",
+        "compose_known_concepts_as_hypotheticals",
+        "preserve_contradictions_without_false_resolution",
+        "retain_memory_across_restart"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "d3e7664c5f3720d49dd0eef72a3ffc62252400e8e36ac93e660034878cf4091f",
+      "goal": "long_document_semantic_memory",
+      "new_champion_id": "procedure_long_document_semantic_memory_6d1736d5906a",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.8888888888888888,
+      "timestamp": "2026-07-31T08:06:19.221343+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "revision": 9,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T08:10:29.439085+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

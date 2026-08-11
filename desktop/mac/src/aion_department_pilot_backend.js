@@ -5,6 +5,12 @@
   const API_PATH = '/api/aion/business/department-pilots';
   const PACKAGE_SCHEMA = 'aion.department_pilot.boardroom_assignment_package.v1';
   let queueRefreshTimer = null;
+  let queueRefreshPromise = null;
+  let observedTerminal = null;
+  let observedDepartmentId = '';
+  let observedWorkspaceId = '';
+  let lastQueueRefreshKey = '';
+  let lastQueueRefreshStartedAt = 0;
   let profilesCache = null;
 
   async function request(path, options = {}) {
@@ -378,8 +384,25 @@
     const handoffFor = (matchId) => handoffs.find((item) => item?.payload?.match_id === matchId) || null;
     const signature = [ledger?.ledger_hash, director?.director_model_hash, reconciliation?.run_hash, ...handoffs.map((item) => item.handoff_hash)].filter(Boolean).join('|') || 'empty';
     const currency = director?.currency || ledger?.currency || 'EUR';
+    const statements = director?.financial_statements || {};
+    const statementQuality = director?.statement_quality || {};
+    const profitAndLoss = statements.profit_and_loss || {};
+    const balanceSheet = statements.balance_sheet || {};
+    const cashFlowStatement = statements.cash_flow || {};
+    const statementCard = (label, value, format = 'money') => `<article><small>${escapeHtml(label)}</small><strong>${value == null ? 'Required' : escapeHtml(formatFinanceValue(value, format, currency))}</strong></article>`;
+    const statementPanel = statements && Object.keys(statements).length ? `
+      <section class="aion-finance-statement-package" data-aion-finance-statement-package>
+        <header><div><small>CANONICAL FINANCIAL VIEW</small><h3>Business model · P&amp;L · Balance sheet · Cash flow</h3><p>Accepted accounting evidence wins over approximate onboarding answers. Every missing balance-sheet field remains visible.</p></div><span>${escapeHtml(profitAndLoss.period?.label || 'Period review required')}</span></header>
+        <div class="aion-finance-statement-tabs">
+          <section><h4>Profit &amp; loss</h4>${(profitAndLoss.lines || []).map((line) => `<div><span>${escapeHtml(line.label)}</span><strong>${line.value == null ? '—' : escapeHtml(formatFinanceValue(line.value, 'money', currency))}</strong><em>${escapeHtml((line.verification || '').replaceAll('_', ' '))}</em></div>`).join('')}</section>
+          <section><h4>Balance sheet <em>${escapeHtml(balanceSheet.status || 'partial')}</em></h4><div class="aion-finance-statement-grid">${statementCard('Cash', balanceSheet.assets?.cash)}${statementCard('Receivables', balanceSheet.assets?.accounts_receivable)}${statementCard('Inventory', balanceSheet.assets?.inventory)}${statementCard('Payables', balanceSheet.liabilities?.accounts_payable)}${statementCard('Debt', balanceSheet.liabilities?.debt_commitments)}${statementCard('Equity', balanceSheet.equity)}</div>${(balanceSheet.missing_information || []).length ? `<details><summary>Information still needed to complete and balance this statement</summary><ul>${balanceSheet.missing_information.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul></details>` : ''}</section>
+          <section><h4>Cash flow <em>${escapeHtml(cashFlowStatement.status || 'partial')}</em></h4><div class="aion-finance-statement-grid">${statementCard('Opening cash', cashFlowStatement.opening_cash)}${statementCard('Cash collected', cashFlowStatement.cash_collections)}${statementCard('Cash paid', cashFlowStatement.cash_payments)}${statementCard('Net cash change', cashFlowStatement.net_cash_change)}${statementCard('Closing cash', cashFlowStatement.ending_cash)}${statementCard('Protected reserve', cashFlowStatement.protected_cash_reserve)}</div></section>
+        </div>
+        ${(statementQuality.warnings || []).length ? `<footer>${statementQuality.warnings.map((item) => `<span>${escapeHtml(item)}</span>`).join('')}</footer>` : ''}
+      </section>` : '';
     return `<section class="aion-finance-director" data-aion-finance-director data-aion-finance-director-signature="${escapeHtml(signature)}">
       <header><strong>&gt; Finance Director · live model and transaction control</strong><span>Read-only · approval gated</span></header>
+      ${statementPanel}
       <div class="aion-finance-director-actions">
         <button type="button" data-aion-finance-build-ledger>${ledger ? 'Rebuild ledger from latest Xero sync' : 'Build canonical transaction ledger'}</button>
         <label>Protected cash reserve <input type="number" min="0" step="0.01" value="${escapeHtml(director?.cash_flow?.protected_reserve || 0)}" data-aion-finance-director-reserve></label>
@@ -469,7 +492,7 @@
       </section>`);
   }
 
-  async function refreshVisibleQueue() {
+  async function performVisibleQueueRefresh() {
     const terminal = global.document?.querySelector?.('[data-aion-shared-pilot-terminal="true"]');
     const stream = terminal?.querySelector?.('[data-aion-pilot-stream-window]');
     const departmentId = terminal?.getAttribute?.('data-aion-pilot-role') || '';
@@ -504,9 +527,58 @@
     }
   }
 
+  function refreshVisibleQueue() {
+    if (queueRefreshPromise) return queueRefreshPromise;
+    const terminal = global.document?.querySelector?.('[data-aion-shared-pilot-terminal="true"]') || null;
+    const departmentId = terminal?.getAttribute?.('data-aion-pilot-role') || '';
+    const workspaceId = resolveBusinessId() || '';
+    lastQueueRefreshKey = `${workspaceId}:${departmentId}`;
+    lastQueueRefreshStartedAt = Date.now();
+    queueRefreshPromise = performVisibleQueueRefresh().finally(() => {
+      queueRefreshPromise = null;
+    });
+    return queueRefreshPromise;
+  }
+
   function scheduleVisibleQueueRefresh() {
+    const terminal = global.document?.querySelector?.('[data-aion-shared-pilot-terminal="true"]') || null;
+    const departmentId = terminal?.getAttribute?.('data-aion-pilot-role') || '';
+    const workspaceId = resolveBusinessId() || '';
+    const refreshKey = `${workspaceId}:${departmentId}`;
+
+    // The main view may replace the terminal element while preserving the
+    // same workspace and department.  Treat that as a remount, not a reason
+    // to immediately download the same finance surfaces again.
+    if (
+      refreshKey === lastQueueRefreshKey
+      && Date.now() - lastQueueRefreshStartedAt < 30000
+    ) {
+      observedTerminal = terminal;
+      observedDepartmentId = departmentId;
+      observedWorkspaceId = workspaceId;
+      return;
+    }
+
+    // The old observer scheduled a network refresh for every DOM mutation.
+    // A refresh itself updates the terminal DOM, creating an unbounded
+    // fetch -> render -> mutation -> fetch loop.  DOM observation is only
+    // needed to notice that a different terminal/department was mounted.
+    if (
+      terminal === observedTerminal
+      && departmentId === observedDepartmentId
+      && workspaceId === observedWorkspaceId
+    ) {
+      return;
+    }
+
+    observedTerminal = terminal;
+    observedDepartmentId = departmentId;
+    observedWorkspaceId = workspaceId;
+
     global.clearTimeout?.(queueRefreshTimer);
-    queueRefreshTimer = global.setTimeout?.(refreshVisibleQueue, 80);
+    if (terminal && departmentId && workspaceId) {
+      queueRefreshTimer = global.setTimeout?.(refreshVisibleQueue, 80);
+    }
   }
 
   async function refreshProfiles() {
@@ -1068,6 +1140,87 @@
       .aion-canonical-pilot-empty{margin:12px 0 0;color:#64748b}
       .aion-department-design-gate{border:1px solid #f59e0b;background:#1c1917;padding:14px;margin:0 0 16px;color:#fde68a}
       .aion-department-design-gate strong{color:#fbbf24}.aion-department-design-gate p{color:#d6d3d1}.aion-department-design-gate ul{margin:8px 0 0;padding-left:20px;color:#a8a29e}
+
+      /* Finance light workspace: align the permanent Finance runtime with the
+         Products & Services operating-model design system. */
+      html body [data-aion-shared-pilot-terminal="true"][data-aion-pilot-role="finance"]{
+        --fin-ink:#102a43;--fin-muted:#52667a;--fin-line:#cbd9e6;--fin-soft:#f5f9fc;
+        --fin-blue:#0284c7;--fin-blue-soft:#edf8fc;--fin-teal:#0f766e;--fin-green:#15803d;
+        background:#fff !important;color:var(--fin-ink) !important;border:1px solid var(--fin-line) !important;
+        border-left:5px solid #0ea5e9 !important;box-shadow:none !important;
+      }
+      html body [data-aion-pilot-role="finance"] .aion-pilot-stream-header,
+      html body [data-aion-pilot-role="finance"] .aion-shared-pilot-role-context,
+      html body [data-aion-pilot-role="finance"] .aion-pilot-stream-window{
+        background:#fff !important;color:var(--fin-ink) !important;border-color:var(--fin-line) !important;
+      }
+      html body [data-aion-pilot-role="finance"] .aion-pilot-stream-window{padding:18px 20px !important}
+      html body [data-aion-pilot-role="finance"] h1,
+      html body [data-aion-pilot-role="finance"] h2,
+      html body [data-aion-pilot-role="finance"] h3,
+      html body [data-aion-pilot-role="finance"] h4,
+      html body [data-aion-pilot-role="finance"] strong{color:var(--fin-ink) !important}
+      html body [data-aion-pilot-role="finance"] p,
+      html body [data-aion-pilot-role="finance"] small{color:var(--fin-muted) !important}
+      html body [data-aion-pilot-role="finance"] input,
+      html body [data-aion-pilot-role="finance"] select,
+      html body [data-aion-pilot-role="finance"] textarea{
+        background:#fff !important;color:var(--fin-ink) !important;border:1px solid #b7c8d6 !important;
+      }
+      html body [data-aion-pilot-role="finance"] button{
+        background:#fff !important;color:#0369a1 !important;border:1px solid #8fb3c7 !important;
+        font-weight:800 !important;box-shadow:none !important;
+      }
+      html body [data-aion-pilot-role="finance"] button:hover{background:var(--fin-blue-soft) !important;border-color:#38a3c7 !important}
+      html body [data-aion-pilot-role="finance"] button[data-aion-finance-refresh-director],
+      html body [data-aion-pilot-role="finance"] button[data-aion-finance-run-task],
+      html body [data-aion-pilot-role="finance"] button[type="submit"]{
+        background:var(--fin-green) !important;border-color:var(--fin-green) !important;color:#fff !important;
+      }
+      html body [data-aion-pilot-role="finance"] .aion-canonical-pilot-queue,
+      html body [data-aion-pilot-role="finance"] .aion-finance-recurring,
+      html body [data-aion-pilot-role="finance"] .aion-finance-director,
+      html body [data-aion-pilot-role="finance"] .aion-finance-scenario,
+      html body [data-aion-pilot-role="finance"] .aion-finance-reconciliation,
+      html body [data-aion-pilot-role="finance"] .aion-finance-conversation,
+      html body [data-aion-pilot-role="finance"] .aion-finance-management-handback{
+        background:#fff !important;color:var(--fin-ink) !important;border:1px solid var(--fin-line) !important;
+        border-left:4px solid var(--fin-blue) !important;padding:18px !important;margin:0 0 18px !important;
+      }
+      html body [data-aion-pilot-role="finance"] .aion-canonical-pilot-queue>header,
+      html body [data-aion-pilot-role="finance"] .aion-finance-recurring>header,
+      html body [data-aion-pilot-role="finance"] .aion-finance-director>header,
+      html body [data-aion-pilot-role="finance"] .aion-finance-scenario>header,
+      html body [data-aion-pilot-role="finance"] .aion-finance-reconciliation>header,
+      html body [data-aion-pilot-role="finance"] .aion-finance-conversation>header{
+        border-color:var(--fin-line) !important;color:var(--fin-teal) !important;
+      }
+      html body [data-aion-pilot-role="finance"] .aion-finance-director-kpis article,
+      html body [data-aion-pilot-role="finance"] .aion-finance-management-kpis article,
+      html body [data-aion-pilot-role="finance"] .aion-finance-scenario-latest>span,
+      html body [data-aion-pilot-role="finance"] .aion-finance-signal,
+      html body [data-aion-pilot-role="finance"] .aion-finance-director-proposal,
+      html body [data-aion-pilot-role="finance"] .aion-finance-transaction-match,
+      html body [data-aion-pilot-role="finance"] .aion-finance-counterparty-suggestion,
+      html body [data-aion-pilot-role="finance"] .aion-finance-conversation-turn{
+        background:var(--fin-soft) !important;color:var(--fin-ink) !important;border-color:var(--fin-line) !important;
+      }
+      .aion-finance-statement-package{margin:18px 0;border:2px solid #f59e0b;background:#fff;color:var(--fin-ink)}
+      .aion-finance-statement-package>header{display:flex;justify-content:space-between;gap:20px;padding:18px 20px;border-bottom:1px solid var(--fin-line)}
+      .aion-finance-statement-package>header small{color:var(--fin-teal) !important;font-weight:900;letter-spacing:.22em}
+      .aion-finance-statement-package>header h3{margin:6px 0 4px;font-family:Inter,system-ui,sans-serif}
+      .aion-finance-statement-package>header p{margin:0}.aion-finance-statement-package>header>span{color:#0369a1;font-weight:900}
+      .aion-finance-statement-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;padding:16px;background:var(--fin-soft)}
+      .aion-finance-statement-tabs>section{background:#fff;border:1px solid var(--fin-line);padding:15px}
+      .aion-finance-statement-tabs h4{display:flex;justify-content:space-between;margin:0 0 12px;padding-bottom:9px;border-bottom:2px solid var(--fin-teal);text-transform:uppercase;letter-spacing:.08em}
+      .aion-finance-statement-tabs h4 em{color:#0369a1;font-size:10px;font-style:normal}
+      .aion-finance-statement-tabs>section>div:not(.aion-finance-statement-grid){display:grid;grid-template-columns:1fr auto;gap:3px 12px;padding:7px 0;border-bottom:1px solid #e1eaf0}
+      .aion-finance-statement-tabs>section>div>em{grid-column:1/-1;color:#64748b;font-size:9px;font-style:normal}
+      .aion-finance-statement-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+      .aion-finance-statement-grid article{background:var(--fin-soft);border:1px solid var(--fin-line);padding:10px}
+      .aion-finance-statement-grid small,.aion-finance-statement-grid strong{display:block}.aion-finance-statement-grid strong{margin-top:5px}
+      .aion-finance-statement-package details{margin-top:12px;color:#b45309}.aion-finance-statement-package footer{display:grid;gap:5px;padding:12px 16px;border-top:1px solid #f5c16c;background:#fffbeb;color:#92400e;font-size:11px}
+      @media(max-width:1100px){.aion-finance-statement-tabs{grid-template-columns:1fr}.aion-finance-statement-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
     `;
     global.document.head.appendChild(style);
     const observer = new MutationObserver(scheduleVisibleQueueRefresh);
@@ -1075,7 +1228,7 @@
     global.setTimeout?.(scheduleVisibleQueueRefresh, 700);
     global.setInterval?.(() => {
       if (global.document.querySelector('[data-aion-shared-pilot-terminal="true"]')) refreshVisibleQueue();
-    }, 5000);
+    }, 60000);
     refreshProfiles();
   }
 })(window);

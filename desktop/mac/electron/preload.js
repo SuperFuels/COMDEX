@@ -31,6 +31,14 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("aion-open-external-url", url);
   },
 
+  async chooseLocalVideo() {
+    return await ipcRenderer.invoke("aion-choose-local-video");
+  },
+
+  async chooseLocalMedia(payload = {}) {
+    return await ipcRenderer.invoke("aion-choose-local-media", payload);
+  },
+
   async playLocalVoice(payload = {}) {
     return await ipcRenderer.invoke("aion-play-local-voice", payload);
   },

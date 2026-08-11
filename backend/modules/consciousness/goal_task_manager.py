@@ -118,14 +118,10 @@ class GoalTaskManager:
     # ------------------------------------------------------------
     def prioritize_goals(self):
         """
-        Adjust goal priorities based on personality and recent resonance context.
+        Prioritize authorized goals using deadlines, dependencies, verified
+        outcomes and capability gaps. Personality and resonance cannot create
+        or materially reorder objectives.
         """
-        try:
-            traits = self.personality.get_profile() or {}
-        except Exception as e:
-            log.warning(f"[GoalTaskManager] personality profile unavailable: {e}")
-            traits = {}
-
         try:
             goals = self.goal_engine.get_all_goals() or []
         except Exception as e:
@@ -136,26 +132,23 @@ class GoalTaskManager:
             base_priority = _safe_float(goal.get("priority", 1.0), 1.0)
             name = str(goal.get("name", "")).strip().lower()
 
-            # ✴️ Personality influence
-            base_priority += 0.5 * _safe_float(traits.get("ambition", 0.0), 0.0)
-
-            if _safe_float(traits.get("curiosity", 0.0), 0.0) > 0.6 and "learn" in name:
+            if goal.get("owner_authorized") or goal.get("approval_policy") in {
+                "autonomous_allowed", "human_approved"
+            }:
                 base_priority += 1.0
-
-            if _safe_float(traits.get("discipline", 0.5), 0.5) < 0.4:
-                base_priority -= 0.5
-
-            # 🔄 Resonance memory influence
-            try:
-                mem = self.rmc.lookup(name)
-            except Exception as e:
-                log.debug(f"[GoalTaskManager] RMC lookup failed for {name}: {e}")
-                mem = None
-
-            if isinstance(mem, dict) and "stability" in mem:
-                base_priority += 0.3 * _safe_float(mem.get("stability", 0.0), 0.0)
+            if goal.get("deadline") or goal.get("next_outcome_due"):
+                base_priority += 0.6
+            if goal.get("blocks_other_goals"):
+                base_priority += 0.5
+            if goal.get("capability_gap"):
+                base_priority += 0.35
+            if goal.get("status") in {"blocked", "waiting_authority"}:
+                base_priority -= 0.75
+            if goal.get("verified_progress") is False:
+                base_priority -= 0.25
 
             goal["priority"] = max(0.1, round(base_priority, 2))
+            goal["priority_authority"] = "goal_contract_and_verified_outcomes"
 
         return sorted(goals, key=lambda g: _safe_float(g.get("priority", 0.0), 0.0), reverse=True)
 

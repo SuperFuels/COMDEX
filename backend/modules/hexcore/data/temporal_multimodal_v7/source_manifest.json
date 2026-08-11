@@ -1,0 +1,91 @@
+{
+  "schema_version": "aion.hexcore.temporal_multimodal_sources.v1",
+  "authority_class": "independently_maintained_public_temporal_scientific_sources",
+  "video_sources": [
+    {
+      "case_id": "earth_rotation_and_atmosphere",
+      "local_video": "nasa_earth_rotation.mp4",
+      "video_sha256": "eb7bda26cd5cc64dfa55b6874e3ad3dc447c981274853c51ac6457e473c09e65",
+      "frames_directory": "nasa_earth_rotation_frames",
+      "frame_sha256": [
+        "a9e1d62cf813593192e7f1b4e139c7eb5e06ca24265451319156f2b03f9d5994",
+        "574216c93b21e294ce0d4c18720b3bf96477a9d2ef85fde7bb7ab17d0ff2e7d8",
+        "f9b2bf572f41e983c0744730f3a027c861355dd7d34841a43a927b4ef51668b3",
+        "de7da60abfc7b35405fefba0df3bcfed53d30892c0fd992fe1097b8a8196151a",
+        "19b646cccd57afb9c37733328b5ef014c8d4e54b9109a5c448ea8f3eb682821f",
+        "25110386e7f11d4c92f377540c672448bea700f2e50b05133e76ea76d681422e"
+      ],
+      "source_page": "https://science.nasa.gov/photojournal/earth-south-america-first-frame-of-earth-spin-movie/",
+      "asset_url": "https://assets.science.nasa.gov/content/dam/science/psd/photojournal/pia/pia00/pia00114/PIA00114.mp4",
+      "source_authority": "NASA/JPL",
+      "official_claims": {
+        "duration_hours_represented": 25,
+        "frames_in_original_time_lapse": 500,
+        "temporal_process": "Earth rotation and atmospheric dynamics",
+        "visible_region": "South America with Antarctica below and weather fronts in the South Atlantic"
+      },
+      "temporal_expectations": [
+        ["earth", "globe", "planet"],
+        ["cloud", "atmosphere", "weather"],
+        ["change", "evol", "movement", "dynamic"],
+        ["continue", "next", "persist", "further"]
+      ],
+      "identity_terms_to_quarantine": ["Galileo", "South America", "Antarctica", "25-hour", "500-frame"]
+    },
+    {
+      "case_id": "polar_vortex_dynamics",
+      "local_video": "nasa_saturn_hurricane.mp4",
+      "video_sha256": "af5acd85697c49d22a8a44d2491fc6bef1ca1e5f416afe32a07576ac6bb1fb49",
+      "frames_directory": "nasa_saturn_hurricane_frames",
+      "frame_sha256": [
+        "479845ed80def7804d35ab1d8d0529c393a45b37cd961d05700489802fa328ce",
+        "8691254369662c2cac1d95bb5dabeb7970c40571a7b27907cea559b5a8e9c330",
+        "9a8fc6593904539a961397ce03a180d562ce1b87a89b453243a1b07399702272",
+        "00d17a88bf27582c61302a6b76ff1883c255a99a11945cce115011ef40e69a5f",
+        "5f2164f83f9609834013ec821877a04035644ecbd2e65bfc355efdc06a0a28de",
+        "4aa9add34217c2af77ff372d3bcff051d9763dc94b7924b6aa951e07a3be18b9"
+      ],
+      "source_page": "https://science.nasa.gov/photojournal/saturn-hurricane-movie/",
+      "asset_url": "https://assets.science.nasa.gov/content/dam/science/psd/photojournal/pia/pia14/pia14947/PIA14947-320.mp4",
+      "source_authority": "NASA/JPL-Caltech/SSI/Hampton",
+      "official_claims": {
+        "observation_hours": 5,
+        "interpolated_movie_steps": 200,
+        "temporal_process": "clouds circulate around a persistent polar hurricane-like vortex",
+        "reported_inner_wind_m_per_s": 150,
+        "reported_rotation_direction": "counterclockwise"
+      },
+      "temporal_expectations": [
+        ["vortex", "spiral", "swirl", "storm"],
+        ["cloud", "band"],
+        ["rotat", "circulat", "movement", "motion"],
+        ["continue", "persist", "maintain", "next"]
+      ],
+      "identity_terms_to_quarantine": ["Saturn", "Cassini", "north pole", "340 mph", "150 meters per second"]
+    }
+  ],
+  "audio_source": {
+    "case_id": "seismic_signature_stream",
+    "local_audio": "usgs_seismic_audio_8khz.wav",
+    "audio_sha256": "4b4455a0f2672c5176fe3233694ba581407540f2fa863cb7043c539461254b98",
+    "local_spectrogram": "usgs_seismic_spectrogram.png",
+    "spectrogram_sha256": "15e9e216ba6accd27a212667953380c67c9df709115ad67b7630f2708494f066",
+    "source_page": "https://www.usgs.gov/media/videos/listen-earthquakes",
+    "asset_url": "https://usgs-ocapsv2-public-input-media.s3.us-west-2.amazonaws.com/assets/palladium/production/s3fs-public/EQ_Listen_Final.mp4",
+    "source_authority": "U.S. Geological Survey",
+    "official_claims": {
+      "duration_seconds": 196,
+      "signal_origin": "accelerated seismometer ground-motion recordings",
+      "distinct_event_basis": "frequency and amplitude signatures",
+      "event_families": 4
+    },
+    "spectral_expectations": [
+      ["broadband", "frequency"],
+      ["intermittent", "event", "region", "feature"],
+      ["time", "temporal"],
+      ["intensity", "amplitude", "energy"]
+    ],
+    "identity_terms_to_quarantine": ["Nisqually", "Mount Rainier", "Mount St. Helens", "Redoubt"]
+  },
+  "claim_boundary": "Video frames and a spectrogram are proposal inputs. Official NASA/USGS descriptions are revealed only after proposal commitment. The audio pathway is signal/spectrogram grounding, not native waveform listening by the proposal model."
+}

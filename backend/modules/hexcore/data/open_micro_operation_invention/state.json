@@ -1,0 +1,108 @@
+{
+  "compiler_registry_path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/recursive_action_runtime/micro_op_registry.json",
+  "created_at": "2026-08-01T23:49:16.651935+00:00",
+  "episodes": [
+    {
+      "absolute_error": 0.0,
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "value",
+          "passed": true,
+          "row_count": 66,
+          "time_field": "date"
+        },
+        "response_sha256": "f9e1b2101de1eba90831dde5081749d8669250ca66154ef978826ddd3bf5473c"
+      },
+      "execution": {
+        "passed": true,
+        "stdout_sha256": "8957a13beb18775cb2d539d07afdfb66b5bdb9a4b4e5e292238ec37ba7839652",
+        "value": 59858508067.0227
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:54:50.779573+00:00",
+        "not_before_epoch": 1785628455.634869,
+        "outcome_sha256": "98550a513b30c24aa5e003595e640d23762dc5853d02a4af539beb45607ef36a",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the GDP time series",
+      "name": "World Bank GDP",
+      "oracle": 59858508067.0227,
+      "role": "development",
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?format=json&per_page=100",
+      "values": 66
+    },
+    {
+      "absolute_error": 0.0,
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "GDP",
+          "passed": true,
+          "row_count": 318,
+          "time_field": "observation_date"
+        },
+        "response_sha256": "cb0d9d0ffa4f83eeb53bcc04eaeca9cede6d266c550ec14bd8e825f0f88f8160"
+      },
+      "execution": {
+        "passed": true,
+        "stdout_sha256": "539b1604f41cf447013307a31cbad4b5053d88e751640d3b686e16e4a12829fe",
+        "value": 78.19164285714285
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:54:51.068101+00:00",
+        "not_before_epoch": 1785628455.78606,
+        "outcome_sha256": "54545a9bc6344e89d4246cd011a196ad473dce0b5e6428ded8a6058735503e67",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the GDP time series",
+      "name": "FRED GDP",
+      "oracle": 78.19164285714285,
+      "role": "transfer",
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP",
+      "values": 318
+    },
+    {
+      "absolute_error": 0.0,
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "TEMP",
+          "passed": true,
+          "row_count": 236,
+          "time_field": "DATE"
+        },
+        "response_sha256": "f468be743db41fb15189b75be817cca33ece3d12271f81f09287dd4f3f6fa412"
+      },
+      "execution": {
+        "passed": true,
+        "stdout_sha256": "768f1a67e08165bcef27a055056b8b287265cd888fbe978090035d2e503875db",
+        "value": 0.15701754385964908
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-01T23:54:52.081187+00:00",
+        "not_before_epoch": 1785628456.651787,
+        "outcome_sha256": "75cd43ca40e958503f38c2c0486f5da12da17322f9d9d24ce1ce866c6ebfc787",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "mission": "extract the daily temperature time series",
+      "name": "NOAA temperature",
+      "oracle": 0.15701754385964908,
+      "role": "transfer",
+      "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2025/03772099999.csv",
+      "values": 236
+    }
+  ],
+  "schema_version": "aion.hexcore.open_micro_operation_state.v1",
+  "source": "def run(values):\n    if len(values) < 3:\n        return None\n    slopes = []\n    for i in range(len(values)):\n        for j in range(i+1, len(values)):\n            slopes.append((values[j]-values[i])/(j-i))\n    slopes = sorted(slopes)\n    n = len(slopes)\n    if n % 2 == 1:\n        return slopes[n//2]\n    return (slopes[n//2-1]+slopes[n//2])/2\n",
+  "source_sha256": "78efd13d0873be5aff46cf008afbb5728390d1478265a7cb58d47134a775cda3"
+}

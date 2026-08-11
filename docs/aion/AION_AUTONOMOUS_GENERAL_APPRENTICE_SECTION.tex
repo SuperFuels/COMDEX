@@ -1,0 +1,289 @@
+% ============================================================================
+% AION Autonomous General Apprentice Kernel
+% Compile-ready section. Requires: amsmath, amssymb, booktabs, tabularx, array, url.
+% ============================================================================
+
+\section{The Autonomous General Apprentice Kernel}
+\label{sec:aion-autonomous-general-apprentice}
+
+The AION development programme previously accumulated capability through a
+sequence of internally defined phases.  Although those phases established
+persistent cognition, causal learning, tool invention, outcome reflection,
+private self-repair, and transfer, phase completion was not itself a mechanism
+for producing increasingly general competence.  The Autonomous General
+Apprentice Kernel replaces that phase-count trajectory with one persistent,
+evidence-driven programme.
+
+The internally promoted and retained procedure is shown below.
+\begin{center}
+\small\path{procedure_autonomous_general_apprentice_kernel_v1}
+\end{center}
+Its immutable owner mission is:
+
+\begin{quote}
+Become an autonomous general apprentice that can learn unfamiliar subjects,
+act against real outcome authorities, transfer methods across domains, invent
+missing representations and tools, retain competence, and compound
+improvement.
+\end{quote}
+
+The resulting operating chain is
+\begin{equation}
+\begin{aligned}
+\text{broad immutable mission}
+&\rightarrow \text{verified-experience reconstruction}
+\rightarrow \text{evidence-gap measurement} \\
+&\rightarrow \text{weakest executable gap}
+\rightarrow \text{specialist-contract invention} \\
+&\rightarrow \text{precommitted prediction or action}
+\rightarrow \text{later independent consequence} \\
+&\rightarrow \text{diagnosis}
+\rightarrow \text{cross-domain method transfer}
+\rightarrow \text{retention} \\
+&\rightarrow \text{next autonomous curriculum task}.
+\end{aligned}
+\label{eq:general-apprentice-loop}
+\end{equation}
+
+The kernel contains no fixed list of subjects, benchmark questions, expected
+answers, or task identifiers.  Its fixed structure is limited to the
+owner-approved definition of the evidence required for increasingly general
+apprenticeship.  New tasks must be derived from evidence deficiencies and
+available outcome authorities rather than selected from a development-authored
+subject menu.
+
+\subsection{General-Apprenticeship Evidence Model}
+\label{subsec:general-apprentice-evidence-model}
+
+The kernel tracks ten long-term evidence gates:
+\begin{enumerate}
+    \item open-ended learning;
+    \item cross-domain transfer;
+    \item learning from independently revealed consequences;
+    \item autonomous curriculum construction;
+    \item representation and tool invention;
+    \item long-term continual learning without serious forgetting;
+    \item general natural-language cognition;
+    \item real planning and sustained agency;
+    \item physical and social grounding; and
+    \item compounding self-improvement.
+\end{enumerate}
+These gates specify evidence requirements, not curricula.  For gate $g$, let
+$A_g$ be the set of supporting committed artifacts and $F_g$ the set of
+distinct capability families represented by those artifacts.  The internal
+support statistic is
+\begin{equation}
+S_g = 0.65\min\!\left(1,\frac{|F_g|}{4}\right)
+      +0.35\min\!\left(1,\frac{|A_g|}{12}\right).
+\label{eq:internal-apprentice-support}
+\end{equation}
+This statistic ranks internal evidence gaps only.  It is not an AGI score and
+cannot mark a gate externally complete.
+
+The next curriculum target is selected from the least-supported gate:
+\begin{equation}
+g^{\star}=\arg\min_{g\in\mathcal{G}}
+\left(S_g,\,|A_g|,\,\operatorname{name}(g)\right).
+\label{eq:weakest-apprentice-gate}
+\end{equation}
+The lexical term provides deterministic tie-breaking and has no effect on the
+evidence score.
+
+\subsection{Verified Experience Reconstruction and Anti-Circularity}
+\label{subsec:apprentice-experience-index}
+
+At every evidence refresh, AION reconstructs a manifest over the complete
+HexCore result store.  Every artifact is SHA-256 committed and assigned one of
+four epistemic roles: verified positive, verified negative, protocol-only, or
+unresolved.  Positive artifacts may support retrieval and proposal formation;
+negative artifacts remain available for criticism, abstention, and
+calibration; protocol artifacts cannot become training truth.
+
+The first Autonomous General Apprentice run reconstructed the evidence shown in
+Table~\ref{tab:general-apprentice-corpus}.
+
+\begin{table}[htbp]
+\centering
+\caption{Verified-experience reconstruction for the first apprentice run.}
+\label{tab:general-apprentice-corpus}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+SHA-256 committed artifacts indexed & 141 \\
+Eligible prior verified positives & 107 \\
+Preserved verified failures & 21 \\
+Capability families represented & 7 \\
+General-apprenticeship gates tracked & 10 \\
+Cross-family method cards & 3 \\
+Active procedure artifacts excluded from its evidence & 1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The active procedure is explicitly excluded from its own evidence index:
+\begin{equation}
+\mathcal{A}^{\mathrm{eligible}}
+=\left\{a\in\mathcal{A}:a.\mathrm{procedure\_id}
+\neq \mathrm{procedure\_id}_{\mathrm{active}}\right\}.
+\label{eq:self-evidence-exclusion}
+\end{equation}
+This prevents a previously written promotion artifact from recursively
+strengthening the evidence used to justify the same procedure.
+
+\subsection{Cross-Domain Method Cards}
+\label{subsec:apprentice-method-cards}
+
+For every CAU-promoted outcome, the kernel extracts the procedure's verified
+method steps, removes purely syntactic connective terms, and binds the resulting
+method signature to its artifact, procedure, and capability family.  A method
+$m$ becomes a transfer candidate only when
+\begin{equation}
+\left|\left\{f:\,m\text{ occurs in a verified artifact from family }f\right\}\right|
+\geq 2.
+\label{eq:method-transfer-card}
+\end{equation}
+This stores a method and its provenance rather than treating one domain's
+answer as a universal rule.
+
+Three cross-family method cards were recovered in the first run.  The strongest
+method available to the initial curriculum task was experiment selection by
+expected information gain per unit cost.  That method had independently
+survived schema-revision and tool/program-induction outcomes before being
+proposed for public change monitoring.
+
+\subsection{Menu-Free Curriculum and Specialist Invention}
+\label{subsec:menu-free-apprentice-curriculum}
+
+After selecting $g^{\star}$, the kernel chooses an unused authority permitted
+by the immutable mission.  Authorities are discovered from executable tools,
+delayed public-outcome ledgers, and retained evidence stores.  For authority
+$a$, a task contract contains
+\begin{equation}
+T=(I,O,A,P,X,R),
+\end{equation}
+where $I$ and $O$ are invented inputs and outputs, $A$ is the outcome authority,
+$P$ is the precommitment, $X$ is the source-disjoint transfer requirement, and
+$R$ is the restart-retention requirement.
+
+If no permitted authority can test the selected gap, the kernel emits
+\path{invent_or_acquire_outcome_authority}.  It does not substitute an internal
+score.  Every generated contract requires:
+\begin{itemize}
+    \item a later independently verified consequence;
+    \item positive transfer to a different capability family;
+    \item protected backward retention;
+    \item zero unsafe actions; and
+    \item zero mutation of the terminal owner objective.
+\end{itemize}
+
+The first curriculum task contained no human-supplied task fields and ten
+derived fields.  The kernel selected autonomous curriculum as the weakest
+current evidence gate and selected the live Arena~v15 public-outcome ledger as
+its authority.
+
+\subsection{Precommitment to a Delayed Public Consequence}
+\label{subsec:apprentice-delayed-public-outcome}
+
+The first task observed five completed Arena~v15 cycles and predicted which
+sources would change in the next cycle.  The prediction method used recent
+change persistence with historical frequency as a fallback.  Before a new
+outcome existed, AION committed
+\begin{equation}
+C=\operatorname{SHA256}
+\left(\mathrm{task\_id},\,5,\,
+\{\text{node},\text{open\_meteo\_madrid}\}\right),
+\end{equation}
+where
+\begin{center}
+\path{C = b0f0195ea5b552311aa63f667e56d71c3cd7b46cb3419349f6f40d3250f29f18}.
+\end{center}
+
+Let $c=5$ be the committed ledger cursor and $L$ the current ledger.  An outcome
+is eligible only when
+\begin{equation}
+|L|>c,
+\end{equation}
+and the service binds exactly the first row $L_{c+1}$.  Rows $L_1,\ldots,L_c$
+cannot be reused after the prediction is known.  For predicted change set $P$
+and observed set $O$, the consequence score is the Jaccard agreement
+\begin{equation}
+J(P,O)=
+\begin{cases}
+\dfrac{|P\cap O|}{|P\cup O|}, & P\cup O\neq\varnothing,\\[6pt]
+1, & P\cup O=\varnothing.
+\end{cases}
+\label{eq:apprentice-delayed-score}
+\end{equation}
+The outcome is accepted only if the public ledger also records safe execution
+and a successful transaction.  Tests verify that all precommitment rows are
+rejected and that the later row preserves its independent outcome hash.
+
+\subsection{Persistent Runtime Integration}
+\label{subsec:general-apprentice-runtime-integration}
+
+The persistent service runs beside the canonical cognitive runtime and the
+real-outcome learner:
+\begin{center}
+\small\path{backend/AION/system/aion_general_apprentice_service.py}
+\end{center}
+It periodically:
+\begin{enumerate}
+    \item rebuilds the verified-experience index;
+    \item preserves the terminal mission hash;
+    \item checks for a postcommitment consequence;
+    \item binds and scores an eligible outcome;
+    \item closes the current learning generation; and
+    \item constructs the next weakest-gap curriculum task.
+\end{enumerate}
+The service is registered with AION Heartbeat for supervised startup and
+restart.  Runtime state preserves the mission, evidence revision, method cards,
+curriculum history, outcome receipts, and generation summaries.
+
+\subsection{Promotion Results}
+\label{subsec:general-apprentice-results}
+
+\begin{table}[htbp]
+\centering
+\caption{Autonomous General Apprentice control-plane results.}
+\label{tab:general-apprentice-results}
+\begin{tabular}{@{}lr@{}}
+\toprule
+Measure & Result \\
+\midrule
+Curriculum generated without subject/task menu & Passed \\
+Human-supplied fields in generated task & 0 \\
+Automatically derived task fields & 10 \\
+Terminal owner objective immutable & Passed \\
+Missing-authority behaviour & Fail closed \\
+Restart retention & Passed \\
+Self-evidence exclusion & Passed \\
+Unsafe actions & 0 \\
+Objective mutations & 0 \\
+Focused integrated regression tests & 19/19 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The first execution promoted the apprentice kernel.  Subsequent identical
+executions correctly returned \path{NO_CHAMPION_IMPROVEMENT} while retaining
+\path{procedure_autonomous_general_apprentice_kernel_v1} as champion.  An
+idempotent rerun therefore cannot create a duplicate promotion.
+
+\subsection{Authority and Claim Boundary}
+\label{subsec:general-apprentice-claim-boundary}
+
+The promoted result establishes the persistent control plane, not completion of
+the ten long-term competence gates.  The retained corpus remains predominantly
+internal and development-authored.  The first live curriculum prediction is
+committed but awaits a strictly later public consequence.  Hundreds or
+thousands of unfamiliar tasks, multi-month retention, broad social grounding,
+and sustained positive compounding have not yet been demonstrated.
+
+Accordingly, this result supports the claim that AION now possesses a running
+mechanism for evidence-driven general apprenticeship.  It does not support a
+claim that AION is already an autonomous general apprentice, a generally
+capable self-improving system, or AGI.  Future progress must be measured by
+declining human scaffolding, positive transfer to qualitatively different
+domains, lower investigation cost, preserved prior competence, and successful
+outcomes under authorities AION does not control.

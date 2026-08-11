@@ -1,0 +1,955 @@
+{
+  "active_cycle": null,
+  "authorized_missions": {
+    "mission_open_tool_acquisition_v1": {
+      "action_budget": 15,
+      "actions_used": 9,
+      "allowed_authorities": [
+        "sealed_tool_semantic_authority"
+      ],
+      "approval_policy": "autonomous_allowed",
+      "authorized_at": "2026-07-31T21:50:10.410415+00:00",
+      "capability_requirements": [
+        {
+          "capability": "open_execution_adapter_acquisition",
+          "dependencies": [],
+          "minimum_authorities": 1,
+          "minimum_transfer_outcomes": 5,
+          "minimum_verified_outcomes": 9,
+          "target_score": 1.0,
+          "tasks": [
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "development",
+              "task_id": "ndjson_dev.opaque"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "development",
+              "task_id": "toml_dev.opaque"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "development",
+              "task_id": "ical_dev.opaque"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "development",
+              "task_id": "svg_dev.opaque"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "transfer",
+              "task_id": "ndjson_transfer.renamed"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "transfer",
+              "task_id": "toml_transfer.renamed"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "transfer",
+              "task_id": "ical_transfer.renamed"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "transfer",
+              "task_id": "svg_transfer.renamed"
+            },
+            {
+              "authority": "sealed_tool_semantic_authority",
+              "cohort": "transfer",
+              "task_id": "json_drift.renamed"
+            }
+          ]
+        }
+      ],
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "objective": "Acquire missing execution capabilities from unfamiliar interfaces, falsify unsafe or incorrect adapters, repair drift and retain transferable tools.",
+      "objective_hash": "73cb04ac0ea070457231043a2803d1515eceefbbb4ae47d968d0dd33269a1898",
+      "priority": 9.0,
+      "status": "capability_complete"
+    }
+  },
+  "capability_map": {
+    "mission_open_tool_acquisition_v1:open_execution_adapter_acquisition": {
+      "attempts": 9,
+      "authorities": [
+        "sealed_tool_semantic_authority"
+      ],
+      "capability": "open_execution_adapter_acquisition",
+      "lower_confidence_bound": 0.7008472464490406,
+      "mastered": true,
+      "mean_score": 1.0,
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "outcome_ids": [
+        "ndjson_dev.opaque",
+        "toml_dev.opaque",
+        "ical_dev.opaque",
+        "svg_dev.opaque",
+        "ndjson_transfer.renamed",
+        "toml_transfer.renamed",
+        "ical_transfer.renamed",
+        "svg_transfer.renamed",
+        "json_drift.renamed"
+      ],
+      "transfer_successes": 5,
+      "verified_successes": 9
+    }
+  },
+  "completed_cycles": [
+    {
+      "completed_at": "2026-07-31T21:50:10.443884+00:00",
+      "cycle_id": "cycle_12ddee37cc6e4c4b",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_dev.opaque",
+      "mastery_receipt_id": "receipt_35b6db9cb1206aa5",
+      "promotion": {
+        "champion_id": "procedure_adapter_eea0bcfb9251",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_eea0bcfb9251",
+          "state_hash": "2019961d54536f3a9be85b2eae129d7cb5c13a448e65590252d63675a59ca946"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.476622+00:00",
+      "cycle_id": "cycle_6d4fd0105b8247d8",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_dev.opaque",
+      "mastery_receipt_id": "receipt_2805b24a68189092",
+      "promotion": {
+        "champion_id": "procedure_adapter_f0801d31472a",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_f0801d31472a",
+          "state_hash": "e85b986259e2b4ad44f8b7b9e9f97f8bcc26dd9b4d67bd6f86a1f9c8c93312c5"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.510213+00:00",
+      "cycle_id": "cycle_040ce1606c254c76",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_dev.opaque",
+      "mastery_receipt_id": "receipt_4fd28ed4bc5c5e6a",
+      "promotion": {
+        "champion_id": "procedure_adapter_5c1d0845b8c7",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_5c1d0845b8c7",
+          "state_hash": "c957dd7c8968f6b5e520f13d1e7245addbe4be80b1cc0df53524868a50877820"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.541012+00:00",
+      "cycle_id": "cycle_1185c2f4fba84a2c",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_dev.opaque",
+      "mastery_receipt_id": "receipt_ad5d8a71b563b0b3",
+      "promotion": {
+        "champion_id": "procedure_adapter_232b357c5bce",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_232b357c5bce",
+          "state_hash": "ddc52b8385caed68ad933b280c018c2600a5726f0ac3b6d9d48c8ce49424d25b"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.573836+00:00",
+      "cycle_id": "cycle_489426e7a1044b48",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_transfer.renamed",
+      "mastery_receipt_id": "receipt_ca31d28b5ba6c1cb",
+      "promotion": {
+        "champion_id": "procedure_adapter_cf7cdaccc3e3",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_cf7cdaccc3e3",
+          "state_hash": "5d60200ef09c242d888b785bb663dba8102ef1f74e5fe2bdfcb9d6e5db7cee54"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.608116+00:00",
+      "cycle_id": "cycle_fabe6def19524594",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_transfer.renamed",
+      "mastery_receipt_id": "receipt_88801756bddf59b6",
+      "promotion": {
+        "champion_id": "procedure_adapter_c401af933817",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_c401af933817",
+          "state_hash": "57260421d0489ce597aa136a893c994d07225fe3b3e7f95590377da8283bc42b"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.642253+00:00",
+      "cycle_id": "cycle_34b65d5d9e4e4c03",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_transfer.renamed",
+      "mastery_receipt_id": "receipt_5ca11bc12e03d6da",
+      "promotion": {
+        "champion_id": "procedure_adapter_44f7b4d57fd6",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_44f7b4d57fd6",
+          "state_hash": "ad79d8c1f15be9fd57c14a03a5c9debae1fd77be0ef6f8ad8c73efc5369dfa2e"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.678045+00:00",
+      "cycle_id": "cycle_1c57bdede2104048",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_transfer.renamed",
+      "mastery_receipt_id": "receipt_18015bfe3d3e2309",
+      "promotion": {
+        "champion_id": "procedure_adapter_f3e8a50081fc",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_f3e8a50081fc",
+          "state_hash": "846002d4f1b4f704faf1d1e3b580bfc9a9c6d912d9b371338684f50e5bbd773d"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    },
+    {
+      "completed_at": "2026-07-31T21:50:10.714004+00:00",
+      "cycle_id": "cycle_343bab29aa03403e",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:json_drift.renamed",
+      "mastery_receipt_id": "receipt_1a6b1177b1160aa9",
+      "promotion": {
+        "champion_id": "procedure_adapter_2ee4faa846b8",
+        "commit": {
+          "authority": {
+            "H": 0.0,
+            "S": 1.0,
+            "allow_learn": true,
+            "deny_reason": null,
+            "goal": "maintain_coherence",
+            "source": "open_tool_acquisition_cau"
+          },
+          "reason": "procedure_promotion:procedure_adapter_2ee4faa846b8",
+          "state_hash": "e7002f0fd436d630393ff518dea3edf1e4d300b7e58bbcfdacbaa41ab3f87e38"
+        },
+        "promoted": true,
+        "reason": "VERIFIED_CHALLENGER_IMPROVEMENT"
+      },
+      "score": 1.0,
+      "status": "completed",
+      "verified": true
+    }
+  ],
+  "created_at": "2026-07-31T21:50:10.409991+00:00",
+  "curriculum_history": [
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_dev.opaque",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.0,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "ndjson_dev.opaque",
+      "timestamp": "2026-07-31T21:50:10.411895+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_dev.opaque",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.20654329147389294,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "toml_dev.opaque",
+      "timestamp": "2026-07-31T21:50:10.445458+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_dev.opaque",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.3423719528896193,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "ical_dev.opaque",
+      "timestamp": "2026-07-31T21:50:10.478647+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_dev.opaque",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.4384939195509822,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "svg_dev.opaque",
+      "timestamp": "2026-07-31T21:50:10.512312+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_transfer.renamed",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.5100999795960008,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "ndjson_transfer.renamed",
+      "timestamp": "2026-07-31T21:50:10.543144+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_transfer.renamed",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.565508505247919,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "toml_transfer.renamed",
+      "timestamp": "2026-07-31T21:50:10.576238+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_transfer.renamed",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6096569663469354,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "ical_transfer.renamed",
+      "timestamp": "2026-07-31T21:50:10.610597+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_transfer.renamed",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6456611570247934,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "svg_transfer.renamed",
+      "timestamp": "2026-07-31T21:50:10.644959+00:00"
+    },
+    {
+      "capability": "open_execution_adapter_acquisition",
+      "goal_id": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:json_drift.renamed",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "reason": {
+        "dependencies": [],
+        "lower_confidence_bound": 0.6755843804891231,
+        "reason": "lowest_confidence_unmet_capability"
+      },
+      "task_id": "json_drift.renamed",
+      "timestamp": "2026-07-31T21:50:10.680826+00:00"
+    }
+  ],
+  "failure_queues": {},
+  "goal_runtime": {},
+  "last_error": null,
+  "last_event": "mission_capability_complete:mission_open_tool_acquisition_v1",
+  "last_heartbeat_at": "2026-07-31T21:50:10.714001+00:00",
+  "mission_goals": [],
+  "next_wake_at": 1785534610.764036,
+  "outcome_receipts": [
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "development",
+      "cycle_id": "cycle_12ddee37cc6e4c4b",
+      "evidence_hash": "a7b9455e61db947a7b2dcea52b01565664aefe1ad899f4de127584fc97db5e3f",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_35b6db9cb1206aa5",
+      "received_at": "2026-07-31T21:50:10.443914+00:00",
+      "score": 1.0,
+      "task_id": "ndjson_dev.opaque",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "development",
+      "cycle_id": "cycle_6d4fd0105b8247d8",
+      "evidence_hash": "fe6ce36e8f2aff10651fc5ed9c010e99d63c4792c8e9cc9603ad0d7d85c522ae",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_2805b24a68189092",
+      "received_at": "2026-07-31T21:50:10.476647+00:00",
+      "score": 1.0,
+      "task_id": "toml_dev.opaque",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "development",
+      "cycle_id": "cycle_040ce1606c254c76",
+      "evidence_hash": "c3b287489e265b0616a7db5e16af5d117c5f5a2603cf8f5e6332baef4df6fefc",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_4fd28ed4bc5c5e6a",
+      "received_at": "2026-07-31T21:50:10.510239+00:00",
+      "score": 1.0,
+      "task_id": "ical_dev.opaque",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "development",
+      "cycle_id": "cycle_1185c2f4fba84a2c",
+      "evidence_hash": "e577031d3e1447fd8d970d3ac2cf1f2f35084a92a3fd41b2fffb423be6492e71",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_ad5d8a71b563b0b3",
+      "received_at": "2026-07-31T21:50:10.541032+00:00",
+      "score": 1.0,
+      "task_id": "svg_dev.opaque",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "transfer",
+      "cycle_id": "cycle_489426e7a1044b48",
+      "evidence_hash": "d6f8699718b33f426c2c16527edb12d3783cfe09231c11b3193a0d92c30f4086",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_ca31d28b5ba6c1cb",
+      "received_at": "2026-07-31T21:50:10.573856+00:00",
+      "score": 1.0,
+      "task_id": "ndjson_transfer.renamed",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "transfer",
+      "cycle_id": "cycle_fabe6def19524594",
+      "evidence_hash": "7469aac8389a3767db5964c970be682c596436e7594a82a3cd96000cdfdc87c9",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_88801756bddf59b6",
+      "received_at": "2026-07-31T21:50:10.608135+00:00",
+      "score": 1.0,
+      "task_id": "toml_transfer.renamed",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "transfer",
+      "cycle_id": "cycle_34b65d5d9e4e4c03",
+      "evidence_hash": "3daf339b69f28e4c16ac03f0ec9310d91c0b7685cf9ee2fda8834ef49768f4f7",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_5ca11bc12e03d6da",
+      "received_at": "2026-07-31T21:50:10.642272+00:00",
+      "score": 1.0,
+      "task_id": "ical_transfer.renamed",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "transfer",
+      "cycle_id": "cycle_1c57bdede2104048",
+      "evidence_hash": "ee96372bf0727cc44bb4d61231fa31277e9b735827ead0df73efb69c82f06133",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_18015bfe3d3e2309",
+      "received_at": "2026-07-31T21:50:10.678063+00:00",
+      "score": 1.0,
+      "task_id": "svg_transfer.renamed",
+      "verified": true
+    },
+    {
+      "authority": "sealed_tool_semantic_authority",
+      "authority_allowed": true,
+      "capability": "open_execution_adapter_acquisition",
+      "cohort": "transfer",
+      "cycle_id": "cycle_343bab29aa03403e",
+      "evidence_hash": "14360becacc1a1ac8650cc468b45586785e4978f00f90d46fd630b276f7df38c",
+      "mission_id": "mission_open_tool_acquisition_v1",
+      "receipt_id": "receipt_1a6b1177b1160aa9",
+      "received_at": "2026-07-31T21:50:10.714022+00:00",
+      "score": 1.0,
+      "task_id": "json_drift.renamed",
+      "verified": true
+    }
+  ],
+  "pending_outcomes": {},
+  "private_challengers": [
+    {
+      "evidence": {
+        "task_id": "ndjson_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_dev.opaque",
+      "procedure_id": "procedure_adapter_eea0bcfb9251",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "toml_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_dev.opaque",
+      "procedure_id": "procedure_adapter_f0801d31472a",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "ical_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "json_document",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "ical_events",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_dev.opaque",
+      "procedure_id": "procedure_adapter_5c1d0845b8c7",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "svg_dev.opaque",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "json_document",
+            "property_result": {
+              "passed": false,
+              "reason": "JSONDecodeError"
+            }
+          },
+          {
+            "candidate": "ical_events",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "svg_structure",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_dev.opaque",
+      "procedure_id": "procedure_adapter_232b357c5bce",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "ndjson_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ndjson_transfer.renamed",
+      "procedure_id": "procedure_adapter_cf7cdaccc3e3",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "toml_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:toml_transfer.renamed",
+      "procedure_id": "procedure_adapter_c401af933817",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "ical_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "ical_events",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:ical_transfer.renamed",
+      "procedure_id": "procedure_adapter_44f7b4d57fd6",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "svg_transfer.renamed",
+        "trials": [
+          {
+            "candidate": "svg_structure",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:svg_transfer.renamed",
+      "procedure_id": "procedure_adapter_f3e8a50081fc",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    },
+    {
+      "evidence": {
+        "task_id": "json_drift.renamed",
+        "trials": [
+          {
+            "candidate": "plain_text",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "toml_document",
+            "property_result": {
+              "passed": false,
+              "reason": "TOMLDecodeError"
+            }
+          },
+          {
+            "candidate": "json_lines",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": false,
+              "property_count": 3
+            }
+          },
+          {
+            "candidate": "json_document",
+            "property_result": {
+              "counterexample_capable": true,
+              "passed": true,
+              "property_count": 3
+            }
+          }
+        ]
+      },
+      "goal": "learn:mission_open_tool_acquisition_v1:open_execution_adapter_acquisition:json_drift.renamed",
+      "procedure_id": "procedure_adapter_2ee4faa846b8",
+      "score": 1.0,
+      "steps": [
+        "fingerprint_interface",
+        "search_safe_adapter_programs",
+        "invent_properties",
+        "generate_counterexamples",
+        "execute_privately",
+        "retain_or_retire"
+      ],
+      "success": true,
+      "verified": true
+    }
+  ],
+  "revision": 137,
+  "schema_version": "aion.hexcore.canonical_cognitive_runtime.v1",
+  "status": "idle",
+  "updated_at": "2026-07-31T21:50:10.715480+00:00"
+}

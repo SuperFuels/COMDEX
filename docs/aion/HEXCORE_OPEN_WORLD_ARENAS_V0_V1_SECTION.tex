@@ -1,0 +1,351 @@
+% ============================================================================
+% AION HexCore: Open-World Continual Intelligence Arenas v0--v1
+% Standalone section fragment for inclusion in the main AION paper.
+% Requires: amsmath, array.
+% ============================================================================
+
+\section{Open-World Continual Intelligence and Outcome Execution}
+\label{sec:open-world-arenas-v0-v1}
+
+The Open-World Continual Intelligence Arena unified AION's previously separate
+semantic-memory, planning, tool-use, persistence, failure-attribution, and
+governance mechanisms.  The objective was not to add another isolated task
+family, but to test an integrated loop in which AION receives a broad objective,
+invents a project representation, acts on evidence, learns from delayed
+consequences, and retains the improvement across process reconstruction.
+
+Two procedures were promoted:
+\begin{center}
+{\footnotesize\texttt{procedure\_open\_world\_continual\_intelligence\_arena\_v0\_8ea7c13db56f}}
+\end{center}
+and
+\begin{center}
+{\footnotesize\texttt{procedure\_open\_world\_outcome\_execution\_arena\_v1\_5bc6e92f19ae}}.
+\end{center}
+The first established the persistent project and learning control plane.  The
+second converted proposed tool use into independently executed consequences
+and introduced a hard separation between source authority and execution
+authority.
+
+
+\subsection{Arena v0: broad-goal project induction}
+\label{subsec:arena-v0-project-induction}
+
+Each Arena v0 episode supplied only an unfamiliar mixed-format portfolio and a
+broad natural-language objective.  AION was not given an entity list, relation
+schema, success rubric, workflow, subgoal order, or expected answer.  The
+proposal layer was required to construct:
+\begin{itemize}
+  \item an objective interpretation and at least three success criteria;
+  \item a task-specific concept inventory;
+  \item an acyclic dependency graph of subgoals;
+  \item a selective information and tool plan;
+  \item claims linked to exact evidence spans and source hashes;
+  \item unresolved questions, confidence, and a verification plan; and
+  \item a final conclusion or an explicit abstention.
+\end{itemize}
+
+The control-plane sequence was
+\begin{equation}
+\begin{split}
+\text{broad objective and portfolio}
+&\rightarrow \text{criteria, concepts, and subgoal graph} \\
+&\rightarrow \text{evidence-labelled proposal} \\
+&\rightarrow \text{pre-outcome commitment and checkpoint} \\
+&\rightarrow \text{delayed verification and failure attribution} \\
+&\rightarrow \text{private challenger rule} \\
+&\rightarrow \text{source-disjoint retest and CAU decision}.
+\end{split}
+\label{eq:arena-v0-control-plane}
+\end{equation}
+
+Permitted epistemic labels were
+\texttt{source\_supported}, \texttt{reported\_unverified},
+\texttt{inferred}, \texttt{disputed}, and
+\texttt{needs\_investigation}.  Labels such as \texttt{known},
+\texttt{fact}, or \texttt{verified\_truth} could not confer authority.
+An accepted source claim required both a recoverable source identifier and an
+exact quotation present in that source after whitespace normalization.
+
+Failures were assigned to separate perception, knowledge, reasoning, planning,
+tool, execution, and authority queues.  The development cohort exposed
+perception and authority failures caused by unrecoverable evidence.  From those
+outcomes AION retained the generic rule:
+\begin{quote}
+Before committing, recover an exact quote and allowed epistemic label for every
+accepted source claim.
+\end{quote}
+The rule included no sealed answer, domain fact, or task-specific label.
+
+
+\subsection{Real and source-disjoint portfolio}
+\label{subsec:arena-v0-portfolio}
+
+Eight hash-disjoint portfolios covered seven capability families.  Development
+sources comprised official isotope material, the Python design FAQ, a real
+financial-results PDF, and AION governance documentation, configuration, and
+source code.  The sealed cohort comprised NASA climate documentation, United
+States National Archives constitutional material, a Fourier CSV/PNG pair, and
+the complete public-domain text of \emph{Frankenstein}.
+
+The scientific episode illustrates the intended task form.  AION was asked to
+learn what makes two atoms isotopes of the same element and then determine the
+fraction of carbon-14 remaining after $11{,}460$ years.  It recovered the
+proton/neutron distinction from official sources and applied the half-life
+relationship without receiving a supplied calculation workflow.
+
+\begin{table}[htbp]
+\centering
+\caption{Arena v0 governed results.}
+\label{tab:arena-v0-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Source-disjoint portfolios & 8 \\
+Capability families & 7 \\
+Development success & $75.00\%$ \\
+Sealed no-rule control & $75.00\%$ \\
+Sealed private challenger & $100.00\%$ \\
+Weakest sealed portfolio & $100.00\%$ \\
+Challenger lift & $+25.00$ points \\
+Sealed provenance completeness & $100\%$ \\
+Unsafe commitments & 0 \\
+Delayed outcomes & 8 \\
+Restart recovery & $100\%$ \\
+Source rereads for retained project state & 0 \\
+Live repository writes & 0 \\
+Focused tests & $3/3$ \\
+\hline
+\end{tabular}
+\end{table}
+
+The no-rule control failed the literary portfolio because it accepted
+quotations that could not be recovered exactly.  The private challenger applied
+the learned generic provenance rule and passed the same source-disjoint task
+without regressing science, history, or mixed-format performance.
+
+The Fourier task was passed through governed abstention.  The table was
+readable, but the v0 image interface exposed dimensions and filename rather
+than reliable axes or annotations.  AION therefore declined to assert
+table--image consistency.  This was evidence of epistemic control, not a claim
+of natural visual comprehension.
+
+
+\subsection{Arena v1: consequence-bearing action execution}
+\label{subsec:arena-v1-execution}
+
+Arena v1 reused the concepts and subgoal graphs invented in v0, but replaced
+declared tool use with typed, executable authorities.  Twenty-two selected
+actions were executed using seven tool contracts:
+\begin{itemize}
+  \item \texttt{document\_reader}: exact quotation and source-hash recovery;
+  \item \texttt{math\_tool}: independent numerical execution;
+  \item \texttt{code\_reasoner}: isolated Python execution with
+        \texttt{-I};
+  \item \texttt{table\_analyzer}: PDF evidence-window and CSV execution;
+  \item \texttt{image\_inspector}: pixel variance and edge diagnostics;
+  \item \texttt{code\_reader}: Python AST and configuration inspection; and
+  \item \texttt{semantic\_memory}: reconstruction of retained claims after
+        restart.
+\end{itemize}
+
+An eighth control-plane action, \texttt{sandbox\_change\_probe}, changed only a
+temporary copy of a governance artifact.  The evaluator detected the delayed
+revision and independently confirmed that the live source hash was identical
+before and after the experiment.
+
+The v1 execution chain was
+\begin{equation}
+\begin{split}
+\text{v0 project and selected actions}
+&\rightarrow \text{governed tool execution} \\
+&\rightarrow \text{canonical action/outcome hashes} \\
+&\rightarrow \text{forced runtime reconstruction} \\
+&\rightarrow \text{proposal-only conclusion revision} \\
+&\rightarrow \text{authority-ledger restoration} \\
+&\rightarrow \text{consequence alignment and CAU decision}.
+\end{split}
+\label{eq:arena-v1-execution-chain}
+\end{equation}
+
+
+\subsection{Executed scientific, code, and mixed-format outcomes}
+\label{subsec:arena-v1-outcomes}
+
+For the isotope portfolio, the independent mathematics authority evaluated
+\begin{equation}
+r = \left(\frac{1}{2}\right)^{t/T_{1/2}}
+  = \left(\frac{1}{2}\right)^{11460/5730}
+  = 0.25,
+\label{eq:carbon14-decay}
+\end{equation}
+confirming that $25\%$ of the original carbon-14 remains after two half-lives.
+The final answer had to agree with the executed value while the scientific
+description remained grounded in the source ledger.
+
+For Python behavior, an isolated process compared a mutable list default with
+a \texttt{None} sentinel.  The observed sequence was
+\begin{equation}
+\begin{aligned}
+\text{mutable default} &: [[1],[1,2]],\\
+\texttt{None}\text{ sentinel} &: [[1],[2]].
+\end{aligned}
+\label{eq:python-default-observation}
+\end{equation}
+This provided an executable consequence rather than relying only on a language
+description of Python semantics.
+
+The financial executor recovered PDF evidence windows and numeric tokens.  The
+Fourier CSV executor recovered three modes and found a non-zero
+\texttt{bw\_half} only for the decoupled mode.  Pixel execution established
+that the PNG was non-blank and structurally non-trivial, but could not establish
+semantic axis alignment.  The final policy therefore preserved the abstention
+instead of treating visual activity as proof of numerical consistency.
+
+
+\subsection{Rejected revision and immutable authority ledgers}
+\label{subsec:arena-v1-authority-ledgers}
+
+The first v1 revision was rejected despite correct tool execution.  The
+language proposal rewrote source quotations and attempted to encode tool
+outcomes as source-supported claims.  Its project success and provenance
+completeness both fell to $62.5\%$, and the authority verifier detected five
+unsafe commitments.
+
+The corrective architecture separated evidence into two non-interchangeable
+ledgers:
+\begin{equation}
+\begin{aligned}
+L_{\mathrm{source}}
+ &= \{q,\,s,\,h_s,\,e\},\\
+L_{\mathrm{outcome}}
+ &= \{a,\,x,\,y,\,h_y\},
+\end{aligned}
+\label{eq:dual-authority-ledgers}
+\end{equation}
+where $q$ is an exact quotation, $s$ is its source identifier, $h_s$ is the
+source hash, $e$ is its epistemic label, $a$ is an executed action, $x$ is the
+action input, $y$ is the observed outcome, and $h_y$ is the outcome hash.
+
+The source ledger is immutable after the pre-outcome commitment.  Revision may
+change an interpretation or final conclusion, but it cannot insert, rewrite,
+or promote a source claim.  The outcome ledger remains mutable only through a
+new governed execution record.  Formally,
+\begin{equation}
+\operatorname{Revise}(I,L_{\mathrm{outcome}})
+\not\Rightarrow
+\operatorname{Write}(L_{\mathrm{source}}).
+\label{eq:no-authority-transfer}
+\end{equation}
+
+All 53 claims emitted by the revision proposal were denied source authority.
+The verifier recovered the valid pre-outcome claims, removed one invalid older
+claim, and evaluated execution outcomes through their own authority records.
+This changed provenance protection from a prompt instruction into an
+architectural invariant.
+
+
+\subsection{Final v1 promotion results}
+\label{subsec:arena-v1-results}
+
+\begin{table}[htbp]
+\centering
+\caption{Arena v1 consequence-execution results.}
+\label{tab:arena-v1-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Portfolios / capability families & $8 / 7$ \\
+Pre-execution project control & $87.50\%$ \\
+Outcome-executed system & $100.00\%$ \\
+Improvement & $+12.50$ points \\
+Weakest-family success & $100.00\%$ \\
+Selected actions executed & 22 \\
+Required-tool execution rate & $100\%$ \\
+Consequence alignment & $100\%$ \\
+Verified actions & $21/22$ \\
+Provenance completeness & $100\%$ \\
+Unsafe commitments & 0 \\
+Revision claims granted source authority & $0/53$ \\
+Sandbox change detection & Passed \\
+Live-source immutability & Passed \\
+Restart between action and revision & Passed \\
+Focused Arena test history & $6/6$ \\
+\hline
+\end{tabular}
+\end{table}
+
+The only unverified selected action was an unnecessary generic mathematics call
+on the financial portfolio.  It received no authority and did not affect the
+required document/table outcome.  The event was retained as a tool-efficiency
+failure for the next routing curriculum.
+
+Every action outcome was committed with a canonical hash before revision.  The
+runtime was reconstructed between execution and revision.  Following promotion,
+all project records were terminal, the generation and outcome ledgers were
+retained, the champion survived restart, and no action required relearning.
+
+
+\subsection{Interpretation and claim boundary}
+\label{subsec:arena-v1-boundary}
+
+Together, Arenas v0 and v1 establish a bounded but consequence-bearing learning
+cycle:
+\begin{equation}
+\begin{split}
+\text{interpret objective}
+&\rightarrow \text{invent project structure}
+\rightarrow \text{choose an investigation} \\
+&\rightarrow \text{execute and observe}
+\rightarrow \text{revise under immutable evidence} \\
+&\rightarrow \text{reject unsupported reinterpretation}
+\rightarrow \text{retain across restart}.
+\end{split}
+\label{eq:arena-learning-cycle}
+\end{equation}
+
+This is stronger than a static agent trace because actions had independent
+outcomes, commitments preceded outcome reveal, an unsafe revision was rejected,
+and the corrected architecture was retained persistently.  It nevertheless
+remains bounded.  Portfolio selection, source sets, tool schemas, and outcome
+contracts were engineered.  The v1 tool parameters were inherited from v0
+plans rather than invented afresh.  Pixel diagnostics are not semantic vision;
+sources were locally supplied rather than autonomously discovered; safe
+ablations were not all matched executions; and evaluation remained internally
+administered.  These results therefore support a claim of integrated governed
+project learning, not unrestricted open-world autonomy or AGI.
+
+
+\subsection{Arena v2 promotion contract}
+\label{subsec:arena-v2-contract}
+
+Arena v2 should remove the remaining action and evidence scaffolding.  AION
+must receive an unfamiliar broad objective with no preassembled source set,
+decide what it needs to learn, invent search queries and typed action
+parameters, assess source quality and contradiction, and conduct multiple
+investigation/revision rounds under declared information, compute, and risk
+budgets.  The next contract requires:
+\begin{enumerate}
+  \item governed read-only source acquisition with publisher, time, checksum,
+        and exact-span provenance;
+  \item source selection based on relevance, independence, authority, recency,
+        and contradiction rather than retrieval volume;
+  \item model-generated typed action parameters validated before execution;
+  \item conditional routing that learns from unnecessary or failed actions;
+  \item delayed code, document, and observation changes not generated by the
+        proposal model;
+  \item matched no-memory, no-router, no-causal, and substrate-only controls;
+  \item several continual generations with backward-retention and
+        weakest-family gates;
+  \item natural multimodal, commonsense, social, and creative portfolios under
+        appropriate independent or multi-rater authority; and
+  \item frozen source-disjoint portfolios and outcomes administered by an
+        external evaluator.
+\end{enumerate}
+
+The decisive next question is therefore not merely whether AION can use
+supplied evidence, but whether it can determine which unknown matters, acquire
+the right evidence, choose the least costly decisive action, and retain the
+verified improvement without transferring authority to its proposal substrate.

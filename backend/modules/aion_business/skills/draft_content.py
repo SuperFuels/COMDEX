@@ -1,6 +1,7 @@
 # backend/modules/aion_business/skills/draft_content.py
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, Optional
 
 from backend.modules.aion_business.contracts.skills import SkillRunRequest, SkillRunResult
@@ -330,6 +331,7 @@ class DraftContentSkill(BaseSkill):
         workspace_name = str(
             metadata.get("workspace_name") or metadata.get("workspace_id") or ""
         ).strip()
+        workspace_name = re.sub(r"[-_]+", " ", workspace_name).strip().title()
         cta = str(metadata.get("cta") or "Message us today to get started.").strip()
         hashtags = metadata.get("hashtags") or []
         output_key = str(metadata.get("output_key") or "").strip().lower()
@@ -341,16 +343,16 @@ class DraftContentSkill(BaseSkill):
             cards.append(hook.rstrip("."))
 
             if audience:
-                cards.append(f"For {audience.lower().rstrip('.')}")
+                cards.append(f"Built around what {audience.lower().rstrip('.')} need to know")
             else:
                 cards.append("Built for local homes and businesses")
 
-            if workspace_name:
-                cards.append(f"Delivered locally by {workspace_name}")
-            else:
-                cards.append("Trusted local delivery")
-
-            cards.append("Clear service. Fast setup. Local support.")
+            cards.append("Share the project, location and any useful photos")
+            cards.append(
+                f"A person at {workspace_name} reviews the details before anything is promised"
+                if workspace_name else
+                "A person reviews the details before anything is promised"
+            )
             cards.append(cta.rstrip("."))
 
             return "\n".join(
@@ -362,17 +364,23 @@ class DraftContentSkill(BaseSkill):
         lines = []
 
         if offer:
-            lines.append(f"Now promoting: {offer.rstrip('.')}.")
+            lines.append(f"Considering {offer.rstrip('.')}?")
         elif brief:
             lines.append(f"{brief.rstrip('.')}.")
 
         if audience:
-            lines.append(f"Ideal for {audience.lower().rstrip('.')}.")
+            lines.append(
+                f"Tell us what you are planning, where the project is and what matters most. "
+                f"This is for {audience.lower().rstrip('.')} who want a clear next step."
+            )
         elif brief:
-            lines.append("Built for local homes and businesses.")
+            lines.append("Tell us what you need and share any useful details or photos.")
 
         if workspace_name:
-            lines.append(f"Delivered locally by {workspace_name}.")
+            lines.append(
+                f"A person at {workspace_name} will review the request before any price, "
+                "booking or work is confirmed."
+            )
 
         lines.append(cta)
 

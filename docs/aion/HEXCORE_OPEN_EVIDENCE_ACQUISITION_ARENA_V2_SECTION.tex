@@ -1,0 +1,336 @@
+% ============================================================================
+% AION HexCore: Open Evidence-Acquisition Arena v2
+% Standalone section fragment for inclusion in the main AION paper.
+% Requires: amsmath, array.
+% ============================================================================
+
+\section{Open Evidence Acquisition and Iterative Investigation}
+\label{sec:open-evidence-acquisition-arena-v2}
+
+Arena v2 removed the preassembled evidence bundle from the open-world project
+contract.  Instead of receiving documents selected by the benchmark, AION
+received only a broad unfamiliar objective and had to determine what it needed
+to learn, invent search queries, acquire current public evidence, criticise
+source sufficiency, execute a second investigation round, and synthesize a
+provenance-bearing answer after process reconstruction.
+
+The promoted procedure was
+\begin{center}
+{\footnotesize\texttt{procedure\_open\_evidence\_acquisition\_arena\_v2\_32d79e5c6f41}}.
+\end{center}
+Its parent was
+\begin{center}
+{\footnotesize\texttt{procedure\_open\_world\_outcome\_execution\_arena\_v1\_5bc6e92f19ae}}.
+\end{center}
+
+The promotion tests open evidence acquisition and iterative investigation under
+governed authority.  It does not transfer epistemic authority to the language
+model, search engine, source-ranking policy, or URL cache.
+
+
+\subsection{Research question and openness contract}
+\label{subsec:arena-v2-research-question}
+
+The primary question was whether AION could determine which information was
+missing and acquire sufficiently authoritative and independent evidence without
+receiving a source list.  Every episode withheld:
+\begin{itemize}
+  \item documents and URLs;
+  \item entity and relation schemas;
+  \item workflows and expected subgoals;
+  \item search queries;
+  \item expected answers; and
+  \item delayed scoring terms.
+\end{itemize}
+
+The proposal substrate was required to produce an objective interpretation,
+at least three success criteria, an uncertainty inventory, two to four search
+queries, a source-selection policy, and initial information actions.  It was
+explicitly prohibited from answering from prior model knowledge before the
+acquisition stage.
+
+The complete investigation sequence was
+\begin{equation}
+\begin{split}
+\text{broad unfamiliar objective}
+&\rightarrow \text{criteria, unknowns, and queries} \\
+&\rightarrow \text{governed read-only search} \\
+&\rightarrow \text{authority/relevance/independence ranking} \\
+&\rightarrow \text{live retrieval and hash freezing} \\
+&\rightarrow \text{evidence criticism} \\
+&\rightarrow \text{typed second-round actions} \\
+&\rightarrow \text{pre-answer commitment and restart} \\
+&\rightarrow \text{exact-evidence synthesis} \\
+&\rightarrow \text{quarantine, CAU promotion, or rejection}.
+\end{split}
+\label{eq:arena-v2-investigation-cycle}
+\end{equation}
+
+
+\subsection{Governed network and source boundary}
+\label{subsec:arena-v2-network-boundary}
+
+The acquisition layer was read-only and admitted only public HTTPS targets.
+Before retrieval, the runtime resolved the destination and rejected private,
+loopback, link-local, reserved, and multicast addresses.  Redirect destinations
+were checked again.  Responses were capped at $3{,}000{,}000$ bytes and active
+HTML elements were excluded from text extraction.
+
+For each selected document $d$, the evidence capsule stored
+\begin{equation}
+C(d)=\{u,\,p,\,t,\,m,\,b,\,h(d),\,x(d)\},
+\label{eq:arena-v2-source-capsule}
+\end{equation}
+where $u$ is the final URL, $p$ is the publisher domain, $t$ is retrieval time,
+$m$ is content type, $b$ is byte count, $h(d)$ is the SHA-256 digest of the
+retrieved bytes, and $x(d)$ is the extracted text.  A URL or search result did
+not become evidence merely by being ranked or cached.
+
+Candidate selection used a bounded score
+\begin{equation}
+S(d\mid g)=A(d)+R(d,g)-0.03\,\rho(d),
+\label{eq:arena-v2-source-score}
+\end{equation}
+where $A(d)$ is a publisher-authority feature, $R(d,g)$ is lexical relevance
+to goal $g$, and $\rho(d)$ is search rank.  Source diversity was enforced by
+publisher domain before the requested independence count was satisfied.
+
+The failover cache stored query-to-URL candidates, not article content.  A
+cached URL still had to pass the public-network policy, be retrieved live, and
+receive a fresh content hash.  Thus,
+\begin{equation}
+\operatorname{CachedURL}(u)
+\not\Rightarrow
+\operatorname{AcceptedEvidence}(u).
+\label{eq:arena-v2-cache-no-authority}
+\end{equation}
+
+
+\subsection{Investigation portfolio}
+\label{subsec:arena-v2-portfolio}
+
+Six broad objectives covered six unrelated capability families:
+\begin{enumerate}
+  \item Earth seasons and the distance-from-the-Sun misconception;
+  \item HTTP validation using ETag, If-None-Match, and status 304;
+  \item earthquake magnitude and released-energy scaling;
+  \item antibiotic resistance and unnecessary antibiotic use;
+  \item serializable database transactions and retry behavior; and
+  \item the United States constitutional amendment process.
+\end{enumerate}
+
+AION invented 24 queries.  Twelve live pages with twelve distinct content
+hashes were selected from sources including NOAA, MDN, HTTPWG, USGS, WHO,
+NCBI, PostgreSQL, and the United States National Archives.  These documents
+were not present in the planning prompt.
+
+
+\subsection{Evidence criticism and typed second-round actions}
+\label{subsec:arena-v2-actions}
+
+After acquisition, a separate proposal pass received only the frozen evidence
+capsules and was required to identify contradictions, missing information, and
+useful follow-up actions.  The permitted action grammar was
+\begin{equation}
+\mathcal{A}=\{\texttt{calculator},\texttt{compare\_sources},
+\texttt{request\_more\_evidence}\}.
+\label{eq:arena-v2-action-set}
+\end{equation}
+
+The calculator accepted only numeric constants, parentheses, and bounded
+arithmetic operators in a restricted abstract syntax tree.  Source comparison
+could reference only identifiers already present in the acquisition ledger.
+Further search used the same network boundary and query hashing as the first
+round.
+
+The learned router retained the following policy:
+\begin{quote}
+Fetch the minimum number of independently governed sources required by the
+objective; add a source only to resolve contradiction or missing evidence.
+\end{quote}
+Consequently, a proposed additional search was skipped when the currently
+frozen evidence already satisfied the authority and independence gates.  The
+abstention itself was recorded as a verified cost-aware action.
+
+
+\subsection{Three governed learning generations}
+\label{subsec:arena-v2-generations}
+
+\subsubsection{Generation 1: open-acquisition negative result}
+
+The first generation invented all 24 queries, acquired 11 unique live sources,
+executed without an unsafe action, survived restart, and reduced sealed
+information cost by $26.09\%$.  However, only two of six tasks passed.  Exact
+evidence binding failed on three tasks, no usable earthquake evidence was
+acquired, and the quantitative critic did not instantiate a calculator action.
+CAU rejected the challenger.
+
+This failure was decomposed into separate queues for perception, authority,
+source independence, knowledge, and quantitative reasoning rather than being
+represented by one undifferentiated failure bit.
+
+\subsubsection{Generation 2: information-channel failure}
+
+The live search provider then rate-limited every acquisition request.  The
+second generation acquired zero sources, accepted no unsupported claim, and
+correctly achieved zero promoted tasks.  The failure was classified as an
+unavailable information channel rather than evidence that the retained
+knowledge or reasoning procedure had regressed.
+
+A governed search-failover manifest was constructed from externally resolved
+primary-source search results.  It contained no source text and no answer.  It
+allowed the same AION-authored query to be resolved through a replaceable
+provider while retaining live retrieval and hashing as the evidence authority.
+
+\subsubsection{Generation 3: recovery and promotion}
+
+The third generation acquired two live sources for each task.  The combined
+six-task final-synthesis call then exceeded its provider timeout.  Because the
+plans, sources, criticisms, action inputs, outcomes, and hashes had already been
+committed, AION resumed the six synthesis tasks independently.  The completed
+outputs were recombined under the unchanged evaluator without repeating search
+or relearning the action policy.
+
+The remaining failure ledger produced two transferable repairs:
+\begin{enumerate}
+  \item when a quantitative objective contains two quantities and acquired
+        evidence provides a multiplicative factor but no calculator proposal,
+        construct and execute the missing arithmetic action; and
+  \item when a project has complete evidence and success criteria but omits
+        only a verification field, attach the retained generic verification
+        procedure without modifying claims or factual content.
+\end{enumerate}
+
+For the earthquake task, live USGS evidence supplied an approximate factor of
+32 in released energy for each whole magnitude unit.  The difference between
+magnitudes 7 and 5 is two units, so the recovered action executed
+\begin{equation}
+32^{\lvert 7-5\rvert}=32^2=1024\approx 1{,}000.
+\label{eq:arena-v2-earthquake-recovery}
+\end{equation}
+The result remained labelled approximate.  A subsequent evaluator defect that
+treated \texttt{1,000} and \texttt{1000} as different numerical answers was
+corrected without changing the plan, source, action, or final answer.
+
+
+\subsection{Evidence quarantine and authority accounting}
+\label{subsec:arena-v2-authority}
+
+Final synthesis could cite only exact text recovered from a frozen source.
+Every proposed claim $c$ was checked by
+\begin{equation}
+\operatorname{Accept}(c)
+\Longleftrightarrow
+q(c)\subseteq x(d)
+\land s(c)=s(d)
+\land e(c)\in\mathcal{E},
+\label{eq:arena-v2-claim-gate}
+\end{equation}
+where $q(c)$ is the normalized quotation, $s(c)$ is its source identifier,
+$x(d)$ is the frozen source text, and $\mathcal{E}$ is the allowed epistemic
+label set.  Invalid quotations were quarantined rather than committed.
+
+Source independence and claim authority were measured separately.  The former
+tested whether the acquisition procedure considered the required number of
+independent domains.  The latter tested whether each retained claim could be
+recovered exactly.  Search results, URL-cache entries, language-model output,
+and executed calculations remained proposal or outcome channels rather than
+source authority.
+
+
+\subsection{Final promotion results}
+\label{subsec:arena-v2-results}
+
+\begin{table}[htbp]
+\centering
+\caption{Open Evidence-Acquisition Arena v2 results.}
+\label{tab:arena-v2-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Broad-goal investigations & 6 \\
+Capability families & 6 \\
+Preassembled source sets & 0 \\
+Self-authored search queries & 24 \\
+Live sources acquired & 12 \\
+Unique source hashes & 12 \\
+Mean success & $100\%$ \\
+Sealed success & $100\%$ \\
+Weakest sealed task & $100\%$ \\
+Provenance completeness & $100\%$ \\
+Quantitative tasks passed & $100\%$ \\
+Unsafe actions & 0 \\
+Unsafe commitments & 0 \\
+Live writes & 0 \\
+Exhaustive sealed information cost & $11.667$ \\
+Learned-router sealed cost & $8.667$ \\
+Information-cost reduction & $25.71\%$ \\
+Search-channel recovery & Passed \\
+Restart between evidence and answer & Passed \\
+Procedural verification repairs & 1 \\
+Focused Arena history & $9/9$ tests \\
+\hline
+\end{tabular}
+\end{table}
+
+The sealed information-cost reduction was
+\begin{equation}
+\Delta C
+=1-\frac{C_{\mathrm{router}}}{C_{\mathrm{exhaustive}}}
+=1-\frac{8.667}{11.667}
+=0.2571.
+\label{eq:arena-v2-cost-reduction}
+\end{equation}
+
+All investigation state was committed before final synthesis.  After process
+reconstruction, the source hashes, projects, action outcomes, continual
+generation, and promoted champion were retained with zero repeated searches.
+
+
+\subsection{Interpretation and claim boundary}
+\label{subsec:arena-v2-boundary}
+
+Arena v2 demonstrates a material increase in openness.  AION no longer merely
+reasons over a prepared reading packet; it identifies information needs,
+constructs searches, acquires current documents, tests evidence sufficiency,
+performs follow-up actions, recovers from information-channel and provider
+failure, and retains a cheaper verified investigation policy.
+
+The result remains bounded.  Objectives, permitted action grammar, ranking
+features, network policy, and delayed scoring terms were engineered.  The
+failover manifest was externally maintained.  Publisher independence was
+approximated by source domain.  The experiment did not include unrestricted
+browser interaction, natural image/audio understanding, human social judgment,
+or independently administered evaluation.  It therefore supports a claim of
+governed open evidence acquisition and continual investigation, not AGI,
+unrestricted web autonomy, medical authority, or external certification.
+
+
+\subsection{Arena v3 acceleration contract}
+\label{subsec:arena-v3-contract}
+
+The next stage should embed open investigation inside long-running, changing
+projects.  The promotion contract should require:
+\begin{enumerate}
+  \item dozens of unfamiliar portfolios lasting across multiple interruptions;
+  \item independently delayed code, database, document, and sensor outcomes;
+  \item experiment and tool-parameter invention beyond arithmetic;
+  \item repeated action--observation loops governed by expected
+        value-of-information, cost, and risk;
+  \item matched no-memory, no-router, no-causal, and substrate-only controls;
+  \item several continual generations with backward-retention and
+        weakest-family gates;
+  \item natural multimodal portfolios with semantic image and diagram
+        grounding;
+  \item human-authored commonsense, social, and creative objectives evaluated
+        by multiple independent raters with disagreement retained;
+  \item replaceable stronger proposal substrates under identical evidence,
+        action, and authority budgets; and
+  \item externally administered portfolios, delayed outcomes, and scoring.
+\end{enumerate}
+
+The decisive next question is whether open investigations can compound across
+weeks of changing projects without forgetting earlier competence, overusing
+tools, or allowing neural and language proposals to acquire epistemic
+authority.

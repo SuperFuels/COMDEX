@@ -1,0 +1,1847 @@
+{
+  "episodes": {
+    "natural_failure_0a4cf52b42565aab": {
+      "confirmation_commitment": "1ef194d3b86052a231df1ed5461ea9f3c9c64ef515bdb4f0a5bbbe83b9897270",
+      "confirmation_epoch": 1785618909.797761,
+      "contract_id": "competency_blocker_b25cec6f3683736845",
+      "episode_id": "natural_failure_0a4cf52b42565aab",
+      "failure_commitment": "13c471c07a2ea125389d04518af2f0246fe1eab7bce10b80f179e33a3b40c1dc",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785602315.847164,
+      "last_failure_epoch": 1785602315.847164,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_0101e8c9e64db58c6280",
+        "competency_evidence_379080eb3b5e88d71aa6",
+        "competency_evidence_3df6e1fca45e0d437afa"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "a0a3c6aba1cd4b039e90a7f8bd0804db5820c45fc298086f06246f64bbddeb0c",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "cloud_devops_sre",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_79ac3135862f6ea602d8.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_b25cec6f3683736845",
+      "subject_id": "cloud_devops_sre"
+    },
+    "natural_failure_1166158ed4e3b543": {
+      "confirmation_commitment": "bc65350e548acd976767eefa6fbe53fdcf4af7221c530ee54f18bf910c2cb8d1",
+      "confirmation_epoch": 1785613334.881032,
+      "contract_id": "competency_blocker_91ff91c4e6c4d75521",
+      "episode_id": "natural_failure_1166158ed4e3b543",
+      "failure_commitment": "e112f83416592102aade23775945ee78a17db3af37920ee6fb06aaabe203ccd0",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601893.145983,
+      "last_failure_epoch": 1785601893.145983,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_39a5c3d9de020e3cd46d",
+        "competency_evidence_fb9e2b923774fb8ac149",
+        "competency_evidence_6faac4c769073f244b36"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "a5c66476faac6c14809080e2d01be8da60930af9e161e8fa90aea1e9817e47ca",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "security_engineering",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_8462b6ed2562b0b4bf61.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_91ff91c4e6c4d75521",
+      "subject_id": "security_engineering"
+    },
+    "natural_failure_16329ed860c19b05": {
+      "confirmation_commitment": "8627856e264d6d99970ca22a19cfc98f985109bb22a9c9e0bbfc9939c3ef4301",
+      "confirmation_epoch": 1785610146.884012,
+      "contract_id": "competency_blocker_640f7ae19a3578e952",
+      "episode_id": "natural_failure_16329ed860c19b05",
+      "failure_commitment": "1a99679c41bc7482ec791a9df24bf511877b1e6c2885f461b2485b58495d2d70",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601772.396341,
+      "last_failure_epoch": 1785601772.396341,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_75ec7be2c11095b6e6a9",
+        "competency_evidence_4c3c7befa394e6990def",
+        "competency_evidence_359640395fe6543efcc3"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "ac694a007e74cdb0ad43e74dfa7945eec09e537447db29caeb6c288209583e56",
+        "authority": "Verified reusable authority family: document_and_delayed_question; outcome checks, not adapter claims, authorize evidence.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "research_communication",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "ebadabfb1d3637b39447392420ad1078e2f87321710f2754d2e0deb866b74ea5",
+      "result_path": "results/progressive_competency/competency_contract_08e3e15f4373052a0418.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_640f7ae19a3578e952",
+      "subject_id": "research_communication"
+    },
+    "natural_failure_1e3bc02e60268765": {
+      "confirmation_commitment": "a2a86062207d7cd08a255ea3d83bbf3a698a197a9b7cb523bb19a8bdae7b15a8",
+      "confirmation_epoch": 1785607934.657366,
+      "contract_id": "competency_blocker_38f9f198dfc26a8bd9",
+      "episode_id": "natural_failure_1e3bc02e60268765",
+      "failure_commitment": "1fb17ca1a5c2437a54a5042e1dcb815f68782ef0e917db4e53457c80f0f8f4d3",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601410.255509,
+      "last_failure_epoch": 1785601410.255509,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_0840bc1937584b1301c5",
+        "competency_evidence_145c1900de53da5082d0",
+        "competency_evidence_7ce206361d016cd2339d"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "9540fd5edd2d3a58c8296d17ca22dbf3f048055e17a453b8bbf976850b374231",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "networking",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_e2ef8e37254c4acaa4fa.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_38f9f198dfc26a8bd9",
+      "subject_id": "networking"
+    },
+    "natural_failure_2188dced2a436a74": {
+      "confirmation_commitment": "6e1740a080a7e144892bbcd156aff07062c5a6158f6b036daf0f0b4fb3454d67",
+      "confirmation_epoch": 1785606534.463847,
+      "contract_id": "competency_blocker_cde2201d0eae47d3f9",
+      "episode_id": "natural_failure_2188dced2a436a74",
+      "failure_commitment": "a75f90f704804cdb9b35ab0eb8d3a1e59c5d6e08a54919fdd203c5836fa77eb1",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601651.703519,
+      "last_failure_epoch": 1785601651.703519,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_850ac7dd67394f972a23",
+        "competency_evidence_ecdc47df90edba611288",
+        "competency_evidence_376f2b16ee0336d58489"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "608ef890a9056ed212a612a283899d0fda46012deb3f010bf4df20c1f5fd2cbe",
+        "authority": "Verified reusable authority family: empirical_dataset_or_experiment; outcome checks, not adapter claims, authorize evidence.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "scientific_method",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "ebadabfb1d3637b39447392420ad1078e2f87321710f2754d2e0deb866b74ea5",
+      "result_path": "results/progressive_competency/competency_contract_b5a32f21133c5adc7f20.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_cde2201d0eae47d3f9",
+      "subject_id": "scientific_method"
+    },
+    "natural_failure_2e00df011cb96e96": {
+      "confirmation_commitment": "42006b9fe2aebe531edf18af2bbfa4ba20be5078eeb2d1494300c04997b0c8b4",
+      "confirmation_epoch": 1785609691.760288,
+      "contract_id": "competency_blocker_c26dea7c345977f036",
+      "episode_id": "natural_failure_2e00df011cb96e96",
+      "failure_commitment": "1e814c8384265fab2febb2677133552cd91c8217a78d70b7ad962811f872a8cd",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601561.156996,
+      "last_failure_epoch": 1785601561.156996,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_c5a1ef1a98d38c4601f7",
+        "competency_evidence_66af55eae65989bbcb76",
+        "competency_evidence_ac4bc2c8766c3c18372b"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "98b94a01d597869d8f6784866249034eb3dc9246f2985fc75474aebf470ddfe7",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "integrated_engineering_capstone",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_7759cf09fabcba90a671.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_c26dea7c345977f036",
+      "subject_id": "integrated_engineering_capstone"
+    },
+    "natural_failure_52b8822a44107581": {
+      "confirmation_commitment": "85da1f7ad385efc009548909cacf04571282f6e4d909dc234bad89dbde9b58cd",
+      "confirmation_epoch": 1785600672.8364952,
+      "contract_id": "competency_blocker_1cf276a86d82e876e6",
+      "episode_id": "natural_failure_52b8822a44107581",
+      "failure_commitment": "f69cbf4b0d86e8c10c7c41dd901c12055dd5a12e9f76ca66f98435a86f532a73",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785600585.961638,
+      "last_failure_epoch": 1785600585.961638,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_8434b53d571209b59121",
+        "competency_evidence_cf06e329f38ae84bad70",
+        "competency_evidence_9ff6fb72f3ed7408244b"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "ea1284b5e050cf0e017185dc0ebfc65413fbbcbe8e9f0161b088a5426eef0f9a",
+        "authority": "Fresh CPython execution and deliberately faulty engineering counterexamples authorize concept evidence; curriculum text remains proposal-only.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "software_engineering",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "5ae7829dd1d792d716b8f6828faedf5030f5726b29e334fe71c84379bfcdea25",
+      "result_path": "results/progressive_competency/competency_contract_d5f6aa878de5d5004769.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_1cf276a86d82e876e6",
+      "subject_id": "software_engineering"
+    },
+    "natural_failure_566a60efe5baf009": {
+      "confirmation_commitment": "67c7a9292022dd539ca6a15970137b3b3b3275a90beccf1d4c1ebb18385b3362",
+      "confirmation_epoch": 1785609236.5913448,
+      "contract_id": "competency_blocker_f4b304b72ac8f77062",
+      "episode_id": "natural_failure_566a60efe5baf009",
+      "failure_commitment": "8db5fe3644b75c9e2447b008dc04bb8668d324e1954f870a26959e9565597a90",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601500.784553,
+      "last_failure_epoch": 1785601500.784553,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_f37b82ae55a2a64d1196",
+        "competency_evidence_23bb798a1a970198e14e",
+        "competency_evidence_7bc1242a8aff2c927f68"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "1562369921917e473648e4e29da2ec16479c8c70cec87133977a41215ee69548",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "architecture_operations",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_672c92a82c3a87571bf5.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_f4b304b72ac8f77062",
+      "subject_id": "architecture_operations"
+    },
+    "natural_failure_5bb7ee1de1cf21de": {
+      "confirmation_commitment": "2b75be7d342157391edae8a04dcab298f9d6de16caf06f03b4106882067c3d87",
+      "confirmation_epoch": 1785617502.6752021,
+      "contract_id": "competency_blocker_0694782fa46d28198f",
+      "episode_id": "natural_failure_5bb7ee1de1cf21de",
+      "failure_commitment": "65631e4735b2c6652791d797e6e566c9b99ff7fa8db7b3c1e7b0deba9e5d809a",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785602134.632485,
+      "last_failure_epoch": 1785602134.632485,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_48ad8ec5bd20a74edba1",
+        "competency_evidence_028f5a8beda9921f16ae",
+        "competency_evidence_abc3d78836fcc2aaf529"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "5791f24599a38624478fe22061920d9d5edb565df8267e40000ef002805711d5",
+        "authority": "Verified reusable authority family: code_and_system_execution; outcome checks, not adapter claims, authorize evidence.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "machine_learning_ai",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "ebadabfb1d3637b39447392420ad1078e2f87321710f2754d2e0deb866b74ea5",
+      "result_path": "results/progressive_competency/competency_contract_afb3cfb362dd344f7318.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_0694782fa46d28198f",
+      "subject_id": "machine_learning_ai"
+    },
+    "natural_failure_85d5be4df8e05faf": {
+      "confirmation_commitment": "d2d4b691e6319a38b8ab2d0c963029b62842e3dea7fdca845e9f11ca73e73a05",
+      "confirmation_epoch": 1785615193.5537121,
+      "contract_id": "competency_blocker_feb8125a01ac32c51b",
+      "episode_id": "natural_failure_85d5be4df8e05faf",
+      "failure_commitment": "4694b1f52cdf3695ab8c37aaff229b2e939d92eefb35e68bdafbab6fa148bc7b",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601953.531119,
+      "last_failure_epoch": 1785601953.531119,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_04337d789506b6b69203",
+        "competency_evidence_0eef713f94e1f223cc10",
+        "competency_evidence_b9872f68f7f32ac887bc"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "f909e3b10181a00dff53769e719aa6d8c94280af1e3507e2b690d69cae898655",
+        "authority": "Verified reusable authority family: data_and_statistical_outcome; outcome checks, not adapter claims, authorize evidence.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "data_statistics",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "ebadabfb1d3637b39447392420ad1078e2f87321710f2754d2e0deb866b74ea5",
+      "result_path": "results/progressive_competency/competency_contract_9785e7f3eebf80e911a5.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_feb8125a01ac32c51b",
+      "subject_id": "data_statistics"
+    },
+    "natural_failure_871e2629b0f748eb": {
+      "confirmation_commitment": "f6bb85b87b56623051eacfb32f89740634744836960d740204fa1c0ecde362e2",
+      "confirmation_epoch": 1785608721.776513,
+      "contract_id": "competency_blocker_01c2b292e27fa8911e",
+      "episode_id": "natural_failure_871e2629b0f748eb",
+      "failure_commitment": "080f51df4666ba9435ba4357d1310555eb3406ca64ca693f4d05f5533d9456e3",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601470.603762,
+      "last_failure_epoch": 1785601470.603762,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_9b7f8a37b333fa9cca13",
+        "competency_evidence_4b96fcab7bcccb084e23",
+        "competency_evidence_1baef789e820225efb41"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "4650cf4e5de1822bda0a6bf0011f916f0e6b65e3838778606839581fbdcee3ec",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "secure_engineering",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_5f91226c8021fa359930.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_01c2b292e27fa8911e",
+      "subject_id": "secure_engineering"
+    },
+    "natural_failure_a0ed1ee4c049a15d": {
+      "confirmation_commitment": "dd54bb1bbe23670447632837c5d78e08acaa23f62a7da08f4f41e7870c71ca29",
+      "confirmation_epoch": 1785579143.827816,
+      "contract_id": "competency_blocker_2009484e34830adde4",
+      "episode_id": "natural_failure_a0ed1ee4c049a15d",
+      "failure_commitment": "b2b125972dda7544138ea82810847aa5f55bd3bf12987d22d6ba4854b7a45cd6",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785578611.403023,
+      "last_failure_epoch": 1785578611.403023,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_f88dee98d7d2b50fb42e",
+        "competency_evidence_346f65c7b96192d31e43",
+        "competency_evidence_5699ec80c4b893a090bd"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "143fd8909b555edf0eb6600b49cfbd717e1edef9d5dcee539b83991e5008fceb",
+        "authority": null,
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "testing_debugging",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "de82f564cf3c5d0bdd15efebc7bf2c47c466191e044fcdc361d01285394acb83",
+      "result_path": "results/progressive_competency/competency_contract_74e126fca1f327458475.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_2009484e34830adde4",
+      "subject_id": "testing_debugging"
+    },
+    "natural_failure_b25ee44183609888": {
+      "confirmation_commitment": "5035931bd9cf58eb592e2201395d05a2d74294c603b6ef554140ae23e9223696",
+      "confirmation_epoch": 1785608328.233609,
+      "contract_id": "competency_blocker_4cfe16ef3084138c4b",
+      "episode_id": "natural_failure_b25ee44183609888",
+      "failure_commitment": "748cf9eb056a4d182c2c2d98b7534c1168eea5ff4a291cc63519daf46aaa68cd",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601440.441613,
+      "last_failure_epoch": 1785601440.441613,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_45e2a412d9ca5a22d6e5",
+        "competency_evidence_b5ff9b2d2d983a5c46f1",
+        "competency_evidence_54eb007c264aeb019980"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "ef26ea209ec64e71d93b4a4c561edbf5bfb3c9ae8bd6fef61d6a63dda5fea861",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "distributed_systems",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_dc2293bbc1394b80c670.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_4cfe16ef3084138c4b",
+      "subject_id": "distributed_systems"
+    },
+    "natural_failure_b52a29a898d0e3af": {
+      "confirmation_commitment": "5714ddb7398b78afb6da0f8119565bc433cf0d0b51889db39f04f7dbc7d7727f",
+      "confirmation_epoch": 1785604505.846994,
+      "contract_id": "competency_blocker_e732f70259668de03c",
+      "episode_id": "natural_failure_b52a29a898d0e3af",
+      "failure_commitment": "73893d8a30e20f95f27e40fa1ad95d6cf92affbd92a25e959580ffc63fe21e1c",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601591.337231,
+      "last_failure_epoch": 1785601591.337231,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_9e8dcc8cf98245846117",
+        "competency_evidence_32f54c3819ff9c4ef6ce",
+        "competency_evidence_b303d802ff1cba0f496d"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "ce3a2abe2f807d3ed1f560797aea64a4ebca60332289f8cdbc7a2014844eca89",
+        "authority": "Verified reusable authority family: document_and_delayed_question; outcome checks, not adapter claims, authorize evidence.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "english",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "ebadabfb1d3637b39447392420ad1078e2f87321710f2754d2e0deb866b74ea5",
+      "result_path": "results/progressive_competency/competency_contract_ee252a2cc16399b8312f.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_e732f70259668de03c",
+      "subject_id": "english"
+    },
+    "natural_failure_b5b105513a36b1f0": {
+      "confirmation_commitment": "af8c83ce01ff340789d8e8014d68768619220067eda15fbaf97c84b717e2b5eb",
+      "confirmation_epoch": 1785605487.648281,
+      "contract_id": "competency_blocker_3938d58ecb37ba5f48",
+      "episode_id": "natural_failure_b5b105513a36b1f0",
+      "failure_commitment": "ff1972d14570bcfc50ac2dd72cb4b41b1a7b05850fdd1402c946ea773b333041",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785601621.521839,
+      "last_failure_epoch": 1785601621.521839,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_b6b878f6176beb9f108b",
+        "competency_evidence_d921658adbd89700c66a",
+        "competency_evidence_05b20652006323089b27"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "785fdc9ffaf829eb38516302ddb9abf89a34bc706e2ec14d34d29a5ff5d5bb53",
+        "authority": "Verified reusable authority family: proof_and_calculation; outcome checks, not adapter claims, authorize evidence.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "mathematics",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "ebadabfb1d3637b39447392420ad1078e2f87321710f2754d2e0deb866b74ea5",
+      "result_path": "results/progressive_competency/competency_contract_4ff7398e8f42fb7d40f5.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_3938d58ecb37ba5f48",
+      "subject_id": "mathematics"
+    },
+    "natural_failure_d3c8245c3825f507": {
+      "confirmation_commitment": "480da42505445e5fdfb4828cb1f480cb35f109574665c91153524b7e3a7c7025",
+      "confirmation_epoch": 1785607479.93608,
+      "contract_id": "competency_blocker_9e11f5cb289d8da321",
+      "episode_id": "natural_failure_d3c8245c3825f507",
+      "failure_commitment": "6d8f08416d4a2db518910ac635cebfc6819f42bcbb417c186e4638a4ef28625a",
+      "failure_count": 1,
+      "failure_statuses": [
+        "executor_capability_blocked"
+      ],
+      "first_failure_epoch": 1785600645.864933,
+      "last_failure_epoch": 1785600645.864933,
+      "later_consequence_confirmed": true,
+      "later_distinct_contracts": [
+        "competency_evidence_668fc5d678123bf1d462",
+        "competency_evidence_f9246384f2aebdee9f78",
+        "competency_evidence_3593d237b2f2e8615207"
+      ],
+      "origin": "naturally_occurring_progressive_curriculum_failure",
+      "private_trial": {
+        "artifact_sha256": "6e0cbe680a4a549881356f4ed90c931802af866306a3707d317cf76666aba810",
+        "authority": "Distinct executable project and withheld fault outcome; the portfolio remains engineered and is not external production operation.",
+        "candidate_execution_passed": true,
+        "counterexamples_rejected": 1,
+        "counterexamples_total": 1,
+        "diagnosis": "missing_or_inadequate_executor_contract",
+        "passed": true,
+        "private_only": true,
+        "repair": "bind_verified_subject_executor",
+        "subject_id": "operating_systems",
+        "unsafe_variants_rejected": 6,
+        "unsafe_variants_total": 6
+      },
+      "repair_route": "private_executor_repair",
+      "resolution_authority_hash": "bbe6ae3e31c51c1431ccc863af0bc0bc11e2167f1031c306cd1527881dd4b2ce",
+      "result_path": "results/progressive_competency/competency_contract_0d97957b0d63c6f0ce72.json",
+      "retention_status": "consequence_confirmed",
+      "source_blocker_id": "competency_blocker_9e11f5cb289d8da321",
+      "subject_id": "operating_systems"
+    }
+  },
+  "external_outcomes": {
+    "040d0f9af40f9d72bfecb1894a477b1a12952d69de3b7d6352451e9ac902f66b": {
+      "class": "external_world_change",
+      "commitment": "90afeb89b3d0b087073597c74e333cf19c0057c5b248b5d9689709a8d6084724",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "04249c936b9de0cb3bb8022d489e2846a9fb5446a491c3375f54c3f0b7b945d9": {
+      "class": "external_world_change",
+      "commitment": "34b54fa233ad14af4205390cc7ce6ae482a2a0cbb6ad5025d90e6fc1237e880e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "057e9ba362a1f5d0ed0ce128d6853f01ef3c52840c8c0ef365e1292af7bcc73e": {
+      "class": "external_world_change",
+      "commitment": "4d91f9360a3d154915570fd9890dcd051c0bced9dd7ab453946b96a38a1b3682",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "0850b66b12de26401960c0919ed89b1bcce6c933bf2f09c1eff60d360c4539d7": {
+      "class": "external_world_change",
+      "commitment": "95e11d8e323d6b21b050eddf47ab1e4ff2751838d234b8aa4d2a9cbe65e612ae",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "08abd42ec0c0cb5d7cdf2cecb1b8ae8c89b9dffd79dbda4ef6eb3779113ef821": {
+      "class": "external_world_change",
+      "commitment": "c7fa37e8cf0e272c6d80af18caa46fe2cfb017a6a16eec3174a701672f598b3b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "0b55238a11e1023e014df91fc16e826025542f92438d685aad022d53661df94e": {
+      "class": "external_world_change",
+      "commitment": "bc3e6d02658a159d5125592991342f7e25a4cd673a03f9c727b1bd1de6047e7f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "0ba8cfe4a1b5d3108cb84f60785016d57b53c49d1ba4a6fadf0cd1be09b4d158": {
+      "class": "external_world_change",
+      "commitment": "729dbdb8ad8b5f5c90a7c7a83ce29e8bd5aff6c3a9201848bd9111628e98a154",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "0d65bf2ddde6ab9f694bad76cd1627313d2865685776a7220d97bc388a3ac775": {
+      "class": "external_world_change",
+      "commitment": "fa870779a3cd286096c7037d57d5654bbee96137c344f4939a4101f5bcf74165",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "13a9d0aff9bc113fba5bee5fbeb1fe180622b3073b242eb085617b5fdc712212": {
+      "class": "external_world_change",
+      "commitment": "8a0d0f521838c28237d5010260f28df0942fee323b80bd4134725b392a9dc74a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "14fbe89a3abaa16396332852a086e0c41ef26781fc4f0ac51fd0095536675c78": {
+      "class": "external_world_change",
+      "commitment": "6dac54abdab05418b7b9935f6c6e4d3d17137e31e4ff8e7e41e8733854eef321",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "1732b126547e77c7f606e8877d8da695be90132f2c61e5849adf28b95c34e99b": {
+      "class": "evidence_acquisition_failure",
+      "commitment": "7eba2776b004471eb3e790215c579e7604296e26781fbd7f6701c09e614a7aef",
+      "response": "retry_or_rebind_source_adapter",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid",
+        "pypi_numpy"
+      ]
+    },
+    "1a0e60fae248a402091fb1f088ec32811868736df10ee9e25e2eb7d5f743e2be": {
+      "class": "external_world_change",
+      "commitment": "25aec875c70ec472bb163575d8961d82975da839d5f74136958a1c1c487f117b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "1af59ef7dd118c6632a3fc0835099f4a14515699819735a678ee4e622a597b43": {
+      "class": "external_world_change",
+      "commitment": "ebb8e978ef4d13f4b64def190ce6f2f05ec3844dcd0e9b3f8bd67386213e30e1",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "1ee4865a0cfeef7be410b7ba781f8835fc16c94a6bd6f586949d9b0bc81f7ce0": {
+      "class": "external_world_change",
+      "commitment": "ac61a8e0cedc1723b543d1822980df038885d69a80ad729a8ebc9b57d99476f4",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "1f40383f0a1f62e2bffb1a9ecf5e58578d8801ff068105d61d4dfc1d62766d8d": {
+      "class": "external_world_change",
+      "commitment": "a06ca0f9deac5562c9e26e63ac120ffe53adb5884c6e3326f5773d85d785051a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "224aecdfd7e3b2321fc255b524661725673b1cedcd173d963aedf4542e79044a": {
+      "class": "external_world_change",
+      "commitment": "68aa37c7363a2d5815991e82e12cae583f3afe50b9c805f885dabe809639736b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "22afecf81e063f9780234e3f82faba303ad2aed12296ad1a18ac818b4f5f0b00": {
+      "class": "external_world_change",
+      "commitment": "4732ba11c29bcd89535baa7c0c7a21ac66923de1a09b86befb1f7cb7c4ff5f81",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "254f5407354e0a982de320c254796bb9d9e02484d5fb2f19739aefddd3c836d0": {
+      "class": "external_world_change",
+      "commitment": "ad7093baf7f24b0d0d8220b1899044c12e96c2e1c779fd69f127915800edfc8f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "2619b05ee5128d93c1559069f21782458b1e86e149355e07f85744c71ba07f1a": {
+      "class": "external_world_change",
+      "commitment": "34daa71225ea1dd8dd0d585b4bb85b1771cc4e1b5cabdf96f78a34ca62ff531e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "28397aa5614a7379e7422d88be86dd290afa66cb7d843753287d39dd6ded0408": {
+      "class": "external_world_change",
+      "commitment": "236acadfd15c9d0b85c6f1d34bd5582994032a56280d76d86405af82b20fe495",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "2872873404dad87c4a5ca598bc9f0b482b4d27ffbb613c2ea50fad16d3ef85b9": {
+      "class": "external_world_change",
+      "commitment": "63bcb8b31bdfc068329c0aafc9600d2dec083efd1f1cee4df6c25d8064c4c283",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "29ed19f9e795129758cc279ce4befb7570210bfd8443e6180d2e1881f66c820d": {
+      "class": "external_world_change",
+      "commitment": "44ad3d26c34065f9286d67c61e9dbaaf29539f8e1433d4bb20059b578547c6a8",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "2ca9244af84d6d81210d1cf6d716a99d74e945580e4b1b48aa8c80704e828a69": {
+      "class": "external_world_change",
+      "commitment": "c0e71280c6dd0262ecea6932bed4367bdbbf9b0a7fad8fb46957548c32310440",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "2e56d81011a81910cc63087dfca91395de98117a1be60d967acecf42b06168aa": {
+      "class": "external_world_change",
+      "commitment": "7c06c6d2c9aa4de6f0036d632d3933cd27a5266fafeab096337da73afa0d41e1",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "2e9264666b55d2dfd7c0c93477c417b575695cd51e783d0e286bf6cc20c1a7da": {
+      "class": "external_world_change",
+      "commitment": "c33691013e3580534091309e56f1e2da02451acbe8cb1c6e58245da8ec2459e9",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "30673113b9b9aa39455ebe190b837c9a53cf8b7cc15491be6927c939d2e40e34": {
+      "class": "external_world_change",
+      "commitment": "47f13e21d6a2bbe963ccaa8641464f983a8b6d91c6776692240ca960f52dab73",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "30f60a61d52f147655af2259cfee19a2795781108c6e8a104d7b8499f4f152a1": {
+      "class": "external_world_change",
+      "commitment": "74c5d0e68285e3f20664bddf0a58c5129585ae988bd4d26ef1c764c8d9c2a23b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "32f5c15122a7a130880cb00c45704bc0df4aa0bbfbdbfea7fb7385a149a767f3": {
+      "class": "external_world_change",
+      "commitment": "9752645a2d0d23d3c35bfa9c4d8f4626b2f5fe9f3e36d4c2ba0cf3e432089bb8",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "348ac3531d5cd78f7f3ec9261c43148e5eae5992e7ebb537e07c1efee42a7bc9": {
+      "class": "external_world_change",
+      "commitment": "4fdc445912aad937cb499dbdb2877a51aa0f8f01a3ce9ecfe2d196c1e85587c2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "361bd98d104be5252929cc0fc21f2f2fe5ba0ac98bb08bd9cea851d4670fe357": {
+      "class": "external_world_change",
+      "commitment": "78162732856d59ace9e508c2c9ecab04b6d129eb31919aa33013d06d6f0e60ff",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "37fb0241e4a6f7566d1f3a349247500b98c77d43f8b63e5f28aaa677d624471e": {
+      "class": "external_world_change",
+      "commitment": "c9c7685c148adf595697c0c579aa536f3c40c6c9ebdd091db51dfd210ee13db2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "38b436d8d31761a12ac45db451fcd6cf5e672334e7e77cf5e84df63adebc4c7d": {
+      "class": "external_world_change",
+      "commitment": "3f6c4ae4195a0926a4f31613e80a69ae447126eea76b735a12ef62dff33b6dc7",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "3982b3c82121ff27329605d1b08b27939abcbfecfc0d40391e41ef78ded19db1": {
+      "class": "external_world_change",
+      "commitment": "0a105e6e55932fab5bb4a74e0c2b3c2d4c58acdd5b4544f1d83f72ce94603ad6",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "3de5eb634c56b77f55f04d52201cd8f2dfb35b145df009272015b04b7f438a44": {
+      "class": "external_world_change",
+      "commitment": "35489686275e205d4b4e354993374337d972552cdea027cac0d127e06ce7c33e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "3ea23dac0134b89a0d1adc8e15d4233fb6b9b87944b759a895a93daa8be92a5b": {
+      "class": "external_world_change",
+      "commitment": "0f07611170c4324912ec791b5ea32aad07b7f46dd0e5a8476eeffad6ec86ea7f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "3f8679af5ed91faa3573b5a59f378e09d9c8ef461a65046698f91d4949d8916a": {
+      "class": "external_world_change",
+      "commitment": "4471956106f6961a62338f9cd5ae74a5a8d4ad5d9fc5ef0433073be2ac9a5188",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "452c87978e5f47a539545adfd8a357e5cafe6fa7897c865eeedb07a6311fbf7a": {
+      "class": "external_world_change",
+      "commitment": "da888bf287a4efd4dcd11d1f558b0d35befa8f931cd7d7558e5652738ab343a8",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "458294dc1130b45c50466526b9e97cc61bd3af8d79d7e914e991acb6274689b0": {
+      "class": "external_world_change",
+      "commitment": "128e5a43b27f3907f3c475f514775aaeeb3fb073c8081d054fc8990140e80c43",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "478efa72b34126341ca50ebb9bafeb66ea557280b92749f4a046d16a4138dd0c": {
+      "class": "external_world_change",
+      "commitment": "c6340e401ad497dbe2d99c6bc7296d8ffbcc8789e4fe111cf1c88c99507a01a9",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "4794d330feaa05cfc256544eb0e6cd9edb21da294e45e8fb5d5c8e821d3914be": {
+      "class": "external_world_change",
+      "commitment": "1ba93a04916f640f7fcfdbadba63689c612b3c8dd47f7be57edc7bffbeb6c3f8",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "47e2302be2c9e6da867fd661e77800c495c85b9388a5def8c46ae0f200afc33a": {
+      "class": "external_world_change",
+      "commitment": "7faea9f96c9f92e2cfe953a02be9d255f054c9fc9289adb1d4c95b30f2f482b1",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "4a5c7d6edbe7f9972a9cac565e00baebded51da6c39ddc660629a4f8e99f6b95": {
+      "class": "external_world_change",
+      "commitment": "dfb4cc7c01bb9918c65348894af36bb23a12cd2732c869455163940bede6a87e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "4c368f71cd0d36513b273b58b0dbe48ffca3d59696d43db2d395b9a053d05813": {
+      "class": "external_world_change",
+      "commitment": "cae8bc21ab8b91e325d90f7b8105f2daea6c4f99c1ebb2571d93ae6e0b773d69",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "4e406f3ce1370996d42c2b051300849b210e75dd94fc4dfbb5a0b657e70270f5": {
+      "class": "external_world_change",
+      "commitment": "4a9027ef35655a38e1c530b39a24c31dcb39b97af5f7c126f8b424bddb56b824",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "4fe82d32e9654685d8497c117b390e20a98ac940b0684caf46f12b655d7791fa": {
+      "class": "external_world_change",
+      "commitment": "3492e6d1b51eb3c07f6a0b6e114b19f512b3ca46db48b0424db168b0b8cf81e2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "521ffdf49c782ff35dbf76ecfa016738767ad5abbe3841c266f6243384940a74": {
+      "class": "external_world_change",
+      "commitment": "b3e7e470bcb835ebeb1908e16c338df5cab808e711e30fb892f711b0bb83fe8b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "599a78b66bcb77525042f66568048e06916aa2cbb9e5a3a9c0af198805b030dc": {
+      "class": "external_world_change",
+      "commitment": "6a58cc21fc47e9ec40c77b9c16e040db6fc13d698d8283f19215f5060c791d14",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "5a6da2794b875456932d6a86f1322445269c7b45321013cfc3973ad761dd82a9": {
+      "class": "external_world_change",
+      "commitment": "37e759f74715b781942e14244ad907de82d1f42438a2bcd078ac6962bda61d6f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "5af18b8b020b906fee3b2b9020c3a5e672de63dfebce2f9a4009e08563783e9d": {
+      "class": "external_world_change",
+      "commitment": "6e4aa4f510d5784659ea3ec7ef2a9ff6ac5c8402fc53a2de6e1daec62b891b67",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "5b424810b4a292d853ca64cf77a61284af476ecb216f3a141d0a3d67d8d0a37a": {
+      "class": "external_world_change",
+      "commitment": "ece260ac0cd867d079ca3d0fd1a329f972dc4c4b68e456c18d44557772b46b0c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "5b48ff7bdd91d4ec5c442dd2f64b61a87343b282c87220c218d767a7f75a3a2e": {
+      "class": "external_world_change",
+      "commitment": "2713af77058a694006c27a0c61e81eb4abec676201690301ae59b9394429d536",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "64b581b3d5bbdd59784c1f688dfa8aa0d9ac040440345d5b71491d4921fe27f6": {
+      "class": "external_world_change",
+      "commitment": "3c2ababc5e314901d9de7baddf7095c1db01196567e5bb4a36b2288b2bd2d766",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "6baaaf2fc9ed9432ec6a2c0eb714a8071765b7dd01b48c65ab48dd46f497fbf0": {
+      "class": "external_world_change",
+      "commitment": "87e7b1495be65951411910be5efd1a016c772508d0b21bee9cdc1aadf8011685",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "6cdd1946200d6a87d7c003837acdf6b12e7ccf04750548c420480e26d2cd43c5": {
+      "class": "external_world_change",
+      "commitment": "d5247be3c4a68eabb49f001169fa4cd91ed514375a475aece7da907666620651",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "7058571ffd57601f6ac5bb48c300387ca27403198d219aabb9bceb48e2342e39": {
+      "class": "external_world_change",
+      "commitment": "ec9834e3d986a9172d5727b99baa3b39b3d91aa7e4c8f40987a1e938136327e9",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "71000bea2a8f8d4138d78e7e6ab261d0815c305d453d9c0f8cde42548c344a36": {
+      "class": "external_world_change",
+      "commitment": "40e0c222a02cf5577e2d26091c3d34cf9f8f88f660005390c636bf52a1c380ac",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "7380f4f2270792f86edc85a9dc22492f2963dbaf601f458741d24b2d7d5f6a04": {
+      "class": "external_world_change",
+      "commitment": "512e07059d7ed73c529b794305d6e589736768a297816102fcf2e2ec3ba8f8c2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "76bff6ebe2272ca45ffa26443092468f6e630013c0530793bb03643ac2a1171e": {
+      "class": "external_world_change",
+      "commitment": "b6d77ac6a275c84b7edc21ecb6a2e756f3ee9040dfb4d70d302c957ab530e16c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "77b62eb721a54d90067615636073d2a1a14088826ff4a734ecf96e2b2b5720f5": {
+      "class": "external_world_change",
+      "commitment": "864df7a99edd1c72c47938c136b7d92fdc0fb7fbfe68fbb55e8a06b3d5a93808",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "78cba704e6c0dd7d3f1ae8fcffd34e3c8018debda08ec421c96a8cdf8fa96daf": {
+      "class": "external_world_change",
+      "commitment": "ad2de313953132d43080bca6a8aa77c40c034a403cc05238c8d54ed059fcc298",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "79490d51d94c570f227ba9ce0b5871143ecbeb139c0ef969180118f7ee5b65b2": {
+      "class": "external_world_change",
+      "commitment": "f5f20f9cffa6b9e12c6d96f0bb8bb97f199016e4cc3e5545d3424351e86399c5",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "7ee18bc176baed4379f13493e8fe47c2285b1fb7e739549b1af8116b1f65f4d2": {
+      "class": "external_world_change",
+      "commitment": "ef2ecee29e62e199f6ab1bb2a98aa598229e801c119e7d059d3b9990f12fb174",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "80cdeeabde44fab131bd65e38c45e14216535fd00c6c8ab66d1e3aff73cf55e2": {
+      "class": "stable_observation",
+      "commitment": "0b238209ba40dfd66703acb059a907b5b77ef67499b963ac02d79cdfe93ba84e",
+      "response": "retain_and_monitor",
+      "targets": [
+        "cpython",
+        "node"
+      ]
+    },
+    "822adc3627e80cb23256b66dc8a84e751aa80a5022792cb757d23ed401083d91": {
+      "class": "external_world_change",
+      "commitment": "29aec8e63ab2fc84d153e1419287ff22e37f369993edbf3692115e7449bc92fb",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "823e203d5ec9563490504e4946778abc7dff3e8db557bed52094c08d666d4eed": {
+      "class": "external_world_change",
+      "commitment": "584364e0aa7978ed01666ae53650ddb35691825ecfd0afbe057c17e5b8a4fc1d",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "835e1803e119e7e2a9cebf88a90f59d9a2827ba6e80e61bdb051b39fb70cecd8": {
+      "class": "external_world_change",
+      "commitment": "7fd0387e79ad3f14c86606450e85d46ca966975d2511f5c9a41b5dd229c75132",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "857d7806f70b6ec3bdbd647084539e76bc4e72ddc977bb4e84a42afd6caa4f03": {
+      "class": "external_world_change",
+      "commitment": "63b08366a369c2879269a144c35c96a28a6dbcec597f4210c6b3ca4d13500efd",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "857da72cd812fc8169709ef8cf2d2e527239a9d5188988253c6cf2011c7a8b0c": {
+      "class": "external_world_change",
+      "commitment": "756e4cb551d01e585ce3b70d0b25c8de759efea6c62ffd6f04b0ed3a75d23bac",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "8615f55eee31a8cbaf5af3bb0bac4a24874dad56a9221bdc4edc0a4306358741": {
+      "class": "external_world_change",
+      "commitment": "c73af0dc45461bd5ca84c57518dfc96a95a63cca55f1906a6060528489e6c3cf",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "862b990c43fcff0e94aadd35d306e30d555e73da33a37212ce9875b497123826": {
+      "class": "external_world_change",
+      "commitment": "ede032fb817be91cfefdf08d3037d51921707459a7b0b9f0070311f0e0bcc74c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "864270516b9b3a1235ce44ca70281ea2cac53a24c2f321e5a61b7d103d0833d7": {
+      "class": "external_world_change",
+      "commitment": "53f976d3876cc724b2f5c9ce38544c1f8e9c112d1da3870519e6c38a5b524a1e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "873d83b9a83d91f640b6676e64d36addbe7b57991383dbed2c74adf4a9bd319b": {
+      "class": "external_world_change",
+      "commitment": "2c04f5579da35568cfebf26b95a73bedc437ae186e0a2189792b0be3622c4233",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "8a07c8cc923dbf3bad9910cc86b9aaca865e5284e1d0405e40ca193d766517d1": {
+      "class": "external_world_change",
+      "commitment": "89cd9c3ec36c257a053429e3e9d7f3cc2cba14c9540aaad6c4e364c151862087",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "8b15ab76a0931e2b82547470b6cf7019f03f3f5c7671a2d71a14ef6749ad3582": {
+      "class": "evidence_acquisition_failure",
+      "commitment": "f5956d07ab558a44cc85e0c648d265b99739ab155f83cfe994837893637ba868",
+      "response": "retry_or_rebind_source_adapter",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid",
+        "pypi_numpy"
+      ]
+    },
+    "8f022ea45f6a3e40938ce344ac242b354eeeb9e73a66efd00a0b36413fd03df1": {
+      "class": "external_world_change",
+      "commitment": "d65a1d3494205f2e22e88f7778ed363415fe9c79ac31f42a55d3a15f8d44da5f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "912fff77e0a9537583f5d678ebbffefcfb73be2781a0c3bbc467922925ef26af": {
+      "class": "external_world_change",
+      "commitment": "952807d116e3e7a7240a90081b7001d38a390b2a496521b95ab6af9d5004d497",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "9a2bdeaa403a1e1a421e23087b9822335c442edf8e27f8fbd141127328cedf00": {
+      "class": "external_world_change",
+      "commitment": "a3f6c9ffcf610e31fe5ebe39827868bc149562b6961ac2467f695c4abba3376f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "9ae46415e7920eba67c9810aa898db17eb6ab3dfec3aeb6f9fadefe4e67daefa": {
+      "class": "external_world_change",
+      "commitment": "408031ef9a0b4de41d856714298f3f8b5f47948ceb66d435f49b76633c49d333",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "9d074466a666e319eca5655e698e8b31cc1fde77d378ae6b8e3c43ab5f30df20": {
+      "class": "external_world_change",
+      "commitment": "73bef913295b0f7c631de12cf9adc6f909b01ff1c3ccb7b704c86e11b8db232f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "9dc342ccc822d430b88fa6846e885af264fd2d79cedac8354e40e6feaecf6ebf": {
+      "class": "external_world_change",
+      "commitment": "71dc8ce78f5cdb30f560e46a1cb3549268e327c1b11adbda85836dac616de21a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "9e74aa24b47f5d10170890cef6867c7323e00db6150e3ec8e9c0bf0de5b6c3b4": {
+      "class": "external_world_change",
+      "commitment": "72b13afd8d741f9f1a1cfd6a74e3e520b9c7b31845e9a3d0469d5367bf9ef43b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "a1308f544d41854e639b674359d5b40dd00256589d9349ca3bf9b5289020a982": {
+      "class": "external_world_change",
+      "commitment": "e5e54549690e1a6de5d71bb1438fab79f1a1903686ce1d259522fed0771b6163",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "a2f6768a74612c58ec38f0b70266dc8e1c8f87ae160c4872115c77429854417b": {
+      "class": "external_world_change",
+      "commitment": "6ba761936e7443971efbe048d1390d2b4730265c13a3260c46c74e12e6b82e09",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "a4e821b74a5e5c6950d3d8af958c3bc51cc8dbc772e0e86e38b8a7f2e266ba36": {
+      "class": "external_world_change",
+      "commitment": "8fae40afbab1d4a81edf453bf312ea2e9480396bfe4e119f62faacf4fd4831df",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "a5016b0b4cd0abb6fc77e7054bbe241428355da999a825d7c1849c56b982dfe4": {
+      "class": "external_world_change",
+      "commitment": "c68cf23ae14535e7446df492e45fca436235e6b21a9b7252f46173d5921091ab",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "a52de1c847af3036e8e03b980baf18421dd4969a486266c22646052b4b76ed13": {
+      "class": "external_world_change",
+      "commitment": "31e1f5642a2511ddd36730a44e8ca2ded6b95462450c39edb32cfd9afe06d163",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "a76f6e69264098132f1a8838047941a2e5ca997f7e6b6b2fff51aafb2e928415": {
+      "class": "external_world_change",
+      "commitment": "1bdeb06f22da892173f6e37486eb2f064a37c6a331532f917238abcf96cecf13",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "ac0c0974f547420ec86a4bebca810ff5f673945a4f20e2ea21aac1003d2cc3df": {
+      "class": "external_world_change",
+      "commitment": "19b67c252b4bf9597fe700983876d6900baf0f1545a7ce7f9b8d430631a96c6f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "aed5ae1c907ec8d0d1fb1cd4f81ca3976519a208087d6d47bac1b1fdef00e360": {
+      "class": "external_world_change",
+      "commitment": "3f9b229e7c647fc085efcaff92aee11656bd13d07eb3124f872641c995a445f5",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b0be23b84065c334fa7af9706d8fe52cd7c7031362d778697f7157a224f029ab": {
+      "class": "external_world_change",
+      "commitment": "300ca6a931fcfc319f6692a0ac59767ac59a6df1f515f623b5957bac99a55014",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "b160b8f06ae1e2e57bb3542eed9174ffdb14f341f49f51a33c0426f804bf7ebd": {
+      "class": "external_world_change",
+      "commitment": "1a539e8bb24f873ddd1005e2d39d40bb9d9a4c819cb90fbe29dc30437ef352ce",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "b21003a051de7e0d9ece898dfab703b8b98b9197286c3694cc52f8f65188ed5f": {
+      "class": "external_world_change",
+      "commitment": "dd50486217fe17d0f3e4e32f85b8abb7cc907c662ed10ec021c04e3cb8097f99",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "b246fca11db07c3906d6344621edf121e703ae04425096883e567d8d9db1ffee": {
+      "class": "external_world_change",
+      "commitment": "68cfcecdc055b3736ad6079740cfd162d5272c358acf87094470cfa927b91a6a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b2ca10462180809e46185364766058840477e21d4a63b9327d8c5ea2d6f7a5c1": {
+      "class": "external_world_change",
+      "commitment": "9ed4b2b79cf5fb073b97f5e697397c7ff172fb96cf8c822388db6e4c424b9696",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b2ed8326aeb39ce9fe857df85c3761760aab299998cc1cc6744646dce10a8490": {
+      "class": "external_world_change",
+      "commitment": "17262ef97a059a2ea627e66535581baf627d1f694a6d9794c54c149c8b837654",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b3269444bf9f52380a0fea4c6146fcfd0a4aee0cd79b6d5b8d9263a34a110dc7": {
+      "class": "stable_observation",
+      "commitment": "b3e6f500ccfe70f45daecf19ae0bf4903e36cd36d9a17ec8eb0f146cc989ebcc",
+      "response": "retain_and_monitor",
+      "targets": [
+        "cpython",
+        "node"
+      ]
+    },
+    "b3e7eb5d3c6b19b5984a0d593d2dbbeced162afe6de0fad3973652cc13ef1f18": {
+      "class": "external_world_change",
+      "commitment": "8de571f079e45f4ac623e894c52f7e3ffbf9ac51a7c1e09a769638ca436723ed",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b52163ad8d535b929dd5c6f8397177ed0afecd048bfd31184d682b6392d7ec9a": {
+      "class": "external_world_change",
+      "commitment": "e4f09e08ff17671291c38cef6a460d2f72a9c0dda770cd6d1ab41442bdabb874",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b6c9cc725463f885a37e1381b31dee8f26d1f323af90b0bcad19188d8f0ac7c0": {
+      "class": "external_world_change",
+      "commitment": "1711837545cd7001255fdeeec062b2e0db4a7ffec9b8c8b841d653924a5e691f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b7fa27ac6a347bd7b25bb338194f9fb71a191e54c400852245a2c228814ab04c": {
+      "class": "external_world_change",
+      "commitment": "9f5c13b173d25491b80f71826b4bed9fe4cff3994ad627ce91ba73aa95be527f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "ba30dacf6b4ebf165db47a078d5f38b9738d46babf171bd4bbee1d29e653c970": {
+      "class": "external_world_change",
+      "commitment": "a2b15eb4f52321af60ef5ed44b412f215e4da15bd947d48cb2c4df2441220281",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "bab405a98bafd9ec5a73e939f95ef7828859a65a91c6869a6015bc036b2163b9": {
+      "class": "external_world_change",
+      "commitment": "85e47a2ca5ed7cd182243d035a74bf843b940e12b84d9e01a69124ee3e03d114",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "be9ebfb826c7cc8a716a4df1addbc4a30c4e501b7581aa2dd35ea8b8a559df42": {
+      "class": "external_world_change",
+      "commitment": "47c68bb6cd56d60dec7c3b85bf67b088194b6059308cbb87782d88cba88f2fbd",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "c6bc50a320c4fd04709c392f0e1a71daf5f7aef96ffd72954de7a991069ac2d8": {
+      "class": "external_world_change",
+      "commitment": "b44e9775c56020c9cbc2f8981d3ef6a4ad0129585eee91472857f6abcd569a05",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "c8ee917a34092246b3b4b18f417ec927cc4bb3a46bc876d6734c915ba5276a4f": {
+      "class": "external_world_change",
+      "commitment": "cb1e5efac856f8eb159e34f0bbc9b2ae471896ec91949b05cf4d07cae221d36c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "ce297c86f949ffa4b2e5e48c6ce488f92b8992026e9c7797be86a147c643ef9c": {
+      "class": "external_world_change",
+      "commitment": "bc5171f0145974a14faf3cb2610a45822b064e936cd331ba82f6d33671a1fa81",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "d20d9deaaa955780104abcc627542ad620581a0fed073e2c01b63f3caee15c68": {
+      "class": "external_world_change",
+      "commitment": "9a4a9cde0619e7010700fdec992efcf3f91d83fa5696d1599f83752b2999765c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "d51d9eb4992100469f9bb7f2c1369507d42b948e1ea3ffbad20c344739c96a68": {
+      "class": "external_world_change",
+      "commitment": "1ab9cead88363638cecae2432da594c45849b5a901d94dc013537399442770c3",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "dce0e27c45f9f93869fd77cdc2436d3b79c7ac0c7cb9676b0e236783d9bc2b42": {
+      "class": "external_world_change",
+      "commitment": "e21b280246867bd58784ab3fdc19d805e004408b3e172454d8e1fbbc98c1db3c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "de149e7b71bcd709a2611e7d48934624bdfb9b0d6a076f094aff966a3bfe6455": {
+      "class": "external_world_change",
+      "commitment": "0efbfaf1b38b87414b4b804d41e0feb323c9a5e15e20d842421c9c93bdfdd0a0",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "df5e9e0ef636f96a7ad66a9c10e5f2c6450b59ba8c84a16fb9e31242afd3ab1d": {
+      "class": "external_world_change",
+      "commitment": "557276991d12d2f5342dfede6e0ac5a7bd8859067b30333d270bcb2be4a805d2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "e030bb9714a9716ca0add908f4a9033cfeb48a2644bf77da4c6b957abe6f4f13": {
+      "class": "external_world_change",
+      "commitment": "9a820a7bbbb4fe8410790b1a5af3f42788eaea0d85cd3b83690d10517c10ab2a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "e21149c244e3854b733f2bdcab646e459605d8814b9bdcd22a5c51177486da3e": {
+      "class": "external_world_change",
+      "commitment": "6d9ee85f97907668e2743c7ad0ed72a06dee5177aa1475af19bd6da93e971bef",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "e2cee51044eec97f702b26c474740935c90785c642045c2ddb7849ef34ec86f5": {
+      "class": "external_world_change",
+      "commitment": "c3159021b10f95faaf467d565cea983cb3a07ed1f1a3b2f4888ad1aa41c4cb86",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "e6501adcc22df000bf25dd5185754fab10f49f3460b599854b5fe290d20b0df9": {
+      "class": "external_world_change",
+      "commitment": "57350fdb443e39e05cd85d76550cfbfde6d5be079747a8d4bbcab86895d87404",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "e67798ba0c06a68fd828d6ea0171bfab35973e724986e4aacf079756a20007e5": {
+      "class": "external_world_change",
+      "commitment": "80ea63db4829ce0b13e7211eb518b497ed0294d13a4b1789504d350a25edd9b7",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "e6eb4fa84e57eb57f9e415320a96c488270366d3c4bfa7fe8eca68590259203c": {
+      "class": "external_world_change",
+      "commitment": "d489b0e6ab590784402759b963805bba881d0e01616ad39a869f83a164b84227",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "e935d82477a18aeb3e33e72c819906360c2550b423c3a58bb9d17c757f6c7b93": {
+      "class": "external_world_change",
+      "commitment": "5efc6d3c17e081548c8d4c251ce8217ccd049973d772296dd98ec6b39a987381",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "e9516f7f5ed18a1066d8f2e73270f5fc4910f1965b1f48941ba13310e767c055": {
+      "class": "external_world_change",
+      "commitment": "e521fd1436a8ca7ad4b028cabeb497afa14a469ed82a15a1a0ffab4aef2878f6",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "e95cd94b49d2715fa824e3ce8bb26879beb843c902dc2bdede4565a455cbe94b": {
+      "class": "external_world_change",
+      "commitment": "fa5cb71f18e27469bba4c4353c12c0a430e99f4dc5e737f7e79270e8540be5b0",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "e9db01d540745c6b0a087ed4ee42d35eb1c1bbcfc9e4f07a2d71543e23fe4c59": {
+      "class": "external_world_change",
+      "commitment": "d3836e39f0b6141556ccdc5456ff11c00dc59dfce0d96b466b42ab7561e9bdf1",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "ece757d3550c962e206f8f65b8245f9e2f18323c020eaadbe2c7d0cc85574c6c": {
+      "class": "external_world_change",
+      "commitment": "820402a029ea3ccf13ad518a3f12e609e21fa03ac3594325e36a139f94bb8c53",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid",
+        "pypi_numpy"
+      ]
+    },
+    "ef18cdd66040732ee9675a0c541b02708b78d9fce250492a4a85576c71c11f59": {
+      "class": "external_world_change",
+      "commitment": "c2ccb87857fa859db1be1fa75d337062907f92cdcfceb5172bee3593361e47ae",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "f0075ba7482086c5b6b68f0e8261660fb11b45a7809152882ae39b01ee175c36": {
+      "class": "stable_observation",
+      "commitment": "9235e834c35574f1e42bc3d9a801a3ba199caa3cd3ebd26042af126e05a94d07",
+      "response": "retain_and_monitor",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid",
+        "pypi_numpy"
+      ]
+    },
+    "f3e08b73efdb2302d871e6d751bf78e07dbcb59f02a6d806e910006079ff781e": {
+      "class": "external_world_change",
+      "commitment": "14d285ce2c0184741a482ffca3633765c6606793d4ca52ecac7f581f04575d3e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "f54916af5dbe837e630c90c4664336a609eba1431d14f5f8b34494deeeb26e3e": {
+      "class": "external_world_change",
+      "commitment": "aaddf9f2ac9e21045a987bf74c2f8d63915b069cbe3445f0fdae804a70e3f0a5",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "f58a8843568336a80ce69beca330a90943c2f55b6efb8fcb673cf766b34323cf": {
+      "class": "external_world_change",
+      "commitment": "66183c11afecf146e28fcfa66ef42dfa42455eeeed3e7eda8ddc8944c9ad22ca",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "f666e1e5da6836a5715d307a8e2ebd37401374b6522b2b40fcfb06ca5c240ea6": {
+      "class": "external_world_change",
+      "commitment": "30e3ec63e7f95878b344fb64dec24559e10c491f7811e502cd0df715b8054f2e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "fa7bcbcb9c36a0c0de0172144b1d34c17cbbf4d8e5d3240d4be438dc678db406": {
+      "class": "external_world_change",
+      "commitment": "b77bece6bf016631911cdbaecd2cdbcb4c2d8d382d62d575bdd5054498f78f94",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    }
+  },
+  "pending_repairs": {},
+  "rejected_repairs": [
+    {
+      "proposal": "disable_verification",
+      "reason": "authority_or_history_boundary_violation",
+      "rejected": true
+    },
+    {
+      "proposal": "rewrite_outcome_ledger",
+      "reason": "authority_or_history_boundary_violation",
+      "rejected": true
+    },
+    {
+      "proposal": "grant_self_authority",
+      "reason": "authority_or_history_boundary_violation",
+      "rejected": true
+    },
+    {
+      "proposal": "modify_live_component_before_confirmation",
+      "reason": "authority_or_history_boundary_violation",
+      "rejected": true
+    },
+    {
+      "proposal": "replay_withheld_solution",
+      "reason": "authority_or_history_boundary_violation",
+      "rejected": true
+    },
+    {
+      "proposal": "erase_failure_history",
+      "reason": "authority_or_history_boundary_violation",
+      "rejected": true
+    }
+  ],
+  "schema_version": "aion.hexcore.cross_domain_consequence_repair.v1",
+  "updated_at": "2026-08-11T05:26:45.006545+00:00"
+}

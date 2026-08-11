@@ -1,0 +1,368 @@
+{
+  "later_reconstructions": [
+    {
+      "campaign_id": "reliable_dependency_service",
+      "capsule_sha256": "4c2e3537f103829be5a682684c493b19c4c3100bb2bb7e42ce4aa0a2416f0366",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_c7cbb61f8bfeb194a45b",
+          "subject_id": "algorithms_data_structures"
+        },
+        {
+          "evidence_id": "competency_evidence_ecbbd590bca4f190ef43",
+          "subject_id": "software_engineering"
+        }
+      ],
+      "completed_at": "2026-08-02T09:42:46.574104+00:00",
+      "later_authority": "fresh_cpython_execution_plus_adversarial_mutations",
+      "original_receipt_sha256": "001d3418fc9c348a3060c84a726659d3e492b59e3c4e189e1658f36782014a3e",
+      "passed": true,
+      "project_id": "cross_campaign_3b650dae650eb111bf",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_3b650dae650eb111bf/immutable_delayed_reconstruction_receipt.json",
+      "receipt_sha256": "90818bfaa0286c53a7806d583cd942ee83b8b7309f1f58900f0d57aa4b92fc73",
+      "retention_credit": 1
+    },
+    {
+      "campaign_id": "formal_empirical_model",
+      "capsule_sha256": "446350f4e919174d0f4e4358852e9cd7adf4c9f5012eedb56dd0d00a2a1dd1c1",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_1bcb59209fbaf39e08b8",
+          "subject_id": "mathematics"
+        },
+        {
+          "evidence_id": "competency_evidence_9d2cdd1c2bda9ae76ffa",
+          "subject_id": "scientific_method"
+        }
+      ],
+      "completed_at": "2026-08-02T09:42:46.792883+00:00",
+      "later_authority": "official_world_bank_temporal_holdout",
+      "original_receipt_sha256": "c0d5833a53f193addc2015653464e58151c78d032048e149ae8aa56c75ce4dbe",
+      "passed": true,
+      "project_id": "cross_campaign_92eed47dd6a9926ecc",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_92eed47dd6a9926ecc/immutable_delayed_reconstruction_receipt.json",
+      "receipt_sha256": "f696e82a8e78438cd1a014794126a79c1be6fe448bebf7f9dbc645fbb9e1d981",
+      "retention_credit": 1
+    },
+    {
+      "campaign_id": "ambiguous_software_mission",
+      "capsule_sha256": "eed4f9e2ea5f597c62e7dcf3db298cce13566134dd7f2c56ffab0352a5e636f9",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_4fadc3ed15602daeb2c7",
+          "subject_id": "english"
+        },
+        {
+          "evidence_id": "competency_evidence_e859cf8d79367c6fa465",
+          "subject_id": "software_engineering"
+        }
+      ],
+      "completed_at": "2026-08-02T09:42:47.381063+00:00",
+      "later_authority": "official_pypi_metadata_plus_local_ast_exposure",
+      "original_receipt_sha256": "a46c83084b55987b3a0d76a773506a57d911c61c181bd4d21239b3c762dc7862",
+      "passed": true,
+      "project_id": "cross_campaign_3b82994712308df847",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_3b82994712308df847/immutable_delayed_reconstruction_receipt.json",
+      "receipt_sha256": "fe2f29975b54b7d7c3e8b48eb168799acf46be12c6e2871a07b7f6fcafec43b6",
+      "retention_credit": 1
+    },
+    {
+      "campaign_id": "reproducible_python_science",
+      "capsule_sha256": "81121088f62c2ca1dce6c6bb8a855447d5f40c287deb30422b756cd65df544b5",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_3a61db5cf35c82250927",
+          "subject_id": "python"
+        },
+        {
+          "evidence_id": "competency_evidence_383fadced1199647a279",
+          "subject_id": "scientific_method"
+        }
+      ],
+      "completed_at": "2026-08-02T09:42:47.598927+00:00",
+      "later_authority": "official_usgs_geojson_hidden_partition",
+      "original_receipt_sha256": "b8bba56e7a6267f9eff9a180654e9aaa704673e3e0809fd0d9edef00651e9e83",
+      "passed": true,
+      "project_id": "cross_campaign_6ca0646d50bbd5e4ee",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_6ca0646d50bbd5e4ee/immutable_delayed_reconstruction_receipt.json",
+      "receipt_sha256": "37e2166f2d439c55259c1f1fe74a95810a4f44a56cd39b1b68ba7345208fb75e",
+      "retention_credit": 1
+    },
+    {
+      "campaign_id": "algorithmic_proof_and_measurement",
+      "capsule_sha256": "4c2e3537f103829be5a682684c493b19c4c3100bb2bb7e42ce4aa0a2416f0366",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_868854177371cae4d2d1",
+          "subject_id": "algorithms_data_structures"
+        },
+        {
+          "evidence_id": "competency_evidence_8b21c0f767e28e8a2b36",
+          "subject_id": "mathematics"
+        }
+      ],
+      "completed_at": "2026-08-02T09:42:47.688390+00:00",
+      "later_authority": "independent_bellman_ford_oracle_plus_empirical_growth",
+      "original_receipt_sha256": "e3a571eba703d9db5151bfd9712d1f10720ce14a7c10c25f46d4f406c85ea7b2",
+      "passed": true,
+      "project_id": "cross_campaign_def0691215c733fde4",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_def0691215c733fde4/immutable_delayed_reconstruction_receipt.json",
+      "receipt_sha256": "cc9df030aa88c31a9261aae5e46d59b2226a3220c4e7a342a7834c5ee36f6c6e",
+      "retention_credit": 1
+    },
+    {
+      "campaign_id": "evidence_bound_explanation",
+      "capsule_sha256": "eed4f9e2ea5f597c62e7dcf3db298cce13566134dd7f2c56ffab0352a5e636f9",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_95b18b67789863663e9e",
+          "subject_id": "english"
+        },
+        {
+          "evidence_id": "competency_evidence_22ce8aeee8e76213da7a",
+          "subject_id": "scientific_method"
+        }
+      ],
+      "completed_at": "2026-08-02T09:42:48.272468+00:00",
+      "later_authority": "official_python_language_reference_plus_fresh_runtime",
+      "original_receipt_sha256": "9697424df9a411a2999c1743411cd82a5ded14fd0004ee497a89c55800020b54",
+      "passed": true,
+      "project_id": "cross_campaign_ed21c4c919304d056f",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_ed21c4c919304d056f/immutable_delayed_reconstruction_receipt.json",
+      "receipt_sha256": "3f253ab4cc50ab5ab6f5f9fde99853d87ef2800679ea82376acfcdc5e41d8b67",
+      "retention_credit": 1
+    }
+  ],
+  "projects": [
+    {
+      "campaign_id": "reliable_dependency_service",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_bea581163d02d6064837",
+          "subject_id": "algorithms_data_structures"
+        },
+        {
+          "evidence_id": "competency_evidence_a966e85ad316964b7798",
+          "subject_id": "software_engineering"
+        }
+      ],
+      "contract": {
+        "campaign_commitment_sha256": "a5613edaea1c379f48a3945afc85eaeb86ed73e7c0b76a5e528eb6fe34a6ae5c",
+        "campaign_id": "reliable_dependency_service",
+        "contract_sha256": "3b650dae650eb111bf5ea1f8fd9afc888a329dc5795fec9204955d560abdab68",
+        "created_at": "2026-08-02T08:39:06.871577+00:00",
+        "objective": "Build and falsify a dependency service that remains correct under cycles, retries and partial failure.",
+        "required_subjects": [
+          "algorithms_data_structures",
+          "software_engineering"
+        ],
+        "success": "independent authority passes, all counterexamples rejected, zero live writes"
+      },
+      "not_before_epoch": 1785663546.871347,
+      "outcome_summary": {
+        "authority": "fresh_cpython_execution_plus_adversarial_mutations",
+        "counterexamples_rejected": 4,
+        "counterexamples_total": 4,
+        "source_disjoint": true
+      },
+      "passed": true,
+      "project_id": "cross_campaign_3b650dae650eb111bf",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_3b650dae650eb111bf/immutable_project_receipt.json",
+      "receipt_sha256": "001d3418fc9c348a3060c84a726659d3e492b59e3c4e189e1658f36782014a3e",
+      "report_path": "results/aion_cross_domain_campaigns/cross_campaign_3b650dae650eb111bf/owner_report.md",
+      "status": "DELAYED_RECONSTRUCTION_PASSED"
+    },
+    {
+      "campaign_id": "formal_empirical_model",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_d5861170a11afb4b8efc",
+          "subject_id": "mathematics"
+        },
+        {
+          "evidence_id": "competency_evidence_7b6ef54e33ff730af7e3",
+          "subject_id": "scientific_method"
+        }
+      ],
+      "contract": {
+        "campaign_commitment_sha256": "ece6061a433b558782c89aee60a9b30c775aeecac5c66b6088e3f6c31e954e5a",
+        "campaign_id": "formal_empirical_model",
+        "contract_sha256": "92eed47dd6a9926ecca3c5ebe19f67fdfb6be249048f1e098e174e10d2dd8874",
+        "created_at": "2026-08-02T08:39:07.173398+00:00",
+        "objective": "Derive a mathematical model, design a falsifying experiment and revise it under conflicting measurements.",
+        "required_subjects": [
+          "mathematics",
+          "scientific_method"
+        ],
+        "success": "independent authority passes, all counterexamples rejected, zero live writes"
+      },
+      "not_before_epoch": 1785663546.871347,
+      "outcome_summary": {
+        "authority": "official_world_bank_temporal_holdout",
+        "counterexamples_rejected": 2,
+        "counterexamples_total": 2,
+        "source_disjoint": true
+      },
+      "passed": true,
+      "project_id": "cross_campaign_92eed47dd6a9926ecc",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_92eed47dd6a9926ecc/immutable_project_receipt.json",
+      "receipt_sha256": "c0d5833a53f193addc2015653464e58151c78d032048e149ae8aa56c75ce4dbe",
+      "report_path": "results/aion_cross_domain_campaigns/cross_campaign_92eed47dd6a9926ecc/owner_report.md",
+      "status": "DELAYED_RECONSTRUCTION_PASSED"
+    },
+    {
+      "campaign_id": "ambiguous_software_mission",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_848bacf0f9dfde12a048",
+          "subject_id": "english"
+        },
+        {
+          "evidence_id": "competency_evidence_b6b6aa52042e73730d52",
+          "subject_id": "software_engineering"
+        }
+      ],
+      "contract": {
+        "campaign_commitment_sha256": "35a38f051cf3290d0bfae31be33d09042dee0e3421eb4f97f0d4f6f0c2b34a68",
+        "campaign_id": "ambiguous_software_mission",
+        "contract_sha256": "3b82994712308df847c2baf7e4da027db50d13cb19b14e634d713e6c65fdb5e2",
+        "created_at": "2026-08-02T08:39:07.370367+00:00",
+        "objective": "Resolve an ambiguous natural-language software mission, state assumptions and implement only the verified interpretation.",
+        "required_subjects": [
+          "english",
+          "software_engineering"
+        ],
+        "success": "independent authority passes, all counterexamples rejected, zero live writes"
+      },
+      "not_before_epoch": 1785663546.871347,
+      "outcome_summary": {
+        "authority": "official_pypi_metadata_plus_local_ast_exposure",
+        "counterexamples_rejected": 2,
+        "counterexamples_total": 2,
+        "source_disjoint": true
+      },
+      "passed": true,
+      "project_id": "cross_campaign_3b82994712308df847",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_3b82994712308df847/immutable_project_receipt.json",
+      "receipt_sha256": "a46c83084b55987b3a0d76a773506a57d911c61c181bd4d21239b3c762dc7862",
+      "report_path": "results/aion_cross_domain_campaigns/cross_campaign_3b82994712308df847/owner_report.md",
+      "status": "DELAYED_RECONSTRUCTION_PASSED"
+    },
+    {
+      "campaign_id": "reproducible_python_science",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_4e8224dcf8c225f7bc81",
+          "subject_id": "python"
+        },
+        {
+          "evidence_id": "competency_evidence_7257c50234eca278f0c8",
+          "subject_id": "scientific_method"
+        }
+      ],
+      "contract": {
+        "campaign_commitment_sha256": "0cd0bf3b4ae5687e9869fe737acc7c19a8962e201bd9c3d03f8289f5dc5b6bf7",
+        "campaign_id": "reproducible_python_science",
+        "contract_sha256": "6ca0646d50bbd5e4ee242c02c29802a839b8d8d816ff6d68b9e5479bad081bed",
+        "created_at": "2026-08-02T08:39:08.223216+00:00",
+        "objective": "Create a reproducible Python investigation whose causal conclusion survives counterexamples and fresh execution.",
+        "required_subjects": [
+          "python",
+          "scientific_method"
+        ],
+        "success": "independent authority passes, all counterexamples rejected, zero live writes"
+      },
+      "not_before_epoch": 1785663546.871347,
+      "outcome_summary": {
+        "authority": "official_usgs_geojson_hidden_partition",
+        "counterexamples_rejected": 2,
+        "counterexamples_total": 2,
+        "source_disjoint": true
+      },
+      "passed": true,
+      "project_id": "cross_campaign_6ca0646d50bbd5e4ee",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_6ca0646d50bbd5e4ee/immutable_project_receipt.json",
+      "receipt_sha256": "b8bba56e7a6267f9eff9a180654e9aaa704673e3e0809fd0d9edef00651e9e83",
+      "report_path": "results/aion_cross_domain_campaigns/cross_campaign_6ca0646d50bbd5e4ee/owner_report.md",
+      "status": "DELAYED_RECONSTRUCTION_PASSED"
+    },
+    {
+      "campaign_id": "algorithmic_proof_and_measurement",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_f11859cbfd831883e17d",
+          "subject_id": "algorithms_data_structures"
+        },
+        {
+          "evidence_id": "competency_evidence_e679f097debd984db47c",
+          "subject_id": "mathematics"
+        }
+      ],
+      "contract": {
+        "campaign_commitment_sha256": "9b01c8eb7241e1d103bf10eca95264662973fd096708f997b6d17852ea32bbef",
+        "campaign_id": "algorithmic_proof_and_measurement",
+        "contract_sha256": "def0691215c733fde4c5948bf0ab2aaece80abeaf62ea667d24bc26f74516fc7",
+        "created_at": "2026-08-02T08:39:08.829558+00:00",
+        "objective": "Prove an algorithmic invariant and compare its predicted complexity with independently measured growth.",
+        "required_subjects": [
+          "algorithms_data_structures",
+          "mathematics"
+        ],
+        "success": "independent authority passes, all counterexamples rejected, zero live writes"
+      },
+      "not_before_epoch": 1785663546.871347,
+      "outcome_summary": {
+        "authority": "independent_bellman_ford_oracle_plus_empirical_growth",
+        "counterexamples_rejected": 51,
+        "counterexamples_total": 51,
+        "source_disjoint": true
+      },
+      "passed": true,
+      "project_id": "cross_campaign_def0691215c733fde4",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_def0691215c733fde4/immutable_project_receipt.json",
+      "receipt_sha256": "e3a571eba703d9db5151bfd9712d1f10720ce14a7c10c25f46d4f406c85ea7b2",
+      "report_path": "results/aion_cross_domain_campaigns/cross_campaign_def0691215c733fde4/owner_report.md",
+      "status": "DELAYED_RECONSTRUCTION_PASSED"
+    },
+    {
+      "campaign_id": "evidence_bound_explanation",
+      "competency_evidence": [
+        {
+          "evidence_id": "competency_evidence_fb74037817ea8c4bbd95",
+          "subject_id": "english"
+        },
+        {
+          "evidence_id": "competency_evidence_bd559d0e9a1dbeb341a9",
+          "subject_id": "scientific_method"
+        }
+      ],
+      "contract": {
+        "campaign_commitment_sha256": "b9958855c075b613027c6f6c3e1d45d54c1986baf39565aeae2f07b3da00c4b3",
+        "campaign_id": "evidence_bound_explanation",
+        "contract_sha256": "ed21c4c919304d056f98b55b8fe9314458ba21ecc668a720c8c5c190970fca16",
+        "created_at": "2026-08-02T08:39:08.904632+00:00",
+        "objective": "Investigate a disputed technical claim and produce a clear explanation that separates evidence, inference and uncertainty.",
+        "required_subjects": [
+          "english",
+          "scientific_method"
+        ],
+        "success": "independent authority passes, all counterexamples rejected, zero live writes"
+      },
+      "not_before_epoch": 1785663546.871347,
+      "outcome_summary": {
+        "authority": "official_python_language_reference_plus_fresh_runtime",
+        "counterexamples_rejected": 2,
+        "counterexamples_total": 2,
+        "source_disjoint": true
+      },
+      "passed": true,
+      "project_id": "cross_campaign_ed21c4c919304d056f",
+      "receipt_path": "results/aion_cross_domain_campaigns/cross_campaign_ed21c4c919304d056f/immutable_project_receipt.json",
+      "receipt_sha256": "9697424df9a411a2999c1743411cd82a5ded14fd0004ee497a89c55800020b54",
+      "report_path": "results/aion_cross_domain_campaigns/cross_campaign_ed21c4c919304d056f/owner_report.md",
+      "status": "DELAYED_RECONSTRUCTION_PASSED"
+    }
+  ],
+  "schema_version": "aion.hexcore.cross_domain_campaign_execution.v1",
+  "updated_at": "2026-08-11T05:26:52.381387+00:00"
+}

@@ -1,0 +1,251 @@
+{
+  "attempts": [
+    {
+      "duration_seconds": 0.366,
+      "module_id": "advanced_python",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_advanced_python_academy.json",
+        "artifact_hash": "75760e72aac6521d783746d5c21f337921bb7db7955d119c14fc827f8af94f9b",
+        "contract_commitment": "534620b22d87417305b53de07a0a43f4f2b182309c58c00ab6bdcad1934ac46d",
+        "created_at": "2026-08-01T09:23:25.783618+00:00",
+        "module_id": "advanced_python",
+        "procedure_id": "procedure_advanced_python_apprenticeship_v1",
+        "receipt_id": "academy_receipt_b76badfbcc6f0115",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576205.784072,
+      "request_id": "academy_executor_534620b22d874173",
+      "result_path": "results/hexcore_advanced_python_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.987,
+      "module_id": "testing_debugging",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_testing_debugging_academy.json",
+        "artifact_hash": "b1a55868d0e5d5f29c047d2c3ae17a60b256b71017bf7e350578bef417958c64",
+        "contract_commitment": "574e321dd33d9305a889bf47bd853eb03cf46be1de7ecdd160d975e7f2787921",
+        "created_at": "2026-08-01T09:23:26.773125+00:00",
+        "module_id": "testing_debugging",
+        "procedure_id": "procedure_testing_debugging_academy_bridge_v1",
+        "receipt_id": "academy_receipt_77c1ba0fe21d79af",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576206.773663,
+      "request_id": "academy_executor_574e321dd33d9305",
+      "result_path": "results/hexcore_testing_debugging_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.011,
+      "module_id": "software_engineering",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_software_engineering_academy.json",
+        "artifact_hash": "01f9edb0dba501ffc770f14f52227672e44a333d5c81c52927dd34fa539a20cd",
+        "contract_commitment": "9fad9418160bf53766ebd85ffc79345ab1dda2b42d54d280a21b66b396a85509",
+        "created_at": "2026-08-01T09:26:52.442672+00:00",
+        "module_id": "software_engineering",
+        "procedure_id": "procedure_software_engineering_academy_bridge_v1",
+        "receipt_id": "academy_receipt_220b9d435db5f175",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576412.4433331,
+      "request_id": "academy_executor_9fad9418160bf537",
+      "result_path": "results/hexcore_software_engineering_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.005,
+      "module_id": "database_engineering",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_database_engineering_academy.json",
+        "artifact_hash": "c45f161726388aaeebe9fdea64b900b05d41be033f87f092feef7f53fd7c2540",
+        "contract_commitment": "1fb084b42b2a529accaed6e014e8b40995a5aca1ad06086e8aa7f252a0c00ce1",
+        "created_at": "2026-08-01T09:26:52.449340+00:00",
+        "module_id": "database_engineering",
+        "procedure_id": "procedure_database_engineering_academy_bridge_v1",
+        "receipt_id": "academy_receipt_b0a64f5c9af245d2",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576412.450048,
+      "request_id": "academy_executor_1fb084b42b2a529a",
+      "result_path": "results/hexcore_database_engineering_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.134,
+      "module_id": "operating_systems",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_operating_systems_academy.json",
+        "artifact_hash": "20e061249b6359aa53a318258040b0f18a167a5f0718ecfb26144dfddbdf3ce2",
+        "contract_commitment": "36ce9e45a67df5b98d57b865de260e1a8265a1d94a8c563e1f1587b2d7d7d528",
+        "created_at": "2026-08-01T09:27:50.834374+00:00",
+        "module_id": "operating_systems",
+        "procedure_id": "procedure_operating_systems_apprenticeship_v1",
+        "receipt_id": "academy_receipt_ab01f2226477a7e0",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576470.835132,
+      "request_id": "academy_executor_36ce9e45a67df5b9",
+      "result_path": "results/hexcore_operating_systems_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.647,
+      "module_id": "networking",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_networking_academy.json",
+        "artifact_hash": "32b5c534fbe19a17926a4a572844f4ce0d76fa725b00fd4017b29fd837599039",
+        "contract_commitment": "43bd223d8f287f4a70e03aedfd249bb35fc019f5dd23ff1c687808db0663fd93",
+        "created_at": "2026-08-01T09:30:30.709487+00:00",
+        "module_id": "networking",
+        "procedure_id": "procedure_networking_apprenticeship_v1",
+        "receipt_id": "academy_receipt_d32f346b03fb74aa",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576630.71134,
+      "request_id": "academy_executor_43bd223d8f287f4a",
+      "result_path": "results/hexcore_networking_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.007,
+      "module_id": "rust_systems",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_rust_systems_academy.json",
+        "artifact_hash": "51067a0cbf3acbd39f61622f73f201383f4c650bbf74bbccfd8c9dd9e8774e10",
+        "contract_commitment": "ebabd149f23011c7e2433e55dfd5fbc78473a88c202ada5662a2fb9725db2989",
+        "created_at": "2026-08-01T09:30:30.720923+00:00",
+        "module_id": "rust_systems",
+        "procedure_id": "procedure_rust_systems_academy_bridge_v1",
+        "receipt_id": "academy_receipt_088d3890d8f7c8cd",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576630.7221901,
+      "request_id": "academy_executor_ebabd149f23011c7",
+      "result_path": "results/hexcore_rust_systems_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.005,
+      "module_id": "secure_engineering",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_secure_engineering_academy.json",
+        "artifact_hash": "0d85e201a584caca2336726df26a32e87b405866730c12be4246191de35a052d",
+        "contract_commitment": "5ff0520b14db79906ae0401b6dbeeb6f694036bbbe8343164e5a5926b8cc9932",
+        "created_at": "2026-08-01T09:32:15.767976+00:00",
+        "module_id": "secure_engineering",
+        "procedure_id": "procedure_secure_engineering_academy_bridge_v1",
+        "receipt_id": "academy_receipt_4da6865a73af5067",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576735.7688751,
+      "request_id": "academy_executor_5ff0520b14db7990",
+      "result_path": "results/hexcore_secure_engineering_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.004,
+      "module_id": "distributed_systems",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_distributed_systems_academy.json",
+        "artifact_hash": "add511a57762a4e7f5fb0433bbf45b884821c05bf7081dbb2a6e84127482f31e",
+        "contract_commitment": "c52d15ed553ec2a78d30a20453b9072433d2319860251c791958eeb152b6a29f",
+        "created_at": "2026-08-01T09:32:15.777723+00:00",
+        "module_id": "distributed_systems",
+        "procedure_id": "procedure_distributed_systems_apprenticeship_v1",
+        "receipt_id": "academy_receipt_795b830c35fc6fec",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576735.778704,
+      "request_id": "academy_executor_c52d15ed553ec2a7",
+      "result_path": "results/hexcore_distributed_systems_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.006,
+      "module_id": "architecture_operations",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_architecture_operations_academy.json",
+        "artifact_hash": "c2abef3bf28bbd6b88d01fbadb0dde88d21e91fe01ed55acca87bd3048fa2c41",
+        "contract_commitment": "e6c60b541f9b24156a858eb3a5abe79bdbbf9452f0858065292c54acfcc0a40e",
+        "created_at": "2026-08-01T09:32:15.795271+00:00",
+        "module_id": "architecture_operations",
+        "procedure_id": "procedure_architecture_operations_academy_bridge_v1",
+        "receipt_id": "academy_receipt_72a660edd7080eec",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576735.796302,
+      "request_id": "academy_executor_e6c60b541f9b2415",
+      "result_path": "results/hexcore_architecture_operations_academy.json",
+      "status": "verified_and_registered"
+    },
+    {
+      "duration_seconds": 0.008,
+      "module_id": "integrated_engineering_capstone",
+      "progressed": true,
+      "receipt": {
+        "artifact": "results/hexcore_integrated_engineering_capstone_academy.json",
+        "artifact_hash": "781397e634c1d3aad5708d12f6fab9d764fa24d6dc786e38ab085462555688d2",
+        "contract_commitment": "3e65ca3929c7880c18516091a5b401e52f4832653a41c5cab112c4aa33c4ea7e",
+        "created_at": "2026-08-01T09:32:15.817000+00:00",
+        "module_id": "integrated_engineering_capstone",
+        "procedure_id": "procedure_integrated_engineering_capstone_bridge_v1",
+        "receipt_id": "academy_receipt_37e8f75b276d1344",
+        "restart_verified": true,
+        "score": 1.0,
+        "transfer_verified": true,
+        "verified": true
+      },
+      "recorded_epoch": 1785576735.8180108,
+      "request_id": "academy_executor_3e65ca3929c7880c",
+      "result_path": "results/hexcore_integrated_engineering_capstone_academy.json",
+      "status": "verified_and_registered"
+    }
+  ],
+  "consecutive_no_progress": 0,
+  "last_progress_at": 1785576735.8180108,
+  "last_progress_epoch": 1785576735.818013,
+  "schema_version": "aion.hexcore.academy_executor_worker.v1",
+  "status": "progressed"
+}

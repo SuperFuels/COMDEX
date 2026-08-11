@@ -1,0 +1,94 @@
+\section{Governed Semantic Routing and Executable Falsification}
+\label{sec:semantic-routing-executable-falsification}
+
+This cycle tested an outcome-governed semantic-memory router and executable,
+model-generated falsification programs. Neither challenger was promoted. These
+negative decisions distinguish useful infrastructure and partial falsification
+competence from a stable retained capability.
+
+\subsection{Semantic-memory routing}
+
+The router compared source-and-issue-only context, documentation-derived
+ontology memory, and expanded source/test/call-site memory. Unsafe or regressing
+policies were excluded and the minimum-cost safe policy was selected.
+
+\begin{table}[ht]
+\centering
+\caption{Governed semantic-router result.}
+\label{tab:semantic-router-results}
+\begin{tabular}{lr}
+\hline
+Measure & Result \\
+\hline
+Outcome rows & 9 \\
+Context policies & 3 \\
+Repositories & 3 \\
+Routed success & 100\% \\
+Weakest-repository success & 100\% \\
+Routed proposal attempts & 4 \\
+Never-memory attempts & 5 \\
+Always-documentation attempts & 4 \\
+Unsafe acceptances & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+The router selected documentation memory. It beat never-memory but tied the
+always-documentation champion, and did not meet the five-repository diversity
+gate. CAU rejected
+\texttt{procedure\_governed\_semantic\_memory\_router\_4e76e58498a8}.
+
+\subsection{Executable falsification}
+
+For each selected repair the proposal substrate generated a standalone
+functional program and an adversarial boundary/security program. No historical
+human patch or hidden verifier test was included in generation. An
+abstract-syntax-tree audit rejected network, subprocess, dynamic-execution,
+file-write, permission-changing and verification-bypass operations. A
+repository passed only if
+\begin{equation}
+ \neg T_f(x_{\mathrm{original}}) \land
+ T_f(x_{\mathrm{candidate}}) \land
+ T_a(x_{\mathrm{candidate}}),
+\end{equation}
+where $T_f$ is the functional falsifier and $T_a$ is the adversarial program.
+
+\begin{table}[ht]
+\centering
+\caption{Executable-test invention and one outcome-criticism round.}
+\label{tab:executable-falsification-results}
+\begin{tabular}{lrr}
+\hline
+Measure & Initial & Revised \\
+\hline
+Original buggy repositories rejected & 3/3 & 3/3 \\
+Selected repairs accepted & 1/3 & 1/3 \\
+Adversarial programs accepted & 1/3 & 1/3 \\
+End-to-end success & 33.33\% & 33.33\% \\
+Unsafe programs executed & 0 & 0 \\
+Timeouts & 0 & 0 \\
+Live writes & 0 & 0 \\
+\hline
+\end{tabular}
+\end{table}
+
+All generated functional programs falsified their original buggy checkout.
+However, pydicom did not reach the required lazy materialisation path and pvlib
+failed during an unrelated package-level NumPy incompatibility. A trace-only
+criticism turn diagnosed both failures but did not repair the execution
+harnesses. CAU therefore rejected
+\texttt{procedure\_executable\_falsification\_invention\_76dbafce2714} and
+\texttt{procedure\_revised\_executable\_falsification\_e4d6d473c3db}.
+
+\subsection{Resulting design requirement}
+
+Property invention must be separated from execution-environment grounding. The
+next system should acquire a minimal verified adapter for each unfamiliar
+runtime or test framework, prove that it reaches the target behavior, and then
+generate counterexamples and security properties inside that adapter.
+Promotion remains gated on original-fail/candidate-pass behavior, malicious
+candidate rejection, repeated-seed stability, at least five repositories and
+three languages, followed by independently administered hidden evaluation.
+
+This is partial executable falsification on a public bounded cohort, not
+reliable autonomous verification or independent external certification.

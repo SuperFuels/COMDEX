@@ -1,0 +1,11 @@
+{
+  "candidate_sha256": "f1478241975a7614ee530a83972ce837356799c432dc1425c9b91913ae8e28ef",
+  "candidate_source": "from __future__ import annotations\nfrom dataclasses import dataclass\nfrom typing import Iterable\n\n@dataclass(frozen=True)\nclass Summary:\n    count: int\n    total: int\n    minimum: int\n    maximum: int\n\ndef summarize(values: Iterable[int]) -> Summary:\n    items = list(values)\n    if not items:\n        raise ValueError(\"empty input\")\n    if not all(isinstance(value, int) and not isinstance(value, bool) for value in items):\n        raise TypeError(\"integers required\")\n    return Summary(len(items), sum(items), min(items), max(items))\n",
+  "certificate_id": "certificate_python_core_governed_v1",
+  "created_at": "2026-08-01T07:39:43.397637+00:00",
+  "exam_commitment": "d125938d90296788c9eead05e61fbfe1ffe5c46d83cc878b39d1d148fef82462",
+  "next_retest_after": "next_distinct_runtime_generation",
+  "status": "retention_retest_due",
+  "subject_id": "python",
+  "teacher_proposal_hash": "e81f340542debb1d4e55482c4a2ccf2ddb116231a4d9e3af2f3eea3686d0a5b2"
+}

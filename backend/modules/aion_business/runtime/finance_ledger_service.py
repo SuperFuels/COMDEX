@@ -16,6 +16,7 @@ from typing import Any, Iterable
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.finance_bank_activity_service import FinanceBankActivityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
 
@@ -136,6 +137,16 @@ class FinanceLedgerService:
             "tracking_categories": [self._tracking(item, sync_id) for item in raw["tracking_categories"]],
             "projects": [self._project_record(item, sync_id) for item in raw["projects"]],
         }
+        canonical_bank_activity = FinanceBankActivityService(self.repository).ledger_records(workspace_id)
+        controlled_test_bank_activity = [
+            item for item in canonical_bank_activity
+            if (item.get("source_ref") or {}).get("verification_status") == "controlled_test_fixture"
+        ]
+        existing_bank_ids = {str(item.get("bank_transaction_id")) for item in records["bank_transactions"]}
+        records["bank_transactions"].extend(
+            item for item in canonical_bank_activity
+            if str(item.get("bank_transaction_id")) not in existing_bank_ids
+        )
         for collection, items in records.items():
             for item in items:
                 item["record_hash"] = canonical_contract_hash(item)
@@ -149,7 +160,7 @@ class FinanceLedgerService:
             "schema_version": "aion.finance.ledger.v1",
             "ledger_id": ledger_id,
             "workspace_id": workspace_id,
-            "provider": "xero",
+            "provider": "xero_plus_canonical_bank_activity" if canonical_bank_activity else "xero",
             "source_sync_id": sync_id,
             "source_snapshot_hash": expected_snapshot_hash,
             "created_at": created_at or _now(),
@@ -159,12 +170,21 @@ class FinanceLedgerService:
             "currency": model.get("currency") or "EUR",
             "period": snapshot.get("period") or {},
             "record_counts": {key: len(value) for key, value in records.items()},
+            "canonical_bank_activity_count": len(canonical_bank_activity),
+            "controlled_test_bank_activity_count": len(controlled_test_bank_activity),
+            "provider_bank_transaction_count": len(raw["bank_transactions"]),
             "summaries": {
                 "accounts_receivable": round(sum(item["amount_due"] for item in receivables), 2),
                 "accounts_payable": round(sum(item["amount_due"] for item in payables), 2),
                 "overdue_receivables": round(sum(item["amount_due"] for item in receivables if item["is_overdue"]), 2),
                 "overdue_payables": round(sum(item["amount_due"] for item in payables if item["is_overdue"]), 2),
-                "bank_transaction_total": round(sum(item["total"] for item in records["bank_transactions"]), 2),
+                "bank_transaction_total": round(sum(
+                    item["total"] for item in records["bank_transactions"]
+                    if (item.get("source_ref") or {}).get("verification_status") != "controlled_test_fixture"
+                ), 2),
+                "controlled_test_bank_transaction_total": round(sum(
+                    item["total"] for item in controlled_test_bank_activity
+                ), 2),
                 "payment_total": round(sum(item["amount"] for item in records["payments"]), 2),
             },
             "collections": {
@@ -173,7 +193,8 @@ class FinanceLedgerService:
             "warnings": [
                 f"{name.replace('_', ' ').title()} were not returned by this Xero sync."
                 for name, items in records.items() if not items
-            ],
+            ] + (["Bank Transactions were not returned by this Xero sync; controlled test evidence is excluded from actuals."]
+                 if not raw["bank_transactions"] and canonical_bank_activity else []),
         }
         ledger["ledger_hash"] = canonical_contract_hash(ledger)
         path = self._dir(workspace_id, ledger_id) / "ledger.json"

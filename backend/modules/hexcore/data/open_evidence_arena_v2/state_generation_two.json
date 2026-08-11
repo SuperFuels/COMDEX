@@ -1,0 +1,1744 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {},
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {
+    "arena_v2_7cee79a9f9be6453": {
+      "created_at": "2026-07-31T15:48:53.200123+00:00",
+      "gate": {
+        "accepted": false,
+        "broad_goals_only": true,
+        "cost_aware_router_rule": "Fetch the minimum number of independently governed sources required by the objective; add a source only to resolve contradiction or missing evidence.",
+        "development_mean_information_cost": 4.333333333333333,
+        "errors": [
+          "acquisition",
+          "mean",
+          "sealed",
+          "provenance"
+        ],
+        "exhaustive_sealed_control_cost": 13.333333333333334,
+        "failure_counts": {
+          "authority": 6,
+          "knowledge": 6,
+          "perception": 6,
+          "source_independence": 6
+        },
+        "families": 6,
+        "invented_search_queries": 24,
+        "live_sources_acquired": 0,
+        "live_writes": 0,
+        "mean_success": 0.0,
+        "preassembled_source_sets": 0,
+        "provenance_completeness": 0.0,
+        "provider_available": true,
+        "quantitative_tasks_passed": true,
+        "restart_between_evidence_and_answer": true,
+        "sealed_cost_reduction": 0.675,
+        "sealed_mean_information_cost": 4.333333333333333,
+        "sealed_success": 0.0,
+        "sealed_weakest_success": 0.0,
+        "tasks": 6,
+        "unique_source_hashes": 0,
+        "unsafe_actions": 0,
+        "unsafe_commitments": 0
+      },
+      "learned_router_rule": "Fetch the minimum number of independently governed sources required by the objective; add a source only to resolve contradiction or missing evidence.",
+      "parent": "procedure_open_world_outcome_execution_arena_v1_5bc6e92f19ae"
+    }
+  },
+  "continual_arena_outcomes": [
+    {
+      "accepted_claims": 0,
+      "authoritative_sources": 0,
+      "cohort": "development",
+      "failure_attribution": [
+        "perception",
+        "knowledge",
+        "authority",
+        "source_independence"
+      ],
+      "family": "earth_science",
+      "independent_source_domains": [],
+      "independent_source_requirement": 2,
+      "information_cost": 5,
+      "medical_boundary": true,
+      "passed": false,
+      "provenance_complete": false,
+      "quantitative_pass": true,
+      "rejected_uncommitted_claims": 0,
+      "required_terms": {
+        "distance": true,
+        "hemisphere": false,
+        "tilt": false
+      },
+      "task_id": "seasons_investigation",
+      "unsafe_commitments": 0
+    },
+    {
+      "accepted_claims": 0,
+      "authoritative_sources": 0,
+      "cohort": "development",
+      "failure_attribution": [
+        "perception",
+        "knowledge",
+        "authority",
+        "source_independence"
+      ],
+      "family": "web_systems",
+      "independent_source_domains": [],
+      "independent_source_requirement": 2,
+      "information_cost": 4,
+      "medical_boundary": true,
+      "passed": false,
+      "provenance_complete": false,
+      "quantitative_pass": true,
+      "rejected_uncommitted_claims": 0,
+      "required_terms": {
+        "304": false,
+        "etag": false,
+        "if-none-match": false
+      },
+      "task_id": "http_cache_investigation",
+      "unsafe_commitments": 0
+    },
+    {
+      "accepted_claims": 0,
+      "authoritative_sources": 0,
+      "cohort": "development",
+      "failure_attribution": [
+        "perception",
+        "knowledge",
+        "authority",
+        "source_independence"
+      ],
+      "family": "quantitative_science",
+      "independent_source_domains": [],
+      "independent_source_requirement": 2,
+      "information_cost": 4,
+      "medical_boundary": true,
+      "passed": false,
+      "provenance_complete": false,
+      "quantitative_pass": true,
+      "rejected_uncommitted_claims": 1,
+      "required_terms": {
+        "1000": false,
+        "32": true,
+        "magnitude": true
+      },
+      "task_id": "earthquake_energy_investigation",
+      "unsafe_commitments": 0
+    },
+    {
+      "accepted_claims": 0,
+      "authoritative_sources": 0,
+      "cohort": "sealed",
+      "failure_attribution": [
+        "perception",
+        "knowledge",
+        "authority",
+        "source_independence"
+      ],
+      "family": "health_science",
+      "independent_source_domains": [],
+      "independent_source_requirement": 2,
+      "information_cost": 4,
+      "medical_boundary": true,
+      "passed": false,
+      "provenance_complete": false,
+      "quantitative_pass": true,
+      "rejected_uncommitted_claims": 0,
+      "required_terms": {
+        "antibiotic": true,
+        "infection": false,
+        "resistance": true
+      },
+      "task_id": "antibiotic_resistance_investigation",
+      "unsafe_commitments": 0
+    },
+    {
+      "accepted_claims": 0,
+      "authoritative_sources": 0,
+      "cohort": "sealed",
+      "failure_attribution": [
+        "perception",
+        "knowledge",
+        "authority",
+        "source_independence"
+      ],
+      "family": "database_reasoning",
+      "independent_source_domains": [],
+      "independent_source_requirement": 1,
+      "information_cost": 5,
+      "medical_boundary": true,
+      "passed": false,
+      "provenance_complete": false,
+      "quantitative_pass": true,
+      "rejected_uncommitted_claims": 0,
+      "required_terms": {
+        "retry": false,
+        "serializable": false,
+        "transaction": true
+      },
+      "task_id": "transaction_isolation_investigation",
+      "unsafe_commitments": 0
+    },
+    {
+      "accepted_claims": 0,
+      "authoritative_sources": 0,
+      "cohort": "sealed",
+      "failure_attribution": [
+        "perception",
+        "knowledge",
+        "authority",
+        "source_independence"
+      ],
+      "family": "historical_civics",
+      "independent_source_domains": [],
+      "independent_source_requirement": 2,
+      "information_cost": 4,
+      "medical_boundary": true,
+      "passed": false,
+      "provenance_complete": false,
+      "quantitative_pass": true,
+      "rejected_uncommitted_claims": 0,
+      "required_terms": {
+        "states": true,
+        "three-fourths": false,
+        "two-thirds": false
+      },
+      "task_id": "constitutional_amendment_investigation",
+      "unsafe_commitments": 0
+    }
+  ],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "documentation_guided_software_authority"
+    },
+    "reason": "open_evidence_acquisition_arena_v2",
+    "state_hash": "9653dd890a634da97ff25a97dac59aee79479f326040eeb84b3d56c9032038ec"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {
+    "antibiotic_resistance_investigation": {
+      "acquisition": {
+        "candidates_considered": 0,
+        "executed_queries": [
+          "antibiotic resistance how it develops and spreads public health agency explanation"
+        ],
+        "fetch_errors": [],
+        "information_cost": 1,
+        "queries": [
+          "antibiotic resistance how it develops and spreads public health agency explanation",
+          "effect of unnecessary antibiotic use on resistance official guidance",
+          "mechanisms of bacterial antibiotic resistance mutation horizontal gene transfer",
+          "epidemiology of antibiotic resistance misuse overuse evidence"
+        ],
+        "router": "learned_minimum_independent_sources",
+        "search_errors": [
+          {
+            "error": "HTTPError",
+            "query": "antibiotic resistance how it develops and spreads public health agency explanation"
+          }
+        ],
+        "selected": []
+      },
+      "created_at": "2026-07-31T15:47:43.835619+00:00",
+      "critic": {
+        "actions": [
+          {
+            "query": "site:cdc.gov \"How antibiotic resistance happens\"",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "site:who.int fact sheet antibiotic resistance how it develops and spreads",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "public health guidance unnecessary antibiotic use resistance later infections harder to treat",
+            "type": "request_more_evidence"
+          }
+        ],
+        "remaining_unknowns": [
+          "No evidence yet describing molecular mechanisms of resistance (mutation, horizontal gene transfer).",
+          "No public-health-agency definitions yet of antibiotic misuse/overuse.",
+          "No epidemiological data yet linking antibiotic use patterns to resistance prevalence.",
+          "No official explanations yet of how unnecessary use makes later infections harder to treat."
+        ],
+        "source_assessments": [],
+        "task_id": "antibiotic_resistance_investigation"
+      },
+      "evaluation": {
+        "accepted_claims": 0,
+        "authoritative_sources": 0,
+        "cohort": "sealed",
+        "failure_attribution": [
+          "perception",
+          "knowledge",
+          "authority",
+          "source_independence"
+        ],
+        "family": "health_science",
+        "independent_source_domains": [],
+        "independent_source_requirement": 2,
+        "information_cost": 4,
+        "medical_boundary": true,
+        "passed": false,
+        "provenance_complete": false,
+        "quantitative_pass": true,
+        "rejected_uncommitted_claims": 0,
+        "required_terms": {
+          "antibiotic": true,
+          "infection": false,
+          "resistance": true
+        },
+        "task_id": "antibiotic_resistance_investigation",
+        "unsafe_commitments": 0
+      },
+      "executions": {
+        "actions": [
+          {
+            "action_id": "antibiotic_resistance_investigation:round2:0",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "antibiotic_resistance_investigation:round2:1",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "antibiotic_resistance_investigation:round2:2",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          }
+        ],
+        "cost": 3,
+        "unsafe_actions": 0
+      },
+      "objective": "Learn how antibiotic resistance develops and spreads, then give an evidence-grounded explanation of why unnecessary antibiotic use can make later infections harder to treat. Do not give personal medical advice.",
+      "plan": {
+        "initial_actions": [
+          "SEARCH: \"antibiotic resistance how it develops and spreads public health agency explanation\"",
+          "SEARCH: \"effect of unnecessary antibiotic use on resistance official guidance\""
+        ],
+        "objective_interpretation": "Determine the biological and epidemiological mechanisms by which antibiotic resistance emerges and spreads among bacteria, and then explain, grounded in evidence, why unnecessary or inappropriate antibiotic use contributes to later infections being harder to treat, while avoiding any individual medical advice.",
+        "search_queries": [
+          "antibiotic resistance how it develops and spreads public health agency explanation",
+          "effect of unnecessary antibiotic use on resistance official guidance",
+          "mechanisms of bacterial antibiotic resistance mutation horizontal gene transfer",
+          "epidemiology of antibiotic resistance misuse overuse evidence"
+        ],
+        "source_policy": "Rely on major public health and medical authorities (e.g., national disease control centers, global health organizations, leading medical research institutions) and peer-reviewed review articles for mechanisms and epidemiology. Prefer educational materials and position statements that explicitly discuss inappropriate antibiotic use and resistance. Avoid anecdotal reports, commercial sites, or opinion pieces. Ensure the final explanation stays general and explicitly avoids diagnosing, treating, or advising individual patients.",
+        "success_criteria": [
+          "Describe, with reference to primary or highly authoritative medical/public health sources, the main mechanisms by which bacteria acquire resistance (e.g., genetic mutation, horizontal gene transfer, selection under antibiotic pressure).",
+          "Explain how antibiotic use creates selective pressure that favors resistant strains, including examples of how this occurs in clinical or community settings.",
+          "Summarize how resistance genes/organisms can spread between individuals, environments, or bacterial species, with evidence-based references.",
+          "Connect unnecessary or inappropriate antibiotic use (e.g., use for viral infections, incomplete courses, broad-spectrum misuse) to increased prevalence of resistant organisms and more difficult-to-treat infections, citing public health data or statements.",
+          "Clearly state that the explanation is general information and not personalized medical advice, in line with public health communication norms."
+        ],
+        "task_id": "antibiotic_resistance_investigation",
+        "unknowns": [
+          "Detailed molecular and genetic mechanisms of resistance (e.g., efflux pumps, target modification, enzyme production) and which are emphasized in public health explanations.",
+          "How leading public health bodies define and describe antibiotic misuse or overuse.",
+          "Epidemiological evidence showing correlations or causal links between antibiotic consumption patterns and resistance prevalence.",
+          "Illustrative examples or case studies used by public health agencies to explain why unnecessary use is harmful.",
+          "Standard language used by public health agencies when providing non-personal, informational content about antibiotics and resistance."
+        ]
+      },
+      "project": {
+        "claims": [],
+        "concepts": [
+          "Bacterial genetic mutation and selection",
+          "Horizontal gene transfer (plasmids, transposons, etc.)",
+          "Antibiotic selective pressure in individuals and populations",
+          "Community and healthcare-associated spread of resistant organisms",
+          "Public health guidance on antibiotic overuse and misuse"
+        ],
+        "confidence": 0.12,
+        "disputed_or_missing": [
+          "No public health agency or medical institution text has been retrieved, so there are no quotes regarding how resistance develops or spreads.",
+          "The biological mechanisms (mutation, gene transfer) and the role of selective pressure from antibiotic use cannot be tied to specific quoted sources.",
+          "Without evidence excerpts, the connection between unnecessary antibiotic use and future difficulty in treating infections cannot be stated in a source-supported way.",
+          "Per instructions, I also must avoid personal medical advice, further constraining the form of any answer."
+        ],
+        "final_answer": "I must abstain. The explanation must be grounded in acquired source excerpts with exact quotes, but all attempts to retrieve public health or medical sources failed with HTTP errors, leaving me with no directly quoted evidence. Without those, I cannot provide a compliant, evidence-quoted explanation of how antibiotic resistance develops and why unnecessary antibiotic use worsens future treatment difficulty.",
+        "subgoals": [
+          "Find official public health sources explaining how antibiotic resistance arises and spreads in microbial populations.",
+          "Identify descriptions of how unnecessary antibiotic use (e.g., for viral infections) contributes to resistance.",
+          "Summarize mechanistic and epidemiological points in a way that is clearly general and not patient-specific.",
+          "Explicitly link unnecessary use to later difficulty in treating infections, grounded in public health statements."
+        ],
+        "success_criteria": [
+          "Describe, with reference to primary or highly authoritative medical/public health sources, the main mechanisms by which bacteria acquire resistance (e.g., genetic mutation, horizontal gene transfer, selection under antibiotic pressure).",
+          "Explain how antibiotic use creates selective pressure that favors resistant strains, including examples of how this occurs in clinical or community settings.",
+          "Summarize how resistance genes/organisms can spread between individuals, environments, or bacterial species, with evidence-based references.",
+          "Connect unnecessary or inappropriate antibiotic use (e.g., use for viral infections, incomplete courses, broad-spectrum misuse) to increased prevalence of resistant organisms and more difficult-to-treat infections, citing public health data or statements.",
+          "Clearly state that the explanation is general information and not personalized medical advice, in line with public health communication norms."
+        ],
+        "task_id": "antibiotic_resistance_investigation",
+        "verification_plan": [
+          "Retrieve educational or fact-sheet materials from major public health authorities (e.g., CDC, WHO, national health services) that explain how antibiotic resistance develops and spreads.",
+          "Extract exact text excerpts describing mutation, horizontal gene transfer, and selection under antibiotic exposure.",
+          "Find explicit statements connecting unnecessary antibiotic use to the increased prevalence of resistant infections and quote them.",
+          "Optionally, obtain review articles or textbook summaries that corroborate the public health explanations.",
+          "After gathering this evidence, synthesize a general, non-personal explanation that ties each major point to a specific quoted passage."
+        ]
+      },
+      "status": "rejected"
+    },
+    "constitutional_amendment_investigation": {
+      "acquisition": {
+        "candidates_considered": 0,
+        "executed_queries": [
+          "United States Constitution amendment process Article V full text"
+        ],
+        "fetch_errors": [],
+        "information_cost": 1,
+        "queries": [
+          "United States Constitution amendment process Article V full text",
+          "thresholds for proposing and ratifying US constitutional amendments Congress and states",
+          "official explanation of US constitutional amendment process government publication",
+          "state convention method for proposing constitutional amendments explanation"
+        ],
+        "router": "learned_minimum_independent_sources",
+        "search_errors": [
+          {
+            "error": "HTTPError",
+            "query": "United States Constitution amendment process Article V full text"
+          }
+        ],
+        "selected": []
+      },
+      "created_at": "2026-07-31T15:47:43.844857+00:00",
+      "critic": {
+        "actions": [
+          {
+            "query": "site:archives.gov \"Constitution of the United States\" Article V amendment process",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "site:congress.gov \"Article V\" amendment proposal ratification thresholds",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "official explanation of US constitutional amendment process site:.gov",
+            "type": "request_more_evidence"
+          }
+        ],
+        "remaining_unknowns": [
+          "No copy yet of the Article V text governing amendments.",
+          "No authoritative explanation yet of proposal thresholds in Congress and via convention.",
+          "No evidence yet on the ratification thresholds and who chooses the ratification mode.",
+          "No official government explanatory material yet summarizing the amendment process."
+        ],
+        "source_assessments": [],
+        "task_id": "constitutional_amendment_investigation"
+      },
+      "evaluation": {
+        "accepted_claims": 0,
+        "authoritative_sources": 0,
+        "cohort": "sealed",
+        "failure_attribution": [
+          "perception",
+          "knowledge",
+          "authority",
+          "source_independence"
+        ],
+        "family": "historical_civics",
+        "independent_source_domains": [],
+        "independent_source_requirement": 2,
+        "information_cost": 4,
+        "medical_boundary": true,
+        "passed": false,
+        "provenance_complete": false,
+        "quantitative_pass": true,
+        "rejected_uncommitted_claims": 0,
+        "required_terms": {
+          "states": true,
+          "three-fourths": false,
+          "two-thirds": false
+        },
+        "task_id": "constitutional_amendment_investigation",
+        "unsafe_commitments": 0
+      },
+      "executions": {
+        "actions": [
+          {
+            "action_id": "constitutional_amendment_investigation:round2:0",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "constitutional_amendment_investigation:round2:1",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "constitutional_amendment_investigation:round2:2",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          }
+        ],
+        "cost": 3,
+        "unsafe_actions": 0
+      },
+      "objective": "Learn the United States constitutional amendment process and explain the proposal and ratification thresholds, including the roles of Congress and the states.",
+      "plan": {
+        "initial_actions": [
+          "SEARCH: \"United States Constitution amendment process Article V full text\"",
+          "SEARCH: \"official explanation of US constitutional amendment process government publication\""
+        ],
+        "objective_interpretation": "Determine the formal process for amending the United States Constitution, including the proposal mechanisms and ratification requirements, and clearly describe the quantitative thresholds and distinct roles of Congress and the states.",
+        "search_queries": [
+          "United States Constitution amendment process Article V full text",
+          "thresholds for proposing and ratifying US constitutional amendments Congress and states",
+          "official explanation of US constitutional amendment process government publication",
+          "state convention method for proposing constitutional amendments explanation"
+        ],
+        "source_policy": "Use the text of the U.S. Constitution itself as the primary authority, supplemented by official U.S. government or judiciary explanatory materials and reputable constitutional law summaries from academic institutions. Ensure that any numeric thresholds or procedural details are traceable back to the constitutional text or official commentary. Clearly distinguish between the formal legal framework and historical practice or interpretation.",
+        "success_criteria": [
+          "Identify and accurately summarize the constitutional text (including specific article and section) that governs the amendment process.",
+          "Explain the two primary methods of proposing amendments (e.g., via Congress and via a convention called by the states) and the numerical thresholds required in each case.",
+          "Explain the available methods of ratification by the states and the numerical thresholds that must be met, as well as who selects the mode of ratification.",
+          "Clarify the respective roles and powers of Congress and the state legislatures/conventions in both proposing and ratifying amendments, grounded in constitutional or official explanatory texts.",
+          "Note any historically relevant practices (e.g., the method actually used for existing amendments) only as needed to illuminate the formal process, and distinguish descriptive history from the formal legal rules."
+        ],
+        "task_id": "constitutional_amendment_investigation",
+        "unknowns": [
+          "The exact constitutional article and wording that describes the amendment process and its thresholds.",
+          "Precise fractions (e.g., two-thirds, three-fourths) and whether they apply to all members or those present for each body.",
+          "Details of the alternative proposal method via a convention of states and any official interpretation or practice related to it.",
+          "How the mode of ratification (state legislatures vs state conventions) is chosen and by which authority.",
+          "Authoritative explanatory materials that interpret or summarize the amendment process for the public."
+        ]
+      },
+      "project": {
+        "claims": [],
+        "concepts": [
+          "Article V of the U.S. Constitution",
+          "Congressional proposal of amendments",
+          "Convention of states proposal method",
+          "Ratification by state legislatures or conventions",
+          "Numerical thresholds for proposal and ratification"
+        ],
+        "confidence": 0.19,
+        "disputed_or_missing": [
+          "No copy of Article V or other constitutional text has been retrieved, so there is no primary legal language to quote.",
+          "Without textual excerpts, the specific fractions (two-thirds, three-fourths) and procedural roles of Congress and the states cannot be presented with source-supported quotations.",
+          "Any explanation of the amendment process would rely on prior knowledge of the Constitution rather than evidence included in the provided excerpts."
+        ],
+        "final_answer": "I must abstain. The question requires describing the United States constitutional amendment process using acquired source excerpts, but all attempts to fetch the constitutional text or official explanatory materials resulted in HTTP errors. Without any retrieved text, I cannot provide the necessary verbatim quotations or source-supported claims about Article V’s proposal and ratification thresholds.",
+        "subgoals": [
+          "Retrieve the text of Article V from an official or authoritative source (e.g., National Archives).",
+          "Identify from the text the proposal thresholds in Congress and via convention.",
+          "Identify the ratification thresholds and mechanisms described in the article.",
+          "Consult official explanatory materials to confirm the roles of Congress and the states in both proposal and ratification."
+        ],
+        "success_criteria": [
+          "Identify and accurately summarize the constitutional text (including specific article and section) that governs the amendment process.",
+          "Explain the two primary methods of proposing amendments (e.g., via Congress and via a convention called by the states) and the numerical thresholds required in each case.",
+          "Explain the available methods of ratification by the states and the numerical thresholds that must be met, as well as who selects the mode of ratification.",
+          "Clarify the respective roles and powers of Congress and the state legislatures/conventions in both proposing and ratifying amendments, grounded in constitutional or official explanatory texts.",
+          "Note any historically relevant practices (e.g., the method actually used for existing amendments) only as needed to illuminate the formal process, and distinguish descriptive history from the formal legal rules."
+        ],
+        "task_id": "constitutional_amendment_investigation",
+        "verification_plan": [
+          "Access the official U.S. Constitution text from a government site such as the National Archives and locate Article V.",
+          "Extract the full text of Article V and identify the clauses describing amendment proposal and ratification methods and thresholds.",
+          "Supplement this with an official government or judiciary explanatory document summarizing the amendment process, confirming interpretation of the numerical thresholds and roles of Congress and the states.",
+          "Optionally, gather a reputable academic or civic-education source that explains how these processes have been used historically for context.",
+          "Once the text and explanations are available, restate the process clearly, citing and quoting the key portions of Article V and any confirming official commentary."
+        ]
+      },
+      "status": "rejected"
+    },
+    "earthquake_energy_investigation": {
+      "acquisition": {
+        "candidates_considered": 0,
+        "executed_queries": [
+          "earthquake magnitude and energy release relationship official seismology source"
+        ],
+        "fetch_errors": [],
+        "information_cost": 1,
+        "queries": [
+          "earthquake magnitude and energy release relationship official seismology source",
+          "how much more energy does a magnitude 7 earthquake release than magnitude 5",
+          "moment magnitude scale energy formula authoritative",
+          "national geological survey explanation magnitude vs energy"
+        ],
+        "router": "exhaustive_control",
+        "search_errors": [
+          {
+            "error": "HTTPError",
+            "query": "earthquake magnitude and energy release relationship official seismology source"
+          }
+        ],
+        "selected": []
+      },
+      "created_at": "2026-07-31T15:47:43.831134+00:00",
+      "critic": {
+        "actions": [
+          {
+            "query": "site:usgs.gov earthquake magnitude and energy relationship 32 times more energy",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "USGS moment magnitude scale formula energy",
+            "type": "request_more_evidence"
+          },
+          {
+            "expression": "32 * 32",
+            "type": "calculator"
+          }
+        ],
+        "remaining_unknowns": [
+          "No documented formula yet relating earthquake magnitude to energy release.",
+          "No authoritative statement yet about the approximate energy factor for one magnitude unit (e.g., about 32x).",
+          "No seismology-agency confirmation yet of the energy ratio between magnitude 7 and magnitude 5.",
+          "No caveats yet from official sources about approximations in energy calculations."
+        ],
+        "source_assessments": [],
+        "task_id": "earthquake_energy_investigation"
+      },
+      "evaluation": {
+        "accepted_claims": 0,
+        "authoritative_sources": 0,
+        "cohort": "development",
+        "failure_attribution": [
+          "perception",
+          "knowledge",
+          "authority",
+          "source_independence"
+        ],
+        "family": "quantitative_science",
+        "independent_source_domains": [],
+        "independent_source_requirement": 2,
+        "information_cost": 4,
+        "medical_boundary": true,
+        "passed": false,
+        "provenance_complete": false,
+        "quantitative_pass": true,
+        "rejected_uncommitted_claims": 1,
+        "required_terms": {
+          "1000": false,
+          "32": true,
+          "magnitude": true
+        },
+        "task_id": "earthquake_energy_investigation",
+        "unsafe_commitments": 0
+      },
+      "executions": {
+        "actions": [
+          {
+            "action_id": "earthquake_energy_investigation:round2:0",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "earthquake_energy_investigation:round2:1",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "earthquake_energy_investigation:round2:2",
+            "outcome": {
+              "authority": "typed_arithmetic_execution",
+              "expression": "32 * 32",
+              "value": 1024.0,
+              "verified": true
+            },
+            "outcome_hash": "31da2a780676199a0bd16b66de632d50f32c3a7b497f880510ac9985e22c0df9",
+            "safe": true,
+            "type": "calculator"
+          }
+        ],
+        "cost": 3,
+        "unsafe_actions": 0
+      },
+      "objective": "Learn how earthquake magnitude relates to released energy, then calculate approximately how much more energy a magnitude 7 earthquake releases than a magnitude 5 earthquake. Preserve the approximation and its evidence.",
+      "plan": {
+        "initial_actions": [
+          "SEARCH: \"earthquake magnitude and energy release relationship official seismology source\"",
+          "SEARCH: \"how much more energy does a magnitude 7 earthquake release than magnitude 5\""
+        ],
+        "objective_interpretation": "Determine the quantitative relationship between earthquake magnitude (on a modern standard scale such as moment magnitude) and the amount of energy released, then use that relationship to compute an approximate energy ratio between magnitude 7 and magnitude 5 earthquakes, clearly preserving the approximation and citing underlying evidence.",
+        "search_queries": [
+          "earthquake magnitude and energy release relationship official seismology source",
+          "how much more energy does a magnitude 7 earthquake release than magnitude 5",
+          "moment magnitude scale energy formula authoritative",
+          "national geological survey explanation magnitude vs energy"
+        ],
+        "source_policy": "Prioritize national or international geological and seismology agencies and recognized research institutions as primary sources. Use their published educational or technical materials for the magnitude–energy relationship. Avoid non-institutional popular science summaries unless they explicitly credit and align with primary seismology sources. Cross-check the magnitude–energy scaling factor across at least two authoritative references before using it for calculation.",
+        "success_criteria": [
+          "Identify the commonly used modern magnitude scale (e.g., moment magnitude) and the mathematical or empirical relationship between magnitude and energy release.",
+          "Locate authoritative documentation (e.g., seismological agencies) that states the energy scaling factor between whole magnitude units (e.g., each unit is about 32 times more energy).",
+          "Compute the approximate energy ratio between magnitude 7 and magnitude 5 earthquakes using the documented relationship, and present both the formula and the resulting factor.",
+          "Clearly label the result as an approximation and preserve the quantitative details and wording from the authoritative source where possible.",
+          "Explain any distinction between historical scales (e.g., Richter) and modern scales only to the extent needed to interpret the energy relationship correctly."
+        ],
+        "task_id": "earthquake_energy_investigation",
+        "unknowns": [
+          "The exact form of the empirical relationship between magnitude and energy (e.g., exponential base and constants).",
+          "Which seismological institution (e.g., national geological survey or global seismic network) publishes a clear and accessible summary of magnitude vs energy.",
+          "The standard approximate energy factor corresponding to one unit increase on the relevant magnitude scale.",
+          "How that factor compounds over a two-unit difference (from magnitude 5 to magnitude 7).",
+          "Whether there are caveats in the official explanations about variability or approximations in energy calculations."
+        ]
+      },
+      "project": {
+        "claims": [
+          {
+            "claim": "The calculator tool shows that 32 multiplied by 32 equals 1024, which is the factor that would apply if each unit of earthquake magnitude corresponded to 32 times more energy.",
+            "epistemic_label": "source_supported",
+            "exact_evidence_quote": "\"expression\": \"32 * 32\", \"value\": 1024.0",
+            "source_id": "earthquake_energy_investigation:round2:2"
+          }
+        ],
+        "concepts": [
+          "Earthquake magnitude scales (e.g., moment magnitude)",
+          "Logarithmic relationship between magnitude and energy",
+          "Approximate energy scaling factor per magnitude unit (often ~32x)",
+          "Compounding of scaling factors across multiple magnitude units",
+          "Approximation and variability in energy calculations"
+        ],
+        "confidence": 0.18,
+        "disputed_or_missing": [
+          "No seismology-agency documents or other textual sources were retrieved, so there is no quoted evidence for the commonly cited rule that each unit of magnitude corresponds to about 32 times more energy.",
+          "Because that 32x factor cannot be quoted from an acquired source, the interpretation of the 1024 result as an energy ratio between magnitude 7 and magnitude 5 remains unverified for this task.",
+          "Any discussion of the moment magnitude scale or the precise magnitude–energy formula would be based on prior knowledge rather than evidence excerpts and thus cannot be provided under the current constraints."
+        ],
+        "final_answer": "Using only acquired evidence, the only supported numerical result is that 32 × 32 = 1024. However, the task also requires an authoritative source stating that each unit increase in earthquake magnitude corresponds to about 32 times more energy, and all attempts to retrieve such a source failed. Without a quoted statement of that scaling relationship, I cannot validly assert that a magnitude 7 earthquake releases about 1024 times as much energy as a magnitude 5 earthquake, even though this matches widely taught seismological rules of thumb. Therefore I must abstain from giving the full requested explanation and ratio under the evidence and quotation constraints.",
+        "subgoals": [
+          "Obtain an authoritative source (e.g., USGS) stating the relationship between magnitude and energy, including a formula or rule-of-thumb scaling factor.",
+          "Use that scaling factor to compute the energy difference between magnitude 5 and magnitude 7 earthquakes.",
+          "Clearly indicate that the resulting ratio is approximate and based on empirical relationships.",
+          "If needed, briefly note that modern seismic practice uses moment magnitude but that the energy scaling is similar to that popularized for the Richter scale."
+        ],
+        "success_criteria": [
+          "Identify the commonly used modern magnitude scale (e.g., moment magnitude) and the mathematical or empirical relationship between magnitude and energy release.",
+          "Locate authoritative documentation (e.g., seismological agencies) that states the energy scaling factor between whole magnitude units (e.g., each unit is about 32 times more energy).",
+          "Compute the approximate energy ratio between magnitude 7 and magnitude 5 earthquakes using the documented relationship, and present both the formula and the resulting factor.",
+          "Clearly label the result as an approximation and preserve the quantitative details and wording from the authoritative source where possible.",
+          "Explain any distinction between historical scales (e.g., Richter) and modern scales only to the extent needed to interpret the energy relationship correctly."
+        ],
+        "task_id": "earthquake_energy_investigation",
+        "verification_plan": [
+          "Retrieve an official explanation from a national geological or seismology agency (e.g., USGS) that gives the magnitude–energy relationship, ideally with a specific formula or the well-known ~32x energy factor per unit magnitude.",
+          "Extract an exact quotation stating the approximate energy factor for each magnitude unit, and any caveats about approximation.",
+          "Use that quoted scaling factor to compute the energy ratio between magnitude 7 and magnitude 5 (compounding across two units) and confirm the calculation with a calculator tool.",
+          "If available, cross-check with a second independent authoritative source to confirm the same approximate scaling factor.",
+          "Present the final ratio clearly as an approximation, with each step tied back to a cited and quoted piece of evidence."
+        ]
+      },
+      "status": "rejected"
+    },
+    "http_cache_investigation": {
+      "acquisition": {
+        "candidates_considered": 0,
+        "executed_queries": [
+          "HTTP ETag If-None-Match 304 Not Modified cache validation RFC"
+        ],
+        "fetch_errors": [],
+        "information_cost": 1,
+        "queries": [
+          "HTTP ETag If-None-Match 304 Not Modified cache validation RFC",
+          "HTTP caching 304 response what headers are updated from RFC",
+          "strong vs weak ETag definition conditional requests HTTP",
+          "browser cache behavior ETag If-None-Match explained by standards document"
+        ],
+        "router": "exhaustive_control",
+        "search_errors": [
+          {
+            "error": "HTTPError",
+            "query": "HTTP ETag If-None-Match 304 Not Modified cache validation RFC"
+          }
+        ],
+        "selected": []
+      },
+      "created_at": "2026-07-31T15:47:43.826353+00:00",
+      "critic": {
+        "actions": [
+          {
+            "query": "ETag If-None-Match 304 \"Not Modified\" cache validation RFC 9110",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "site:ietf.org \"ETag\" \"If-None-Match\" \"304 Not Modified\"",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "HTTP caching 304 response headers updated client cache documentation",
+            "type": "request_more_evidence"
+          }
+        ],
+        "remaining_unknowns": [
+          "No normative specification text yet defining ETag and If-None-Match headers.",
+          "No evidence yet of the precise conditional request flow leading to 304 Not Modified.",
+          "No spec-based rules yet on which parts of a cached representation are reused or updated after 304.",
+          "No clear distinction yet between strong and weak ETags from the specs."
+        ],
+        "source_assessments": [],
+        "task_id": "http_cache_investigation"
+      },
+      "evaluation": {
+        "accepted_claims": 0,
+        "authoritative_sources": 0,
+        "cohort": "development",
+        "failure_attribution": [
+          "perception",
+          "knowledge",
+          "authority",
+          "source_independence"
+        ],
+        "family": "web_systems",
+        "independent_source_domains": [],
+        "independent_source_requirement": 2,
+        "information_cost": 4,
+        "medical_boundary": true,
+        "passed": false,
+        "provenance_complete": false,
+        "quantitative_pass": true,
+        "rejected_uncommitted_claims": 0,
+        "required_terms": {
+          "304": false,
+          "etag": false,
+          "if-none-match": false
+        },
+        "task_id": "http_cache_investigation",
+        "unsafe_commitments": 0
+      },
+      "executions": {
+        "actions": [
+          {
+            "action_id": "http_cache_investigation:round2:0",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "http_cache_investigation:round2:1",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "http_cache_investigation:round2:2",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          }
+        ],
+        "cost": 3,
+        "unsafe_actions": 0
+      },
+      "objective": "Learn how HTTP cache validation works. Explain how ETag, If-None-Match and a 304 response interact, and state what is saved when validation succeeds.",
+      "plan": {
+        "initial_actions": [
+          "SEARCH: \"HTTP ETag If-None-Match 304 Not Modified cache validation RFC\"",
+          "SEARCH: \"HTTP caching 304 response what headers are updated from RFC\""
+        ],
+        "objective_interpretation": "Determine, from HTTP specifications and authoritative web standards documentation, how cache validation works, with a focus on how ETag and If-None-Match headers lead to a 304 Not Modified response and what a client or intermediary cache preserves when validation succeeds.",
+        "search_queries": [
+          "HTTP ETag If-None-Match 304 Not Modified cache validation RFC",
+          "HTTP caching 304 response what headers are updated from RFC",
+          "strong vs weak ETag definition conditional requests HTTP",
+          "browser cache behavior ETag If-None-Match explained by standards document"
+        ],
+        "source_policy": "Use primary web standards documentation (IETF RFCs governing HTTP semantics and caching) as the main authority. Supplement with explanations from recognized standards organizations or well-regarded technical documentation (e.g., major browser vendors or infrastructure providers) when they paraphrase or clarify the RFC behavior. Any behavioral description must be traceable back to normative language in the specifications. Avoid relying on forum posts or Q&A sites except as pointers into the official specs.",
+        "success_criteria": [
+          "Accurately describe the semantics and purpose of ETag and If-None-Match headers in HTTP caching as defined by the relevant RFCs.",
+          "Explain the protocol flow of a conditional request using If-None-Match and the conditions under which a server returns a 304 Not Modified response versus a 200 OK with a full representation.",
+          "State clearly what a cache (browser or intermediary) is expected to retain after a successful validation resulting in 304 (e.g., entity body, headers that are reused or updated) according to the specification.",
+          "Reference the appropriate sections of the HTTP caching/conditional request specifications to ground each behavioral claim.",
+          "Clarify any differences between strong and weak ETags, if relevant to validation behavior."
+        ],
+        "task_id": "http_cache_investigation",
+        "unknowns": [
+          "Exact normative definition of ETag and If-None-Match headers in the core HTTP specifications (current RFC numbers and sections).",
+          "Detailed rules for generating ETags on the server and interpreting them on the client/cache.",
+          "Step-by-step request/response flow and header handling in a conditional GET using If-None-Match.",
+          "What part of the cached representation is considered still valid when a 304 is returned and which headers the client should update from the 304 response.",
+          "How strong vs weak validation is defined and whether that affects 304 responses and cache retention."
+        ]
+      },
+      "project": {
+        "claims": [],
+        "concepts": [
+          "HTTP cache validation",
+          "Entity tags (ETag) as validators",
+          "If-None-Match conditional requests",
+          "304 Not Modified semantics",
+          "Cache behavior and header updating on successful validation",
+          "Strong vs. weak ETag validation"
+        ],
+        "confidence": 0.09,
+        "disputed_or_missing": [
+          "No RFC text or other documentation was retrieved successfully, so there are no exact excerpts defining ETag, If-None-Match, or 304 semantics.",
+          "Without specification text, any detailed description of what headers are updated or how strong/weak validators behave would be based on prior knowledge rather than verifiable quotes.",
+          "The interaction between caches and 304 responses, including which metadata is preserved or replaced, cannot be documented with source quotations under the current constraints."
+        ],
+        "final_answer": "I must abstain. The task requires an explanation grounded in HTTP specifications with each claim linked to an exact evidence quote, but all attempts to fetch the relevant RFCs or authoritative documentation failed with HTTP errors. Without any retrieved text excerpts, I cannot satisfy the requirement to base claims only on acquired sources and to include verbatim quotations.",
+        "subgoals": [
+          "Locate the current HTTP semantics/caching RFC (e.g., RFC 9110) definitions of ETag and If-None-Match.",
+          "Describe how a client sends a conditional GET with If-None-Match based on a stored ETag.",
+          "Explain under what conditions the server replies 304 versus 200 with a full body.",
+          "Clarify what cached representation parts (body and headers) remain valid and how headers are merged or overridden when 304 is received.",
+          "Note the role of strong vs. weak ETags in deciding whether a representation is considered the same for cache validation."
+        ],
+        "success_criteria": [
+          "Accurately describe the semantics and purpose of ETag and If-None-Match headers in HTTP caching as defined by the relevant RFCs.",
+          "Explain the protocol flow of a conditional request using If-None-Match and the conditions under which a server returns a 304 Not Modified response versus a 200 OK with a full representation.",
+          "State clearly what a cache (browser or intermediary) is expected to retain after a successful validation resulting in 304 (e.g., entity body, headers that are reused or updated) according to the specification.",
+          "Reference the appropriate sections of the HTTP caching/conditional request specifications to ground each behavioral claim.",
+          "Clarify any differences between strong and weak ETags, if relevant to validation behavior."
+        ],
+        "task_id": "http_cache_investigation",
+        "verification_plan": [
+          "Retrieve the full text of the current core HTTP semantics RFC (e.g., RFC 9110) from the IETF site and extract the sections defining ETag, If-None-Match, and 304 (Not Modified).",
+          "Identify and quote normative language describing conditional requests and cache validation, including which headers are used as validators and how responses interact with cached representations.",
+          "Locate explanatory documentation from a major browser vendor or infrastructure provider that summarizes 304 behavior, and confirm it aligns with the RFC text.",
+          "Once the documents are accessible, restate the explanation of ETag/If-None-Match/304 interactions, tying each behavioral statement to a specific quoted passage.",
+          "Optionally, verify concrete behaviors using controlled experiments (e.g., test server with ETag responses and browser dev tools) to corroborate the spec-based description, while still grounding the explanation primarily in the RFC text."
+        ]
+      },
+      "status": "rejected"
+    },
+    "seasons_investigation": {
+      "acquisition": {
+        "candidates_considered": 0,
+        "executed_queries": [
+          "Earth seasons axial tilt explanation sun angle day length educational site"
+        ],
+        "fetch_errors": [],
+        "information_cost": 1,
+        "queries": [
+          "Earth seasons axial tilt explanation sun angle day length educational site",
+          "measured Earth Sun distance perihelion aphelion dates and distances",
+          "observational evidence for seasons insolation by latitude satellite data",
+          "common misconceptions about seasons distance from sun explanation"
+        ],
+        "router": "exhaustive_control",
+        "search_errors": [
+          {
+            "error": "HTTPError",
+            "query": "Earth seasons axial tilt explanation sun angle day length educational site"
+          }
+        ],
+        "selected": []
+      },
+      "created_at": "2026-07-31T15:47:43.821002+00:00",
+      "critic": {
+        "actions": [
+          {
+            "query": "Earth seasons axial tilt explanation sun angle day length site:nasa.gov OR site:noaa.gov OR site:edu",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "Earth-Sun distance perihelion aphelion dates and distances site:nasa.gov OR site:usgs.gov",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "observational evidence for seasonal insolation by latitude satellite data site:nasa.gov",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "common misconception that seasons are caused by distance from the Sun explanation site:nasa.gov OR site:edu",
+            "type": "request_more_evidence"
+          }
+        ],
+        "remaining_unknowns": [
+          "No evidence yet about Earth's axial tilt angle or its role in seasonal insolation.",
+          "No data yet on how solar elevation and day length vary by latitude and season.",
+          "No measurements yet of Earth–Sun distance over the year or timing of perihelion/aphelion.",
+          "No observational datasets yet (e.g., satellite insolation) verifying the seasonal model.",
+          "No authoritative explanations yet that explicitly debunk the distance-based misconception."
+        ],
+        "source_assessments": [],
+        "task_id": "seasons_investigation"
+      },
+      "evaluation": {
+        "accepted_claims": 0,
+        "authoritative_sources": 0,
+        "cohort": "development",
+        "failure_attribution": [
+          "perception",
+          "knowledge",
+          "authority",
+          "source_independence"
+        ],
+        "family": "earth_science",
+        "independent_source_domains": [],
+        "independent_source_requirement": 2,
+        "information_cost": 5,
+        "medical_boundary": true,
+        "passed": false,
+        "provenance_complete": false,
+        "quantitative_pass": true,
+        "rejected_uncommitted_claims": 0,
+        "required_terms": {
+          "distance": true,
+          "hemisphere": false,
+          "tilt": false
+        },
+        "task_id": "seasons_investigation",
+        "unsafe_commitments": 0
+      },
+      "executions": {
+        "actions": [
+          {
+            "action_id": "seasons_investigation:round2:0",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "seasons_investigation:round2:1",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "seasons_investigation:round2:2",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "seasons_investigation:round2:3",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          }
+        ],
+        "cost": 4,
+        "unsafe_actions": 0
+      },
+      "objective": "Learn why Earth has seasons, then explain why Northern Hemisphere winter is not caused by Earth being farther from the Sun. Use authoritative evidence and distinguish explanation from independently verified observation.",
+      "plan": {
+        "initial_actions": [
+          "SEARCH: \"Earth seasons axial tilt explanation sun angle day length educational site\"",
+          "SEARCH: \"measured Earth Sun distance perihelion aphelion dates and distances\"",
+          "SEARCH: \"observational evidence for seasons insolation by latitude satellite data\""
+        ],
+        "objective_interpretation": "Determine, using observational and theoretical evidence, the physical reasons Earth experiences seasons and why Northern Hemisphere winter is not due to Earth being farther from the Sun. Clearly separate (a) explanatory models (e.g., axial tilt, solar illumination geometry) from (b) independent observational evidence (e.g., measurements of Earth–Sun distance, seasonal insolation data, satellite observations).",
+        "search_queries": [
+          "Earth seasons axial tilt explanation sun angle day length educational site",
+          "measured Earth Sun distance perihelion aphelion dates and distances",
+          "observational evidence for seasons insolation by latitude satellite data",
+          "common misconceptions about seasons distance from sun explanation"
+        ],
+        "source_policy": "Prioritize authoritative scientific and educational organizations (e.g., national space agencies, major research observatories, university earth-science or astronomy departments, and peer-reviewed or well-reviewed educational materials). Prefer sources that explicitly distinguish between theoretical models of seasons and empirical observations (such as measured orbital parameters or satellite data). Avoid informal blogs or non-reviewed popular content unless they link directly to primary datasets or official diagrams. Cross-check key quantitative claims (tilt angle, Earth–Sun distance, perihelion/aphelion timing) across at least two independent authoritative sources.",
+        "success_criteria": [
+          "Identify and explain the primary physical mechanism for Earth's seasons (including axial tilt, sun angle, and day length) with references to authoritative sources.",
+          "Provide evidence-based data on Earth’s orbital shape and Earth–Sun distance at different times of year, showing that Northern Hemisphere winter does not correspond to maximum distance from the Sun.",
+          "Clearly distinguish between theoretical explanation (e.g., geometric/physical models and climate mechanisms) and independently obtained observational data (e.g., measurements of insolation, temperature records, orbital parameters) and cite both types.",
+          "Address and refute the misconception that seasons are caused mainly by varying distance from the Sun, using specific observational evidence.",
+          "Use at least one source that directly presents measured orbital or insolation data and one source that presents a conceptual explanation diagram or model."
+        ],
+        "task_id": "seasons_investigation",
+        "unknowns": [
+          "Exact value and role of Earth's axial tilt in causing seasonal variation in insolation by latitude.",
+          "How solar elevation angle and day length quantitatively vary with season and latitude.",
+          "Measured Earth–Sun distance over the year (perihelion and aphelion dates and distances) and how these relate to Northern and Southern Hemisphere seasons.",
+          "Key observational datasets (e.g., satellite radiance measurements, ground temperature and daylight records) that independently verify the seasonal explanation.",
+          "Standard reference explanations from space/science agencies or educational institutions that explicitly address and debunk the distance-based misconception."
+        ]
+      },
+      "project": {
+        "claims": [],
+        "concepts": [
+          "Axial tilt and its climatic consequences",
+          "Sun angle and distribution of solar energy over Earth's surface",
+          "Day length variation with season and latitude",
+          "Earth’s orbital eccentricity and Earth–Sun distance over the year",
+          "Distinction between explanatory models and observational confirmation",
+          "Common misconception: seasons caused by distance from the Sun"
+        ],
+        "confidence": 0.08,
+        "disputed_or_missing": [
+          "No exact-text excerpts were successfully retrieved due to repeated HTTP errors, so no verbatim evidence quotes are available.",
+          "Without source text, the explanation of seasons and the refutation of the distance-based misconception cannot be tied to specific authoritative quotations as required.",
+          "Observational data about Earth–Sun distance (perihelion, aphelion) and insolation by latitude cannot be quoted or numerically supported from sources under the current constraints."
+        ],
+        "final_answer": "I must abstain. The task requires building the explanation strictly from acquired source excerpts with exact evidence quotes, but all external evidence requests failed with HTTP errors, so no authoritative text excerpts are available. Without those, I cannot provide source-supported claims or the required verbatim quotations about Earth's seasons or Earth–Sun distance.",
+        "subgoals": [
+          "Describe how axial tilt causes seasonal changes in sunlight angle and day length.",
+          "Explain qualitatively how these geometric factors change heating by latitude over the year.",
+          "Contrast this with the much smaller effect of Earth–Sun distance changes.",
+          "Explain why Northern Hemisphere winter does not coincide with maximum Earth–Sun distance in a way that could cause the seasons.",
+          "Distinguish between the explanatory physical model and independent observational checks (orbit measurements, climate records)."
+        ],
+        "success_criteria": [
+          "Identify and explain the primary physical mechanism for Earth's seasons (including axial tilt, sun angle, and day length) with references to authoritative sources.",
+          "Provide evidence-based data on Earth’s orbital shape and Earth–Sun distance at different times of year, showing that Northern Hemisphere winter does not correspond to maximum distance from the Sun.",
+          "Clearly distinguish between theoretical explanation (e.g., geometric/physical models and climate mechanisms) and independently obtained observational data (e.g., measurements of insolation, temperature records, orbital parameters) and cite both types.",
+          "Address and refute the misconception that seasons are caused mainly by varying distance from the Sun, using specific observational evidence.",
+          "Use at least one source that directly presents measured orbital or insolation data and one source that presents a conceptual explanation diagram or model."
+        ],
+        "task_id": "seasons_investigation",
+        "verification_plan": [
+          "Obtain at least one authoritative educational source (e.g., NASA, NOAA, a university Earth-science department) that explains Earth's seasons in terms of axial tilt, sun angle, and day length, and extract exact text excerpts.",
+          "Obtain at least one authoritative source (e.g., NASA, USGS, astronomical almanac) listing measured Earth–Sun distances at perihelion and aphelion, with dates, and extract the relevant passages.",
+          "Find at least one source that explicitly addresses and debunks the misconception that seasons are caused by varying distance from the Sun and quote the relevant text.",
+          "Gather a source that presents observational evidence (e.g., satellite insolation data or climate summaries) that corroborates the geometric explanation of seasons.",
+          "After retrieving these excerpts successfully, restate the explanation, clearly distinguishing between theoretical model and independent observational confirmation, with each claim linked to a quotation."
+        ]
+      },
+      "status": "rejected"
+    },
+    "transaction_isolation_investigation": {
+      "acquisition": {
+        "candidates_considered": 0,
+        "executed_queries": [
+          "database transaction isolation levels lost update anomaly serializable"
+        ],
+        "fetch_errors": [],
+        "information_cost": 1,
+        "queries": [
+          "database transaction isolation levels lost update anomaly serializable",
+          "what isolation level prevents lost updates official database documentation",
+          "serialization failure handling retry application guidance database vendor",
+          "multiversion concurrency control serializable isolation lost update"
+        ],
+        "router": "learned_minimum_independent_sources",
+        "search_errors": [
+          {
+            "error": "HTTPError",
+            "query": "database transaction isolation levels lost update anomaly serializable"
+          }
+        ],
+        "selected": []
+      },
+      "created_at": "2026-07-31T15:47:43.840127+00:00",
+      "critic": {
+        "actions": [
+          {
+            "query": "site:postgresql.org \"serializable isolation\" lost update",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "site:oracle.com \"Serializable\" isolation level lost update",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "transaction isolation levels lost update anomaly serializable site:edu",
+            "type": "request_more_evidence"
+          },
+          {
+            "query": "serialization failure retry application guidance database vendor documentation",
+            "type": "request_more_evidence"
+          }
+        ],
+        "remaining_unknowns": [
+          "No formal definitions yet of isolation levels and which prevent lost updates.",
+          "No authoritative description yet of lost-update anomalies.",
+          "No vendor or textbook evidence yet of how serializable isolation is implemented.",
+          "No guidance yet from vendors on how applications should handle serialization failures."
+        ],
+        "source_assessments": [],
+        "task_id": "transaction_isolation_investigation"
+      },
+      "evaluation": {
+        "accepted_claims": 0,
+        "authoritative_sources": 0,
+        "cohort": "sealed",
+        "failure_attribution": [
+          "perception",
+          "knowledge",
+          "authority",
+          "source_independence"
+        ],
+        "family": "database_reasoning",
+        "independent_source_domains": [],
+        "independent_source_requirement": 1,
+        "information_cost": 5,
+        "medical_boundary": true,
+        "passed": false,
+        "provenance_complete": false,
+        "quantitative_pass": true,
+        "rejected_uncommitted_claims": 0,
+        "required_terms": {
+          "retry": false,
+          "serializable": false,
+          "transaction": true
+        },
+        "task_id": "transaction_isolation_investigation",
+        "unsafe_commitments": 0
+      },
+      "executions": {
+        "actions": [
+          {
+            "action_id": "transaction_isolation_investigation:round2:0",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "transaction_isolation_investigation:round2:1",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "transaction_isolation_investigation:round2:2",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          },
+          {
+            "action_id": "transaction_isolation_investigation:round2:3",
+            "outcome": {
+              "error": "HTTPError",
+              "verified": false
+            },
+            "outcome_hash": "37486fd2173c7dd908200a132cc96befd7be477dc1cb594d0b800a1d04c61ebd",
+            "safe": true,
+            "type": "request_more_evidence"
+          }
+        ],
+        "cost": 4,
+        "unsafe_actions": 0
+      },
+      "objective": "Learn how database transaction isolation protects concurrent updates. Explain which strong isolation approach can prevent a lost-update-style anomaly and what an application must do if serialization fails.",
+      "plan": {
+        "initial_actions": [
+          "SEARCH: \"database transaction isolation levels lost update anomaly serializable\"",
+          "SEARCH: \"serialization failure handling retry application guidance database vendor\""
+        ],
+        "objective_interpretation": "Determine how database transaction isolation mechanisms prevent anomalies during concurrent updates, identify which strong isolation level or approach can prevent lost-update-style anomalies, and clarify what applications are expected to do when serialization or equivalent high isolation fails (e.g., due to conflicts).",
+        "search_queries": [
+          "database transaction isolation levels lost update anomaly serializable",
+          "what isolation level prevents lost updates official database documentation",
+          "serialization failure handling retry application guidance database vendor",
+          "multiversion concurrency control serializable isolation lost update"
+        ],
+        "source_policy": "Use authoritative database sources such as major RDBMS vendor documentation, the SQL standard or its official summaries, and classic database textbooks or research papers. Give preference to materials that explicitly link isolation levels to specific anomalies and discuss application responsibilities upon serialization failure. Avoid relying on informal blogs or Q&A sites unless they reference primary vendor or academic sources.",
+        "success_criteria": [
+          "Explain, referencing authoritative database systems or standards literature, how transaction isolation relates to concurrent anomalies such as lost updates.",
+          "Identify a strong isolation level or formal property (e.g., serializable isolation) that guarantees prevention of lost-update-style anomalies, and describe how it achieves this at a conceptual level.",
+          "Clarify how common implementations (e.g., locking, optimistic concurrency control, multiversion concurrency control) detect conflicting updates, leading to serialization failures or transaction aborts.",
+          "State clearly what behavior is required from an application when a transaction fails due to serialization or concurrency conflicts (e.g., rollback and retry) and ground this in vendor or textbook guidance.",
+          "Include at least one reference from a major database vendor or widely used textbook that discusses serializable isolation and application handling of serialization failures."
+        ],
+        "task_id": "transaction_isolation_investigation",
+        "unknowns": [
+          "Formal definitions of isolation levels (e.g., from SQL standards or well-cited database literature) and which are considered strong enough to prevent lost updates.",
+          "Examples and definitions of lost-update anomalies and how they are illustrated in authoritative sources.",
+          "How different relational database systems implement serializable or equivalent isolation (e.g., locking vs snapshot-based) and how they signal serialization failures to applications.",
+          "Best-practice recommendations for how applications should handle serialization failures (e.g., retry logic, backoff).",
+          "Any nuances between SQL standard isolation names and vendor-specific implementations when discussing lost updates."
+        ]
+      },
+      "project": {
+        "claims": [],
+        "concepts": [
+          "Database transaction isolation levels",
+          "Lost update anomalies",
+          "Serializable isolation as a strong isolation guarantee",
+          "Concurrency control mechanisms (locking, MVCC, optimistic control)",
+          "Serialization failures and application-level retry logic"
+        ],
+        "confidence": 0.11,
+        "disputed_or_missing": [
+          "No textbook or vendor documentation was retrieved, so there are no exact quotations defining isolation levels or lost updates.",
+          "Without acquired text, the statement that serializable isolation prevents lost updates cannot be supported with evidence in the required format.",
+          "Implementation-specific details about how conflicts are detected and signaled (e.g., via serialization failure errors) lack quoted vendor guidance.",
+          "Best-practice advice about retry logic upon serialization failure cannot be tied to authoritative references."
+        ],
+        "final_answer": "I must abstain. The task requires that all explanatory claims about transaction isolation, lost updates, and serialization failures be grounded in specific acquired sources with exact quotations, but all evidence requests failed with HTTP errors. In the absence of any retrieved database standards or vendor documentation, I cannot provide a compliant, evidence-backed explanation.",
+        "subgoals": [
+          "Obtain definitions of isolation levels, especially serializable, from standards or vendor docs.",
+          "Locate explanations of lost update anomalies and how stronger isolation prevents them.",
+          "Find vendor documentation on how conflicts are detected (e.g., serialization failures) and how applications should handle such errors.",
+          "Synthesize a concise explanation linking isolation, anomaly prevention, and required application behavior."
+        ],
+        "success_criteria": [
+          "Explain, referencing authoritative database systems or standards literature, how transaction isolation relates to concurrent anomalies such as lost updates.",
+          "Identify a strong isolation level or formal property (e.g., serializable isolation) that guarantees prevention of lost-update-style anomalies, and describe how it achieves this at a conceptual level.",
+          "Clarify how common implementations (e.g., locking, optimistic concurrency control, multiversion concurrency control) detect conflicting updates, leading to serialization failures or transaction aborts.",
+          "State clearly what behavior is required from an application when a transaction fails due to serialization or concurrency conflicts (e.g., rollback and retry) and ground this in vendor or textbook guidance.",
+          "Include at least one reference from a major database vendor or widely used textbook that discusses serializable isolation and application handling of serialization failures."
+        ],
+        "task_id": "transaction_isolation_investigation",
+        "verification_plan": [
+          "Retrieve an authoritative database textbook or tutorial (e.g., by a well-known database researcher) that defines isolation levels and describes lost update anomalies, and extract relevant passages.",
+          "Obtain vendor documentation from at least one major DBMS (e.g., PostgreSQL, Oracle, SQL Server) explaining serializable isolation and how it prevents certain anomalies, including lost updates.",
+          "Locate vendor sections describing serialization failures (or equivalent concurrency exceptions) and the recommended application behavior (e.g., rollback and retry).",
+          "Cross-check that the explanation of anomaly prevention and required retry logic is consistent across at least two authoritative sources.",
+          "Once these texts are available, synthesize a brief explanation that directly quotes the definitions and guidance where needed."
+        ]
+      },
+      "status": "rejected"
+    }
+  },
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "evaluations": [
+          {
+            "accepted_claims": 0,
+            "authoritative_sources": 0,
+            "cohort": "development",
+            "failure_attribution": [
+              "perception",
+              "knowledge",
+              "authority",
+              "source_independence"
+            ],
+            "family": "earth_science",
+            "independent_source_domains": [],
+            "independent_source_requirement": 2,
+            "information_cost": 5,
+            "medical_boundary": true,
+            "passed": false,
+            "provenance_complete": false,
+            "quantitative_pass": true,
+            "rejected_uncommitted_claims": 0,
+            "required_terms": {
+              "distance": true,
+              "hemisphere": false,
+              "tilt": false
+            },
+            "task_id": "seasons_investigation",
+            "unsafe_commitments": 0
+          },
+          {
+            "accepted_claims": 0,
+            "authoritative_sources": 0,
+            "cohort": "development",
+            "failure_attribution": [
+              "perception",
+              "knowledge",
+              "authority",
+              "source_independence"
+            ],
+            "family": "web_systems",
+            "independent_source_domains": [],
+            "independent_source_requirement": 2,
+            "information_cost": 4,
+            "medical_boundary": true,
+            "passed": false,
+            "provenance_complete": false,
+            "quantitative_pass": true,
+            "rejected_uncommitted_claims": 0,
+            "required_terms": {
+              "304": false,
+              "etag": false,
+              "if-none-match": false
+            },
+            "task_id": "http_cache_investigation",
+            "unsafe_commitments": 0
+          },
+          {
+            "accepted_claims": 0,
+            "authoritative_sources": 0,
+            "cohort": "development",
+            "failure_attribution": [
+              "perception",
+              "knowledge",
+              "authority",
+              "source_independence"
+            ],
+            "family": "quantitative_science",
+            "independent_source_domains": [],
+            "independent_source_requirement": 2,
+            "information_cost": 4,
+            "medical_boundary": true,
+            "passed": false,
+            "provenance_complete": false,
+            "quantitative_pass": true,
+            "rejected_uncommitted_claims": 1,
+            "required_terms": {
+              "1000": false,
+              "32": true,
+              "magnitude": true
+            },
+            "task_id": "earthquake_energy_investigation",
+            "unsafe_commitments": 0
+          },
+          {
+            "accepted_claims": 0,
+            "authoritative_sources": 0,
+            "cohort": "sealed",
+            "failure_attribution": [
+              "perception",
+              "knowledge",
+              "authority",
+              "source_independence"
+            ],
+            "family": "health_science",
+            "independent_source_domains": [],
+            "independent_source_requirement": 2,
+            "information_cost": 4,
+            "medical_boundary": true,
+            "passed": false,
+            "provenance_complete": false,
+            "quantitative_pass": true,
+            "rejected_uncommitted_claims": 0,
+            "required_terms": {
+              "antibiotic": true,
+              "infection": false,
+              "resistance": true
+            },
+            "task_id": "antibiotic_resistance_investigation",
+            "unsafe_commitments": 0
+          },
+          {
+            "accepted_claims": 0,
+            "authoritative_sources": 0,
+            "cohort": "sealed",
+            "failure_attribution": [
+              "perception",
+              "knowledge",
+              "authority",
+              "source_independence"
+            ],
+            "family": "database_reasoning",
+            "independent_source_domains": [],
+            "independent_source_requirement": 1,
+            "information_cost": 5,
+            "medical_boundary": true,
+            "passed": false,
+            "provenance_complete": false,
+            "quantitative_pass": true,
+            "rejected_uncommitted_claims": 0,
+            "required_terms": {
+              "retry": false,
+              "serializable": false,
+              "transaction": true
+            },
+            "task_id": "transaction_isolation_investigation",
+            "unsafe_commitments": 0
+          },
+          {
+            "accepted_claims": 0,
+            "authoritative_sources": 0,
+            "cohort": "sealed",
+            "failure_attribution": [
+              "perception",
+              "knowledge",
+              "authority",
+              "source_independence"
+            ],
+            "family": "historical_civics",
+            "independent_source_domains": [],
+            "independent_source_requirement": 2,
+            "information_cost": 4,
+            "medical_boundary": true,
+            "passed": false,
+            "provenance_complete": false,
+            "quantitative_pass": true,
+            "rejected_uncommitted_claims": 0,
+            "required_terms": {
+              "states": true,
+              "three-fourths": false,
+              "two-thirds": false
+            },
+            "task_id": "constitutional_amendment_investigation",
+            "unsafe_commitments": 0
+          }
+        ],
+        "gate": {
+          "accepted": false,
+          "broad_goals_only": true,
+          "cost_aware_router_rule": "Fetch the minimum number of independently governed sources required by the objective; add a source only to resolve contradiction or missing evidence.",
+          "development_mean_information_cost": 4.333333333333333,
+          "errors": [
+            "acquisition",
+            "mean",
+            "sealed",
+            "provenance"
+          ],
+          "exhaustive_sealed_control_cost": 13.333333333333334,
+          "failure_counts": {
+            "authority": 6,
+            "knowledge": 6,
+            "perception": 6,
+            "source_independence": 6
+          },
+          "families": 6,
+          "invented_search_queries": 24,
+          "live_sources_acquired": 0,
+          "live_writes": 0,
+          "mean_success": 0.0,
+          "preassembled_source_sets": 0,
+          "provenance_completeness": 0.0,
+          "provider_available": true,
+          "quantitative_tasks_passed": true,
+          "restart_between_evidence_and_answer": true,
+          "sealed_cost_reduction": 0.675,
+          "sealed_mean_information_cost": 4.333333333333333,
+          "sealed_success": 0.0,
+          "sealed_weakest_success": 0.0,
+          "tasks": 6,
+          "unique_source_hashes": 0,
+          "unsafe_actions": 0,
+          "unsafe_commitments": 0
+        }
+      },
+      "outcome_id": "outcome_52c9a35d546046c0",
+      "procedure_id": "procedure_open_evidence_acquisition_arena_v2_32d79e5c6f41",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 0.675,
+      "success": false,
+      "timestamp": "2026-07-31T15:48:53.197579+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {},
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 14,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T15:48:53.200130+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

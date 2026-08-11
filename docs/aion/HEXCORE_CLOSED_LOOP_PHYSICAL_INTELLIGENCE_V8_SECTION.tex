@@ -1,0 +1,90 @@
+\section{Arena v8: Closed-Loop Physical Intelligence}
+\label{sec:arena-v8-physical}
+
+Arena v8 closes the loop from pixel-grounded perception to intervention,
+prediction, delayed consequence, model revision and transfer.  A separately
+implemented authority owns hidden actuation gain, drag, delay, structural
+change and target dynamics.  AION receives rendered pixels, a noisy velocity
+channel and bounded control actions; it receives no latent parameter labels or
+object coordinates.
+
+\subsection{Perception, identification and action}
+
+Object position is recovered from the rendered red-pixel support.  AION
+maintains a posterior over candidate dynamics $h=(g,d,\delta)$, where $g$ is
+actuation gain, $d$ is drag and $\delta$ is action delay.  For state
+$(x_t,v_t)$ and bounded action $u_t$, a candidate predicts
+\begin{align}
+ \hat v_{t+1} &= (1-d\Delta t)v_t + g\tilde u_t\Delta t,\\
+ \hat x_{t+1} &= x_t + \hat v_{t+1}\Delta t,
+\end{align}
+where $\tilde u_t=u_{t-1}$ for delayed actuation and $u_t$ otherwise.  The next
+diagnostic action maximises posterior predictive disagreement subject to a
+small action cost.  A SHA--256 commitment to $\hat x_{t+1}$ is recorded before
+the authority executes the action and reveals the next observation.
+
+Accepted observations update the model posterior.  Short action sequences are
+then evaluated with model-predictive control, only the first action is executed,
+and planning repeats after each observed consequence.  Residual surprise
+criticises the current dynamics and can trigger private model revision.  If
+repeated bounded actions cannot produce the predicted controllability, the
+system abstains rather than forcing an in-family explanation.
+
+\subsection{Outcome-induced transfer prior}
+
+The experience prior is not development encoded.  It is induced from 32
+source-disjoint development worlds using outcome-only identification.  A
+Dirichlet pseudocount of one retains support for every model.  The learned and
+cold systems then receive identical sealed worlds, actions, targets, budgets
+and stopping rules; the cold control alone begins from a uniform prior.
+
+The initial design reached every target but produced no probe reduction, no
+change diagnosis and no out-of-family abstention, and was rejected.  The final
+design distinguishes exact parameter certainty from operational certainty: it
+may act when the gain/delay family is resolved even if short-horizon evidence
+cannot distinguish two nearly equivalent drag values.
+
+\subsection{Sealed outcome}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{@{}lr@{}}
+\hline
+Measure & Result \\
+\hline
+Outcome-prior development worlds & 32 \\
+Sealed pixel-controlled worlds & 24 \\
+Dynamics families & 3 \\
+Goal success & $100\%$ \\
+Weakest-family success & $100\%$ \\
+Cold-control goal success & $100\%$ \\
+Mean diagnostic probes & $3.625$ \\
+Cold-control diagnostic probes & $6.625$ \\
+Probe reduction versus cold & $45.28\%$ \\
+Hidden actuator changes & 4 \\
+Changed-world revision rate & $75\%$ \\
+Pre-action prediction commitments & 273 \\
+Out-of-family abstention & passed \\
+Unsafe actions & 0 \\
+Restart relearning & 0 \\
+\hline
+\end{tabular}
+\caption{Arena v8 sealed closed-loop physical-intelligence result.}
+\end{table}
+
+CAU promoted
+\path{procedure_closed_loop_physical_intelligence_v8_b603d84be41a}.
+The result demonstrates that retained outcome experience reduces real
+environmental interventions without reducing success, while preserving
+change criticism, abstention and restart persistence.
+
+\subsection{Authority and claim boundary}
+
+The simulator is separated from AION's proposal and promotion path but remains
+development authored.  Dynamics are one-dimensional, actions and targets are
+bounded, and the model family is finite.  This is not unrestricted embodiment,
+robotic deployment, independently administered physical evaluation or AGI.
+The corresponding external gate requires evaluator-owned devices or simulators
+whose dynamics, tasks and outcomes were unavailable during development.
+

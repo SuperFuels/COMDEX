@@ -1,0 +1,504 @@
+{
+  "precommitments": [
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:24:39.911624+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T14:18:07.565656+00:00",
+      "goal_id": "autonomous_dd61c4c581e3e59c7a",
+      "precommitment_sha256": "8a1967cadcaa7d5fe529addd7913a517055062cb39fdd0e1d4cfe435ab9a33eb",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:24:39.911835+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T14:18:07.565651+00:00",
+      "goal_id": "autonomous_7ffcb834bbcf6f1f57",
+      "precommitment_sha256": "81ff839f952be32bea2100ae7c17e8bfd3bb381ae888fd2e47abf08ed60d6a70",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:24:39.911850+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T14:15:22.587634+00:00",
+      "goal_id": "autonomous_02548bdb59f36b4150",
+      "precommitment_sha256": "e3a525bf2cc6536a79e8dad923573016dd35c48f83688492bc0749f5f78c4cdc",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:24:39.911859+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T14:15:22.587639+00:00",
+      "goal_id": "autonomous_4b1a51bdfdaca10f58",
+      "precommitment_sha256": "e6590ac18650a2ddc0ffb3308fd8e0e90a573c8c0e32ac879f4b32e6658fded0",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:24:39.911867+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T14:15:22.587647+00:00",
+      "goal_id": "autonomous_519bec59c3a8880999",
+      "precommitment_sha256": "c4786b98afde178418f4c0b9fddcfa14641a548d91d4a2d57e8194d1eec9883a",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:29:29.970004+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T14:15:22.587642+00:00",
+      "goal_id": "autonomous_4cc451cdee0db137cd",
+      "precommitment_sha256": "e750906ae56d43c067bc203ee378871f5f3d8b7cd43ba93aaaef27a20a041304",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:29:29.970017+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:37:51.025982+00:00",
+      "goal_id": "autonomous_7849a422402d397703",
+      "precommitment_sha256": "0376490df69d6cab17b2577434274a2839b47bc2cbe02df192bb049c678bd659",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:29:29.970025+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:58:26.051814+00:00",
+      "goal_id": "autonomous_8680c4c0817041f60f",
+      "precommitment_sha256": "f04182b812d81565c0ffb3298c1d500fd113f72e7984ae9b42e50510a385556a",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:29:29.970033+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T14:08:40.619104+00:00",
+      "goal_id": "autonomous_e6eb62c3fc0f3c57a5",
+      "precommitment_sha256": "52736bbfc9cc4584715e0a677a613dfbd388b8dad1600b7433e7aab421ae5f6f",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:29:29.970040+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:37:51.025988+00:00",
+      "goal_id": "autonomous_c4864d5d578d74562c",
+      "precommitment_sha256": "4f7b1b27b2308b4894442d6c3e703b09901934845068ac88fcb09a6e7a8c4e8e",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:53:59.889807+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:48:11.371601+00:00",
+      "goal_id": "autonomous_dd9107bdccec2431e4",
+      "precommitment_sha256": "c8275606e68bf295b9d448c8e90a5a1be57a7b3ca6ae756defa0472a0ff15623",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:53:59.889822+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:48:11.371596+00:00",
+      "goal_id": "autonomous_5d58559e5cd2066dee",
+      "precommitment_sha256": "d754a69658370844ce8ed12d725f5d1a0cc2eebc0a75dd40c816c00e15bb912b",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T14:53:59.889831+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:37:51.025986+00:00",
+      "goal_id": "autonomous_a694e3de312079a78f",
+      "precommitment_sha256": "b128984a04b06eefef4bdbc5b7ba548e3767c8210effaf92de676e16cbb76b31",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T15:04:36.784636+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:37:51.025978+00:00",
+      "goal_id": "autonomous_45dddba69c7d780c6f",
+      "precommitment_sha256": "c083da338563f20e03866133839201c1e9c4235865e256033664f9a53c8ee245",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    },
+    {
+      "available_safe_probes": [
+        "canonical_integrity",
+        "temporal_alignment",
+        "parser_crosscheck",
+        "counterfactual_robustness"
+      ],
+      "committed_at": "2026-08-02T15:04:36.784648+00:00",
+      "forbidden": [
+        "network_escalation",
+        "shell",
+        "history_mutation",
+        "always_blame_internal"
+      ],
+      "goal_created_at": "2026-08-02T13:37:51.025984+00:00",
+      "goal_id": "autonomous_97eb533698f844decd",
+      "precommitment_sha256": "72b10fa9680a007230b8054f6f7d4f37b8bcc5392c2c3c6b6df4c8ed4a13dbe9",
+      "scenario_digest": "8ec6f9a15dd3193ea749612d9a4d00b3c070128441c7a5ef4c4861dbaeff5b9d"
+    }
+  ],
+  "procedure_id": "procedure_open_authority_disagreement_diagnosis_v1",
+  "receipts": [
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_dd61c4c581e3e59c7a.json",
+      "artifact_sha256": "49768cefac2854177c45a15c0af7f660fb2c1671edc4bfe1e4c9ab3af0d68a9c",
+      "created_at": "2026-08-02T14:25:25.852911+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_dd61c4c581e3e59c7a",
+      "partner": "cloud_devops_sre",
+      "partner_evidence_id": "competency_evidence_a65fca92900bab9abd27",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "92c3424db4fb18e2a5b9fbd74df3519761152efd862507f527af667fab3b0eed",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_7ffcb834bbcf6f1f57.json",
+      "artifact_sha256": "4de9f5f99acb9df823e87a4db970d4b73bfaabfe0b98250a0ee4a8041e2351cb",
+      "created_at": "2026-08-02T14:25:25.899751+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_7ffcb834bbcf6f1f57",
+      "partner": "distributed_systems",
+      "partner_evidence_id": "competency_evidence_cf56b53d0f758ae6dcc3",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "f13fb43011a73709da35142698ee4a3ab38dd20ebd2831c33611eb22f5b11f9c",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_02548bdb59f36b4150.json",
+      "artifact_sha256": "6d27248b41941c04bddbf8b6f71024c60a98843bd2f0911b53191d461916c943",
+      "created_at": "2026-08-02T14:25:25.952537+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_02548bdb59f36b4150",
+      "partner": "integrated_engineering_capstone",
+      "partner_evidence_id": "competency_evidence_25046eece23518f90ac1",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "67ac03371a4f47b209b68accbfa965de3e5e479feb76c7943a3ea0402a91c544",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_4b1a51bdfdaca10f58.json",
+      "artifact_sha256": "97f5df56fbea55d4c78035acbf201b94c76036e27ba2bd7650e3498d443bb811",
+      "created_at": "2026-08-02T14:25:25.992891+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_4b1a51bdfdaca10f58",
+      "partner": "networking",
+      "partner_evidence_id": "competency_evidence_c9cdac2db9c5059133e7",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "a7d81eafde0f3da99799e445ba03f9f7a84fce9f8ebcb1f55fe11f45841db273",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_519bec59c3a8880999.json",
+      "artifact_sha256": "6dbd66c4ffb2d4b41c574056dd441d078accefe975ca9c7c16257fb15a6c0b38",
+      "created_at": "2026-08-02T14:25:26.033603+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_519bec59c3a8880999",
+      "partner": "architecture_operations",
+      "partner_evidence_id": "competency_evidence_f81962b3d88d9ff748e4",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "2e6b2ade47d308ce9103e23f0812069ecd527d75e7323ae96944e93c6ef14797",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_4cc451cdee0db137cd.json",
+      "artifact_sha256": "d0f33ebc2ba49e841a67a27b3e4b94cd772b6814d36ede5b65778896c7c4c7cf",
+      "created_at": "2026-08-02T14:35:06.491794+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_4cc451cdee0db137cd",
+      "partner": "cloud_devops_sre",
+      "partner_evidence_id": "competency_evidence_41fa1171ec9c19392e4b",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "a9a6eb4432aa1785a1004f3a20f09b804234baa0240fcbe0cb278bd92fbaf9b0",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_7849a422402d397703.json",
+      "artifact_sha256": "a9b31e618639d7e07594d7278fbacc687741f93bdc44d970dbc835cf9375b944",
+      "created_at": "2026-08-02T14:35:06.531461+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_7849a422402d397703",
+      "partner": "distributed_systems",
+      "partner_evidence_id": "competency_evidence_cc1eda400baa20b46036",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "217e096b3d84a6265d9e3fde3efaeff1fcd9530e87498dac3a98b6c5f0cbbae4",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_8680c4c0817041f60f.json",
+      "artifact_sha256": "025780818bad15013777adee4abbb0f1a6f66616fd4edd52fa3bf8b38bc9890d",
+      "created_at": "2026-08-02T14:35:06.569852+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_8680c4c0817041f60f",
+      "partner": "integrated_engineering_capstone",
+      "partner_evidence_id": "competency_evidence_1b74aff94f5a1d704df6",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "7d9cc2ed47b3a264e55fb6d833ced6e0363574acdd9e27e54201ebf5ef855453",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_e6eb62c3fc0f3c57a5.json",
+      "artifact_sha256": "4df1808feadfe69f007565b528c6caeeb2f5c91269433fd0628a2a456de3f514",
+      "created_at": "2026-08-02T14:35:06.608668+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_e6eb62c3fc0f3c57a5",
+      "partner": "networking",
+      "partner_evidence_id": "competency_evidence_c35ae7bceb6482308273",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "9470a2c807f2b8e96d26aca1295d6f916c872b592bef84f1fac630df3d885362",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_c4864d5d578d74562c.json",
+      "artifact_sha256": "65682c32011d74c3192b762a05e5b1e609507b8569a0c28f543d177adb6734ad",
+      "created_at": "2026-08-02T14:35:06.647307+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_c4864d5d578d74562c",
+      "partner": "architecture_operations",
+      "partner_evidence_id": "competency_evidence_fff2d6f90c381133638b",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "25c2a73df2efeb1513cae0185dcd9083719a300bf282c11ee6393ea1957184a2",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_dd9107bdccec2431e4.json",
+      "artifact_sha256": "f3529cbe9659989f4779379ba335f7504cf936e08e3699d46071870d1ce7749f",
+      "created_at": "2026-08-02T15:02:20.764711+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_dd9107bdccec2431e4",
+      "partner": "cloud_devops_sre",
+      "partner_evidence_id": "competency_evidence_bfac2b8a4c665f43523c",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "5d27f322639e6efb873d654b86d8349f9bdfb08eff548102cc3add5e0d42a00d",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_5d58559e5cd2066dee.json",
+      "artifact_sha256": "d01acc0bcb480fd621f4f38e5bfbdb0506472530c1b2d8d2cf724b37ff9a7ed7",
+      "created_at": "2026-08-02T15:02:20.809434+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_5d58559e5cd2066dee",
+      "partner": "integrated_engineering_capstone",
+      "partner_evidence_id": "competency_evidence_d1400520644a3a1d8dd6",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "257a728f9db62f388f3f71806e500fd163a591e9b292521745c69fbd02c03fc7",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_a694e3de312079a78f.json",
+      "artifact_sha256": "7900c1824e7f35876cd7f9bc1001070902ef85c2bdf23d280ae7f94008636fb3",
+      "created_at": "2026-08-02T15:02:20.848681+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_a694e3de312079a78f",
+      "partner": "networking",
+      "partner_evidence_id": "competency_evidence_5ec257b40ba5a0c5dd93",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "a764c7034ff76b05e14acdaf3e30a0b656ce32cb8e36fbaf478cf5f311e58eab",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_45dddba69c7d780c6f.json",
+      "artifact_sha256": "a3ca46c1d71d050f8e9aa2e2de3e38a39456ca97e6691e9893c390e84613803b",
+      "created_at": "2026-08-02T15:14:53.864115+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_45dddba69c7d780c6f",
+      "partner": "cloud_devops_sre",
+      "partner_evidence_id": "competency_evidence_282fdbfcf024dd0c4557",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "9b982eb3369c0783ef21f810da2786aeafea168d94b2ed647e516c9f7c855fda",
+      "unsafe_candidates_rejected": 4
+    },
+    {
+      "artifact": "results/aion_authority_disagreement_diagnostics/autonomous_97eb533698f844decd.json",
+      "artifact_sha256": "601deb21a3c99dd2a71acddccd80d5e6a31b37635eed99ec0766bab5c25b0722",
+      "created_at": "2026-08-02T15:14:53.904754+00:00",
+      "diagnoses_correct": 4,
+      "diagnoses_total": 4,
+      "diagnostic_id": "OPEN_CONFLICT_DIAGNOSTIC_PROGRAM",
+      "goal_id": "autonomous_97eb533698f844decd",
+      "partner": "integrated_engineering_capstone",
+      "partner_evidence_id": "competency_evidence_4fd95497cd5aad497c54",
+      "program_sha256": "168b7ed6a7e74e99dabd4dc3f733de312d550e86335fffd9754c16d7436e39df",
+      "receipt_sha256": "7be7cccd8c686f6858c1aaa576b07d8303215b4151b6b0b5ca3864374413363e",
+      "unsafe_candidates_rejected": 4
+    }
+  ],
+  "schema_version": "aion.hexcore.open_authority_disagreement_diagnosis.v1",
+  "updated_at": "2026-08-11T05:26:54.587656+00:00"
+}

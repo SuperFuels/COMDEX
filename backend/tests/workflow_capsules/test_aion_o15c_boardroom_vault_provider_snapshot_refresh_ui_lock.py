@@ -27,3 +27,16 @@ def test_o15c_forces_spatial_renderer_update_after_vault_refresh():
     assert "TessarisDesktopBoardroomRenderer.updateBoardroom" in text
     assert "spatialBoardroomMount" in text
     assert "renderBoardroomSurfaceWithProviderRefreshO15C" in text
+
+
+def test_main_provider_suite_is_connectable_from_the_vault():
+    text = APP.read_text(encoding="utf-8")
+
+    assert 'id: "meta"' in text
+    assert 'id: "mistral"' in text
+    assert 'id: "deepseek"' in text
+    assert "data-aion-vault-ai-save" in text
+    assert "data-aion-vault-ai-delete" in text
+    assert "data-aion-vault-boardroom-member" in text
+    assert "getAionSelectedBoardroomProviderIdsV1" in text
+    assert "Receipt reading:" in text

@@ -1,0 +1,136 @@
+\section{Arena v15: Long-Duration Real Outcomes and External Human Authority}
+\label{sec:arena-v15-long-duration-human-authority}
+
+Arena v15 addresses two limitations that cannot be resolved by adding another
+compressed internal benchmark.  First, duration must be demonstrated by real
+elapsed time and repeated independently changing consequences rather than by a
+fast loop labelled as a long project.  Second, social, commonsense, and creative
+competence must be judged by independent people under a frozen protocol rather
+than by development-authored synthetic gold labels.
+
+\subsection{Wall-Clock Continual Campaign}
+\label{subsec:v15-wall-clock-campaign}
+
+The long-duration campaign began at
+\texttt{2026-07-31T19:42:32.828638+00:00}.  Its promotion gate requires at
+least 24 real elapsed hours and at least twelve independently checkpointed
+cycles.  The elapsed-time requirement is computed from system time,
+\begin{equation}
+ H_{t}=\frac{t_{\mathrm{last}}-t_{\mathrm{{start}}}}{3600},
+\end{equation}
+and eligibility requires
+\begin{equation}
+ \mathcal{G}_{\mathrm{time}}
+ = [H_t\geq 24]\land[N_{\mathrm{cycles}}\geq 12]
+  \land \mathcal{G}_{\mathrm{outcome}}
+  \land \mathcal{G}_{\mathrm{authority}}.
+\end{equation}
+Consequently, repeated calls made inside one short process cannot impersonate a
+long-duration result.
+
+Before every cycle, AION commits the intended information actions and the
+previously known remote revisions,
+\begin{equation}
+ C_t=\operatorname{SHA256}
+ \left(t,\mathcal{A}_t,R^{\mathrm{known}}_{t-1}\right).
+\end{equation}
+It then queries four independently maintained authorities---the CPython and
+Node.js primary branches, PyPI package metadata, and Open-Meteo observations---
+executes a protected AION artifact check in a fresh isolated process, and
+commits a transactional database outcome.  The
+revealed result, including the pre-action commitment, receives a second hash
+and is appended to an immutable-style JSONL evidence ledger.
+
+For source $s$, the monitoring policy estimates a conservative empirical risk,
+\begin{equation}
+ \rho_s=\frac{n^{\mathrm{change}}_s+n^{\mathrm{failure}}_s+1}
+ {n^{\mathrm{observation}}_s+2},
+\end{equation}
+and assigns a shorter observation interval to volatile or unreliable sources.
+Connectivity failure is recorded separately from a verified remote revision
+change.  Campaign state is written by atomic replacement, while outcome
+records remain append-only.
+
+\begin{table}[htbp]
+\centering
+\caption{Arena v15 launch state.  These values describe an active campaign,
+not a promoted capability result.}
+\label{tab:arena-v15-launch}
+\begin{tabular}{lr}
+\hline
+Measure & Launch status \\
+\hline
+Required wall-clock duration & 24 hours \\
+Required independently checkpointed cycles & 12 \\
+Independent remote authorities & 4 \\
+Completed initial cycles & 2 \\
+Protected execution outcomes & Passed \\
+Transactional outcomes & Passed \\
+Process-restart recovery & Demonstrated \\
+Unsafe outcomes & 0 \\
+Promotion status & Blocked pending real duration \\
+\hline
+\end{tabular}
+\end{table}
+
+The remaining cycles run under the native macOS job supervisor at two-hour
+intervals.  Idle sleep is inhibited while the campaign is active, but closing
+the laptop lid suspends execution until the machine resumes.  Internet access
+is required for the independently maintained remote outcomes.  The earliest
+eligible completion time is approximately 21:43 CEST on 1 August 2026; the
+scheduled final cycle is expected shortly afterwards.  Passing the time gate
+only makes the candidate eligible for CAU review and does not constitute
+independent certification.
+
+\subsection{Externally Administered Human-Judgment Contract}
+\label{subsec:v15-human-authority}
+
+The earlier six-scenario development instrument has been superseded as the
+authority design by External Human Judgment Protocol v2.  Development code may
+construct candidate responses, but it cannot author the sealed evaluation,
+rate those responses, or grant promotion.
+
+An independent administrator must preregister and cryptographically commit at
+least 60 hidden human-authored tasks, comprising at least 20 tasks in each of
+the following families:
+\begin{enumerate}
+ \item commonsense reasoning;
+ \item contextual and social judgment; and
+ \item creative synthesis.
+\end{enumerate}
+Every task requires at least five independent human ratings.  Candidate
+identity is hidden, presentation order is randomized, exclusions are
+preregistered, and legitimate rater disagreement is preserved rather than
+collapsed into an artificial single correct answer.  Four systems receive
+matched resources: complete AION, AION without accumulated memory, the proposal
+substrate without HexCore, and a frontier-agent comparator.
+
+The minimum capability conditions are
+\begin{align}
+ \overline{S}_{\mathrm{AION}} &\geq 3.5/5, \\
+ S_{\mathrm{weakest\ family}} &\geq 3.2/5, \\
+ \frac{S_{\mathrm{AION}}}{S_{\mathrm{frontier}}} &\geq 0.90, \\
+ r_{\mathrm{unacceptable}} &\leq 0.05, \\
+ n_{\mathrm{unsafe/coercive}} &=0.
+\end{align}
+Tasks, candidate ordering, scoring plan, rater panel, ratings, outputs,
+analysis, and the reproduction bundle are independently committed.  The final
+envelope must be Ed25519-signed.  The verifier fails closed on an altered
+contract, missing breadth, inadequate raters, missing blinding, forced
+consensus, incomplete logs, or an invalid signature.
+
+\subsection{Verification and Claim Boundary}
+
+Focused verification of the long-duration control plane, external human
+contract, continual neural policy, external physical contract, and AGI evidence
+registry passed $17/17$ tests.  The long-duration campaign is running and the
+human contract is frozen, but neither external human ratings nor independent
+physical results have yet been received.  Therefore no social/creative
+capability promotion, external certification, or AGI authorization follows
+from this infrastructure.
+
+Arena v15 is designed to remove two forms of false evidence: simulated duration
+and self-awarded human judgment.  A successful internal campaign would
+demonstrate restart-persistent operation against repeated real consequences.
+Only independently administered, signed, and auditable outcomes can advance the
+external evidence gates.

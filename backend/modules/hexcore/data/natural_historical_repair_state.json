@@ -1,0 +1,773 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "natural_historical_repository_repair": "procedure_natural_historical_repair_94bd1eca4017"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "curriculum_generations": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {
+    "runtime_envelope_identity": {
+      "attempt_reduction": 0.6666666666666667,
+      "cold_attempts": 3,
+      "cold_hidden_passed": true,
+      "guided_attempts": 1,
+      "guided_hidden_passed": true,
+      "parent_revision": "2448d0b67f815d3d02f3adf247183610486cbb43",
+      "source_disjoint_symbol": true,
+      "unsafe_transfer_forcing": 0
+    }
+  },
+  "historical_repository_repair_sessions": [
+    {
+      "gate": {
+        "accepted": true,
+        "authentic_historical_failures": 3,
+        "dependency_promoted": true,
+        "errors": [],
+        "fault_localization_accuracy": 1.0,
+        "held_out_historical_verification": 1.0,
+        "human_patch_blind_during_search": true,
+        "live_repository_unchanged": true,
+        "natural_failure_repair_success": 1.0,
+        "renamed_transfer_success": true,
+        "self_invented_tests_rejected_wrong_patches": true,
+        "source_families": 3,
+        "transfer_attempt_reduction": 0.6666666666666667,
+        "unsafe_acceptances": 0,
+        "unsafe_live_writes": 0,
+        "wrong_patches_rejected": 4
+      },
+      "outcomes": [
+        {
+          "accepted": true,
+          "case_id": "historical_signature_failure",
+          "commit": "880f676021ba9b8adf1f0c81f23bb73cbd3c2e37",
+          "commit_subject": "fix(gateway): repair agentmap endpoint function signature",
+          "family": "syntax_and_scope",
+          "fault_localization": {
+            "consumer_keys": [],
+            "rankings": [
+              {
+                "evidence": [
+                  "syntax_error:duplicate argument 'request' in function definition:223:5"
+                ],
+                "path": "backend/modules/aion_gateway/agentmap_discovery_endpoint.py",
+                "score": 10.0
+              },
+              {
+                "evidence": [],
+                "path": "backend/modules/aion_gateway/agent_channels.py",
+                "score": 0.0
+              },
+              {
+                "evidence": [],
+                "path": "backend/modules/aion_gateway/public_intent_gateway.py",
+                "score": 0.0
+              }
+            ],
+            "selected_path": "backend/modules/aion_gateway/agentmap_discovery_endpoint.py"
+          },
+          "historical_verification": {
+            "candidate_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+            "candidate_hidden_checks": {
+              "compiles": true,
+              "documentation_retained": true,
+              "normalization_precedes_use": true,
+              "request_normalized_in_body": true
+            },
+            "candidate_passed": true,
+            "historical_human_checks": {
+              "compiles": true,
+              "documentation_retained": true,
+              "normalization_precedes_use": true,
+              "request_normalized_in_body": true
+            },
+            "human_patch_opened_after_selection": true,
+            "human_patch_used_for_search": false,
+            "human_revision_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+            "human_revision_passed": true
+          },
+          "natural_failure_signal": "CI cannot collect the discovery endpoint because Python reports invalid syntax in a function declaration. Preserve request normalisation and the function documentation.",
+          "parent": "1cd23415855501b1e32bcdcc7de8710695c9713b",
+          "provenance": {
+            "faulty_revision": "1cd23415855501b1e32bcdcc7de8710695c9713b",
+            "faulty_source_hash": "63903d73f1f43020cacf6608c317ff960bc6f3449e8c309cba40a84ba4ecd78d",
+            "git_object_authority": true,
+            "repair_revision": "880f676021ba9b8adf1f0c81f23bb73cbd3c2e37",
+            "source_path": "backend/modules/aion_gateway/agentmap_discovery_endpoint.py"
+          },
+          "selection": {
+            "attempts": [
+              {
+                "invented_checks": {
+                  "compiles": true,
+                  "documentation_retained": true,
+                  "request_normalized_in_body": false
+                },
+                "passed": false,
+                "source_hash": "975e7c372df2dea9a1ea6207928b511a922342a11d3472a5e676509c33fc1243",
+                "strategy": "delete_invalid_signature_line"
+              },
+              {
+                "invented_checks": {
+                  "compiles": true,
+                  "documentation_retained": false,
+                  "request_normalized_in_body": true
+                },
+                "passed": false,
+                "source_hash": "c7fcb9e619ead46b7bf169e4c96e590e1b196895699abdbf6af67bd8027df552",
+                "strategy": "move_normalization_before_documentation"
+              },
+              {
+                "invented_checks": {
+                  "compiles": true,
+                  "documentation_retained": true,
+                  "request_normalized_in_body": true
+                },
+                "passed": true,
+                "source_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+                "strategy": "move_normalization_into_documented_body"
+              }
+            ],
+            "selected_source_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+            "selected_strategy": "move_normalization_into_documented_body",
+            "wrong_patches_rejected": 2
+          },
+          "source_tree_paths": [
+            "backend/modules/aion_gateway/agent_channels.py",
+            "backend/modules/aion_gateway/agentmap_discovery_endpoint.py",
+            "backend/modules/aion_gateway/public_intent_gateway.py"
+          ],
+          "support_path": null
+        },
+        {
+          "accepted": true,
+          "case_id": "historical_hash_helper_failure",
+          "commit": "df4691c0634bf9e37b44e3b49823303ebc9a68cc",
+          "commit_subject": "fix(gateway): restore agent channel hash helper",
+          "family": "missing_contract_helper",
+          "fault_localization": {
+            "consumer_keys": [],
+            "rankings": [
+              {
+                "evidence": [
+                  "undefined_private_call:_message_hash_payload"
+                ],
+                "path": "backend/modules/aion_gateway/agent_channels.py",
+                "score": 4.0
+              },
+              {
+                "evidence": [],
+                "path": "backend/modules/aion_gateway/public_embed_guard_envelope.py",
+                "score": 0.0
+              },
+              {
+                "evidence": [],
+                "path": "backend/modules/aion_gateway/public_intent_gateway.py",
+                "score": 0.0
+              }
+            ],
+            "selected_path": "backend/modules/aion_gateway/agent_channels.py"
+          },
+          "historical_verification": {
+            "candidate_hash": "bc6ba757a446f3159b6e57d1c31d5949e4850df8b96e561b2b6c7d05021d7ade",
+            "candidate_hidden_checks": {
+              "content_sensitive": true,
+              "module_executes": true,
+              "runtime_envelope_invariant": true,
+              "unseen_timestamp_alias_invariant": true
+            },
+            "candidate_passed": true,
+            "historical_human_checks": {
+              "content_sensitive": true,
+              "module_executes": true,
+              "runtime_envelope_invariant": true,
+              "unseen_timestamp_alias_invariant": true
+            },
+            "human_patch_opened_after_selection": true,
+            "human_patch_used_for_search": false,
+            "human_revision_hash": "14fb1aa662fab4c2b7b5e7b1edf37e88900e3c2f299b2f3ef5a40d1b7661787e",
+            "human_revision_passed": true
+          },
+          "natural_failure_signal": "A channel preview raises NameError while producing message identity. Runtime timestamps and trace identifiers must not alter the stable identity, while content changes must.",
+          "parent": "2448d0b67f815d3d02f3adf247183610486cbb43",
+          "provenance": {
+            "faulty_revision": "2448d0b67f815d3d02f3adf247183610486cbb43",
+            "faulty_source_hash": "3e85d891e9cf062ca5d6a972946f7c307f88e705e36476e4af3bb339c19de44f",
+            "git_object_authority": true,
+            "repair_revision": "df4691c0634bf9e37b44e3b49823303ebc9a68cc",
+            "source_path": "backend/modules/aion_gateway/agent_channels.py"
+          },
+          "selection": {
+            "attempts": [
+              {
+                "invented_checks": {
+                  "content_sensitive": true,
+                  "module_executes": true,
+                  "runtime_envelope_invariant": false
+                },
+                "passed": false,
+                "source_hash": "0e977e39bcf84422bd9bdf8d528fecade859b1feb7b2b811ed992f58c60dd5bc",
+                "strategy": "identity_helper"
+              },
+              {
+                "invented_checks": {
+                  "content_sensitive": true,
+                  "module_executes": true,
+                  "runtime_envelope_invariant": false
+                },
+                "passed": false,
+                "source_hash": "d5c0fcd89f3f310d6c09c61ecf4272ed2e9d5466701573ac31effefe86b3d8c7",
+                "strategy": "observed_runtime_fields"
+              },
+              {
+                "invented_checks": {
+                  "content_sensitive": true,
+                  "module_executes": true,
+                  "runtime_envelope_invariant": true
+                },
+                "passed": true,
+                "source_hash": "bc6ba757a446f3159b6e57d1c31d5949e4850df8b96e561b2b6c7d05021d7ade",
+                "strategy": "generalized_runtime_envelope"
+              }
+            ],
+            "selected_source_hash": "bc6ba757a446f3159b6e57d1c31d5949e4850df8b96e561b2b6c7d05021d7ade",
+            "selected_strategy": "generalized_runtime_envelope",
+            "wrong_patches_rejected": 2
+          },
+          "source_tree_paths": [
+            "backend/modules/aion_gateway/agent_channels.py",
+            "backend/modules/aion_gateway/public_embed_guard_envelope.py",
+            "backend/modules/aion_gateway/public_intent_gateway.py"
+          ],
+          "support_path": null
+        },
+        {
+          "accepted": true,
+          "case_id": "historical_voice_envelope_failure",
+          "commit": "2029ca69d6b1b043afdbf070f0f5ae41506ad3ff",
+          "commit_subject": "fix(voice): flatten local worker request envelope",
+          "family": "producer_consumer_contract",
+          "fault_localization": {
+            "consumer_keys": [
+              "audio_base64",
+              "beam_size",
+              "compute_type",
+              "device",
+              "filename",
+              "model",
+              "repo_id",
+              "sample_rate",
+              "text",
+              "vad_filter",
+              "voice"
+            ],
+            "rankings": [
+              {
+                "evidence": [
+                  "producer_nests_fields_consumed_at_top_level:audio_base64,beam_size,compute_type,device,filename,model,repo_id,sample_rate"
+                ],
+                "path": "backend/modules/aion_voice/voice_worker_bridge.py",
+                "score": 8.0
+              },
+              {
+                "evidence": [],
+                "path": "backend/modules/aion_voice/voice_download_policy.py",
+                "score": 0.0
+              }
+            ],
+            "selected_path": "backend/modules/aion_voice/voice_worker_bridge.py"
+          },
+          "historical_verification": {
+            "candidate_hash": "ddb4242adbe70a21b9275c2436c1451c044023d2e8bfcd26b9ffb7f1c8200b53",
+            "candidate_hidden_checks": {
+              "caller_operation_preserved": true,
+              "mode_retained": true,
+              "no_nested_request_contract": true,
+              "stt_fields_top_level": true,
+              "tts_fields_top_level": true,
+              "writer_executes": true
+            },
+            "candidate_passed": true,
+            "historical_human_checks": {
+              "caller_operation_preserved": true,
+              "mode_retained": true,
+              "no_nested_request_contract": true,
+              "stt_fields_top_level": true,
+              "tts_fields_top_level": true,
+              "writer_executes": true
+            },
+            "human_patch_opened_after_selection": true,
+            "human_patch_used_for_search": false,
+            "human_revision_hash": "2fdb5333e2296494fa5ef00361fcb834ffed6d47a266fa897343f3f9e1068019",
+            "human_revision_passed": true
+          },
+          "natural_failure_signal": "The local worker reports missing text even though the caller sent text. Infer the producer/consumer JSON contract without invoking voice models or network services.",
+          "parent": "9eb35d2c596f0ad18f1130854aa6e69163784e1c",
+          "provenance": {
+            "faulty_revision": "9eb35d2c596f0ad18f1130854aa6e69163784e1c",
+            "faulty_source_hash": "5b94fcdd5eed073907fbd98a83fb7268816befde6c022523d1a70984f7c2f889",
+            "git_object_authority": true,
+            "repair_revision": "2029ca69d6b1b043afdbf070f0f5ae41506ad3ff",
+            "source_path": "backend/modules/aion_voice/voice_worker_bridge.py"
+          },
+          "selection": {
+            "attempts": [
+              {
+                "invented_checks": {
+                  "mode_retained": true,
+                  "no_nested_request_contract": true,
+                  "tts_fields_top_level": true,
+                  "writer_executes": true
+                },
+                "passed": true,
+                "source_hash": "ddb4242adbe70a21b9275c2436c1451c044023d2e8bfcd26b9ffb7f1c8200b53",
+                "strategy": "flatten_by_mapping_merge"
+              }
+            ],
+            "selected_source_hash": "ddb4242adbe70a21b9275c2436c1451c044023d2e8bfcd26b9ffb7f1c8200b53",
+            "selected_strategy": "flatten_by_mapping_merge",
+            "wrong_patches_rejected": 0
+          },
+          "source_tree_paths": [
+            "backend/modules/aion_voice/voice_download_policy.py",
+            "backend/modules/aion_voice/voice_worker_bridge.py"
+          ],
+          "support_path": "scripts/aion_voice_worker.py"
+        }
+      ],
+      "procedure_id": "procedure_natural_historical_repair_94bd1eca4017",
+      "session_id": "historical_repair_b16af635c6cd2bce"
+    }
+  ],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {
+    "historical_hash_helper_failure": {
+      "attempts": [
+        {
+          "invented_checks": {
+            "content_sensitive": true,
+            "module_executes": true,
+            "runtime_envelope_invariant": false
+          },
+          "passed": false,
+          "source_hash": "0e977e39bcf84422bd9bdf8d528fecade859b1feb7b2b811ed992f58c60dd5bc",
+          "strategy": "identity_helper"
+        },
+        {
+          "invented_checks": {
+            "content_sensitive": true,
+            "module_executes": true,
+            "runtime_envelope_invariant": false
+          },
+          "passed": false,
+          "source_hash": "d5c0fcd89f3f310d6c09c61ecf4272ed2e9d5466701573ac31effefe86b3d8c7",
+          "strategy": "observed_runtime_fields"
+        },
+        {
+          "invented_checks": {
+            "content_sensitive": true,
+            "module_executes": true,
+            "runtime_envelope_invariant": true
+          },
+          "passed": true,
+          "source_hash": "bc6ba757a446f3159b6e57d1c31d5949e4850df8b96e561b2b6c7d05021d7ade",
+          "strategy": "generalized_runtime_envelope"
+        }
+      ],
+      "family": "missing_contract_helper",
+      "historical_verification": {
+        "candidate_hash": "bc6ba757a446f3159b6e57d1c31d5949e4850df8b96e561b2b6c7d05021d7ade",
+        "candidate_hidden_checks": {
+          "content_sensitive": true,
+          "module_executes": true,
+          "runtime_envelope_invariant": true,
+          "unseen_timestamp_alias_invariant": true
+        },
+        "candidate_passed": true,
+        "historical_human_checks": {
+          "content_sensitive": true,
+          "module_executes": true,
+          "runtime_envelope_invariant": true,
+          "unseen_timestamp_alias_invariant": true
+        },
+        "human_patch_opened_after_selection": true,
+        "human_patch_used_for_search": false,
+        "human_revision_hash": "14fb1aa662fab4c2b7b5e7b1edf37e88900e3c2f299b2f3ef5a40d1b7661787e",
+        "human_revision_passed": true
+      }
+    },
+    "historical_signature_failure": {
+      "attempts": [
+        {
+          "invented_checks": {
+            "compiles": true,
+            "documentation_retained": true,
+            "request_normalized_in_body": false
+          },
+          "passed": false,
+          "source_hash": "975e7c372df2dea9a1ea6207928b511a922342a11d3472a5e676509c33fc1243",
+          "strategy": "delete_invalid_signature_line"
+        },
+        {
+          "invented_checks": {
+            "compiles": true,
+            "documentation_retained": false,
+            "request_normalized_in_body": true
+          },
+          "passed": false,
+          "source_hash": "c7fcb9e619ead46b7bf169e4c96e590e1b196895699abdbf6af67bd8027df552",
+          "strategy": "move_normalization_before_documentation"
+        },
+        {
+          "invented_checks": {
+            "compiles": true,
+            "documentation_retained": true,
+            "request_normalized_in_body": true
+          },
+          "passed": true,
+          "source_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+          "strategy": "move_normalization_into_documented_body"
+        }
+      ],
+      "family": "syntax_and_scope",
+      "historical_verification": {
+        "candidate_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+        "candidate_hidden_checks": {
+          "compiles": true,
+          "documentation_retained": true,
+          "normalization_precedes_use": true,
+          "request_normalized_in_body": true
+        },
+        "candidate_passed": true,
+        "historical_human_checks": {
+          "compiles": true,
+          "documentation_retained": true,
+          "normalization_precedes_use": true,
+          "request_normalized_in_body": true
+        },
+        "human_patch_opened_after_selection": true,
+        "human_patch_used_for_search": false,
+        "human_revision_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+        "human_revision_passed": true
+      }
+    },
+    "historical_voice_envelope_failure": {
+      "attempts": [
+        {
+          "invented_checks": {
+            "mode_retained": true,
+            "no_nested_request_contract": true,
+            "tts_fields_top_level": true,
+            "writer_executes": true
+          },
+          "passed": true,
+          "source_hash": "ddb4242adbe70a21b9275c2436c1451c044023d2e8bfcd26b9ffb7f1c8200b53",
+          "strategy": "flatten_by_mapping_merge"
+        }
+      ],
+      "family": "producer_consumer_contract",
+      "historical_verification": {
+        "candidate_hash": "ddb4242adbe70a21b9275c2436c1451c044023d2e8bfcd26b9ffb7f1c8200b53",
+        "candidate_hidden_checks": {
+          "caller_operation_preserved": true,
+          "mode_retained": true,
+          "no_nested_request_contract": true,
+          "stt_fields_top_level": true,
+          "tts_fields_top_level": true,
+          "writer_executes": true
+        },
+        "candidate_passed": true,
+        "historical_human_checks": {
+          "caller_operation_preserved": true,
+          "mode_retained": true,
+          "no_nested_request_contract": true,
+          "stt_fields_top_level": true,
+          "tts_fields_top_level": true,
+          "writer_executes": true
+        },
+        "human_patch_opened_after_selection": true,
+        "human_patch_used_for_search": false,
+        "human_revision_hash": "2fdb5333e2296494fa5ef00361fcb834ffed6d47a266fa897343f3f9e1068019",
+        "human_revision_passed": true
+      }
+    }
+  },
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "natural_historical_repository_repair_authority"
+    },
+    "reason": "natural_historical_repository_repair_promotion",
+    "state_hash": "5f87f0c2949ad6619d241f256b1bcf6ab648eb35953c9fa5c80e60c77fec8612"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_real_repository_experimental_scientist.json",
+          "procedure_id": "procedure_repository_experimental_science_31c7d8ea99b4",
+          "result_hash": "15cc00b9b8e3aff7cac132aa22c6b52caf0c0497c47af5f474378ea5367987fc"
+        },
+        "gate": {
+          "accepted": true,
+          "authentic_historical_failures": 3,
+          "dependency_promoted": true,
+          "errors": [],
+          "fault_localization_accuracy": 1.0,
+          "held_out_historical_verification": 1.0,
+          "human_patch_blind_during_search": true,
+          "live_repository_unchanged": true,
+          "natural_failure_repair_success": 1.0,
+          "renamed_transfer_success": true,
+          "self_invented_tests_rejected_wrong_patches": true,
+          "source_families": 3,
+          "transfer_attempt_reduction": 0.6666666666666667,
+          "unsafe_acceptances": 0,
+          "unsafe_live_writes": 0,
+          "wrong_patches_rejected": 4
+        }
+      },
+      "outcome_id": "outcome_c563b677fc394be8",
+      "procedure_id": "procedure_natural_historical_repair_94bd1eca4017",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 3.666666666666667,
+      "success": true,
+      "timestamp": "2026-07-31T00:20:19.410776+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_natural_historical_repair_94bd1eca4017": {
+      "evidence": {
+        "dependency": {
+          "passed": true,
+          "path": "/Users/kevinrobinson/dev/COMDEX/results/hexcore_real_repository_experimental_scientist.json",
+          "procedure_id": "procedure_repository_experimental_science_31c7d8ea99b4",
+          "result_hash": "15cc00b9b8e3aff7cac132aa22c6b52caf0c0497c47af5f474378ea5367987fc"
+        },
+        "gate": {
+          "accepted": true,
+          "authentic_historical_failures": 3,
+          "dependency_promoted": true,
+          "errors": [],
+          "fault_localization_accuracy": 1.0,
+          "held_out_historical_verification": 1.0,
+          "human_patch_blind_during_search": true,
+          "live_repository_unchanged": true,
+          "natural_failure_repair_success": 1.0,
+          "renamed_transfer_success": true,
+          "self_invented_tests_rejected_wrong_patches": true,
+          "source_families": 3,
+          "transfer_attempt_reduction": 0.6666666666666667,
+          "unsafe_acceptances": 0,
+          "unsafe_live_writes": 0,
+          "wrong_patches_rejected": 4
+        }
+      },
+      "goal": "natural_historical_repository_repair",
+      "procedure_id": "procedure_natural_historical_repair_94bd1eca4017",
+      "promoted_at": "2026-07-31T00:20:19.409583+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 3.666666666666667,
+      "source_rules": [
+        "procedure_repository_experimental_science_31c7d8ea99b4"
+      ],
+      "status": "champion",
+      "steps": [
+        "ingest_natural_git_failure_without_fault_map",
+        "localize_suspect_file_from_syntax_name_and_contract_residuals",
+        "invent_falsification_properties_from_source_contracts",
+        "synthesize_private_ast_and_source_repair_candidates",
+        "reject_incorrect_candidates_before_hidden_evaluation",
+        "open_historical_human_revision_only_after_selection",
+        "transfer_abstract_repair_strategy_to_renamed_failure",
+        "retain_provenance_tests_patch_and_outcome_across_restart"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "4dfa21a8cb5fe7c526c317e46e298771a0cbc921be33a0ee80d1b73b068dfd03",
+      "goal": "natural_historical_repository_repair",
+      "new_champion_id": "procedure_natural_historical_repair_94bd1eca4017",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 3.666666666666667,
+      "timestamp": "2026-07-31T00:20:19.409750+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "revision": 3,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "synthesized_historical_patches": {
+    "historical_hash_helper_failure": {
+      "provenance": {
+        "faulty_revision": "2448d0b67f815d3d02f3adf247183610486cbb43",
+        "faulty_source_hash": "3e85d891e9cf062ca5d6a972946f7c307f88e705e36476e4af3bb339c19de44f",
+        "git_object_authority": true,
+        "repair_revision": "df4691c0634bf9e37b44e3b49823303ebc9a68cc",
+        "source_path": "backend/modules/aion_gateway/agent_channels.py"
+      },
+      "source_hash": "bc6ba757a446f3159b6e57d1c31d5949e4850df8b96e561b2b6c7d05021d7ade",
+      "strategy": "generalized_runtime_envelope"
+    },
+    "historical_signature_failure": {
+      "provenance": {
+        "faulty_revision": "1cd23415855501b1e32bcdcc7de8710695c9713b",
+        "faulty_source_hash": "63903d73f1f43020cacf6608c317ff960bc6f3449e8c309cba40a84ba4ecd78d",
+        "git_object_authority": true,
+        "repair_revision": "880f676021ba9b8adf1f0c81f23bb73cbd3c2e37",
+        "source_path": "backend/modules/aion_gateway/agentmap_discovery_endpoint.py"
+      },
+      "source_hash": "e5a1ea93da67e4ee44ae2106778cdcad0d5ad68b19123eaf7af9dbb605c5a580",
+      "strategy": "move_normalization_into_documented_body"
+    },
+    "historical_voice_envelope_failure": {
+      "provenance": {
+        "faulty_revision": "9eb35d2c596f0ad18f1130854aa6e69163784e1c",
+        "faulty_source_hash": "5b94fcdd5eed073907fbd98a83fb7268816befde6c022523d1a70984f7c2f889",
+        "git_object_authority": true,
+        "repair_revision": "2029ca69d6b1b043afdbf070f0f5ae41506ad3ff",
+        "source_path": "backend/modules/aion_voice/voice_worker_bridge.py"
+      },
+      "source_hash": "ddb4242adbe70a21b9275c2436c1451c044023d2e8bfcd26b9ffb7f1c8200b53",
+      "strategy": "flatten_by_mapping_merge"
+    }
+  },
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T00:20:19.411626+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

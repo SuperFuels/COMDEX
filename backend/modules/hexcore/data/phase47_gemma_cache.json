@@ -1,0 +1,1730 @@
+{
+  "039c7a12febe8a82c28b5c326b5271909c4b0d8d60c4eb4d27619b37cc83763b": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 309.8633749759756,
+    "prompt_eval_count": 178,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 308302333
+  },
+  "0431d468e7d17e2d546ad5b42a37fe000928b9f5a0568847fd2ab87997d8d781": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 311.3183749956079,
+    "prompt_eval_count": 181,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 309704458
+  },
+  "056594bc1acf30b0e2134974b9d43c9ab7da6b6a5fc8fb47a5e10949fd850895": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 515.1983329560608,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 507107917
+  },
+  "064a3406534ba691715dae7210691a6cbf6de82694eda2e9a1e55a05f680b2cd": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 286.9098750525154,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 285182000
+  },
+  "06519f364c3d0a49e996cb305beae85f35c0ab622af75b10762313b504624f63": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 285.4861250380054,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 283994292
+  },
+  "0691c79e98b112520ebda8f18337bfd0ce07bc85b69291d692be936b098b94f2": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 303.7248750333674,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 302392750
+  },
+  "092f8924c19d4d5424b8a9ea6a7b76b019b16562efbe7a0da2374dfcd1338f30": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 854.165583034046,
+    "prompt_eval_count": 181,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 823102458
+  },
+  "0ae3331a4abfd2cd3b3767ab7fef20d58ecbab1e0f98b7022e4b2d6cbd31fe65": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 284.39262497704476,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 282769291
+  },
+  "0b68683a736984105bf7bdafd59bc80e86aa5a116dd437defa1fbee6be2fc6e7": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 285.6980829965323,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 284221750
+  },
+  "0c05bb6dd36746cf4e12cedc09a5b10b5aca78b07206e802f08672208de3787f": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 264.3647919758223,
+    "prompt_eval_count": 177,
+    "raw_response": "abstain",
+    "total_duration_ns": 262829542
+  },
+  "0c0ed2e5f0974835f079d1279d89141db6c8f2e53895a1c6be6fa9e266df8177": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 285.4222080204636,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 283492833
+  },
+  "0cf929bcc1113d82e64736b17ddc9c1f6a76ff1a55c90dff1a5e9dbb16d3efc1": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 304.30595797952265,
+    "prompt_eval_count": 178,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 302789250
+  },
+  "0df4ceef0f14e6bd87801237398bfe9ba3a4bceeccf3580ad3ea8777fdc44c8b": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 351.9991250359453,
+    "prompt_eval_count": 178,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 349890250
+  },
+  "114c47eb626b610833246460a98469039c66fd84c0711bf8de559d5c4eea7897": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 288.31700002774596,
+    "prompt_eval_count": 181,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 286573042
+  },
+  "11e0f33d4135a40d8a2b9688b812be22d706d163a136816b58ce565a6c24416c": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 266.9224999845028,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 265509375
+  },
+  "16d0e7df5988257921d6653ec1fd1776c35f671e0df019dd06f97fa3c28aeea8": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 618.0635829805396,
+    "prompt_eval_count": 178,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 615790541
+  },
+  "18fcee931a9d83c1c65db285a2df480723ed9d35f71f05680c6d5f3ad8386916": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 265.45583299594,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 263938583
+  },
+  "1d084b667e5f5dcefc132112384b056ddc067edbd33bb7b1b6df1c9e801fc163": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 291.1885419744067,
+    "prompt_eval_count": 181,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 289689417
+  },
+  "21551624aad598afddf3a9f4c2b0398c7401b8406de8db9605bd8a3deb222f28": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 263.1060419953428,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 261610959
+  },
+  "2200e1ba39cc6f0d3efeb491077798ba72e49ee82ede24f5e39e9df0a608dc90": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 285.19787499681115,
+    "prompt_eval_count": 179,
+    "raw_response": "math_sum",
+    "total_duration_ns": 283848250
+  },
+  "22f98390878c00096ee505e6d4b55454879a038afb63b435827156c26b22de35": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 270.9737499826588,
+    "prompt_eval_count": 177,
+    "raw_response": "abstain",
+    "total_duration_ns": 269061375
+  },
+  "27c14858f8a60a9fa7ffdebd1b41657d11b2481ec593d47580d0d368ec05218a": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 306.4420419977978,
+    "prompt_eval_count": 181,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 304825834
+  },
+  "28bec33f8904423d81d34c7f277cfb8c1402057d830edf1035fb2cba11b455b7": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 286.22583398828283,
+    "prompt_eval_count": 181,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 284361458
+  },
+  "29a70c33cea81499863daf645c5fe49247103035d02f403dcc3382e62681c7ad": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 315.22216700250283,
+    "prompt_eval_count": 177,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 313355708
+  },
+  "2a1d99cf84d3f0cdf022c62bc87066b83b988882a8cd1a02ab70c392f2fc1f2a": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 284.3294169870205,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 282904875
+  },
+  "2b4c60448b12d7652d1ad6ae6775260dcbb8c8872714d445c3a833a6be79eb05": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 261.7764589958824,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 260197916
+  },
+  "2f13671bd72201dd85e20d3c4adf347280ec352f36607743480716757a92257b": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 296.86816700268537,
+    "prompt_eval_count": 178,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 294975000
+  },
+  "322134790a79ede80f429a78aa156d3ec516c13c281f66e2bb97f19797fcea33": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 373.5649999580346,
+    "prompt_eval_count": 178,
+    "raw_response": "math_sum",
+    "total_duration_ns": 369971292
+  },
+  "3326bf0d23e1ca3e33e47435ee272d125a3165c04dbbf8b72f1a320133e3458c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 295.6203750218265,
+    "prompt_eval_count": 177,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 293905583
+  },
+  "33c482590e76821790a169bca14f91fb4a26a2bfed1bb1edda9a136dab052912": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 306.7245419952087,
+    "prompt_eval_count": 179,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 304767709
+  },
+  "35df6b6cee1565a97bbde4436483841a2ba2e25aee42c9324f747f20adeac5e8": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 281.88295802101493,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 280414459
+  },
+  "37031def5de2ff11f14cb7a51118d09ffc495a89e383c5f8c00a2e8478c9aac7": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 286.09091602265835,
+    "prompt_eval_count": 178,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 284548000
+  },
+  "37cc6afb14b1423434b01a3a3d1139d88c45d5ed096846815ae1030398466e03": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 285.2089580264874,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 283693834
+  },
+  "37f1be789fb9de6fbf48e55af044410222e5454c21acb94bc0527fc3daf9a031": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 293.2205839897506,
+    "prompt_eval_count": 178,
+    "raw_response": "math_sum",
+    "total_duration_ns": 291812334
+  },
+  "38d72528fc7a617e2bc52361d1d4f0c227e0e7a5a5824159a9281ba029468fd3": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 282.9376659938134,
+    "prompt_eval_count": 177,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 281416250
+  },
+  "3a6fef8c72460ab323a9fbad5e248576ae9ea94bc59eaae56eeb97dc19062d48": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 308.04233404342085,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 306403042
+  },
+  "3e9283e06bfb151e1d7bc47f7f4f1a5114d760542be75342210b0e5458d0703c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 286.2040000036359,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 284777208
+  },
+  "400351e5c364c2135f95d3a88f1fe916383cba6241465120eb45d08c29c9c82b": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 743.2015829836018,
+    "prompt_eval_count": 179,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 741413750
+  },
+  "41ffce35a609f6f798cdfb380e07816eda2939906615671e4f142f96db8e1078": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 297.6679579587653,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 295642916
+  },
+  "43c1911e961c95958c2c960064ef9e32c604b8317985adad35a7bc38d4ab9e11": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 310.4560829815455,
+    "prompt_eval_count": 180,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 308706500
+  },
+  "44464a10d9b63fc4ec714cfed75e72332f754c6d6d3d27b220fdfa50cc85d27c": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 308.123541995883,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 306738167
+  },
+  "472a704963e41d5f37101b5011db03d148baa02f3d44460f405728a1dc42de95": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 306.230082991533,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 304644667
+  },
+  "47a1899d95b29c888794ef3ebfe675445faf53542b2f5ff012339bd2cc724079": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 291.2089999881573,
+    "prompt_eval_count": 182,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 289724333
+  },
+  "47a6fae8daabeeb117dd421b5944113e1ef7ac04b2ab4e7f61b3abdb7de5729e": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 307.21537495264784,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 305846625
+  },
+  "480f8e0977ba2fd4caec8301340fbc43c2f00f3767bb2844ca9f76d2213f660c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 299.9548749648966,
+    "prompt_eval_count": 179,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 297825583
+  },
+  "48a64748a5d23506809df1f7431a2fe66bc004f4e001b387089646134c25b535": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 287.93441702146083,
+    "prompt_eval_count": 183,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 286296625
+  },
+  "48c58c6a05c1d18247c6314a3e0ab754dbc9b6471beb5a358424cb075e18a941": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 293.2621250511147,
+    "prompt_eval_count": 181,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 291365458
+  },
+  "49191a333a1932d0c90d975fc8ee332275d2fd82eea0c70607455b1395b09313": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 285.7741249608807,
+    "prompt_eval_count": 178,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 284397500
+  },
+  "49212d0d38f874c7fe59a8a53e47973695229ca2b2620de653f93cd9f574af88": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 300.70679099299014,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 299042625
+  },
+  "497c144fb70d3bc0aae15eb41ec90262cfde1d152f093185254c5fac6bf71536": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 290.5231249751523,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 289117875
+  },
+  "4badac540a9b2eb9fed1fbf6b3bed7ad13a6f35f0343e0668969ef2535f3909d": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 287.911458988674,
+    "prompt_eval_count": 178,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 286380375
+  },
+  "4bc8b2df2109be2731ceb7c34d9ed1f0fc536158db84ec1282e371acd6febfce": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 304.72679098602384,
+    "prompt_eval_count": 181,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 303052083
+  },
+  "4c3c9e848e18cddf6ff70534a71b9eaf8b762f54eb7e7bd52fa8ff6a47da7463": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 262.9249170422554,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 261502708
+  },
+  "4c580927dd751e5c0d39f5cceca92bf71b1eb5acbdb912e0b0125ed541fdde80": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 298.7640830106102,
+    "prompt_eval_count": 180,
+    "raw_response": "math_sum",
+    "total_duration_ns": 297146083
+  },
+  "50d13616b205f1a89e8615d862bca8f591723b94717d4b24d4105240353ba44c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 291.0969170043245,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 289275167
+  },
+  "5144eae1aa00c4c6e5ad40edd28472d7556a00bdca5df7a8bafdaae6a00c2ff1": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 293.5572079732083,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 291648416
+  },
+  "516e2f7662d60c91f3ff003532d1da3bc091cc4f17ec70cb7e12ea8540010aac": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 313.9426659909077,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 312562584
+  },
+  "51ab9ff908d7ac52c07551526c6295e8f4df49b5d1fb24f91d3dc53997b2ab8d": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 283.6387499701232,
+    "prompt_eval_count": 178,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 282048208
+  },
+  "5345b19bd9856f1b58cd4f0a62bdd4ef060bb33afce26b9ee2d4e8ea5ea6073a": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 287.15262503828853,
+    "prompt_eval_count": 181,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 285542416
+  },
+  "56723ccd19367469e1f9e00e6e3668c02fddf220b33841a10451a3b020d4d626": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 282.53966599004343,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 281097958
+  },
+  "56820a7dbd42a958c10a5415aaa3442196579d06e4dae3ba7248e5e1f83caca3": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 285.6710000196472,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 284205083
+  },
+  "56cac0581ffa4cac661709673d9645151fea9d97235763265b384f1427b94e64": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 300.7105420110747,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 298883125
+  },
+  "5810b9e3f60398d8287560f59f94934a5d0a9403dbdbdef735ddc6ac88e6e88f": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 293.36329200305045,
+    "prompt_eval_count": 179,
+    "raw_response": "math_sum",
+    "total_duration_ns": 291909917
+  },
+  "59033209ffdde2fada437e37b1f469b089710f5acfa2bbb1170aa3cd29b83afb": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 346.5574170113541,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 343978208
+  },
+  "59fd5747c4eac038c75ea28a9d440a84dca763a816c2a209cf12277bf57631b4": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 261.20691699907184,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 259829209
+  },
+  "5a459f77da409e1dd3745af003254667959720cac76d88ed597e9b51374a4a4f": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 323.6519999918528,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 321716084
+  },
+  "5b2bdbf97dbbd52ff18a634214c9dcc37dfbdce81177cd5d54c0d4768313a953": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 307.5001660035923,
+    "prompt_eval_count": 180,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 305413875
+  },
+  "5cb54dbb41b3d3b004eef62d781f02364b229068a56ad8f58ff74ce3ae1283e4": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 282.70724997855723,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 281229084
+  },
+  "5d7f3574794f286bc00c01e1dedaa11a4048d7a5f7505d760a9181dd71dca44b": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 265.6429999624379,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 264276125
+  },
+  "5d9f7725c3ebc61031dc5aec4b866367ea63fde0c831babada3d27eaaa5fe2fa": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 305.6351669947617,
+    "prompt_eval_count": 179,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 304134542
+  },
+  "5f10d10fdad64cfcc9abfe55f6dd5d335c75c1b254485ad8c71d3a0a27bd7714": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 260.8922499930486,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 259422541
+  },
+  "64175ed37badbfb60f8f7a752c1515eaaf70e4fa6dd0c259a1636f5e64eee16c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 283.53933402104303,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 282155584
+  },
+  "65dc29d1ed2fd80175d8c72d7c13d6cc6abfd168ec9c8f806f2b876c0058316b": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 285.7255410053767,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 284294792
+  },
+  "66444ad0c3b21f7fdb4f8bfa0da4329bf2ad9fe2bce387e3270a13ce30cb8a8e": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 286.38804203365,
+    "prompt_eval_count": 180,
+    "raw_response": "math_sum",
+    "total_duration_ns": 284784875
+  },
+  "665ef51f2615af25ef6b7bea63ae1366040ed2a78c8ef8e8be27a8abb85b5cc7": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 317.25820899009705,
+    "prompt_eval_count": 181,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 315179417
+  },
+  "6754ab77e21efed10a192910b9c75e8241a53325bd4c5c415e9db9f37f9cfa31": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 285.8469169586897,
+    "prompt_eval_count": 180,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 284019584
+  },
+  "681963ab4333048e9ed3b881ccd1c3933658108c2c6eb5d4b0117e70380619c8": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 263.92566703725606,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 262368750
+  },
+  "68da721342d9f1f2f21566793c291e024feb21bbaf7995cb5878437460b5a4ac": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 283.0011670012027,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 281584834
+  },
+  "69efc028a6336121b7518f26ca6a5d2296f51a2a7df697ccf0bc45ebfdcf23de": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 306.5424999804236,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 304910042
+  },
+  "6bb7c61c231ad5c707861fd041a10b359e5b93f7d3b36b7cd42c247112fd8184": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 306.4666669815779,
+    "prompt_eval_count": 180,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 304999125
+  },
+  "6c5e5d90c16a30373c02529a8283c60d09d57a18c9481ec3dfcb99a3168652ae": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 290.7291669980623,
+    "prompt_eval_count": 176,
+    "raw_response": "math_sum",
+    "total_duration_ns": 289098167
+  },
+  "6e40811bf6cd12c7d7f3bf09ab96cf1bb7983a84239557a4ef8445bf1f9120ae": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 318.2545409654267,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 316145958
+  },
+  "6e92859675d023c6112d7bdc708e1181a1771bb8d2071470f52d4ab57e296fc4": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 348.95924996817484,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 347571791
+  },
+  "6ec006d13e211c069ce68f008d1976564cbb3acfaa4315cd7dc04679f232135b": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 308.90983302379027,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 307475458
+  },
+  "6eec88e36ad32f3f8715b57f6b54433446c9043c125b7906b09626b998330c49": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 284.8191660013981,
+    "prompt_eval_count": 180,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 283150417
+  },
+  "6f24eee88de1016981e06d6476b87476bb0d3921b17ddb978ec6e11f441375ea": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 285.50370899029076,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 284105750
+  },
+  "6fcd854add49980b299a9660d9491b9ca8fe7fea1136d1a818e0a114371bb16a": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 282.5414170511067,
+    "prompt_eval_count": 179,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 280989000
+  },
+  "7139e162a1d79d599fad3ec4bb036cfa1453b56873df163fa31f5535faa6ef28": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 305.5634169722907,
+    "prompt_eval_count": 182,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 304150500
+  },
+  "71444578bd5f9af06ae38282891be706ede75de9758456db0cb6f4cc8b860af1": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 297.3669999628328,
+    "prompt_eval_count": 178,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 288986917
+  },
+  "720a51c95f521f674e3bb44ac606968ff7a38ea678421323a2e1a088b8a59378": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 288.22291700635105,
+    "prompt_eval_count": 180,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 286306750
+  },
+  "73dc629e236ad63555dcb7c6611e18f1dfef77b69ab67019d5c4fcff31125a2e": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 290.95445899292827,
+    "prompt_eval_count": 178,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 289047750
+  },
+  "750148563ca600a0dacd0e6e1a21d4505aa16e7bef66b11169c1cfd439d4e0a6": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 288.9623329974711,
+    "prompt_eval_count": 180,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 287449500
+  },
+  "756d741cd7b0173eb216ec4d3f92a71d27ee52802eb29ea333c9f49da27e6d76": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 285.99975001998246,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 284619709
+  },
+  "766baac47066ea9e6f33b5896c65ea56b8bd24df02662c279edf4c0b01bf71cb": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 315.2991670067422,
+    "prompt_eval_count": 181,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 313735208
+  },
+  "774ff5d60d01f2032234b80845cb9ce8938dd4e1d2217f6d8c213f41e312afea": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 314.8158330004662,
+    "prompt_eval_count": 182,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 312928750
+  },
+  "7ce476463a99e2245f245d6be4974799c33e9db0c9b95ec24c23105b9c189bab": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 284.25233403686434,
+    "prompt_eval_count": 182,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 282788541
+  },
+  "7e111277f03ada6eb1b06c47c0f4ccb306224a0fc0b10c98e709dc7d142438c6": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 307.01024999143556,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 305501625
+  },
+  "7ec9316e22416dfe9a3bfbc5d3f83528e4e72e8a355a613ca57c14ca84a016ac": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 306.74324999563396,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 305199709
+  },
+  "81a03486b1d0ad00eac9ed298017c2af320cb9bff367333c6b75b3bc2b53bb7b": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 276.1842909967527,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 274319459
+  },
+  "81b8bd9810ae558cb24dcafa7bba6f16659f0185fc3ca2d2b3657711e506db7c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 286.838166997768,
+    "prompt_eval_count": 178,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 285163792
+  },
+  "85bff7eed3f7b1f030c3c73d450651cba3df1a9224a17768587aebcfdb05c753": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 288.30216597998515,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 286930916
+  },
+  "86a5f25b6054a7b57726b132faaf5432cb94680aebf5821e4a9e612f1e80e0a4": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 318.81708395667374,
+    "prompt_eval_count": 181,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 317237958
+  },
+  "8789a8a3f204b7e123ea04f93c437387c212fba37fd81ecb00d76ac0a6200707": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 308.2696659839712,
+    "prompt_eval_count": 180,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 306913417
+  },
+  "88f035b5146a6cf10e61a68fe11a842a04a39b441fc4ac01f97dc7a03f04b929": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 291.1397499847226,
+    "prompt_eval_count": 179,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 289636917
+  },
+  "89a948d379559006e9950fd326b4422e71117e2fe62196b4aa7e6954f456d9d6": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 304.73266600165516,
+    "prompt_eval_count": 183,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 303165125
+  },
+  "8c590fb5b5b8d3c61cba72c6321d6670fc985f01acf467c8030f9c192a3c92bc": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 284.4036250025965,
+    "prompt_eval_count": 177,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 282989959
+  },
+  "8f1366b8220da697cba6a4d93a9d5398ced2264de0996ca714a550c1aee384b9": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 491.45574995782226,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 489117042
+  },
+  "8f8e7f415a80d4b798760deb7a1d75e9a4ceeba3f57bdd61fbb5b90fbb367b73": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 284.64920801343396,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 283055666
+  },
+  "91109211ff92295b7c4af96324e0fe4b825d5ef06d79796f84b80696e2b70b32": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 285.1122919819318,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 283697791
+  },
+  "9113809a81762fda17353028acb82c50c87a4357c2710b241ce3240416b285e7": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 286.25141695374623,
+    "prompt_eval_count": 181,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 284931583
+  },
+  "9383c3031927f0a6a538cc12a18a8bfe7244ee2412ae215c6d41d704d474358e": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 284.4482919899747,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 282956667
+  },
+  "94f02428d89f0e35641ba84c6bf06a470d3c50c731149f152142e5c1903940d0": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 298.14137500943616,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 296507000
+  },
+  "9712c98ba00572a2409a649b600eff551ad8ced9402203058f3c12c3a53c5f26": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 292.07912500714883,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 290594875
+  },
+  "9724cd4047377c80709924c2b936ddfb249fdc9148ed28c49590d9795cb64d8d": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 314.42541599972174,
+    "prompt_eval_count": 181,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 312053709
+  },
+  "98742fe11a6edbc92561f2edda22a2e5d257db303ad3691a609acb87929c8430": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 295.0479590217583,
+    "prompt_eval_count": 183,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 293485083
+  },
+  "997c06d5627844f536e154cd8de7f249df8cda76c3a114fb5b63ef6e5df53c6a": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 312.490375014022,
+    "prompt_eval_count": 181,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 310997875
+  },
+  "9c3a59eedc9b7a749238aa733e628faadb1459b99e5661f924c6710bff89459c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 284.9102499894798,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 283485000
+  },
+  "9c7ddc56035171c2046c7765e04abcdfcfb8f98865a2bb501c2dd84dd89a9953": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 283.40504196239635,
+    "prompt_eval_count": 176,
+    "raw_response": "math_sum",
+    "total_duration_ns": 281494625
+  },
+  "9cf17070c48eb9a3081588a8097ce7d8b960e79f953b312c03816ae58822b2c7": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 287.06245904322714,
+    "prompt_eval_count": 179,
+    "raw_response": "abstain",
+    "total_duration_ns": 284354791
+  },
+  "9eb9d7ab2f7465dd3e895cf5b946901561fd6ea8ff4292269fc6114ec6ffa0f2": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 296.09279200667515,
+    "prompt_eval_count": 180,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 294601959
+  },
+  "9edef83735088b2448f50825cc78621644d5f814ea6869098b2a8e945f0c9882": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 265.22545801708475,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 263876750
+  },
+  "9f4b87a0ded12daa281000d20988f3c57f738a99b980d281cf985272b2b81d68": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 313.79383301828057,
+    "prompt_eval_count": 178,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 311857958
+  },
+  "a1a4fcbc8329f8b3c4c6686374345a7283d63255051d4c438181481a2fcb3212": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_xor",
+    "latency_ms": 325.46199997887015,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_xor",
+    "total_duration_ns": 323766417
+  },
+  "a2a3899813a11ac800e75e6bfdc41d63f5eb8df973305c5d5ca350bcd46bd1a0": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 263.91475001582876,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 262374959
+  },
+  "a2f49bea01a6f11509d9c2ad555ea0192a9810d8b5ebe7250854a7ef9952e97f": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 303.3955830032937,
+    "prompt_eval_count": 178,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 301902375
+  },
+  "a58328fed8d01d2669c056da548bba16a95b98e5608323e0639031675b3d14ad": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 267.9847499821335,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 265836500
+  },
+  "a5a646a42edab075011f0062740349f7350bc954ac6751391d1fced9f43a6e02": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 281.6680419491604,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 280194375
+  },
+  "a736652332af4415e11af2aea9656d4d07c76d2a4a27b8880b663690ef961db8": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 284.746624995023,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 283410083
+  },
+  "ab0250ca5d31e69a2e2d10d1db86ae5e5b5e8732228250eda27f09431818d683": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 283.56516698841006,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 281957417
+  },
+  "abddc5bcaa6fabe88cf2b7c7bff940d5bec2ee84f1462980bcbfef0a5d1d9505": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 285.03000002820045,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 283566875
+  },
+  "ae9ca84f34bb8046cc36da2a9af8487ba4cc0c4f63b1eb34bd689676fa672f01": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 311.3077090238221,
+    "prompt_eval_count": 178,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 309357375
+  },
+  "b214ddcb3be7da3022dc883b796bf09444d680625231c8e9be7ba14848812eb3": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 307.6391250360757,
+    "prompt_eval_count": 179,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 306130167
+  },
+  "b46e3d0c6deae113117d698d15323631d0cdf005d3de681bcad8d331a553096f": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 300.83008302608505,
+    "prompt_eval_count": 177,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 299001500
+  },
+  "b6c1449406e4f9f367befc5df19d4c641c7c7ca915f03df229d25ee88ec87847": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 306.63166695740074,
+    "prompt_eval_count": 179,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 305110666
+  },
+  "b6e0d2619403042606bc0c1a7baf1785fc00e5680de4652bd49b68723688352f": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 301.42479203641415,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 299784375
+  },
+  "b85d0b54a232ea4b84ffeefd9911c3d47b79b28c0a41502d6dd5b8c290e74440": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 277.8982080053538,
+    "prompt_eval_count": 178,
+    "raw_response": "abstain",
+    "total_duration_ns": 276346000
+  },
+  "b8a7b02d9ca153020827d3bc572a90acc19fa2034ad6d939f8b58aee953f2696": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 304.98279200401157,
+    "prompt_eval_count": 178,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 303537250
+  },
+  "be39333f3ef698ea430605a1c90bedba9d39b7ebae932746a2552072f8f15484": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 285.17908399226144,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 283455292
+  },
+  "bed5e3ef4dc4cc0525ac6dd07931abc1d288eb8bd12164ce4454cb1908b6f53a": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 263.72250000713393,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 262280916
+  },
+  "bf49f5ac94785bfd773cf5853ce86bd9864d6a8c65d987dfd208144a74355c55": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 284.8999589914456,
+    "prompt_eval_count": 180,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 283435917
+  },
+  "c0193f8983c31fa26b8ca408b27d04598eac90f6515737a6feaa9e2cbfe6b9e7": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 264.2744579934515,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 262915916
+  },
+  "c32c7667e7f5957a4ff65e1f467027a980ad6078b17d18cefd4e1f837fc4e891": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 300.45375000918284,
+    "prompt_eval_count": 182,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 298998250
+  },
+  "c385e3576cf91dc1ac98bb9913aceb12150e3860ab9798f51bc6321de9e46ef4": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 287.94354194542393,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 286443458
+  },
+  "c69ed6babd48333bfd8bea7c73604a04873b4a459100a792482cbf4dfc5901cd": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 332.11033302359283,
+    "prompt_eval_count": 182,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 330639375
+  },
+  "c72d247f7a4a035a9257991afbec2866a533b55b35f883fcbc4785ad1211808b": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 289.9330829968676,
+    "prompt_eval_count": 182,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 288438000
+  },
+  "cc38609af8c5fa5d69b072bbbcef29dbe47c88b6bf657a8da5f9b1d648d7a969": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 285.09412496350706,
+    "prompt_eval_count": 177,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 283332000
+  },
+  "cc550c74b3a9b47f6477fa77d94aead056be324eeffe7c9b8381067eb8d82dad": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_gate",
+    "latency_ms": 624.9124170280993,
+    "prompt_eval_count": 181,
+    "raw_response": "causal_gate",
+    "total_duration_ns": 593980667
+  },
+  "ccb854f2c2fa68ad82974ef4775e492d8d627e4b56c10f41203f185d56caef4f": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 306.6901249694638,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 305340917
+  },
+  "cd18797b467804674a726db3574dd5097cb73f9da6f194748ed746a3ae87bc44": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 285.4305420187302,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 283774416
+  },
+  "cd39ab1237ea03259fa62c04b6074dea8d4a3bbd59ff0dc5ee0598f58de7359c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 285.48304201103747,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 284096000
+  },
+  "cd5545db9e6a961afc596bb6419ab0ccc75a3c8f2e5f0df0b2df33de8944d6da": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 306.5857909969054,
+    "prompt_eval_count": 178,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 305079292
+  },
+  "cd773cc025e9b3be908738aea10461cf13733df4e28316e29aba9ffbc54929ab": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 263.7787080020644,
+    "prompt_eval_count": 179,
+    "raw_response": "abstain",
+    "total_duration_ns": 262289167
+  },
+  "cfbb875fe0140b35d7a80801a47e903df58f5445f75d8a46ab792b77cc058b5c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 290.1304590050131,
+    "prompt_eval_count": 177,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 288551208
+  },
+  "cfd457f4c50cb49d50bbc153d4fec0521ad44e7a3af9be2bd32bf4197193e071": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 308.36620804620907,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 306874000
+  },
+  "d0bb386fce20cc69ec2554634d14ef38305070064ed7fd074ee7c87d45560d26": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 306.7375000100583,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 305404125
+  },
+  "d4261d84b052f7ffce425d0d8335c7ef10a02d2dcfec846697402f1af25b6920": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 279.3382499949075,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 277893500
+  },
+  "d4516eb1ac70abd489b8fa8bb26f778ad9694c4c189daa79b6e9fcfa57973df9": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 283.4126660018228,
+    "prompt_eval_count": 179,
+    "raw_response": "math_sum",
+    "total_duration_ns": 281982417
+  },
+  "d48e530d4c0b3aadfe1958dd7ea25fa3e37b8fde5b63016d1925824715d04b45": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 366.1231250152923,
+    "prompt_eval_count": 180,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 364682958
+  },
+  "d585d5419e33102b4fe15824d6f19c139aac39c1142dbe87f2933b7335992143": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 307.66162497457117,
+    "prompt_eval_count": 180,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 306000834
+  },
+  "d59b5d6eff6d8d5980117e6e54ab7494db1228cfec983a67194058a1793836e3": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 288.989125052467,
+    "prompt_eval_count": 178,
+    "raw_response": "math_sum",
+    "total_duration_ns": 287546042
+  },
+  "d5da9d005db1160f76b1d9b9fe609c6df88d983ea687f2a837ede899f9d1422f": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 303.8186249905266,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 302314084
+  },
+  "d6aadfa4854bc43e3b2c9ed2b671cd83b185f5572f3d0f227d3bd280baaa857f": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 283.3549579954706,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 281915625
+  },
+  "d7b50574207dc1580e00d61ed626faf7ebab0134d3c06b4c28c6bd6253073b69": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 266.7708749650046,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 265314958
+  },
+  "d87ff91502cde6cc5e3d0cda8790411a8168335cc298c02bad53cbadae191cbb": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 306.2173750367947,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 304762250
+  },
+  "d88e546186ee00dc35890f7bfd41ed9f57b03efe79af79d764597b7b0e7a06b8": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 286.2776249530725,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 284900584
+  },
+  "d942f55236e4bd465c0515b8e17d06b18ed9755064ac6a0fc9de922fbde9c27c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 762.8474580124021,
+    "prompt_eval_count": 181,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 753339792
+  },
+  "d97f8f2bffe523513bfd91d1d79cc9152c6a2be461df0918f8d273da9a51824a": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 320.97095798235387,
+    "prompt_eval_count": 179,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 319377708
+  },
+  "da64a5ff6eb1fc68249af5910fea2f212a06b8cc068f2a205f062d2297e10bcc": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 324.40291601233184,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 320775667
+  },
+  "dbf87243ed526dd462915ee79f81ed62a5857176980b79671330a2474dff5887": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 285.82941700005904,
+    "prompt_eval_count": 176,
+    "raw_response": "math_sum",
+    "total_duration_ns": 284356416
+  },
+  "dc7a8f899206ce6d8b4f091375f1096d3bcc95f4aaff7cd8512f33803f85ae48": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 300.53533299360424,
+    "prompt_eval_count": 177,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 298933000
+  },
+  "de14726124e1f435978e8108406c51a964f2db62389953a6324b99942ce4c86c": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 265.22216701414436,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 263827792
+  },
+  "dfffd1d285b1b4b77896986dc77e5a144e0a09d22c5134551ee87eb98c009d75": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 305.11516600381583,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 303519375
+  },
+  "e562cd9f8799d8c6caa752236efb7f5994d4dba936d79fda110fb1687a76559c": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_sum",
+    "latency_ms": 285.4848750284873,
+    "prompt_eval_count": 180,
+    "raw_response": "math_sum",
+    "total_duration_ns": 284078916
+  },
+  "e5cbf8de6ac7c8a67d242fba8af4be2bc38fc0c1cac7347f66e5213ec3a2fd6a": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "causal_flip",
+    "latency_ms": 1005.559874989558,
+    "prompt_eval_count": 178,
+    "raw_response": "causal_flip",
+    "total_duration_ns": 1001897042
+  },
+  "e5ded90b1b99100c4dc509ea7514a817f762cdd4bf4d57e4415b6d9a4f677dcf": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 285.44950002105907,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 284055792
+  },
+  "e5f23dda7312570441d7b0139b738102e7170d8413c39171643fe59110ac1e3b": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 304.168708040379,
+    "prompt_eval_count": 177,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 302871375
+  },
+  "e65d3de7cb2991fcb4847e02834ae36e43d19d5778c0ace745c701853965c2d6": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "logic_majority",
+    "latency_ms": 324.1397910169326,
+    "prompt_eval_count": 177,
+    "raw_response": "logic_majority",
+    "total_duration_ns": 322612875
+  },
+  "e82aec78a46f021cd48240e42bfa3d9fce27c685e834a007b7a1f8c79d41d748": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 265.12895803898573,
+    "prompt_eval_count": 180,
+    "raw_response": "abstain",
+    "total_duration_ns": 263576917
+  },
+  "ea22167de62bf781e600ed884e24bf0911991351433269b5a7423cf2d0b33536": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_chain",
+    "latency_ms": 286.3299160380848,
+    "prompt_eval_count": 181,
+    "raw_response": "planning_chain",
+    "total_duration_ns": 284845500
+  },
+  "ed9fcbcf772b5637e740856d2e1aff450381117f65f6af89e1b0d9eeecb9d6dc": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 288.2177499704994,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 286731333
+  },
+  "ee3fb891edf21c90a0cae6b31e741dca63d9f626290fb466fb6087d2869e2199": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 284.4517080229707,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 283032834
+  },
+  "ee946f2c5b467af3a506184ca3eb27f8f1778445e4e8ac0dab145f66e342c545": {
+    "cached": false,
+    "eval_count": 3,
+    "label": "abstain",
+    "latency_ms": 262.30533298803493,
+    "prompt_eval_count": 177,
+    "raw_response": "abstain",
+    "total_duration_ns": 260605666
+  },
+  "eea87c3000325ac444bbdf2480cb6c7b6a8eeb59b08a83a84466baed8ca31723": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_conflict",
+    "latency_ms": 287.76916599599645,
+    "prompt_eval_count": 179,
+    "raw_response": "evidence_conflict",
+    "total_duration_ns": 286252875
+  },
+  "ef7790a0ee0de35f0f233e64437263e208c42b668b1f12e493e8fbd64ca62793": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "planning_branch",
+    "latency_ms": 287.08595799980685,
+    "prompt_eval_count": 178,
+    "raw_response": "planning_branch",
+    "total_duration_ns": 284938584
+  },
+  "f34b2f589080c9579b89ea191871342eda326e3659b8da3a9a6799969c00df4a": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "evidence_support",
+    "latency_ms": 284.8424580297433,
+    "prompt_eval_count": 180,
+    "raw_response": "evidence_support",
+    "total_duration_ns": 283445416
+  },
+  "f443fc8bd0233b4e889fcf2d7f7f1cfdf21394d7811af9e8411cd909a9cbe242": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 307.5849169981666,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 306161333
+  },
+  "f4feaaf65a63ed50d5fbdf6e7217d23c5c4ada4352ce98aa4d4efdea3e9ee6c2": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "tool_numeric",
+    "latency_ms": 290.1227080146782,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_numeric",
+    "total_duration_ns": 288605125
+  },
+  "f5beb99b919eb33cba763223d6b16c2e2d1f28449abeab3d3ebbf32d06eb3bbd": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 283.43358397250995,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 281977084
+  },
+  "f601ca0511eed81aa4e54dcef453c4c2968591e3123b7faadceb42e4a3dea561": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 308.0101249506697,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 306402208
+  },
+  "f7f7be361c464b0a530d618e50948e4a6a4d189ee404648f85b951930ec1e2ab": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 348.31808297894895,
+    "prompt_eval_count": 178,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 346208250
+  },
+  "f8f31073bc371dd5dff39e83e9c017ccf47aa4ab4d4c1b27cafd86abf231cd0b": {
+    "cached": false,
+    "eval_count": 5,
+    "label": "tool_symbolic",
+    "latency_ms": 304.58633397938684,
+    "prompt_eval_count": 177,
+    "raw_response": "tool_symbolic",
+    "total_duration_ns": 303248750
+  },
+  "fb7b500cc02bc92304655a224f2b5b9c01b6a79adda4693a1d9b0f35c4453356": {
+    "cached": false,
+    "eval_count": 4,
+    "label": "math_product",
+    "latency_ms": 285.27283295989037,
+    "prompt_eval_count": 177,
+    "raw_response": "math_product",
+    "total_duration_ns": 283562166
+  }
+}

@@ -1,0 +1,3 @@
+[service]
+name="aion"
+workers=4

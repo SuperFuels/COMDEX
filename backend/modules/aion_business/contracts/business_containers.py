@@ -12,6 +12,8 @@ BusinessContainerKind = Literal[
     "department_intelligence",
     "business_financial_model",
     "business_operating_model",
+    "organization_authority",
+    "finance_inbox",
     "brand_foundation",
     "boardroom_snapshot",
     "operational_runtime_summary",
@@ -113,6 +115,7 @@ class BusinessFinancialModelContainer(BaseModel):
     model_status: str = "draft"
     currency: Optional[str] = None
     period_basis: str = "annual"
+    reporting_period: Dict[str, Any] = Field(default_factory=dict)
     discovery_state: Dict[str, Any] = Field(default_factory=dict)
     revenue_model: Dict[str, Any] = Field(default_factory=dict)
     pricing_model: Dict[str, Any] = Field(default_factory=dict)
@@ -124,6 +127,11 @@ class BusinessFinancialModelContainer(BaseModel):
     integration_evidence: Dict[str, Any] = Field(default_factory=dict)
     external_data: Dict[str, Any] = Field(default_factory=dict)
     metrics: Dict[str, Any] = Field(default_factory=dict)
+    authoritative_metrics: Dict[str, Any] = Field(default_factory=dict)
+    financial_statements: Dict[str, Any] = Field(default_factory=dict)
+    business_model: Dict[str, Any] = Field(default_factory=dict)
+    statement_quality: Dict[str, Any] = Field(default_factory=dict)
+    finance_director: Dict[str, Any] = Field(default_factory=dict)
     assumptions: List[Dict[str, Any]] = Field(default_factory=list)
     missing_information: List[str] = Field(default_factory=list)
     evidence_refs: List[Dict[str, Any]] = Field(default_factory=list)
@@ -166,6 +174,47 @@ class BusinessOperatingModelContainer(BaseModel):
     capacity_model: Dict[str, Any] = Field(default_factory=dict)
     provenance: Dict[str, Any] = Field(default_factory=dict)
     source_refs: List[Dict[str, Any]] = Field(default_factory=list)
+    revision: int = 1
+
+
+class OrganizationAuthorityContainer(BaseModel):
+    """Minimal people, organisation and application-authority source of truth."""
+
+    id: str
+    workspace_id: str
+    kind: Literal["organization_authority"] = "organization_authority"
+    meta: BusinessContainerMeta
+
+    model_status: str = "setup_required"
+    people: List[Dict[str, Any]] = Field(default_factory=list)
+    departments: List[Dict[str, Any]] = Field(default_factory=list)
+    roles: List[Dict[str, Any]] = Field(default_factory=list)
+    authority_policies: List[Dict[str, Any]] = Field(default_factory=list)
+    assets: List[Dict[str, Any]] = Field(default_factory=list)
+    external_sources: List[Dict[str, Any]] = Field(default_factory=list)
+    governance: Dict[str, Any] = Field(default_factory=dict)
+    summary: Dict[str, Any] = Field(default_factory=dict)
+    provenance: Dict[str, Any] = Field(default_factory=dict)
+    revision: int = 1
+
+
+class FinanceInboxContainer(BaseModel):
+    """Provider-neutral intake and approval ledger for transaction documents."""
+
+    id: str
+    workspace_id: str
+    kind: Literal["finance_inbox"] = "finance_inbox"
+    meta: BusinessContainerMeta
+
+    model_status: str = "empty"
+    documents: List[Dict[str, Any]] = Field(default_factory=list)
+    intake_channels: List[Dict[str, Any]] = Field(default_factory=list)
+    accounting_destinations: List[Dict[str, Any]] = Field(default_factory=list)
+    expense_policy: Dict[str, Any] = Field(default_factory=dict)
+    learned_mappings: List[Dict[str, Any]] = Field(default_factory=list)
+    summary: Dict[str, Any] = Field(default_factory=dict)
+    governance: Dict[str, Any] = Field(default_factory=dict)
+    provenance: Dict[str, Any] = Field(default_factory=dict)
     revision: int = 1
 
 
@@ -247,6 +296,8 @@ BusinessContainerModel = (
     | DepartmentIntelligenceContainer
     | BusinessFinancialModelContainer
     | BusinessOperatingModelContainer
+    | OrganizationAuthorityContainer
+    | FinanceInboxContainer
     | BrandFoundationContainer
     | BoardroomSnapshotContainer
     | OperationalRuntimeSummaryContainer

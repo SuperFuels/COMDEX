@@ -1,0 +1,335 @@
+{
+  "created_at": "2026-08-02T07:29:24.159253+00:00",
+  "episodes": [
+    {
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "value",
+          "passed": true,
+          "row_count": 66,
+          "time_field": "date"
+        },
+        "response_sha256": "f9e1b2101de1eba90831dde5081749d8669250ca66154ef978826ddd3bf5473c"
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:34:37.183851+00:00",
+        "not_before_epoch": 1785656062.15447,
+        "outcome_sha256": "6fd6f716fe4474f5fc2b048221562dd081353d39747f1e16dad9c4577e28ea33",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "World Bank GDP",
+      "outcomes": {
+        "durable": {
+          "classification": "DURABLE_ENVIRONMENT_CHANGE",
+          "counts": {
+            "durable": 66,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "68c28791cee6a621ca0dc14ad7980abba4d681af79d88b4d8958c1fa6b9d6e83",
+          "passed": true,
+          "replicas": 3,
+          "values": 66
+        },
+        "mixed": {
+          "classification": "ABSTAIN",
+          "counts": {
+            "durable": 0,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 66
+          },
+          "measurement_sha256": "4fdb7cc5373c4e7ceadfdea8108ab85d3d8f128234d278c187d1d1eb9211ebf8",
+          "passed": true,
+          "replicas": 3,
+          "values": 66
+        },
+        "stable": {
+          "classification": "STABLE_REPLICAS",
+          "counts": {
+            "durable": 0,
+            "stable": 66,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "b310810cc8694a5ef04132192e1b3ee539ac7b475f7ab1ca25ec2dbd36db1b4c",
+          "passed": true,
+          "replicas": 3,
+          "values": 66
+        },
+        "transient": {
+          "classification": "TRANSIENT_EVIDENCE_DEFECT",
+          "counts": {
+            "durable": 0,
+            "stable": 65,
+            "transient": 1,
+            "unresolved": 0
+          },
+          "measurement_sha256": "2628b8f720d791dc0b8f060ab3c29a8a141e9e7a9fedc8529976fdc81544f532",
+          "passed": true,
+          "replicas": 3,
+          "values": 66
+        }
+      },
+      "passed": true,
+      "url": "https://api.worldbank.org/v2/country/GBR/indicator/NY.GDP.MKTP.CD?format=json&per_page=100",
+      "values": 66
+    },
+    {
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "GDP",
+          "passed": true,
+          "row_count": 318,
+          "time_field": "observation_date"
+        },
+        "response_sha256": "cb0d9d0ffa4f83eeb53bcc04eaeca9cede6d266c550ec14bd8e825f0f88f8160"
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:34:37.400686+00:00",
+        "not_before_epoch": 1785656062.3786829,
+        "outcome_sha256": "0cb9ff71a67cfb6bd42aa1fc236bd663a096d8eff23d6200eba6a0aff6d71ee9",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "FRED GDP",
+      "outcomes": {
+        "durable": {
+          "classification": "DURABLE_ENVIRONMENT_CHANGE",
+          "counts": {
+            "durable": 318,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "1798f7e696dcb165ecf4a544a845477c4ca931fa7bc9f261eb6ee4bce9cc243f",
+          "passed": true,
+          "replicas": 3,
+          "values": 318
+        },
+        "mixed": {
+          "classification": "ABSTAIN",
+          "counts": {
+            "durable": 0,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 318
+          },
+          "measurement_sha256": "05edeea0e11601e3242d3b96c2cf1765b64b6a5546eb765c806ca4c13c47d165",
+          "passed": true,
+          "replicas": 3,
+          "values": 318
+        },
+        "stable": {
+          "classification": "STABLE_REPLICAS",
+          "counts": {
+            "durable": 0,
+            "stable": 318,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "c1c2d893ef1dedbff28b7efebecdb9d7993b75018a77c124cececa4fe5451eb5",
+          "passed": true,
+          "replicas": 3,
+          "values": 318
+        },
+        "transient": {
+          "classification": "TRANSIENT_EVIDENCE_DEFECT",
+          "counts": {
+            "durable": 0,
+            "stable": 317,
+            "transient": 1,
+            "unresolved": 0
+          },
+          "measurement_sha256": "fc28a9118a6e80feee5856c026fa0554865f7ddf47ea1736c3020edc28a990ed",
+          "passed": true,
+          "replicas": 3,
+          "values": 318
+        }
+      },
+      "passed": true,
+      "url": "https://fred.stlouisfed.org/graph/fredgraph.csv?id=GDP",
+      "values": 318
+    },
+    {
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "TEMP",
+          "passed": true,
+          "row_count": 236,
+          "time_field": "DATE"
+        },
+        "response_sha256": "f468be743db41fb15189b75be817cca33ece3d12271f81f09287dd4f3f6fa412"
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:34:38.358432+00:00",
+        "not_before_epoch": 1785656063.2458282,
+        "outcome_sha256": "618f2d47b3d647f133273a397246c7157cc80853066fd6ff477cded5b87fb052",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "NOAA temperature",
+      "outcomes": {
+        "durable": {
+          "classification": "DURABLE_ENVIRONMENT_CHANGE",
+          "counts": {
+            "durable": 236,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "fc0955496834f550228d112ebcc68ef30dc2bbc10a5ef572edbcdfee30b5e300",
+          "passed": true,
+          "replicas": 3,
+          "values": 236
+        },
+        "mixed": {
+          "classification": "ABSTAIN",
+          "counts": {
+            "durable": 0,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 236
+          },
+          "measurement_sha256": "4df6c3a10b90446364cd21ed971aeaf0de6434169be44d2b78fed51b01cd043f",
+          "passed": true,
+          "replicas": 3,
+          "values": 236
+        },
+        "stable": {
+          "classification": "STABLE_REPLICAS",
+          "counts": {
+            "durable": 0,
+            "stable": 236,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "dc8ba18734e8e75376dda151fde89c38d5dc7f23bf8b1c13ff5fab5e69eeab0e",
+          "passed": true,
+          "replicas": 3,
+          "values": 236
+        },
+        "transient": {
+          "classification": "TRANSIENT_EVIDENCE_DEFECT",
+          "counts": {
+            "durable": 0,
+            "stable": 235,
+            "transient": 1,
+            "unresolved": 0
+          },
+          "measurement_sha256": "a6b8eea305239389a05d179b2bd92de915ef8012626d30c318c45a49985fa55d",
+          "passed": true,
+          "replicas": 3,
+          "values": 236
+        }
+      },
+      "passed": true,
+      "url": "https://www.ncei.noaa.gov/data/global-summary-of-the-day/access/2025/03772099999.csv",
+      "values": 236
+    },
+    {
+      "evidence": {
+        "http_status": 200,
+        "projection": {
+          "measure_field": "exchange_rate",
+          "passed": true,
+          "row_count": 100,
+          "time_field": "record_date"
+        },
+        "response_sha256": "5474fcbd3b0cc4b624705dc497bc63530da501c87c88ffe883f169634cfd16f9"
+      },
+      "later_challenge": {
+        "closed_at": "2026-08-02T07:34:39.245067+00:00",
+        "not_before_epoch": 1785656064.1589491,
+        "outcome_sha256": "8ae0eca402346053a20ef8d6ca815c76870d51bb07522879a4da108c69183c65",
+        "passed": true,
+        "response_changed": false,
+        "retention_credit": 1,
+        "status": "CONSEQUENCE_CONFIRMED"
+      },
+      "name": "Treasury exchange rates",
+      "outcomes": {
+        "durable": {
+          "classification": "DURABLE_ENVIRONMENT_CHANGE",
+          "counts": {
+            "durable": 100,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "f05fa383895aebffdd3a64bd3cc969fb8c427588368a75805384158e7c764bac",
+          "passed": true,
+          "replicas": 3,
+          "values": 100
+        },
+        "mixed": {
+          "classification": "ABSTAIN",
+          "counts": {
+            "durable": 0,
+            "stable": 0,
+            "transient": 0,
+            "unresolved": 100
+          },
+          "measurement_sha256": "8971e84ac6aaca189cbe77e80449d4465f9731be79151c7f6ce43b61f5757879",
+          "passed": true,
+          "replicas": 3,
+          "values": 100
+        },
+        "stable": {
+          "classification": "STABLE_REPLICAS",
+          "counts": {
+            "durable": 0,
+            "stable": 100,
+            "transient": 0,
+            "unresolved": 0
+          },
+          "measurement_sha256": "d7d9047a9226fe9101234a9459d179e564951a07dba46da4e989792057d1957f",
+          "passed": true,
+          "replicas": 3,
+          "values": 100
+        },
+        "transient": {
+          "classification": "TRANSIENT_EVIDENCE_DEFECT",
+          "counts": {
+            "durable": 0,
+            "stable": 99,
+            "transient": 1,
+            "unresolved": 0
+          },
+          "measurement_sha256": "b12666d46f5627b106698fe6fbadc90de85dd0906ee03c17c38bafea3240cba4",
+          "passed": true,
+          "replicas": 3,
+          "values": 100
+        }
+      },
+      "passed": true,
+      "url": "https://api.fiscaldata.treasury.gov/services/api/fiscal_service/v1/accounting/od/rates_of_exchange?sort=-record_date&page%5Bsize%5D=100",
+      "values": 100
+    }
+  ],
+  "measurement_registry_path": "/Users/kevinrobinson/dev/COMDEX/backend/modules/hexcore/data/recursive_action_runtime/measurement_operation_registry.json",
+  "schema_version": "aion.hexcore.open_measurement_operation_state.v1",
+  "spec": {
+    "ambient_authority": [],
+    "capability_class": "pure_ordered_replica_measurement",
+    "chronology": "ordered_old_to_new",
+    "maximum_replicas": 5,
+    "maximum_values": 5000,
+    "measurement_id": "ORDERED_REPLICATE_CHANGE_DISCRIMINATOR",
+    "minimum_replicas": 3,
+    "mixed_policy": "ABSTAIN",
+    "relative_tolerance": 0.001
+  },
+  "spec_sha256": "dd720aaf3b8c0ee0b40fe3e3b32557f5cee6256ecb079cdb12a521a45c4684be"
+}

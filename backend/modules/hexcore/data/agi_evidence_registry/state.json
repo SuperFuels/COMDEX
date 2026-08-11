@@ -1,0 +1,2350 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "agi_evidence_registries": {
+    "agi_registry_024819d80093a286": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 18,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T19:19:07.095693+00:00",
+      "handoff_commitment": "5051a0411726988c231fa0887710ed5864e188efb0dd44971d1295d383f72399",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "public_pixel_physics_v9",
+            "open_visual_control_v10",
+            "cross_topology_physics_v11",
+            "real_world_acoustic_v12",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_41c37cbb55e84a09": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 14,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T18:24:27.230559+00:00",
+      "handoff_commitment": "843fa47535bd89329c45f3e5f2d60ba44c86174a8f42d62ac880d96ecbc53880",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_495c7279a266c7d2": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 17,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T19:06:10.791130+00:00",
+      "handoff_commitment": "a7c076c901d44e4eebece2b75bb7646409ee76321a4b25a0c09abd6596fc0c56",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "public_pixel_physics_v9",
+            "open_visual_control_v10",
+            "cross_topology_physics_v11",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_6bce7c3e57855c78": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 15,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T18:35:24.710077+00:00",
+      "handoff_commitment": "b0c1d2d357005026e333710beff38db2f448e5a682a15e2601cd70857f476943",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "public_pixel_physics_v9",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_74949bba8d45b0be": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 11,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T17:24:40.640304+00:00",
+      "handoff_commitment": "09163485d132c098b9800652ad4e92b39655d5aeccc21f97f9238b850ac58160",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native semantic vision/audio, spatial action and independent physical outcomes",
+          "satisfied_evidence": "real files, images/charts/tables and public NOAA temporal data",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC_SENSOR"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_9f7187bcde771d96": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 16,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T18:48:02.583036+00:00",
+      "handoff_commitment": "436bdde68b4803c70880ab634f6056559b10ddfe47237aa5e64ce96320da9abe",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "public_pixel_physics_v9",
+            "open_visual_control_v10",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_b8979a2aa16b1f24": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 13,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T18:14:44.206210+00:00",
+      "handoff_commitment": "54c1ce3b05749463ff9d69126dfe89516c6663a5f508326f121101dd13ac8b28",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, spatial action and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_b942923e0070fad9": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 20,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T19:36:59.288862+00:00",
+      "handoff_commitment": "b3d76b4ec8a06416551b50c692c86705a384fcdcada3e13178b884d759d3f8c4",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "public_pixel_physics_v9",
+            "open_visual_control_v10",
+            "cross_topology_physics_v11",
+            "real_world_acoustic_v12",
+            "real_world_acoustic_improvement_v13",
+            "continual_neural_physical_policy_v14",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_ba802f750577a86e": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 19,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T19:23:25.153177+00:00",
+      "handoff_commitment": "912e7e0847f9af141c12cb9a5167cfce54563aa5aa95553f1b220b7ac97073a9",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "public_pixel_physics_v9",
+            "open_visual_control_v10",
+            "cross_topology_physics_v11",
+            "real_world_acoustic_v12",
+            "real_world_acoustic_improvement_v13",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_df3091ecb2aa0425": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 21,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T20:41:14.937506+00:00",
+      "handoff_commitment": "e987c28cad8069235c4cf85756bd7f836f9041f14612abd59f14964728518ddb",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "temporal_multimodal_v7",
+            "closed_loop_physical_v8",
+            "public_pixel_physics_v9",
+            "open_visual_control_v10",
+            "cross_topology_physics_v11",
+            "real_world_acoustic_v12",
+            "real_world_acoustic_improvement_v13",
+            "continual_neural_physical_policy_v14",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, real spatial actuation and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels and temporal media, active visual perception, chronology criticism, budgeted seismic measurement, pixel-to-action control, outcome-driven dynamics revision, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_public_api_acquisition"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "credentialed or state-changing interfaces under explicit authority and independent real-project value",
+          "satisfied_evidence": "program/primitive invention plus typed read-only acquisition across three public APIs",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    },
+    "agi_registry_f7ce1c9e5b5ddbb3": {
+      "bridge": {
+        "all_source_artifact_commitments_present": true,
+        "claim": "EXTERNALLY_SOURCED_OUTCOMES_PARTIAL_NOT_EXTERNAL_CERTIFICATION",
+        "external_administrator_owned": false,
+        "externally_maintained_source_families_passed": 4,
+        "schema_version": "aion.hexcore.external_outcome_bridge.v1",
+        "source_families": 4,
+        "sources": [
+          {
+            "authority": "NOAA_NCEI_GHCN_Daily",
+            "cached_exists": true,
+            "cached_path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/external/SP000003195.csv.gz",
+            "cached_sha256": "ab50ab7e65d77c9f7fb311aad9fa97c975ae0cc4bc1d96ad434c6d2f91bcbed6",
+            "chronological_test_r2": 0.8910923449447796,
+            "passed": true,
+            "station": "GHCND:SP000003195",
+            "url": "https://www.ncei.noaa.gov/pub/data/ghcn/daily/by_station/SP000003195.csv.gz"
+          },
+          {
+            "authority": "princeton-nlp/SWE-bench_Lite",
+            "base_commit_integrity": true,
+            "human_patch_blind": true,
+            "passed": true,
+            "source_disjoint_repositories": 3
+          },
+          {
+            "authority": "official_public_sources_and_questions",
+            "delayed_memory_accuracy": 0.9166666666666666,
+            "externally_authored_questions": 12,
+            "passed": true,
+            "source_domains": 3
+          },
+          {
+            "authority": "public_human_authored_validation_sets",
+            "cases": 120,
+            "contamination_excluded": false,
+            "mean_accuracy": 0.725,
+            "passed_as_external_certification": false,
+            "passed_as_public_transfer": true,
+            "weakest_family_accuracy": 0.625
+          }
+        ]
+      },
+      "control_gate": {
+        "agi_claim_authorized": false,
+        "agi_evidence_gates": 10,
+        "artifact_contracts": 12,
+        "artifact_integrity_rate": 1.0,
+        "authority_classification_fail_closed": true,
+        "errors": [],
+        "external_outcome_source_families": 4,
+        "external_outcome_source_families_passed": 4,
+        "externally_blocked_gates": 2,
+        "externally_verified_gates": 0,
+        "internal_or_partial_gates": 8,
+        "registry_runtime_accepted": true
+      },
+      "created_at": "2026-07-31T17:50:10.934661+00:00",
+      "handoff_commitment": "a338dfc53d65dd8fe8bc10b710f78526d27bcd3b8b2e45ffd825c847d1a6bef0",
+      "registry": [
+        {
+          "evidence": [
+            "large_continual_arena",
+            "public_reasoning_evaluation",
+            "external_questions_memory"
+          ],
+          "gate_id": "broad_domain_transfer",
+          "remaining": "natural physical, social, creative and independently hidden breadth",
+          "satisfied_evidence": "2040-task internal arena plus public language/reasoning transfer",
+          "status": "PARTIAL_INTERNAL_AND_PUBLIC"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "open_outcome_project_scientist"
+          ],
+          "gate_id": "autonomous_long_project_decomposition",
+          "remaining": "hours/days duration and independently changing external systems",
+          "satisfied_evidence": "broad-goal decomposition, changing milestones and restart recovery",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "noaa_sensor_transfer",
+            "public_swebench_repair",
+            "external_questions_memory"
+          ],
+          "gate_id": "independently_owned_consequence_learning",
+          "remaining": "administrator-controlled delayed reveal and evaluation",
+          "satisfied_evidence": "4 public outcome families",
+          "status": "PARTIAL_EXTERNALLY_SOURCED"
+        },
+        {
+          "evidence": [
+            "large_continual_arena",
+            "continual_neural_challengers"
+          ],
+          "gate_id": "continual_improvement_without_forgetting",
+          "remaining": "long-duration diverse human-authored arena and external replay authority",
+          "satisfied_evidence": "three generations, 2040 tasks and zero measured forgetting",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "open_multimodal_projects",
+            "natural_multimodal_v6",
+            "noaa_sensor_transfer"
+          ],
+          "gate_id": "natural_multimodal_physical_grounding",
+          "remaining": "native audio/video, spatial action and independently administered physical outcomes",
+          "satisfied_evidence": "natural NASA/USGS pixels, active visual perception, official-source delayed reveal, cross-modal criticism and public NOAA temporal data",
+          "status": "PARTIAL_PUBLIC_NATURAL_MULTIMODAL"
+        },
+        {
+          "evidence": [
+            "human_judgment_protocol"
+          ],
+          "gate_id": "social_commonsense_creative_judgment",
+          "remaining": "independent multi-rater outcomes and held-out human-authored cohort",
+          "satisfied_evidence": "frozen protocol and blank rating instrument",
+          "status": "BLOCKED_EXTERNAL_HUMAN_AUTHORITY"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention"
+          ],
+          "gate_id": "tool_and_representation_invention",
+          "remaining": "unfamiliar APIs/environments and independent real-project value",
+          "satisfied_evidence": "program composition plus nonlinear and stateful primitive invention",
+          "status": "INTERNAL_BOUNDED_PASS"
+        },
+        {
+          "evidence": [
+            "arena_v5_invention",
+            "human_judgment_protocol"
+          ],
+          "gate_id": "safe_abstention_and_human_escalation",
+          "remaining": "measured human escalation quality and response time",
+          "satisfied_evidence": "OOD abstention and fail-closed promotion",
+          "status": "PARTIAL_INTERNAL"
+        },
+        {
+          "evidence": [
+            "stronger_substrate"
+          ],
+          "gate_id": "matched_frontier_and_human_comparison",
+          "remaining": "frontier agents, specialist systems and human baselines under one external budget",
+          "satisfied_evidence": "matched replaceable-substrate trial",
+          "status": "PARTIAL_SUBSTRATE_ONLY"
+        },
+        {
+          "evidence": [],
+          "gate_id": "independent_reproducibility",
+          "remaining": "independent organization must own tasks, outcomes, scoring and reproduction",
+          "satisfied_evidence": "handoff and commitment protocols only",
+          "status": "BLOCKED_EXTERNAL_ADMINISTRATOR"
+        }
+      ]
+    }
+  },
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "agi_evidence_authority_control_plane": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "documentation_guided_software_authority"
+    },
+    "reason": "agi_evidence_authority_registry",
+    "state_hash": "c49172fd8e77063578f2e91480fcb2cdf56617516d3f1a04e4f8e3cdd682910f"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 10,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_74949bba8d45b0be"
+      },
+      "outcome_id": "outcome_0b440afe13c8426d",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T17:23:32.800009+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 11,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_74949bba8d45b0be"
+      },
+      "outcome_id": "outcome_a37d62ec48bb45b1",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T17:24:40.640561+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 12,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_f7ce1c9e5b5ddbb3"
+      },
+      "outcome_id": "outcome_9f943cd47a064505",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T17:50:10.934987+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 13,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_b8979a2aa16b1f24"
+      },
+      "outcome_id": "outcome_01cfcd69f75a4725",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T18:14:44.206652+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 14,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_41c37cbb55e84a09"
+      },
+      "outcome_id": "outcome_f45669db0a924d23",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T18:24:27.231000+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 15,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_6bce7c3e57855c78"
+      },
+      "outcome_id": "outcome_8b63a4c8018d4d5e",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T18:35:24.710641+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 16,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_9f7187bcde771d96"
+      },
+      "outcome_id": "outcome_e2c3d34868f14906",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T18:48:02.583604+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 17,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_495c7279a266c7d2"
+      },
+      "outcome_id": "outcome_40ff1611e94044ed",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T19:06:10.791765+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 18,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_024819d80093a286"
+      },
+      "outcome_id": "outcome_f9865fbe5bba46bc",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T19:19:07.096502+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 19,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_ba802f750577a86e"
+      },
+      "outcome_id": "outcome_054cae3e796c4f9a",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T19:23:25.153945+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 20,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_b942923e0070fad9"
+      },
+      "outcome_id": "outcome_038489461c1b4534",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T19:36:59.289699+00:00"
+    },
+    {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 21,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_df3091ecb2aa0425"
+      },
+      "outcome_id": "outcome_692df220c5e449b9",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T20:41:14.938434+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4": {
+      "evidence": {
+        "control_gate": {
+          "agi_claim_authorized": false,
+          "agi_evidence_gates": 10,
+          "artifact_contracts": 10,
+          "artifact_integrity_rate": 1.0,
+          "authority_classification_fail_closed": true,
+          "errors": [],
+          "external_outcome_source_families": 4,
+          "external_outcome_source_families_passed": 4,
+          "externally_blocked_gates": 2,
+          "externally_verified_gates": 0,
+          "internal_or_partial_gates": 8,
+          "registry_runtime_accepted": true
+        },
+        "registry_id": "agi_registry_74949bba8d45b0be"
+      },
+      "goal": "agi_evidence_authority_control_plane",
+      "procedure_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "promoted_at": "2026-07-31T17:23:32.763765+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "hash_commit_all_capability_artifacts",
+        "classify_internal_external_source_and_external_authority",
+        "bridge_public_repository_sensor_question_and_benchmark_outcomes",
+        "map_evidence_to_ten_agi_gates",
+        "keep_external_human_and_reproducibility_gates_closed",
+        "freeze_external_evaluator_handoff_contract",
+        "deny_agi_claim_without_external_signatures"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "8319c23e65ac5c1f4e3f70de52468765efe603880d183c487130e58e3bdb2a0f",
+      "goal": "agi_evidence_authority_control_plane",
+      "new_champion_id": "procedure_agi_evidence_authority_registry_v1_9b6e63c112a4",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T17:23:32.763777+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 25,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T20:41:14.942705+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

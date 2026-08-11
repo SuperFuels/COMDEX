@@ -1,0 +1,42 @@
+{
+  "precommitment": {
+    "candidate_asts": {
+      "dependency_gated_mission_graph_audit": [
+        "ASSERT_ACYCLIC",
+        "ASSERT_HIERARCHY",
+        "ASSERT_CAPABILITY_PREREQUISITES",
+        "ASSERT_MEASURABLE_OUTCOMES",
+        "ASSERT_RECOVERY_BRANCHES",
+        "ASSERT_AUTHORITY_BOUNDARIES"
+      ],
+      "flat_completion_count": [
+        "ASSERT_MEASURABLE_OUTCOMES"
+      ],
+      "label_keyword_gate": [
+        "ASSERT_HIERARCHY",
+        "ASSERT_AUTHORITY_BOUNDARIES"
+      ]
+    },
+    "committed_at": "2026-08-02T15:15:20.961664+00:00",
+    "development_graph_sha256": "b44a9c75040b3b392f28cd976ecc7e24e1a1c27b19f018a29fd7a51a6f6b0602",
+    "existing_methods": [
+      "delayed_deterministic_integer_checker",
+      "delayed_immutable_source_reread",
+      "fresh_subprocess_plus_later_public_row",
+      "later_multi_authority_acquisition_row",
+      "later_public_environmental_sensor",
+      "later_public_technical_source"
+    ],
+    "method_id": "dependency_gated_mission_graph_audit",
+    "not_before_epoch": 1785683721.961845,
+    "outcomes_visible": false,
+    "precommitment_sha256": "896b2365533fe8b793e044d1d2318bc3927b1443a1e9902f0d49bdc4a0a3f4f4",
+    "sealed_graph_sha256": [
+      "1230b16dc8d5b72ab22699b03c96fc3165ba567a4e45aa1d812db0974f1b2bda",
+      "ada20e4722463559bc606b272f70e00cf38e48f6df436a1cb908872c076573d7",
+      "20ad8c72cdb408432adf02b054742dbdf98f791486f377840d33c3d1cebbc577"
+    ]
+  },
+  "schema_version": "aion.hexcore.open_method_language_state.v1",
+  "status": "WAITING_FOR_SEALED_TRANSFER"
+}

@@ -1,0 +1,325 @@
+% ============================================================================
+% AION HexCore: Rust/SQL Systems Depth and Internal Programming Closure
+% Standalone section fragment for inclusion in the main AION paper.
+% Requires: amsmath, array.
+% ============================================================================
+
+\section{Programming Systems Depth and Closure}
+\label{sec:programming-internal-closure}
+
+This stage moved the programming programme beyond isolated syntax, local
+repair, and profile-table technology selection.  It evaluated whether AION
+could construct a multi-file concurrent Rust system, manage a reversible SQL
+schema lifecycle, compare two implementations using measured consequences,
+repair a naturally occurring historical defect in a fifth independent
+repository, and conditionally select the most useful memory context.
+
+Two procedures were promoted:
+\begin{center}
+{\footnotesize\texttt{procedure\_rust\_sql\_systems\_depth\_and\_measured\_selection\_97a48e241cb7}}
+\end{center}
+and
+\begin{center}
+{\footnotesize\texttt{procedure\_programming\_intelligence\_internal\_closure\_c9e8ad77f021}}.
+\end{center}
+
+The first procedure deepened construction and measurement.  The second
+aggregated the complete programming evidence under five-repository,
+multi-language, falsification, security, routing, persistence, and external
+handoff gates.
+
+
+\subsection{Multi-file Rust systems construction}
+\label{subsec:rust-systems-depth}
+
+The proposal substrate received a behavioral contract rather than an existing
+patch.  It constructed a dependency-free Rust 2021 crate containing a library
+and executable.  The retained library exposed:
+\begin{itemize}
+  \item a public \texttt{AccountStore} trait satisfying \texttt{Send + Sync};
+  \item a concrete in-memory repository;
+  \item a structured ledger-error enumeration implementing Rust's display and
+        standard error interfaces;
+  \item \texttt{Result}-based account, balance, and transfer operations;
+  \item optional map lookup rather than unchecked indexing; and
+  \item a cloneable ledger using \texttt{Arc} and synchronized interior
+        mutability.
+\end{itemize}
+
+The evaluator injected an authority-owned integration test after construction.
+For accounts $a$ and $b$, every accepted transfer of amount $q$ was required to
+preserve total value:
+\begin{equation}
+B_a^{(t+1)} + B_b^{(t+1)}
+= B_a^{(t)} + B_b^{(t)},
+\label{eq:ledger-conservation}
+\end{equation}
+subject to
+\begin{equation}
+q > 0, \qquad a \neq b, \qquad B_a^{(t)} \geq q,
+\label{eq:ledger-preconditions}
+\end{equation}
+and checked signed arithmetic on both balances.  A rejected transfer had to be
+atomic:
+\begin{equation}
+\operatorname{reject}(a,b,q)
+\Longrightarrow
+\left(B_a^{(t+1)},B_b^{(t+1)}\right)
+=\left(B_a^{(t)},B_b^{(t)}\right).
+\label{eq:ledger-rollback}
+\end{equation}
+
+Eight independent threads performed $250$ forward-and-return transfer pairs
+each, producing $4{,}000$ concurrent transfers.  Final balances and aggregate
+value had to equal their initial values exactly.  Additional authority tests
+covered missing accounts, self-transfer, non-positive values, insufficient
+funds, and destination overflow.  The complete crate compiled and tested
+offline with warnings treated as errors.
+
+Static authority rejected unsafe Rust, subprocess creation, filesystem and
+network access, environment-variable access, dynamic inclusion, external
+crates, and warning suppression before execution.
+
+
+\subsection{Reversible SQL lifecycle intelligence}
+\label{subsec:sql-lifecycle-depth}
+
+AION constructed a three-part SQLite migration sequence:
+\begin{enumerate}
+  \item V1 created schema versioning, accounts, transfers, foreign keys,
+        non-empty owners, non-negative balances, positive amounts,
+        self-transfer prevention, and source/time and destination/time indexes;
+  \item V2 added a non-null transfer status, an audit relation, a status index,
+        and a version transition; and
+  \item V2-down removed only V2 artifacts, restored version 1, and preserved
+        every V1 transfer.
+\end{enumerate}
+
+The verifier discovered tables, relationship columns, primary keys, and primary
+key types from SQLite metadata.  This avoided imposing an evaluator-secret
+schema.  In particular, AION independently chose an integer transfer key whose
+value increments automatically; the evaluator adapted to that representation rather
+than demanding a text identifier.
+
+The retained migration sequence passed fourteen lifecycle checks:
+\begin{itemize}
+  \item valid V1 transaction execution;
+  \item foreign-key, self-transfer, and non-positive-value rejection;
+  \item V2 status, audit, and version installation;
+  \item explicit transaction rollback;
+  \item concurrent-writer exclusion and recovery after rollback;
+  \item source/time query-plan index use;
+  \item V2 status removal during downgrade;
+  \item preservation of V1 transfer data; and
+  \item restoration of schema version 1.
+\end{itemize}
+
+For the indexed source query, SQLite reported a search using the retained
+source/time index rather than an unrestricted table scan.  Unrelated table
+destruction, foreign-key disabling, extension loading, writable-schema access,
+triggers, and destructive row operations remained prohibited.
+
+
+\subsection{Measured two-stack technology selection}
+\label{subsec:measured-stack-selection}
+
+Rust and Python implementations executed the same checked ledger workload over
+$20{,}000$ transfer pairs.  Both were required to produce the exact terminal
+state before performance could influence selection.
+
+\begin{table}[ht]
+\centering
+\caption{Measured Rust/Python ledger bake-off.}
+\label{tab:rust-python-bakeoff}
+\begin{tabular}{lrrrr}
+\hline
+Stack & Build time & Median run time & Source bytes & Correct \\
+\hline
+Rust   & $0.3009$ s & $0.00510$ s & $5{,}254$ & Yes \\
+Python & $0$ s      & $0.03062$ s & $3{,}385$ & Yes \\
+\hline
+\end{tabular}
+\end{table}
+
+Two deployment objectives were evaluated.  For sustained execution,
+\begin{equation}
+l_{\mathrm{sustained}}
+=\arg\min_{l\in\{\mathrm{Rust},\mathrm{Python}\}}
+T_{\mathrm{run}}(l),
+\end{equation}
+whereas one-shot edit/run iteration used
+\begin{equation}
+l_{\mathrm{one\mbox{-}shot}}
+=\arg\min_{l\in\{\mathrm{Rust},\mathrm{Python}\}}
+\left(T_{\mathrm{build}}(l)+T_{\mathrm{run}}(l)\right).
+\end{equation}
+AION selected Rust for sustained execution and Python for one-shot iteration.
+Both decisions matched the independent consequence calculation and cited the
+measurements, rationale, and rejected alternative.  This replaced the earlier
+profile lookup with decisions grounded in executed artifacts.
+
+
+\subsection{Fifth independent repository: historical Rust repair}
+\label{subsec:fifth-rust-repository}
+
+The fifth repository authority was
+\texttt{BurntSushi/byteorder}, pinned at historical buggy commit
+\begin{center}
+\texttt{cf0253a63e63396df4f01d77aaebe2869ce21314}.
+\end{center}
+The later human fix was not supplied during proposal, criticism, or selection.
+The public defect stated that fixed-width endian readers accepted buffers at
+least as large as the requested integer, but the implementation incorrectly
+passed an over-long slice into an exact-size array conversion.
+
+AION read the public behavior and relevant source, proposed a safe multi-site
+repair, and invented a Rust integration property.  The acceptance chain was
+\begin{equation}
+\begin{split}
+&\text{pinned original fails invented property} \\
+&\land\ \text{candidate passes invented property} \\
+&\land\ \text{candidate passes hidden three-seed property} \\
+&\land\ \text{candidate passes full native suite} \\
+&\land\ \text{static and adversarial safety gates pass}.
+\end{split}
+\label{eq:fifth-repo-acceptance}
+\end{equation}
+
+The first semantic repair made a now-unused \texttt{TryInto} import visible.
+Compilation with \texttt{-D warnings} therefore rejected the candidate.  AION
+classified the diagnostic as a secondary compiler-induced cleanup, removed the
+obsolete import, and reran the complete property chain.  The revised candidate
+passed:
+\begin{itemize}
+  \item the self-invented original-fail/candidate-pass property;
+  \item an evaluator-injected test covering four integer widths and both
+        endian modes under three process seeds; and
+  \item the complete native byteorder test suite.
+\end{itemize}
+
+Six malicious alternatives involving unsafe code, subprocess execution,
+network access, ignored tests, warning suppression, and dynamic file inclusion
+were rejected before execution.
+
+
+\subsection{Conditional semantic-memory routing}
+\label{subsec:conditional-programming-router}
+
+An earlier router was rejected because it rediscovered one fixed documentation
+strategy.  The closure router evaluated four context arms:
+\begin{equation}
+\begin{aligned}
+\mathcal{A}=\{&\text{no memory},\text{documentation memory},\\
+              &\text{source-grounded memory},\text{outcome motifs}\}.
+\end{aligned}
+\end{equation}
+Each arm retained its observed success, proposal attempts, information actions,
+and safety outcome.  The predeclared cost was
+\begin{equation}
+C(a)=10N_{\mathrm{attempts}}(a)+N_{\mathrm{context}}(a).
+\label{eq:router-cost}
+\end{equation}
+For each repository, the router selected
+\begin{equation}
+a^*=\arg\min_{a\in\mathcal{A}}
+C(a)
+\quad\text{subject to}\quad
+S(a)=1\ \land\ U(a)=0,
+\label{eq:safe-router-choice}
+\end{equation}
+where $S$ denotes verified success and $U$ denotes unsafe acceptances.
+Unsupported arms failed closed rather than receiving hypothetical credit.
+
+Across the five-authority cohort, the routed assembly used three distinct
+strategies.  It preserved $100\%$ mean and weakest-repository success and
+outperformed both always-documentation and never-memory controls under the
+predeclared success-then-cost ordering.
+
+
+\subsection{Integrated programming closure}
+\label{subsec:integrated-programming-closure}
+
+The aggregated internal cohort comprised:
+\begin{enumerate}
+  \item \texttt{marshmallow-code/marshmallow};
+  \item \texttt{pydicom/pydicom};
+  \item \texttt{pvlib/pvlib-python};
+  \item \texttt{Tessaris/COMDEX}; and
+  \item \texttt{BurntSushi/byteorder}.
+\end{enumerate}
+
+\begin{table}[ht]
+\centering
+\caption{Internal programming-closure results.}
+\label{tab:programming-closure-results}
+\small
+\begin{tabular}{>{\raggedright\arraybackslash}p{0.48\linewidth}>{\raggedright\arraybackslash}p{0.42\linewidth}}
+\hline
+Measure & Result \\
+\hline
+Independent Git authorities & 5 \\
+Language surfaces & Python, JavaScript, TypeScript, Rust, SQL \\
+Three-seed stability & Passed \\
+Self-invented falsification & Passed \\
+Malicious candidates rejected & 30/30 \\
+Unsafe acceptances & 0 \\
+Conditional-router mean success & 100\% \\
+Conditional-router weakest repository & 100\% \\
+Distinct context routes used & 3 \\
+Beats always-documentation & Yes \\
+Beats never-memory & Yes \\
+Measured stack selection & Passed \\
+Restart retention & 100\% \\
+External bundle frozen & Yes \\
+Externally administered & No \\
+Focused regression tests & 15/15 \\
+\hline
+\end{tabular}
+\end{table}
+
+The complete closure run retained language contracts, repair evidence,
+compiler criticism, security outcomes, routing policy, measurements, champion
+identity, and CAU promotion records across process reconstruction without
+relearning.
+
+
+\subsection{Frozen external-evaluation handoff}
+\label{subsec:programming-external-handoff}
+
+The handoff manifest cryptographically freezes six governing result files and
+commits to the internal closure result using SHA-256.  An external
+administrator must independently select repositories, failures, hidden tests,
+and answer reveal; prevent access to human repairs; enforce matched model and
+tool budgets; run functional and adversarial security tests; and report mean
+and weakest-repository performance.
+
+The variable
+\begin{equation}
+E_{\mathrm{external}}=0
+\end{equation}
+is intentionally retained in the internal result.  Internal promotion cannot
+set it to one.  Only a source-disjoint external administrator can authorize
+that transition.
+
+
+\subsection{Interpretation and claim boundary}
+\label{subsec:programming-closure-boundary}
+
+The combined result establishes an internally coherent programming subsystem
+with execution grounding, construction, repair, self-invented properties,
+compiler feedback, adversarial criticism, transaction and concurrency testing,
+measured technology selection, conditional memory use, persistence, and CAU
+promotion.  It is substantially stronger than recognizing syntax or solving a
+single supplied patch.
+
+It does not establish complete mastery of every language, library, framework,
+database, or deployment environment.  It also does not establish unrestricted
+autonomous software deployment, independent security certification, external
+superiority, or AGI.  The router is calibrated on internal recorded outcomes,
+and external hidden administration remains deliberately unpassed.
+
+Programming therefore moves from the primary research bottleneck into
+continual-learning and maintenance mode.  New real programming outcomes should
+extend the same verified loop, while the principal intelligence programme
+returns to open-world knowledge, natural multimodal grounding, commonsense and
+social cognition, long-horizon projects, and large-scale continual learning.

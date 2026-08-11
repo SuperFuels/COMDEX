@@ -61,7 +61,8 @@ def test_phase25e_department_workspace_mount_exists():
 
     assert 'data-aion-phase25e-department-results-evidence="true"' in text
     assert "renderAionDepartmentPilotPhase25EPanel(departmentKey)" in text
-    assert 'renderAionDepartmentScopedPilotSurface("marketing", selectedRuns, selectedAgentCard)' in text
+    assert 'data-aion-marketing-automation-studio="true"' in text
+    assert "getAionPilotMarketingWorkspaceArtifacts()" in text
     assert 'renderAionDepartmentPilotPhase25EPanel("marketing")' not in TEXT[TEXT.index("function renderPilotMarketingWorkspaceSurface"):TEXT.index("function renderMarketingManualWorkspaceSurface", TEXT.index("function renderPilotMarketingWorkspaceSurface"))]
 
 

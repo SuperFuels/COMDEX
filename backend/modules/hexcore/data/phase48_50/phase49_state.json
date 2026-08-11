@@ -1,0 +1,1271 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "open_document_intelligence": "procedure_open_document_v2_723cbb2ca787"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase48_50_public_external_authority"
+    },
+    "reason": "phase49_open_document_intelligence",
+    "state_hash": "8e020a3a3d2f01f095d6bfdd5552d5b11f256244166d9bfbe0e4f2f964e7c1b3"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multimodal_evidence_projects": {},
+  "neural_consolidation": {},
+  "observations": [],
+  "open_document_knowledge": {
+    "squad:0000:f396280baabc": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:22.447841+00:00",
+      "presence_proposal": "supported",
+      "proposal": "school voucher model",
+      "proposal_supported_by_substring": false,
+      "question": "What opportunity did Barack Obama support for Swedish children?",
+      "record_id": "squad:0000:f396280baabc",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "f396280baabc232b2dbd56220ead1c5d4dcf5e8af7a80222042b7a3a4d987f4a",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Private_school"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0001:4f62474ee951": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:22.918457+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Eastern crops such as carrots, turnips, new varieties of lemons, eggplants, and melons, high-quality granulated sugar, and cotton",
+      "proposal_supported_by_substring": true,
+      "question": "What crops were introduced or popularized in the Yuan?",
+      "record_id": "squad:0001:4f62474ee951",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "4f62474ee95129ce6fc26c7def147066b84695bb8a8c7d509cd145479f23b04c",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Yuan_dynasty"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0002:70150ba659ef": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:23.446394+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What happens to plankton when they mature?",
+      "record_id": "squad:0002:70150ba659ef",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "70150ba659ef2c4bad22a2a83dde1ff6810a8679153106769c21c3b383bdb336",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Ctenophora"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0003:73afbad58199": {
+      "accepted_answer": "1606",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:23.922929+00:00",
+      "presence_proposal": "supported",
+      "proposal": "1606",
+      "proposal_supported_by_substring": true,
+      "question": "In what year did Jerónimo de Ayanz y Beaumont patent a water pump for draining mines?",
+      "record_id": "squad:0003:73afbad58199",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "73afbad581995770bafda2ce0aebd8167d519734331003f9017bf02a85371773",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Steam_engine"
+      },
+      "status": "verified"
+    },
+    "squad:0004:2947421ece7b": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:24.288199+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Bells Beach SurfClassic",
+      "proposal_supported_by_substring": true,
+      "question": "What event is held at Bells Beach in Victoria?",
+      "record_id": "squad:0004:2947421ece7b",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "2947421ece7b4090c22a0414b5b432c85e51b54b27afe0872df98d7b68e8b683",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Victoria_(Australia)"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0005:2fd24747c1f6": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:24.702890+00:00",
+      "presence_proposal": "supported",
+      "proposal": "adjustable spring-loaded valve",
+      "proposal_supported_by_substring": true,
+      "question": "What type of valve is used by recent safety valves?",
+      "record_id": "squad:0005:2fd24747c1f6",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "2fd24747c1f66748170c1c9f051c9e7d266cecb605076c6cae54a1c2917dd5d2",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Steam_engine"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0006:2f4205298894": {
+      "accepted_answer": "Melbourne",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:25.086961+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Melbourne",
+      "proposal_supported_by_substring": true,
+      "question": "What city is the capital of Victoria?",
+      "record_id": "squad:0006:2f4205298894",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "2f4205298894876b510bd47b3ec642ab534c15428a4b1df1010ece22c9c17979",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Victoria_(Australia)"
+      },
+      "status": "verified"
+    },
+    "squad:0007:f39b9ccf2ead": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:25.540256+00:00",
+      "presence_proposal": "supported",
+      "proposal": "other services",
+      "proposal_supported_by_substring": false,
+      "question": "What service is a VideoGuard UK equipped receiver never able to decrypt?",
+      "record_id": "squad:0007:f39b9ccf2ead",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "f39b9ccf2eadbdb36e5c86e76a1a4054502a28cc4ecc37bdf94e9c39a471c535",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Sky_(United_Kingdom)"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0008:726bcaf33d9e": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:25.977240+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "In what country was the 2004 Velvet Revolution?",
+      "record_id": "squad:0008:726bcaf33d9e",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "726bcaf33d9e385e208374dfd2653634a4522742124baaa3999d5c5c292445fe",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Civil_disobedience"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0009:7e9ee265449f": {
+      "accepted_answer": "Fresno Normal School",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:26.465313+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Fresno Normal School",
+      "proposal_supported_by_substring": true,
+      "question": "What was the original name of California State University at Fresno?",
+      "record_id": "squad:0009:7e9ee265449f",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "7e9ee265449fa22688d3f8cc460a08187bf8f5ac34d69544390c50c250eb0448",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Fresno,_California"
+      },
+      "status": "verified"
+    },
+    "squad:0010:d7b639c11d26": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:26.813236+00:00",
+      "presence_proposal": "supported",
+      "proposal": "metamorphic processes and the conditions of crystallization of igneous rocks",
+      "proposal_supported_by_substring": false,
+      "question": "What can experiments be used to explain beside magma crystallization?",
+      "record_id": "squad:0010:d7b639c11d26",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "d7b639c11d264c6a9459674a47c65dc31a0d3d9615af12876a8c7d90493d2915",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Geology"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0011:61b4937b9d05": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:27.193049+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "The Peruvian Amazon indigienous people are one group struggling in the Amazon, what is another group?",
+      "record_id": "squad:0011:61b4937b9d05",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "61b4937b9d0514bc8f149849c776fa0f98dcb11b7af677d4c946b355ff06ca52",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Amazon_rainforest"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0012:fd8dc45596c4": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:27.679043+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "When did income inequality begin to decrease in the US?",
+      "record_id": "squad:0012:fd8dc45596c4",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "fd8dc45596c41569da99ac58e0d5bcbadf3f002b35f3fd5816c3a3fa03003927",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Economic_inequality"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0013:8b8190fdb07a": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:28.110899+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What are two methods for identifying plane-polarized light in the lab?",
+      "record_id": "squad:0013:8b8190fdb07a",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "8b8190fdb07a1af9c1462db72bed5dbe5d3d2445992eda03965818ceb4ef0857",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Geology"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0014:fd80faaf43d6": {
+      "accepted_answer": "O2",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:28.503834+00:00",
+      "presence_proposal": "supported",
+      "proposal": "O2",
+      "proposal_supported_by_substring": true,
+      "question": "What is the scientific designation of oxygen?",
+      "record_id": "squad:0014:fd80faaf43d6",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "fd80faaf43d6d56307f1567cba40b08ce93dcfb538d6704d48b9c014969757ef",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Oxygen"
+      },
+      "status": "verified"
+    },
+    "squad:0015:c8c47f5e5a64": {
+      "accepted_answer": "Transform boundaries",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:28.967693+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Transform boundaries",
+      "proposal_supported_by_substring": true,
+      "question": "What type of fault boundary is defined by having widespread powerful earthquakes, as in the state of California?",
+      "record_id": "squad:0015:c8c47f5e5a64",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "c8c47f5e5a648817ff11f913f97ee8b366aaf758a4bd7ff32582d54df2a8fa31",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Geology"
+      },
+      "status": "verified"
+    },
+    "squad:0016:13e9fbf39025": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:29.357457+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Cook reductions, Karp reductions",
+      "proposal_supported_by_substring": true,
+      "question": "What are two examples of different types of reduction?",
+      "record_id": "squad:0016:13e9fbf39025",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "13e9fbf3902511de0c59a6c616fe4bb22971b931abe106864f6f57b7b66316da",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Computational_complexity_theory"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0017:76d92e92a6a9": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:29.837229+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What is another name for a deformational event?",
+      "record_id": "squad:0017:76d92e92a6a9",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "76d92e92a6a95722d2402d8f47c5e55073f4f0002468a06046899e2b337d5a02",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Geology"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0018:cded37032d68": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:30.268756+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What is one thing that wealthy students needed when they first came to Harvard in 1945?",
+      "record_id": "squad:0018:cded37032d68",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "cded37032d68b16effd6766161b05dd6133be8b6c51f658dd984a8d9878505c4",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Harvard_University"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0019:0452693c2cb8": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:30.734052+00:00",
+      "presence_proposal": "supported",
+      "proposal": "technical defense",
+      "proposal_supported_by_substring": false,
+      "question": "What defense was used by Steven Barkan?",
+      "record_id": "squad:0019:0452693c2cb8",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "0452693c2cb8fba37e58cad0335aea50d57c51818ce0841b4e804640f45086ac",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Civil_disobedience"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0020:80050447c9b4": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:31.124788+00:00",
+      "presence_proposal": "supported",
+      "proposal": "less than quadratic time",
+      "proposal_supported_by_substring": true,
+      "question": "How quickly can an algorithm solve an NP-complete knapsack problem?",
+      "record_id": "squad:0020:80050447c9b4",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "80050447c9b41fb5fac1950338fd3ace00106108cadec17c27aa5b41f7aee5cf",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Computational_complexity_theory"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0021:76a69efa5b44": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:31.729509+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "In what year was Swiss politician Besancon Hugues born?",
+      "record_id": "squad:0021:76a69efa5b44",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "76a69efa5b44ac59ec611714b624dd900a527ebd441fa5d4b1077a0b18bdbd5b",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Huguenot"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0022:ec0145a84600": {
+      "accepted_answer": "2011",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:32.306928+00:00",
+      "presence_proposal": "supported",
+      "proposal": "2011",
+      "proposal_supported_by_substring": true,
+      "question": "Beginning in what year was Harvard on top of the World Reputation Rankings?",
+      "record_id": "squad:0022:ec0145a84600",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "ec0145a8460051b10a8900bf9b7695d3054720a4e9802b0ca8152f7b919b72c6",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Harvard_University"
+      },
+      "status": "verified"
+    },
+    "squad:0023:1e78d27475ae": {
+      "accepted_answer": "loss of soil fertility and weed invasion",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:32.730453+00:00",
+      "presence_proposal": "supported",
+      "proposal": "loss of soil fertility and weed invasion",
+      "proposal_supported_by_substring": true,
+      "question": "What are two factors that made it difficult for colonists to the Amazon forest to survive?",
+      "record_id": "squad:0023:1e78d27475ae",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "1e78d27475aecd3ec0eb73d6278e6a3cbe36d5f520963ba6b65f7dc7602a6dd3",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Amazon_rainforest"
+      },
+      "status": "verified"
+    },
+    "squad:0024:7707b43e2d93": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:33.174432+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What do some government officials give in response to illegal actions?",
+      "record_id": "squad:0024:7707b43e2d93",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "7707b43e2d9349ec0fa92f79085391bb5dbe7f2da552f94836a0291fe5c85a21",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Civil_disobedience"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0025:e32237eb13f4": {
+      "accepted_answer": "Mortgage bankers, accountants, and cost engineers",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:33.599592+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Mortgage bankers, accountants, and cost engineers",
+      "proposal_supported_by_substring": true,
+      "question": "Who are likely participants in creating an overall plan for the financial management of the building construction project?",
+      "record_id": "squad:0025:e32237eb13f4",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "e32237eb13f46727755bd53347a189c0620b3ffff778cecbcd627a94fbebc022",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Construction"
+      },
+      "status": "verified"
+    },
+    "squad:0026:9b37608c96e1": {
+      "accepted_answer": "Steymann v Staatssecretaris van Justitie",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:34.443783+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Steymann v Staatssecretaris van Justitie",
+      "proposal_supported_by_substring": true,
+      "question": "In which case did a German man claim the right to live in Netherlands where he was a volunteer plumber?",
+      "record_id": "squad:0026:9b37608c96e1",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "9b37608c96e15deba5be60fd99f3bbf701e5b780225fc1b43915af95af47077c",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "European_Union_law"
+      },
+      "status": "verified"
+    },
+    "squad:0027:f4dabeabfa17": {
+      "accepted_answer": "Trio Tribe",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:34.802980+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Trio Tribe",
+      "proposal_supported_by_substring": true,
+      "question": "What tribe uses GPS devices to map lands?",
+      "record_id": "squad:0027:f4dabeabfa17",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "f4dabeabfa17830c3d2d8edab044167839ef11bb080d2f91289d80dffa01dc27",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Amazon_rainforest"
+      },
+      "status": "verified"
+    },
+    "squad:0028:57ea608fc0f4": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:35.195655+00:00",
+      "presence_proposal": "supported",
+      "proposal": "many important problems can be shown to have more efficient solutions",
+      "proposal_supported_by_substring": true,
+      "question": "If P is ultimately proven to be equal tot NP, what effect would this have on the efficiency of problems?",
+      "record_id": "squad:0028:57ea608fc0f4",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "57ea608fc0f4249a93c9de52fc73db3ff0e90f245a9c336159e74c986a34743d",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Computational_complexity_theory"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0029:0d7d1211abfb": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:35.617740+00:00",
+      "presence_proposal": "supported",
+      "proposal": "sinking part of Storrow Drive for replacement with park land and pedestrian access to the Charles River",
+      "proposal_supported_by_substring": false,
+      "question": "What infrastructure will be improved in Storrow Drive?",
+      "record_id": "squad:0029:0d7d1211abfb",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "0d7d1211abfb3097fff9c179fab7dbf9f8d92d35c450072cdc237b4f3d8ea82a",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Harvard_University"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0030:d3a00727a3e3": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:36.074622+00:00",
+      "presence_proposal": "supported",
+      "proposal": "£40,000",
+      "proposal_supported_by_substring": false,
+      "question": "What to architects in the US/Canada earn yearly?",
+      "record_id": "squad:0030:d3a00727a3e3",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "d3a00727a3e30632468c777631dc072465335095156238321d5ff591c1c47875",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Construction"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0031:c6305dffc303": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:36.462590+00:00",
+      "presence_proposal": "supported",
+      "proposal": "brick-and-mortar community pharmacies",
+      "proposal_supported_by_substring": true,
+      "question": "Who often operates internet pharmacies?",
+      "record_id": "squad:0031:c6305dffc303",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "c6305dffc303d36cae10d75429cc053dc20ae8d1309eaab950d2703ef073570e",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Pharmacy"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0032:450ad678c686": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:36.886202+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Video On Demand service",
+      "proposal_supported_by_substring": true,
+      "question": "What did Virgin Media concentrate on instead of offering linear channels?",
+      "record_id": "squad:0032:450ad678c686",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "450ad678c6861fc9db13e4beb27c521357425d7920629491fe1bc940fa4ede2b",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Sky_(United_Kingdom)"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0033:b0cf21bf27f2": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:37.430739+00:00",
+      "presence_proposal": "supported",
+      "proposal": "shallow crust",
+      "proposal_supported_by_substring": true,
+      "question": "Where do thrust faults form?",
+      "record_id": "squad:0033:b0cf21bf27f2",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "b0cf21bf27f200003b49114240dd961527b95fe1ea1f273726d8d630f7506cf9",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Geology"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0034:18893f714ac1": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:37.874973+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What can and old, ill man not do?",
+      "record_id": "squad:0034:18893f714ac1",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "18893f714ac102ba660ec3790204ffdf2ee86fd4cd069c50ec0ceeaed01cefbd",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Economic_inequality"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0035:6cbc27f4f6c1": {
+      "accepted_answer": "Article 17(3)",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:38.580800+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Article 17(3)",
+      "proposal_supported_by_substring": true,
+      "question": "Which article of the Treaty on European Union states that Commissioners should be completely independent and not take instructions from any Government?",
+      "record_id": "squad:0035:6cbc27f4f6c1",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "6cbc27f4f6c138ccfcb20b6f35d4cfadf8769e46c293c5a0c77d0edbf311f58d",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "European_Union_law"
+      },
+      "status": "verified"
+    },
+    "squad:0036:0b13637d765e": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:39.442674+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Unfair Commercial Practices Directive",
+      "proposal_supported_by_substring": true,
+      "question": "Under which Directive did the EU harmonize restrictions on restrictions on marketing and advertising?",
+      "record_id": "squad:0036:0b13637d765e",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "0b13637d765e595a303e2580975cf2d7d8948022bf44ddefd6f0eff6b8df1684",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "European_Union_law"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0037:68cd564f9e51": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:39.900319+00:00",
+      "presence_proposal": "supported",
+      "proposal": "lower level of human capital formation",
+      "proposal_supported_by_substring": true,
+      "question": "Inequality in the presence of credit market imperfections has what kind of effect on human capital formation?",
+      "record_id": "squad:0037:68cd564f9e51",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "68cd564f9e510dca0c3554774995fc8d352aac44126d4a3d512117ab3b855c6e",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Economic_inequality"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0038:482cc8356a93": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:40.366628+00:00",
+      "presence_proposal": "supported",
+      "proposal": "30 to 50 thousand",
+      "proposal_supported_by_substring": true,
+      "question": "How many people were lost in Algiers during 1620-21?",
+      "record_id": "squad:0038:482cc8356a93",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "482cc8356a93089acbdd93a4535c71be03a9b3d51facfa839ee7d6646a0a3bfd",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Black_Death"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0039:01e35725510a": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:40.829162+00:00",
+      "presence_proposal": "supported",
+      "proposal": "it differs from the present high school education, which is regarded as a stepping-stone to acquire college and advanced degrees.",
+      "proposal_supported_by_substring": true,
+      "question": "How did the education during the high school education movement differ from the subsequent high school education?",
+      "record_id": "squad:0039:01e35725510a",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "01e35725510ad6491f4169dee36ee61ec70d6931d5fb53003c0e2c6a4bd2a611",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Economic_inequality"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0040:702b27fc97e0": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:41.330039+00:00",
+      "presence_proposal": "supported",
+      "proposal": "New Netherland",
+      "proposal_supported_by_substring": false,
+      "question": "Besides Nova Scotia what was another British colony in North America?",
+      "record_id": "squad:0040:702b27fc97e0",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "702b27fc97e08ab514f3c58b2a2f6a8afddd58c1701fe5d11c1af9c85471d783",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Huguenot"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0041:07329d2931c0": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:41.825731+00:00",
+      "presence_proposal": "supported",
+      "proposal": "clapping their lobes",
+      "proposal_supported_by_substring": true,
+      "question": "What does the bathocyroe and ocyropsis do to escape danger?",
+      "record_id": "squad:0041:07329d2931c0",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "07329d2931c0ce6c3dad2ef45fb8898b17becf72c1aea534e734c98af62ad377",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Ctenophora"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0042:093a00ac36f3": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:42.212219+00:00",
+      "presence_proposal": "supported",
+      "proposal": "shared by everyone",
+      "proposal_supported_by_substring": true,
+      "question": "How are the certain costs which are difficult to avoid shared?",
+      "record_id": "squad:0042:093a00ac36f3",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "093a00ac36f342e74a03659e5c02e73a774dac79d4b9e787da92a64a4b517943",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Economic_inequality"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0043:03eb6accc47f": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:42.566153+00:00",
+      "presence_proposal": "supported",
+      "proposal": "time and space complexity",
+      "proposal_supported_by_substring": true,
+      "question": "What complex measurements were defined by \"On the Computational Complexity of Algorithms\"?",
+      "record_id": "squad:0043:03eb6accc47f",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "03eb6accc47f8f37613f49787d90a7cde1808cd11e3eca574b283b3e63a9aa56",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Computational_complexity_theory"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0044:385d26c2d993": {
+      "accepted_answer": "villes de sûreté",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:42.961722+00:00",
+      "presence_proposal": "supported",
+      "proposal": "villes de sûreté",
+      "proposal_supported_by_substring": true,
+      "question": "What were the towns granted to the Huguenots in 1598 collectively called?",
+      "record_id": "squad:0044:385d26c2d993",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "385d26c2d9938088181ecd6b3120582d075635f9838e132747efaaf577e28109",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Huguenot"
+      },
+      "status": "verified"
+    },
+    "squad:0045:9a83164fe221": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:43.349578+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Sunnyside Country Club",
+      "proposal_supported_by_substring": true,
+      "question": "Where is the home of the Sunnyside Country Club?",
+      "record_id": "squad:0045:9a83164fe221",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "9a83164fe22168da561ee3f57125658d4ef64b378429778d40c67af0fbc052d7",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Fresno,_California"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0046:30b96d00b6ab": {
+      "accepted_answer": "267",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:43.979972+00:00",
+      "presence_proposal": "supported",
+      "proposal": "267",
+      "proposal_supported_by_substring": true,
+      "question": "How many homes did the Alta Vista Tract have five years after Billings & Meyering acquired it?",
+      "record_id": "squad:0046:30b96d00b6ab",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "30b96d00b6abd2b913c23d97aa914ef7cf8a50107f4b66ea802e13359d9c0d58",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Fresno,_California"
+      },
+      "status": "verified"
+    },
+    "squad:0047:dbfbff5b6105": {
+      "accepted_answer": "automation",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:44.345796+00:00",
+      "presence_proposal": "supported",
+      "proposal": "automation",
+      "proposal_supported_by_substring": true,
+      "question": "What do pharmacy technicians depend on more and more?",
+      "record_id": "squad:0047:dbfbff5b6105",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "dbfbff5b6105a52bac9a00a207444dd2cba3a97e33a1d1a82edb0389f6cac1e9",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Pharmacy"
+      },
+      "status": "verified"
+    },
+    "squad:0048:1629b48b9aae": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:45.501966+00:00",
+      "presence_proposal": "supported",
+      "proposal": "25 per cent",
+      "proposal_supported_by_substring": true,
+      "question": "What is the minimum percent of alcohol content a German law requires all spirits and liqueurs to have?",
+      "record_id": "squad:0048:1629b48b9aae",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "1629b48b9aae07c00bf8bd9ec7d76d9982b5e645f832551c105d868a0f34f81e",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "European_Union_law"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0049:6cbc27f4f6c1": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:46.189682+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What was not the main executive body of the EU?",
+      "record_id": "squad:0049:6cbc27f4f6c1",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "6cbc27f4f6c138ccfcb20b6f35d4cfadf8769e46c293c5a0c77d0edbf311f58d",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "European_Union_law"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0050:891950705a40": {
+      "accepted_answer": "African-American",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:46.599932+00:00",
+      "presence_proposal": "supported",
+      "proposal": "African-American",
+      "proposal_supported_by_substring": true,
+      "question": "School desegregation in the United States led to an increased number of students of what ethnicity in public schools?",
+      "record_id": "squad:0050:891950705a40",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "891950705a403bc6367740ae6d2db4901c0b1890a28fc1726ed1f707a2909c32",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Private_school"
+      },
+      "status": "verified"
+    },
+    "squad:0051:c7c7ec362f04": {
+      "accepted_answer": "Brazil",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:47.142862+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Brazil",
+      "proposal_supported_by_substring": true,
+      "question": "In what country can most of the Amazon rainforest be found?",
+      "record_id": "squad:0051:c7c7ec362f04",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "c7c7ec362f0439a4c9ad1edead0e0f7505b22fd24ce7be23b8711356cdcda6a3",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Amazon_rainforest"
+      },
+      "status": "verified"
+    },
+    "squad:0052:291631d73d5d": {
+      "accepted_answer": "closed Huguenot schools",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:47.528093+00:00",
+      "presence_proposal": "supported",
+      "proposal": "closed Huguenot schools",
+      "proposal_supported_by_substring": true,
+      "question": "What did the king do to regarding Huguenot education?",
+      "record_id": "squad:0052:291631d73d5d",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "291631d73d5dcdb57b0941017d7b1ab7a9501e869a33f4c995211b70c5487c88",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Huguenot"
+      },
+      "status": "verified"
+    },
+    "squad:0053:2313f2d61a68": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:47.887267+00:00",
+      "presence_proposal": "supported",
+      "proposal": "San Joaquin Valley Railroad",
+      "proposal_supported_by_substring": false,
+      "question": "Who took over the San Joaquin Valley Railroad branchlines?",
+      "record_id": "squad:0053:2313f2d61a68",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "2313f2d61a682bc65173ff0058fcaf0f307a9e3925747c90df3c178cdcf53308",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Fresno,_California"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0054:9867017bbd82": {
+      "accepted_answer": "Pedro Menéndez de Avilés",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:48.340144+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Pedro Menéndez de Avilés",
+      "proposal_supported_by_substring": true,
+      "question": "Which Spanish officer established the settlement at St. Augustine?",
+      "record_id": "squad:0054:9867017bbd82",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "9867017bbd82b6ead270fd4186419e6e4523be5168798139a5848593a87e9cb4",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Huguenot"
+      },
+      "status": "verified"
+    },
+    "squad:0055:cc9d8349d8e4": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:48.717098+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "What region does use the term 'private schools' to refer to universities?",
+      "record_id": "squad:0055:cc9d8349d8e4",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "cc9d8349d8e4f4705aae8eb7860e4098c56d15c587275bc98e41b37e1702ebfa",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Private_school"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0056:e7ec0cd3aac9": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:49.212172+00:00",
+      "presence_proposal": "supported",
+      "proposal": "元朝",
+      "proposal_supported_by_substring": false,
+      "question": "What is the Chinese name for the Yuan dynasty?",
+      "record_id": "squad:0056:e7ec0cd3aac9",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "e7ec0cd3aac9781316be9d6ab44c0c548df3690a3d5194acc26a123ff6e85d5c",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Yuan_dynasty"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0057:3b7ac2e35093": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": false,
+      "observed_at": "2026-07-30T09:39:49.673663+00:00",
+      "presence_proposal": "supported",
+      "proposal": "Chemical catalysts",
+      "proposal_supported_by_substring": true,
+      "question": "What other catalysts can be used to produce oxygen?",
+      "record_id": "squad:0057:3b7ac2e35093",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "3b7ac2e35093c9f8c2b22f00bf75316eee3b144d65fffac08fff051c11609234",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Oxygen"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0058:85280982cc4e": {
+      "accepted_answer": null,
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:50.111101+00:00",
+      "presence_proposal": "unsupported",
+      "proposal": "ABSTAIN",
+      "proposal_supported_by_substring": false,
+      "question": "Who wrote the paper \"Reductibility Among Combinatorial Problems\" in 1974?",
+      "record_id": "squad:0058:85280982cc4e",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "85280982cc4ee3fe931d5767fcaa5f1dfbab2804f71c4ac8ac953b8ad303f0d0",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Computational_complexity_theory"
+      },
+      "status": "abstained_or_rejected"
+    },
+    "squad:0059:083e9d9d0cfb": {
+      "accepted_answer": "the owner",
+      "evaluation_authority_verified": true,
+      "observed_at": "2026-07-30T09:39:50.529645+00:00",
+      "presence_proposal": "supported",
+      "proposal": "the owner",
+      "proposal_supported_by_substring": true,
+      "question": "Constructing a project that fails to adhere to codes does not benefit whom?",
+      "record_id": "squad:0059:083e9d9d0cfb",
+      "schema_version": "aion.open_document.knowledge.v1",
+      "source": {
+        "content_sha256": "083e9d9d0cfbbf2b79a24cc1f179a5db6a5e51a410187c56fa5c8d726cd26992",
+        "dataset": "squad_v2",
+        "revision": "3ffb306f725f7d2ce8394bc1873b24868140c412",
+        "split": "validation",
+        "title": "Construction"
+      },
+      "status": "verified"
+    }
+  },
+  "open_document_projects": {},
+  "open_world_projects": {},
+  "outcomes": [],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_open_document_v2_723cbb2ca787": {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "accepted_precision": 1.0,
+          "documents": 60,
+          "errors": [],
+          "multi_document_syntheses": 9,
+          "presence_accuracy": 0.8166666666666667,
+          "provenance_completeness": 1.0,
+          "raw_exact_or_abstain_accuracy": 0.48333333333333334,
+          "unanswerable_abstention_accuracy": 0.5555555555555556,
+          "unsafe_committed_answers": 0,
+          "unsafe_substring_acceptances_before_authority": 19,
+          "verified_answer_coverage": 0.4523809523809524
+        }
+      },
+      "goal": "open_document_intelligence",
+      "procedure_id": "procedure_open_document_v2_723cbb2ca787",
+      "promoted_at": "2026-07-30T09:39:50.531328+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.4523809523809523,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "ingest_arbitrary_document_text",
+        "hash_and_locate_source",
+        "propose_answer_or_abstain",
+        "verify_before_knowledge_commit",
+        "synthesise_only_verified_claims"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "9b5ef0337e95c855e00851d2c523681822d8d00128131cf4eaab6db53679de57",
+      "goal": "open_document_intelligence",
+      "new_champion_id": "procedure_open_document_v2_723cbb2ca787",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.4523809523809523,
+      "timestamp": "2026-07-30T09:39:50.531420+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "relation_models": {},
+  "revision": 2,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T09:39:50.538507+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_rules": {}
+}

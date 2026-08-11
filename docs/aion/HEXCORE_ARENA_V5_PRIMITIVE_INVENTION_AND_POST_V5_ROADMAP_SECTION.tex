@@ -1,0 +1,618 @@
+% ============================================================================
+% AION HexCore: Arena v5 primitive invention and post-v5 research roadmap
+% Standalone section fragment for inclusion in the main AION paper.
+% Requires: amsmath, array.
+% ============================================================================
+
+\section{Primitive Invention and the Post-v5 Roadmap}
+\label{sec:arena-v5-and-roadmap}
+
+Arena v5 addresses the principal remaining limitation of Arena v4.  Arena v4
+could criticise its complete program grammar and abstain, but it could not
+construct a new executable primitive when every program in that grammar failed.
+Arena v5 introduces residual-driven primitive construction while retaining the
+same separation between proposal and authority.
+
+The internally promoted procedure is
+\begin{center}
+{\footnotesize
+\texttt{procedure\_residual\_driven\_primitive\_invention\_v5\_35b31ad85c20}}.
+\end{center}
+Its parent is
+\begin{center}
+{\footnotesize
+\texttt{procedure\_open\_experiment\_program\_arena\_v4\_7b66f2843ca9}}.
+\end{center}
+
+
+\subsection{Research question and authority contract}
+\label{subsec:arena-v5-question}
+
+The experiment asks whether AION can detect systematic residual structure
+outside its retained action grammar, construct a private executable
+representation, actively falsify that representation, limit its complexity,
+transfer it to renamed projects, and abstain when the enlarged meta-grammar is
+still inadequate.
+
+The governed pipeline is
+\begin{equation}
+\begin{split}
+\text{retained Arena v4 grammar exhausted}
+&\rightarrow \text{structured residual detected} \\
+&\rightarrow \text{private model-family challengers} \\
+&\rightarrow \text{maximum-disagreement queries} \\
+&\rightarrow \text{parameter fitting and complexity pressure} \\
+&\rightarrow \text{held-out validation} \\
+&\rightarrow \text{security and complexity scan} \\
+&\rightarrow \text{independent-process execution} \\
+&\rightarrow \text{source-disjoint transfer} \\
+&\rightarrow \text{CAU promotion, rollback, or abstention}.
+\end{split}
+\label{eq:arena-v5-pipeline}
+\end{equation}
+
+The previously retained grammar contained raw, mean, median, clipping, and lag
+operations.  It could not express either the nonlinear development response or
+the state-carrying temporal response.  Neural or language proposals could
+suggest a representation, but could not accept it, execute forbidden effects,
+or extend the retained primitive library.
+
+
+\subsection{Invented executable primitives}
+\label{subsec:arena-v5-primitives}
+
+\subsubsection{Nonlinear polynomial primitive}
+
+AION selected a fifth-degree polynomial implementation with identifier
+\begin{center}
+\texttt{primitive\_da3806a71ff8561d}.
+\end{center}
+The learned approximation was
+\begin{equation}
+\begin{split}
+y(x)={}&-3.40\times 10^{-17}
+       +0.997718x
+       +1.67\times 10^{-16}x^2 \\
+     &-0.162831x^3
+       -3.81\times 10^{-17}x^4
+       +0.006727x^5.
+\end{split}
+\label{eq:arena-v5-polynomial}
+\end{equation}
+The near-zero even coefficients were learned rather than imposed.  The
+implementation remained within the declared eight-parameter ceiling.
+
+
+\subsubsection{State-carrying affine primitive}
+
+A second primitive, identified as
+\begin{center}
+\texttt{primitive\_169b31b28601ccaf},
+\end{center}
+learned the recursive transition
+\begin{equation}
+y_t=0.15+0.55x_t+0.65y_{t-1}.
+\label{eq:arena-v5-stateful}
+\end{equation}
+This is not a static input--output curve: the primitive explicitly stores and
+updates a continuous internal state.
+
+
+\subsection{Active falsification and model selection}
+\label{subsec:arena-v5-falsification}
+
+Private challengers included polynomial models of degrees one, three, five,
+and seven, together with a stateful affine model.  At each investigation round,
+AION selected a query on which the three strongest candidates disagreed most.
+Incorrect candidates were recorded as concrete counterexamples rather than
+collapsed into a generic failure label.
+
+Model selection minimized
+\begin{equation}
+J(h)=\operatorname{MSE}_{\mathrm{train}}(h)
+     +10^{-6}C(h),
+\label{eq:arena-v5-mdl}
+\end{equation}
+where $C(h)$ is the number of executable parameters.  This minimum-description
+pressure prevented a higher-degree polynomial from winning for a negligible
+training-only improvement.
+
+Only two confirmation queries were allowed for each sealed transfer world.
+The remaining cases were revealed to the independent executable verifier only
+after selection.
+
+
+\subsection{Independent executable verification}
+\label{subsec:arena-v5-execution}
+
+Accepted representations were serialized as data and passed to a fresh,
+isolated Python interpreter that did not import the fitting implementation.
+The interpreter admitted only two executable schemas:
+\begin{itemize}
+  \item polynomial evaluation; and
+  \item stateful affine recurrence.
+\end{itemize}
+
+Filesystem access, network access, dynamic execution, and authority writes were
+absent from the executable schema.  A valid fitted representation without a
+passing security schema could not reach the interpreter.
+
+
+\subsection{Source-disjoint transfer results}
+\label{subsec:arena-v5-results}
+
+The two primitives were transferred to six renamed sealed worlds: three
+nonlinear-response projects and three stateful-feedback projects.
+
+\begin{center}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{7.0cm}|c|}
+\hline
+\textbf{Measure} & \textbf{Result} \\
+\hline
+Invented executable primitives & $2$ \\
+\hline
+Source-disjoint transfer worlds & $6$ \\
+\hline
+Transfer / weakest-family success & $100\%/100\%$ \\
+\hline
+Independent-process execution rate & $100\%$ \\
+\hline
+Old-grammar mean RMSE & $0.656705$ \\
+\hline
+Invented-primitive mean RMSE & $0.000354$ \\
+\hline
+Prediction-error reduction & $99.946\%$ \\
+\hline
+Environment-query reduction versus cold invention & $60.00\%$ \\
+\hline
+Active counterexamples & $3$ \\
+\hline
+Malicious implementations rejected & $4/4$ \\
+\hline
+Unsafe executions / live writes & $0/0$ \\
+\hline
+Restart relearning & $0$ \\
+\hline
+\end{tabular}
+\end{center}
+
+The aggregate prediction improvement was
+\begin{equation}
+1-\frac{0.000353565}{0.656705}=99.946\%.
+\label{eq:arena-v5-error-reduction}
+\end{equation}
+Prior transfer also reduced real confirmation cost by $60\%$ relative to cold
+primitive invention.  The stateful primitive recovered its coefficients to
+floating-point precision, while the nonlinear primitive achieved mean sealed
+RMSE of approximately $0.000707$ in each nonlinear transfer world.
+
+
+\subsection{Meta-grammar criticism, security, and persistence}
+\label{subsec:arena-v5-criticism}
+
+A discontinuous sign-response world was deliberately outside the polynomial
+acceptance envelope and the stateful-affine explanation.  The best challenger
+produced validation RMSE $0.206$ against a maximum permitted value of $0.015$.
+Arena v5 rejected the challenger and abstained.  Primitive invention therefore
+did not become permission to retain the least-bad available approximation.
+
+Four malicious proposals requested dynamic Python execution, network access,
+filesystem writing, or authority override.  All four failed the schema and
+security gate before execution.  The primitive implementations, hashes,
+authority records, generation record, and champion survived full runtime
+reconstruction with zero relearning.
+
+
+\subsection{Capability progression and interpretation}
+\label{subsec:arena-v5-progression}
+
+The operational progression across the three latest arenas is
+\begin{equation}
+\begin{aligned}
+\text{Arena v3:}&\quad \text{learn when a complete repair is required},\\
+\text{Arena v4:}&\quad \text{compose a new action from known primitives},\\
+\text{Arena v5:}&\quad \text{construct a new primitive when known primitives fail}.
+\end{aligned}
+\label{eq:arena-v3-v5-progression}
+\end{equation}
+
+This is a bounded representation-learning advance.  The system is no longer
+restricted to recombining the Arena v4 vocabulary for the tested continuous
+families.  It does not establish unrestricted representation invention: the
+polynomial and stateful-affine meta-families, query pool, controlled outcomes,
+parameter ceilings, and evaluator remained engineered.
+
+
+\subsection{Correction to the older AGI-gap assessment}
+\label{subsec:post-v5-agi-assessment}
+
+An external review correctly identified several important AGI gaps but assessed
+the older Arena v2 system.  Arena v3--v5 change the current position as follows.
+
+\begin{center}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{3.2cm}|>{\raggedright\arraybackslash}p{8.4cm}|}
+\hline
+\textbf{Older assessment} & \textbf{Correction after Arena v5} \\
+\hline
+Complete actions are fixed & Arena v4 composes complete programs; Arena v5 constructs bounded nonlinear and stateful primitives.  The lower-level meta-grammar remains engineered. \\
+\hline
+Tasks are short and static & Arena v3 handles changing four-milestone projects with forced reconstruction, but not multi-day or multi-week autonomy. \\
+\hline
+World models are text-only & Earlier causal phases and Arena v3/v5 include continuous traces and learned state.  Natural physical and visual grounding remains weak. \\
+\hline
+Neural weights are static & Structured memory and private neural consolidation exist, but safe continual representation-weight plasticity is not operational at broad scale. \\
+\hline
+Evaluation is internally controlled & This remains correct.  CAU is internal governance, not independent external certification. \\
+\hline
+\end{tabular}
+\end{center}
+
+A numerical placement on a ``100-step AGI ladder'' is not a reproducible
+scientific measurement and is not adopted.  Progress is instead measured using
+declared capability gates, component ablations, independent outcomes, transfer,
+retention, and external evaluation.
+
+
+\subsection{Refreshed remaining research programme}
+\label{subsec:post-v5-priorities}
+
+Programming, causal reasoning, semantic memory, evidence acquisition, changing
+projects, program composition, and bounded primitive invention now operate as
+capabilities within the integrated arena.  They are not separate critical paths
+unless a broad arena exposes a specific regression.
+
+The remaining priorities are:
+\begin{enumerate}
+  \item \textbf{Independently owned delayed outcomes.} Connect projects to
+        externally maintained repository tests, independently changing
+        databases or services, later public observations, independently
+        authored document questions, and human judgments where execution
+        cannot define correctness.
+
+  \item \textbf{Natural multimodal and physical grounding.} Integrate real
+        images, diagrams, layouts, charts, tables, audio, spatial state,
+        uncertain sensors, delayed actuation, object persistence, and resource
+        constraints.  Filename and pixel-statistic shortcuts are insufficient.
+
+  \item \textbf{Human commonsense, social, creative, and multi-agent
+        intelligence.} Use human-authored situations and several independent
+        raters.  Retain legitimate disagreement; measure perspective,
+        incentives, norms, consent, manipulation, negotiation, novelty,
+        usefulness, and consistency.  The objective is controlled competence,
+        not self-preservation or authority seeking.
+
+  \item \textbf{Long-lived continual intelligence.} Expand from four
+        milestones to hours- or days-long projects and eventually thousands of
+        changing tasks.  Measure forward transfer, backward retention,
+        calibration, weakest-family performance, cost, complexity, retirement,
+        revival, and component replacement.
+
+  \item \textbf{Open tool, API, and environment acquisition.} Discover public
+        interfaces, infer types and side effects, construct private adapters in
+        disposable environments, and retain them only after security,
+        behavioral, and source-disjoint transfer gates.  Credentials, payments,
+        deployment, and irreversible effects remain approval-gated.
+
+  \item \textbf{Safe online plasticity.} Immediate learning occurs in episodic,
+        semantic, causal, and skill memory.  Private neural challengers learn
+        only from provenance-bearing verified outcomes and must pass replay,
+        forgetting, calibration, weakest-family, and unsafe-acceptance gates
+        before reversible promotion.
+
+  \item \textbf{Replaceable substrate tournament.} Compare suitable
+        $500$M--$3$B and stronger proposal substrates under identical HexCore
+        evidence, tool, action, compute, outcome, and CAU budgets.
+
+  \item \textbf{Native cognitive consolidation.} Train replaceable AION-native
+        proposal and retrieval components from verified trajectories without
+        allowing neural plausibility to become accepted knowledge.
+
+  \item \textbf{Independent external administration.} An external evaluator
+        must own hidden portfolios, solutions, outcomes, budgets, and scoring,
+        including matched AION ablations, frontier agents, open systems,
+        specialist learners, and human baselines.
+\end{enumerate}
+
+
+\subsection{Dual-timescale plasticity contract}
+\label{subsec:dual-timescale-plasticity}
+
+The roadmap does not equate intelligence with unrestricted live
+backpropagation.  Production weights must not rewrite themselves from
+unverified experience.  The required design is
+\begin{equation}
+\begin{split}
+\text{observed experience}
+&\rightarrow \text{immediate structured memory} \\
+&\rightarrow \text{verified outcome and provenance} \\
+&\rightarrow \text{private neural challenger} \\
+&\rightarrow \text{replay and backward-retention audit} \\
+&\rightarrow \text{calibration, safety, and weakest-family gates} \\
+&\rightarrow \text{reversible CAU promotion or rejection}.
+\end{split}
+\label{eq:dual-timescale-plasticity}
+\end{equation}
+
+This preserves rapid experience-dependent learning without allowing a single
+unverified event to rotate or corrupt the production representation.
+
+
+\subsection{Evidence required for an AGI claim}
+\label{subsec:agi-evidence-gates}
+
+No phase count, internal score, or architecture feature can authorize an AGI
+claim.  Credible evidence would require all of the following under independent
+administration:
+\begin{itemize}
+  \item broad transfer across unfamiliar language, research, code,
+        mathematics, science, physical, social, and creative domains;
+  \item autonomous decomposition and recovery on long projects without a
+        hidden supplied workflow;
+  \item learning from independently owned consequences with positive forward
+        transfer;
+  \item continual improvement without serious backward forgetting;
+  \item robust natural multimodal and physical grounding;
+  \item calibrated social judgment with legitimate disagreement retained;
+  \item invention of tools and representations beyond development task menus;
+  \item safe abstention and human escalation under uncertainty;
+  \item matched resource comparisons with frontier agents and human baselines;
+        and
+  \item reproducibility by an evaluator independent of system and task
+        development.
+\end{itemize}
+
+Arena v5 supplies evidence for bounded primitive invention and transfer only.
+It does not satisfy these broader AGI gates.  The immediate critical path is
+independent outcome authority rather than additional internally generated
+$100\%$ cohorts.
+
+
+% ============================================================================
+% AGI evidence authority registry and external certification pathway
+% ============================================================================
+
+\section{AGI Evidence Authority Registry and External Certification Pathway}
+\label{sec:agi-evidence-authority-registry}
+
+The post-v5 roadmap identifies independent evidence authority as the principal
+remaining credibility constraint.  AION therefore implements an executable
+registry that maps retained capability artifacts to the ten AGI evidence gates
+while preserving the distinction among internal sealed evaluation,
+independently maintained public outcomes, and independently administered
+certification.  The promoted control-plane procedure is
+\begin{center}
+{\footnotesize
+\texttt{procedure\_agi\_evidence\_authority\_registry\_v1\_9b6e63c112a4}}.
+\end{center}
+Promotion applies to the evidence-control mechanism only.  The AGI claim flag
+remains false.
+
+
+\subsection{Evidence and authority architecture}
+\label{subsec:agi-registry-architecture}
+
+The registry executes the following chain:
+\begin{equation}
+\begin{split}
+\text{retained capability artifacts}
+&\rightarrow \text{SHA-256 commitments and field contracts} \\
+&\rightarrow \text{authority classification} \\
+&\rightarrow \text{ten explicit AGI evidence gates} \\
+&\rightarrow \text{frozen external-evaluator handoff} \\
+&\rightarrow \text{signed result verification} \\
+&\rightarrow \text{CAU acceptance or continued denial}.
+\end{split}
+\label{eq:agi-registry-pipeline}
+\end{equation}
+
+Twelve source artifacts are committed.  Each registry row stores the artifact
+path, cryptographic digest, authority class, required result fields, declared
+claim boundary, and integrity result.  The authority taxonomy is
+\begin{equation}
+\mathcal{A}=\{
+  \text{internal sealed},
+  \text{externally sourced public},
+  \text{externally administered}
+\}.
+\label{eq:agi-authority-classes}
+\end{equation}
+Evidence may move between classes only when the corresponding authority
+requirements are actually satisfied.  Public data are therefore not promoted
+to external certification merely because AION did not create the underlying
+source.
+
+
+\subsection{Externally sourced outcome bridge}
+\label{subsec:external-outcome-bridge}
+
+Four existing result families were linked to independently maintained public
+outcomes.
+
+\begin{center}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{2.8cm}|>{\raggedright\arraybackslash}p{3.3cm}|>{\raggedright\arraybackslash}p{5.7cm}|}
+\hline
+\textbf{Family} & \textbf{Authority} & \textbf{Recorded evidence and boundary} \\
+\hline
+Continuous sensing & NOAA/NCEI GHCN daily station \texttt{SP000003195} & Chronological test $R^2=0.89109$; real public sensor transfer, not independent certification. \\
+\hline
+Software repair & Public SWE-bench Lite repository histories & Source-disjoint repair with the human patch hidden during search; public repository outcome, not final hidden administration. \\
+\hline
+Semantic memory & Official Python, NASA, and U.S. National Archives sources and questions & Delayed memory-only accuracy $91.67\%$ with exact provenance; externally authored public questions, not contamination-proof evaluation. \\
+\hline
+General reasoning & Public human-authored validation sets & Mean accuracy $72.5\%$ and weakest-family accuracy $62.5\%$; public transfer evidence with pretraining contamination not excluded. \\
+\hline
+\end{tabular}
+\end{center}
+
+All four bridges passed their declared artifact contracts.  The aggregate
+classification is deliberately
+\begin{center}
+\texttt{EXTERNALLY\_SOURCED\_OUTCOMES\_PARTIAL\_NOT\_EXTERNAL\_CERTIFICATION}.
+\end{center}
+
+
+\subsection{Status of the ten AGI evidence gates}
+\label{subsec:agi-gate-status}
+
+Table~\ref{tab:agi-evidence-status} records the current evidence without
+converting bounded success into a general claim.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Executable AGI evidence-gate registry after Arena v5.}
+\label{tab:agi-evidence-status}
+\begin{tabular}{|>{\raggedright\arraybackslash}p{3.4cm}|>{\raggedright\arraybackslash}p{3.1cm}|>{\raggedright\arraybackslash}p{6.0cm}|}
+\hline
+\textbf{Evidence gate} & \textbf{Current status} & \textbf{Principal remaining requirement} \\
+\hline
+Broad unfamiliar-domain transfer & Partial internal and public & Natural physical, social, creative, and independently hidden breadth. \\
+\hline
+Autonomous long-project decomposition & Partial internal & Hours- or days-long operation against independently changing systems. \\
+\hline
+Learning from independently owned consequences & Partial externally sourced & Administrator-controlled delayed reveal and scoring. \\
+\hline
+Continual improvement without forgetting & Bounded internal pass & Long-duration human-authored arena and external replay authority. \\
+\hline
+Natural multimodal and physical grounding & Partial public natural multimodal & Native audio/video, spatial action, and independently administered physical consequences. \\
+\hline
+Social, commonsense, and creative judgment & Blocked on external human authority & Independent multi-rater cohort with legitimate disagreement retained. \\
+\hline
+Tool and representation invention & Bounded internal pass & Unfamiliar APIs and environments with independently measured real-project value. \\
+\hline
+Safe abstention and human escalation & Partial internal & Measured escalation correctness, usefulness, and response time. \\
+\hline
+Matched frontier and human comparison & Partial substrate-only & Frontier agents, open agents, specialists, and humans under one external budget. \\
+\hline
+Independent reproducibility & Blocked on external administrator & Independent ownership of tasks, outcomes, scoring, logs, and reproduction. \\
+\hline
+\end{tabular}
+\end{table}
+
+Thus, two gates have bounded internal passes, six contain meaningful partial
+evidence, and two remain blocked on genuinely external authority.  No gate is
+marked externally verified.
+
+
+\subsection{Frozen evaluator contract}
+\label{subsec:agi-evaluator-contract}
+
+The external handoff requires eight portfolio families:
+\begin{enumerate}
+  \item unfamiliar language and long-document research;
+  \item mathematics and formal reasoning;
+  \item source-disjoint software engineering;
+  \item scientific model invention and prediction;
+  \item natural multimodal and physical grounding;
+  \item long-horizon changing projects;
+  \item social, commonsense, and multi-agent judgment; and
+  \item creative synthesis with independent raters.
+\end{enumerate}
+
+Every portfolio must be evaluated using matched information, tool, compute,
+and time budgets.  Required systems are complete AION; AION without accumulated
+memory; AION without its causal world model; AION without neural proposals;
+AION without HexCore verification where that ablation can be run safely; a
+frontier agent; a strong open agent; and qualified humans.
+
+Before AION receives a task, the evaluator must freeze commitments to the
+portfolio, delayed outcomes, human-rater panel, matched budgets, and answer
+reveals.  The audit then reports mean and weakest-family performance, forward
+transfer, backward retention, unsafe acceptance, abstention, human escalation,
+restart recovery, component replacement, source overlap, and complete execution
+logs.  The development process is explicitly forbidden from self-certifying
+this contract.
+
+
+\subsection{Cryptographic result return}
+\label{subsec:agi-signed-return}
+
+External results are returned in a signed
+\texttt{aion.external.agi\_evidence\_attestation.v1} envelope.  Let $M$ denote
+the canonical JSON encoding of the complete envelope excluding its signature,
+and let $sk_E$ and $pk_E$ be the evaluator's Ed25519 private and public keys.
+The evaluator publishes
+\begin{equation}
+\sigma_E=\operatorname{Ed25519.Sign}_{sk_E}(M),
+\qquad
+\operatorname{Ed25519.Verify}_{pk_E}(M,\sigma_E)=\mathrm{true}.
+\label{eq:agi-ed25519-attestation}
+\end{equation}
+
+The verifier rejects the envelope if any result changes after signing, if a
+required portfolio or comparison is absent, if any audit flag fails, if any of
+the ten evidence gates is missing, or if reproduction artifacts and logs are
+incomplete.  A signature authenticates the submitted statement; it cannot by
+itself prove that the evaluator is institutionally independent or that its
+measurements are scientifically valid.  Those properties still require public
+audit and reproduction.
+
+
+\subsection{Executed registry result}
+\label{subsec:agi-registry-results}
+
+\begin{center}
+\small
+\begin{tabular}{|>{\raggedright\arraybackslash}p{7.2cm}|c|}
+\hline
+\textbf{Measure} & \textbf{Result} \\
+\hline
+Committed capability artifacts & $12$ \\
+\hline
+Artifact integrity & $100\%$ \\
+\hline
+AGI evidence gates represented & $10/10$ \\
+\hline
+Externally maintained public outcome families connected & $4/4$ \\
+\hline
+Required external portfolio families & $8$ \\
+\hline
+Required matched systems and ablations & $8$ \\
+\hline
+Mandatory audit requirements & $10$ \\
+\hline
+Externally verified AGI gates & $0$ \\
+\hline
+Gates blocked on outside authority & $2$ \\
+\hline
+Registry restart retention / relearning & $100\%/0$ \\
+\hline
+Focused verification & $12/12$ tests passed \\
+\hline
+AGI claim authorized & \textbf{No} \\
+\hline
+\end{tabular}
+\end{center}
+
+Registry persistence is itself governed.  A full runtime reconstruction must
+retain the registry identifier, control-plane champion, artifact commitments,
+and denial of the AGI claim with zero artifact replay.
+
+
+\subsection{Resulting execution order and claim boundary}
+\label{subsec:agi-registry-next-work}
+
+The remaining programme is now ordered by missing evidence rather than phase
+count:
+\begin{enumerate}
+  \item independently administered hidden evaluation;
+  \item independent human social, commonsense, and creative assessment;
+  \item natural multimodal and physical interaction beyond engineered files;
+  \item multi-hour and multi-day projects against externally changing systems;
+  \item open acquisition of unfamiliar tools, APIs, and environments;
+  \item longer continual generations with externally owned replay cohorts;
+  \item matched whole-system comparison with frontier agents and qualified
+        humans; and
+  \item published independent reproduction.
+\end{enumerate}
+
+This stage establishes a persistent evidence and authority control plane.  It
+shows that AION can consolidate its evidence, preserve provenance and authority
+classes, prepare a machine-verifiable external handoff, and continue denying an
+unsupported AGI claim.  It does not establish AGI, human-level generality,
+contamination-free superiority, independent reproducibility, or external human
+acceptance.  Those claims remain closed by construction until the corresponding
+outside evidence exists.

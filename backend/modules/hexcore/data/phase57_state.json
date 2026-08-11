@@ -1,0 +1,543 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "richer_real_file_world_model_learning": "procedure_richer_world_model_0d316f0f69ad"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase57_relational_world_model_authority"
+    },
+    "reason": "phase57_richer_world_model",
+    "state_hash": "85677f31d0c40470c27cbc4b120be1bbaf9a0f392daed45572a9d27e3a9c680d"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "outcomes": [
+    {
+      "evidence": {
+        "evaluation": "phase57_sealed_world_models",
+        "gate": {
+          "accepted": true,
+          "candidate_models_compared": 12,
+          "cold_reexecution_cost": 26,
+          "competing_models_retained": 3,
+          "cost_reduction_vs_cold": 0.23076923076923073,
+          "development_projects": 5,
+          "errors": [],
+          "learned_reexecution_cost": 20,
+          "novel_event_criticism": 1.0,
+          "original_repository_files_mutated": false,
+          "provenance_completeness": 1.0,
+          "sealed_projects": 4,
+          "unsafe_novel_event_forcing": 0,
+          "unseen_topologies_evaluated": 2,
+          "weakest_family_accuracy": 1.0,
+          "withheld_event_accuracy": 1.0
+        }
+      },
+      "outcome_id": "outcome_cece986f61a24036",
+      "procedure_id": "procedure_richer_world_model_0d316f0f69ad",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.2307692307692308,
+      "success": true,
+      "timestamp": "2026-07-30T17:02:52.713586+00:00"
+    }
+  ],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_richer_world_model_0d316f0f69ad": {
+      "evidence": {
+        "evaluation": "phase57_sealed_world_models",
+        "gate": {
+          "accepted": true,
+          "candidate_models_compared": 12,
+          "cold_reexecution_cost": 26,
+          "competing_models_retained": 3,
+          "cost_reduction_vs_cold": 0.23076923076923073,
+          "development_projects": 5,
+          "errors": [],
+          "learned_reexecution_cost": 20,
+          "novel_event_criticism": 1.0,
+          "original_repository_files_mutated": false,
+          "provenance_completeness": 1.0,
+          "sealed_projects": 4,
+          "unsafe_novel_event_forcing": 0,
+          "unseen_topologies_evaluated": 2,
+          "weakest_family_accuracy": 1.0,
+          "withheld_event_accuracy": 1.0
+        }
+      },
+      "goal": "richer_real_file_world_model_learning",
+      "procedure_id": "procedure_richer_world_model_0d316f0f69ad",
+      "promoted_at": "2026-07-30T17:02:52.712227+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.2307692307692308,
+      "source_rules": [
+        "procedure_real_file_projects_3aff718b5c0d"
+      ],
+      "status": "champion",
+      "steps": [
+        "infer_typed_entities_from_real_project_sources",
+        "compare_competing_relational_transition_models",
+        "retain_posterior_uncertainty",
+        "predict_withheld_revision_and_reconciliation_events",
+        "criticise_events_outside_model_family",
+        "minimise_reexecution_with_dependency_dynamics",
+        "persist_model_sessions_and_provenance"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "100fadc8523ab7bba073137efa0cd488046e9739fb9c681e5b06a52351fe7bad",
+      "goal": "richer_real_file_world_model_learning",
+      "new_champion_id": "procedure_richer_world_model_0d316f0f69ad",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.2307692307692308,
+      "timestamp": "2026-07-30T17:02:52.712242+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "real_file_projects": {},
+  "relation_models": {},
+  "relational_world_models": {
+    "world_model_df26dab2510e": {
+      "competing_models": [
+        {
+          "complexity": 5,
+          "conflict_policy": "abstain",
+          "exact_accuracy": 1.0,
+          "field_accuracy": 1.0,
+          "invalidation_operator": "transitive",
+          "model_id": "world_model_df26dab2510e",
+          "posterior": 0.7128115629160634
+        },
+        {
+          "complexity": 5,
+          "conflict_policy": "rebuild",
+          "exact_accuracy": 0.8235294117647058,
+          "field_accuracy": 0.9117647058823529,
+          "invalidation_operator": "transitive",
+          "model_id": "world_model_345471ab2e4c",
+          "posterior": 0.17372131754958112
+        },
+        {
+          "complexity": 4,
+          "conflict_policy": "ignore",
+          "exact_accuracy": 0.7058823529411765,
+          "field_accuracy": 0.8529411764705882,
+          "invalidation_operator": "transitive",
+          "model_id": "world_model_4ede59775854",
+          "posterior": 0.06984481981401816
+        }
+      ],
+      "complexity": 5,
+      "conflict_policy": "abstain",
+      "created_at": "2026-07-30T17:02:52.711098+00:00",
+      "development_exact_accuracy": 1.0,
+      "development_field_accuracy": 1.0,
+      "invalidation_operator": "transitive",
+      "model_id": "world_model_df26dab2510e",
+      "posterior": 0.7128115629160634,
+      "schema_version": "aion.hexcore.relational_world_model.v1",
+      "source_projects": [
+        "development_world_model_phase_48",
+        "development_world_model_phase_49",
+        "development_world_model_phase_50",
+        "development_world_model_phase_51",
+        "development_world_model_phase_52"
+      ]
+    }
+  },
+  "revision": 8,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "self_improvement_generations": {},
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T17:02:52.714602+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {
+    "sealed_world_model_phase_53": {
+      "completed_at": "2026-07-30T17:02:52.705068+00:00",
+      "dependency_graph": {
+        "authority_check": [
+          "source:policy",
+          "status_projection"
+        ],
+        "evidence_binding": [
+          "source:report",
+          "status_projection"
+        ],
+        "independent_verification": [
+          "manifest"
+        ],
+        "manifest": [
+          "status_projection",
+          "evidence_binding",
+          "authority_check"
+        ],
+        "project_closure": [
+          "independent_verification",
+          "publication_receipt"
+        ],
+        "publication_receipt": [
+          "independent_verification",
+          "source:policy"
+        ],
+        "status_projection": [
+          "source:result"
+        ]
+      },
+      "model_criticism": {
+        "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+        "invalidated": [],
+        "model_adequate": false,
+        "project_state": "abstained"
+      },
+      "outcomes": {
+        "reconcile": {
+          "invalidated": [],
+          "project_state": "ready_for_verification"
+        },
+        "revision": {
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt"
+          ],
+          "project_state": "revision_required"
+        }
+      },
+      "project_id": "sealed_world_model_phase_53",
+      "schema_version": "aion.hexcore.world_model_session.v1",
+      "source_paths": {
+        "policy": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_53/policy_governance_config.yaml",
+        "report": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_53/report_HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+        "result": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_53/result_hexcore_phase53_blind_evaluation_protocol.json"
+      },
+      "withheld_predictions": {
+        "reconcile": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "ready_for_verification"
+        },
+        "revision": {
+          "criticism": null,
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      }
+    },
+    "sealed_world_model_phase_54": {
+      "completed_at": "2026-07-30T17:02:52.706748+00:00",
+      "dependency_graph": {
+        "authority_check": [
+          "source:policy",
+          "status_projection"
+        ],
+        "evidence_binding": [
+          "source:report",
+          "status_projection"
+        ],
+        "independent_verification": [
+          "manifest"
+        ],
+        "manifest": [
+          "status_projection",
+          "evidence_binding",
+          "authority_check"
+        ],
+        "project_closure": [
+          "independent_verification"
+        ],
+        "status_projection": [
+          "source:result"
+        ]
+      },
+      "model_criticism": {
+        "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+        "invalidated": [],
+        "model_adequate": false,
+        "project_state": "abstained"
+      },
+      "outcomes": {
+        "reconcile": {
+          "invalidated": [],
+          "project_state": "ready_for_verification"
+        },
+        "revision": {
+          "invalidated": [
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "project_state": "revision_required"
+        }
+      },
+      "project_id": "sealed_world_model_phase_54",
+      "schema_version": "aion.hexcore.world_model_session.v1",
+      "source_paths": {
+        "policy": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_54/policy_governance_config.yaml",
+        "report": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_54/report_HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+        "result": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_54/result_hexcore_phase54_open_world_ingestion.json"
+      },
+      "withheld_predictions": {
+        "reconcile": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "ready_for_verification"
+        },
+        "revision": {
+          "criticism": null,
+          "invalidated": [
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      }
+    },
+    "sealed_world_model_phase_55": {
+      "completed_at": "2026-07-30T17:02:52.708399+00:00",
+      "dependency_graph": {
+        "authority_check": [
+          "source:policy",
+          "status_projection"
+        ],
+        "evidence_binding": [
+          "source:report",
+          "status_projection"
+        ],
+        "independent_verification": [
+          "manifest"
+        ],
+        "manifest": [
+          "status_projection",
+          "evidence_binding",
+          "authority_check"
+        ],
+        "project_closure": [
+          "independent_verification",
+          "publication_receipt"
+        ],
+        "publication_receipt": [
+          "independent_verification",
+          "source:policy"
+        ],
+        "status_projection": [
+          "source:result"
+        ]
+      },
+      "model_criticism": {
+        "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+        "invalidated": [],
+        "model_adequate": false,
+        "project_state": "abstained"
+      },
+      "outcomes": {
+        "reconcile": {
+          "invalidated": [],
+          "project_state": "abstained"
+        },
+        "revision": {
+          "invalidated": [
+            "authority_check",
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt",
+            "status_projection"
+          ],
+          "project_state": "revision_required"
+        }
+      },
+      "project_id": "sealed_world_model_phase_55",
+      "schema_version": "aion.hexcore.world_model_session.v1",
+      "source_paths": {
+        "policy": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_55/policy_governance_config.yaml",
+        "report": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_55/report_HEXCORE_PHASES_53_55_BLIND_EVALUATION_OPEN_WORLD_RECURSIVE_PHOTON_REPORT.md",
+        "result": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_55/result_hexcore_phase55_recursive_photon.json"
+      },
+      "withheld_predictions": {
+        "reconcile": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "abstained"
+        },
+        "revision": {
+          "criticism": null,
+          "invalidated": [
+            "authority_check",
+            "evidence_binding",
+            "independent_verification",
+            "manifest",
+            "project_closure",
+            "publication_receipt",
+            "status_projection"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      }
+    },
+    "sealed_world_model_phase_56": {
+      "completed_at": "2026-07-30T17:02:52.710127+00:00",
+      "dependency_graph": {
+        "authority_check": [
+          "source:policy",
+          "status_projection"
+        ],
+        "evidence_binding": [
+          "source:report",
+          "status_projection"
+        ],
+        "independent_verification": [
+          "manifest"
+        ],
+        "manifest": [
+          "status_projection",
+          "evidence_binding",
+          "authority_check"
+        ],
+        "project_closure": [
+          "independent_verification"
+        ],
+        "status_projection": [
+          "source:result"
+        ]
+      },
+      "model_criticism": {
+        "criticism": "EVENT_OUTSIDE_LEARNED_MODEL_FAMILY",
+        "invalidated": [],
+        "model_adequate": false,
+        "project_state": "abstained"
+      },
+      "outcomes": {
+        "reconcile": {
+          "invalidated": [],
+          "project_state": "ready_for_verification"
+        },
+        "revision": {
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "project_state": "revision_required"
+        }
+      },
+      "project_id": "sealed_world_model_phase_56",
+      "schema_version": "aion.hexcore.world_model_session.v1",
+      "source_paths": {
+        "policy": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_56/policy_governance_config.yaml",
+        "report": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_56/report_HEXCORE_PHASE_56_REAL_FILE_LONG_HORIZON_PROJECT_REPORT.md",
+        "result": "/private/tmp/aion_phase57_world_model_workspaces/sealed_world_model_phase_56/result_hexcore_phase56_real_file_projects.json"
+      },
+      "withheld_predictions": {
+        "reconcile": {
+          "criticism": null,
+          "invalidated": [],
+          "model_adequate": true,
+          "project_state": "ready_for_verification"
+        },
+        "revision": {
+          "criticism": null,
+          "invalidated": [
+            "authority_check",
+            "independent_verification",
+            "manifest",
+            "project_closure"
+          ],
+          "model_adequate": true,
+          "project_state": "revision_required"
+        }
+      }
+    }
+  },
+  "world_rules": {}
+}

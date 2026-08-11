@@ -72,20 +72,21 @@ def _draft_package(department_id: str = "finance", context_refs=None):
     return package
 
 
-def test_profiles_enable_finance_and_preserve_design_gates(tmp_path, monkeypatch):
+def test_profiles_enable_finance_sales_support_and_hr_and_preserve_remaining_design_gates(tmp_path, monkeypatch):
     client, _, _ = _client(tmp_path, monkeypatch)
     response = client.get("/api/aion/business/department-pilots/profiles")
     assert response.status_code == 200
     payload = response.json()
-    assert payload["enabled_department_ids"] == ["finance"]
+    assert payload["enabled_department_ids"] == ["finance", "sales", "support", "hr"]
     assert payload["design_required_department_ids"] == [
-        "sales",
         "marketing",
-        "support",
-        "hr",
         "operations",
     ]
+    sales = next(item for item in payload["profiles"] if item["department_id"] == "sales")
+    assert sales["activation_state"] == "enabled"
+    assert "sales.qualification" in sales["allowed_capabilities"]
     hr = next(item for item in payload["profiles"] if item["department_id"] == "hr")
+    assert hr["activation_state"] == "enabled"
     assert "visual organisation chart and accountability canvas" in hr["design_topics"]
     operations = next(
         item for item in payload["profiles"] if item["department_id"] == "operations"
@@ -278,19 +279,19 @@ def test_real_boardroom_action_hash_binds_current_finance_context(
 
 def test_unapproved_function_design_cannot_be_bypassed_by_router(tmp_path, monkeypatch):
     client, repository, _ = _client(tmp_path, monkeypatch)
-    sales = _approved_package("sales")
+    marketing = _approved_package("marketing")
     response = client.post(
         "/api/aion/business/department-pilots/route",
         json={
-            "package": sales.model_dump(mode="json"),
+            "package": marketing.model_dump(mode="json"),
             "routed_at": "2026-07-16T22:32:00+00:00",
         },
     )
     assert response.status_code == 409
     detail = response.json()["detail"]
     assert detail["code"] == "department_pilot_design_required"
-    assert detail["department_id"] == "sales"
-    assert "inbound and outbound phone-agent qualification" in detail["design_topics"]
+    assert detail["department_id"] == "marketing"
+    assert "campaign planning and day-to-day operating view" in detail["design_topics"]
     assert repository.list_for_workspace("home-fixed") == []
 
 

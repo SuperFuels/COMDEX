@@ -964,12 +964,26 @@ class TessarisEngine(ResonantReinforcementMixin):
                 print(f"🧠 Queued Tessaris intent ({intent_type}): {payload}")
 
     # ---- Compatibility shim: allow executor to call tessaris.interpret(...) ----
+    def interpret_governed(self, instruction_tree, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Interpret a mission through the canonical proposal/authority boundary."""
+        from backend.modules.hexcore.governed_cognitive_stack import GovernedCognitiveStack
+
+        ctx = dict(context or {})
+        mission = instruction_tree if isinstance(instruction_tree, dict) else {
+            "objective": _summarize_tree(instruction_tree)
+        }
+        if isinstance(mission, dict):
+            mission = {**mission, **ctx}
+        return GovernedCognitiveStack().deliberate(mission)
+
     def interpret(self, instruction_tree, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
         Execute/interpret a Codex instruction tree.
         Tries existing methods if present; otherwise returns a shallow echo result.
         """
         ctx = context or {}
+        if ctx.get("governed_mission") is True:
+            return self.interpret_governed(instruction_tree, ctx)
         sci_emit("tessaris_start", f"Instruction -> {str(instruction_tree)[:240]}")
 
         # Prefer an existing concrete method if you already implemented one

@@ -1,0 +1,3 @@
+[service]
+name="hexcore"
+workers=7

@@ -39,15 +39,17 @@ def test_phase25b_department_pilots_write_to_department_intelligence_ledger():
     assert "source: \"phase25b_department_scoped_pilot\"" in block
 
 
-def test_phase25b_live_agent_workspaces_route_to_scoped_pilots():
+def test_phase25b_live_agent_workspaces_route_to_unified_department_shells():
     text = read_app()
 
-    assert 'renderAionDepartmentScopedPilotSurface("finance", selectedRuns, selectedAgentCard)' in text
-    assert "renderAionRealFinance121BoardroomPanelV2()" in text
-    assert "renderAionFinanceDataSetupPanelV2()" in text
-    assert '["marketing", "sales", "operations", "support", "hr"].includes(departmentKey)' in text
-    assert "return renderAionDepartmentPilotRuntime(departmentKey, selectedRuns, scopedSelectedAgentCard);" in text
-    assert 'renderAionDepartmentPilotRuntime("marketing", selectedRuns, scopedSelectedAgentCard)' in text
+    assert "AION_UNIFIED_DEPARTMENT_SHELLS" in text
+    assert "renderDepartmentCompactDirectorCard" in text
+    assert "return renderFinanceWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in text
+    assert "return renderSalesWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in text
+    assert "return renderOperationsWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in text
+    assert "return renderSupportWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in text
+    assert "return renderHRWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in text
+    assert "return renderPilotMarketingWorkspaceSurface(selectedRuns, scopedSelectedAgentCard);" in text
 
 
 def test_phase25b_central_pilot_still_exists():

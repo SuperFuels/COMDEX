@@ -1,0 +1,254 @@
+% Tessaris customer-owned marketing connections
+% Overleaf-ready section fragment. No non-standard packages are required.
+
+\section{Customer-Owned Marketing Platform Connections}
+\label{sec:customer-owned-marketing-connections}
+
+\subsection{Purpose and outcome}
+
+Tessaris now contains a provider-neutral \emph{Marketing Connections Centre} through which each business can connect its own marketing and advertising accounts. The connected platform account remains owned by, controlled by and billed to that business. Tessaris receives only the delegated access granted during the provider's OAuth authorisation process.
+
+The implementation supports the following provider families:
+
+\begin{itemize}
+    \item Meta, including Facebook Pages, Instagram business accounts and Meta advertising accounts;
+    \item Google Ads customer accounts;
+    \item YouTube channels;
+    \item LinkedIn member accounts; and
+    \item TikTok creator accounts.
+\end{itemize}
+
+This removes the need for a customer to copy long-lived platform passwords or access tokens into the application. It also avoids a shared universal customer credential: every connection is isolated by business and provider.
+
+\subsection{Customer workflow}
+
+The normal connection sequence is:
+
+\begin{enumerate}
+    \item An authorised owner or Marketing administrator opens the Marketing Connections Centre.
+    \item The user selects a provider and the required permission tier.
+    \item Tessaris opens the provider's official authorisation page.
+    \item The customer signs in directly with the provider and grants the requested access.
+    \item The provider returns an authorisation code to the registered Tessaris callback.
+    \item Tessaris securely exchanges the code for delegated OAuth token material.
+    \item Available Pages, channels, creator identities, advertising accounts or customer accounts are discovered.
+    \item The user explicitly selects the business asset that Tessaris may use.
+    \item A read-only connector examination confirms that the account is visible and usable.
+    \item Publishing or advertising remains closed until a separate, exact approval is granted.
+\end{enumerate}
+
+The interface also provides refresh, reconnect, change-access, account-selection, read-only examination and disconnect controls. Disconnecting removes the local delegated credentials without deleting any content from the external platform.
+
+\subsection{Separated permission tiers}
+
+The connection model deliberately separates three levels of authority:
+
+\begin{description}
+    \item[Analytics only.] Tessaris may inspect available accounts and retrieve authorised performance evidence. It cannot publish content or manage advertising.
+    \item[Organic publishing.] Tessaris may prepare to publish approved organic content to the selected Page, channel or creator account. Connection alone still does not authorise an individual publication.
+    \item[Advertising management.] Tessaris may prepare advertising operations for an authorised advertising account. Every campaign still requires an exact approved package and an explicit spending ceiling.
+\end{description}
+
+The permission tier requested during OAuth is recorded as part of the connection metadata. Increasing access requires reauthorisation; Tessaris does not silently elevate an existing connection.
+
+\subsection{Provider-specific account discovery}
+
+After authorisation, Tessaris discovers provider assets using official provider APIs:
+
+\begin{itemize}
+    \item Meta discovery identifies accessible Facebook Pages, Instagram business accounts linked to those Pages, and advertising accounts.
+    \item Google Ads discovery identifies accessible customer resource identifiers using the Tessaris Google Ads developer token.
+    \item YouTube discovery identifies channels owned by or delegated to the authorised Google identity.
+    \item LinkedIn discovery identifies the authorised member identity.
+    \item TikTok discovery identifies the authorised creator identity.
+\end{itemize}
+
+The selected account is stored by asset type rather than as an ambiguous provider-wide default. For example, a Meta connection can maintain separate selections for a Facebook Page, Instagram account and advertising account. Publication readiness therefore depends on the correct asset type for the intended channel.
+
+\subsection{Connection and publication are separate authorities}
+
+A connected account is not equivalent to permission to execute an external action. Tessaris evaluates publication readiness using all of the following:
+
+\begin{enumerate}
+    \item the required provider is connected;
+    \item the correct account type has been explicitly selected;
+    \item the granted permission tier is sufficient for the proposed operation;
+    \item the final media asset, copy, channel, schedule and campaign parameters have been frozen;
+    \item the frozen publication contract retains its original cryptographic hash;
+    \item an authorised person approves the exact package; and
+    \item a paid campaign includes a bounded maximum spending amount.
+\end{enumerate}
+
+Organic publication and advertising spend remain distinct. A Marketing Manager can connect accounts and approve ordinary publishing, while advertising-spend authority remains restricted to the Owner/Director role unless the organisation explicitly changes its authority model.
+
+The current execution boundary is fail-closed. The connector layer can authorise accounts, enumerate assets and run read-only validation, but it cannot publish, message or spend by itself.
+
+\subsection{Security architecture}
+
+The OAuth implementation includes the following controls:
+
+\begin{itemize}
+    \item a cryptographically random OAuth \texttt{state} value to bind the callback to the originating request;
+    \item Proof Key for Code Exchange (PKCE), using a random verifier and SHA-256 challenge;
+    \item a fifteen-minute expiry for incomplete authorisation attempts;
+    \item exact registered callback URLs;
+    \item incremental provider scopes derived from the selected permission tier;
+    \item canonical business identifiers used to isolate every connection;
+    \item explicit provider selection with no silent fallback to another provider;
+    \item rejection of unknown provider paths and invalid account selections; and
+    \item safely escaped provider errors in the browser callback response.
+\end{itemize}
+
+Access and refresh tokens do not enter the Business Container, user interface, logs or public API responses. In the macOS application they are stored in Keychain under the service identifier:
+
+\begin{quote}
+\texttt{com.tessaris.marketing.oauth}
+\end{quote}
+
+The Keychain account identifier combines the canonical business identifier and provider. This prevents one business or provider from reading another connection's secret material. An isolated file-backed secret store exists only for automated tests.
+
+The non-secret Business Container record may contain:
+
+\begin{itemize}
+    \item provider and connection status;
+    \item granted scopes and selected permission tier;
+    \item public provider account identifiers and names;
+    \item explicitly selected business assets;
+    \item connection, examination and disconnection timestamps;
+    \item the acting person identifier;
+    \item health and reauthorisation state; and
+    \item a non-secret reference indicating that protected material is held in Keychain.
+\end{itemize}
+
+No raw access token, refresh token, client secret or customer password is returned to the renderer.
+
+\subsection{Organisation and HR authority}
+
+Marketing connection administration is integrated with the organisation authority engine. The following capabilities were introduced:
+
+\begin{itemize}
+    \item \texttt{marketing.read};
+    \item \texttt{marketing.manage};
+    \item \texttt{marketing.connect\_accounts};
+    \item \texttt{marketing.approve\_publish}; and
+    \item \texttt{marketing.approve\_spend}.
+\end{itemize}
+
+The Owner/Director template receives all five capabilities. The Marketing Manager can read, manage, connect accounts and approve publishing, but cannot approve advertising expenditure by default. The Marketing Contributor can prepare campaigns and assets but cannot connect accounts, approve publication or authorise spending.
+
+Tessaris retains the previously documented desktop authentication boundary. If no active people exist in the organisation model, the local \texttt{desktop\_user} receives a narrowly defined single-user bootstrap for connection administration. As soon as active people exist, that bootstrap ceases to apply and the signed-in person must possess \texttt{marketing.connect\_accounts}. Production multi-user deployment must bind each authenticated user to the corresponding HR person record.
+
+\subsection{Backend service and API surface}
+
+The provider-neutral runtime is implemented by:
+
+\begin{quote}
+\texttt{backend/modules/aion\_business/runtime/marketing\_connection\_service.py}
+\end{quote}
+
+The local and full backend applications mount:
+
+\begin{quote}
+\texttt{backend/modules/aion\_business/api/marketing\_connections\_api.py}
+\end{quote}
+
+The principal API operations are:
+
+\begin{itemize}
+    \item list the connection state for every supported provider;
+    \item start an OAuth connection with a selected permission tier;
+    \item receive and validate the provider callback;
+    \item select one or more provider assets;
+    \item perform a read-only connection examination; and
+    \item disconnect a provider and remove its protected token material.
+\end{itemize}
+
+All modifying operations require an acting person identifier and pass through Marketing connection authority. API responses expose connection health and public account metadata but never return credential material.
+
+\subsection{Marketing workspace integration}
+
+The Marketing Connections Centre is rendered inside the unified Marketing workspace, alongside the AION Automation Studio, Creative Intelligence Lab, premium timeline editor and governed publication package controls. Provider cards show:
+
+\begin{itemize}
+    \item whether the Tessaris platform application is configured;
+    \item whether the current business is connected;
+    \item connection health;
+    \item the selected permission tier;
+    \item discovered provider assets;
+    \item the selected business account; and
+    \item reconnect, examination and disconnect actions.
+\end{itemize}
+
+The Creative Publication Service no longer relies on legacy environment variables containing customer access tokens. It reads the customer-owned connection metadata and checks the provider, account kind and permission tier required by the proposed channel. Examples include:
+
+\begin{itemize}
+    \item Instagram requires a selected Instagram business account and organic-publishing permission;
+    \item Facebook requires a selected Page and organic-publishing permission;
+    \item Meta Ads requires a selected advertising account and advertising-management permission;
+    \item Google Ads requires a selected customer account and advertising-management permission; and
+    \item YouTube requires a selected channel and organic-publishing permission.
+\end{itemize}
+
+\subsection{Provider application configuration}
+
+Tessaris uses one reviewed developer application for each platform while each customer authorises its own business accounts. The server-side deployment configuration is:
+
+\begin{itemize}
+    \item Meta: \texttt{META\_APP\_ID}, \texttt{META\_APP\_SECRET} and, optionally, \texttt{META\_GRAPH\_API\_VERSION};
+    \item Google and YouTube: \texttt{GOOGLE\_MARKETING\_CLIENT\_ID} and \texttt{GOOGLE\_MARKETING\_CLIENT\_SECRET}, with support for the existing Tessaris Google OAuth client variables;
+    \item Google Ads: \texttt{GOOGLE\_ADS\_DEVELOPER\_TOKEN} and, optionally, \texttt{GOOGLE\_ADS\_API\_VERSION};
+    \item LinkedIn: \texttt{LINKEDIN\_CLIENT\_ID} and \texttt{LINKEDIN\_CLIENT\_SECRET};
+    \item TikTok: \texttt{TIKTOK\_CLIENT\_KEY} and \texttt{TIKTOK\_CLIENT\_SECRET}; and
+    \item public callback base: \texttt{AION\_PUBLIC\_BACKEND\_URL}.
+\end{itemize}
+
+The active Tessaris Google OAuth application is sufficient to expose the YouTube connection route. Google Ads additionally requires a developer token. Meta, LinkedIn and TikTok require their respective Tessaris developer applications and platform approval before production customer connections can be exercised.
+
+Production deployment also requires registering the exact HTTPS callback URLs, completing platform application review where applicable, verifying requested scopes and running a read-only examination against each provider. These are external deployment requirements rather than missing application architecture.
+
+\subsection{Verification and installation}
+
+Focused verification covered:
+
+\begin{itemize}
+    \item honest failure when central platform credentials are absent;
+    \item PKCE and state generation;
+    \item exclusion of application secrets from pending connection records;
+    \item exclusion of OAuth tokens from public responses;
+    \item bounded provider-account selection;
+    \item protected-token deletion during disconnect;
+    \item customer-owned connection controls in the Marketing interface;
+    \item hash-bound publication packages; and
+    \item preservation of the external-execution boundary.
+\end{itemize}
+
+Nine focused tests passed. The rebuilt Tessaris application was installed and its local backend returned a healthy status. Live API readback confirmed all five providers were represented and that external writes remained disabled. No content was published, no advertising spend occurred, no paid media generation was triggered and no external customer account was altered.
+
+The application state before this installation remains recoverable from:
+
+\begin{quote}
+\texttt{/Applications/Tessaris.app.backup-20260810-before-marketing-connections}
+\end{quote}
+
+\subsection{Remaining external activation work}
+
+The application architecture and customer workflow are complete. The remaining activation work is provider-controlled:
+
+\begin{enumerate}
+    \item register or approve the Tessaris Meta, LinkedIn and TikTok developer applications;
+    \item obtain and configure the Google Ads developer token;
+    \item register the exact production HTTPS callback URLs;
+    \item verify production scopes and platform-review requirements;
+    \item connect one Tessaris-owned test account per provider;
+    \item run a read-only examination and confirm account discovery;
+    \item prepare a hash-bound test publication package;
+    \item perform a validate-only advertising examination where supported; and
+    \item request exact human approval before the first controlled external publication or advertising campaign.
+\end{enumerate}
+
+The governing principle is therefore:
+
+\begin{quote}
+\emph{The customer owns the account and pays the platform. Tessaris orchestrates the work. Connection grants visibility; exact approval grants consequences.}
+\end{quote}
+

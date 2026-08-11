@@ -1,0 +1,175 @@
+{
+  "adaptive_schema_theories": {},
+  "algebraic_law_models": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "champions": {
+    "public_external_evaluation": "procedure_external_evaluation_8e4881f75523"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_theory_programs": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continuous_operator_models": {},
+  "contradictions": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "dsl_synthesis_sessions": [],
+  "evidence": {},
+  "executable_knowledge": {},
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {
+    "phase48": {
+      "created_at": "2026-07-30T09:38:02.508895+00:00",
+      "dataset_manifest": {
+        "ai2_arc_validation.jsonl": {
+          "path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_foundation_v2_reasoning_sources/shards/ai2_arc_validation.jsonl",
+          "sha256": "3e4a6435ce087329c4d5f4d0cb3513b68d89ffc9fc28bb1134e3bd9f74c035cc"
+        },
+        "boolq_validation.jsonl": {
+          "path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_foundation_v2_reasoning_sources/shards/boolq_validation.jsonl",
+          "sha256": "57bfd0657920f22f8695664b942b5c50deb8fdcb205c39213bafec45952e766c"
+        },
+        "squad_v2_validation.jsonl": {
+          "path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_licensed_natural_language_v1/shards/squad_v2_validation.jsonl",
+          "sha256": "783958e4554cf36c65090f3f260d9ac5993a92c96802d00e14567625aa585670"
+        }
+      },
+      "gate": {
+        "accepted": true,
+        "chance_reference": 0.4166666666666667,
+        "errors": [],
+        "gain_over_chance": 0.3083333333333333,
+        "mean_accuracy": 0.725,
+        "pretraining_contamination_excluded": false,
+        "prompt_label_leakage": false,
+        "public_human_authored_cases": 120,
+        "source_split_isolation": true,
+        "valid_proposal_rate": 1.0,
+        "weakest_family_accuracy": 0.625
+      },
+      "procedure_id": "procedure_external_evaluation_8e4881f75523"
+    }
+  },
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_document_schemas": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invention_history": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "phase48_50_public_external_authority"
+    },
+    "reason": "phase48_external_evaluation",
+    "state_hash": "9a9aaf7b07a1e3d91d48446857bb2175441aaa992db902058a8f9c42a34adfbf"
+  },
+  "latent_variables": {},
+  "long_horizon_projects": {},
+  "model_criticisms": [],
+  "multimodal_evidence_projects": {},
+  "neural_consolidation": {},
+  "observations": [],
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_world_projects": {},
+  "outcomes": [],
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_external_evaluation_8e4881f75523": {
+      "evidence": {
+        "dataset_manifest": {
+          "ai2_arc_validation.jsonl": {
+            "path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_foundation_v2_reasoning_sources/shards/ai2_arc_validation.jsonl",
+            "sha256": "3e4a6435ce087329c4d5f4d0cb3513b68d89ffc9fc28bb1134e3bd9f74c035cc"
+          },
+          "boolq_validation.jsonl": {
+            "path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_foundation_v2_reasoning_sources/shards/boolq_validation.jsonl",
+            "sha256": "57bfd0657920f22f8695664b942b5c50deb8fdcb205c39213bafec45952e766c"
+          },
+          "squad_v2_validation.jsonl": {
+            "path": "/Users/kevinrobinson/Documents/Tessaris/TPU/datasets/aion_licensed_natural_language_v1/shards/squad_v2_validation.jsonl",
+            "sha256": "783958e4554cf36c65090f3f260d9ac5993a92c96802d00e14567625aa585670"
+          }
+        },
+        "gate": {
+          "accepted": true,
+          "chance_reference": 0.4166666666666667,
+          "errors": [],
+          "gain_over_chance": 0.3083333333333333,
+          "mean_accuracy": 0.725,
+          "pretraining_contamination_excluded": false,
+          "prompt_label_leakage": false,
+          "public_human_authored_cases": 120,
+          "source_split_isolation": true,
+          "valid_proposal_rate": 1.0,
+          "weakest_family_accuracy": 0.625
+        }
+      },
+      "goal": "public_external_evaluation",
+      "procedure_id": "procedure_external_evaluation_8e4881f75523",
+      "promoted_at": "2026-07-30T09:38:02.506250+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.35,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "freeze_model_and_interfaces",
+        "load_public_validation_sources",
+        "withhold_labels_from_prompts",
+        "evaluate_source_disjoint_families",
+        "record_contamination_boundary"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_revision_events": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "e0f86dd07c92cd8371c40e5817c9c03f7e8270245ce4516c0d19a054e6f82fa4",
+      "goal": "public_external_evaluation",
+      "new_champion_id": "procedure_external_evaluation_8e4881f75523",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.35,
+      "timestamp": "2026-07-30T09:38:02.507218+00:00"
+    }
+  ],
+  "provider_substrate_registry": {},
+  "relation_models": {},
+  "revision": 2,
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "skill_contracts": {},
+  "structural_analogies": {},
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-30T09:38:02.508905+00:00",
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_rules": {}
+}

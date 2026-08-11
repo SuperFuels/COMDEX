@@ -1,0 +1,1027 @@
+{
+  "active_measurement_records": [],
+  "adaptive_schema_theories": {},
+  "adversarial_patch_tournaments": [],
+  "algebraic_law_models": {},
+  "argument_memories": {},
+  "autonomous_curricula": {},
+  "autonomous_goal_decompositions": {},
+  "autonomous_knowledge_projects": {},
+  "blind_evaluation_protocols": {},
+  "capability_maps": {},
+  "causal_beliefs": {},
+  "causal_graphs": {},
+  "causal_intervention_records": [],
+  "causal_repair_isomorphisms": {},
+  "champions": {
+    "open_public_api_acquisition": "procedure_open_public_api_acquisition_80b9a41d73c6"
+  },
+  "change_events": [],
+  "claims": {},
+  "clarification_sessions": {},
+  "cognitive_programs": {},
+  "compositional_operator_library": {},
+  "compositional_theory_programs": {},
+  "compositional_transfer_evaluations": {},
+  "compound_repair_contracts": {},
+  "compound_repair_generations": {},
+  "compound_repair_sessions": [],
+  "concept_composition_models": {},
+  "constructed_language_skills": {},
+  "continual_arena_generations": {},
+  "continual_arena_outcomes": [],
+  "continual_improvement": {},
+  "continual_world_arenas": {},
+  "continuous_event_streams": {},
+  "continuous_operator_models": {},
+  "continuous_theory_revisions": [],
+  "continuous_world_models": {},
+  "contract_counterfactual_experiments": [],
+  "contract_discovery_sessions": [],
+  "contradictions": [],
+  "cross_domain_semantic_memories": {},
+  "cross_language_patch_library": {},
+  "cross_language_repair_sessions": [],
+  "curriculum_generations": [],
+  "delayed_memory_evaluations": [],
+  "delayed_repository_outcomes": [],
+  "discovery_sessions": [],
+  "document_comprehension_projects": {},
+  "documentation_guided_repair_sessions": [],
+  "dsl_synthesis_sessions": [],
+  "evi_curriculum_decisions": [],
+  "evidence": {},
+  "executable_falsification_programs": {},
+  "executable_knowledge": {},
+  "execution_adapter_learning_sessions": [],
+  "experiment_policies": {},
+  "external_benchmark_evaluations": {},
+  "external_continuous_traces": {},
+  "external_multivariate_traces": {},
+  "external_software_maintenance": {},
+  "failure_queues": {},
+  "foundation_substrate_evaluations": {},
+  "general_experiment_inventions": {},
+  "general_invented_tools": {},
+  "glyphchain_evidence_commitments": {},
+  "goal_graph_projects": {},
+  "historical_repair_transfer_models": {},
+  "historical_repository_repair_sessions": [],
+  "hypothesis_expansions": [],
+  "information_policies": {},
+  "invented_concepts": {},
+  "invented_continuous_operators": {},
+  "invented_document_schemas": {},
+  "invented_failure_ontologies": {},
+  "invented_photon_tools": {},
+  "invented_primitives": {},
+  "invented_project_repairs": {},
+  "invented_relation_vocabularies": {},
+  "invented_repository_falsification_tests": {},
+  "invented_state_vocabularies": {},
+  "invention_history": [],
+  "language_acquisition_sessions": [],
+  "last_commit": {
+    "authority": {
+      "H": 0.0,
+      "S": 1.0,
+      "allow_learn": true,
+      "deny_reason": null,
+      "goal": "maintain_coherence",
+      "source": "documentation_guided_software_authority"
+    },
+    "reason": "open_public_api_acquisition",
+    "state_hash": "777c7f6fe675bb2ffe124fe2a406eab9bba19819574d25f9cb304b18d73a38cd"
+  },
+  "latent_event_modes": {},
+  "latent_variables": {},
+  "learned_repair_contracts": {},
+  "long_document_semantic_memories": {},
+  "long_horizon_projects": {},
+  "model_criticism_records": [],
+  "model_criticisms": [],
+  "multi_track_challengers": {},
+  "multimodal_evidence_projects": {},
+  "multimodal_project_outcomes": [],
+  "multimodal_schema_models": {},
+  "multivariate_synthesis_sessions": [],
+  "natural_event_streams": {},
+  "natural_repair_substrate_evaluations": {},
+  "neural_consolidation": {},
+  "neural_proposal_models": {},
+  "observations": [],
+  "open_causal_theories": {},
+  "open_document_knowledge": {},
+  "open_document_projects": {},
+  "open_multimodal_projects": {},
+  "open_outcome_project_sessions": {},
+  "open_patch_generation_sessions": [],
+  "open_patch_library": {},
+  "open_project_checkpoints": {},
+  "open_public_api_adapters": {
+    "public_api_064f387eb76a9808": {
+      "adapters": {
+        "github": {
+          "base": "https://api.github.com",
+          "credentials_required": false,
+          "method": "GET",
+          "required_response_fields": [
+            "full_name",
+            "default_branch",
+            "language"
+          ],
+          "route_evidence": "/repos/{owner}/{repo}",
+          "side_effect_class": "read_only",
+          "typed_schema": {
+            "allow_forking": "bool",
+            "archive_url": "str",
+            "archived": "bool",
+            "assignees_url": "str",
+            "blobs_url": "str",
+            "branches_url": "str",
+            "clone_url": "str",
+            "collaborators_url": "str",
+            "comments_url": "str",
+            "commits_url": "str",
+            "compare_url": "str",
+            "contents_url": "str",
+            "contributors_url": "str",
+            "created_at": "str",
+            "custom_properties": {},
+            "default_branch": "str",
+            "deployments_url": "str",
+            "description": "str",
+            "disabled": "bool",
+            "downloads_url": "str",
+            "events_url": "str",
+            "fork": "bool",
+            "forks": "int",
+            "forks_count": "int",
+            "forks_url": "str",
+            "full_name": "str",
+            "git_commits_url": "str",
+            "git_refs_url": "str",
+            "git_tags_url": "str",
+            "git_url": "str",
+            "has_discussions": "bool",
+            "has_downloads": "bool",
+            "has_issues": "bool",
+            "has_pages": "bool",
+            "has_projects": "bool",
+            "has_pull_requests": "bool",
+            "has_wiki": "bool",
+            "homepage": "str",
+            "hooks_url": "str",
+            "html_url": "str"
+          }
+        },
+        "open_meteo": {
+          "base": "https://api.open-meteo.com",
+          "credentials_required": false,
+          "method": "GET",
+          "required_response_fields": [
+            "latitude",
+            "longitude",
+            "current"
+          ],
+          "route_evidence": "/v1/forecast",
+          "side_effect_class": "read_only",
+          "typed_schema": {
+            "current": {
+              "interval": "int",
+              "temperature_2m": "float",
+              "time": "str",
+              "wind_speed_10m": "float"
+            },
+            "current_units": {
+              "interval": "str",
+              "temperature_2m": "str",
+              "time": "str",
+              "wind_speed_10m": "str"
+            },
+            "elevation": "float",
+            "generationtime_ms": "float",
+            "latitude": "float",
+            "longitude": "float",
+            "timezone": "str",
+            "timezone_abbreviation": "str",
+            "utc_offset_seconds": "int"
+          }
+        },
+        "pypi": {
+          "base": "https://pypi.org",
+          "credentials_required": false,
+          "method": "GET",
+          "required_response_fields": [
+            "info",
+            "releases"
+          ],
+          "route_evidence": "/pypi/&lt;project&gt;/json",
+          "side_effect_class": "read_only",
+          "typed_schema": {
+            "info": {
+              "author": "str",
+              "author_email": "NoneType",
+              "bugtrack_url": "NoneType",
+              "classifiers": {
+                "item": "str",
+                "type": "array"
+              },
+              "description": "str",
+              "description_content_type": "str",
+              "docs_url": "NoneType",
+              "download_url": "NoneType",
+              "downloads": {
+                "last_day": "int",
+                "last_month": "int",
+                "last_week": "int"
+              },
+              "dynamic": "NoneType",
+              "home_page": "NoneType",
+              "keywords": "NoneType",
+              "license": "NoneType",
+              "license_expression": "str",
+              "license_files": {
+                "item": "str",
+                "type": "array"
+              },
+              "maintainer": "NoneType",
+              "maintainer_email": "str",
+              "name": "str",
+              "package_url": "str",
+              "platform": "NoneType",
+              "project_url": "str",
+              "project_urls": {
+                "documentation": "str",
+                "download": "str",
+                "homepage": "str",
+                "release notes": "str",
+                "source": "str",
+                "tracker": "str"
+              },
+              "provides_extra": "NoneType",
+              "release_url": "str",
+              "requires_dist": "NoneType",
+              "requires_python": "str",
+              "summary": "str",
+              "version": "str",
+              "yanked": "bool",
+              "yanked_reason": "NoneType"
+            },
+            "last_serial": "int",
+            "ownership": {
+              "organization": "str",
+              "roles": {
+                "item": "dict",
+                "type": "array"
+              }
+            },
+            "releases": {
+              "0.9.6": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "0.9.8": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.0.3": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0.4": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0b1": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0b4": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0b5": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0rc1": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0rc2": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0rc3": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.1.1": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.10.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.4": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.12.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.12.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.13.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.13.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.13.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.4": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.5": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.6": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.4": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.16.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.16.1": {
+                "item": "dict",
+                "type": "array"
+              }
+            },
+            "urls": {
+              "item": {
+                "comment_text": "NoneType",
+                "core-metadata": "dict",
+                "digests": "dict",
+                "downloads": "int",
+                "filename": "str",
+                "has_sig": "bool",
+                "md5_digest": "str",
+                "packagetype": "str",
+                "python_version": "str",
+                "requires_python": "str",
+                "size": "int",
+                "upload_time": "str",
+                "upload_time_iso_8601": "str",
+                "url": "str",
+                "yanked": "bool",
+                "yanked_reason": "NoneType"
+              },
+              "type": "array"
+            },
+            "vulnerabilities": {
+              "item": "unknown",
+              "type": "array"
+            }
+          }
+        }
+      },
+      "created_at": "2026-07-31T20:40:21.528655+00:00",
+      "gate": {
+        "accepted": true,
+        "credentials_used": false,
+        "development_and_transfer_calls": 6,
+        "documentation_routes_discovered": 3,
+        "independent_public_api_authorities": 3,
+        "information_action_reduction_vs_cold": 0.5,
+        "invalid_parameter_rejection_demonstrated": true,
+        "non_get_requests": 0,
+        "official_document_sources": 3,
+        "source_disjoint_transfers": 3,
+        "successful_calls": 6,
+        "typed_adapters_invented": 3,
+        "unsafe_or_paid_actions": 0
+      }
+    },
+    "public_api_2191344fdf16fcca": {
+      "adapters": {
+        "github": {
+          "base": "https://api.github.com",
+          "credentials_required": false,
+          "method": "GET",
+          "required_response_fields": [
+            "full_name",
+            "default_branch",
+            "language"
+          ],
+          "route_evidence": "/repos/{owner}/{repo}",
+          "side_effect_class": "read_only",
+          "typed_schema": {
+            "allow_forking": "bool",
+            "archive_url": "str",
+            "archived": "bool",
+            "assignees_url": "str",
+            "blobs_url": "str",
+            "branches_url": "str",
+            "clone_url": "str",
+            "collaborators_url": "str",
+            "comments_url": "str",
+            "commits_url": "str",
+            "compare_url": "str",
+            "contents_url": "str",
+            "contributors_url": "str",
+            "created_at": "str",
+            "custom_properties": {},
+            "default_branch": "str",
+            "deployments_url": "str",
+            "description": "str",
+            "disabled": "bool",
+            "downloads_url": "str",
+            "events_url": "str",
+            "fork": "bool",
+            "forks": "int",
+            "forks_count": "int",
+            "forks_url": "str",
+            "full_name": "str",
+            "git_commits_url": "str",
+            "git_refs_url": "str",
+            "git_tags_url": "str",
+            "git_url": "str",
+            "has_discussions": "bool",
+            "has_downloads": "bool",
+            "has_issues": "bool",
+            "has_pages": "bool",
+            "has_projects": "bool",
+            "has_pull_requests": "bool",
+            "has_wiki": "bool",
+            "homepage": "str",
+            "hooks_url": "str",
+            "html_url": "str"
+          }
+        },
+        "open_meteo": {
+          "base": "https://api.open-meteo.com",
+          "credentials_required": false,
+          "method": "GET",
+          "required_response_fields": [
+            "latitude",
+            "longitude",
+            "current"
+          ],
+          "route_evidence": "/v1/forecast",
+          "side_effect_class": "read_only",
+          "typed_schema": {
+            "current": {
+              "interval": "int",
+              "temperature_2m": "float",
+              "time": "str",
+              "wind_speed_10m": "float"
+            },
+            "current_units": {
+              "interval": "str",
+              "temperature_2m": "str",
+              "time": "str",
+              "wind_speed_10m": "str"
+            },
+            "elevation": "float",
+            "generationtime_ms": "float",
+            "latitude": "float",
+            "longitude": "float",
+            "timezone": "str",
+            "timezone_abbreviation": "str",
+            "utc_offset_seconds": "int"
+          }
+        },
+        "pypi": {
+          "base": "https://pypi.org",
+          "credentials_required": false,
+          "method": "GET",
+          "required_response_fields": [
+            "info",
+            "releases"
+          ],
+          "route_evidence": "/pypi/&lt;project&gt;/json",
+          "side_effect_class": "read_only",
+          "typed_schema": {
+            "info": {
+              "author": "str",
+              "author_email": "NoneType",
+              "bugtrack_url": "NoneType",
+              "classifiers": {
+                "item": "str",
+                "type": "array"
+              },
+              "description": "str",
+              "description_content_type": "str",
+              "docs_url": "NoneType",
+              "download_url": "NoneType",
+              "downloads": {
+                "last_day": "int",
+                "last_month": "int",
+                "last_week": "int"
+              },
+              "dynamic": "NoneType",
+              "home_page": "NoneType",
+              "keywords": "NoneType",
+              "license": "NoneType",
+              "license_expression": "str",
+              "license_files": {
+                "item": "str",
+                "type": "array"
+              },
+              "maintainer": "NoneType",
+              "maintainer_email": "str",
+              "name": "str",
+              "package_url": "str",
+              "platform": "NoneType",
+              "project_url": "str",
+              "project_urls": {
+                "documentation": "str",
+                "download": "str",
+                "homepage": "str",
+                "release notes": "str",
+                "source": "str",
+                "tracker": "str"
+              },
+              "provides_extra": "NoneType",
+              "release_url": "str",
+              "requires_dist": "NoneType",
+              "requires_python": "str",
+              "summary": "str",
+              "version": "str",
+              "yanked": "bool",
+              "yanked_reason": "NoneType"
+            },
+            "last_serial": "int",
+            "ownership": {
+              "organization": "str",
+              "roles": {
+                "item": "dict",
+                "type": "array"
+              }
+            },
+            "releases": {
+              "0.9.6": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "0.9.8": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.0.3": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0.4": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0b1": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0b4": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0b5": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0rc1": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0rc2": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.0rc3": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.1.1": {
+                "item": "unknown",
+                "type": "array"
+              },
+              "1.10.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.10.4": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.11.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.12.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.12.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.13.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.13.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.13.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.4": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.5": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.14.6": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.1": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.2": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.3": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.15.4": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.16.0": {
+                "item": "dict",
+                "type": "array"
+              },
+              "1.16.1": {
+                "item": "dict",
+                "type": "array"
+              }
+            },
+            "urls": {
+              "item": {
+                "comment_text": "NoneType",
+                "core-metadata": "dict",
+                "digests": "dict",
+                "downloads": "int",
+                "filename": "str",
+                "has_sig": "bool",
+                "md5_digest": "str",
+                "packagetype": "str",
+                "python_version": "str",
+                "requires_python": "str",
+                "size": "int",
+                "upload_time": "str",
+                "upload_time_iso_8601": "str",
+                "url": "str",
+                "yanked": "bool",
+                "yanked_reason": "NoneType"
+              },
+              "type": "array"
+            },
+            "vulnerabilities": {
+              "item": "unknown",
+              "type": "array"
+            }
+          }
+        }
+      },
+      "created_at": "2026-07-31T20:39:50.137973+00:00",
+      "gate": {
+        "accepted": false,
+        "credentials_used": false,
+        "development_and_transfer_calls": 6,
+        "documentation_routes_discovered": 3,
+        "independent_public_api_authorities": 3,
+        "information_action_reduction_vs_cold": 0.5,
+        "invalid_parameter_rejection_demonstrated": false,
+        "non_get_requests": 0,
+        "official_document_sources": 3,
+        "source_disjoint_transfers": 3,
+        "successful_calls": 6,
+        "typed_adapters_invented": 3,
+        "unsafe_or_paid_actions": 0
+      }
+    }
+  },
+  "open_relation_ontologies": {},
+  "open_topology_models": {},
+  "open_world_claims": {},
+  "open_world_projects": {},
+  "open_world_sources": {},
+  "operator_counterexamples": [],
+  "operator_synthesis_sessions": [],
+  "operator_transfer_evaluations": {},
+  "outcome_grounded_skills": {},
+  "outcome_grounding_sessions": [],
+  "outcomes": [
+    {
+      "evidence": {
+        "cohort_id": "public_api_2191344fdf16fcca",
+        "gate": {
+          "accepted": false,
+          "credentials_used": false,
+          "development_and_transfer_calls": 6,
+          "documentation_routes_discovered": 3,
+          "independent_public_api_authorities": 3,
+          "information_action_reduction_vs_cold": 0.5,
+          "invalid_parameter_rejection_demonstrated": false,
+          "non_get_requests": 0,
+          "official_document_sources": 3,
+          "source_disjoint_transfers": 3,
+          "successful_calls": 6,
+          "typed_adapters_invented": 3,
+          "unsafe_or_paid_actions": 0
+        }
+      },
+      "outcome_id": "outcome_a6d8a6b710b8478b",
+      "procedure_id": "procedure_open_public_api_acquisition_80b9a41d73c6",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": false,
+      "timestamp": "2026-07-31T20:39:50.139218+00:00"
+    },
+    {
+      "evidence": {
+        "cohort_id": "public_api_064f387eb76a9808",
+        "gate": {
+          "accepted": true,
+          "credentials_used": false,
+          "development_and_transfer_calls": 6,
+          "documentation_routes_discovered": 3,
+          "independent_public_api_authorities": 3,
+          "information_action_reduction_vs_cold": 0.5,
+          "invalid_parameter_rejection_demonstrated": true,
+          "non_get_requests": 0,
+          "official_document_sources": 3,
+          "source_disjoint_transfers": 3,
+          "successful_calls": 6,
+          "typed_adapters_invented": 3,
+          "unsafe_or_paid_actions": 0
+        }
+      },
+      "outcome_id": "outcome_2fe0f18c826e4fe4",
+      "procedure_id": "procedure_open_public_api_acquisition_80b9a41d73c6",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.0,
+      "success": true,
+      "timestamp": "2026-07-31T20:40:21.540369+00:00"
+    }
+  ],
+  "polyglot_execution_contracts": {},
+  "primitive_invention_sessions": [],
+  "procedure_mutation_cycles": [],
+  "procedures": {
+    "procedure_open_public_api_acquisition_80b9a41d73c6": {
+      "evidence": {
+        "cohort_id": "public_api_064f387eb76a9808",
+        "gate": {
+          "accepted": true,
+          "credentials_used": false,
+          "development_and_transfer_calls": 6,
+          "documentation_routes_discovered": 3,
+          "independent_public_api_authorities": 3,
+          "information_action_reduction_vs_cold": 0.5,
+          "invalid_parameter_rejection_demonstrated": true,
+          "non_get_requests": 0,
+          "official_document_sources": 3,
+          "source_disjoint_transfers": 3,
+          "successful_calls": 6,
+          "typed_adapters_invented": 3,
+          "unsafe_or_paid_actions": 0
+        }
+      },
+      "goal": "open_public_api_acquisition",
+      "procedure_id": "procedure_open_public_api_acquisition_80b9a41d73c6",
+      "promoted_at": "2026-07-31T20:40:21.530612+00:00",
+      "schema_version": "aion.hexcore.procedure_candidate.v1",
+      "score": 1.0,
+      "source_rules": [],
+      "status": "champion",
+      "steps": [
+        "read_official_documentation",
+        "discover_endpoint_route",
+        "probe_parameter_failure",
+        "infer_typed_response_schema",
+        "execute_read_only_adapter",
+        "transfer_to_unseen_target",
+        "retain_or_reject"
+      ],
+      "success": true
+    }
+  },
+  "program_evolution": {},
+  "program_induction_sessions": [],
+  "project_failure_models": {},
+  "project_learning_challengers": {},
+  "project_learning_generations": {},
+  "project_outcome_ledger": [],
+  "project_repair_counterexamples": [],
+  "project_repair_invention_sessions": [],
+  "project_revision_events": [],
+  "project_scientist_curricula": [],
+  "promotion_history": [
+    {
+      "evidence_hash": "9472a45eaf1fc6519c0e1f63ce8912b86aec7013c394e6635e08cc39adcffd73",
+      "goal": "open_public_api_acquisition",
+      "new_champion_id": "procedure_open_public_api_acquisition_80b9a41d73c6",
+      "previous_champion_id": null,
+      "schema_version": "aion.hexcore.procedure_promotion.v1",
+      "score": 1.0,
+      "timestamp": "2026-07-31T20:40:21.530681+00:00"
+    }
+  ],
+  "property_invention_sessions": [],
+  "provider_substrate_registry": {},
+  "raw_event_streams": {},
+  "real_file_projects": {},
+  "real_outcome_authorities": {},
+  "real_outcome_observations": [],
+  "relation_models": {},
+  "relational_world_models": {},
+  "repair_interference_experiments": [],
+  "repair_interference_generations": {},
+  "repair_interference_models": {},
+  "repository_experiment_sessions": [],
+  "repository_project_checkpoints": {},
+  "repository_semantic_ontologies": {},
+  "representation_learning_sessions": [],
+  "representation_models": {},
+  "representation_revision_generations": [],
+  "reproducibility_audits": [],
+  "revision": 5,
+  "sandbox_patch_library": {},
+  "schema_learning_projects": {},
+  "schema_revision_sessions": [],
+  "schema_version": "aion.hexcore.persistent_learning_store.v1",
+  "scientific_curriculum_generations": [],
+  "self_improvement_generations": {},
+  "semantic_memory_router_trials": [],
+  "semantic_transfer_evaluations": [],
+  "skill_contracts": {},
+  "source_disjoint_patch_library": {},
+  "source_disjoint_repair_curricula": [],
+  "source_disjoint_repair_sessions": [],
+  "structural_analogies": {},
+  "synthesized_historical_patches": {},
+  "technology_selection_policies": {},
+  "technology_selection_sessions": [],
+  "theory_revisions": [],
+  "tool_invention_sessions": [],
+  "tool_outcomes": [],
+  "tool_skills": {},
+  "topology_induction_sessions": [],
+  "typed_dsl_programs": {},
+  "updated_at": "2026-07-31T20:40:21.546488+00:00",
+  "verified_execution_adapters": {},
+  "verified_property_programs": {},
+  "verified_subprogram_library": {},
+  "workspace_outcomes": [],
+  "workspace_sessions": {},
+  "world_model_sessions": {},
+  "world_rules": {}
+}

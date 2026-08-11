@@ -35,22 +35,24 @@ def test_xero_connect_reports_real_configuration_requirements(monkeypatch, tmp_p
     assert result["connection"]["external_writes_enabled"] is False
 
 
-def test_xero_connect_uses_pkce_and_read_only_granular_scopes(monkeypatch, tmp_path: Path) -> None:
+def test_xero_connect_uses_pkce_and_exact_write_granular_scopes(monkeypatch, tmp_path: Path) -> None:
     configure_runtime(monkeypatch, tmp_path)
     monkeypatch.setenv("XERO_CLIENT_ID", "test-client-id")
     result = xero_api.xero_connect("Home Fixed")
     assert result["ok"] is True
     assert "code_challenge=" in result["connect_url"]
     assert "code_challenge_method=S256" in result["connect_url"]
-    assert "accounting.invoices.read" in result["connect_url"]
-    assert "accounting.manualjournals.read" in result["connect_url"]
+    assert "accounting.invoices" in result["connect_url"]
+    assert "accounting.contacts" in result["connect_url"]
+    assert "accounting.manualjournals" in result["connect_url"]
+    assert "accounting.attachments" in result["connect_url"]
     assert "projects.read" in result["connect_url"]
     pending = json.loads((AIONBusinessPaths.business_container_dir("home-fixed") / "integrations/xero/oauth_pending.json").read_text())
     assert pending["code_verifier"]
     assert "access_token" not in pending
 
 
-def test_existing_xero_connection_reports_when_new_read_only_scopes_need_reauthorisation(monkeypatch, tmp_path: Path) -> None:
+def test_existing_xero_connection_reports_when_exact_write_scopes_need_reauthorisation(monkeypatch, tmp_path: Path) -> None:
     configure_runtime(monkeypatch, tmp_path)
     monkeypatch.setenv("XERO_CLIENT_ID", "test-client-id")
     xero_api._write_json(xero_api._connection_path("home-fixed"), {
@@ -59,11 +61,30 @@ def test_existing_xero_connection_reports_when_new_read_only_scopes_need_reautho
     })
     connection = xero_api._public_connection("home-fixed")
     assert connection["reauthorisation_required"] is True
-    assert "accounting.manualjournals.read" in connection["missing_scopes"]
+    assert "accounting.manualjournals" in connection["missing_scopes"]
+    assert "accounting.attachments" in connection["missing_scopes"]
     assert "projects.read" in connection["missing_scopes"]
     pilot = (ROOT / "desktop/mac/src/aion_finance_pilot.js").read_text(encoding="utf-8")
     assert "Reauthorise Xero" in pilot
-    assert "manual journals and projects" in pilot
+    assert "granular invoice, payment, bank-transaction, journal, attachment and contact permissions" in pilot
+
+
+def test_cancelled_xero_reauthorisation_preserves_existing_connection(monkeypatch, tmp_path: Path) -> None:
+    configure_runtime(monkeypatch, tmp_path)
+    monkeypatch.setenv("XERO_CLIENT_ID", "test-client-id")
+    existing = {"status": "connected", "tenant_id": "tenant-1", "tenant_name": "Home Fixed",
+                "scopes": ["offline_access", "accounting.invoices.read"]}
+    xero_api._write_json(xero_api._connection_path("home-fixed"), existing)
+    started = xero_api.xero_connect("home-fixed")
+    assert started["connection"]["connected"] is True
+    assert started["connection"]["reauthorisation_pending"] is True
+    pending = json.loads((AIONBusinessPaths.business_container_dir("home-fixed") / "integrations/xero/oauth_pending.json").read_text())
+    response = asyncio.run(xero_api.xero_callback(state=pending["state"], error="access_denied"))
+    assert response.status_code == 400
+    restored = xero_api._public_connection("home-fixed")
+    assert restored["connected"] is True
+    assert restored["tenant_id"] == "tenant-1"
+    assert restored["reauthorisation_pending"] is False
 
 
 def test_xero_read_only_sync_updates_canonical_finance_model(monkeypatch, tmp_path: Path) -> None:
@@ -150,6 +171,32 @@ def test_xero_provider_calls_use_bounded_retry_and_secret_free_diagnostics(monke
         assert exc.detail["code"] == "xero_provider_unavailable"
         assert exc.detail["attempt"] == 3
         assert "secret-token" not in str(exc.detail)
+
+
+def test_xero_mutation_uses_exact_idempotency_key_and_tenant_context(monkeypatch) -> None:
+    captured = {}
+
+    class Response:
+        status_code = 200
+        def json(self): return {"Invoices": [{"InvoiceID": "invoice-1"}]}
+
+    class Client:
+        def __init__(self, **_kwargs): pass
+        async def __aenter__(self): return self
+        async def __aexit__(self, *_args): return False
+        async def request(self, method, url, **kwargs):
+            captured.update({"method": method, "url": url, **kwargs}); return Response()
+
+    monkeypatch.setattr(xero_api.httpx, "AsyncClient", Client)
+    result = asyncio.run(xero_api._xero_put(
+        "safe-token", "tenant-1", "Invoices", {"Invoices": [{"Type": "ACCPAY"}]},
+        idempotency_key="aion-exact-contract", business_id="home-fixed",
+    ))
+    assert result["Invoices"][0]["InvoiceID"] == "invoice-1"
+    assert captured["method"] == "PUT"
+    assert captured["headers"]["Idempotency-Key"] == "aion-exact-contract"
+    assert captured["headers"]["Xero-tenant-id"] == "tenant-1"
+    assert captured["json"] == {"Invoices": [{"Type": "ACCPAY"}]}
 
 
 def test_xero_connector_attempts_create_secret_free_restart_durable_receipts(monkeypatch, tmp_path: Path) -> None:

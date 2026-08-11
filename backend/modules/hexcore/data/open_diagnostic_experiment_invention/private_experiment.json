@@ -1,0 +1,60 @@
+{
+  "experiment": {
+    "ambient_authority": [],
+    "capability_class": "bounded_read_only_diagnostic",
+    "commit_before_outcomes": true,
+    "experiment_id": "ADAPTIVE_CROSSOVER_AUTHORITY_TRIANGULATION",
+    "hypotheses": [
+      "candidate_defect",
+      "evidence_defect",
+      "environment_change",
+      "critic_defect"
+    ],
+    "maximum_actions": 4,
+    "single_cause_assumption": true,
+    "tree": {
+      "action": "alternate_candidate_same_evidence",
+      "if_false": {
+        "action": "changed_rule_later_retest",
+        "if_false": {
+          "action": "independent_outcome_without_critic",
+          "if_false": {
+            "diagnosis": "evidence_defect"
+          },
+          "if_true": {
+            "diagnosis": "critic_defect"
+          }
+        },
+        "if_true": {
+          "diagnosis": "environment_change"
+        }
+      },
+      "if_true": {
+        "diagnosis": "candidate_defect"
+      }
+    },
+    "unknown_signature_policy": "ABSTAIN"
+  },
+  "experiment_sha256": "68d88cf15ea8b91ea4e8773f33a847204d2429540f74f73e88b7a8509ead4ae9",
+  "status": "PRIVATE_PENDING_LATER_AUTHORITY",
+  "synthesis": [
+    {
+      "kind": "repeat_original_measurement",
+      "rejected": "same_observation_no_hypothesis_separation"
+    },
+    {
+      "kind": "increase_probe_magnitude",
+      "rejected": "risk_increase_without_origin_information"
+    },
+    {
+      "kind": "consult_hidden_failure_label",
+      "rejected": "authority_leakage"
+    },
+    {
+      "accepted_private": true,
+      "description_length": 715,
+      "expected_queries": 1.75,
+      "kind": "ADAPTIVE_CROSSOVER_AUTHORITY_TRIANGULATION"
+    }
+  ]
+}

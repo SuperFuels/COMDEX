@@ -1,0 +1,991 @@
+{
+  "champions": {
+    "memory": {
+      "candidate_repair": "rebuild_provenance_index",
+      "index_policy": "hash_bound",
+      "provenance_required": true,
+      "surface_namespace": "unseen_memory",
+      "version": 2
+    },
+    "perception": {
+      "candidate_repair": "restore_input_normalization",
+      "normalization": true,
+      "shape_contract": "records",
+      "surface_namespace": "unseen_perception",
+      "version": 2
+    },
+    "planning": {
+      "acyclic_required": true,
+      "candidate_repair": "repair_dependency_dag",
+      "surface_namespace": "unseen_planning",
+      "verification_terminal": true,
+      "version": 2
+    },
+    "reasoning": {
+      "boundary_operator": ">=",
+      "candidate_repair": "correct_boundary_operator",
+      "counterexample_required": true,
+      "surface_namespace": "unseen_reasoning",
+      "version": 2
+    },
+    "runtime": {
+      "candidate_repair": "migrate_checkpoint_schema",
+      "commit_before_act": true,
+      "migration_policy": "fill_required_defaults",
+      "surface_namespace": "unseen_runtime",
+      "version": 2
+    },
+    "tool": {
+      "candidate_repair": "rebind_tool_schema",
+      "read_only": true,
+      "schema_binding": "introspected",
+      "surface_namespace": "unseen_tool",
+      "version": 2
+    }
+  },
+  "rejections": [],
+  "repair_priors": {
+    "4fbefa74683a12ab": {
+      "component": "runtime",
+      "repair": "migrate_checkpoint_schema",
+      "verified": true
+    },
+    "688556333a03a387": {
+      "component": "tool",
+      "repair": "rebind_tool_schema",
+      "verified": true
+    },
+    "bb36ec6e79a0009f": {
+      "component": "planning",
+      "repair": "repair_dependency_dag",
+      "verified": true
+    },
+    "d3513fc922f02aed": {
+      "component": "perception",
+      "repair": "restore_input_normalization",
+      "verified": true
+    },
+    "dc44e45df7c24508": {
+      "component": "memory",
+      "repair": "rebuild_provenance_index",
+      "verified": true
+    },
+    "f495e84bc2a5e66c": {
+      "component": "reasoning",
+      "repair": "correct_boundary_operator",
+      "verified": true
+    }
+  },
+  "rollbacks": [],
+  "sessions": [
+    {
+      "attempts": 2,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "development",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "observed_shape_violates_input_contract"
+        ],
+        "component": "perception",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "e617d24e8c3650714c10aa2279b1717c3cf27734221ea201b2d423c450ff8247",
+          "source": "hidden_contract:perception"
+        }
+      ],
+      "expected_component": "perception",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "restore_input_normalization",
+      "status": "promoted_private_component",
+      "task_id": "perception:development",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "127c9bcee4db6d81907eea6af1287d0b526466e6ba94b44e8394d2c48e49371a",
+                "source": "hidden_contract:perception"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "no_op"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "e617d24e8c3650714c10aa2279b1717c3cf27734221ea201b2d423c450ff8247",
+                "source": "hidden_contract:perception"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "restore_input_normalization"
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "transfer",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "observed_shape_violates_input_contract"
+        ],
+        "component": "perception",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "e617d24e8c3650714c10aa2279b1717c3cf27734221ea201b2d423c450ff8247",
+          "source": "hidden_contract:perception"
+        }
+      ],
+      "expected_component": "perception",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "restore_input_normalization",
+      "status": "promoted_private_component",
+      "task_id": "perception:transfer",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "e617d24e8c3650714c10aa2279b1717c3cf27734221ea201b2d423c450ff8247",
+                "source": "hidden_contract:perception"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "restore_input_normalization"
+        }
+      ]
+    },
+    {
+      "attempts": 3,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "development",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "retrieved_evidence_hash_is_stale"
+        ],
+        "component": "memory",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "dd60e21a5ad64c0d02e3d8920bb66e54d7c2229a1148ac11616907eea1f7f22b",
+          "source": "hidden_contract:memory"
+        }
+      ],
+      "expected_component": "memory",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "rebuild_provenance_index",
+      "status": "promoted_private_component",
+      "task_id": "memory:development",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "0cbdf00809005c70ac193b87424070a1ca60e02450cc65059e42aa1ad7e8a850",
+                "source": "hidden_contract:memory"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "no_op"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "00ecca3a830125224295d163cd3be2aa58e4a9258e3b4c1c260eeacd9db660f9",
+                "source": "hidden_contract:memory"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "restore_input_normalization"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "dd60e21a5ad64c0d02e3d8920bb66e54d7c2229a1148ac11616907eea1f7f22b",
+                "source": "hidden_contract:memory"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "rebuild_provenance_index"
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "transfer",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "retrieved_evidence_hash_is_stale"
+        ],
+        "component": "memory",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "dd60e21a5ad64c0d02e3d8920bb66e54d7c2229a1148ac11616907eea1f7f22b",
+          "source": "hidden_contract:memory"
+        }
+      ],
+      "expected_component": "memory",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "rebuild_provenance_index",
+      "status": "promoted_private_component",
+      "task_id": "memory:transfer",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "dd60e21a5ad64c0d02e3d8920bb66e54d7c2229a1148ac11616907eea1f7f22b",
+                "source": "hidden_contract:memory"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "rebuild_provenance_index"
+        }
+      ]
+    },
+    {
+      "attempts": 4,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "development",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "boundary_counterexample_disagrees_with_prediction"
+        ],
+        "component": "reasoning",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "d012353e212b8a3041b6ee9b0406e3d290226b913fe11f1621d62f79f090a169",
+          "source": "hidden_contract:reasoning"
+        }
+      ],
+      "expected_component": "reasoning",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "correct_boundary_operator",
+      "status": "promoted_private_component",
+      "task_id": "reasoning:development",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "af925361c4d8f6381066e7dfdacd9df0bdf9a6fc000ea208cd554ab5513fa5ef",
+                "source": "hidden_contract:reasoning"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "no_op"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "0728645cf5fd8c297eace5bcd94c0066406b9f1a3ce440de82315fa432abc401",
+                "source": "hidden_contract:reasoning"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "restore_input_normalization"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "8530b200c0393de2b824e0acf3b6c73da938d6d57eb4c1cddb6f05455464cf7c",
+                "source": "hidden_contract:reasoning"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "rebuild_provenance_index"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "d012353e212b8a3041b6ee9b0406e3d290226b913fe11f1621d62f79f090a169",
+                "source": "hidden_contract:reasoning"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "correct_boundary_operator"
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "transfer",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "boundary_counterexample_disagrees_with_prediction"
+        ],
+        "component": "reasoning",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "d012353e212b8a3041b6ee9b0406e3d290226b913fe11f1621d62f79f090a169",
+          "source": "hidden_contract:reasoning"
+        }
+      ],
+      "expected_component": "reasoning",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "correct_boundary_operator",
+      "status": "promoted_private_component",
+      "task_id": "reasoning:transfer",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "d012353e212b8a3041b6ee9b0406e3d290226b913fe11f1621d62f79f090a169",
+                "source": "hidden_contract:reasoning"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "correct_boundary_operator"
+        }
+      ]
+    },
+    {
+      "attempts": 5,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "development",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "goal_dependency_graph_contains_cycle"
+        ],
+        "component": "planning",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "9255d6eb9439fb99b3dfb33970a865f950b4d54bf37daf71afd4850c1da10590",
+          "source": "hidden_contract:planning"
+        }
+      ],
+      "expected_component": "planning",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "repair_dependency_dag",
+      "status": "promoted_private_component",
+      "task_id": "planning:development",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "e01f0632cf8ebd22494618a0089e1f2e59e8bb480655aae6f32dfb050e44bf46",
+                "source": "hidden_contract:planning"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "no_op"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "e659439fa7ca64f5ef47f05304c0044405c8024c66a891df3af39f084daa4269",
+                "source": "hidden_contract:planning"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "restore_input_normalization"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "3d14a9b7bcf9d1cf8eeac7226ff0f245adf485996367b4558184f7ecea0a3617",
+                "source": "hidden_contract:planning"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "rebuild_provenance_index"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "0b6357c711ec049c0bb30cf26fd0be44c221559dc7e9476c820ebec6dec69946",
+                "source": "hidden_contract:planning"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "correct_boundary_operator"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "9255d6eb9439fb99b3dfb33970a865f950b4d54bf37daf71afd4850c1da10590",
+                "source": "hidden_contract:planning"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "repair_dependency_dag"
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "transfer",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "goal_dependency_graph_contains_cycle"
+        ],
+        "component": "planning",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "9255d6eb9439fb99b3dfb33970a865f950b4d54bf37daf71afd4850c1da10590",
+          "source": "hidden_contract:planning"
+        }
+      ],
+      "expected_component": "planning",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "repair_dependency_dag",
+      "status": "promoted_private_component",
+      "task_id": "planning:transfer",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "9255d6eb9439fb99b3dfb33970a865f950b4d54bf37daf71afd4850c1da10590",
+                "source": "hidden_contract:planning"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "repair_dependency_dag"
+        }
+      ]
+    },
+    {
+      "attempts": 6,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "development",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "response_field_missing_under_new_schema"
+        ],
+        "component": "tool",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "5ac709bbb0793067f9da2dbad070a24aba500e2d0ad666cf420d2d7fb2deb90b",
+          "source": "hidden_contract:tool"
+        }
+      ],
+      "expected_component": "tool",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "rebind_tool_schema",
+      "status": "promoted_private_component",
+      "task_id": "tool:development",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "d0948e932d7558ee2d3df49ca0611f1ffc7c6f7fbddabb809beafcbae529e9ab",
+                "source": "hidden_contract:tool"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "no_op"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "7e98d63bf952e60517e2c67f5f7b5d932109e53d29e9935b418ff4568e91d8d7",
+                "source": "hidden_contract:tool"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "restore_input_normalization"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "140aa7b28369b795e603ca7c18944dd2b11091a4c7775735154af92f10a41369",
+                "source": "hidden_contract:tool"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "rebuild_provenance_index"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "89bd717b10e3e02ade5796304e0e2f76f1e62b90820ca7d78a99fdb286df221f",
+                "source": "hidden_contract:tool"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "correct_boundary_operator"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "2f89cb54ae5943f6cb93bad75e0dfed0ece216d7d01610a64591b1cece739d9a",
+                "source": "hidden_contract:tool"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "repair_dependency_dag"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "5ac709bbb0793067f9da2dbad070a24aba500e2d0ad666cf420d2d7fb2deb90b",
+                "source": "hidden_contract:tool"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "rebind_tool_schema"
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "transfer",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "response_field_missing_under_new_schema"
+        ],
+        "component": "tool",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "5ac709bbb0793067f9da2dbad070a24aba500e2d0ad666cf420d2d7fb2deb90b",
+          "source": "hidden_contract:tool"
+        }
+      ],
+      "expected_component": "tool",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "rebind_tool_schema",
+      "status": "promoted_private_component",
+      "task_id": "tool:transfer",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "5ac709bbb0793067f9da2dbad070a24aba500e2d0ad666cf420d2d7fb2deb90b",
+                "source": "hidden_contract:tool"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "rebind_tool_schema"
+        }
+      ]
+    },
+    {
+      "attempts": 7,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "development",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "checkpoint_missing_required_state_keys"
+        ],
+        "component": "runtime",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "04e1c5b47ba584eeebd46032f5daf8129ea5e2db5a1fa9d5a1a54d0547330d71",
+          "source": "hidden_contract:runtime"
+        }
+      ],
+      "expected_component": "runtime",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "migrate_checkpoint_schema",
+      "status": "promoted_private_component",
+      "task_id": "runtime:development",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "9f906a6ac0e6e6da581516c8b40540cc8d530e9b60fd33088cdc9e1d52b55191",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "no_op"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "39b5c977cfff8640a7000a1eb8fa2f6af127b3881355a31cdb29babffc9c23d8",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "restore_input_normalization"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "4e395e55a5dad276421868368109b6866850b7292b5a1087a41164ad70c31ce4",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "rebuild_provenance_index"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "7bfd9e4038e52ef1c25c2f410d47cebc3189d1ea353d62e0446a18e875e45cc2",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "correct_boundary_operator"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "746f7bd206f893a150d8c964800d25a74811c9c640b741bdf02d88c2e9fda4e9",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "repair_dependency_dag"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "4eb18d93c98db7391113e833d50cd6c0820fbbbd73cb15c4adda86b312941eba",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 0,
+            "forward_tests": 4,
+            "verified": false
+          },
+          "repair": "rebind_tool_schema"
+        },
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "04e1c5b47ba584eeebd46032f5daf8129ea5e2db5a1fa9d5a1a54d0547330d71",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "migrate_checkpoint_schema"
+        }
+      ]
+    },
+    {
+      "attempts": 1,
+      "authority": "hidden_component_contract_authority",
+      "backward_passed": true,
+      "cohort": "transfer",
+      "diagnosis": {
+        "abstain": false,
+        "active_signals": [
+          "checkpoint_missing_required_state_keys"
+        ],
+        "component": "runtime",
+        "confidence": 1.0
+      },
+      "evidence": [
+        {
+          "hash": "04e1c5b47ba584eeebd46032f5daf8129ea5e2db5a1fa9d5a1a54d0547330d71",
+          "source": "hidden_contract:runtime"
+        }
+      ],
+      "expected_component": "runtime",
+      "forward_passed": true,
+      "live_unchanged_during_trial": true,
+      "localization_correct": true,
+      "selected_repair": "migrate_checkpoint_schema",
+      "status": "promoted_private_component",
+      "task_id": "runtime:transfer",
+      "trials": [
+        {
+          "audit": {
+            "authority": "hidden_component_contract_authority",
+            "backward_passed": 6,
+            "backward_tests": 6,
+            "evidence": [
+              {
+                "hash": "04e1c5b47ba584eeebd46032f5daf8129ea5e2db5a1fa9d5a1a54d0547330d71",
+                "source": "hidden_contract:runtime"
+              }
+            ],
+            "forward_passed": 4,
+            "forward_tests": 4,
+            "verified": true
+          },
+          "repair": "migrate_checkpoint_schema"
+        }
+      ]
+    }
+  ]
+}

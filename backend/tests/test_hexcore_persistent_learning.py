@@ -213,6 +213,48 @@ from backend.modules.hexcore.learned_repair_contract_discovery_benchmark import 
 from backend.modules.hexcore.learned_repair_interference_benchmark import (
     run_phase63_learned_repair_interference,
 )
+from backend.modules.hexcore.raw_event_representation_learning_benchmark import (
+    run_raw_event_representation_learning,
+)
+from backend.modules.hexcore.real_outcome_grounding_benchmark import (
+    run_real_outcome_grounding,
+)
+from backend.modules.hexcore.autonomous_capability_curriculum_benchmark import (
+    run_autonomous_capability_curriculum,
+)
+from backend.modules.hexcore.open_topology_natural_event_induction_benchmark import (
+    run_open_topology_natural_event_induction,
+)
+from backend.modules.hexcore.human_judgment_evaluation_protocol import (
+    prepare_human_judgment_protocol,
+)
+from backend.modules.hexcore.continuous_natural_world_learning_benchmark import (
+    run_continuous_natural_world_learning,
+)
+from backend.modules.hexcore.outcome_driven_world_revision_benchmark import (
+    run_outcome_driven_world_revision,
+)
+from backend.modules.hexcore.open_continuous_operator_invention_benchmark import (
+    run_open_continuous_operator_invention,
+)
+from backend.modules.hexcore.compositional_multivariate_discovery_benchmark import (
+    run_compositional_multivariate_discovery,
+)
+from backend.modules.hexcore.open_causal_scientific_learning_benchmark import (
+    run_open_causal_scientific_learning,
+)
+from backend.modules.hexcore.real_repository_experimental_scientist_benchmark import (
+    run_real_repository_experimental_scientist,
+)
+from backend.modules.hexcore.natural_historical_repository_repair_benchmark import (
+    run_natural_historical_repository_repair,
+)
+from backend.modules.hexcore.open_outcome_project_scientist_benchmark import (
+    run_open_outcome_project_scientist,
+)
+from backend.modules.hexcore.natural_repair_substrate_comparison_benchmark import (
+    run_natural_repair_substrate_comparison,
+)
 from backend.modules.hexcore.persistent_learning import (
     EvidenceCapsule,
     HexCorePersistentLearningRuntime,
@@ -1342,6 +1384,400 @@ def test_repair_interference_is_learned_and_reorders_composition(
     assert result["gate"]["ambiguous_interference_abstention"] is True
     assert result["gate"]["unsafe_side_effects"] == 0
     assert result["restart"]["relearning_experiments"] == 0
+
+
+def test_raw_event_vocabulary_is_invented_and_transfers_under_renaming(
+    tmp_path: Path,
+) -> None:
+    result = run_raw_event_representation_learning(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "raw_representation_state.json",
+        workspace_root=tmp_path / "raw_representation_workspaces",
+        result_path=tmp_path / "raw_representation_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["semantic_state_labels_supplied"] is False
+    assert result["gate"]["semantic_relation_labels_supplied"] is False
+    assert result["gate"]["raw_field_names_shared_between_domains"] is False
+    assert result["gate"]["development_structural_invariance"] is True
+    assert result["gate"]["sealed_mean_state_accuracy"] >= 0.95
+    assert result["gate"]["sealed_weakest_state_accuracy"] >= 0.90
+    assert result["gate"]["sealed_mean_transition_accuracy"] >= 0.95
+    assert result["gate"]["sealed_weakest_transition_accuracy"] >= 0.90
+    assert result["gate"]["observation_reduction_vs_exhaustive"] >= 0.80
+    assert result["gate"]["non_analogous_abstention"] is True
+    assert result["gate"]["photon_ir_traceable"] is True
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["relearning_events"] == 0
+
+
+def test_real_outcomes_govern_acceptance_across_independent_authorities(
+    tmp_path: Path,
+) -> None:
+    result = run_real_outcome_grounding(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "real_outcome_state.json",
+        workspace_root=tmp_path / "real_outcome_workspaces",
+        result_path=tmp_path / "real_outcome_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["source_disjoint"] is True
+    assert result["gate"]["real_outcome_families"] == 4
+    assert result["gate"]["challenger_accuracy"] >= 0.95
+    assert result["gate"]["accuracy_gain"] >= 0.40
+    assert result["gate"]["weakest_family_accuracy"] >= 0.90
+    assert result["gate"]["independent_authorities_observed"] == 4
+    assert result["gate"]["proposal_confidence_used_as_truth"] is False
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["relearning_outcomes"] == 0
+
+
+def test_autonomous_curriculum_targets_weaknesses_in_large_arena(
+    tmp_path: Path,
+) -> None:
+    result = run_autonomous_capability_curriculum(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "autonomous_curriculum_state.json",
+        workspace_root=tmp_path / "autonomous_curriculum_workspaces",
+        result_path=tmp_path / "autonomous_curriculum_result.json",
+        arena_tasks=1000,
+    )
+    assert result["passed"] is True
+    assert result["gate"]["generations_completed"] == 4
+    assert result["gate"]["families_trained"] == 4
+    assert result["gate"]["arena_tasks"] == 1000
+    assert result["gate"]["source_disjoint"] is True
+    assert result["gate"]["challenger_accuracy"] >= 0.95
+    assert result["gate"]["weakest_family_accuracy"] >= 0.90
+    assert result["gate"]["probe_reduction"] >= 0.50
+    assert result["gate"]["backward_retention"] is True
+    assert result["gate"]["self_scoring_used_for_promotion"] is False
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["relearning_tasks"] == 0
+
+
+def test_open_topology_is_inferred_from_unfamiliar_natural_event_logs(
+    tmp_path: Path,
+) -> None:
+    result = run_open_topology_natural_event_induction(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "open_topology_state.json",
+        workspace_root=tmp_path / "open_topology_workspaces",
+        result_path=tmp_path / "open_topology_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["semantic_fact_vocabulary_supplied"] is False
+    assert result["gate"]["entity_count_supplied"] is False
+    assert result["gate"]["dimension_count_supplied"] is False
+    assert result["gate"]["latent_mode_count_supplied"] is False
+    assert result["gate"]["variable_count_configurations"] >= 5
+    assert result["gate"]["sealed_exact_structure_rate"] >= 0.95
+    assert result["gate"]["sealed_weakest_relation_recall"] >= 0.95
+    assert result["gate"]["sealed_latent_mode_accuracy"] >= 0.95
+    assert result["gate"]["sealed_persistence_accuracy"] >= 0.95
+    assert result["gate"]["stochastic_ood_abstention"] is True
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["relearning_lines"] == 0
+
+
+def test_human_judgment_protocol_cannot_self_certify_capability(
+    tmp_path: Path,
+) -> None:
+    result = prepare_human_judgment_protocol(
+        output_dir=tmp_path / "human_protocol",
+        result_path=tmp_path / "human_protocol_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["protocol_frozen"] is True
+    assert result["gate"]["development_tasks"] == 6
+    assert result["gate"]["independent_human_evaluation_complete"] is False
+    assert result["gate"]["promotion_open"] is False
+    assert result["capability_promotion"] is False
+
+
+def test_continuous_natural_world_learning_predicts_and_criticizes(
+    tmp_path: Path,
+) -> None:
+    result = run_continuous_natural_world_learning(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "continuous_world_state.json",
+        result_path=tmp_path / "continuous_world_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["semantic_fact_vocabulary_supplied"] is False
+    assert result["gate"]["dimension_count_supplied"] is False
+    assert result["gate"]["continuous_values"] is True
+    assert result["gate"]["coreference_records_resolved"] > 0
+    assert result["gate"]["sealed_exact_structure_rate"] >= 0.90
+    assert result["gate"]["sealed_weakest_relation_recall"] >= 0.90
+    assert result["gate"]["sealed_mean_prediction_accuracy"] >= 0.90
+    assert result["gate"]["sealed_weakest_prediction_accuracy"] >= 0.80
+    assert result["gate"]["sealed_mean_coefficient_mae"] <= 0.06
+    assert result["gate"]["nonlinear_ood_abstention"] is True
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["champion_retained"] is True
+    assert result["restart"]["relearning_records"] == 0
+
+
+def test_outcomes_drive_world_revision_and_continual_retention(
+    tmp_path: Path,
+) -> None:
+    result = run_outcome_driven_world_revision(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "outcome_revision_state.json",
+        result_path=tmp_path / "outcome_revision_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["sealed_diagnosis_accuracy"] >= 0.95
+    assert result["gate"]["sealed_change_detection_accuracy"] >= 0.95
+    assert result["gate"]["sealed_mean_change_point_error"] <= 1.0
+    assert result["gate"]["sealed_challenger_accuracy"] >= 0.95
+    assert result["gate"]["sealed_accuracy_gain"] >= 0.20
+    assert result["gate"]["sealed_weakest_world_accuracy"] >= 0.90
+    assert result["gate"]["alternating_ood_abstention"] is True
+    assert result["gate"]["continual_arena_tasks"] >= 1000
+    assert result["gate"]["all_generations_accepted"] is True
+    assert result["gate"]["final_backward_retention"] >= 0.95
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["three_generations_retained"] is True
+    assert result["restart"]["relearning_outcomes"] == 0
+
+
+def test_open_operator_invention_transfers_and_abstains(
+    tmp_path: Path,
+) -> None:
+    result = run_open_continuous_operator_invention(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "operator_invention_state.json",
+        external_cache_dir=tmp_path / "external_cache",
+        result_path=tmp_path / "operator_invention_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["sealed_operator_recovery"] >= 0.95
+    assert result["gate"]["sealed_weakest_family_recovery"] >= 0.90
+    assert result["gate"]["sealed_counterexample_success"] >= 0.90
+    assert result["gate"]["unstructured_ood_abstention"] is True
+    assert result["gate"]["software_transfer_accuracy"] == 1.0
+    assert result["gate"]["sensor_predictive_transfer"] is True
+    assert result["gate"]["sensor_test_r2"] > 0.0
+    assert result["gate"]["external_sources_with_provenance"] >= 4
+    assert result["gate"]["all_generations_accepted"] is True
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["operator_library_retained"] is True
+    assert result["restart"]["external_provenance_retained"] is True
+    assert result["restart"]["relearning_traces"] == 0
+
+
+def test_compositional_multivariate_discovery_transfers_cost_effectively(
+    tmp_path: Path,
+) -> None:
+    result = run_compositional_multivariate_discovery(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "compositional_multivariate_state.json",
+        external_cache_dir=tmp_path / "external_cache",
+        result_path=tmp_path / "compositional_multivariate_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["sealed_predictive_acceptance"] >= 0.95
+    assert result["gate"]["sealed_weakest_family_acceptance"] >= 0.90
+    assert result["gate"]["sealed_mean_test_r2"] >= 0.95
+    assert result["gate"]["sealed_exact_motif_recovery"] >= 0.95
+    assert result["gate"]["active_counterexample_success"] >= 0.90
+    assert result["gate"]["mean_measurement_cost_saving"] >= 0.05
+    assert result["gate"]["unstructured_ood_abstention"] is True
+    assert result["gate"]["software_test_r2"] >= 0.95
+    assert result["gate"]["sensor_test_r2"] >= 0.50
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["compositional_library_retained"] is True
+    assert result["restart"]["external_provenance_retained"] is True
+    assert result["restart"]["relearning_traces"] == 0
+
+
+def test_open_causal_science_rejects_confounders_and_maintains_theories(
+    tmp_path: Path,
+) -> None:
+    result = run_open_causal_scientific_learning(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "open_causal_science_state.json",
+        result_path=tmp_path / "open_causal_science_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["sealed_world_acceptance"] >= 0.95
+    assert result["gate"]["sealed_mean_motif_recall"] >= 0.95
+    assert result["gate"]["sealed_mean_motif_precision"] >= 0.90
+    assert result["gate"]["sealed_weakest_output_r2"] >= 0.85
+    assert result["gate"]["relevant_variable_recovery"] >= 0.95
+    assert result["gate"]["nuisance_variable_rejection"] >= 0.90
+    assert result["gate"]["latent_count_accuracy"] >= 0.90
+    assert result["gate"]["observational_control_confounder_rate"] >= 0.50
+    assert result["gate"]["causal_learner_confounder_rate"] <= 0.05
+    assert result["gate"]["failure_diagnosis_accuracy"] >= 0.95
+    assert result["gate"]["mean_change_point_error"] <= 2.0
+    assert result["gate"]["unexplained_family_abstention"] is True
+    assert result["gate"]["external_software_change_detection"] is True
+    assert result["gate"]["all_curricula_accepted"] is True
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["causal_theories_retained"] is True
+    assert result["restart"]["revisions_retained"] is True
+    assert result["restart"]["curricula_retained"] is True
+    assert result["restart"]["relearning_events"] == 0
+
+
+def test_repository_scientist_infers_interventions_and_invents_repairs(
+    tmp_path: Path,
+) -> None:
+    result = run_real_repository_experimental_scientist(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "repository_science_state.json",
+        result_path=tmp_path / "repository_science_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["real_repository_files"] >= 3
+    assert result["gate"]["git_provenance_complete"] is True
+    assert result["gate"]["sandbox_project_success"] == 1.0
+    assert result["gate"]["hidden_verification_success"] == 1.0
+    assert result["gate"]["inferred_intervention_accuracy"] == 1.0
+    assert result["gate"]["compound_repair_invented"] is True
+    assert result["gate"]["adaptive_mdl_depth"] >= 2
+    assert result["gate"]["cross_domain_transfer_success"] is True
+    assert result["gate"]["transfer_attempt_reduction"] > 0.0
+    assert result["gate"]["mid_project_process_recovery"] is True
+    assert result["gate"]["live_repository_unchanged"] is True
+    assert result["gate"]["unsafe_live_writes"] == 0
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["patch_library_retained"] is True
+    assert result["restart"]["isomorphism_memory_retained"] is True
+    assert result["restart"]["curriculum_retained"] is True
+    assert result["restart"]["relearning_experiments"] == 0
+
+
+def test_natural_historical_failures_are_repaired_blindly_and_transfer(
+    tmp_path: Path,
+) -> None:
+    result = run_natural_historical_repository_repair(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "natural_historical_repair_state.json",
+        result_path=tmp_path / "natural_historical_repair_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["authentic_historical_failures"] >= 3
+    assert result["gate"]["source_families"] >= 3
+    assert result["gate"]["natural_failure_repair_success"] >= 0.90
+    assert result["gate"]["fault_localization_accuracy"] >= 0.90
+    assert result["gate"]["self_invented_tests_rejected_wrong_patches"] is True
+    assert result["gate"]["held_out_historical_verification"] >= 0.90
+    assert result["gate"]["human_patch_blind_during_search"] is True
+    assert result["gate"]["renamed_transfer_success"] is True
+    assert result["gate"]["transfer_attempt_reduction"] > 0.0
+    assert result["gate"]["live_repository_unchanged"] is True
+    assert result["gate"]["unsafe_live_writes"] == 0
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["restart"]["falsification_tests_retained"] is True
+    assert result["restart"]["patches_retained"] is True
+    assert result["restart"]["transfer_model_retained"] is True
+    assert result["restart"]["relearning_failures"] == 0
+
+
+def test_open_outcome_project_invents_failure_states_and_learns_delayed(
+    tmp_path: Path,
+) -> None:
+    result = run_open_outcome_project_scientist(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "open_outcome_project_state.json",
+        result_path=tmp_path / "open_outcome_project_result.json",
+    )
+    assert result["passed"] is True
+    assert result["gate"]["autonomous_project_nodes"] >= 3
+    assert result["gate"]["supplied_failure_names"] == 0
+    assert result["gate"]["invented_failure_clusters"] >= 3
+    assert result["gate"]["failure_case_separation"] == 1.0
+    assert result["gate"]["delayed_outcome_streams"] >= 3
+    assert result["gate"]["independent_delayed_authority"] is True
+    assert result["gate"]["counterfactual_credit_accuracy"] >= 2 / 3
+    assert result["gate"]["project_accuracy_gain"] > 0.0
+    assert result["gate"]["separate_curriculum_evaluation_authority"] is True
+    assert result["gate"]["mid_project_process_recovery"] is True
+    assert result["gate"]["unsafe_knowledge_commitments"] == 0
+    assert result["restart"]["ontology_retained"] is True
+    assert result["restart"]["delayed_outcomes_retained"] is True
+    assert result["restart"]["curriculum_retained"] is True
+    assert result["restart"]["outcome_replay_required"] == 0
+
+
+def test_natural_repair_substrates_remain_proposal_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def fake_generate(*, model: str, prompt: str, timeout: int = 180):
+        if "invalid syntax" in prompt:
+            proposal = {
+                "diagnosis": "Normalization was placed in the signature.",
+                "repair_plan": (
+                    "Move request normalization inside the function body "
+                    "while retaining the docstring."
+                ),
+                "falsification_tests": [
+                    "Compile the source.",
+                    "Call with a request dictionary and retain documentation.",
+                ],
+                "confidence": 0.9,
+            }
+        elif "NameError" in prompt:
+            proposal = {
+                "diagnosis": "Stable identity includes runtime envelope data.",
+                "repair_plan": (
+                    "Filter timestamp and trace fields while retaining content."
+                ),
+                "falsification_tests": [
+                    "Change timestamp and trace without changing the hash.",
+                    "Change message body content and require a different hash.",
+                ],
+                "confidence": 0.9,
+            }
+        else:
+            proposal = {
+                "diagnosis": "Producer and consumer disagree on JSON depth.",
+                "repair_plan": (
+                    "Flatten caller fields to the top-level worker request."
+                ),
+                "falsification_tests": [
+                    "Require text at the top level for the worker.",
+                    "Require audio fields at the top level for STT.",
+                ],
+                "confidence": 0.9,
+            }
+        return {
+            "available": True,
+            "proposal": proposal,
+            "latency_seconds": 0.001,
+            "eval_count": 1,
+            "prompt_eval_count": 1,
+            "done_reason": "stop",
+        }
+
+    monkeypatch.setattr(
+        "backend.modules.hexcore."
+        "natural_repair_substrate_comparison_benchmark._ollama_generate",
+        fake_generate,
+    )
+    result = run_natural_repair_substrate_comparison(
+        repo_root=Path(__file__).resolve().parents[2],
+        state_path=tmp_path / "natural_repair_substrate_state.json",
+        result_path=tmp_path / "natural_repair_substrate_result.json",
+        models=("mock-1b", "mock-2b", "mock-5b"),
+    )
+    assert result["passed"] is True
+    assert result["gate"]["models_compared"] >= 3
+    assert result["gate"]["proposal_only_boundary"] is True
+    assert result["gate"]["best_verified_success"] == 1.0
+    assert result["gate"]["best_proposal_understanding"] >= 2 / 3
+    assert result["gate"]["best_falsification_test_quality"] >= 2 / 3
+    assert result["gate"]["best_attempt_reduction"] >= 0.20
+    assert result["gate"]["unsafe_acceptances"] == 0
+    assert result["gate"]["hexcore_verification_authority"] is True
+    assert result["restart"]["substrate_route_retained"] is True
+    assert result["restart"]["symbolic_fallback_retained"] is True
+    assert result["restart"]["relearning_proposals"] == 0
 
 
 def test_multigeneration_evolution_uses_total_cost_and_external_family(

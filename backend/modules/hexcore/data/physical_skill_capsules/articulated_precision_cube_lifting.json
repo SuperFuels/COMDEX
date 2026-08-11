@@ -1,0 +1,64 @@
+{
+  "action_contract": {
+    "commit_before_act": true,
+    "grip": {
+      "maximum": 1.0,
+      "minimum": 0.0
+    },
+    "joint_action": {
+      "maximum": 1.0,
+      "minimum": -1.0,
+      "shape": [
+        2
+      ]
+    }
+  },
+  "capsule_digest": "c47f434cabfa0b1a1a34eda35efb5b7ddaaf229d6fae6d24565d77a4259a6932",
+  "gate_digest": "186b73d47685d3fb4fd88e9ce148f04d8db65e15720016a90b3f56cad0920c0c",
+  "method": {
+    "name": "visual_servo_identify_predict_grasp_lift_recover",
+    "parents": [
+      "procedure_cross_body_precision_control_apprenticeship_v1",
+      "procedure_rgb_articulated_sequence_skill_v4",
+      "procedure_rgb_contact_occlusion_skill_composition_v3"
+    ],
+    "privileged_runtime_geometry": 0,
+    "stages": [
+      "reconstruct retained parents",
+      "identify hidden arm dynamics",
+      "route away from unreliable nonlinear motor fits",
+      "ground cube and articulated landmarks from RGB",
+      "servo wrist using pixel-space articulated Jacobian",
+      "close opposing fingers under contact physics",
+      "lift and visually diagnose failed following",
+      "retry or abstain"
+    ],
+    "teacher_actions": 0
+  },
+  "name": "articulated_precision_cube_lifting",
+  "observation_contract": {
+    "forbidden_runtime": [
+      "cube_pose",
+      "contact_flag",
+      "teacher_action",
+      "reward_state"
+    ],
+    "required": [
+      "rgb",
+      "joint_position",
+      "joint_velocity",
+      "timestamp"
+    ]
+  },
+  "outcome_authority": {
+    "learner_visible_during_execution": false,
+    "property": "maximum cube height minus initial cube height >= 0.075 metres"
+  },
+  "parent_procedures": [
+    "procedure_cross_body_precision_control_apprenticeship_v1",
+    "procedure_rgb_articulated_sequence_skill_v4",
+    "procedure_rgb_contact_occlusion_skill_composition_v3"
+  ],
+  "procedure_id": "procedure_articulated_precision_cube_lifting_v1",
+  "schema_version": "aion.simulator_neutral_embodied_skill.v1"
+}

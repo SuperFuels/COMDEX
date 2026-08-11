@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import base64
+import io
+import json
 import os
 import re
 import unicodedata
+import urllib.error
+import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
@@ -11,6 +15,11 @@ try:
     from backend.modules.aion_business.runtime.local_asset_store import LocalAssetStore
 except Exception:  # pragma: no cover
     LocalAssetStore = None  # type: ignore[assignment]
+
+try:
+    from backend.modules.vault.ai_provider_key_store import get_ai_provider_secret
+except Exception:  # pragma: no cover
+    get_ai_provider_secret = None  # type: ignore[assignment]
 
 
 class ImageGenerationService:
@@ -45,7 +54,10 @@ class ImageGenerationService:
         base_dir: Optional[str | Path] = None,
         asset_store: Optional["LocalAssetStore"] = None,
     ) -> None:
-        self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY")
+        vault_key = get_ai_provider_secret("openai") if get_ai_provider_secret else ""
+        gemini_vault_key = get_ai_provider_secret("gemini") if get_ai_provider_secret else ""
+        self.openai_api_key = openai_api_key or vault_key or os.getenv("OPENAI_API_KEY")
+        self.gemini_api_key = gemini_vault_key or os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         self.base_dir = Path(base_dir or ".runtime/local_node/generated_images")
 
         if asset_store is not None:
@@ -151,9 +163,17 @@ class ImageGenerationService:
         safe_output_format = self._sanitize_output_format(output_format)
         metadata = dict(metadata or {})
         visual_assets = dict(visual_assets or {})
+        original_image_paths = []
+        for asset in list(visual_assets.get("creative_assets") or []):
+            if not isinstance(asset, dict):
+                continue
+            candidate = str(asset.get("file_path") or asset.get("path") or asset.get("url") or "").strip()
+            if candidate and Path(candidate).suffix.lower() in {".png", ".jpg", ".jpeg", ".webp"} and Path(candidate).exists():
+                original_image_paths.append(candidate)
 
         slides = self._normalize_carousel_slides(carousel, caption=caption)
         cards: List[Dict[str, Any]] = []
+        external_renderer_available = True
 
         if not slides:
             return {
@@ -193,16 +213,42 @@ class ImageGenerationService:
                 "primary_channel": primary_channel,
             }
 
-            result = self.generate_marketing_image(
-                prompt=card_prompt,
-                provider=provider_normalized,
-                model=safe_model,
-                size=safe_size,
-                background=safe_background,
-                output_format=safe_output_format,
-                file_stem=card_file_stem,
-                metadata=card_metadata,
+            original_source = original_image_paths[(index - 1) % len(original_image_paths)] if original_image_paths else ""
+            result = (
+                self._generate_local_evidence_card(
+                    source_path=original_source,
+                    headline=slide.get("headline", ""),
+                    body=slide.get("body", ""),
+                    brand_name=brand_name or "Business",
+                    card_type=card_type,
+                    file_stem=card_file_stem,
+                    metadata={**card_metadata, "source_kind": "business_original"},
+                )
+                if original_source
+                else self.generate_marketing_image(
+                    prompt=card_prompt,
+                    provider=provider_normalized,
+                    model=safe_model,
+                    size=safe_size,
+                    background=safe_background,
+                    output_format=safe_output_format,
+                    file_stem=card_file_stem,
+                    metadata=card_metadata,
+                )
+                if external_renderer_available
+                else {"ok": False, "error": "external_renderer_unavailable_for_this_batch"}
             )
+            if not result.get("ok"):
+                if any(marker in str(result.get("error") or "").lower() for marker in ("quota", "credit", "rate", "resource_exhausted")):
+                    external_renderer_available = False
+                result = self._generate_local_brand_card(
+                    headline=slide.get("headline", ""),
+                    body=slide.get("body", ""),
+                    brand_name=brand_name or "Business",
+                    card_type=card_type,
+                    file_stem=card_file_stem,
+                    metadata={**card_metadata, "external_render_error": result.get("error")},
+                )
 
             card = {
                 "card_index": index,
@@ -218,6 +264,8 @@ class ImageGenerationService:
                 "file_path": result.get("file_path") if result.get("ok") else None,
                 "mime_type": result.get("mime_type") if result.get("ok") else None,
                 "status": "completed" if result.get("ok") else "failed",
+                "provider": result.get("provider") or provider_normalized,
+                "model": result.get("model") or safe_model,
                 "error": result.get("error"),
                 "revised_prompt": result.get("revised_prompt"),
                 "metadata": result.get("metadata") or {},
@@ -226,10 +274,11 @@ class ImageGenerationService:
 
         failed_cards = [card for card in cards if card.get("status") != "completed"]
 
+        successful_card = next((card for card in cards if card.get("status") == "completed"), None)
         return {
             "ok": not failed_cards,
-            "provider": provider_normalized,
-            "model": safe_model,
+            "provider": (successful_card or {}).get("provider") or provider_normalized,
+            "model": (successful_card or {}).get("model") or safe_model,
             "cards": cards,
             "size": safe_size,
             "background": safe_background,
@@ -256,6 +305,15 @@ class ImageGenerationService:
         file_stem: Optional[str],
         metadata: Dict[str, Any],
     ) -> Dict[str, Any]:
+        if provider in {"gemini", "google"}:
+            return self._generate_single_image_gemini(
+                prompt_original=prompt_original,
+                prompt_normalized=prompt_normalized,
+                output_format=output_format,
+                file_stem=file_stem,
+                metadata=metadata,
+            )
+
         if provider != "openai":
             return {
                 "ok": False,
@@ -276,6 +334,20 @@ class ImageGenerationService:
                 "provider": "openai",
                 "model": model,
                 "error": "missing_openai_api_key",
+                "metadata": {
+                    **metadata,
+                    "prompt_original": prompt_original,
+                    "prompt_normalized": prompt_normalized,
+                    "prompt_safe_ascii": prompt_safe_ascii,
+                },
+            }
+
+        if not str(self.openai_api_key).isascii() or not str(self.openai_api_key).startswith("sk-"):
+            return {
+                "ok": False,
+                "provider": "openai",
+                "model": model,
+                "error": "invalid_openai_api_key_configuration",
                 "metadata": {
                     **metadata,
                     "prompt_original": prompt_original,
@@ -369,6 +441,17 @@ class ImageGenerationService:
             }
 
         except Exception as exc:
+            if self.gemini_api_key and any(
+                marker in str(exc).lower()
+                for marker in ("insufficient_quota", "credit_balance_exhausted", "no credits remaining")
+            ):
+                return self._generate_single_image_gemini(
+                    prompt_original=prompt_original,
+                    prompt_normalized=prompt_normalized,
+                    output_format=output_format,
+                    file_stem=file_stem,
+                    metadata={**metadata, "fallback_from": "openai", "fallback_reason": "insufficient_quota"},
+                )
             return {
                 "ok": False,
                 "provider": "openai",
@@ -381,6 +464,235 @@ class ImageGenerationService:
                     "prompt_safe_ascii": prompt_safe_ascii,
                 },
             }
+
+    def _generate_single_image_gemini(
+        self,
+        *,
+        prompt_original: str,
+        prompt_normalized: str,
+        output_format: str,
+        file_stem: Optional[str],
+        metadata: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        model = os.getenv("AION_GEMINI_IMAGE_MODEL", "gemini-3.1-flash-image")
+        if not self.gemini_api_key:
+            return {"ok": False, "provider": "gemini", "model": model, "error": "missing_gemini_api_key", "metadata": metadata}
+        endpoint = f"https://generativelanguage.googleapis.com/v1/models/{model}:generateContent"
+        body = {
+            "contents": [{"role": "user", "parts": [{"text": prompt_normalized}]}],
+            # The REST API defaults to a 1K image. Some API deployments reject
+            # the documented aspect-ratio enum even for supported models, so
+            # request the image modality here and crop locally for each channel.
+            "generationConfig": {"responseModalities": ["TEXT", "IMAGE"]},
+        }
+        request = urllib.request.Request(
+            endpoint,
+            data=json.dumps(body).encode("utf-8"),
+            headers={"Content-Type": "application/json", "x-goog-api-key": str(self.gemini_api_key)},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=180) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            parts = ((((payload.get("candidates") or [{}])[0].get("content") or {}).get("parts")) or [])
+            image_part = next((part.get("inlineData") or part.get("inline_data") for part in parts if isinstance(part, dict) and (part.get("inlineData") or part.get("inline_data"))), None)
+            image_b64 = (image_part or {}).get("data")
+            mime_type = (image_part or {}).get("mimeType") or (image_part or {}).get("mime_type") or "image/png"
+            if not image_b64:
+                return {"ok": False, "provider": "gemini", "model": model, "error": "gemini_image_generation_empty_response", "metadata": metadata}
+            actual_format = "jpeg" if "jpeg" in mime_type else "png"
+            file_path = self._persist_base64_image(b64_json=image_b64, output_format=actual_format, file_stem=file_stem, metadata=metadata)
+            return {
+                "ok": True, "provider": "gemini", "model": model, "url": None,
+                "asset_url": str(file_path), "asset_id": str(file_path), "b64_json": None,
+                "file_path": str(file_path), "mime_type": mime_type, "revised_prompt": None,
+                "metadata": {**metadata, "prompt_original": prompt_original, "prompt_normalized": prompt_normalized},
+            }
+        except urllib.error.HTTPError as exc:
+            detail = exc.read().decode("utf-8", errors="replace")[:1000]
+            return {"ok": False, "provider": "gemini", "model": model, "error": f"gemini_image_generation_http_{exc.code}:{detail}", "metadata": metadata}
+        except Exception as exc:
+            return {"ok": False, "provider": "gemini", "model": model, "error": f"gemini_image_generation_failed:{type(exc).__name__}:{exc}", "metadata": metadata}
+
+    def _generate_local_brand_card(
+        self,
+        *,
+        headline: str,
+        body: str,
+        brand_name: str,
+        card_type: str,
+        file_stem: str,
+        metadata: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Create a polished owned fallback when connected render engines have no quota."""
+        try:
+            from PIL import Image, ImageDraw, ImageFont
+
+            width, height = 1024, 1280
+            palettes = {
+                "hook": ("#07111f", "#0f766e", "#f8fafc"),
+                "problem": ("#111827", "#b45309", "#fff7ed"),
+                "solution": ("#082f49", "#0284c7", "#f0f9ff"),
+                "proof": ("#14532d", "#16a34a", "#f0fdf4"),
+                "cta": ("#1e1b4b", "#7c3aed", "#faf5ff"),
+            }
+            dark, accent, light = palettes.get(card_type, palettes["hook"])
+
+            def rgb(value: str) -> tuple[int, int, int]:
+                value = value.lstrip("#")
+                return tuple(int(value[index:index + 2], 16) for index in (0, 2, 4))
+
+            image = Image.new("RGB", (width, height), rgb(dark))
+            draw = ImageDraw.Draw(image)
+            accent_rgb = rgb(accent)
+            for y in range(height):
+                blend = y / max(height - 1, 1)
+                base = rgb(dark)
+                color = tuple(int(base[i] * (1 - blend * 0.48) + accent_rgb[i] * blend * 0.48) for i in range(3))
+                draw.line((0, y, width, y), fill=color)
+            panel_fill = tuple(min(255, int(channel * 0.78 + 36)) for channel in rgb(dark))
+            draw.rounded_rectangle((65, 62, 959, 1218), radius=34, fill=panel_fill, outline=(255, 255, 255), width=2)
+            draw.rectangle((65, 62, 83, 1218), fill=accent_rgb)
+
+            font_candidates = [
+                "/System/Library/Fonts/Supplemental/Arial Bold.ttf",
+                "/System/Library/Fonts/SFNS.ttf",
+            ]
+            def font(size: int, bold: bool = False):
+                for candidate in font_candidates:
+                    try:
+                        return ImageFont.truetype(candidate, size=size)
+                    except Exception:
+                        continue
+                return ImageFont.load_default()
+
+            brand_font = font(32, True)
+            headline_font = font(78, True)
+            body_font = font(38)
+            small_font = font(26, True)
+            white = rgb(light)
+            draw.text((125, 125), str(brand_name).upper(), font=brand_font, fill=white)
+            draw.text((125, 184), f"{card_type.upper()}  ·  HOME IMPROVEMENT", font=small_font, fill=accent_rgb)
+
+            def wrapped(text: str, limit: int) -> list[str]:
+                words = str(text or "").split()
+                lines: list[str] = []
+                current = ""
+                for word in words:
+                    candidate = f"{current} {word}".strip()
+                    if len(candidate) > limit and current:
+                        lines.append(current)
+                        current = word
+                    else:
+                        current = candidate
+                if current:
+                    lines.append(current)
+                return lines
+
+            y = 310
+            for line in wrapped(headline, 22)[:5]:
+                draw.text((125, y), line, font=headline_font, fill=white)
+                y += 92
+            y += 34
+            for line in wrapped(body, 42)[:4]:
+                draw.text((125, y), line, font=body_font, fill=white)
+                y += 52
+            draw.rounded_rectangle((125, 1080, 790, 1152), radius=28, fill=accent_rgb)
+            draw.text((163, 1098), "TELL US ABOUT YOUR PROJECT", font=small_font, fill=(255, 255, 255))
+
+            buffer = io.BytesIO()
+            image.save(buffer, format="PNG", optimize=True)
+            file_path = self._persist_base64_image(
+                b64_json=base64.b64encode(buffer.getvalue()).decode("ascii"),
+                output_format="png",
+                file_stem=file_stem,
+                metadata=metadata,
+            )
+            return {
+                "ok": True,
+                "provider": "tessaris_local",
+                "model": "brand-card-v1",
+                "asset_url": str(file_path),
+                "asset_id": str(file_path),
+                "file_path": str(file_path),
+                "mime_type": "image/png",
+                "metadata": metadata,
+            }
+        except Exception as exc:
+            return {"ok": False, "provider": "tessaris_local", "model": "brand-card-v1", "error": f"local_brand_card_failed:{type(exc).__name__}:{exc}", "metadata": metadata}
+
+    def _generate_local_evidence_card(
+        self,
+        *,
+        source_path: str,
+        headline: str,
+        body: str,
+        brand_name: str,
+        card_type: str,
+        file_stem: str,
+        metadata: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Turn an owner-supplied photograph into an owned 4:5 campaign rendition."""
+        try:
+            from PIL import Image, ImageDraw, ImageEnhance, ImageFont
+
+            width, height = 1024, 1280
+            source = Image.open(source_path).convert("RGB")
+            scale = max(width / source.width, height / source.height)
+            resized = source.resize((int(source.width * scale), int(source.height * scale)), Image.Resampling.LANCZOS)
+            left = max(0, (resized.width - width) // 2)
+            top = max(0, (resized.height - height) // 2)
+            image = resized.crop((left, top, left + width, top + height))
+            image = ImageEnhance.Contrast(image).enhance(1.05)
+            overlay = Image.new("RGBA", (width, height), (0, 0, 0, 0))
+            overlay_draw = ImageDraw.Draw(overlay)
+            for y in range(height):
+                alpha = int(35 + (y / height) * 175)
+                overlay_draw.line((0, y, width, y), fill=(5, 16, 28, alpha))
+            image = Image.alpha_composite(image.convert("RGBA"), overlay).convert("RGB")
+            draw = ImageDraw.Draw(image)
+            accent = (15, 118, 110)
+            draw.rectangle((0, 0, 18, height), fill=accent)
+
+            def font(size: int):
+                for candidate in ("/System/Library/Fonts/Supplemental/Arial Bold.ttf", "/System/Library/Fonts/SFNS.ttf"):
+                    try:
+                        return ImageFont.truetype(candidate, size=size)
+                    except Exception:
+                        continue
+                return ImageFont.load_default()
+
+            def lines(text: str, limit: int) -> list[str]:
+                output, current = [], ""
+                for word in str(text or "").split():
+                    candidate = f"{current} {word}".strip()
+                    if current and len(candidate) > limit:
+                        output.append(current); current = word
+                    else:
+                        current = candidate
+                if current: output.append(current)
+                return output
+
+            draw.text((70, 72), str(brand_name).upper(), font=font(32), fill=(255, 255, 255))
+            draw.rounded_rectangle((70, 900, 954, 1210), radius=28, fill=(7, 17, 31))
+            y = 940
+            for line in lines(headline, 24)[:3]:
+                draw.text((112, y), line, font=font(60), fill=(255, 255, 255)); y += 70
+            if body:
+                y += 10
+                for line in lines(body, 48)[:2]:
+                    draw.text((112, y), line, font=font(28), fill=(226, 232, 240)); y += 38
+            buffer = io.BytesIO(); image.save(buffer, format="PNG", optimize=True)
+            file_path = self._persist_base64_image(
+                b64_json=base64.b64encode(buffer.getvalue()).decode("ascii"), output_format="png", file_stem=file_stem, metadata=metadata,
+            )
+            return {
+                "ok": True, "provider": "tessaris_owned_media", "model": "evidence-rendition-v1",
+                "asset_url": str(file_path), "asset_id": str(file_path), "file_path": str(file_path),
+                "mime_type": "image/png", "metadata": {**metadata, "source_path": source_path},
+            }
+        except Exception as exc:
+            return {"ok": False, "provider": "tessaris_owned_media", "model": "evidence-rendition-v1", "error": f"evidence_card_failed:{type(exc).__name__}:{exc}", "metadata": metadata}
 
     # -------------------------------------------------------------------------
     # Prompt construction for real carousel slides

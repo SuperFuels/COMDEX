@@ -272,6 +272,7 @@
   ];
 
   let current = null;
+  let currentPortrait = null;
 
   function safeArray(value) {
     return Array.isArray(value) ? value : [];
@@ -405,6 +406,12 @@
   }
 
   function disposeCurrent() {
+    if (currentPortrait) {
+      const portrait = currentPortrait;
+      currentPortrait = null;
+      portrait.dispose?.();
+    }
+
     if (!current) return;
 
     if (current.rafId) {
@@ -3253,16 +3260,42 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
 
     let disposed = false;
     let frame = 0;
+    let portraitRafId = null;
+    let lastPortraitRenderAt = 0;
 
-    function animate() {
+    function animate(now = 0) {
       if (disposed) return;
-      frame += 1;
-      agentRoot.rotation.y = Math.sin(frame * 0.012) * 0.025;
-      portraitRenderer.render(scene, camera);
-      requestAnimationFrame(animate);
+
+      // A remounted department surface used to leave this animation and its
+      // WebGL context alive forever.  Stop immediately when the owner leaves
+      // the document, and draw the subtle portrait motion at 10fps only while
+      // it is actually visible.
+      if (!container.isConnected) {
+        disposed = true;
+        try { portraitRenderer.dispose(); } catch {}
+        try { portraitRenderer.forceContextLoss?.(); } catch {}
+        return;
+      }
+
+      const rect = container.getBoundingClientRect?.();
+      const isVisible =
+        rect
+        && rect.width > 0
+        && rect.height > 0
+        && rect.bottom >= 0
+        && rect.top <= (window.innerHeight || 0);
+
+      if (isVisible && now - lastPortraitRenderAt >= 100) {
+        frame += 1;
+        agentRoot.rotation.y = Math.sin(frame * 0.04) * 0.025;
+        portraitRenderer.render(scene, camera);
+        lastPortraitRenderAt = now;
+      }
+
+      portraitRafId = requestAnimationFrame(animate);
     }
 
-    animate();
+    portraitRafId = requestAnimationFrame(animate);
 
     function resize() {
       if (disposed) return;
@@ -3282,9 +3315,11 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
       root: agentRoot,
       dispose() {
         disposed = true;
+        if (portraitRafId) window.cancelAnimationFrame(portraitRafId);
         window.removeEventListener("resize", resize);
         try {
           portraitRenderer.dispose();
+          portraitRenderer.forceContextLoss?.();
         } catch (error) {
           console.warn("[AION] O18P clean portrait dispose failed", error);
         }
@@ -3317,7 +3352,9 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
       options?.agentPortraitMode === true;
 
     if (o18fIsDepartment121) {
-      return mountAionO18FRealAgentOnlyPortrait(container, options || {});
+      disposeCurrent();
+      currentPortrait = mountAionO18FRealAgentOnlyPortrait(container, options || {});
+      return currentPortrait;
     }
 
     const THREE = ensureThree();

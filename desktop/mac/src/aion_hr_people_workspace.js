@@ -1,0 +1,344 @@
+(function installAionHrPeopleWorkspace(global) {
+  'use strict';
+
+  const API_BASE = 'http://127.0.0.1:8080';
+  const CAPABILITIES = [
+    ['expenses.submit', 'Submit expenses'], ['expenses.read_own', 'View own expenses'],
+    ['expenses.read_team', 'View team expenses'], ['expenses.read_all', 'View every expense'],
+    ['expenses.approve', 'Approve expenses'], ['finance.read_summary', 'View Finance summary'],
+    ['finance.read_transactions', 'View transaction detail'], ['finance.prepare', 'Prepare accounting work'],
+    ['finance.approve_posting', 'Approve accounting posting'], ['boardroom.view_department', 'View department Boardroom'],
+    ['boardroom.view_summary', 'View Boardroom summary'], ['boardroom.view_full', 'View full Boardroom'],
+    ['people.manage', 'Manage people'], ['permissions.manage', 'Manage permissions'],
+  ];
+  const state = { workspaceId: '', model: null, templates: null, tab: 'people', panel: null, saving: false, error: '', accessDecision: null };
+  let scheduled = false;
+
+  const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[ch]));
+  const clone = (value) => JSON.parse(JSON.stringify(value));
+  const id = (prefix) => `${prefix}.${Date.now().toString(36)}.${Math.random().toString(36).slice(2, 8)}`;
+  const money = (value) => value === null || value === undefined || value === '' ? 'No limit' : `€${Number(value).toLocaleString()}`;
+
+  function businessId() {
+    return global.AionBusinessContainerClient?.resolveBusinessId?.() || '';
+  }
+
+  function founderDefaults() {
+    try {
+      const packet = JSON.parse(localStorage.getItem('aion.businessTwin.foundationPacket.v1') || '{}');
+      const draft = packet.foundation_draft || packet.business || {};
+      return {
+        name: packet.founder_name || draft.founder_name || draft.owner_name || draft.owner || '',
+        email: packet.primary_email || draft.primary_email || draft.owner_email || '',
+      };
+    } catch { return { name: '', email: '' }; }
+  }
+
+  async function request(path, options = {}) {
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...(options.headers || {}) },
+    });
+    if (!response.ok) throw new Error(await response.text() || `Request failed ${response.status}`);
+    return response.json();
+  }
+
+  function host() {
+    return document.querySelector(
+      '[data-aion-hr-people-mount="true"], [data-aion-o18ad-department="hr"]',
+    );
+  }
+
+  function personName(personId) {
+    return state.model?.people?.find((item) => item.id === personId)?.name || 'Unassigned';
+  }
+
+  function departmentName(departmentId) {
+    return state.model?.departments?.find((item) => item.id === departmentId)?.name || 'No department';
+  }
+
+  function roleName(roleId) {
+    return state.model?.roles?.find((item) => item.id === roleId)?.name || roleId;
+  }
+
+  function employmentLabel(value) {
+    return ({ owner: 'Owner / director', employee: 'Employee', self_employed: 'Self-employed', contractor: 'Contractor', freelancer: 'Freelancer', external_adviser: 'External adviser' })[value] || value;
+  }
+
+  function layout(content) {
+    const summary = state.model?.summary || {};
+    return `
+      <div class="hrw-shell" data-aion-hr-workspace>
+        <header class="hrw-hero">
+          <div><span>PEOPLE · TEAMS · AUTHORITY</span><h1>Build who the business is</h1>
+          <p>Add the real people first. Tessaris uses this map to decide who can see information, submit expenses, approve work and act for each part of the business.</p></div>
+          <div class="hrw-status ${summary.authority_ready ? 'ready' : ''}"><b>${summary.authority_ready ? 'AUTHORITY READY' : 'SETUP IN PROGRESS'}</b><small>${state.saving ? 'Saving…' : `Revision ${state.model?.revision || 0}`}</small></div>
+        </header>
+        ${state.error ? `<div class="hrw-alert error">${esc(state.error)}</div>` : ''}
+        <section class="hrw-metrics">
+          <article><strong>${summary.active_people || 0}</strong><span>Active people</span></article>
+          <article><strong>${summary.employees || 0}</strong><span>Employees</span></article>
+          <article><strong>${summary.self_employed_and_contractors || 0}</strong><span>Self-employed / contractors</span></article>
+          <article><strong>${summary.departments || 0}</strong><span>Departments</span></article>
+          <article><strong>${summary.assigned_cards || 0}</strong><span>Assigned cards</span></article>
+        </section>
+        <nav class="hrw-tabs">
+          ${[['people','People'],['chart','Organisation chart'],['permissions','Roles & permissions'],['assets','Cards & assets'],['access','Access check']].map(([key,label]) => `<button data-hrw-tab="${key}" class="${state.tab === key ? 'active' : ''}">${label}</button>`).join('')}
+        </nav>
+        <main class="hrw-content">${content}</main>
+        ${renderPanel()}
+      </div>`;
+  }
+
+  function emptySetup() {
+    return `<section class="hrw-empty">
+      <span>START SIMPLE</span><h2>Who works in this business?</h2>
+      <p>You do not need an HR system or an existing organisation chart. Add yourself, then add employees, self-employed people or contractors. Roles and access can be refined later.</p>
+      <div class="hrw-actions">
+        <button class="primary" data-hrw-add-person="owner">+ Add me as owner</button>
+        <button data-hrw-add-person="employee">+ New employee</button>
+        <button data-hrw-add-person="self_employed">+ New self-employed person</button>
+      </div>
+    </section>`;
+  }
+
+  function peopleView() {
+    const people = state.model?.people || [];
+    if (!people.length) return emptySetup();
+    return `<section>
+      <div class="hrw-section-head"><div><span>PEOPLE DIRECTORY</span><h2>Everyone who acts for the business</h2><p>Job titles describe work. Application roles separately control visibility and authority.</p></div>
+        <div class="hrw-actions"><button data-hrw-add-person="employee">+ Employee</button><button data-hrw-add-person="self_employed">+ Self-employed</button><button data-hrw-add-person="contractor">+ Contractor</button></div></div>
+      <div class="hrw-people-grid">${people.map((person) => `
+        <article class="hrw-person ${person.status !== 'active' ? 'inactive' : ''}">
+          <div class="hrw-avatar">${esc(person.name.split(/\s+/).map((part) => part[0]).slice(0,2).join('').toUpperCase())}</div>
+          <div class="hrw-person-main"><div><strong>${esc(person.name)}</strong><em>${esc(person.status || 'active')}</em></div>
+          <p>${esc(person.position_title || employmentLabel(person.employment_type))}</p><small>${esc(person.email || 'Email required')}</small></div>
+          <dl><div><dt>Relationship</dt><dd>${esc(employmentLabel(person.employment_type))}</dd></div><div><dt>Manager</dt><dd>${esc(personName(person.manager_id))}</dd></div>
+          <div><dt>Departments</dt><dd>${(person.department_ids || []).map(departmentName).map(esc).join(', ') || 'Unassigned'}</dd></div><div><dt>Access roles</dt><dd>${(person.role_ids || []).map(roleName).map(esc).join(', ') || 'None'}</dd></div></dl>
+          <button data-hrw-edit-person="${esc(person.id)}">Edit person & authority</button>
+        </article>`).join('')}</div>
+      ${(state.model.summary?.authority_gaps || []).length ? `<div class="hrw-alert"><b>Authority checks</b>${state.model.summary.authority_gaps.map((gap) => `<p>${esc(gap)}</p>`).join('')}</div>` : ''}
+    </section>`;
+  }
+
+  function chartNode(person, childrenByManager, depth = 0) {
+    const children = childrenByManager.get(person.id) || [];
+    return `<li><article><strong>${esc(person.name)}</strong><span>${esc(person.position_title || employmentLabel(person.employment_type))}</span><small>${(person.department_ids || []).map(departmentName).map(esc).join(' · ') || 'Business-wide'}</small></article>${children.length ? `<ul>${children.map((child) => chartNode(child, childrenByManager, depth + 1)).join('')}</ul>` : ''}</li>`;
+  }
+
+  function chartView() {
+    const people = (state.model?.people || []).filter((item) => item.status === 'active');
+    const children = new Map();
+    people.forEach((item) => { const key = item.manager_id || '__root__'; children.set(key, [...(children.get(key) || []), item]); });
+    const roots = children.get('__root__') || [];
+    return `<section><div class="hrw-section-head"><div><span>REPORTING LINES</span><h2>Organisation chart</h2><p>Reporting lines establish accountability; they do not automatically grant confidential access.</p></div><button data-hrw-standard-departments>Use standard departments</button></div>
+      ${roots.length ? `<div class="hrw-chart"><ul>${roots.map((item) => chartNode(item, children)).join('')}</ul></div>` : emptySetup()}
+      <div class="hrw-departments"><div class="hrw-section-head compact"><div><h3>Departments and teams</h3></div><button data-hrw-add-department>+ Department</button></div>
+      ${(state.model?.departments || []).length ? state.model.departments.map((item) => `<article><div><strong>${esc(item.name)}</strong><small>${item.parent_department_id ? `Reports into ${esc(departmentName(item.parent_department_id))}` : 'Top-level function'}</small></div><span>${state.model.people.filter((person) => (person.department_ids || []).includes(item.id) && person.status === 'active').length} people</span></article>`).join('') : '<p class="hrw-muted">No departments yet. For a very small team, people can remain business-wide.</p>'}</div>
+    </section>`;
+  }
+
+  function permissionsView() {
+    return `<section><div class="hrw-section-head"><div><span>LEAST PRIVILEGE</span><h2>Roles and permissions</h2><p>Assign these roles to people. A position title alone never grants access.</p></div></div>
+      <div class="hrw-role-grid">${(state.model?.roles || []).map((role) => `<article><header><strong>${esc(role.name)}</strong><span>${esc(role.scope || 'self')}</span></header><p>${esc(role.description || '')}</p><div>${(role.capabilities || []).map((item) => `<small>${esc(CAPABILITIES.find(([key]) => key === item)?.[1] || item)}</small>`).join('')}</div><footer>Expense approval: <b>${money(role.approval_limit)}</b></footer></article>`).join('')}</div>
+      <div class="hrw-policy"><b>Built-in protection</b><p>Deny by default · job titles do not grant access · exact external actions require approval · sensitive payroll and medical records are excluded from this model.</p></div>
+    </section>`;
+  }
+
+  function assetsView() {
+    const assets = state.model?.assets || [];
+    return `<section><div class="hrw-section-head"><div><span>RESPONSIBILITY</span><h2>Company cards and accountable assets</h2><p>Connect each card or asset to the person responsible for it. Full card numbers are never stored here.</p></div><button data-hrw-add-asset>+ Card or asset</button></div>
+      ${assets.length ? `<div class="hrw-assets">${assets.map((asset) => `<article><div class="hrw-asset-icon">${asset.asset_type === 'company_card' ? 'CARD' : 'ASSET'}</div><div><strong>${esc(asset.name)}</strong><p>${esc(personName(asset.assigned_person_id))} · ${esc(asset.asset_type.replaceAll('_',' '))}${asset.last_four ? ` · •••• ${esc(asset.last_four)}` : ''}</p><small>Per transaction ${money(asset.transaction_limit)} · Monthly ${money(asset.monthly_limit)}</small></div><button data-hrw-edit-asset="${esc(asset.id)}">Edit</button></article>`).join('')}</div>` : '<div class="hrw-empty small"><h2>No cards or assets assigned</h2><p>Add them when employees use business cards, vehicles, tools, devices or financial accounts.</p></div>'}
+    </section>`;
+  }
+
+  function accessView() {
+    const people = (state.model?.people || []).filter((item) => item.status === 'active');
+    return `<section><div class="hrw-section-head"><div><span>AUTHORITY EXPLAINED</span><h2>Check what someone can do</h2><p>This uses the same decision contract Finance and the Boardroom can call before revealing data or performing work.</p></div></div>
+      <form class="hrw-access-form" data-hrw-access-form>
+        <label>Person<select name="person_id" required><option value="">Select person</option>${people.map((item) => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('')}</select></label>
+        <label>Requested access<select name="capability">${CAPABILITIES.map(([key,label]) => `<option value="${key}">${esc(label)}</option>`).join('')}</select></label>
+        <label>Department<select name="department_id"><option value="">Business / not applicable</option>${(state.model?.departments || []).map((item) => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('')}</select></label>
+        <label>Amount, if approving<input name="amount" type="number" min="0" step="0.01" placeholder="Optional"></label>
+        <button class="primary" type="submit">Check authority</button>
+      </form>
+      ${state.accessDecision ? `<article class="hrw-decision ${state.accessDecision.allowed ? 'allowed' : 'denied'}"><strong>${state.accessDecision.allowed ? 'ALLOWED' : 'NOT ALLOWED'}</strong><p>${esc(state.accessDecision.reason.replaceAll('_',' '))}</p>${state.accessDecision.approval_limit !== null && state.accessDecision.approval_limit !== undefined ? `<small>Maximum approval: ${money(state.accessDecision.approval_limit)}</small>` : ''}</article>` : ''}
+    </section>`;
+  }
+
+  function renderPanel() {
+    if (!state.panel) return '';
+    const panel = state.panel;
+    if (panel.type === 'person') {
+      const founder = panel.employmentType === 'owner' ? founderDefaults() : { name: '', email: '' };
+      const person = panel.item || { id: id('person'), name: founder.name, email: founder.email, employment_type: panel.employmentType || 'employee', position_title: panel.employmentType === 'owner' ? 'Managing Director' : '', status: 'active', manager_id: null, department_ids: [], role_ids: [] };
+      const defaultRole = person.employment_type === 'owner' ? 'role.owner_director' : ['self_employed','contractor','freelancer'].includes(person.employment_type) ? 'role.self_employed_contractor' : 'role.employee';
+      const selectedRoles = new Set(person.role_ids?.length ? person.role_ids : [defaultRole]);
+      return `<aside class="hrw-panel"><form data-hrw-person-form data-person-id="${esc(person.id)}"><header><div><span>${panel.item ? 'EDIT PERSON' : 'ADD PERSON'}</span><h2>${panel.item ? esc(person.name) : 'Who are you adding?'}</h2></div><button type="button" data-hrw-close>×</button></header>
+        <label>Full name<input name="name" value="${esc(person.name)}" required autofocus></label>
+        <label>Work email<input name="email" type="email" value="${esc(person.email || '')}" placeholder="name@business.com"></label>
+        <div class="hrw-two"><label>Relationship<select name="employment_type">${[['owner','Owner / director'],['employee','Employee'],['self_employed','Self-employed person'],['contractor','Contractor'],['freelancer','Freelancer'],['external_adviser','External adviser']].map(([key,label]) => `<option value="${key}" ${person.employment_type === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+        <label>Position / job title<input name="position_title" value="${esc(person.position_title || '')}" placeholder="e.g. Operations Manager"></label></div>
+        <label>Reports to<select name="manager_id"><option value="">No manager / top level</option>${(state.model.people || []).filter((item) => item.id !== person.id && item.status === 'active').map((item) => `<option value="${esc(item.id)}" ${person.manager_id === item.id ? 'selected' : ''}>${esc(item.name)}</option>`).join('')}</select></label>
+        <fieldset><legend>Departments</legend><div class="hrw-checks">${(state.model.departments || []).map((item) => `<label><input type="checkbox" name="department_ids" value="${esc(item.id)}" ${(person.department_ids || []).includes(item.id) ? 'checked' : ''}>${esc(item.name)}</label>`).join('') || '<small>Add departments later if the business is still very small.</small>'}</div></fieldset>
+        <fieldset><legend>Application roles</legend><div class="hrw-checks">${(state.model.roles || []).map((role) => `<label><input type="checkbox" name="role_ids" value="${esc(role.id)}" ${selectedRoles.has(role.id) ? 'checked' : ''}><span><b>${esc(role.name)}</b><small>${esc(role.description || '')}</small></span></label>`).join('')}</div></fieldset>
+        <div class="hrw-two"><label>Work location<input name="work_location" value="${esc(person.work_location || '')}" placeholder="Office, remote, site"></label><label>Cost centre<input name="cost_center" value="${esc(person.cost_center || '')}" placeholder="Optional"></label></div>
+        <label>Personal expense approval limit<input name="expense_approval_limit" type="number" min="0" step="0.01" value="${person.expense_approval_limit ?? ''}" placeholder="Uses role limit when blank"></label>
+        <footer>${panel.item && person.status === 'active' ? '<button type="button" class="danger" data-hrw-deactivate-person>Deactivate</button>' : ''}<button type="button" data-hrw-close>Cancel</button><button class="primary" type="submit">Save person</button></footer>
+      </form></aside>`;
+    }
+    if (panel.type === 'department') {
+      return `<aside class="hrw-panel"><form data-hrw-department-form><header><div><span>ADD DEPARTMENT</span><h2>Create a team or function</h2></div><button type="button" data-hrw-close>×</button></header><label>Name<input name="name" required autofocus placeholder="Operations"></label><label>Reports into<select name="parent_department_id"><option value="">Top level</option>${(state.model.departments || []).map((item) => `<option value="${esc(item.id)}">${esc(item.name)}</option>`).join('')}</select></label><footer><button type="button" data-hrw-close>Cancel</button><button class="primary" type="submit">Add department</button></footer></form></aside>`;
+    }
+    if (panel.type === 'asset') {
+      const asset = panel.item || { id: id('asset'), asset_type: 'company_card', name: '', assigned_person_id: '', last_four: '', transaction_limit: '', monthly_limit: '', status: 'active' };
+      return `<aside class="hrw-panel"><form data-hrw-asset-form data-asset-id="${esc(asset.id)}"><header><div><span>${panel.item ? 'EDIT ASSET' : 'ADD ASSET'}</span><h2>Assign responsibility</h2></div><button type="button" data-hrw-close>×</button></header><label>Name<input name="name" value="${esc(asset.name)}" required placeholder="Operations company card"></label><label>Type<select name="asset_type">${[['company_card','Company card'],['vehicle','Vehicle'],['tool','Tool or equipment'],['device','Computer or phone'],['financial_account','Financial account'],['other','Other']].map(([key,label]) => `<option value="${key}" ${asset.asset_type === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label><label>Responsible person<select name="assigned_person_id"><option value="">Unassigned</option>${(state.model.people || []).filter((item) => item.status === 'active').map((item) => `<option value="${esc(item.id)}" ${asset.assigned_person_id === item.id ? 'selected' : ''}>${esc(item.name)}</option>`).join('')}</select></label><label>Last four digits only<input name="last_four" inputmode="numeric" maxlength="4" value="${esc(asset.last_four || '')}" placeholder="1234"></label><div class="hrw-two"><label>Transaction limit<input name="transaction_limit" type="number" min="0" step="0.01" value="${asset.transaction_limit ?? ''}"></label><label>Monthly limit<input name="monthly_limit" type="number" min="0" step="0.01" value="${asset.monthly_limit ?? ''}"></label></div><footer><button type="button" data-hrw-close>Cancel</button><button class="primary" type="submit">Save asset</button></footer></form></aside>`;
+    }
+    return '';
+  }
+
+  function view() {
+    if (!state.model) return '<div class="hrw-loading">Loading organisation…</div>';
+    return layout(({ people: peopleView, chart: chartView, permissions: permissionsView, assets: assetsView, access: accessView })[state.tab]());
+  }
+
+  function render() {
+    const target = host();
+    if (!target) return;
+    target.setAttribute('data-aion-hr-authority-installed', 'true');
+    target.innerHTML = view();
+  }
+
+  async function load() {
+    const workspaceId = businessId();
+    state.workspaceId = workspaceId;
+    state.error = '';
+    if (!workspaceId) { state.model = null; render(); state.error = 'Complete the Business Foundation first so people are saved to the correct business.'; render(); return; }
+    try {
+      const [modelResult, templateResult] = await Promise.all([
+        request(`/api/aion/business/organisation/${encodeURIComponent(workspaceId)}`),
+        request('/api/aion/business/organisation/templates'),
+      ]);
+      state.model = modelResult.model;
+      state.templates = templateResult;
+    } catch (error) { state.error = `HR Pilot could not load: ${error.message}`; }
+    render();
+  }
+
+  async function save() {
+    if (!state.model || state.saving) return;
+    state.saving = true; state.error = ''; render();
+    try {
+      const result = await request(`/api/aion/business/organisation/${encodeURIComponent(state.workspaceId)}`, {
+        method: 'PUT', body: JSON.stringify({ model: state.model, expected_revision: state.model.revision || 0, changed_by: 'hr_pilot_desktop' }),
+      });
+      state.model = result.model;
+      try {
+        localStorage.setItem(`aion.organizationAuthority.summary.${state.workspaceId}`, JSON.stringify({ revision: state.model.revision, summary: state.model.summary, updated_at: new Date().toISOString() }));
+      } catch {}
+    } catch (error) {
+      state.error = error.message.includes('organization_revision_conflict') ? 'The organisation changed elsewhere. Reload the HR Pilot before saving again.' : `Could not save: ${error.message}`;
+    } finally { state.saving = false; render(); }
+  }
+
+  function formObject(form) {
+    const data = new FormData(form);
+    return Object.fromEntries([...data.entries()].filter(([key]) => !['department_ids','role_ids'].includes(key)));
+  }
+
+  document.addEventListener('click', async (event) => {
+    const target = event.target.closest('[data-aion-hr-workspace] button, .hrw-panel button');
+    if (!target) return;
+    if (target.dataset.hrwTab) { state.tab = target.dataset.hrwTab; state.panel = null; state.accessDecision = null; render(); return; }
+    if (target.hasAttribute('data-hrw-close')) { state.panel = null; render(); return; }
+    if (target.dataset.hrwAddPerson) { state.panel = { type: 'person', employmentType: target.dataset.hrwAddPerson }; render(); return; }
+    if (target.dataset.hrwEditPerson) { state.panel = { type: 'person', item: clone(state.model.people.find((item) => item.id === target.dataset.hrwEditPerson)) }; render(); return; }
+    if (target.hasAttribute('data-hrw-deactivate-person')) {
+      const personId = target.closest('form')?.dataset.personId;
+      const person = state.model.people.find((item) => item.id === personId);
+      if (person) { person.status = 'inactive'; state.panel = null; await save(); }
+      return;
+    }
+    if (target.hasAttribute('data-hrw-add-department')) { state.panel = { type: 'department' }; render(); return; }
+    if (target.hasAttribute('data-hrw-standard-departments')) {
+      const existing = new Set((state.model.departments || []).map((item) => item.id));
+      state.model.departments.push(...(state.templates?.standard_departments || []).filter((item) => !existing.has(item.id)));
+      await save(); return;
+    }
+    if (target.hasAttribute('data-hrw-add-asset')) { state.panel = { type: 'asset' }; render(); return; }
+    if (target.dataset.hrwEditAsset) { state.panel = { type: 'asset', item: clone(state.model.assets.find((item) => item.id === target.dataset.hrwEditAsset)) }; render(); }
+  });
+
+  document.addEventListener('submit', async (event) => {
+    const form = event.target;
+    if (!form.closest('[data-aion-hr-workspace], .hrw-panel')) return;
+    event.preventDefault();
+    if (form.matches('[data-hrw-person-form]')) {
+      const values = formObject(form);
+      values.id = form.dataset.personId;
+      values.department_ids = [...form.querySelectorAll('[name="department_ids"]:checked')].map((item) => item.value);
+      values.role_ids = [...form.querySelectorAll('[name="role_ids"]:checked')].map((item) => item.value);
+      values.manager_id = values.manager_id || null; values.status = state.panel?.item?.status || 'active';
+      values.expense_approval_limit = values.expense_approval_limit === '' ? null : Number(values.expense_approval_limit);
+      const index = state.model.people.findIndex((item) => item.id === values.id);
+      if (index >= 0) state.model.people[index] = { ...state.model.people[index], ...values }; else state.model.people.push(values);
+      state.panel = null; await save(); return;
+    }
+    if (form.matches('[data-hrw-department-form]')) {
+      const values = formObject(form); values.id = id('department'); values.status = 'active'; values.parent_department_id = values.parent_department_id || null;
+      state.model.departments.push(values); state.panel = null; await save(); return;
+    }
+    if (form.matches('[data-hrw-asset-form]')) {
+      const values = formObject(form); values.id = form.dataset.assetId; values.status = state.panel?.item?.status || 'active';
+      values.assigned_person_id = values.assigned_person_id || null;
+      values.transaction_limit = values.transaction_limit === '' ? null : Number(values.transaction_limit);
+      values.monthly_limit = values.monthly_limit === '' ? null : Number(values.monthly_limit);
+      const index = state.model.assets.findIndex((item) => item.id === values.id);
+      if (index >= 0) state.model.assets[index] = { ...state.model.assets[index], ...values }; else state.model.assets.push(values);
+      state.panel = null; await save(); return;
+    }
+    if (form.matches('[data-hrw-access-form]')) {
+      const values = formObject(form); values.amount = values.amount === '' ? null : Number(values.amount); values.department_id = values.department_id || null;
+      try {
+        const result = await request(`/api/aion/business/organisation/${encodeURIComponent(state.workspaceId)}/access-decision`, { method: 'POST', body: JSON.stringify(values) });
+        state.accessDecision = result.decision;
+      } catch (error) { state.error = `Authority check failed: ${error.message}`; }
+      render();
+    }
+  });
+
+  function installIfPresent() {
+    scheduled = false;
+    const target = host();
+    if (!target || target.hasAttribute('data-aion-hr-authority-installed')) return;
+    target.setAttribute('data-aion-hr-authority-installed', 'true');
+    target.innerHTML = '<div class="hrw-loading">Loading organisation…</div>';
+    load();
+  }
+
+  function scheduleInstall() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(installIfPresent);
+  }
+
+  function installStyles() {
+    if (document.getElementById('aion-hr-people-workspace-styles')) return;
+    const style = document.createElement('style');
+    style.id = 'aion-hr-people-workspace-styles';
+    style.textContent = `
+      html body [data-aion-o18ad-department="hr"]{max-width:1680px!important;margin:0 auto!important;background:#f8fafc!important;border:0!important;padding:0!important;color:#102a43!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important}
+      .hrw-shell{min-height:760px;background:#f8fafc;color:#102a43;padding:26px;position:relative}.hrw-shell *{box-sizing:border-box}.hrw-hero{display:flex;justify-content:space-between;align-items:flex-start;gap:28px;background:#fff;border:2px solid #f59e0b;padding:26px 30px}.hrw-hero>div:first-child{max-width:900px}.hrw-hero span,.hrw-section-head span,.hrw-empty>span,.hrw-panel header span{display:block;color:#0f766e;font-size:11px;font-weight:900;letter-spacing:.25em}.hrw-hero h1{margin:8px 0 6px;font-size:30px;color:#102a43;letter-spacing:-.02em}.hrw-hero p,.hrw-section-head p{margin:0;color:#52677e;line-height:1.55}.hrw-status{min-width:180px;padding:13px 16px;background:#fff7ed;border:1px solid #fdba74;text-align:right}.hrw-status.ready{background:#ecfdf5;border-color:#86efac}.hrw-status b,.hrw-status small{display:block;color:#9a3412;font-size:11px;letter-spacing:.1em}.hrw-status.ready b{color:#166534}.hrw-status small{margin-top:5px;color:#64748b;letter-spacing:0}.hrw-metrics{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:18px 0}.hrw-metrics article{background:#fff;border:1px solid #cbd5e1;padding:16px}.hrw-metrics strong{display:block;font-size:24px;color:#0f766e}.hrw-metrics span{font-size:12px;color:#64748b}.hrw-tabs{display:flex;gap:8px;flex-wrap:wrap;border-bottom:1px solid #cbd5e1;padding:0 0 12px}.hrw-shell button{appearance:none;border:1px solid #94a3b8;background:#fff;color:#334e68;padding:10px 14px;font-weight:800;cursor:pointer}.hrw-shell button:hover{border-color:#0284c7;color:#0369a1}.hrw-shell button.primary{background:#15803d;border-color:#15803d;color:#fff}.hrw-shell button.danger{border-color:#ef4444;color:#b91c1c;margin-right:auto}.hrw-tabs button.active{background:#0f766e;border-color:#0f766e;color:#fff}.hrw-content{background:#fff;border:1px solid #cbd5e1;border-top:4px solid #0284c7;margin-top:14px;padding:28px;min-height:520px}.hrw-section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:22px}.hrw-section-head>div{max-width:760px}.hrw-section-head h2{font-size:24px;margin:5px 0;color:#102a43}.hrw-section-head.compact{align-items:center;margin:0 0 12px}.hrw-section-head.compact h3{margin:0}.hrw-actions{display:flex;gap:9px;flex-wrap:wrap}.hrw-empty{text-align:center;max-width:760px;margin:55px auto;padding:35px;border:1px dashed #7dd3fc;background:#f0f9ff}.hrw-empty.small{margin:30px auto}.hrw-empty h2{font-size:28px;margin:8px}.hrw-empty p{color:#52677e;line-height:1.6}.hrw-empty .hrw-actions{justify-content:center;margin-top:24px}.hrw-people-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}.hrw-person{border:1px solid #cbd5e1;padding:18px;display:grid;grid-template-columns:50px 1fr;gap:14px;background:#fff}.hrw-person.inactive{opacity:.58}.hrw-avatar{width:50px;height:50px;background:#dbeafe;border:1px solid #7dd3fc;color:#075985;display:grid;place-items:center;font-weight:900}.hrw-person-main>div{display:flex;justify-content:space-between;gap:10px}.hrw-person-main strong{font-size:17px}.hrw-person-main em{font-size:10px;text-transform:uppercase;color:#15803d}.hrw-person-main p{margin:4px 0;color:#334e68}.hrw-person-main small{color:#64748b}.hrw-person dl{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0}.hrw-person dl div{background:#f8fafc;padding:9px}.hrw-person dt{font-size:10px;text-transform:uppercase;color:#64748b}.hrw-person dd{margin:3px 0 0;font-size:12px}.hrw-person>button{grid-column:1/-1}.hrw-alert{margin:18px 0 0;border-left:4px solid #f59e0b;background:#fffbeb;padding:14px 18px}.hrw-alert.error{border-color:#ef4444;background:#fef2f2;margin:14px 0}.hrw-alert p{margin:5px 0;color:#7c2d12}.hrw-chart{overflow:auto;padding:25px;background:#f8fafc;border:1px solid #e2e8f0}.hrw-chart ul{display:flex;justify-content:center;gap:18px;list-style:none;padding:0;margin:0}.hrw-chart ul ul{margin-top:28px;position:relative}.hrw-chart ul ul:before{content:"";position:absolute;top:-18px;left:50%;height:18px;border-left:2px solid #94a3b8}.hrw-chart li{min-width:190px}.hrw-chart article{background:#fff;border:1px solid #7dd3fc;border-top:4px solid #0f766e;padding:13px;text-align:center}.hrw-chart article strong,.hrw-chart article span,.hrw-chart article small{display:block}.hrw-chart article span{font-size:12px;margin:4px}.hrw-chart article small{color:#64748b}.hrw-departments{margin-top:24px}.hrw-departments>article{display:flex;justify-content:space-between;padding:13px;border-bottom:1px solid #e2e8f0}.hrw-departments>article small{display:block;color:#64748b;margin-top:3px}.hrw-departments>article>span{color:#0f766e;font-weight:800}.hrw-role-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}.hrw-role-grid article{border:1px solid #cbd5e1;padding:17px}.hrw-role-grid header{display:flex;justify-content:space-between;gap:12px}.hrw-role-grid header span{font-size:10px;text-transform:uppercase;color:#0f766e}.hrw-role-grid p{color:#52677e;min-height:42px}.hrw-role-grid article>div{display:flex;flex-wrap:wrap;gap:5px}.hrw-role-grid article>div small{background:#eff6ff;color:#1e40af;padding:4px 7px}.hrw-role-grid footer{border-top:1px solid #e2e8f0;margin-top:14px;padding-top:10px}.hrw-policy{margin-top:20px;border-left:4px solid #15803d;background:#ecfdf5;padding:16px}.hrw-policy p{margin:5px 0}.hrw-assets{display:grid;gap:10px}.hrw-assets article{display:grid;grid-template-columns:70px 1fr auto;align-items:center;gap:15px;border:1px solid #cbd5e1;padding:15px}.hrw-asset-icon{height:44px;display:grid;place-items:center;background:#102a43;color:#fff;font-size:10px;letter-spacing:.12em}.hrw-assets p{margin:4px 0;color:#334e68}.hrw-assets small{color:#64748b}.hrw-access-form{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr)) auto;gap:12px;align-items:end;background:#f8fafc;border:1px solid #cbd5e1;padding:18px}.hrw-shell label{display:grid;gap:6px;font-size:11px;font-weight:800;color:#334e68}.hrw-shell input,.hrw-shell select{width:100%;border:1px solid #94a3b8;background:#fff;color:#102a43;padding:10px;font:inherit}.hrw-decision{margin:20px 0;padding:20px;border-left:6px solid}.hrw-decision.allowed{background:#ecfdf5;border-color:#16a34a}.hrw-decision.denied{background:#fef2f2;border-color:#dc2626}.hrw-decision p{margin:5px 0;text-transform:capitalize}.hrw-panel{position:fixed;z-index:10000;inset:0 0 0 auto;width:min(620px,96vw);background:#fff;box-shadow:-20px 0 60px rgba(15,23,42,.28);overflow:auto;padding:0}.hrw-panel form{padding:26px;display:grid;gap:16px}.hrw-panel header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid #e2e8f0;padding-bottom:15px}.hrw-panel header h2{margin:5px 0 0}.hrw-panel header button{font-size:24px;padding:2px 10px}.hrw-panel fieldset{border:1px solid #cbd5e1;padding:14px}.hrw-panel legend{padding:0 7px;font-weight:900}.hrw-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.hrw-checks{display:grid;grid-template-columns:1fr 1fr;gap:8px}.hrw-checks label{display:flex;align-items:flex-start;gap:8px;background:#f8fafc;padding:9px}.hrw-checks input{width:auto;margin-top:2px}.hrw-checks span,.hrw-checks b,.hrw-checks small{display:block}.hrw-checks small{font-weight:400;color:#64748b}.hrw-panel footer{display:flex;justify-content:flex-end;gap:9px;border-top:1px solid #e2e8f0;padding-top:18px}.hrw-loading{min-height:500px;display:grid;place-items:center;background:#fff;color:#0f766e;font-weight:900}.hrw-muted{color:#64748b}
+      @media(max-width:900px){.hrw-hero{display:block}.hrw-status{margin-top:14px;text-align:left}.hrw-metrics{grid-template-columns:repeat(2,1fr)}.hrw-section-head{display:block}.hrw-actions{margin-top:14px}.hrw-access-form{grid-template-columns:1fr 1fr}.hrw-chart ul{display:grid}.hrw-chart ul ul{margin-left:28px}.hrw-two,.hrw-checks{grid-template-columns:1fr}}
+    `;
+    document.head.appendChild(style);
+  }
+
+  installStyles();
+  const observer = new MutationObserver(scheduleInstall);
+  observer.observe(document.getElementById('app') || document.body, { childList: true, subtree: true });
+  scheduleInstall();
+  global.AionHrPeopleWorkspace = { load, save, state, render };
+})(window);

@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Mapping, Sequence, Tuple
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
+from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 
 from backend.modules.aion_conversation.contracts import TurnPacket
 from backend.modules.hexcore.governed_runtime import (
@@ -137,7 +137,7 @@ class LearnedRelationInterpreter:
     """Private semantic proposal model; execution remains the verifier."""
 
     def __init__(self, model_path: Path) -> None:
-        self.encoder = SentenceTransformer(str(model_path))
+        self.encoder = get_sentence_transformer(str(model_path))
         self.lr_prototype: np.ndarray | None = None
         self.rl_prototype: np.ndarray | None = None
 

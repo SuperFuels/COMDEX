@@ -31,6 +31,11 @@ ABSTAIN = "abstain"
 LABELS = (*OPERATORS, ABSTAIN)
 MODEL = "gemma4:e2b"
 MODEL_DIGEST = "7fbdbf8f5e45a75bb122155ed546e765b4d9c53a1285f62fd9f506baa1c5a47e"
+MODEL_PARAMETERS = {
+    "gemma4:e2b": "5.1B",
+    "gemma3:1b": "1B",
+    "qwen3:1.7b": "1.7B",
+}
 
 PARAPHRASES = {
     "math_sum": (
@@ -411,7 +416,7 @@ def run_stronger_foundation_substrate_benchmark(
     gate = {
         "live_local_model": live,
         "model": model,
-        "model_digest": MODEL_DIGEST if model == MODEL else "injected_test_provider",
+        "model_digest": MODEL_DIGEST if model == MODEL else "ollama_local_manifest",
         "sealed_tasks": len(sealed),
         "external_tasks": len(external),
         "lexical_proposal_accuracy": lexical["proposal_accuracy"],
@@ -432,7 +437,9 @@ def run_stronger_foundation_substrate_benchmark(
         "provider_disabled_unsafe_acceptances": disabled["unsafe_acceptances"],
         "mean_live_latency_ms": gemma["mean_live_latency_ms"],
         "mean_recorded_latency_ms": gemma["mean_recorded_latency_ms"],
-        "backbone_parameters": "5.1B" if live else "injected",
+        "backbone_parameters": MODEL_PARAMETERS.get(model, "unknown")
+        if live
+        else "injected",
         "backbone_frozen": True,
         "hexcore_authority_independent": True,
     }
@@ -532,7 +539,7 @@ def run_stronger_foundation_substrate_benchmark(
     )
     result = {
         "schema_version": "aion.hexcore.stronger_substrate.v1",
-        "benchmark": "frozen_replaceable_5b_substrate_transfer",
+        "benchmark": "frozen_replaceable_substrate_transfer",
         "passed": passed,
         "gate": gate,
         "lexical_control": lexical,
@@ -542,14 +549,14 @@ def run_stronger_foundation_substrate_benchmark(
         "promotion": {"candidate": candidate.to_dict(), "decision": promotion},
         "restart": restart,
         "authority_boundary": (
-            "Gemma is frozen, replaceable and proposal-only. HexCore performs "
+            "The local model is frozen, replaceable and proposal-only. HexCore performs "
             "execution verification, fallback, memory, outcome recording and "
-            "CAU promotion. Removing Gemma preserves correct governed outcomes."
+            "CAU promotion. Removing the model preserves correct governed outcomes."
         ),
         "boundary_statement": (
             "Phase 47 V1 tests constrained procedure classification over a "
             "small internally authored natural-paraphrase suite. It does not "
-            "fine-tune Gemma, establish general language understanding, compare "
+            "fine-tune the model, establish general language understanding, compare "
             "against independent human tasks or demonstrate AGI."
         ),
         "created_at": _utc_timestamp(),

@@ -30,6 +30,11 @@ from backend.modules.aion_business.runtime.workspace_repository import Workspace
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workflow_file_cabinet_repository import WorkflowFileCabinetRepository
 from backend.modules.aion_business.runtime.finance_artifact_analyser import analyse_finance_artifact
+from backend.modules.aion_business.runtime.finance_completion_service import (
+    build_finance_completion,
+    seed_operating_model,
+)
+from backend.modules.aion_business.runtime.finance_director_service import FinanceDirectorService
 
 
 router = APIRouter(prefix="/api/aion/business/data", tags=["aion-business-data"])
@@ -92,6 +97,15 @@ def _number(value: Any, default: float = 0.0) -> float:
         return float(str(value).replace(",", "").replace("€", "").replace("£", "").strip())
     except (TypeError, ValueError):
         return default
+
+
+def _nullable_number(value: Any) -> float | None:
+    if value in (None, ""):
+        return None
+    try:
+        return float(str(value).replace(",", "").replace("€", "").replace("£", "").strip())
+    except (TypeError, ValueError):
+        return None
 
 
 def _stable_row_id(prefix: str, row: Dict[str, Any], index: int) -> str:
@@ -181,26 +195,34 @@ def _calculate_operating_model(payload: Dict[str, Any]) -> Dict[str, Any]:
     for index, raw in enumerate(_list(calculated.get("offerings"))):
         offering = _object(raw)
         offering["id"] = _stable_row_id("offering", offering, index)
-        price = _number(offering.get("price") or offering.get("charge_rate"))
+        price = _nullable_number(offering.get("price") if offering.get("price") not in (None, "") else offering.get("charge_rate"))
         material = _number(offering.get("material_cost_per_unit")) + bom_by_offering.get(offering["id"], 0.0)
         labour = _number(offering.get("labour_cost_per_unit"))
         other = sum(_number(offering.get(key)) for key in ("equipment_cost_per_unit", "subcontractor_cost_per_unit", "other_direct_cost_per_unit"))
         direct = material + labour + other
-        contribution = price - direct
-        volume = _number(offering.get("expected_monthly_volume"))
-        offering.update({"price": price, "direct_cost_per_unit": round(direct, 2)})
+        has_direct_cost = bool(bom_by_offering.get(offering["id"])) or any(
+            offering.get(key) not in (None, "")
+            for key in (
+                "material_cost_per_unit", "labour_cost_per_unit", "equipment_cost_per_unit",
+                "subcontractor_cost_per_unit", "other_direct_cost_per_unit",
+            )
+        )
+        direct_value = round(direct, 2) if has_direct_cost else None
+        contribution = None if price is None or direct_value is None else price - direct_value
+        volume = _nullable_number(offering.get("expected_monthly_volume"))
+        offering.update({"price": price, "direct_cost_per_unit": direct_value})
         offerings.append(offering)
         economics.append({
             "offering_id": offering["id"],
             "name": offering.get("name") or offering.get("sku") or "Offering",
             "currency": currency,
-            "price_per_unit": round(price, 2),
-            "direct_cost_per_unit": round(direct, 2),
-            "contribution_per_unit": round(contribution, 2),
-            "gross_margin_percent": round((contribution / price * 100), 2) if price else None,
+            "price_per_unit": None if price is None else round(price, 2),
+            "direct_cost_per_unit": direct_value,
+            "contribution_per_unit": None if contribution is None else round(contribution, 2),
+            "gross_margin_percent": round((contribution / price * 100), 2) if contribution is not None and price else None,
             "expected_monthly_volume": volume,
-            "expected_monthly_revenue": round(price * volume, 2),
-            "expected_monthly_contribution": round(contribution * volume, 2),
+            "expected_monthly_revenue": None if price is None or volume is None else round(price * volume, 2),
+            "expected_monthly_contribution": None if contribution is None or volume is None else round(contribution * volume, 2),
         })
     calculated["offerings"] = offerings
     calculated["unit_economics"] = economics
@@ -213,7 +235,11 @@ def _calculate_operating_model(payload: Dict[str, Any]) -> Dict[str, Any]:
         "suggested_procurement_cash_required": round(sum(_number(item.get("estimated_cash_required")) for item in suggested), 2),
     }
     calculated["currency"] = currency
-    calculated["model_status"] = "ready" if offerings else "draft"
+    calculated["model_status"] = (
+        "needs_user_review"
+        if str(payload.get("model_status") or "") == "needs_user_review"
+        else "ready" if offerings else "draft"
+    )
     return calculated
 
 
@@ -802,10 +828,14 @@ def append_business_map_facts(candidate: str, request: BusinessMapFactsRequest) 
         existing_keys.add(key)
         appended += 1
 
-    model.revision = int(model.revision or 0) + (1 if appended else 0)
-    model.meta.updated_at = _now()
-    model.meta.source = request.source
-    repository.save_model(model)
+    # A no-op sync must not rewrite metadata and silently change the payload
+    # hash while leaving the semantic revision unchanged. Boardroom approvals
+    # bind to both revision and hash, so only a real append may mutate the map.
+    if appended:
+        model.revision = int(model.revision or 0) + 1
+        model.meta.updated_at = _now()
+        model.meta.source = request.source
+        repository.save_model(model)
     payload = model.model_dump(mode="json")
     return {"ok": True, "business_id": business_id, "appended": appended, "payload": payload, "receipt": _receipt(business_id=business_id, kind="business_map", payload=payload)}
 
@@ -865,6 +895,19 @@ def put_finance_model(candidate: str, request: ContainerWriteRequest) -> Dict[st
             seen.add(key)
             refs.append(item)
         payload["evidence_refs"] = refs
+        # A resumed desktop discovery state must not replace a completed,
+        # source-backed statement package with browser-parsed approximations.
+        if existing.get("authoritative_metrics"):
+            payload["metrics"] = _object(existing.get("authoritative_metrics"))
+            for key in (
+                "authoritative_metrics",
+                "financial_statements",
+                "business_model",
+                "statement_quality",
+                "reporting_period",
+                "finance_director",
+            ):
+                payload[key] = _object(existing.get(key))
     payload.update({"id": f"{business_id}.business_financial_model", "workspace_id": business_id, "kind": "business_financial_model"})
     payload["revision"] = _next_revision(existing, request.expected_revision)
     payload["meta"] = _meta(business_id, "business_financial_model", request.source).model_dump(mode="json")
@@ -872,6 +915,133 @@ def put_finance_model(candidate: str, request: ContainerWriteRequest) -> Dict[st
     repository.save_model(model)
     data = model.model_dump(mode="json")
     return {"ok": True, "business_id": business_id, "payload": data, "receipt": _receipt(business_id=business_id, kind="business_financial_model", payload=data)}
+
+
+@router.post("/finance-completion/{candidate}")
+def complete_finance_foundation(candidate: str) -> Dict[str, Any]:
+    """Create source-backed statements, seed the operating model and update Boardroom.
+
+    This is intentionally idempotent for user-owned operating data: an existing
+    Products & Services model is never replaced by a newly inferred seed.
+    """
+
+    business_id = canonical_business_id(candidate)
+    repository = _repo()
+    existing_financial = repository.load_optional_dict(business_id, "business_financial_model")
+    if not existing_financial:
+        raise HTTPException(status_code=404, detail="business_financial_model_not_found")
+
+    existing_operating = repository.load_optional_dict(business_id, "business_operating_model")
+    initial_completion = build_finance_completion(existing_financial, existing_operating)
+
+    operating_created = existing_operating is None
+    operating_payload = existing_operating or seed_operating_model(existing_financial, initial_completion)
+    operating_payload = _calculate_operating_model(operating_payload)
+    if operating_created:
+        operating_payload.update({
+            "id": f"{business_id}.business_operating_model",
+            "workspace_id": business_id,
+            "kind": "business_operating_model",
+            "revision": 1,
+            "meta": _meta(business_id, "business_operating_model", "finance_completion").model_dump(mode="json"),
+        })
+        operating_model = BusinessOperatingModelContainer(**operating_payload)
+        repository.save_model(operating_model)
+        operating_payload = operating_model.model_dump(mode="json")
+        _project_operating_model_to_business_map(
+            repository, business_id, operating_payload, "finance_completion"
+        )
+
+    completion = build_finance_completion(existing_financial, operating_payload)
+    financial_payload = {
+        **existing_financial,
+        "currency": completion["currency"],
+        "period_basis": completion["period"]["basis"],
+        "reporting_period": completion["period"],
+        "metrics": completion["authoritative_metrics"],
+        "authoritative_metrics": completion["authoritative_metrics"],
+        "financial_statements": completion["financial_statements"],
+        "business_model": completion["business_model"],
+        "statement_quality": completion["quality"],
+        "revision": int(existing_financial.get("revision") or 0) + 1,
+        "meta": _meta(business_id, "business_financial_model", "finance_completion").model_dump(mode="json"),
+        "provenance": {
+            **_object(existing_financial.get("provenance")),
+            "finance_completed_at": completion["generated_at"],
+            "finance_completion_schema": completion["schema_version"],
+            "evidence_precedence": [
+                "accepted_accounting_evidence",
+                "confirmed_founder_input",
+                "calculated_from_source_backed_values",
+                "unverified_discovery_input",
+            ],
+        },
+    }
+    financial_model = BusinessFinancialModelContainer(**financial_payload)
+    repository.save_model(financial_model)
+    financial_payload = financial_model.model_dump(mode="json")
+
+    intelligence = repository.load_optional_dict(business_id, "department_intelligence") or {}
+    departments = _object(intelligence.get("departments"))
+    finance_department = _object(departments.get("finance"))
+    finance_department["financial_statements"] = {
+        "period": completion["period"],
+        "profit_and_loss_status": completion["financial_statements"]["profit_and_loss"]["status"],
+        "balance_sheet_status": completion["financial_statements"]["balance_sheet"]["status"],
+        "cash_flow_status": completion["financial_statements"]["cash_flow"]["status"],
+        "quality": completion["quality"],
+        "financial_model_revision": financial_payload["revision"],
+        "updated_at": completion["generated_at"],
+    }
+    finance_department["operating_model"] = {
+        "status": operating_payload.get("model_status"),
+        "operating_model_revision": operating_payload.get("revision"),
+        "offering_count": len(_list(operating_payload.get("offerings"))),
+        "requires_owner_review": operating_payload.get("model_status") == "needs_user_review",
+        "updated_at": completion["generated_at"],
+    }
+    departments["finance"] = finance_department
+    departments["boardroom"] = {
+        **_object(departments.get("boardroom")),
+        "status": "finance_statements_ready_for_review",
+        "finance_completion": {
+            "period": completion["period"],
+            "quality_status": completion["quality"]["status"],
+            "financial_model_revision": financial_payload["revision"],
+            "operating_model_revision": operating_payload.get("revision"),
+            "updated_at": completion["generated_at"],
+        },
+    }
+    intelligence_payload = {
+        **intelligence,
+        "id": f"{business_id}.department_intelligence",
+        "workspace_id": business_id,
+        "kind": "department_intelligence",
+        "meta": _meta(business_id, "department_intelligence", "finance_completion").model_dump(mode="json"),
+        "departments": departments,
+        "revision": int(intelligence.get("revision") or 0) + 1,
+    }
+    repository.save_model(DepartmentIntelligenceContainer(**intelligence_payload))
+
+    # The Director refresh writes its source-linked projection into the
+    # financial model, Department Intelligence and the live Boardroom runtime.
+    director = FinanceDirectorService(repository).refresh(
+        business_id,
+        minimum_cash_reserve=completion["financial_statements"]["cash_flow"].get("protected_cash_reserve"),
+        created_by="finance_completion",
+        created_at=completion["generated_at"],
+    )
+
+    return {
+        "ok": True,
+        "business_id": business_id,
+        "operating_model_created": operating_created,
+        "financial_model": repository.load_dict(business_id, "business_financial_model"),
+        "operating_model": operating_payload,
+        "finance_director": director,
+        "boardroom_projection_updated": True,
+        "external_action_performed": False,
+    }
 
 
 @router.get("/operating-model/{candidate}")

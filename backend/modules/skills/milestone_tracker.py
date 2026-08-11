@@ -53,7 +53,7 @@ TRIGGER_PATTERNS = {
     "grid_world_complete": ["grid complete", "navigation mastery", "learned environment"]
 }
 
-from sentence_transformers import SentenceTransformer
+from backend.utils.sentence_transformer_runtime import get_sentence_transformer
 from pathlib import Path
 import os, json, logging
 
@@ -73,7 +73,7 @@ class MilestoneTracker:
         for path in model_paths:
             if os.path.exists(path):
                 try:
-                    self.model = SentenceTransformer(path, local_files_only=True)
+                    self.model = get_sentence_transformer(path, local_files_only=True)
                     print(f"✅ MilestoneTracker: using MiniLM model from {path}")
                     break
                 except Exception as e:
