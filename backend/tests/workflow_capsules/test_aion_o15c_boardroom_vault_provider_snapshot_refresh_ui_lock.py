@@ -50,3 +50,5 @@ def test_boardroom_round_progression_and_brand_context_are_explicit():
     assert "Restart Board Analysis" in text
     assert "Use Debate Plan below to continue the current meeting." in text
     assert "const unresolvedText" in text
+    assert "STRUCTURED INPUT REQUIRED · COMPLETE OUTSIDE THE MEETING" in text
+    assert "data-aion-open-discovery-workspace" in text

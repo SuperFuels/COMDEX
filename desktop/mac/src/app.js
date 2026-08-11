@@ -42396,6 +42396,7 @@ function inferAionDiscoveryDepartmentV1(text = "") {
   if (value.includes("finance") || value.includes("budget") || value.includes("margin") || value.includes("profit") || value.includes("cash") || value.includes("cost")) return "finance";
   if (value.includes("operations") || value.includes("capacity") || value.includes("workflow") || value.includes("staffing") || value.includes("scheduling") || value.includes("tools")) return "operations";
   if (value.includes("support") || value.includes("customer service") || value.includes("feedback") || value.includes("complaint") || value.includes("aftercare")) return "support";
+  if (value.includes("work email") || value.includes("personnel") || value.includes("employee") || value.includes("contractor") || value.includes("pay rate")) return "hr";
 
   return "boardroom";
 }
@@ -42577,6 +42578,34 @@ function getAionDiscoveryQuestionGroupsV1(questions = []) {
   return groups;
 }
 
+function getAionDiscoveryWorkspaceDestinationsV1(group = {}) {
+  const department = String(group.department || "boardroom").toLowerCase();
+  const text = safeArray(group.questions).map((item) => item.question || "").join(" ").toLowerCase();
+  const destinations = [];
+  const add = (tab, label, purpose) => {
+    if (!destinations.some((item) => item.tab === tab)) destinations.push({ tab, label, purpose });
+  };
+  if (department === "hr" || /work email|personnel|employee|contractor|pay rate|labour rate/.test(text)) {
+    add("hr", "Open HR", "Complete people, work emails and confidential workforce costing.");
+  }
+  if (department === "finance" || /cash buffer|budget|margin|profit|cost/.test(text)) {
+    if (/unit|job|material|subcontract|engineer|labour|labor|rate|margin|minimum profitable/.test(text)) {
+      add("products_services", "Open Products & Services", "Complete offerings, HR-linked labour, jobs, materials and unit economics.");
+    }
+    if (/cash buffer|budget|spend|finance|gross margin|target margin/.test(text)) {
+      add("finance", "Open Finance", "Confirm cash protection, budgets, targets and verified financial assumptions.");
+    }
+  }
+  if (department === "operations" || /capacity|workflow|availability|jobs per week|coverage radius|scheduling/.test(text)) {
+    add("operations", "Open Operations", "Complete capacity, coverage, scheduling and operating constraints.");
+    add("products_services", "Open Workforce & Jobs", "Connect capacity to people, delivery units and quoted jobs.");
+  }
+  if (department === "marketing") add("marketing", "Open Marketing", "Complete the CMO strategy, channels, acquisition plan and approved budget source.");
+  if (department === "sales") add("sales", "Open Sales", "Complete pipeline, qualification, quoting and conversion inputs.");
+  if (department === "support") add("support", "Open Support", "Complete support policies, routes, remedies and escalation inputs.");
+  return destinations;
+}
+
 function saveAionDiscoveryGroupAnswerV1({ group_id, questions = [], answer = "", answer_type = "context" } = {}) {
   const cleanAnswer = String(answer || "").trim();
   if (!cleanAnswer || !safeArray(questions).length) return [];
@@ -42629,14 +42658,15 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
         &gt; Discovery Question Inbox
       </div>
       <div>&gt; Answered: ${answeredCount} / ${questions.length}</div>
-      <div>&gt; Purpose: answer missing discovery questions directly. Answers are passed into the next live provider round.</div>
-      <div>&gt; Grouped mode: answer a whole department/gate group once, or answer individual questions below it.</div>
+      <div>&gt; Purpose: route missing business facts to the system that owns them, save them structurally, then reconvene the Board.</div>
+      <div>&gt; Do not type operating facts into meeting minutes when they belong in Finance, HR, Operations, Marketing, Sales, Support or Products &amp; Services.</div>
   `);
 
   groups.forEach((group, groupIndex) => {
     const groupQuestions = safeArray(group.questions);
     const groupAnswered = groupQuestions.filter((question) => getAionDiscoveryAnswerForQuestionV1(question.id)).length;
     const groupPayload = encodeURIComponent(JSON.stringify(groupQuestions));
+    const destinations = getAionDiscoveryWorkspaceDestinationsV1(group);
 
     html.push(`
       <div
@@ -42661,7 +42691,16 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
       `);
     });
 
-    html.push(`
+    html.push(destinations.length ? `
+        <div style="margin-top:9px;border:1px solid rgba(251,191,36,.6);background:#1c1917;padding:11px;">
+          <div style="font-weight:900;color:#fde68a;">&gt; STRUCTURED INPUT REQUIRED · COMPLETE OUTSIDE THE MEETING</div>
+          <div>&gt; Save these facts in the owning workspace. The next Board analysis will read the updated Business Map automatically.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:9px;">
+            ${destinations.map((destination) => `<button type="button" class="aion-council-session-action" data-aion-open-discovery-workspace="${escapeHtml(destination.tab)}" title="${escapeHtml(destination.purpose)}" style="border-color:#f59e0b;background:#fffbeb;color:#7c2d12;">${escapeHtml(destination.label)}</button>`).join("")}
+          </div>
+          ${destinations.map((destination) => `<div style="margin-top:5px;color:#fde68a;">&gt; ${escapeHtml(destination.purpose)}</div>`).join("")}
+        </div>
+      ` : `
         <textarea
           data-aion-discovery-group-answer-input="true"
           data-group-id="${escapeHtml(group.group_id || "")}"
@@ -42705,6 +42744,10 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
             Save Group Answer
           </button>
         </div>
+
+      `);
+
+    html.push(`
 
         <details style="margin-top:10px;">
           <summary style="cursor:pointer;color:#bae6fd;">Answer individual questions</summary>
@@ -42796,6 +42839,14 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
   window.__aionDiscoveryQuestionInboxBindingsV1Installed = true;
 
   document.addEventListener("click", (event) => {
+    const routeButton = event.target?.closest?.("[data-aion-open-discovery-workspace]");
+    if (routeButton) {
+      const destination = routeButton.getAttribute("data-aion-open-discovery-workspace") || "";
+      if (typeof window.setAionSidebarActiveTabHardV1 === "function") window.setAionSidebarActiveTabHardV1(destination);
+      else document.querySelector(`[data-tab="${CSS.escape(destination)}"]`)?.click();
+      return;
+    }
+
     const groupButton = event.target?.closest?.("[data-aion-save-discovery-group-answer='true']");
     if (groupButton) {
       const groupId = groupButton.getAttribute("data-group-id") || "";

@@ -9,6 +9,7 @@ from backend.modules.aion_business.runtime.business_container_repository import 
 from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.workspace_repository import WorkspaceRepository
+from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 
 
 def test_canonical_business_id_is_shared_and_rejects_global_targets():
@@ -163,6 +164,56 @@ def test_operating_model_calculates_stock_procurement_unit_economics_and_board_c
     assert next(item for item in facts if item["field"] == "inventory_metrics")["value"]["reorder_items"] == 1
     ledger = repository.load_department_intelligence("home-fixed")
     assert ledger.departments["procurement"]["operating_model"]["stock_value"] == 60
+
+
+def test_quoted_job_uses_hr_linked_labour_and_tracks_estimate_against_actual(tmp_path, monkeypatch):
+    repository = BusinessContainerRepository(base_dir=tmp_path / "business_containers")
+    monkeypatch.setattr(api, "_repo", lambda: repository)
+    authority = OrganizationAuthorityService(repository)
+    organisation = authority.empty("home-fixed")
+    organisation["people"] = [
+        {"id": "person.one", "name": "Person One", "email": "one@example.com", "employment_type": "employee", "status": "active", "role_ids": ["role.employee"], "workforce_costing": {"basis": "daily", "base_rate": 120, "productive_hours_month": 160, "hours_per_day": 8}},
+        {"id": "person.two", "name": "Person Two", "email": "two@example.com", "employment_type": "contractor", "status": "active", "role_ids": ["role.self_employed_contractor"], "workforce_costing": {"basis": "daily", "base_rate": 100, "productive_hours_month": 160, "hours_per_day": 8}},
+    ]
+    authority.save("home-fixed", organisation)
+
+    result = api.put_operating_model("home-fixed", api.ContainerWriteRequest(payload={
+        "currency": "EUR",
+        "offerings": [{"id": "offering.carport", "name": "Quoted installation", "pricing_basis": "quote"}],
+        "labour_resources": [
+            {"person_id": "person.one", "cost_basis": "daily"},
+            {"person_id": "person.two", "cost_basis": "daily"},
+        ],
+        "jobs": [{"id": "job.carport", "name": "Customer installation", "status": "quote_accepted", "estimated_revenue": 3000, "actual_revenue": 3050}],
+        "job_labour_assignments": [
+            {"job_id": "job.carport", "person_id": "person.one", "estimated_units": 2, "actual_units": 2},
+            {"job_id": "job.carport", "person_id": "person.two", "estimated_units": 2, "actual_units": 2.5},
+        ],
+        "job_cost_items": [
+            {"job_id": "job.carport", "category": "materials", "estimated_cost": 1500, "actual_cost": 1540},
+            {"job_id": "job.carport", "category": "travel_fuel", "estimated_cost": 30, "actual_cost": 35},
+            {"job_id": "job.carport", "category": "tools_equipment", "estimated_cost": 20, "actual_cost": 30},
+        ],
+    }))
+    model = result["payload"]
+    assert [item["cost_rate"] for item in model["labour_resources"]] == [120, 100]
+    economics = model["job_economics"][0]
+    assert economics["estimated_labour_cost"] == 440
+    assert economics["estimated_direct_cost"] == 1990
+    assert economics["estimated_contribution"] == 1010
+    assert economics["actual_labour_cost"] == 490
+    assert economics["actual_direct_cost"] == 2095
+    assert economics["actual_contribution"] == 955
+    assert economics["cost_variance"] == 105
+    facts = api.get_boardroom_context("home-fixed")["context"]["business_map_projection"]["facts"]
+    projected_labour = next(item for item in facts if item["field"] == "labour_resources")["value"]
+    assert "cost_rate" not in projected_labour[0]
+    assert next(item for item in facts if item["field"] == "job_economics")["value"][0]["estimated_contribution"] == 1010
+    boardroom_operating = api.get_boardroom_context("home-fixed")["context"]["operating_model"]
+    assert "cost_rate" not in boardroom_operating["labour_resources"][0]
+    assert boardroom_operating["job_labour_assignments"] == []
+    assert boardroom_operating["job_cost_items"] == []
+    assert boardroom_operating["governance"]["individual_workforce_costs_redacted"] is True
 
 
 @pytest.mark.asyncio

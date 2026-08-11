@@ -352,6 +352,7 @@ class OrganizationAuthorityService:
                 "cost_center": str(item.get("cost_center") or "").strip(),
                 "project_ids": sorted(set(str(value) for value in (item.get("project_ids") or []) if value)),
             })
+            item["workforce_costing"] = self._planning_cost(item.get("workforce_costing"))
             people.append(item)
         people_ids = {item["id"] for item in people}
         for item in people:
@@ -406,6 +407,47 @@ class OrganizationAuthorityService:
         except (TypeError, ValueError):
             return None
 
+    @classmethod
+    def _planning_cost(cls, value: Any) -> dict[str, Any]:
+        """Normalise confidential HR inputs into a planning-cost projection.
+
+        The raw basis and rate remain in the HR container. Other departments
+        receive only the effective planning rate needed for job economics.
+        """
+        source = deepcopy(value) if isinstance(value, dict) else {}
+        basis = str(source.get("basis") or "hourly")
+        base_rate = cls._optional_number(source.get("base_rate")) or 0.0
+        employer_on_cost_percent = cls._optional_number(source.get("employer_on_cost_percent")) or 0.0
+        monthly_bonus = cls._optional_number(source.get("monthly_bonus")) or 0.0
+        commission_percent = cls._optional_number(source.get("commission_percent")) or 0.0
+        productive_hours_month = cls._optional_number(source.get("productive_hours_month")) or 140.0
+        hours_per_day = cls._optional_number(source.get("hours_per_day")) or 8.0
+        if basis == "monthly":
+            monthly_base = base_rate
+        elif basis == "daily":
+            monthly_base = base_rate * (productive_hours_month / hours_per_day)
+        elif basis == "per_job":
+            monthly_base = 0.0
+        else:
+            monthly_base = base_rate * productive_hours_month
+        monthly_employer_cost = monthly_base * (employer_on_cost_percent / 100.0)
+        effective_monthly = monthly_base + monthly_employer_cost + monthly_bonus
+        effective_hourly = effective_monthly / productive_hours_month if productive_hours_month else 0.0
+        effective_daily = effective_hourly * hours_per_day
+        return {
+            "basis": basis,
+            "base_rate": round(base_rate, 2),
+            "employer_on_cost_percent": round(employer_on_cost_percent, 2),
+            "monthly_bonus": round(monthly_bonus, 2),
+            "commission_percent": round(commission_percent, 2),
+            "productive_hours_month": round(productive_hours_month, 2),
+            "hours_per_day": round(hours_per_day, 2),
+            "effective_hourly_cost": round(effective_hourly, 2),
+            "effective_daily_cost": round(effective_daily, 2),
+            "effective_monthly_cost": round(effective_monthly, 2),
+            "confidential": True,
+        }
+
     @staticmethod
     def _summary(model: dict[str, Any]) -> dict[str, Any]:
         active = [item for item in model.get("people", []) if item.get("status") == "active"]
@@ -431,6 +473,9 @@ class OrganizationAuthorityService:
             ),
             "authority_gaps": gaps,
             "authority_ready": bool(active and owner_ids and not any(not item.get("role_ids") for item in active)),
+            "workforce_costing_ready": sum(
+                bool((item.get("workforce_costing") or {}).get("base_rate")) for item in active
+            ),
         }
 
     @staticmethod

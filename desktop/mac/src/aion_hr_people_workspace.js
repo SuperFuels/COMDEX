@@ -185,6 +185,17 @@
         <fieldset><legend>Departments</legend><div class="hrw-checks">${(state.model.departments || []).map((item) => `<label><input type="checkbox" name="department_ids" value="${esc(item.id)}" ${(person.department_ids || []).includes(item.id) ? 'checked' : ''}>${esc(item.name)}</label>`).join('') || '<small>Add departments later if the business is still very small.</small>'}</div></fieldset>
         <fieldset><legend>Application roles</legend><div class="hrw-checks">${(state.model.roles || []).map((role) => `<label><input type="checkbox" name="role_ids" value="${esc(role.id)}" ${selectedRoles.has(role.id) ? 'checked' : ''}><span><b>${esc(role.name)}</b><small>${esc(role.description || '')}</small></span></label>`).join('')}</div></fieldset>
         <div class="hrw-two"><label>Work location<input name="work_location" value="${esc(person.work_location || '')}" placeholder="Office, remote, site"></label><label>Cost centre<input name="cost_center" value="${esc(person.cost_center || '')}" placeholder="Optional"></label></div>
+        <fieldset class="hrw-costing"><legend>Confidential workforce costing</legend>
+          <p>Used by Finance and job profitability calculations. Individual pay is not copied into the general Business Map.</p>
+          <div class="hrw-two"><label>Pay / cost basis<select name="workforce_costing_basis">${[['hourly','Hourly'],['daily','Daily'],['monthly','Monthly salary / cost'],['per_job','Per job']].map(([key,label]) => `<option value="${key}" ${(person.workforce_costing?.basis || 'hourly') === key ? 'selected' : ''}>${label}</option>`).join('')}</select></label>
+          <label>Base rate or salary<input name="workforce_costing_base_rate" type="number" min="0" step="0.01" value="${person.workforce_costing?.base_rate ?? ''}" placeholder="Confidential"></label></div>
+          <div class="hrw-two"><label>Employer on-cost %<input name="workforce_costing_employer_on_cost_percent" type="number" min="0" step="0.01" value="${person.workforce_costing?.employer_on_cost_percent ?? ''}" placeholder="Tax, pension, leave burden"></label>
+          <label>Monthly bonus / allowance<input name="workforce_costing_monthly_bonus" type="number" min="0" step="0.01" value="${person.workforce_costing?.monthly_bonus ?? ''}"></label></div>
+          <div class="hrw-two"><label>Commission %<input name="workforce_costing_commission_percent" type="number" min="0" step="0.01" value="${person.workforce_costing?.commission_percent ?? ''}"></label>
+          <label>Productive hours / month<input name="workforce_costing_productive_hours_month" type="number" min="1" step="0.5" value="${person.workforce_costing?.productive_hours_month ?? 140}"></label></div>
+          <label>Hours per working day<input name="workforce_costing_hours_per_day" type="number" min="1" max="24" step="0.25" value="${person.workforce_costing?.hours_per_day ?? 8}"></label>
+          ${person.workforce_costing?.effective_hourly_cost ? `<small>Current effective planning cost: ${money(person.workforce_costing.effective_hourly_cost)} per hour · ${money(person.workforce_costing.effective_daily_cost)} per day.</small>` : '<small>Add known costs now or leave blank until payroll/contractor evidence is available.</small>'}
+        </fieldset>
         <label>Personal expense approval limit<input name="expense_approval_limit" type="number" min="0" step="0.01" value="${person.expense_approval_limit ?? ''}" placeholder="Uses role limit when blank"></label>
         <footer>${panel.item && person.status === 'active' ? '<button type="button" class="danger" data-hrw-deactivate-person>Deactivate</button>' : ''}<button type="button" data-hrw-close>Cancel</button><button class="primary" type="submit">Save person</button></footer>
       </form></aside>`;
@@ -282,6 +293,16 @@
       values.role_ids = [...form.querySelectorAll('[name="role_ids"]:checked')].map((item) => item.value);
       values.manager_id = values.manager_id || null; values.status = state.panel?.item?.status || 'active';
       values.expense_approval_limit = values.expense_approval_limit === '' ? null : Number(values.expense_approval_limit);
+      values.workforce_costing = {
+        basis: values.workforce_costing_basis || 'hourly',
+        base_rate: values.workforce_costing_base_rate === '' ? null : Number(values.workforce_costing_base_rate),
+        employer_on_cost_percent: values.workforce_costing_employer_on_cost_percent === '' ? 0 : Number(values.workforce_costing_employer_on_cost_percent),
+        monthly_bonus: values.workforce_costing_monthly_bonus === '' ? 0 : Number(values.workforce_costing_monthly_bonus),
+        commission_percent: values.workforce_costing_commission_percent === '' ? 0 : Number(values.workforce_costing_commission_percent),
+        productive_hours_month: values.workforce_costing_productive_hours_month === '' ? 140 : Number(values.workforce_costing_productive_hours_month),
+        hours_per_day: values.workforce_costing_hours_per_day === '' ? 8 : Number(values.workforce_costing_hours_per_day),
+      };
+      Object.keys(values).filter((key) => key.startsWith('workforce_costing_')).forEach((key) => delete values[key]);
       const index = state.model.people.findIndex((item) => item.id === values.id);
       if (index >= 0) state.model.people[index] = { ...state.model.people[index], ...values }; else state.model.people.push(values);
       state.panel = null; await save(); return;

@@ -156,6 +156,22 @@ def _runtime_department_projection(
     return projected
 
 
+def _boardroom_operating_projection(model: Dict[str, Any]) -> Dict[str, Any]:
+    """Return useful operating facts without exposing confidential HR costing."""
+    projected = deepcopy(_object(model))
+    projected["labour_resources"] = [
+        {key: item.get(key) for key in (
+            "id", "person_id", "person_name", "engagement_type", "cost_basis", "available_hours_month",
+        )}
+        for item in _list(projected.get("labour_resources")) if isinstance(item, dict)
+    ]
+    projected["job_labour_assignments"] = []
+    projected["job_cost_items"] = []
+    projected.setdefault("governance", {})["individual_workforce_costs_redacted"] = True
+    projected["governance"]["job_economics_are_aggregated"] = True
+    return projected
+
+
 def _list(value: Any) -> list[Any]:
     return deepcopy(value) if isinstance(value, list) else []
 
@@ -301,6 +317,92 @@ def _calculate_operating_model(payload: Dict[str, Any]) -> Dict[str, Any]:
         })
     calculated["offerings"] = offerings
     calculated["unit_economics"] = economics
+
+    labour_resources: list[Dict[str, Any]] = []
+    labour_by_id: Dict[str, Dict[str, Any]] = {}
+    labour_by_person: Dict[str, Dict[str, Any]] = {}
+    for index, raw in enumerate(_list(calculated.get("labour_resources"))):
+        resource = _object(raw)
+        resource["id"] = _stable_row_id("labour", resource, index)
+        resource["cost_rate"] = _nullable_number(resource.get("cost_rate"))
+        labour_resources.append(resource)
+        labour_by_id[resource["id"]] = resource
+        if resource.get("person_id"):
+            labour_by_person[str(resource["person_id"])] = resource
+    calculated["labour_resources"] = labour_resources
+
+    jobs: list[Dict[str, Any]] = []
+    job_ids: set[str] = set()
+    for index, raw in enumerate(_list(calculated.get("jobs"))):
+        job = _object(raw)
+        job["id"] = _stable_row_id("job", job, index)
+        job["status"] = str(job.get("status") or "estimate")
+        job["estimated_revenue"] = _nullable_number(job.get("estimated_revenue"))
+        job["actual_revenue"] = _nullable_number(job.get("actual_revenue"))
+        jobs.append(job)
+        job_ids.add(job["id"])
+    calculated["jobs"] = jobs
+
+    assignments: list[Dict[str, Any]] = []
+    for index, raw in enumerate(_list(calculated.get("job_labour_assignments"))):
+        assignment = _object(raw)
+        if str(assignment.get("job_id") or "") not in job_ids:
+            continue
+        assignment["id"] = _stable_row_id("job-labour", assignment, index)
+        resource = labour_by_id.get(str(assignment.get("labour_resource_id") or "")) or labour_by_person.get(str(assignment.get("person_id") or "")) or {}
+        basis = str(assignment.get("cost_basis") or resource.get("cost_basis") or "hourly")
+        rate = _number(assignment.get("cost_rate") if assignment.get("cost_rate") not in (None, "") else resource.get("cost_rate"))
+        estimated_units = _number(assignment.get("estimated_units"))
+        actual_units = _number(assignment.get("actual_units"))
+        assignment.update({
+            "person_id": assignment.get("person_id") or resource.get("person_id"),
+            "person_name": assignment.get("person_name") or resource.get("person_name") or resource.get("name"),
+            "cost_basis": basis, "cost_rate": round(rate, 2),
+            "estimated_units": estimated_units, "actual_units": actual_units,
+            "estimated_cost": round(rate * estimated_units, 2),
+            "actual_cost": round(rate * actual_units, 2),
+        })
+        assignments.append(assignment)
+    calculated["job_labour_assignments"] = assignments
+
+    cost_items: list[Dict[str, Any]] = []
+    for index, raw in enumerate(_list(calculated.get("job_cost_items"))):
+        item = _object(raw)
+        if str(item.get("job_id") or "") not in job_ids:
+            continue
+        item["id"] = _stable_row_id("job-cost", item, index)
+        item["category"] = str(item.get("category") or "other_direct")
+        item["estimated_cost"] = round(_number(item.get("estimated_cost")), 2)
+        item["actual_cost"] = round(_number(item.get("actual_cost")), 2)
+        cost_items.append(item)
+    calculated["job_cost_items"] = cost_items
+
+    job_economics: list[Dict[str, Any]] = []
+    for job in jobs:
+        job_id = job["id"]
+        labour_estimate = sum(_number(item.get("estimated_cost")) for item in assignments if item.get("job_id") == job_id)
+        labour_actual = sum(_number(item.get("actual_cost")) for item in assignments if item.get("job_id") == job_id)
+        other_estimate = sum(_number(item.get("estimated_cost")) for item in cost_items if item.get("job_id") == job_id)
+        other_actual = sum(_number(item.get("actual_cost")) for item in cost_items if item.get("job_id") == job_id)
+        estimated_revenue = job.get("estimated_revenue")
+        actual_revenue = job.get("actual_revenue")
+        estimated_cost = labour_estimate + other_estimate
+        actual_cost = labour_actual + other_actual
+        estimated_contribution = None if estimated_revenue is None else estimated_revenue - estimated_cost
+        actual_contribution = None if actual_revenue is None else actual_revenue - actual_cost
+        job_economics.append({
+            "job_id": job_id, "name": job.get("name") or "Job / quote", "status": job.get("status"),
+            "estimated_revenue": estimated_revenue, "estimated_labour_cost": round(labour_estimate, 2),
+            "estimated_other_direct_cost": round(other_estimate, 2), "estimated_direct_cost": round(estimated_cost, 2),
+            "estimated_contribution": None if estimated_contribution is None else round(estimated_contribution, 2),
+            "estimated_margin_percent": round(estimated_contribution / estimated_revenue * 100, 2) if estimated_revenue and estimated_contribution is not None else None,
+            "actual_revenue": actual_revenue, "actual_labour_cost": round(labour_actual, 2),
+            "actual_other_direct_cost": round(other_actual, 2), "actual_direct_cost": round(actual_cost, 2),
+            "actual_contribution": None if actual_contribution is None else round(actual_contribution, 2),
+            "actual_margin_percent": round(actual_contribution / actual_revenue * 100, 2) if actual_revenue and actual_contribution is not None else None,
+            "cost_variance": round(actual_cost - estimated_cost, 2),
+        })
+    calculated["job_economics"] = job_economics
     calculated["inventory_metrics"] = {
         "currency": currency,
         "total_stock_value": round(inventory_value, 2),
@@ -336,7 +438,11 @@ def _project_operating_model_to_business_map(repository: BusinessContainerReposi
         "inventory_metrics": _object(model.get("inventory_metrics")),
         "procurement_queue": _list(model.get("procurement_queue")),
         "production_lines": _list(model.get("production_lines")),
-        "labour_resources": _list(model.get("labour_resources")),
+        "labour_resources": [
+            {key: item.get(key) for key in ("id", "person_id", "person_name", "engagement_type", "cost_basis", "available_hours_month")}
+            for item in _list(model.get("labour_resources")) if isinstance(item, dict)
+        ],
+        "job_economics": _list(model.get("job_economics")),
         "payment_terms": _list(model.get("payment_terms")),
         "financial_targets": _list(model.get("financial_targets")),
     }
@@ -1129,7 +1235,33 @@ def put_operating_model(candidate: str, request: ContainerWriteRequest) -> Dict[
     business_id = canonical_business_id(candidate)
     repository = _repo()
     existing = repository.load_optional_dict(business_id, "business_operating_model")
-    payload = _calculate_operating_model(_object(request.payload))
+    source_payload = _object(request.payload)
+    organisation = repository.load_optional_dict(business_id, "organization_authority") or {}
+    people = {str(item.get("id")): item for item in _list(organisation.get("people")) if isinstance(item, dict)}
+    hydrated_labour = []
+    for raw in _list(source_payload.get("labour_resources")):
+        resource = _object(raw)
+        person = people.get(str(resource.get("person_id") or ""))
+        if person:
+            costing = _object(person.get("workforce_costing"))
+            requested_basis = str(resource.get("cost_basis") or costing.get("basis") or "hourly")
+            if requested_basis == "daily":
+                effective_rate = costing.get("effective_daily_cost")
+            elif requested_basis == "monthly":
+                effective_rate = costing.get("effective_monthly_cost")
+            elif requested_basis == "per_job":
+                effective_rate = costing.get("base_rate")
+            else:
+                requested_basis = "hourly"
+                effective_rate = costing.get("effective_hourly_cost")
+            resource.update({
+                "person_name": person.get("name"), "engagement_type": person.get("employment_type"),
+                "cost_basis": requested_basis, "cost_rate": effective_rate,
+                "cost_source": "confidential_hr_effective_planning_cost",
+            })
+        hydrated_labour.append(resource)
+    source_payload["labour_resources"] = hydrated_labour
+    payload = _calculate_operating_model(source_payload)
     payload.update({
         "id": f"{business_id}.business_operating_model",
         "workspace_id": business_id,
@@ -1560,6 +1692,7 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
     ledger = optional("department_intelligence")
     finance_model = optional("business_financial_model")
     operating_model = optional("business_operating_model")
+    boardroom_operating_model = _boardroom_operating_projection(operating_model)
     evidence_refs = _list(finance_model.get("evidence_refs"))
     department_intelligence = _runtime_department_projection(
         business_id,
@@ -1583,8 +1716,8 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
             "conflicts": _list(business_map.get("conflicts")),
             "revision": business_map.get("revision"),
         },
-        "function_models": {"finance": finance_model, "operating_model": operating_model},
-        "operating_model": operating_model,
+        "function_models": {"finance": finance_model, "operating_model": boardroom_operating_model},
+        "operating_model": boardroom_operating_model,
         "department_intelligence": department_intelligence,
         "evidence_index": evidence_refs,
         "source_revisions": {

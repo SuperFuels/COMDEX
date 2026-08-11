@@ -2,12 +2,16 @@
   'use strict';
 
   const STORAGE_KEY = 'aion.businessOperatingModel.draft.v1';
-  const TABS = ['offerings', 'delivery', 'stock', 'procurement', 'finance', 'summary'];
+  const TABS = [
+    ['offerings', 'Offerings'], ['workforce', 'Workforce & capacity'], ['jobs', 'Jobs & quotes'],
+    ['stock', 'Stock'], ['procurement', 'Procurement'], ['finance', 'Finance'], ['summary', 'Summary'],
+  ];
   const state = {
-    loaded: false, loading: false, saving: false, error: '', savedAt: '', activeTab: 'offerings',
+    loaded: false, loading: false, saving: false, error: '', savedAt: '', activeTab: 'offerings', people: [],
     model: {
       model_status: 'draft', setup_mode: 'simple', currency: 'EUR', revision: 0,
       offerings: [], pricing_rules: [], payment_terms: [], customer_terms: [], labour_resources: [],
+      jobs: [], job_labour_assignments: [], job_cost_items: [], job_economics: [],
       overheads: [], debt_commitments: [], financial_targets: [], production_lines: [],
       bills_of_materials: [], inventory_items: [], suppliers: [], procurement_queue: [],
       unit_economics: [], inventory_metrics: {}, capacity_model: {}, provenance: {}, source_refs: [],
@@ -17,6 +21,13 @@
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (ch) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   const list = (key) => Array.isArray(state.model[key]) ? state.model[key] : (state.model[key] = []);
   const money = (value) => new Intl.NumberFormat('en-GB', { style: 'currency', currency: state.model.currency || 'EUR', maximumFractionDigits: 2 }).format(Number(value || 0));
+  const localId = (prefix) => `${prefix}.draft.${Date.now().toString(36)}.${Math.random().toString(36).slice(2,7)}`;
+
+  function ensureRelationshipIds() {
+    [['offerings','offering'],['labour_resources','labour'],['jobs','job']].forEach(([key,prefix]) => {
+      list(key).forEach((row) => { if (!row.id) row.id = localId(prefix); });
+    });
+  }
 
   function persistDraft() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.model)); } catch {} }
   function rerender() { if (typeof global.requestRender === 'function') global.requestRender(); }
@@ -27,6 +38,13 @@
     try {
       const result = await global.AionBusinessContainerClient?.getOperatingModel?.();
       if (result?.payload) state.model = { ...state.model, ...result.payload };
+      try {
+        const businessId = global.AionBusinessContainerClient?.resolveBusinessId?.();
+        const response = await fetch(`http://127.0.0.1:8080/api/aion/business/organisation/${encodeURIComponent(businessId)}`);
+        const organisation = response.ok ? await response.json() : null;
+        state.people = (organisation?.model?.people || []).filter((person) => person.status === 'active');
+      } catch { state.people = []; }
+      ensureRelationshipIds();
     } catch (error) {
       if (!String(error).includes('404')) state.error = String(error?.message || error);
       try {
@@ -90,6 +108,18 @@
     return `<select class="om-input" data-om-list="${listName}" data-om-index="${index}" data-om-field="${field}">${option(values, value)}</select>`;
   }
 
+  function personSelect(listName, index, field, value) {
+    const options = state.people.map((person) => {
+      const cost = person.workforce_costing?.effective_hourly_cost;
+      return [person.id, `${person.name}${cost ? ` · ${money(cost)}/hour planning cost` : ' · costing incomplete'}`];
+    });
+    return select(listName, index, field, value, [['','Select a person from HR'], ...options]);
+  }
+
+  function relationSelect(listName, index, field, value, rows, placeholder) {
+    return select(listName, index, field, value, [['', placeholder], ...rows.map((row) => [row.id, row.name || row.person_name || row.id])]);
+  }
+
   function remove(listName, index) { return `<button class="om-remove" type="button" data-om-remove="${listName}" data-om-index="${index}" title="Remove row">×</button>`; }
   function empty(message) { return `<div class="om-empty">${esc(message)}</div>`; }
 
@@ -104,15 +134,32 @@
       <div class="om-note">Customer-specific prices and payment terms can be added below Finance inputs. Large catalogues can be imported in the next connector stage without changing this model.</div>`;
   }
 
-  function delivery() {
+  function workforce() {
     const labour = list('labour_resources'); const lines = list('production_lines'); const bom = list('bills_of_materials');
     return `
-      <div class="om-section-head"><div><h3>People and direct labour</h3><p>Employees, owners, contractors or freelancers used to deliver the work.</p></div><button class="om-add" data-om-add="labour_resources">+ Add labour</button></div>
-      ${labour.length ? `<div class="om-table-wrap"><table><thead><tr><th>Role / person</th><th>Engagement</th><th>Cost basis</th><th>Rate</th><th>Available hours/month</th><th></th></tr></thead><tbody>${labour.map((r,i)=>`<tr><td>${input('labour_resources',i,'name',r.name,'text','Plumber')}</td><td>${select('labour_resources',i,'engagement_type',r.engagement_type||'employee',[['owner','Owner'],['employee','Employee'],['contractor','Contractor'],['freelancer','Freelancer'],['agency','Agency']])}</td><td>${select('labour_resources',i,'cost_basis',r.cost_basis||'hourly',[['hourly','Hourly'],['daily','Daily'],['monthly','Monthly salary'],['per_job','Per job'],['per_unit','Per unit']])}</td><td>${input('labour_resources',i,'cost_rate',r.cost_rate,'number')}</td><td>${input('labour_resources',i,'available_hours_month',r.available_hours_month,'number')}</td><td>${remove('labour_resources',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Add labour only if people time is a direct delivery or production cost.')}
+      <div class="om-section-head"><div><h3>Workforce and direct labour</h3><p>Select real people from HR. Confidential pay, employment burden, leave and contractor rates stay owned by HR; this workspace receives an effective planning cost.</p></div><button class="om-add" data-om-add="labour_resources">+ Assign person</button></div>
+      ${!state.people.length ? `<div class="om-route-note"><strong>Complete HR first</strong><p>Add employees, owners and contractors plus their confidential workforce costing, then return here.</p><button class="om-secondary" data-om-open-workspace="hr">Open HR people & costing</button></div>` : ''}
+      ${labour.length ? `<div class="om-table-wrap"><table><thead><tr><th>Person from HR</th><th>Cost basis</th><th>Effective planning rate</th><th>Available hours/month</th><th></th></tr></thead><tbody>${labour.map((r,i)=>`<tr><td>${personSelect('labour_resources',i,'person_id',r.person_id)}</td><td>${select('labour_resources',i,'cost_basis',r.cost_basis||'hourly',[['hourly','Hourly'],['daily','Daily'],['monthly','Monthly'],['per_job','Per job']])}</td><td>${r.cost_rate == null || r.cost_rate === '' ? 'Calculated from HR when saved' : money(r.cost_rate)}</td><td>${input('labour_resources',i,'available_hours_month',r.available_hours_month,'number')}</td><td>${remove('labour_resources',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Assign people only after they exist in HR. Never retype a person or confidential pay rate here.')}
       <div class="om-section-head"><div><h3>Production lines or delivery units</h3><p>Optional for factories, kitchens, workshops, crews or service teams.</p></div><button class="om-add" data-om-add="production_lines">+ Add line</button></div>
       ${lines.length ? `<div class="om-table-wrap"><table><thead><tr><th>Line / unit</th><th>Output unit</th><th>Capacity per day</th><th>Operating days/month</th><th>Constraint</th><th></th></tr></thead><tbody>${lines.map((r,i)=>`<tr><td>${input('production_lines',i,'name',r.name,'text','Cake line 1')}</td><td>${input('production_lines',i,'output_unit',r.output_unit,'text','cakes')}</td><td>${input('production_lines',i,'capacity_per_day',r.capacity_per_day,'number')}</td><td>${input('production_lines',i,'operating_days_month',r.operating_days_month,'number')}</td><td>${input('production_lines',i,'constraint',r.constraint,'text','oven capacity')}</td><td>${remove('production_lines',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('A sole trader can leave this empty; factories and production businesses can model each line.')}
       <div class="om-section-head"><div><h3>Materials used per product or job</h3><p>A lightweight bill of materials that links inputs to an offering.</p></div><button class="om-add" data-om-add="bills_of_materials">+ Add material</button></div>
       ${bom.length ? `<div class="om-table-wrap"><table><thead><tr><th>Offering ID / name</th><th>Material</th><th>Quantity per unit</th><th>Unit</th><th>Unit cost</th><th>Waste %</th><th></th></tr></thead><tbody>${bom.map((r,i)=>`<tr><td>${input('bills_of_materials',i,'offering_id',r.offering_id)}</td><td>${input('bills_of_materials',i,'material_name',r.material_name,'text','Flour')}</td><td>${input('bills_of_materials',i,'quantity_per_unit',r.quantity_per_unit,'number')}</td><td>${input('bills_of_materials',i,'unit',r.unit,'text','kg')}</td><td>${input('bills_of_materials',i,'unit_cost',r.unit_cost,'number')}</td><td>${input('bills_of_materials',i,'waste_percent',r.waste_percent,'number')}</td><td>${remove('bills_of_materials',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Add materials when a product or job consumes stock.')}`;
+  }
+
+  function jobs() {
+    const jobs = list('jobs'); const assignments = list('job_labour_assignments'); const costs = list('job_cost_items'); const economics = list('job_economics');
+    return `
+      <div class="om-section-head"><div><h3>Quoted jobs and project economics</h3><p>Use this for variable work that cannot honestly be reduced to one standard unit cost. Start with an estimate, then track the accepted quote, live delivery and final actual result.</p></div><button class="om-add" data-om-add="jobs">+ Add job / quote</button></div>
+      ${jobs.length ? `<div class="om-table-wrap"><table><thead><tr><th>Job / quote</th><th>Linked offering</th><th>Status</th><th>Estimated revenue</th><th>Actual revenue</th><th>Customer / reference</th><th></th></tr></thead><tbody>${jobs.map((r,i)=>`<tr><td>${input('jobs',i,'name',r.name,'text','Customer project or order')}</td><td>${relationSelect('jobs',i,'offering_id',r.offering_id,list('offerings'),'Optional offering')}</td><td>${select('jobs',i,'status',r.status||'estimate',[['estimate','Estimate'],['quote_draft','Quote draft'],['quote_sent','Quote sent'],['quote_accepted','Quote accepted'],['in_progress','Live job'],['completed','Completed'],['cancelled','Cancelled']])}</td><td>${input('jobs',i,'estimated_revenue',r.estimated_revenue,'number')}</td><td>${input('jobs',i,'actual_revenue',r.actual_revenue,'number')}</td><td>${input('jobs',i,'customer_reference',r.customer_reference,'text','Customer / order / project')}</td><td>${remove('jobs',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Add a job when price, labour or materials vary by customer, order, project or production batch.')}
+
+      <div class="om-section-head"><div><h3>People assigned to jobs</h3><p>Estimate hours or days before accepting work, then record actual time. Rates come from the HR-linked workforce above.</p></div><button class="om-add" data-om-add="job_labour_assignments">+ Assign labour</button></div>
+      ${assignments.length ? `<div class="om-table-wrap"><table><thead><tr><th>Job</th><th>Person</th><th>Basis</th><th>Estimated units</th><th>Actual units</th><th></th></tr></thead><tbody>${assignments.map((r,i)=>`<tr><td>${relationSelect('job_labour_assignments',i,'job_id',r.job_id,jobs,'Select job')}</td><td>${relationSelect('job_labour_assignments',i,'labour_resource_id',r.labour_resource_id,list('labour_resources').map((resource)=>({...resource,name:resource.person_name || state.people.find((person)=>person.id===resource.person_id)?.name || 'HR person'})),'Select assigned person')}</td><td>${select('job_labour_assignments',i,'cost_basis',r.cost_basis||'hourly',[['hourly','Hours'],['daily','Days'],['monthly','Months'],['per_job','Jobs']])}</td><td>${input('job_labour_assignments',i,'estimated_units',r.estimated_units,'number')}</td><td>${input('job_labour_assignments',i,'actual_units',r.actual_units,'number')}</td><td>${remove('job_labour_assignments',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Assign one or more people to each job—for example, two people for two days.')}
+
+      <div class="om-section-head"><div><h3>Variable job costs</h3><p>Record what is known without pretending every cost is predictable. Materials, fuel, parking, tools, subcontractors and commission can be estimated first and confirmed later from Finance evidence.</p></div><button class="om-add" data-om-add="job_cost_items">+ Add cost</button></div>
+      ${costs.length ? `<div class="om-table-wrap"><table><thead><tr><th>Job</th><th>Category</th><th>Description</th><th>Estimated</th><th>Actual</th><th>Evidence / note</th><th></th></tr></thead><tbody>${costs.map((r,i)=>`<tr><td>${relationSelect('job_cost_items',i,'job_id',r.job_id,jobs,'Select job')}</td><td>${select('job_cost_items',i,'category',r.category||'materials',[['materials','Materials'],['subcontractor','Subcontractor'],['travel_fuel','Travel / fuel'],['parking','Parking'],['tools_equipment','Tools / equipment'],['commission','Commission'],['delivery','Delivery / logistics'],['other_direct','Other direct cost']])}</td><td>${input('job_cost_items',i,'description',r.description,'text','Known or possible cost')}</td><td>${input('job_cost_items',i,'estimated_cost',r.estimated_cost,'number')}</td><td>${input('job_cost_items',i,'actual_cost',r.actual_cost,'number')}</td><td>${input('job_cost_items',i,'evidence_ref',r.evidence_ref,'text','Receipt, invoice, timesheet or note')}</td><td>${remove('job_cost_items',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Unknown costs can remain blank until they occur; actual Finance evidence can update them later.')}
+
+      <div class="om-section-head"><div><h3>Estimate versus actual</h3><p>The Board sees margin and cost variance by job, without receiving individual salary details.</p></div></div>
+      ${economics.length ? `<div class="om-table-wrap"><table><thead><tr><th>Job</th><th>Status</th><th>Est. revenue</th><th>Est. direct cost</th><th>Est. margin</th><th>Actual revenue</th><th>Actual direct cost</th><th>Actual margin</th><th>Cost variance</th></tr></thead><tbody>${economics.map((r)=>`<tr><td>${esc(r.name)}</td><td>${esc(r.status)}</td><td>${money(r.estimated_revenue)}</td><td>${money(r.estimated_direct_cost)}</td><td>${r.estimated_margin_percent == null ? '—' : `${esc(r.estimated_margin_percent)}%`}</td><td>${r.actual_revenue == null ? '—' : money(r.actual_revenue)}</td><td>${money(r.actual_direct_cost)}</td><td>${r.actual_margin_percent == null ? '—' : `${esc(r.actual_margin_percent)}%`}</td><td>${money(r.cost_variance)}</td></tr>`).join('')}</tbody></table></div>` : empty('Save the model to calculate each job estimate and actual result.')}`;
   }
 
   function stock() {
@@ -148,17 +195,20 @@
     <div class="om-board-note"><strong>Boardroom use</strong><p>The Board receives these structured facts on every meeting: offer economics, production capacity, stock tied up in cash, shortages, procurement cash needs, payment terms, overheads, debt and targets. It can model discount or liquidation scenarios without relying on provider memory.</p></div>`;
   }
 
-  function content() { return ({ offerings, delivery, stock, procurement, finance, summary }[state.activeTab] || offerings)(); }
+  function content() { return ({ offerings, workforce, jobs, stock, procurement, finance, summary }[state.activeTab] || offerings)(); }
 
   function render() {
     if (!state.loaded) setTimeout(load, 0);
     const mode = state.model.setup_mode || 'simple';
-    return `<section class="om-shell" data-aion-operating-model="true"><header class="om-package"><div><small>BUSINESS OPERATING MODEL</small><h2>Products & Services · Production · Stock · Procurement</h2><p>One shared source of truth for Sales, Operations, HR, Finance and the Boardroom.</p></div><div class="om-mode"><button data-om-mode="simple" data-active="${mode==='simple'}">Simple</button><button data-om-mode="advanced" data-active="${mode==='advanced'}">Advanced</button></div></header><section class="om-terminal"><div class="om-title">&gt; BUILD HOW THE BUSINESS EARNS, DELIVERS AND BUYS</div><nav class="om-tabs">${TABS.map(tab=>`<button data-om-tab="${tab}" data-active="${tab===state.activeTab}">${esc(tab.replace('_',' '))}</button>`).join('')}</nav><div class="om-content">${content()}</div><footer><div>${state.error ? `<span class="om-error">${esc(state.error)}</span>` : state.savedAt ? `<span class="om-saved">Saved to Business Container at ${esc(state.savedAt)}</span>` : '<span>Changes remain a draft until saved.</span>'}</div><button class="om-save" data-om-save="true" ${state.saving?'disabled':''}>${state.saving?'SAVING…':'SAVE MODEL & UPDATE BOARDROOM'}</button></footer></section></section>`;
+    return `<section class="om-shell" data-aion-operating-model="true"><header class="om-package"><div><small>BUSINESS OPERATING MODEL</small><h2>Products & Services · Workforce · Jobs · Stock · Procurement</h2><p>One shared source of truth for Sales, Operations, HR, Finance and the Boardroom.</p></div><div class="om-mode"><button data-om-mode="simple" data-active="${mode==='simple'}">Simple</button><button data-om-mode="advanced" data-active="${mode==='advanced'}">Advanced</button></div></header><section class="om-terminal"><div class="om-title">&gt; BUILD HOW THE BUSINESS EARNS, DELIVERS AND BUYS</div><nav class="om-tabs">${TABS.map(([key,label])=>`<button data-om-tab="${key}" data-active="${key===state.activeTab}">${esc(label)}</button>`).join('')}</nav><div class="om-content">${content()}</div><footer><div>${state.error ? `<span class="om-error">${esc(state.error)}</span>` : state.savedAt ? `<span class="om-saved">Saved to Business Container at ${esc(state.savedAt)}</span>` : '<span>Changes remain a draft until saved.</span>'}</div><button class="om-save" data-om-save="true" ${state.saving?'disabled':''}>${state.saving?'SAVING…':'SAVE MODEL & UPDATE BOARDROOM'}</button></footer></section></section>`;
   }
 
   const defaults = {
     offerings: { name:'', offering_type:'service', pricing_basis:'day_rate', price:'', unit:'day', expected_monthly_volume:'' },
-    labour_resources: { name:'', engagement_type:'employee', cost_basis:'hourly', cost_rate:'', available_hours_month:'' },
+    labour_resources: { person_id:'', person_name:'', engagement_type:'employee', cost_basis:'hourly', cost_rate:'', available_hours_month:'' },
+    jobs: { name:'', offering_id:'', status:'estimate', estimated_revenue:'', actual_revenue:'', customer_reference:'' },
+    job_labour_assignments: { job_id:'', labour_resource_id:'', cost_basis:'hourly', estimated_units:'', actual_units:'' },
+    job_cost_items: { job_id:'', category:'materials', description:'', estimated_cost:'', actual_cost:'', evidence_ref:'' },
     production_lines: { name:'', output_unit:'units', capacity_per_day:'', operating_days_month:'', constraint:'' },
     bills_of_materials: { offering_id:'', material_name:'', quantity_per_unit:'', unit:'units', unit_cost:'', waste_percent:'' },
     inventory_items: { name:'', stock_class:'raw_material', unit:'units', quantity_on_hand:'', quantity_reserved:'', unit_cost:'', reorder_point:'', target_stock:'', lead_time_days:'' },
@@ -182,7 +232,19 @@
   document.addEventListener('click', (event) => {
     const tab = event.target.closest?.('[data-om-tab]'); if (tab) { state.activeTab = tab.dataset.omTab; rerender(); return; }
     const mode = event.target.closest?.('[data-om-mode]'); if (mode) { state.model.setup_mode = mode.dataset.omMode; persistDraft(); rerender(); return; }
-    const add = event.target.closest?.('[data-om-add]'); if (add) { const key=add.dataset.omAdd; list(key).push({...defaults[key]}); persistDraft(); rerender(); return; }
+    const add = event.target.closest?.('[data-om-add]'); if (add) {
+      const key=add.dataset.omAdd; const row={...defaults[key]};
+      if (key === 'offerings') row.id = localId('offering');
+      if (key === 'labour_resources') row.id = localId('labour');
+      if (key === 'jobs') row.id = localId('job');
+      list(key).push(row); persistDraft(); rerender(); return;
+    }
+    const route = event.target.closest?.('[data-om-open-workspace]'); if (route) {
+      const destination = route.dataset.omOpenWorkspace;
+      if (typeof global.setAionSidebarActiveTabHardV1 === 'function') global.setAionSidebarActiveTabHardV1(destination);
+      else document.querySelector(`[data-tab="${destination}"]`)?.click();
+      return;
+    }
     const removeButton = event.target.closest?.('[data-om-remove]'); if (removeButton) { list(removeButton.dataset.omRemove).splice(Number(removeButton.dataset.omIndex),1); persistDraft(); rerender(); return; }
     if (event.target.closest?.('[data-om-save]')) { save(); return; }
     if (event.target.closest?.('[data-om-quick-add]')) {
@@ -322,6 +384,8 @@
         padding:16px;
         color:var(--om-muted) !important;
       }
+      .om-route-note{border:1px solid #f59e0b;background:#fffbeb;padding:16px;margin:10px 0}.om-route-note p{color:var(--om-muted)}
+      .om-secondary{border:1px solid #0284c7!important;background:#fff!important;color:#0369a1!important;padding:10px 13px;font-weight:900;cursor:pointer}
       .om-note{margin-top:10px}
       .om-quick{
         border:1px solid #55a68b;

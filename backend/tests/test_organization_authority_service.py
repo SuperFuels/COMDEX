@@ -54,6 +54,22 @@ def test_save_builds_ready_authority_model_and_assigns_card(tmp_path):
     assert service.get("acme")["people"][1]["manager_id"] == "person.owner"
 
 
+def test_confidential_workforce_costing_derives_effective_planning_rates(tmp_path):
+    service = _service(tmp_path)
+    model = _model(service)
+    model["people"][1]["workforce_costing"] = {
+        "basis": "monthly", "base_rate": 2800, "employer_on_cost_percent": 20,
+        "monthly_bonus": 140, "productive_hours_month": 140, "hours_per_day": 8,
+    }
+    saved = service.save("acme", model)
+    costing = saved["people"][1]["workforce_costing"]
+    assert costing["effective_monthly_cost"] == 3500
+    assert costing["effective_hourly_cost"] == 25
+    assert costing["effective_daily_cost"] == 200
+    assert costing["confidential"] is True
+    assert saved["summary"]["workforce_costing_ready"] == 1
+
+
 def test_access_is_role_scope_and_amount_aware(tmp_path):
     service = _service(tmp_path)
     model = _model(service)
