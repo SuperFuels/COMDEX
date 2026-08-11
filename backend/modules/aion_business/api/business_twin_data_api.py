@@ -81,6 +81,81 @@ def _object(value: Any) -> Dict[str, Any]:
     return deepcopy(value) if isinstance(value, dict) else {}
 
 
+def _runtime_department_projection(
+    business_id: str,
+    departments: Dict[str, Any],
+    *,
+    business_root: Path | None = None,
+) -> Dict[str, Any]:
+    """Expose durable Sales and Support runtime evidence to the read-only Board."""
+    projected = deepcopy(_object(departments))
+    root = business_root or AIONBusinessPaths.business_container_dir(business_id)
+
+    def files(path: Path, pattern: str = "*.json") -> list[Path]:
+        return sorted(path.glob(pattern)) if path.exists() else []
+
+    def latest(paths: list[Path]) -> str:
+        if not paths:
+            return ""
+        stamp = max(path.stat().st_mtime for path in paths)
+        return datetime.fromtimestamp(stamp, UTC).replace(microsecond=0).isoformat()
+
+    sales_root = root / "sales" / "revenue_spine"
+    sales_opportunities = files(sales_root / "opportunities")
+    sales_contacts = files(sales_root / "contacts")
+    sales_playbooks = files(sales_root / "playbooks")
+    sales_simulations = files(sales_root / "simulations")
+    sales_calls = files(sales_root / "telephony" / "call_drafts")
+    sales_bookings = files(root / "sales" / "completion" / "bookings")
+    sales_messages = files(root / "sales" / "completion" / "messages")
+    sales_evidence = sales_opportunities + sales_contacts + sales_playbooks + sales_simulations + sales_calls + sales_bookings + sales_messages
+    if sales_evidence:
+        entry = {**_object(projected.get("sales"))}
+        entry.update({
+            "department": "sales",
+            "status": "operational_foundation_ready",
+            "boardroom_summary": (
+                f"Canonical Sales runtime contains {len(sales_opportunities)} opportunities, "
+                f"{len(sales_contacts)} contacts, {len(sales_playbooks)} playbooks, "
+                f"{len(sales_simulations)} simulations, {len(sales_calls)} call drafts, "
+                f"{len(sales_bookings)} bookings and {len(sales_messages)} governed messages."
+            ),
+            "runtime_evidence": {
+                "opportunities": len(sales_opportunities), "contacts": len(sales_contacts),
+                "playbooks": len(sales_playbooks), "simulations": len(sales_simulations),
+                "call_drafts": len(sales_calls), "bookings": len(sales_bookings),
+                "messages": len(sales_messages), "external_authority_claimed": False,
+            },
+            "updated_at": latest(sales_evidence),
+        })
+        projected["sales"] = entry
+
+    support_root = root / "support" / "case_management"
+    support_cases = files(support_root / "cases")
+    support_config = [path for path in [support_root / "agent_setup.json", support_root / "polling.json", support_root / "whatsapp.json"] if path.exists()]
+    support_voice = files(root / "support" / "voice")
+    support_evidence = support_cases + support_config + support_voice
+    if support_evidence:
+        entry = {**_object(projected.get("support"))}
+        entry.update({
+            "department": "support",
+            "status": "case_authority_foundation_ready",
+            "boardroom_summary": (
+                f"Canonical Support runtime contains {len(support_cases)} cases, "
+                f"{len(support_config)} channel/policy configurations and "
+                f"{len(support_voice)} governed voice deployment records."
+            ),
+            "runtime_evidence": {
+                "cases": len(support_cases), "configurations": len(support_config),
+                "voice_records": len(support_voice), "automatic_refund_authority_claimed": False,
+            },
+            "updated_at": latest(support_evidence),
+        })
+        projected["support"] = entry
+
+    return projected
+
+
 def _list(value: Any) -> list[Any]:
     return deepcopy(value) if isinstance(value, list) else []
 
@@ -1486,6 +1561,11 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
     finance_model = optional("business_financial_model")
     operating_model = optional("business_operating_model")
     evidence_refs = _list(finance_model.get("evidence_refs"))
+    department_intelligence = _runtime_department_projection(
+        business_id,
+        _object(ledger.get("departments")),
+        business_root=repository.base_dir / business_id,
+    )
     envelope = {
         "schema_version": "aion.boardroom_context_envelope.v1",
         "business_id": business_id,
@@ -1495,6 +1575,7 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
         "boardroom_projection_only": True,
         "business_identity": optional("business_identity"),
         "business_structure": optional("business_structure"),
+        "brand_foundation": optional("brand_foundation"),
         "business_map_projection": {
             "facts": _list(business_map.get("facts")),
             "assumptions": _list(business_map.get("assumptions")),
@@ -1504,7 +1585,7 @@ def get_boardroom_context(candidate: str) -> Dict[str, Any]:
         },
         "function_models": {"finance": finance_model, "operating_model": operating_model},
         "operating_model": operating_model,
-        "department_intelligence": _object(ledger.get("departments")),
+        "department_intelligence": department_intelligence,
         "evidence_index": evidence_refs,
         "source_revisions": {
             "business_map": business_map.get("revision"),

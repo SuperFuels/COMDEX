@@ -41023,6 +41023,7 @@ function buildAionBoardroomSessionPacket(sessionType = "business_assessment") {
       persistent_truth_source: liveBoardroomContext.persistent_truth_source,
       source_revisions: liveBoardroomContext.source_revisions,
       business_identity: liveBoardroomContext.business_identity,
+      brand_foundation: liveBoardroomContext.brand_foundation,
       business_map_projection: liveBoardroomContext.business_map_projection,
       function_models: liveBoardroomContext.function_models,
       operating_model: liveBoardroomContext.operating_model,
@@ -42189,44 +42190,46 @@ function buildAionBoardroomPushbackGateV1(result = {}) {
     ...safeArray(consensus.risks),
   ]);
 
-  const allText = [
+  // A gate must be caused by an unresolved provider-raised input or risk.
+  // Known context and proposed plan text often contain words such as cost,
+  // operations and sales; scanning those used to recreate generic gates even
+  // when the corresponding evidence was already loaded.
+  const unresolvedText = [
     JSON.stringify(providerMissing),
     JSON.stringify(providerRisks),
-    JSON.stringify(consensus.plan || []),
-    JSON.stringify(result.context_packet || {}),
   ].join(" ").toLowerCase();
 
   const gates = [];
 
   const marketingLikely =
-    allText.includes("marketing") ||
-    allText.includes("campaign") ||
-    allText.includes("lead") ||
-    allText.includes("facebook") ||
-    allText.includes("ad ");
+    unresolvedText.includes("marketing") ||
+    unresolvedText.includes("campaign") ||
+    unresolvedText.includes("lead") ||
+    unresolvedText.includes("facebook") ||
+    unresolvedText.includes("advert");
 
   const financeMissing =
-    allText.includes("finance") ||
-    allText.includes("budget") ||
-    allText.includes("margin") ||
-    allText.includes("profit") ||
-    allText.includes("pricing") ||
-    allText.includes("cost");
+    unresolvedText.includes("finance") ||
+    unresolvedText.includes("budget") ||
+    unresolvedText.includes("margin") ||
+    unresolvedText.includes("profit") ||
+    unresolvedText.includes("pricing") ||
+    unresolvedText.includes("cost");
 
   const operationsMissing =
-    allText.includes("operations") ||
-    allText.includes("capacity") ||
-    allText.includes("engineer") ||
-    allText.includes("workload") ||
-    allText.includes("scheduling") ||
-    allText.includes("delivery");
+    unresolvedText.includes("capacity") ||
+    unresolvedText.includes("engineer availability") ||
+    unresolvedText.includes("maximum jobs") ||
+    unresolvedText.includes("coverage radius") ||
+    unresolvedText.includes("workload") ||
+    unresolvedText.includes("scheduling capacity");
 
   const salesMissing =
-    allText.includes("sales") ||
-    allText.includes("conversion") ||
-    allText.includes("pipeline") ||
-    allText.includes("qualification") ||
-    allText.includes("response");
+    unresolvedText.includes("sales") ||
+    unresolvedText.includes("conversion") ||
+    unresolvedText.includes("pipeline") ||
+    unresolvedText.includes("qualification") ||
+    unresolvedText.includes("lead response");
 
   if (marketingLikely && financeMissing) {
     gates.push({
@@ -42885,6 +42888,12 @@ function renderAionVisibleAskBoardResultHtmlV1() {
       <div>&gt; Department focus: ${escapeHtml(result.department || "")}</div>
       <div>&gt; Boundary: ${escapeHtml(result.execution_boundary || "")}</div>
       <div>&gt; Result hash: ${escapeHtml(result.result_hash || "")}</div>
+
+      <div style="margin-top:10px;border:1px solid rgba(14,165,233,.45);background:#082f49;padding:10px;color:#bae6fd;">
+        <div style="font-weight:900;color:#7dd3fc;">&gt; ROUND 1 COMPLETE · CONTINUE THIS MEETING</div>
+        <div>&gt; Answer relevant discovery questions or add founder feedback, then select <strong>Debate Plan</strong>.</div>
+        <div>&gt; The top button now says Restart Board Analysis because using it again deliberately starts a new Round 1 and unresolved evidence may produce similar conclusions.</div>
+      </div>
 
       <div style="margin-top:10px; color:#ffffff; font-weight:900;">&gt; Consensus</div>
       <div>&gt; ${escapeHtml(consensus.summary || "")}</div>
@@ -44801,6 +44810,7 @@ function renderBoardroomCouncilSessionTerminal() {
       <button
         type="button"
         data-aion-council-session-run="true"
+        ${window.__aionVisibleAskBoardResult?.result_hash ? 'title="Starts a new Round 1 analysis. Use Debate Plan below to continue the current meeting."' : ""}
         ${typeof window.aionGetBusinessMapConfirmationV1 === "function" && !window.aionGetBusinessMapConfirmationV1()?.valid ? 'aria-disabled="true" title="Confirm the original Business Map first"' : ""}
         style="
           height:30px;
@@ -44815,7 +44825,7 @@ function renderBoardroomCouncilSessionTerminal() {
           cursor:pointer;
         "
       >
-        Ask the Board
+        ${window.__aionVisibleAskBoardResult?.result_hash ? "Restart Board Analysis" : "Ask the Board"}
       </button>
         <button
           type="button"

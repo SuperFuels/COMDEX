@@ -56,6 +56,16 @@ def test_foundation_commits_identity_structure_map_and_ledger(tmp_path, monkeypa
     assert repository.load_business_map("home-fixed").facts[0]["source"] == "voice_discovery"
     assert repository.load_department_intelligence("home-fixed").departments["finance"]["status"] == "needs_discovery"
 
+    business_root = containers / "home-fixed"
+    sales_opportunity = business_root / "sales" / "revenue_spine" / "opportunities" / "opportunity-1.json"
+    sales_opportunity.parent.mkdir(parents=True, exist_ok=True)
+    sales_opportunity.write_text('{"opportunity_id":"opportunity-1"}', encoding="utf-8")
+    support_case = business_root / "support" / "case_management" / "cases" / "case-1.json"
+    support_case.parent.mkdir(parents=True, exist_ok=True)
+    support_case.write_text('{"case_id":"case-1"}', encoding="utf-8")
+    support_setup = business_root / "support" / "case_management" / "agent_setup.json"
+    support_setup.write_text('{"approval_gated":true}', encoding="utf-8")
+
     appended = api.append_business_map_facts(
         "home-fixed",
         api.BusinessMapFactsRequest(
@@ -81,6 +91,12 @@ def test_foundation_commits_identity_structure_map_and_ledger(tmp_path, monkeypa
     assert context["persistent_truth_source"] == "business_containers"
     assert context["business_identity"]["legal_name"] == "Home Fixed"
     assert context["business_map_projection"]["facts"][-1]["field"] == "monthly_revenue"
+    assert context["department_intelligence"]["sales"]["status"] == "operational_foundation_ready"
+    assert context["department_intelligence"]["sales"]["runtime_evidence"]["opportunities"] == 1
+    assert context["department_intelligence"]["sales"]["runtime_evidence"]["external_authority_claimed"] is False
+    assert context["department_intelligence"]["support"]["status"] == "case_authority_foundation_ready"
+    assert context["department_intelligence"]["support"]["runtime_evidence"]["cases"] == 1
+    assert context["department_intelligence"]["support"]["runtime_evidence"]["automatic_refund_authority_claimed"] is False
     assert context["execution_boundary"]["provider_memory_mutation_allowed"] is False
     assert context["context_hash"].startswith("sha256:")
 
