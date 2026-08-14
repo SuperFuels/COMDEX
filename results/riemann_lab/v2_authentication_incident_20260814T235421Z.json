@@ -1,0 +1,14 @@
+{
+  "schema": "aion.riemann_execution_incident.v1",
+  "occurred_at": "2026-08-14T23:54:21Z",
+  "packet_sha256": "a0991451122c3399bccdad2cb9785ef92cb4768b231080e17315f98378352caa",
+  "stage": "first_provider_request_before_model_execution",
+  "provider_status": 401,
+  "provider_code": "invalid_api_key",
+  "model_response_id": null,
+  "proof_candidates_returned": 0,
+  "paid_comparison_completed": false,
+  "billable_model_calls_observed": 0,
+  "resolution": "Preserve the failed one-shot marker; authenticate the separately configured repository credential; reseal a versioned packet before the sole paid comparison.",
+  "claim_boundary": "This is an infrastructure failure, not experimental evidence and not a comparison result."
+}

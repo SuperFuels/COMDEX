@@ -1,7 +1,9 @@
 {
-  "schema": "aion.riemann_live_exam.v2",
+  "schema": "aion.riemann_live_exam.v2.1",
   "execution_status": "ready",
-  "seal_manifest": "research/riemann_lab/v2_seal_manifest.json",
+  "seal_manifest": "research/riemann_lab/v2_1_seal_manifest.json",
+  "supersedes_unexecuted_packet_sha256": "a0991451122c3399bccdad2cb9785ef92cb4768b231080e17315f98378352caa",
+  "authentication_incident": "results/riemann_lab/v2_authentication_incident_20260814T235421Z.json",
   "fixed_fixtures": false,
   "objective": "Measure governed verified-memory retrieval, diagnostic repair, and transfer on source-closed reformulations of established zeta prerequisites.",
   "trusted_gate": "Lean 4.24.0 kernel with Mathlib v4.32.1",

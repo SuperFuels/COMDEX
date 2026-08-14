@@ -1,0 +1,48 @@
+{
+  "schema": "aion.riemann_machine_seal.v1",
+  "sealed_at": "2026-08-14T23:56:00Z",
+  "authorization": "User explicitly directed full execution of the governed plan on 2026-08-15 Europe/Madrid.",
+  "review_type": "machine_preflight_reseal_after_nonbillable_authentication_incident",
+  "independent_external_review": false,
+  "packet": {
+    "path": "research/riemann_lab/live_task_packet_v2.json",
+    "sha256": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
+    "execution_status": "ready",
+    "source_closed_tasks": 6,
+    "arms": 5
+  },
+  "superseded_packet": {
+    "sha256": "a0991451122c3399bccdad2cb9785ef92cb4768b231080e17315f98378352caa",
+    "incident_sha256": "b343272a893552ee6d8f9b9334afe69dad8cb3c2400d7c441f0c8be15f27ee0e",
+    "paid_comparison_completed": false,
+    "proof_candidates_returned": 0
+  },
+  "credential_preflight": {
+    "repository_credential_auth_status": 200,
+    "gpt_4_1_model_access_status": 200,
+    "secret_recorded": false
+  },
+  "pinned_environment_sha256": "6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591",
+  "implementation_hashes": {
+    "scripts/aion_riemann_live_exam.py": "d877eba0bfd60ad914e494b1d22572e696876707e0857e5e173c64b090e492fe",
+    "scripts/aion_riemann_verified_memory.py": "4d98ad00abad44ace86dd928d9ec03771e5c0d8b9d8e0702735d3352a354ab9d",
+    "scripts/aion_riemann_local_verify.py": "93d7d6a2f576a21f7a0637147d4ed951951984f01d7c5d6ce1230911e2020ba0",
+    "backend/tests/test_aion_riemann_lab.py": "a343a3ba38cfcd2ed0b935af3d6efd00c671ad32e563b6606ec50429a4367ea2"
+  },
+  "verified_memory": {
+    "state_sha256": "858eec1f0f56048648397e5c997f37fd06507625bfcc722d9d55e873e829c22a",
+    "active_claims": 6,
+    "verified_evidence_capsules": 6,
+    "contradictions": 0,
+    "proof_bodies_retained": false
+  },
+  "preflight": {
+    "local_verification_passed": true,
+    "tests_passed": 14,
+    "tests_failed": 0,
+    "retention_packet_sha256": "272bf6e920d66fd9064fe2e3ab81c7f1200ef67414304052a7736f97c87efc3f",
+    "critical_strip_foundation_sha256": "1d636511f014b58940e3d4c2294225f6cc9336c95e629320f6dd7cae2fa0b3ea"
+  },
+  "oracle_separation": "Held-out proof bodies are absent from both paid task packets. Local oracle proofs are confined to the verification harness and never inserted into live prompts.",
+  "claim_boundary": "The reseal follows a pre-model 401 with zero candidates and no paid comparison. It is not independent review, RH evidence, or evidence of AION superiority."
+}
