@@ -1,0 +1,728 @@
+{
+  "experiment": "aion_riemann_source_closed_live_exam_v1",
+  "started_at": "2026-08-14T21:37:02.944804+00:00",
+  "model": "gpt-4.1",
+  "task_packet_hash": "487becdcbe91c65b689a278588f9ad0f961d6dd7ecd49f01617692f8eb807f20",
+  "claim_boundary": "This evaluates formal proof reconstruction, retained operational memory, and compiler-guided repair. It does not prove RH or claim new mathematics.",
+  "arms": [
+    {
+      "id": "proposer_alone",
+      "memory": false,
+      "repair": false,
+      "arm_id": "proposer_alone",
+      "memory_enabled": false,
+      "repair_enabled": false,
+      "tasks": [
+        {
+          "task_id": "zeta_at_zero",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "53d8c77b0561073c2478dfe5a2e00d6cce6d51f2bbf666ba185d3172ec5c6bd2",
+              "proof": "rw [riemannZeta_zero], norm_num",
+              "provider": {
+                "response_id": "resp_0f6cf6d30b5d7a5e006a7f8a7fc314819eb37a70b2208e3db1",
+                "usage": {
+                  "input_tokens": 144,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 159
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpr6p2hr8m.lean:6:23: error: unexpected token ','; expected command",
+                "source_hash": "ef7d6f899309621db1d963a57fa8a11a2905b74c8faadc2bd1be5d04d208c44b"
+              },
+              "elapsed_seconds": 18.277
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "acfa99041e37901b538f42789b2adbae681969a7a9ff841b9451938be14570e9",
+              "proof": "have h := riemannZeta_zero',\nrw [h],\nfield_simp, ring",
+              "provider": {
+                "response_id": "resp_06012b99bbbf603f006a7f8a91804881919f83483f31ed736a",
+                "usage": {
+                  "input_tokens": 175,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 27,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 202
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp2sspuuxa.lean:6:12: error(lean.unknownIdentifier): Unknown identifier `riemannZeta_zero'`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp2sspuuxa.lean:5:55: error: unsolved goals\n⊢ riemannZeta 0 = -1 / 2\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp2sspuuxa.lean:6:29: error: unexpected token ','; expected command",
+                "source_hash": "6e82fe983618b8c8e3f0ca9b74f3b8c140ce706177fa3a5575c6ae3fc1ec4acd"
+              },
+              "elapsed_seconds": 10.017
+            }
+          ],
+          "passed": false
+        },
+        {
+          "task_id": "trivial_zero_family",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "b21f217e406d9e9980f3c1d64f33f31aba4f64f102db17b8a384eed9d11ecc43",
+              "proof": "induction n with k hk\n· simp only [Nat.cast_zero, add_zero, zero_add, neg_zero, mul_zero, Complex.ofReal_zero, add_zero, riemannZeta_zero]\n· have h : -2 * ((k : ℂ) + 1) = -2 * (k + 1 : ℂ) := by simp\n  rw [h]\n  rw [riemannZeta_neg_even]\n  simp",
+              "provider": {
+                "response_id": "resp_0575e0fc082d7e4c006a7f8a9b76d881918101602bc0f67793",
+                "usage": {
+                  "input_tokens": 153,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 100,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 253
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp8rvpndbx.lean:6:20: error: unknown tactic\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp8rvpndbx.lean:6:14: error(lean.inductionWithNoAlts): Invalid syntax for induction tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `k`.",
+                "source_hash": "2c2d8d05d978398fb6f16d4a79edc5fbe45ebc18b526917afd0438953140d7b1"
+              },
+              "elapsed_seconds": 5.847
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "eb605c2e289bed7ff34a7f8e2bc48978ade2a03b9f3cfa06b9bf5121b8d6b241",
+              "proof": "induction n with k hk\n· simp only [Nat.cast_zero, add_zero, neg_zero, mul_zero, Complex.ofReal_zero, riemannZeta_zero]\n· have h : -2 * ((k.succ : ℂ) + 1) = -2 * (k + 2 : ℂ) := by simp\n  rw [h]\n  rw [riemannZeta_neg_even]\n  simp",
+              "provider": {
+                "response_id": "resp_01c6b2ee425faa2c006a7f8aa1569c819dbae7c6fb5d95931a",
+                "usage": {
+                  "input_tokens": 265,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 96,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 361
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp65qr2uxv.lean:6:20: error: unknown tactic\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp65qr2uxv.lean:6:14: error(lean.inductionWithNoAlts): Invalid syntax for induction tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `k`.",
+                "source_hash": "8606a54b3b74ae25bddfe5ec817bcbe94cc089f3a881fa7baaaf4e5e99f4484c"
+              },
+              "elapsed_seconds": 5.578
+            }
+          ],
+          "passed": false
+        },
+        {
+          "task_id": "zero_free_right_half_plane",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "02c244fe2ce67f91013707866e33967e3c7ced394ad9985d6541a363c58dc3ff",
+              "proof": "exact riemannZeta_ne_zero_of_one_lt_re s (by linarith)",
+              "provider": {
+                "response_id": "resp_0a57ee9186e1686a006a7f8aa6e1cc819296be1fad69007122",
+                "usage": {
+                  "input_tokens": 150,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 23,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 173
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpyr1jzu8l.lean:6:8: error(lean.unknownIdentifier): Unknown identifier `riemannZeta_ne_zero_of_one_lt_re`",
+                "source_hash": "2eb4b44685d055027c6a51047de8a78fa13e1e285da98959d7d681cf1122b39b"
+              },
+              "elapsed_seconds": 6.336
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "49a6a232fe6d6d697282d5cb4869900fdff9124b9adc3a3ced446e853069f7e1",
+              "proof": "have h : 1 < s.re := by linarith\n  exact riemannZeta_ne_zero_of_one_lt_re s h",
+              "provider": {
+                "response_id": "resp_048e484fc5351940006a7f8aae3c4087d283c7f9524104b699",
+                "usage": {
+                  "input_tokens": 188,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 37,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 225
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp0mmlsitv.lean:5:82: error: unsolved goals\ns : ℂ\nhs h : 1 < s.re\n⊢ riemannZeta s ≠ 0\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp0mmlsitv.lean:7:4: error: unexpected identifier; expected command",
+                "source_hash": "3261cf228e4d4fbee4f1f6f69aa9288856df498e0ec677398d99d3aaf16783fc"
+              },
+              "elapsed_seconds": 6.797
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "passed": 0,
+      "total": 3,
+      "success_rate": 0.0,
+      "model_calls": 6
+    },
+    {
+      "id": "aion_memory_repair",
+      "memory": true,
+      "repair": true,
+      "arm_id": "aion_memory_repair",
+      "memory_enabled": true,
+      "repair_enabled": true,
+      "tasks": [
+        {
+          "task_id": "zeta_at_zero",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "d40c5d8cb30ee471db1fe25dbd3d03003cec27b461c2df5298e6f4a85afd1c95",
+              "proof": "rw [riemannZeta_zero]",
+              "provider": {
+                "response_id": "resp_0062b528e11e444a006a7f8ab40538819192c1d8a4a4f5a4be",
+                "usage": {
+                  "input_tokens": 183,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 16,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 199
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "d6b77208ed417226d665f38e3b63e00025f3bc4a3afba085661d0db4ad2a3ba8"
+              },
+              "elapsed_seconds": 4.71
+            }
+          ],
+          "passed": true
+        },
+        {
+          "task_id": "trivial_zero_family",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "3001f68ec1e1331fd4c18111189510cf7fba8d4178ceb8ff2d2bab081ec05cae",
+              "proof": "intro n; rw [neg_mul, ←neg_add', Nat.cast_add, Nat.cast_one, add_assoc, ←add_mul, two_mul, add_assoc, add_left_neg, zero_add]; exact riemannZeta_neg_even (n + 1)",
+              "provider": {
+                "response_id": "resp_0b20790897e8b8b2006a7f8ab8b4bc87d2b80f8d4c954ea726",
+                "usage": {
+                  "input_tokens": 192,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 61,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 253
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpdlx3w_kr.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nn : ℕ\n⊢ riemannZeta (-2 * (↑n + 1)) = 0",
+                "source_hash": "a35ff001c67d5da0c2456ccca172858ec9c33425677ce0cb7479bc473c220ec5"
+              },
+              "elapsed_seconds": 5.442
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "e06f28a778b5cddb7e251e4298966b32d0a2314ee3682161bb10641d9eeddb1f",
+              "proof": "rw [neg_mul, ←two_mul, ←Nat.cast_add, Nat.cast_one, add_assoc]; exact riemannZeta_neg_even (n + 1)",
+              "provider": {
+                "response_id": "resp_06a7576be439838f006a7f8abe828087d284ef7ac04e9fefeb",
+                "usage": {
+                  "input_tokens": 339,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 39,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 378
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpdvh48yrj.lean:6:15: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  ?n + ?n\nin the target expression\n  riemannZeta (-(2 * (↑n + 1))) = 0\n\nn : ℕ\n⊢ riemannZeta (-(2 * (↑n + 1))) = 0",
+                "source_hash": "a9f86847074d90ee0688f4d8beaf027e8e6cde094e875fe5d048b2f909ab274e"
+              },
+              "elapsed_seconds": 5.3
+            }
+          ],
+          "passed": false
+        },
+        {
+          "task_id": "zero_free_right_half_plane",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "527ca4c7deb66c29992ddac0079efe06d3635bc1a766c973b240525d8c510e39",
+              "proof": "exact riemannZeta_ne_zero_of_one_lt_re",
+              "provider": {
+                "response_id": "resp_0af248713eebc3a1006a7f8ac382b887d2a42f3fea830f84ca",
+                "usage": {
+                  "input_tokens": 189,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 20,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 209
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpqq9pyhgi.lean:6:8: error(lean.unknownIdentifier): Unknown identifier `riemannZeta_ne_zero_of_one_lt_re`",
+                "source_hash": "c3abbc3d28bd0db5082c153c210b896e975cfb65a35ef40848867419abd3569e"
+              },
+              "elapsed_seconds": 5.529
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "81e4eac5df88097e14dd6cf15b53917570b037eacf4af73b52703261d12bdaaf",
+              "proof": "exact riemann_zeta_ne_zero_of_one_lt_re",
+              "provider": {
+                "response_id": "resp_00d468329347f53f006a7f8ac905a481a39cf37c8f077ed9b7",
+                "usage": {
+                  "input_tokens": 264,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 16,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 280
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpdbrphuv_.lean:6:8: error(lean.unknownIdentifier): Unknown identifier `riemann_zeta_ne_zero_of_one_lt_re`",
+                "source_hash": "b675beed1c584596755fadde2e519aefb9f1bb4188341045df3f98a6800808ed"
+              },
+              "elapsed_seconds": 4.899
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "passed": 1,
+      "total": 3,
+      "success_rate": 0.3333333333333333,
+      "model_calls": 5
+    },
+    {
+      "id": "aion_no_memory",
+      "memory": false,
+      "repair": true,
+      "arm_id": "aion_no_memory",
+      "memory_enabled": false,
+      "repair_enabled": true,
+      "tasks": [
+        {
+          "task_id": "zeta_at_zero",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "53d8c77b0561073c2478dfe5a2e00d6cce6d51f2bbf666ba185d3172ec5c6bd2",
+              "proof": "rw [riemannZeta_zero]",
+              "provider": {
+                "response_id": "resp_0a9808ba7a1ebdcf006a7f8acde3b08191a1db8a76086ffdff",
+                "usage": {
+                  "input_tokens": 144,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 13,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 157
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "d6b77208ed417226d665f38e3b63e00025f3bc4a3afba085661d0db4ad2a3ba8"
+              },
+              "elapsed_seconds": 4.669
+            }
+          ],
+          "passed": true
+        },
+        {
+          "task_id": "trivial_zero_family",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "b21f217e406d9e9980f3c1d64f33f31aba4f64f102db17b8a384eed9d11ecc43",
+              "proof": "induction n with k hk\n· simp only [Nat.cast_zero, add_zero, neg_zero, zero_mul, Complex.ofReal_zero, add_zero, riemannZeta_zero]\n· rw [Nat.cast_succ, ←add_assoc, add_comm 1 k, add_assoc, mul_add, mul_one, mul_comm 2 (↑k + 1), ←add_assoc, neg_add, neg_mul, add_comm, add_left_comm, add_assoc]\n  have : -2 * (↑k + 1 + 1 : ℂ) = -2 * (↑k + 2 : ℂ) := by ring\n  rw [this]\n  exact riemannZeta_neg_even (k + 1)",
+              "provider": {
+                "response_id": "resp_0acc2303b28888ce006a7f8ad29cc087d29e6c521cf6420519",
+                "usage": {
+                  "input_tokens": 153,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 160,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 313
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp0u2_m2t8.lean:6:20: error: unknown tactic\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp0u2_m2t8.lean:6:14: error(lean.inductionWithNoAlts): Invalid syntax for induction tactic: The `with` keyword must be followed by a tactic or by an alternative (e.g. `| zero =>`), but here it is followed by the identifier `k`.",
+                "source_hash": "45f55b64ef0f508815013220e6d0e769a5734146b9e1a76fe1a832fb9a6bf432"
+              },
+              "elapsed_seconds": 6.704
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "c4d080003b2d8dda6ad243e277be456541ac6aa245cec1698cdf96f2526bcc01",
+              "proof": "induction n with\n| zero =>\n  simp only [Nat.cast_zero, add_zero, neg_zero, zero_mul, Complex.ofReal_zero, add_zero, riemannZeta_zero]\n| succ k ih =>\n  have : -2 * ((k : ℂ) + 1 + 1) = -2 * ((k + 2 : ℕ) : ℂ) := by ring\n  rw [Nat.cast_succ, add_assoc, this]\n  exact riemannZeta_neg_even (k + 1)",
+              "provider": {
+                "response_id": "resp_035c3ca483f096ba006a7f8ad946a887d29cfa065d03c3fbaa",
+                "usage": {
+                  "input_tokens": 438,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 123,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 561
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:7:9: error: unsolved goals\ncase zero\n⊢ riemannZeta (-2 * (0 + 1)) = 0\nTry this:\n  [apply] ring_nf\n  \n  The `ring` tactic failed to close the goal. Use `ring_nf` to obtain a normal form.\n    \n  Note that `ring` works primarily in *commutative* rings. If you have a noncommutative ring, abelian group or module, consider using `noncomm_ring`, `abel` or `module` instead.\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:10:62: error: unsolved goals\nk : ℕ\nih : riemannZeta (-2 * (↑k + 1)) = 0\n⊢ -4 - ↑k * 2 = -(↑(2 + k) * 2)\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:11:34: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  -2 * (↑k + 1 + 1)\nin the target expression\n  riemannZeta (-2 * (↑k + (1 + 1))) = 0\n\ncase succ\nk : ℕ\nih : riemannZeta (-2 * (↑k + 1)) = 0\nthis : -2 * (↑k + 1 + 1) = -2 * ↑(k + 2)\n⊢ riemannZeta (-2 * (↑k + (1 + 1))) = 0\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:8:30: warning: This simp argument is unused:\n  add_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Nat.cast_zero, a̵d̵d̵_̵z̵e̵r̵o̵,̵ ̵neg_zero, zero_mul, Complex.ofReal_zero, add_zero, riemannZeta_zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:8:40: warning: This simp argument is unused:\n  neg_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Nat.cast_zero, add_zero, n̵e̵g̵_̵zero,̵ ̵z̵e̵r̵o̵_mul, Complex.ofReal_zero, add_zero, riemannZeta_zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:8:50: warning: This simp argument is unused:\n  zero_mul\n\nHint: Omit it from the simp argument list.\n  simp only [Nat.cast_zero, add_zero, neg_zero, z̵e̵r̵o̵_̵m̵u̵l̵,̵ ̵Complex.ofReal_zero, add_zero, riemannZeta_zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:8:60: warning: This simp argument is unused:\n  Complex.ofReal_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Nat.cast_zero, add_zero, neg_zero, zero_mul, C̵o̵m̵p̵l̵e̵x̵.̵o̵f̵R̵e̵a̵l̵_̵z̵e̵r̵o̵,̵ ̵add_zero, riemannZeta_zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:8:81: warning: This simp argument is unused:\n  add_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Nat.cast_zero, add_zero, neg_zero, zero_mul, Complex.ofReal_zero, a̵d̵d̵_̵z̵e̵ro̵,̵ ̵r̵iemannZeta_zero]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpzvjpr4pw.lean:8:91: warning: This simp argument is unused:\n  riemannZeta_zero\n\nHint: Omit it from the simp argument list.\n  simp only [Nat.cast_zero, add_zero, neg_zero, zero_mul, Complex.ofReal_zero, add_zero,̵ ̵r̵i̵e̵m̵a̵n̵n̵Z̵e̵t̵a̵_̵z̵e̵r̵o̵]\n\nNote: This linter can be disabled with `set_option linter.unusedSimpArgs false`",
+                "source_hash": "b8056cfc70fbdce4770f666d2f097016c44b14f8982412308e25ca9648705bdc"
+              },
+              "elapsed_seconds": 5.596
+            }
+          ],
+          "passed": false
+        },
+        {
+          "task_id": "zero_free_right_half_plane",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "02c244fe2ce67f91013707866e33967e3c7ced394ad9985d6541a363c58dc3ff",
+              "proof": "intro s hs\nexact riemannZeta_ne_zero_of_one_lt_re s hs",
+              "provider": {
+                "response_id": "resp_041cf731e5c6ee50006a7f8adf8b1881a098adc691e4b44ced",
+                "usage": {
+                  "input_tokens": 150,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 22,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 172
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp86qenc_.lean:6:10: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ns✝ : ℂ\nhs : 1 < s✝.re\ns : riemannZeta s✝ = 0\n⊢ False",
+                "source_hash": "c81fc083e9bceb8aeaeb53a259c15728c5c35ba3c247b5c00fba2077ec094624"
+              },
+              "elapsed_seconds": 5.894
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "0e413db0950195cd2c7dff431b99c1eb613cc699cd587f266b057f9716156b47",
+              "proof": "intro s hs hzero\nexact riemannZeta_ne_zero_of_one_lt_re s hs hzero",
+              "provider": {
+                "response_id": "resp_0d594af7ec252cda006a7f8ae4bd44819e9d81d00a961798b3",
+                "usage": {
+                  "input_tokens": 271,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 26,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 297
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp38tivz1n.lean:6:10: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ns✝ : ℂ\nhs : 1 < s✝.re\ns : riemannZeta s✝ = 0\n⊢ False",
+                "source_hash": "9a0c720cc563becd3a5478e8a118df65d0955d2e480fd2a56817ecf79afcf75f"
+              },
+              "elapsed_seconds": 4.587
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "passed": 1,
+      "total": 3,
+      "success_rate": 0.3333333333333333,
+      "model_calls": 5
+    },
+    {
+      "id": "aion_no_repair",
+      "memory": true,
+      "repair": false,
+      "arm_id": "aion_no_repair",
+      "memory_enabled": true,
+      "repair_enabled": false,
+      "tasks": [
+        {
+          "task_id": "zeta_at_zero",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "d40c5d8cb30ee471db1fe25dbd3d03003cec27b461c2df5298e6f4a85afd1c95",
+              "proof": "rw [riemannZeta_zero]",
+              "provider": {
+                "response_id": "resp_040a006e2900859f006a7f8ae9566881a3bc9791735a90920e",
+                "usage": {
+                  "input_tokens": 183,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 16,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 199
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "d6b77208ed417226d665f38e3b63e00025f3bc4a3afba085661d0db4ad2a3ba8"
+              },
+              "elapsed_seconds": 5.531
+            }
+          ],
+          "passed": true
+        },
+        {
+          "task_id": "trivial_zero_family",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "3001f68ec1e1331fd4c18111189510cf7fba8d4178ceb8ff2d2bab081ec05cae",
+              "proof": "intro n; rw [neg_mul, add_comm, ←neg_add, ←ofNat_add, ←ofNat_one, ←add_assoc, ←Nat.cast_add, ←Nat.cast_one]; exact riemannZeta_neg_even (n + 1)",
+              "provider": {
+                "response_id": "resp_07de20ab535f2857006a7f8aeee0ac819f8172235c9fc2c8ae",
+                "usage": {
+                  "input_tokens": 192,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 60,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 252
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpa16kmlsa.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nn : ℕ\n⊢ riemannZeta (-2 * (↑n + 1)) = 0",
+                "source_hash": "2f06b84b9c174b22b7a3d8cc6cdb5a6519c2149a2adbb31478ef2a9c3db8a344"
+              },
+              "elapsed_seconds": 5.956
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "16810496ebbc34c5549c66cb239d79ed672d87363e4cc4c4ce26c53639763bd1",
+              "proof": "intro n; have h : ∃ k : ℕ, -2 * ((n : ℂ) + 1) = -2 * (k : ℂ) := ⟨n + 1, by rw [Nat.cast_add, Nat.cast_one, add_comm]⟩; rcases h with ⟨k, hk⟩; rw [hk, riemannZeta_neg_even]",
+              "provider": {
+                "response_id": "resp_00d89c7407d0c24e006a7f8af4d720819fa04c7884df61c41c",
+                "usage": {
+                  "input_tokens": 264,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 93,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 357
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp4bs32hap.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nn : ℕ\n⊢ riemannZeta (-2 * (↑n + 1)) = 0",
+                "source_hash": "6c265f738b20a4ac22a1b93ef491b12c70e51d2265aa586feb4d5038aeb5af1b"
+              },
+              "elapsed_seconds": 5.703
+            }
+          ],
+          "passed": false
+        },
+        {
+          "task_id": "zero_free_right_half_plane",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "527ca4c7deb66c29992ddac0079efe06d3635bc1a766c973b240525d8c510e39",
+              "proof": "exact riemannZeta_ne_zero_of_one_lt_re",
+              "provider": {
+                "response_id": "resp_027692a3d09a3bab006a7f8afa889487d2aea064883228170f",
+                "usage": {
+                  "input_tokens": 189,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 20,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 209
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmp_fvx68r7.lean:6:8: error(lean.unknownIdentifier): Unknown identifier `riemannZeta_ne_zero_of_one_lt_re`",
+                "source_hash": "c3abbc3d28bd0db5082c153c210b896e975cfb65a35ef40848867419abd3569e"
+              },
+              "elapsed_seconds": 5.164
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "d97e3a6d826ad42780786a1efcb9c61e94d230ada2fba8eeb66f6bae19ec0dfb",
+              "proof": "apply riemannZeta_ne_zero_of_one_lt_re'",
+              "provider": {
+                "response_id": "resp_0187892efcbf6fec006a7f8b0010a081919aef45ac5ac943e5",
+                "usage": {
+                  "input_tokens": 221,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 19,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 240
+                },
+                "model": "gpt-4.1-2025-04-14"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmph65rw0r1.lean:6:8: error(lean.unknownIdentifier): Unknown identifier `riemannZeta_ne_zero_of_one_lt_re'`",
+                "source_hash": "fb9cd8a4df326a8c187d19b82a87151b335c028355c79dee9bbb495d2277e846"
+              },
+              "elapsed_seconds": 5.923
+            }
+          ],
+          "passed": false
+        }
+      ],
+      "passed": 1,
+      "total": 3,
+      "success_rate": 0.3333333333333333,
+      "model_calls": 5
+    }
+  ],
+  "completed_at": "2026-08-14T21:39:17.405171+00:00",
+  "duration_seconds": 134.46,
+  "all_infrastructure_checks_passed": true
+}

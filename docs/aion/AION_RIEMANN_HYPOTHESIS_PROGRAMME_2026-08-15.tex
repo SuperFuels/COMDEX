@@ -1,0 +1,1008 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=24mm,headheight=15pt]{geometry}
+\usepackage{xcolor}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,longtable,tabularx,array,multirow}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{listings}
+\usepackage[most]{tcolorbox}
+\usepackage{titlesec}
+\usepackage{lastpage}
+\usepackage{pifont}
+\usepackage{seqsplit}
+
+\definecolor{AionNavy}{HTML}{13233A}
+\definecolor{AionBlue}{HTML}{245A8D}
+\definecolor{AionTeal}{HTML}{168C8C}
+\definecolor{AionGreen}{HTML}{237A57}
+\definecolor{AionAmber}{HTML}{B97618}
+\definecolor{AionRed}{HTML}{A63D40}
+\definecolor{AionInk}{HTML}{1F2933}
+\definecolor{AionGray}{HTML}{667788}
+\definecolor{AionPale}{HTML}{F3F7FA}
+\definecolor{AionRule}{HTML}{D8E2EA}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=AionBlue,
+  urlcolor=AionTeal,
+  citecolor=AionBlue,
+  pdftitle={AION Riemann Hypothesis Programme: Research Record and Roadmap},
+  pdfauthor={AION / COMDEX},
+  pdfsubject={Formal mathematics research programme status, evidence, and roadmap},
+  pdfkeywords={AION, Riemann Hypothesis, Lean 4, Mathlib, formal verification, AI mathematics}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\textcolor{AionGray}{AION Riemann Hypothesis Programme}}
+\rhead{\textcolor{AionGray}{Research Record - 15 August 2026}}
+\cfoot{\textcolor{AionGray}{\thepage\ / \pageref{LastPage}}}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{AionRule}\leaders\hrule height \headrulewidth\hfill}}
+
+\titleformat{\section}{\Large\bfseries\color{AionNavy}}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\large\bfseries\color{AionBlue}}{\thesubsection}{0.7em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{AionInk}}{\thesubsubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{2.3ex plus .4ex}{1.0ex}
+\titlespacing*{\subsection}{0pt}{1.8ex plus .3ex}{0.7ex}
+
+\setlist[itemize]{leftmargin=1.5em,itemsep=0.25em,topsep=0.4em}
+\setlist[enumerate]{leftmargin=1.7em,itemsep=0.35em,topsep=0.4em}
+\renewcommand{\arraystretch}{1.18}
+\setlength{\tabcolsep}{2pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+
+\newcommand{\pass}{\textcolor{AionGreen}{\ding{51}}}
+\newcommand{\fail}{\textcolor{AionRed}{\ding{55}}}
+\newcommand{\pending}{\textcolor{AionAmber}{\raisebox{0.15ex}{\rule{0.8ex}{0.8ex}}}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\hash}[1]{\texttt{\footnotesize\seqsplit{#1}}}
+\newcommand{\RH}{\mathrm{RH}}
+\newcommand{\RePart}{\operatorname{Re}}
+\newcommand{\status}[2]{\textbf{#1:} #2}
+
+\newtcolorbox{truthbox}{
+  colback=AionRed!4,colframe=AionRed!70!black,
+  title=Truth boundary,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{resultbox}{
+  colback=AionGreen!5,colframe=AionGreen!75!black,
+  title=Verified result,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{decisionbox}{
+  colback=AionBlue!4,colframe=AionBlue!75!black,
+  title=Programme decision,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+\newtcolorbox{warningbox}{
+  colback=AionAmber!6,colframe=AionAmber!80!black,
+  title=Open gate,fonttitle=\bfseries,
+  boxrule=0.7pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt
+}
+
+\lstdefinelanguage{Lean}{
+  morekeywords={theorem,lemma,def,by,exact,import,namespace,end,have,simpa,using,fun,if,then,else},
+  sensitive=true,
+  morecomment=[l]{--},
+  morestring=[b]"
+}
+\lstset{
+  language=Lean,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\color{AionBlue}\bfseries,
+  commentstyle=\color{AionGray}\itshape,
+  stringstyle=\color{AionTeal},
+  backgroundcolor=\color{AionPale},
+  frame=single,
+  rulecolor=\color{AionRule},
+  breaklines=true,
+  columns=fullflexible,
+  keepspaces=true,
+  showstringspaces=false,
+  xleftmargin=0.5em,xrightmargin=0.5em,
+  aboveskip=0.8em,belowskip=0.8em
+}
+
+\begin{document}
+
+\begin{titlepage}
+  \pagecolor{AionNavy}
+  \color{white}
+  \vspace*{18mm}
+  {\fontsize{23}{28}\selectfont\bfseries AION Riemann Hypothesis Programme\par}
+  \vspace{4mm}
+  {\fontsize{15.5}{19}\selectfont Formal Mathematics Research Record, Evidence Review, and Roadmap\par}
+  \vspace{15mm}
+  {\color{AionTeal!45!white}\rule{\textwidth}{1.4pt}}
+  \vspace{10mm}
+
+  \begin{tabularx}{\textwidth}{>{\bfseries}p{38mm}X}
+    Document date & 15 August 2026 \\
+    Programme & AION formal Riemann Hypothesis research \\
+    Repository & \path{/Users/kevinrobinson/dev/COMDEX} \\
+    Formal authority & Lean 4.24.0 kernel and Mathlib v4.32.1 \\
+    Current stage & Trusted laboratory and locally verified v2 experiment design \\
+    Research status & No new RH mathematics; RH remains unsolved \\
+  \end{tabularx}
+
+  \vfill
+  \begin{tcolorbox}[colback=AionBlue!55!AionNavy,colframe=AionTeal!70!white,title=Purpose of this record,
+    fonttitle=\bfseries,coltitle=white,coltext=white,boxrule=0.6pt]
+  This document records what AION has actually built, measured, learned, and not
+  established. It is designed to survive handovers, prevent claim inflation,
+  support reproducibility, and define the shortest credible route from formal
+  proof competence to useful research on a genuine RH prerequisite.
+  \end{tcolorbox}
+  \vspace{5mm}
+  {\small Internal research record - evidence-first, kernel-governed}
+\end{titlepage}
+\nopagecolor
+\color{AionInk}
+
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+
+\section*{Document control}
+\addcontentsline{toc}{section}{Document control}
+
+\begin{tabularx}{\textwidth}{>{\bfseries}p{37mm}X}
+Version & 1.0 \\
+Status & Baseline programme record after local v2 verification \\
+Scope & Formal RH programme only; excludes unrelated prime-search, factoring, visual probes, and Photon Algebra work \\
+Primary evidence & Lean sources, pinned environment, immutable JSON results, SHA-256 hashes, focused tests \\
+Interpretive authority & The Lean kernel decides proof acceptance; this report interprets experiments but cannot create mathematical truth \\
+Change rule & Future revisions must preserve prior immutable evidence and clearly separate new measurements from retrospective interpretation \\
+\end{tabularx}
+
+\begin{truthbox}
+AION has not solved the Riemann Hypothesis. No new theorem that advances a
+resolution of RH has been established. Reconstructing Mathlib theorems is
+evidence about proof-system competence and experimental plumbing, not original
+mathematics. Numerical evidence, model confidence, persuasive prose, and
+self-awarded scores are not proofs.
+\end{truthbox}
+
+\clearpage
+\pagenumbering{arabic}
+
+\section{Executive summary}
+
+The AION RH programme now has a credible formal laboratory, a pinned Lean and
+Mathlib authority path, strict rejection of incomplete proofs, one immutable
+paid baseline experiment, genuine governed retrieval from AION's persistent
+knowledge store, explicit diagnostic repair routing, and a six-family v2 task
+packet that passes local kernel verification.
+
+The strongest verified engineering result is not a theorem about RH. It is a
+research-control result: the system can now distinguish a proposed Lean proof
+from an accepted proof, retain only compiler-verified method metadata, expose
+exact provenance identifiers to experimental arms, and fail closed before a
+paid run if task or environment hashes do not match.
+
+The one paid experiment completed on 14 August 2026 did not establish an AION
+advantage. The proposer-only arm solved 0 of 3 tasks. Each AION-labelled arm
+solved 1 of 3. Those AION labels were not yet causally clean: memory was a
+generic prompt hint, repair was ordinary compiler feedback, and one task failed
+because the generated source omitted the Mathlib module containing the needed
+theorem. The result therefore validates the live provider-to-Lean path but does
+not measure the intended architecture.
+
+The continuation work corrected that defect and prepared a scientifically
+stronger test. The next legitimate action is an independent sealing review of
+the v2 packet. Only after that review should exactly one bounded paid comparison
+run. A delayed, source-closed reconstruction test must follow at a precommitted
+time boundary. Only a measurable full-AION advantage over every matched
+ablation would justify an architectural claim.
+
+\begin{resultbox}
+Final local verification status: \textbf{PASS}. The established baseline,
+catalogue, generated templates, and six v2 reformulations are Lean-accepted.
+The scoped AION store contains six active claims, six verified evidence
+capsules, and zero contradictions. Focused tests pass 13 of 13. Provider/API
+calls during this continuation phase: 0.
+\end{resultbox}
+
+\subsection{Status at a glance}
+
+\begin{tabularx}{\textwidth}{X c p{55mm}}
+\toprule
+Capability or claim & Status & Interpretation \\
+\midrule
+Pinned formal laboratory & \pass & Lean and Mathlib are operational authorities \\
+Strict no-placeholder policy & \pass & \code{sorry}, \code{admit}, and local axioms are prohibited \\
+Known zeta baseline compiles & \pass & Established mathematics is reconstructed \\
+Live provider-to-Lean experiment & \pass & One paid run completed and evidence is immutable \\
+Genuine verified-memory retrieval & \pass & AION persistent knowledge retrieval is now wired \\
+Bounded diagnostic repair records & \pass & Failure classes produce auditable routes \\
+Six-family v2 packet locally verified & \pass & All hidden oracle proofs compile locally \\
+V2 independently sealed & \pending & Required before credentials can load \\
+Delayed source-closed retention & \pending & Decisive architectural test not yet run \\
+AION superiority established & \fail & Existing experiment is tied and confounded \\
+New RH-relevant mathematics & \fail & None established \\
+RH solved & \fail & No \\
+\bottomrule
+\end{tabularx}
+
+\section{Mathematical target and scope}
+
+\subsection{The Riemann zeta function}
+
+For complex $s$ with $\RePart(s)>1$, the Riemann zeta function is represented by
+the absolutely convergent Dirichlet series
+\[
+  \zeta(s)=\sum_{n=1}^{\infty}\frac{1}{n^s}.
+\]
+It admits a meromorphic continuation to the complex plane, with a simple pole
+at $s=1$. Its nontrivial zeros lie in the critical strip
+\[
+  0 < \RePart(s) < 1.
+\]
+The Riemann Hypothesis asserts
+\[
+  \RH:\qquad \zeta(s)=0,\ 0<\RePart(s)<1
+  \quad\Longrightarrow\quad
+  \RePart(s)=\frac12.
+\]
+
+This project does not treat the displayed implication as a prompt to be solved
+directly. The target is too deep, existing formal-library coverage is partial,
+and an unconstrained language model can easily produce plausible but invalid
+mathematics. The programme therefore decomposes the challenge into governed,
+machine-checkable competence stages.
+
+\subsection{What counts as progress}
+
+Four evidence classes must not be conflated:
+
+\begin{enumerate}
+  \item \textbf{Infrastructure progress}: the toolchain, verifier, hashing,
+  memory, repair, and experiment controls work correctly.
+  \item \textbf{Competence progress}: AION reconstructs or transfers established
+  proofs more reliably, cheaply, or durably than matched controls.
+  \item \textbf{Formalization progress}: AION formalizes known mathematics that
+  was missing from the local dependency chain. This can be useful and novel as
+  engineering without being new mathematics.
+  \item \textbf{Mathematical progress}: a genuinely new lemma, method, bound, or
+  theorem relevant to RH survives Lean verification and independent expert
+  mathematical review.
+\end{enumerate}
+
+Current achievement is primarily in classes 1 and 2's experimental
+prerequisites. There is not yet evidence in class 4.
+
+\section{Programme thesis}
+
+The programme's central hypothesis is architectural:
+
+\begin{quote}
+Can AION turn formally verified mathematical experience into retained,
+repairable competence under source closure, beyond what the same underlying
+proposer achieves alone?
+\end{quote}
+
+The governed loop is
+\[
+\small
+\begin{aligned}
+\boxed{\text{task}}&\rightarrow\boxed{\text{proposal}}
+\rightarrow\boxed{\text{Lean gate}}
+\rightarrow\boxed{\text{diagnosis}}
+\rightarrow\boxed{\text{bounded repair}}
+\rightarrow\boxed{\text{verified memory}}\\[-1mm]
+&\hspace{55mm}\Downarrow\\[-1mm]
+&\hspace{42mm}\boxed{\text{source-closed transfer}}
+\end{aligned}
+\]
+
+The same proposer, model version, temperature, task, tool access, token budget,
+attempt budget, and time budget must be held fixed. Only AION memory and repair
+mechanisms may vary. This is what makes an observed difference attributable to
+the architecture rather than to a stronger model or an easier prompt.
+
+\subsection{Progression of research difficulty}
+
+\begin{enumerate}
+  \item Known zeta and complex-analysis micro-lemmas.
+  \item Held-out reformulations and theorem specialization.
+  \item Delayed reconstruction with training sources closed.
+  \item Formal RH-equivalent statements and dependency mapping.
+  \item Complete reconstruction of a selected prerequisite chain.
+  \item Identification of one precise missing formalization or mathematical
+  bottleneck.
+  \item Formalization and independent review of useful supporting lemmas.
+  \item Only then, carefully governed work on a genuinely open bottleneck.
+\end{enumerate}
+
+\section{Trusted formal laboratory}
+
+\subsection{Authority model}
+
+The declared trusted base is the pinned Lean kernel and pinned Mathlib
+dependency. A candidate counts only when the Lean process returns success for
+the complete generated source. The harness also retains a SHA-256 source hash
+and compiler diagnostic.
+
+Project-authored proof sources are scanned for prohibited incompleteness:
+\begin{itemize}
+  \item \code{sorry};
+  \item \code{admit};
+  \item project-local \code{axiom} declarations;
+  \item hidden placeholders or self-awarded acceptance.
+\end{itemize}
+
+This policy intentionally does not scan upstream Mathlib as though its trusted
+implementation were AION-authored source. The kernel return code remains the
+final acceptance signal.
+
+\subsection{Established baseline}
+
+The baseline reconstructs three established facts already present in Mathlib:
+
+\begin{align*}
+  \zeta(0) &= -\frac12,\\
+  \zeta\!\left(-2(n+1)\right) &= 0 \qquad (n\in\mathbb{N}),\\
+  \RePart(s)>1 &\Longrightarrow \zeta(s)\neq 0.
+\end{align*}
+
+Representative Lean source:
+
+\begin{lstlisting}
+theorem reproduce_zeta_at_zero : riemannZeta 0 = -(1 : C) / 2 := by
+  exact riemannZeta_zero
+
+theorem reproduce_trivial_zero (n : N) :
+    riemannZeta (-2 * ((n : C) + 1)) = 0 := by
+  exact riemannZeta_neg_two_mul_nat_add_one n
+
+theorem reproduce_zero_free_right_half_plane {s : C} (hs : 1 < s.re) :
+    riemannZeta s != 0 := by
+  exact riemannZeta_ne_zero_of_one_lt_re hs
+\end{lstlisting}
+
+In the actual Lean files, \code{C}, \code{N}, and \code{!=} above are the
+corresponding Unicode complex-number, natural-number, and not-equal symbols.
+They are rendered here in ASCII for portable documentation.
+
+\subsection{Fixture smoke harness}
+
+The fixture-only harness validates Lean compilation, proof-policy enforcement,
+evidence hashing, source-closed fixture reconstruction, repair recording, and
+claim boundaries. Its status is \code{PASS\_TRUSTED\_LAB\_SMOKE\_TEST}.
+
+This is deliberately a plumbing test. Fixed candidates do not measure model
+quality, AION intelligence, memory advantage, repair advantage, transfer, or
+retention.
+
+\section{First live matched experiment}
+
+\subsection{Design}
+
+One live experiment used GPT-4.1 through the OpenAI Responses API. Four arms
+received the same three established theorem tasks, with at most two attempts per
+task:
+
+\begin{enumerate}
+  \item proposer alone;
+  \item AION-labelled memory plus repair;
+  \item AION-labelled repair without memory;
+  \item AION-labelled memory without repair.
+\end{enumerate}
+
+The proposer returned proof bodies. The harness generated complete Lean files,
+rejected prohibited tokens, invoked the pinned compiler, and retained prompts,
+proofs, diagnostics, hashes, provider identifiers, token usage, and elapsed
+time.
+
+\subsection{Measured result}
+
+\begin{table}[ht]
+\centering
+\caption{Paid experiment result, 14 August 2026}
+\begin{tabular}{lrrrr}
+\toprule
+Arm & Accepted & Tasks & Model calls & Success rate \\
+\midrule
+Proposer alone & 0 & 3 & 6 & 0\% \\
+AION memory + repair label & 1 & 3 & 5 & 33.3\% \\
+AION without memory label & 1 & 3 & 5 & 33.3\% \\
+AION without repair label & 1 & 3 & 5 & 33.3\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Additional measurements:
+\begin{itemize}
+  \item resolved provider model: \code{gpt-4.1-2025-04-14};
+  \item total provider tokens: 5,449;
+  \item recorded wall-clock duration: 134.46 seconds;
+  \item accepted family: only the elementary value at zero;
+  \item immutable result hash:
+  \hash{5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6}.
+\end{itemize}
+
+\begin{decisionbox}
+The experiment does not support an AION superiority claim. The three
+AION-labelled arms tied, and the labels did not yet correspond to the genuine
+durable-memory and governed-repair mechanisms. The correct conclusion is a
+null architectural result with useful infrastructure evidence.
+\end{decisionbox}
+
+\subsection{Failure taxonomy}
+
+Rejected candidates exhibited several recurring failure modes:
+
+\begin{itemize}
+  \item invented or misremembered theorem identifiers;
+  \item Lean tactic syntax errors and invalid indentation;
+  \item incorrect binders or explicit arguments;
+  \item theorem conclusions that did not match the generated goal;
+  \item unsolved goals after partial rewriting;
+  \item repeated use of a failed branch instead of theorem discovery.
+\end{itemize}
+
+These failures show why a generic ``try again'' loop is inadequate. The system
+needs catalogue discovery, exact signature inspection, diagnostic
+classification, branch abandonment, and verified memory.
+
+\section{Root-cause correction and continuation achievements}
+
+\subsection{Concrete environment defect}
+
+The local baseline compiled, but the live generator imported only the
+\code{RiemannZeta} module. The theorem
+\code{riemannZeta\_ne\_zero\_of\_one\_lt\_re} is made available through the
+Mathlib \code{Dirichlet} module. The exact live right-half-plane template
+therefore failed even with a known-correct proof term.
+
+The generator now imports both required modules, and regression tests compile
+known-correct proofs through the exact live templates. This finding changes the
+interpretation of the earlier failure: at least one failure attributed to the
+proposer was actually an experiment-environment error.
+
+\subsection{Truthful experiment state}
+
+The original packet incorrectly remained marked \code{not\_run} after the paid
+result existed. It now records the completed run, its timestamped evidence
+path, original sealed-packet hash, result hash, model, timestamps, and a
+non-superiority interpretation. The immutable result itself was not rewritten.
+
+\subsection{Genuine governed memory retrieval}
+
+A scoped adapter now uses AION's
+\code{HexCorePersistentLearningRuntime.knowledge.retrieve} mechanism. Admission
+is fail closed:
+
+\begin{enumerate}
+  \item the exact theorem template is compiled by Lean;
+  \item the return code must be zero;
+  \item a 64-character source SHA-256 hash must be present;
+  \item only then may a verified evidence capsule and claim be ingested;
+  \item proof bodies are not retained in the memory object;
+  \item retrieval returns claim IDs, capsule IDs, evidence checksums, method
+  metadata, and the verified source hash.
+\end{enumerate}
+
+The clean scoped store currently contains:
+
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Metric & Value \\
+\midrule
+Active verified claims & 6 \\
+Verified evidence capsules & 6 \\
+Contradictions & 0 \\
+Store revision after clean rebuild & 6 \\
+Retained proof bodies & 0 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The six acquisition families cover the zeta value at zero, trivial zeros,
+right-half-plane non-vanishing, differentiability away from one,
+right-half-plane positivity, and finiteness of zeta zeros in compact sets.
+
+\subsection{Governed Lean repair routing}
+
+The repair controller classifies diagnostics into explicit routes:
+
+\begin{longtable}{p{35mm}p{50mm}p{66mm}}
+\toprule
+Category & Detection signal & Required response \\
+\midrule
+\endhead
+Unknown theorem & Unknown identifier diagnostic & Search installed Mathlib, inspect exact signature, replace invented names \\
+Syntax failure & Unexpected token, invalid tactic, malformed command & Correct Lean syntax and return one well-indented tactic body \\
+Type mismatch & Application mismatch, failed synthesis, coercion problem & Inspect goal and theorem types; repair arguments and coercions \\
+Unsolved goal & Remaining goals after a partial proof & Split the goal or apply a verified theorem with a matching conclusion \\
+Unclassified or repeated failure & No trusted route or recurring branch & Abandon the branch and construct a materially different minimal proof \\
+\bottomrule
+\end{longtable}
+
+Each repair record contains a stable record ID, task ID, attempt number,
+category, diagnostic hash, instruction, and a one-attempt retry bound. A
+repair-enabled arm receives the record and compiler diagnostic; a no-repair arm
+does not.
+
+\subsection{Fail-closed paid execution}
+
+The live harness now refuses to load an API key unless all of the following are
+true:
+
+\begin{itemize}
+  \item an explicitly selected packet is marked \code{ready};
+  \item every task is source closed;
+  \item every statement hash matches;
+  \item the pinned Lean environment hash matches;
+  \item the verified AION memory store is nonempty;
+  \item the packet contains normalized tasks and matched arms.
+\end{itemize}
+
+This turns ``do not run yet'' from a procedural note into an executable safety
+property.
+
+\section{V2 held-out experiment}
+
+\subsection{Purpose}
+
+The v2 packet replaces the three direct reconstruction tasks with six
+reformulations across six families. Each statement has been independently
+compiled with a known-correct oracle proof, but the proposer does not receive
+the proof body. Statements and environment are hash frozen.
+
+\begin{longtable}{@{}p{10mm}p{48mm}p{91mm}@{}}
+\toprule
+Ref. & Family & Held-out statement \\
+\midrule
+\endhead
+T1 & Special-value transfer & $2\zeta(0)=-1$ \\
+T2 & Trivial-zero specialization & $\zeta(-6)=0$ \\
+T3 & Non-vanishing contrapositive & $\zeta(s)=0\Rightarrow\RePart(s)\leq1$ \\
+T4 & Analytic prerequisite & $s\neq1\Rightarrow\zeta$ differentiable at $s$ \\
+T5 & Right-half-plane positivity & $x>1\Rightarrow\RePart(\zeta(x))>0$ \\
+T6 & Zero-set topology & Compact sets meet the zeta zero set in finitely many points \\
+\bottomrule
+\end{longtable}
+
+\textbf{Packet IDs:}
+\begin{itemize}[leftmargin=11mm,itemsep=0pt,topsep=2pt]
+  \item[T1] \code{scaled\_zeta\_at\_zero}
+  \item[T2] \code{trivial\_zero\_at\_neg\_six}
+  \item[T3] \code{zero\_implies\_re\_le\_one}
+  \item[T4] \code{zeta\_differentiable\_away\_from\_one}
+  \item[T5] \code{zeta\_real\_part\_positive}
+  \item[T6] \code{compact\_has\_finitely\_many\_zeta\_zeros}
+\end{itemize}
+
+\subsection{Matched arms}
+
+The precommitted packet defines:
+
+\begin{enumerate}
+  \item proposer alone;
+  \item full AION memory plus repair;
+  \item AION repair without memory;
+  \item AION memory without repair;
+  \item a cold, isolated-state control.
+\end{enumerate}
+
+Each arm receives at most two attempts per task with equal token, time, and tool
+budgets. Exam-time memory writes are disabled, preventing early arms or tasks
+from leaking answers into later conditions.
+
+\subsection{Precommitted scoring}
+
+The primary score is the number of Lean-accepted tasks per arm. Secondary
+measures are attempts, provider tokens, and elapsed time. A superiority claim
+requires the full AION arm to exceed \emph{every} matched ablation on the
+primary score. A tie is not evidence of superiority.
+
+The packet remains \code{local\_verification\_only}. It must not be changed to
+\code{ready} until an independent sealing review confirms:
+
+\begin{itemize}
+  \item no oracle proof or answer text reaches the proposer;
+  \item task and environment hashes match the reviewed packet;
+  \item model and sampling parameters are frozen;
+  \item arm order and potential order effects are addressed;
+  \item the delayed-retention schedule is precommitted;
+  \item output locations and immutable evidence rules are confirmed.
+\end{itemize}
+
+\section{Evaluation methodology}
+
+\subsection{Causal questions}
+
+The next experiment should answer four distinct questions:
+
+\begin{description}[leftmargin=37mm,style=nextline]
+  \item[Reconstruction] Can the proposer produce kernel-accepted established proofs?
+  \item[Memory effect] Does verified retrieval improve success or efficiency over an identical no-memory arm?
+  \item[Repair effect] Does diagnostic routing improve rejected candidates over an identical no-repair arm?
+  \item[Retention effect] Does the method survive source closure and time delay on equivalent reformulations?
+\end{description}
+
+Immediate success without delayed retention is not sufficient evidence for the
+programme's main thesis. The decisive property is retained, source-closed
+competence.
+
+\subsection{Required measurements}
+
+For every arm, task, and attempt, retain:
+
+\begin{itemize}
+  \item task, environment, prompt, source, and output hashes;
+  \item model alias and resolved provider model version;
+  \item temperature, seed if supported, token cap, and tool policy;
+  \item exact memory claim IDs, capsule IDs, and evidence checksums supplied;
+  \item exact repair record ID, category, diagnostic hash, and route supplied;
+  \item candidate proof body and complete bounded compiler diagnostic;
+  \item Lean return code and generated source hash;
+  \item provider tokens, model calls, elapsed time, and any retries;
+  \item failure classification and branch-abandonment decision;
+  \item immutable result path, final result hash, and prior-result linkage.
+\end{itemize}
+
+\subsection{Statistical limitations}
+
+Six tasks are still a small sample. Even a perfect 6--0 result would not prove
+broad mathematical intelligence. The first v2 run should be treated as a
+bounded mechanistic study. If promising, it should be replicated on a larger,
+pre-registered curriculum with multiple theorem families, multiple random task
+draws, and delayed tests. Confidence intervals and paired task-level analyses
+should replace informal percentage comparisons as the sample grows.
+
+\section{Roadmap toward meaningful RH work}
+
+\subsection{Stage gates}
+
+\begin{longtable}{p{12mm}p{42mm}p{72mm}p{28mm}}
+\toprule
+Stage & Objective & Exit criterion & Current \\
+\midrule
+\endhead
+0 & Trusted formal laboratory & Pinned compiler, strict policy, immutable evidence & \pass \\
+1 & Exact-template reconstruction & Known-correct terms compile through live generator & \pass \\
+2 & Real memory and repair & Provenance IDs and repair records differ causally by arm & \pass \\
+3 & Sealed immediate transfer & Full-AION advantage on precommitted held-out tasks & \pending \\
+4 & Delayed retention & Fresh Lean acceptance after source closure and delay & \pending \\
+5 & Critical-strip dependency reconstruction & Complete formal map of existing prerequisite chain & \pending \\
+6 & Missing formalization & One useful, precise known-math gap formalized & \pending \\
+7 & Genuine bottleneck lemma & New candidate survives Lean and expert review & \pending \\
+8 & RH-level contribution & Independent community validation of material progress & \pending \\
+\bottomrule
+\end{longtable}
+
+\subsection{Immediate next steps}
+
+\textbf{Phase A - Preserve and seal}
+\begin{enumerate}
+  \item Add the untracked RH laboratory and evidence policy to version control
+  in a dedicated, reviewed commit without including secrets or mutable runtime
+  noise.
+  \item Conduct an independent v2 sealing review and record reviewer, timestamp,
+  packet hash, environment hash, and decision.
+  \item Freeze the exact provider model alias, resolved-version recording rule,
+  temperature, output-token cap, attempt cap, and arm order.
+  \item Precommit the delayed-retention interval and equivalent task forms.
+\end{enumerate}
+
+\textbf{Phase B - One bounded immediate comparison}
+\begin{enumerate}
+  \item Change only the reviewed packet status to \code{ready}.
+  \item Launch exactly one matched run and retain a process/session identifier.
+  \item Allow the fail-closed preflight to validate hashes before credentials
+  load.
+  \item Report every arm and failure; do not rerun to improve appearance.
+  \item Stop and interpret against the precommitted scoring rule.
+\end{enumerate}
+
+\textbf{Phase C - Delayed source-closed retention}
+\begin{enumerate}
+  \item Keep acquisition sources closed for the precommitted interval.
+  \item Present equivalent formulations with fresh declaration and prompt
+  hashes.
+  \item Count only new Lean acceptance; do not replay oracle proofs.
+  \item Compare retention, attempts, token cost, and failure modes across arms.
+\end{enumerate}
+
+\textbf{Phase D - Critical-strip formal programme}
+\begin{enumerate}
+  \item Inventory Mathlib coverage for analytic continuation, functional
+  equation, Euler product, zero symmetry, and zero-set topology.
+  \item Construct a statement-level dependency graph with exact theorem names,
+  imports, signatures, and missing edges.
+  \item Reconstruct the established chain under source closure.
+  \item Select one missing formalization whose mathematical content is known and
+  whose addition would make the dependency graph materially more complete.
+  \item Submit that formalization for independent Lean and mathematical review.
+\end{enumerate}
+
+\subsection{Longer-term research directions}
+
+If the competence gates pass, useful research directions include:
+
+\begin{itemize}
+  \item formal equivalences of RH and careful comparison of their dependency
+  costs;
+  \item explicit zero symmetry and critical-strip localization lemmas;
+  \item formal bridges between Dirichlet-series, Euler-product, and analytic
+  continuation representations;
+  \item reusable bounds needed for zero-free regions or contour arguments;
+  \item formalization of classical lemmas absent from Mathlib;
+  \item counterexample search for proposed intermediate lemmas;
+  \item certified numerical bounds using Arb/FLINT as supporting evidence,
+  never as a substitute for proof;
+  \item automated theorem discovery over installed Mathlib declarations and
+  exact signature retrieval;
+  \item proof-term minimization and robustness testing under import reduction.
+\end{itemize}
+
+\section{Research governance}
+
+\subsection{Claim ladder}
+
+Public and internal statements should use the narrowest justified claim:
+
+\begin{longtable}{p{45mm}p{30mm}p{80mm}}
+\toprule
+Claim & Allowed now? & Required evidence \\
+\midrule
+\endhead
+The trusted RH lab compiles known results & Yes & Pinned Lean acceptance and source hashes \\
+A live provider-to-Lean run completed & Yes & Immutable timestamped result and provider records \\
+AION memory and repair are wired & Yes, narrowly & Code, local verification, provenance logs, ablation design \\
+AION improves this proposer & No & Full arm exceeds every matched ablation under precommitment \\
+AION retains mathematical methods & No & Delayed source-closed reconstruction \\
+AION formalized a useful known lemma & No, not yet & New Lean source, dependency impact, independent review \\
+AION discovered new mathematics & No & Novelty analysis, Lean proof, expert review, literature search \\
+AION advanced RH & No & Material relevance to a recognized bottleneck and external validation \\
+AION solved RH & No & Complete proof, formal verification, extensive independent mathematical review \\
+\bottomrule
+\end{longtable}
+
+\subsection{Risk register}
+
+\begin{longtable}{p{38mm}p{18mm}p{95mm}}
+\toprule
+Risk & Level & Mitigation \\
+\midrule
+\endhead
+Invented theorem names & High & Installed-library search and exact signature inspection before proposal \\
+Import/environment mismatch & High & Compile oracle terms through exact generated templates; freeze environment hash \\
+Answer leakage into memory & High & Store verified metadata, not proof bodies; disable exam writes; source-close tasks \\
+Arm contamination & High & Isolated state, immutable packets, logged retrieval IDs, fixed order or randomized precommitment \\
+Repeated paid reruns & High & Exactly one bounded run; fail-closed status gate; immutable reporting \\
+Claim inflation from ties & High & No-tie superiority rule and explicit claim matrix \\
+Small-sample overinterpretation & Medium & Treat v2 as mechanistic; expand only after precommitted success \\
+Mutable or lost evidence & High & Timestamped immutable results, hashes, version control, append-only lineage \\
+Untracked repository work & High & Review and commit RH assets separately from unrelated dirty-tree changes \\
+Numerics mislabelled as proof & High & Separate certified-numerics lab and explicit non-proof label \\
+Formal proof of irrelevant lemma & Medium & Dependency graph and external relevance review before promotion \\
+Self-grading or circular authority & High & Kernel acceptance plus independent mathematical review for research claims \\
+\bottomrule
+\end{longtable}
+
+\subsection{Operating discipline}
+
+The following rules are part of the scientific method, not merely workflow
+preferences:
+
+\begin{itemize}
+  \item Never say a test is running unless a real process or session exists.
+  \item Never spend API credit before all local gates pass.
+  \item Do not repeatedly announce the same next step.
+  \item If an edit fails, record the exact failure once, correct it, and verify.
+  \item Do not mutate a frozen mission after observing failures.
+  \item Do not delete or rewrite immutable results.
+  \item Do not turn a tie, failure, or confounded result into a success claim.
+  \item Keep consciousness, proof-of-life, and self-awareness claims outside the
+  RH evaluation.
+  \item Separate known-mathematics reconstruction, new formalization, and new
+  mathematics in every report.
+\end{itemize}
+
+\section{Repository and evidence map}
+
+\subsection{Core laboratory}
+
+\begin{description}[leftmargin=40mm,style=nextline]
+  \item[\code{research/riemann\_lab/README.md}] Scope, proof policy, and claim boundary.
+  \item[\code{lean-toolchain}] Pinned Lean toolchain.
+  \item[\code{lakefile.toml}] Lean project and Mathlib requirement.
+  \item[\code{lake-manifest.json}] Resolved dependency state.
+  \item[\code{EstablishedZeta.lean}] Kernel-accepted established baseline.
+  \item[\code{CatalogProbe.lean}] Exact theorem-name and signature probes.
+  \item[\code{dependency\_graph.json}] RH prerequisite graph and selected critical-strip target.
+  \item[\code{live\_task\_packet.json}] Truthful record of the completed v1 run.
+  \item[\code{live\_task\_packet\_v2.json}] Hash-frozen six-family packet, currently blocked.
+\end{description}
+
+\subsection{Harnesses and tests}
+
+\begin{description}[leftmargin=44mm,style=nextline]
+  \item[\code{scripts/aion\_riemann\_lab.py}] Fixture-only trusted smoke harness.
+  \item[\code{scripts/aion\_riemann\_live\_exam.py}] Live matched experiment and fail-closed preflight.
+  \item[\code{scripts/aion\_riemann\_verified\_memory.py}] Governed memory adapter and Lean repair controller.
+  \item[\code{scripts/aion\_riemann\_local\_verify.py}] Unpaid authority audit, clean memory build, and report generation.
+  \item[\code{backend/tests/test\_aion\_riemann\_lab.py}] Thirteen focused policy and regression tests.
+\end{description}
+
+\subsection{Evidence}
+
+\begin{description}[leftmargin=55mm,style=nextline]
+  \item[\code{live\_exam\_20260814T213917Z.json}] Immutable paid result.
+  \item[\code{live\_exam\_latest.json}] Latest pointer with identical content hash.
+  \item[\code{local\_verification\_latest.json}] Final zero-cost local verification evidence.
+  \item[\code{aion\_verified\_memory.json}] Scoped six-claim verified memory store.
+  \item[\code{AION\_RIEMANN\_LOCAL\_VERIFICATION\_2026-08-15.md}] Human-readable continuation report.
+\end{description}
+
+Older visual probes, Photon Algebra drivers, and other historical scripts are
+outside the trusted programme and must not be silently merged into this
+evidence chain.
+
+\section{Open questions}
+
+The programme should explicitly track the following unresolved questions:
+
+\begin{enumerate}
+  \item Does verified memory help when the held-out statement is a nontrivial
+  reformulation rather than a direct theorem-name lookup?
+  \item Does diagnostic routing add value beyond raw compiler feedback?
+  \item How sensitive are results to task order and retrieved-memory ranking?
+  \item Should theorem discovery be a deterministic library-search tool rather
+  than prompt-visible signature memory, or should both be separate arms?
+  \item How should cold AION differ operationally from proposer alone and from
+  no-memory AION?
+  \item What delay is long enough to make source-closed retention meaningful?
+  \item What minimum task count supports a credible architectural claim?
+  \item Which critical-strip dependency is both missing from Mathlib and useful
+  enough to justify formalization effort?
+  \item How will novelty be checked before any claim of new mathematics?
+  \item Which external mathematicians or formalization experts will review
+  candidate bottleneck lemmas?
+\end{enumerate}
+
+\section{Recommended research log schema}
+
+Every future session should append a compact structured record with:
+
+\begin{itemize}
+  \item date, operator, repository commit, dirty-tree status, and toolchain hash;
+  \item objective and explicit non-objectives;
+  \item packet hash, task hashes, arm definitions, model settings, and budget;
+  \item process/session identifier for any live execution;
+  \item exact commands or harness entry points used;
+  \item local test result before paid work;
+  \item immutable evidence paths and hashes after work;
+  \item measured outcomes, failures, and unresolved anomalies;
+  \item claim classification: infrastructure, competence, formalization, or mathematics;
+  \item decision: stop, replicate, revise locally, advance, or abandon;
+  \item next stage gate and the evidence required to pass it.
+\end{itemize}
+
+This log prevents narrative drift and makes negative results scientifically
+useful.
+
+\section{Final programme assessment}
+
+The AION RH project has crossed an important but preliminary threshold. It is
+no longer an unconstrained request for an AI to speculate about RH. It is a
+formal, evidence-bearing programme capable of rejecting invalid proofs,
+preserving negative results, recording exact provenance, and testing specific
+architectural hypotheses.
+
+The current accomplishment is a trustworthy experimental substrate and a
+locally verified next experiment. That is meaningful progress in research
+method and AI-mathematics infrastructure. It is not evidence that AION is
+closer to proving RH in the mathematical sense.
+
+The next two results will determine whether the programme should advance:
+
+\begin{enumerate}
+  \item a clean, one-shot v2 matched comparison showing whether genuine memory
+  and repair causally improve immediate formal proof reconstruction; and
+  \item a delayed source-closed test showing whether any improvement is retained
+  and transferred.
+\end{enumerate}
+
+If both fail, the architecture must be revised before approaching deeper RH
+content. If both succeed under the precommitted rules, the programme earns the
+right to move into a complete critical-strip dependency reconstruction and one
+precise missing formalization. Either outcome is valuable because the claims
+remain aligned with evidence.
+
+\begin{truthbox}
+As of 15 August 2026: trusted formal laboratory - yes; genuine governed memory
+retrieval - yes; bounded Lean repair records - yes; six-family v2 packet locally
+verified - yes; AION advantage - not established; delayed retention - not run;
+new RH mathematics - none; Riemann Hypothesis solved - no.
+\end{truthbox}
+
+\appendix
+
+\section{Key evidence hashes}
+
+\begin{longtable}{@{}p{52mm}p{96mm}@{}}
+\toprule
+Artifact & SHA-256 \\
+\midrule
+\endhead
+Immutable paid live result & \hash{5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6} \\
+Established zeta baseline & \hash{d121313f104e8e9d3a62fd2270e46aa6c4a7c6888ebc7d996f004fae5a25943c} \\
+Catalogue probe & \hash{6691c0dff28a5b761b7c4d1da63f7820cb0b57976b21979594be093e149fd5b5} \\
+V2 packet & \hash{2190c93a840eebabf0ad7cbfc3dbfe53a01ca32ead4f56765143d190e50d3660} \\
+Pinned v2 environment & \hash{6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591} \\
+\bottomrule
+\end{longtable}
+
+The local-verification report is regenerated and therefore receives a new hash
+when timestamps or verified memory state are rebuilt. The timestamped paid
+result is the immutable historical object.
+
+\section{V2 statement hashes}
+
+\begin{longtable}{@{}p{11mm}p{137mm}@{}}
+\toprule
+Ref. & Statement SHA-256 \\
+\midrule
+\endhead
+T1 & \hash{f84686a87dff3c814d79a296232fad81531194b318c4c81fe7d5aab8c9050798} \\
+T2 & \hash{d1ca22f154945c4c26cf5f5cecfc5bf86d52d1538375d94420ea5abf7fce2760} \\
+T3 & \hash{3c6a7aa1eede91cbd24530d477c38f750176269d1d8c08773dd2bc510fe77d31} \\
+T4 & \hash{37c2b2c0f357b924d945d3c815244f0eff7affc33372d60ba839caea750cace5} \\
+T5 & \hash{fed50dcca60493a2beedc23cb7ea0d485c1659dbe0fabdd0b8d3e698db523d3a} \\
+T6 & \hash{6e920be25538210c2ec4850febc0c8a50e426af5c4ba743253c84b8af3611b4b} \\
+\bottomrule
+\end{longtable}
+
+\section{Reproducibility commands}
+
+Run from the COMDEX repository root:
+
+\begin{lstlisting}[language={}]
+.venv/bin/python scripts/aion_riemann_local_verify.py
+.venv/bin/python -m pytest backend/tests/test_aion_riemann_lab.py -q
+\end{lstlisting}
+
+The live harness must not be invoked until an independently reviewed packet is
+marked \code{ready}. The v2 packet can be explicitly selected through the
+\code{AION\_RIEMANN\_TASK\_PACKET} environment variable after sealing.
+
+\section{Selected references}
+
+\begin{thebibliography}{9}
+\bibitem{Riemann1859}
+B. Riemann, ``On the Number of Prime Numbers Less Than a Given Quantity,'' 1859.
+
+\bibitem{Titchmarsh}
+E. C. Titchmarsh, revised by D. R. Heath-Brown, \emph{The Theory of the Riemann Zeta-Function}, Oxford University Press.
+
+\bibitem{Edwards}
+H. M. Edwards, \emph{Riemann's Zeta Function}, Dover Publications.
+
+\bibitem{Lean}
+Lean Prover community, \emph{Lean 4 theorem prover and reference documentation}.
+
+\bibitem{Mathlib}
+Mathlib community, \emph{Mathlib: a mathematical library for Lean}, pinned in this programme at v4.32.1.
+
+\bibitem{AionEvidence}
+AION/COMDEX, \emph{Riemann Hypothesis Programme continuation handover, local verification report, task packets, Lean sources, and immutable JSON evidence}, 14--15 August 2026.
+\end{thebibliography}
+
+\end{document}

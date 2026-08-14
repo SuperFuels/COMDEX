@@ -1,0 +1,34 @@
+{
+  "schema": "aion.riemann_retention_exam.v1",
+  "execution_status": "sealed_waiting_until_due",
+  "not_before": "2026-08-15T08:00:00Z",
+  "environment_sha256": "6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591",
+  "objective": "Measure delayed transfer of verified-method memory against an isolated cold AION state on fresh reformulations.",
+  "precommitted_scoring": {
+    "primary": "Lean-accepted tasks per arm",
+    "full_aion_minimum_passed": 4,
+    "full_aion_minimum_margin_over_each_ablation": 1,
+    "infrastructure_failures_allowed": 0
+  },
+  "budgets": {
+    "max_attempts_per_task": 2,
+    "max_output_tokens_per_call": 400,
+    "equal_token_budget": true,
+    "equal_time_budget": true,
+    "equal_tool_budget": true
+  },
+  "arms": [
+    {"id":"aion_memory_repair","memory":true,"repair":true},
+    {"id":"cold_aion","memory":true,"repair":true,"isolated_state":true}
+  ],
+  "source_closed_tasks": [
+    {"id":"retained_shifted_zero_value","family":"special_value_transfer","statement":"riemannZeta 0 + (1 : ℂ) / 2 = 0","statement_sha256":"6b0f2fd6eedb6cc9217078de5ab6f38e28e9fba0beeeeaa4dd414233bf6f48ed","declaration":"theorem retained_shifted_zero_value : riemannZeta 0 + (1 : ℂ) / 2 = 0 := by","imports":["Mathlib.NumberTheory.LSeries.RiemannZeta"],"proof_body_disclosed":false},
+    {"id":"retained_trivial_zero_neg_eight","family":"trivial_zero_specialization","statement":"riemannZeta (-8) = 0","statement_sha256":"6379cde8b3e637c2127a740ac1ccb9aaf15de4e5f5965b86f995fdc5e5153136","declaration":"theorem retained_trivial_zero_neg_eight : riemannZeta (-8) = 0 := by","imports":["Mathlib.NumberTheory.LSeries.RiemannZeta"],"proof_body_disclosed":false},
+    {"id":"retained_zero_strict_upper_boundary","family":"nonvanishing_contrapositive","statement":"For s : ℂ, riemannZeta s = 0 implies s.re < 1","statement_sha256":"c120c44cb90679ee3f9f4c4fd4d27eb02de879b1548dd56436f253a0224afaec","declaration":"theorem retained_zero_strict_upper_boundary {s : ℂ} (hz : riemannZeta s = 0) : s.re < 1 := by","imports":["Mathlib.NumberTheory.LSeries.Nonvanishing"],"proof_body_disclosed":false},
+    {"id":"retained_zeta_analytic","family":"analytic_prerequisite","statement":"riemannZeta is analytic on the complement of {1}","statement_sha256":"53e5e50fe0109414d0b1bd517e492b7a1ddcabdcf230bece8423921867543f72","declaration":"theorem retained_zeta_analytic : AnalyticOnNhd ℂ riemannZeta ({1} : Set ℂ)ᶜ := by","imports":["Mathlib.NumberTheory.LSeries.RiemannZeta"],"proof_body_disclosed":false},
+    {"id":"retained_zeta_real_axis","family":"right_half_plane_reality","statement":"For x : ℝ with 1 < x, (riemannZeta x).im = 0","statement_sha256":"243c4cd7c95deac3099c6cace556fb319ec4a79a7acb18419ee1a2d0376335a5","declaration":"theorem retained_zeta_real_axis {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0 := by","imports":["Mathlib.NumberTheory.LSeries.Dirichlet"],"proof_body_disclosed":false},
+    {"id":"retained_zeta_zero_set_closed","family":"zero_set_topology","statement":"riemannZetaZeros is a closed subset of ℂ","statement_sha256":"a41e58fb0a28df5bd0290194598b1c4265cbe44ebd27f9b619feb87303910521","declaration":"theorem retained_zeta_zero_set_closed : IsClosed riemannZetaZeros := by","imports":["Mathlib.NumberTheory.LSeries.ZetaZeros"],"proof_body_disclosed":false}
+  ],
+  "acceptance": {"lean_kernel_acceptance_required":true,"proof_body_disclosed":false,"self_awarded_success_forbidden":true},
+  "claim_boundary": {"rh_solved":false,"new_mathematics":false,"retention_not_yet_measured":true}
+}

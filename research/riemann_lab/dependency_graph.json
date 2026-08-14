@@ -1,0 +1,47 @@
+{
+  "schema": "aion.riemann_dependency_graph.v2",
+  "claim_boundary": "This graph organises and reconstructs established prerequisites. It does not assert new RH mathematics.",
+  "kernel_checked_foundation": {
+    "file": "RiemannLab/Tasks/CriticalStripFoundation.lean",
+    "theorem_count": 17,
+    "upper_boundary_result": "RiemannLab.zeta_zero_re_lt_one",
+    "upper_boundary_status": "verified_established_consequence"
+  },
+  "nodes": [
+    {"id": "complex_analysis", "status": "library_foundation", "label": "Complex analysis and meromorphic functions"},
+    {"id": "dirichlet_series", "status": "kernel_reconstructed", "label": "Dirichlet-series identity and summation for Re(s) > 1"},
+    {"id": "analytic_continuation", "status": "kernel_reconstructed", "label": "Analyticity away from the pole at one"},
+    {"id": "functional_equation", "status": "library_established_not_yet_reconstructed", "label": "Functional equation"},
+    {"id": "closed_half_plane_nonvanishing", "status": "kernel_reconstructed", "label": "Non-vanishing for Re(s) >= 1"},
+    {"id": "trivial_zeros", "status": "kernel_reconstructed", "label": "Trivial zeros at negative even integers"},
+    {"id": "zero_set_topology", "status": "kernel_reconstructed", "label": "Closedness, discreteness, and compact finiteness of the zero set"},
+    {"id": "strict_upper_boundary", "status": "kernel_reconstructed", "label": "Every zeta zero satisfies Re(s) < 1"},
+    {"id": "left_half_plane_classification", "status": "precise_blocker", "label": "Classify zeros with Re(s) <= 0 as trivial zeros"},
+    {"id": "critical_strip", "status": "partially_reconstructed", "label": "Non-trivial zeros satisfy 0 < Re(s) < 1"},
+    {"id": "zero_symmetry", "status": "library_established_not_yet_reconstructed", "label": "Symmetry of non-trivial zeros"},
+    {"id": "critical_line", "status": "open", "label": "Every non-trivial zero has real part one half"}
+  ],
+  "edges": [
+    ["complex_analysis", "analytic_continuation"],
+    ["dirichlet_series", "closed_half_plane_nonvanishing"],
+    ["closed_half_plane_nonvanishing", "strict_upper_boundary"],
+    ["analytic_continuation", "zero_set_topology"],
+    ["analytic_continuation", "functional_equation"],
+    ["functional_equation", "trivial_zeros"],
+    ["functional_equation", "left_half_plane_classification"],
+    ["trivial_zeros", "left_half_plane_classification"],
+    ["strict_upper_boundary", "critical_strip"],
+    ["left_half_plane_classification", "critical_strip"],
+    ["functional_equation", "zero_symmetry"],
+    ["critical_strip", "critical_line"],
+    ["zero_symmetry", "critical_line"]
+  ],
+  "selected_target": {
+    "id": "critical_strip",
+    "next_subtarget": "left_half_plane_classification",
+    "completed_subtarget": "strict_upper_boundary",
+    "precise_blocker": "The remaining lower boundary requires a kernel-level theorem that any zeta zero with nonpositive real part belongs to the negative-even trivial-zero family, or an equivalent consequence of the functional equation plus Gamma/sine zero classification.",
+    "success_authority": "Lean kernel through the pinned Mathlib dependency",
+    "new_mathematics_claimed": false
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "schema": "aion.riemann_live_exam.v2",
+  "execution_status": "ready",
+  "seal_manifest": "research/riemann_lab/v2_seal_manifest.json",
+  "fixed_fixtures": false,
+  "objective": "Measure governed verified-memory retrieval, diagnostic repair, and transfer on source-closed reformulations of established zeta prerequisites.",
+  "trusted_gate": "Lean 4.24.0 kernel with Mathlib v4.32.1",
+  "environment_sha256": "6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591",
+  "same_proposer_required": true,
+  "precommitted_scoring": {
+    "primary": "Lean-accepted tasks per arm",
+    "secondary": ["attempts", "provider_tokens", "elapsed_seconds"],
+    "superiority_claim_requires": "Full AION must pass the absolute floor and exceed every matched comparator by the precommitted margin; ties do not support superiority.",
+    "full_aion_minimum_passed": 4,
+    "full_aion_minimum_margin_over_each_ablation": 1,
+    "infrastructure_failures_allowed": 0
+  },
+  "budgets": {
+    "max_attempts_per_task": 2,
+    "max_output_tokens_per_call": 400,
+    "equal_token_budget": true,
+    "equal_time_budget": true,
+    "equal_tool_budget": true
+  },
+  "arms": [
+    {"id": "proposer_alone", "memory": false, "repair": false},
+    {"id": "aion_memory_repair", "memory": true, "repair": true},
+    {"id": "aion_no_memory", "memory": false, "repair": true},
+    {"id": "aion_no_repair", "memory": true, "repair": false},
+    {"id": "cold_aion", "memory": true, "repair": true, "isolated_state": true}
+  ],
+  "mechanisms": {
+    "memory": "HexCorePersistentLearningRuntime.knowledge.retrieve with Lean-verified evidence only",
+    "repair": "AionLeanRepairController diagnostic classification, deterministic pinned-Mathlib theorem discovery, and one bounded routed retry",
+    "exam_memory_writes": false
+  },
+  "source_closed_tasks": [
+    {
+      "id": "scaled_zeta_at_zero",
+      "family": "special_value_transfer",
+      "statement": "(2 : ℂ) * riemannZeta 0 = -1",
+      "statement_sha256": "f84686a87dff3c814d79a296232fad81531194b318c4c81fe7d5aab8c9050798",
+      "declaration": "theorem scaled_zeta_at_zero : (2 : ℂ) * riemannZeta 0 = -1 := by",
+      "imports": ["Mathlib.NumberTheory.LSeries.RiemannZeta"],
+      "proof_body_disclosed": false
+    },
+    {
+      "id": "trivial_zero_at_neg_six",
+      "family": "trivial_zero_specialization",
+      "statement": "riemannZeta (-6) = 0",
+      "statement_sha256": "d1ca22f154945c4c26cf5f5cecfc5bf86d52d1538375d94420ea5abf7fce2760",
+      "declaration": "theorem trivial_zero_at_neg_six : riemannZeta (-6) = 0 := by",
+      "imports": ["Mathlib.NumberTheory.LSeries.RiemannZeta"],
+      "proof_body_disclosed": false
+    },
+    {
+      "id": "zero_implies_re_le_one",
+      "family": "nonvanishing_contrapositive",
+      "statement": "For s : ℂ, riemannZeta s = 0 implies s.re ≤ 1",
+      "statement_sha256": "3c6a7aa1eede91cbd24530d477c38f750176269d1d8c08773dd2bc510fe77d31",
+      "declaration": "theorem zero_implies_re_le_one {s : ℂ} (hz : riemannZeta s = 0) : s.re ≤ 1 := by",
+      "imports": ["Mathlib.NumberTheory.LSeries.Dirichlet"],
+      "proof_body_disclosed": false
+    },
+    {
+      "id": "zeta_differentiable_away_from_one",
+      "family": "analytic_prerequisite",
+      "statement": "For s : ℂ with s ≠ 1, riemannZeta is differentiable at s",
+      "statement_sha256": "37c2b2c0f357b924d945d3c815244f0eff7affc33372d60ba839caea750cace5",
+      "declaration": "theorem zeta_differentiable_away_from_one {s : ℂ} (hs : s ≠ 1) : DifferentiableAt ℂ riemannZeta s := by",
+      "imports": ["Mathlib.NumberTheory.LSeries.RiemannZeta"],
+      "proof_body_disclosed": false
+    },
+    {
+      "id": "zeta_real_part_positive",
+      "family": "right_half_plane_positivity",
+      "statement": "For x : ℝ with 1 < x, 0 < (riemannZeta x).re",
+      "statement_sha256": "fed50dcca60493a2beedc23cb7ea0d485c1659dbe0fabdd0b8d3e698db523d3a",
+      "declaration": "theorem zeta_real_part_positive {x : ℝ} (hx : 1 < x) : 0 < (riemannZeta x).re := by",
+      "imports": ["Mathlib.NumberTheory.LSeries.Dirichlet"],
+      "proof_body_disclosed": false
+    },
+    {
+      "id": "compact_has_finitely_many_zeta_zeros",
+      "family": "zero_set_topology",
+      "statement": "Every compact S : Set ℂ has finite intersection with riemannZetaZeros",
+      "statement_sha256": "6e920be25538210c2ec4850febc0c8a50e426af5c4ba743253c84b8af3611b4b",
+      "declaration": "theorem compact_has_finitely_many_zeta_zeros {S : Set ℂ} (hS : IsCompact S) : (S ∩ riemannZetaZeros).Finite := by",
+      "imports": ["Mathlib.NumberTheory.LSeries.ZetaZeros"],
+      "proof_body_disclosed": false
+    }
+  ],
+  "acceptance": {
+    "lean_kernel_acceptance_required": true,
+    "forbid_project_axiom_sorry_admit": true,
+    "retain_candidate_and_output_hashes": true,
+    "self_awarded_success_forbidden": true
+  },
+  "delayed_retention": {
+    "required": true,
+    "minimum_delay_hours": 8,
+    "status": "precommitted_for_separate_sealed_packet"
+  },
+  "claim_boundary": {
+    "rh_solved": false,
+    "new_mathematics": false,
+    "rh_progress_claimed": false,
+    "aion_superiority_precommitted": false
+  }
+}
