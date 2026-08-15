@@ -2,6 +2,8 @@ import RiemannLab.Tasks.LiToeplitzQuartet
 
 namespace RiemannLab
 
+open ComplexConjugate
+
 /-!
 # A damped Chebyshev amplifier for an off-critical Li quartet
 
@@ -64,5 +66,24 @@ theorem liToeplitzAmplifier_mul_inv
     _ = _ := by
       rw [liToeplitzAmplifier_seed_mul_inv a z hz,
         liToeplitzAmplifier_damping_mul_inv damping z hz]
+
+/-- Real amplifier coefficients commute with complex conjugation. -/
+theorem liToeplitzAmplifier_conj
+    (a : ℝ) (damping mode : ℕ) (z : ℂ) :
+    liToeplitzAmplifier (a : ℂ) damping mode (conj z) =
+      conj (liToeplitzAmplifier (a : ℂ) damping mode z) := by
+  simp [liToeplitzAmplifier]
+
+/-- On the reciprocal/conjugate locus (in particular on the unit circle),
+the complete amplifier contribution is an exact norm square and therefore
+nonnegative. -/
+theorem liToeplitzAmplifier_mul_inv_eq_normSq
+    (a : ℝ) (damping mode : ℕ) (z : ℂ)
+    (hinv : z⁻¹ = conj z) :
+    liToeplitzAmplifier (a : ℂ) damping mode z *
+        liToeplitzAmplifier (a : ℂ) damping mode z⁻¹ =
+      (Complex.normSq
+        (liToeplitzAmplifier (a : ℂ) damping mode z) : ℂ) := by
+  rw [hinv, liToeplitzAmplifier_conj, Complex.mul_conj]
 
 end RiemannLab
