@@ -1,0 +1,337 @@
+{
+  "amplifier": "(z^2-a*z+1)*(1-z)^(2r)*(1+z^(2M))",
+  "cases": [
+    {
+      "any_finite_net_negative": true,
+      "best_candidates": [
+        {
+          "damping": 10,
+          "finite_critical_background": "6.896379039867080058200610610435794907216e-62",
+          "finite_net": "-3.552752341860676210798174930324944974666e-60",
+          "finite_net_negative": true,
+          "mode": 33,
+          "polynomial_degree": 88,
+          "target_quartet": "-3.621716132259347011380181036429302923738e-60",
+          "target_to_background_ratio": "52.5161988823797526124650449124"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "5.237566041905538701655001804602783674357e-61",
+          "finite_net": "-3.77870641103462859515439257075445684245e-60",
+          "finite_net_negative": true,
+          "mode": 99,
+          "polynomial_degree": 220,
+          "target_quartet": "-4.302463015225182465319892751214735209886e-60",
+          "target_to_background_ratio": "8.2146229389784539544388311422"
+        },
+        {
+          "damping": 9,
+          "finite_critical_background": "2.682412229082587253462591007017565127186e-56",
+          "finite_net": "-1.181031365501271965539217412634105245559e-55",
+          "finite_net_negative": true,
+          "mode": 33,
+          "polynomial_degree": 86,
+          "target_quartet": "-1.449272588409530690885476513335861758278e-55",
+          "target_to_background_ratio": "5.40287049356763824758753752997"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.617743355508344849334703041846454743886e-60",
+          "finite_net": "-2.539710711689521130794588631391516018027e-60",
+          "finite_net_negative": true,
+          "mode": 34,
+          "polynomial_degree": 90,
+          "target_quartet": "-4.157454067197865980129291673237970761913e-60",
+          "target_to_background_ratio": "2.5699095304838793215451944202"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.865726276906551537786414876839548177075e-60",
+          "finite_net": "-1.901926518764571553417414228012656988091e-60",
+          "finite_net_negative": true,
+          "mode": 100,
+          "polynomial_degree": 222,
+          "target_quartet": "-3.767652795671123091203829104852205165166e-60",
+          "target_to_background_ratio": "2.01940276143724654945726912326"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "2.50133170426269181265987364469792945683e-60",
+          "finite_net": "-2.325752037924988483510653421442744072265e-60",
+          "finite_net_negative": true,
+          "mode": 98,
+          "polynomial_degree": 218,
+          "target_quartet": "-4.827083742187680296170527066140673529095e-60",
+          "target_to_background_ratio": "1.92980552477766706657696567624"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.842660641024102555243053530696839589253e-60",
+          "finite_net": "-1.246723236265838853602604385853063427451e-60",
+          "finite_net_negative": true,
+          "mode": 32,
+          "polynomial_degree": 86,
+          "target_quartet": "-3.089383877289941408845657916549903016704e-60",
+          "target_to_background_ratio": "1.67658862869776320294377781462"
+        },
+        {
+          "damping": 9,
+          "finite_critical_background": "2.031676570850324858176967263348093550474e-55",
+          "finite_net": "3.09995063635119863627514847591355547222e-56",
+          "finite_net_negative": false,
+          "mode": 99,
+          "polynomial_degree": 218,
+          "target_quartet": "-1.721681507215204994549452415756738003252e-55",
+          "target_to_background_ratio": "0.847419088213742347064447883007"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "6.474945023176301439514958771588728064358e-60",
+          "finite_net": "1.789046544812107502077956696758105945915e-60",
+          "finite_net_negative": false,
+          "mode": 35,
+          "polynomial_degree": 92,
+          "target_quartet": "-4.685898478364193937437002074830622118443e-60",
+          "target_to_background_ratio": "0.723697029332538490248888742765"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "7.780687792166121084076038387245748674023e-60",
+          "finite_net": "2.449649997970241609095523151503631111128e-60",
+          "finite_net_negative": false,
+          "mode": 97,
+          "polynomial_degree": 216,
+          "target_quartet": "-5.331037794195879474980515235742117562894e-60",
+          "target_to_background_ratio": "0.685162794934833633627613404339"
+        }
+      ],
+      "beta": "0.5001",
+      "gamma": "14.134725141734693790457251983562470270784257115699",
+      "target_a": "1.9950010111670253076974015561037463013228411477502"
+    },
+    {
+      "any_finite_net_negative": true,
+      "best_candidates": [
+        {
+          "damping": 10,
+          "finite_critical_background": "8.928906474510369953942397331158110122071e-62",
+          "finite_net": "-3.61985459629326844414077752497433193854e-56",
+          "finite_net_negative": true,
+          "mode": 33,
+          "polynomial_degree": 88,
+          "target_quartet": "-3.61986352519974295451073146737166309665e-56",
+          "target_to_background_ratio": "405409.501771967392853169022887"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "5.479003127153601542785843593264279488176e-61",
+          "finite_net": "-4.30174082060335466936044230601495995609e-56",
+          "finite_net_negative": true,
+          "mode": 99,
+          "polynomial_degree": 220,
+          "target_quartet": "-4.301795610634626205375870164450892598885e-56",
+          "target_to_background_ratio": "78514.2025072990468293021168733"
+        },
+        {
+          "damping": 9,
+          "finite_critical_background": "2.763735615212358490105450944112016936901e-56",
+          "finite_net": "-1.448629141976865629449138871269118081877e-51",
+          "finite_net_negative": true,
+          "mode": 33,
+          "polynomial_degree": 86,
+          "target_quartet": "-1.448656779333017753034039925778559202046e-51",
+          "target_to_background_ratio": "52416.6194247819399852128218921"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.641066777295828605013936539612516504568e-60",
+          "finite_net": "-4.155210420838615507059885517853824731025e-56",
+          "finite_net_negative": true,
+          "mode": 34,
+          "polynomial_degree": 90,
+          "target_quartet": "-4.155374527516345089920386911507785982676e-56",
+          "target_to_background_ratio": "25321.1787905646705443496074471"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.886861171770820011185451748913612877995e-60",
+          "finite_net": "-3.767011315354119998444689028203918215672e-56",
+          "finite_net_negative": true,
+          "mode": 100,
+          "polynomial_degree": 222,
+          "target_quartet": "-3.76720000147129708044580757337880957696e-56",
+          "target_to_background_ratio": "19965.4328459988303160555481082"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "2.52840889169408762525995115818820277061e-60",
+          "finite_net": "-4.825930437977840574062030188794274627006e-56",
+          "finite_net_negative": true,
+          "mode": 98,
+          "polynomial_degree": 218,
+          "target_quartet": "-4.826183278867009982824556183910093447283e-56",
+          "target_to_background_ratio": "19087.8275057534888898654588826"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.859988718175871438254447342105008471923e-60",
+          "finite_net": "-3.087578262728673220738979057291724471625e-56",
+          "finite_net_negative": true,
+          "mode": 32,
+          "polynomial_degree": 86,
+          "target_quartet": "-3.087764261600490807882804502025934972472e-56",
+          "target_to_background_ratio": "16600.983820099315880876417673"
+        },
+        {
+          "damping": 9,
+          "finite_critical_background": "2.041329926856371208759611223721477367857e-55",
+          "finite_net": "-1.721300602208952182262911808764053384279e-51",
+          "finite_net_negative": true,
+          "mode": 99,
+          "polynomial_degree": 218,
+          "target_quartet": "-1.721504735201637819383787769886425532016e-51",
+          "target_to_background_ratio": "8433.25085549859565667363850314"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "6.50120757419584835527840863754697639025e-60",
+          "finite_net": "-4.682952928138478968778129053877450894853e-56",
+          "finite_net_negative": true,
+          "mode": 35,
+          "polynomial_degree": 92,
+          "target_quartet": "-4.683603048895898553613656894741205592492e-56",
+          "target_to_background_ratio": "7204.20475033859515476745129446"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "7.810564421161971220639724336925036730167e-60",
+          "finite_net": "-5.329109896072587096514216406880538980026e-56",
+          "finite_net_negative": true,
+          "mode": 97,
+          "polynomial_degree": 216,
+          "target_quartet": "-5.329890952514703293636280379314231483699e-56",
+          "target_to_background_ratio": "6823.95108101775289744897066437"
+        }
+      ],
+      "beta": "0.51",
+      "gamma": "14.134725141734693790457251983562470270784257115699",
+      "target_a": "1.9950010186507450353674814466519765659304084569978"
+    },
+    {
+      "any_finite_net_negative": true,
+      "best_candidates": [
+        {
+          "damping": 10,
+          "finite_critical_background": "1.277193691517005878165615244575941269802e-59",
+          "finite_net": "-8.938617134428452012587894790996298557545e-55",
+          "finite_net_negative": true,
+          "mode": 33,
+          "polynomial_degree": 88,
+          "target_quartet": "-8.938744853797603713175711352520756151672e-55",
+          "target_to_background_ratio": "69987.3865112853481108948705904"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.561436313306458604973275714460300312969e-59",
+          "finite_net": "-1.071425335490528766350532676474440513888e-54",
+          "finite_net_negative": true,
+          "mode": 99,
+          "polynomial_degree": 220,
+          "target_quartet": "-1.071440949853661830936582409231585116891e-54",
+          "target_to_background_ratio": "68618.9337805782927071638004275"
+        },
+        {
+          "damping": 9,
+          "finite_critical_background": "5.351459753979014725624969186739793517815e-55",
+          "finite_net": "-3.584706553095921892627074199856085202975e-50",
+          "finite_net_negative": true,
+          "mode": 33,
+          "polynomial_degree": 86,
+          "target_quartet": "-3.584760067693461682774330449547952600911e-50",
+          "target_to_background_ratio": "66986.5837078949468478034244679"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.619957713961733778605119165943330102873e-59",
+          "finite_net": "-1.026376844308967372034661271449131414769e-54",
+          "finite_net_negative": true,
+          "mode": 34,
+          "polynomial_degree": 90,
+          "target_quartet": "-1.02639304388610698937244732264079084807e-54",
+          "target_to_background_ratio": "63359.2491359531980919932392334"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.508032922950391133164938581354154164462e-59",
+          "finite_net": "-9.390636078529397173198759104750970979122e-55",
+          "finite_net_negative": true,
+          "mode": 100,
+          "polynomial_degree": 222,
+          "target_quartet": "-9.390786881821692212312075598609106394539e-55",
+          "target_to_background_ratio": "62271.7630292121637737092315995"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.943174893577594488398686082582677934774e-59",
+          "finite_net": "-1.201121577819255736768000063592842566777e-54",
+          "finite_net_negative": true,
+          "mode": 98,
+          "polynomial_degree": 218,
+          "target_quartet": "-1.201141009568191512712884050453668393556e-54",
+          "target_to_background_ratio": "61813.3248601602406163151094855"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "1.26782642566465979332102773697457985808e-59",
+          "finite_net": "-7.62232370209048168687552123424208338698e-55",
+          "finite_net_negative": true,
+          "mode": 32,
+          "polynomial_degree": 86,
+          "target_quartet": "-7.622450484733048152854853337015780844966e-55",
+          "target_to_background_ratio": "60122.1928367439393477473324796"
+        },
+        {
+          "damping": 9,
+          "finite_critical_background": "8.070160503296183659271613813972412987454e-55",
+          "finite_net": "-4.293059878285437014309267499432241018113e-50",
+          "finite_net_negative": true,
+          "mode": 99,
+          "polynomial_degree": 218,
+          "target_quartet": "-4.293140579890469976145860215570380742243e-50",
+          "target_to_background_ratio": "53197.7099852843788237447432064"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "2.290960564149636097377861876793642802938e-59",
+          "finite_net": "-1.157134105677171092247534535863061127421e-54",
+          "finite_net_negative": true,
+          "mode": 35,
+          "polynomial_degree": 92,
+          "target_quartet": "-1.157157015282812588608508314481829063849e-54",
+          "target_to_background_ratio": "50509.687219881444622497354373"
+        },
+        {
+          "damping": 10,
+          "finite_critical_background": "2.647797710202645497842955268690016542188e-59",
+          "finite_net": "-1.325565109002944764777131906504714867784e-54",
+          "finite_net_negative": true,
+          "mode": 97,
+          "polynomial_degree": 216,
+          "target_quartet": "-1.32559158698004679123211033605740176795e-54",
+          "target_to_background_ratio": "50063.9298037082482196737793096"
+        }
+      ],
+      "beta": "0.55",
+      "gamma": "14.134725141734693790457251983562470270784257115699",
+      "target_a": "1.9950011982742522962679222411677706228852739711053"
+    }
+  ],
+  "claim_boundary": "Finite high-precision experiment only. The omitted infinite zero tail is not bounded here, and the test assumes the included background zeros lie on the critical line. It neither proves nor disproves RH.",
+  "critical_zeros_included": 30,
+  "digits": 80,
+  "experiment": "finite_chebyshev_damped_quartet_amplifier",
+  "max_damping": 10,
+  "max_mode": 100,
+  "next_proof_obligation": "Give an explicit tail bound using zero counting, then transfer the same amplifier through the prime/Gamma/pole explicit formula.",
+  "payload_sha256": "2b6417f02f0558d877dfd4461d3657947d040ea8b72176b8fa92ebc5e710d937"
+}

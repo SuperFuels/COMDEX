@@ -71,6 +71,20 @@ theorem quartetToeplitzWitness_quadratic (a b : ℝ) :
     Matrix.mulVec, dotProduct, Fin.sum_univ_succ]
   ring
 
+/-- When a witness tuned to `a` is evaluated on a different quartet
+`(a',b')`, its value is the Lorentzian displacement
+`4((a-a')²-b'²)`.  Critical-line background has `b'=0` and therefore
+contributes a nonnegative squared mismatch. -/
+theorem quartetToeplitzWitness_cross_quadratic
+    (a a' b' : ℝ) :
+    dotProduct (star (quartetToeplitzWitness a))
+        ((quartetToeplitzThree a' b').mulVec (quartetToeplitzWitness a)) =
+      4 * ((a - a') ^ 2 - b' ^ 2) := by
+  simp [quartetToeplitzWitness, quartetToeplitzThree,
+    quartetToeplitzLagOne, quartetToeplitzLagTwo,
+    Matrix.mulVec, dotProduct, Fin.sum_univ_succ]
+  ring
+
 /-- Therefore every quartet block with nonzero transverse coordinate is not
 positive semidefinite, witnessed already in dimension three. -/
 theorem quartetToeplitzThree_not_posSemidef
