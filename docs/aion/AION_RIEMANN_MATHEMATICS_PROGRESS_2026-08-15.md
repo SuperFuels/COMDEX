@@ -413,3 +413,18 @@ Only after that quotient is proved `O(log T)` may the local zero count be
 stated asymptotically.  Quantitative gap selection, the partial-fraction
 logarithmic-derivative estimate, expanding horizontal edges, and the
 displaced-left limit remain downstream; none is claimed at this checkpoint.
+
+`SharpJensenZeroCount.lean` now also proves the explicit squared lower bound
+for `|Xi(2+iT)|`.  It combines the Möbius reciprocal estimate, the exact
+Gamma lower estimate, and verified lower bounds for both elementary xi
+factors.  Full verification remains **3,685 jobs** with no `sorry`, `admit`,
+or new axioms.  Commit: `763748b7`.
+
+This exposed a normalization detail important for the asymptotic conclusion:
+Mathlib's Jensen inequality requires a boundary constant at least one.  Taking
+`max 1` before dividing by the exponentially small centre destroys the desired
+logarithmic estimate.  The valid next step is to apply Jensen to xi normalized
+by its nonzero centre value; its centre is then exactly one and the exponential
+factors cancel before the `max 1` operation.  The divisor is unchanged because
+the normalizing scalar is nonzero.  The `O(log T)` theorem is not claimed until
+that scaled-divisor argument is checked.
