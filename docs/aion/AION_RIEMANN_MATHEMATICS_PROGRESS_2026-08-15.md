@@ -463,3 +463,37 @@ and displaced-left contour limits and the already-proved final assembly
 remain downstream.  The complete explicit formula is therefore not yet
 claimed, and this work still does not constrain the real parts of nontrivial
 zeros or constitute progress on RH itself.
+
+## 15 August continuation: quantitative admissible heights
+
+`QuantitativeZeroSeparation.lean` now closes the quantitative height-selection
+stage.  First, an explicit finite pigeonhole theorem proves that for any
+finite set of `m` ordinates in an interval there is a grid height separated
+from every ordinate by at least the interval length divided by `2(m+2)`.
+Commit: `84bb56a7`.
+
+The xi divisor support on the Jensen disk is then packaged as a finite set.
+Lean proves that every support point contributes at least one to the analytic,
+multiplicity-aware divisor; hence its cardinality is bounded by the Jensen
+sum and therefore by the explicit logarithmic majorant proved above.  The
+finite-set avoidance theorem is instantiated on the resulting ordinate set.
+Commit: `d6c250f9`.
+
+Finally, Lean proves that zeros of the entire xi function in the disk are
+exactly this divisor support, constructs a canonical height in every interval
+`[n+2,n+3]`, proves the complete horizontal line is zeta-zero-free, and proves
+the explicit lower separation
+
+`1 / (2*(L(n+3)+2)) <= |T_n - Im(rho)|`,
+
+where `L` is the already-verified affine function of `log(n+3)`.  Thus the
+selected heights have reciprocal-logarithmic separation from every relevant
+zero ordinate.  Full project verification passes with **3,686 jobs**, no
+`sorry`, no `admit`, and no new axioms.  Commit: `afe11194`.
+
+The remaining classical bottleneck is now the global partial-fraction (or
+Hadamard-product) estimate that converts local zero count plus separation into
+the uniform bound `|zeta'/zeta| = O(log(T)^2)` across the required horizontal
+strip.  After that still come the expanding horizontal and displaced-left
+edge limits and the final finite-ledger assembly.  The complete Chebyshev
+explicit formula and RH are not claimed at this checkpoint.
