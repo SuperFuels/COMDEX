@@ -6,6 +6,7 @@ import RiemannLab.Tasks.LiPairIdentity
 import RiemannLab.Tasks.LiQuartetDefect
 import RiemannLab.Tasks.LiDistanceGram
 import RiemannLab.Tasks.LiWeilBasis
+import RiemannLab.Tasks.LiPascalTransform
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor

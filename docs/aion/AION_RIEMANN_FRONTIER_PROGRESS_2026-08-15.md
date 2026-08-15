@@ -450,3 +450,92 @@ as a lower bound.
 
 The certified finite frontier is now order 240.  This remains neither an RH
 proof nor a disproof.
+
+## Pascal-coordinate extraction from the Gram rover
+
+The active strategy has shifted from extending the finite rover for its own
+sake to extracting an exact invariant from its saved factorization.  Inspection
+of the order-240 unit-lower LDL factor revealed a strong Pascal pattern:
+
+`L_(n,n-j) approximately binom(n,j)`.
+
+For example, in row 240 the first reverse entries are approximately
+
+`1, 239.98016, 28675.22083, 2274706.759, ...`,
+
+against the exact Pascal entries
+
+`1, 240, 28680, 2276880, ...`.
+
+The normalized defects
+
+`[binom(n,j)-L_(n,n-j)] / binom(n-1,j-1)`
+
+are positive in every sampled interval and drift slowly toward the scale of
+`lambda_1`.  This is a finite numerical observation only; it is not being
+promoted to an asymptotic theorem or lower bound.
+
+The underlying coordinate change is nevertheless exact.  A new Lean theorem
+proves, for every nonzero index `n` and every complex zero parameter `rho`,
+
+`sum_(k=0)^n binom(n,k)(-1)^(n-k) liZeroMode(k,rho)
+    = -(-rho^(-1))^n`.
+
+Thus inverse Pascal transformation removes the binomial packaging of a Li
+zero mode and exposes a signed reciprocal power of the zero.  This is a
+universal finite algebraic identity and does not assume RH.
+
+The companion exact-integer experiment applies the same inverse-Pascal
+congruence to the abstract distance kernel
+
+`G_(i,j)=lambda_i+lambda_j-lambda_|i-j|`.
+
+Writing `mu_k` for formal reciprocal-zero power sums, it verified all 78
+entries through order 12 against the closed coefficient formula
+
+`(B G B^T)_(n,m) = (-1)^(n+m) sum_k
+  [binom(n+m-k-1,n-1)+binom(n+m-k-1,m-1)] mu_k`,
+
+where `B_(n,k)=(-1)^(n-k)binom(n,k)`.  The universal single-mode inversion is
+Lean-checked; the displayed two-index kernel formula is currently an
+exact-integer verified conjecture awaiting a general Lean combinatorial proof.
+
+This explains why the rover's LDL factor resembles Pascal's triangle: the Li
+sequence itself is a binomial transform of reciprocal-zero data.  The basic
+binomial relation is known in the Keiper--Li literature, so no novelty claim is
+made for that relation.  The useful research output is a sharper target:
+replace the opaque shrinking Schur pivots by the inverse-Pascal quadratic form,
+then search for a direct arithmetic or self-adjoint representation of that
+form.  Such a representation would still have to prove positivity at every
+finite order; the coordinate change alone is not progress toward a proof of
+RH.
+
+After applying the inverse Pascal matrix to the saved LDL factor, the reduced
+factor is numerically close to a narrow lower-triangular Toeplitz matrix.  Its
+first ten reverse diagonals suggested the provisional generating function
+`(1-lambda_1 z) exp(-lambda_1 z^2)`.  Extrapolation across rows 80--240 was not
+stable enough to support the proposed limiting constants, so this candidate
+was immediately rejected from the theorem track.  It remains recorded only as
+a possible source of better finite ansatzes.  This is the intended governance
+behaviour: exact identities are promoted; attractive curve fits are attacked
+and demoted when they do not stabilize.
+
+Artifacts:
+
+* `RiemannLab/Tasks/LiPascalTransform.lean`;
+* `experiments/rh_frontier_pascal_structure.py`;
+* `experiments/results/li_pascal_structure_v1.json`;
+* `experiments/test_rh_frontier_pascal_structure.py`.
+
+The Pascal-analysis payload SHA-256 is
+`7c0ebae6cae87e7250fb2c2df8dfb951831777e53f64e6a6c61ddb1f334c252d`.
+
+Verification completed with three focused regression tests and the complete
+Lean build: 3,706 jobs passed, with no `sorry`, `admit`, or new axioms.
+
+The next proof unit is fixed: prove the two-index inverse-Pascal kernel formula
+in Lean and derive its finite quadratic form.  In parallel, decompose that
+quadratic form into elementary/pole, Gamma, and prime contributions and test
+whether the combined form admits an unconditional sum-of-squares, moment, or
+self-adjoint-operator certificate.  The rover remains a falsifier and
+conjecture miner, not the main proof engine.
