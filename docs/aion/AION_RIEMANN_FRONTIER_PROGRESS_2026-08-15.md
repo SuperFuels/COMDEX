@@ -676,3 +676,83 @@ preserves the explicit `-4*b^2` defect of a selected quartet while bounding
 the contribution of the remaining divisor.  That localized quadratic form
 must then be transferred to the prime/Gamma/pole side and controlled without
 assuming RH.
+
+## Damped Chebyshev spectral amplifier
+
+The first localization attack has produced a concrete finite polynomial
+
+`C_(a,r,M)(z)=(z^2-a*z+1)*(1-z)^(2r)*(1+z^(2M))`.
+
+Its three factors have separate jobs.  The quadratic seed preserves the exact
+off-critical defect.  The even power of `1-z` damps high zeros.  The sparse
+last factor is a cleared Chebyshev/Fourier tuner.  Lean proves the exact
+reciprocal-product identity
+
+`C(z)C(z^(-1)) = (u-a)^2*(2-u)^(2r)*
+                  (1+z^(2M))*(1+z^(-2M))`,
+
+where `u=z+z^(-1)`.  Lean also proves that, whenever reciprocal and conjugate
+coincide, this product is exactly the complex norm square `|C(z)|^2`.
+Consequently every critical-line background contribution is nonnegative; the
+amplifier does not manufacture a false negative on that locus.
+
+An exhaustive finite search over `1<=r<=10` and `1<=M<=100`, using the first
+30 critical zeros, selected `(r,M)=(10,33)`, of polynomial degree 88.  For a
+synthetic quartet at the ordinate of the first zero, the target-to-background
+ratios were approximately
+
+* `52.5` at `beta=0.5001`;
+* `4.05e5` at `beta=0.51`;
+* `7.00e4` at `beta=0.55`.
+
+Thus the finite net is negative even for a displacement of only `10^(-4)`
+from the critical line.  The initial high-precision search payload has
+SHA--256
+`2b6417f02f0558d877dfd4461d3657947d040ea8b72176b8fa92ebc5e710d937`.
+
+The decisive numerical upgrade replaces ordinary high precision by
+python-flint/Arb ball arithmetic.  Arb encloses the consecutive first 30 zeta
+zeros, including the thirtieth ordinate near `101.3178510057`, and certifies
+strictly negative finite-net intervals in all three cases.  For
+`beta=0.5001`, the certified finite net is approximately
+
+`-3.5527523418606762e-60`.
+
+The damping order gives a critical-line tail majorant proportional to
+`gamma^(-40)`.  Combining that decay with the already checked local Jensen
+model
+
+`count([t,t+1]) <= A + (12/log(8/7))*log(t)`
+
+produces an explicit parametric tail budget.  In the hardest `beta=0.5001`
+case, the finite negative margin survives provided the Jensen intercept
+corresponds to
+
+`log(K) < 2.130769774891017e17`.
+
+This extremely large allowance shows that the critical-line infinite tail is
+no longer numerically delicate.  The Arb payload SHA--256 is
+`240ce0e09c1f7d87d82135e1e4dbb9b037c3ee2332a592df2ca62a02951dc4e9`.
+
+The implementation commit for the initial amplifier is `734a4145`.  The full
+Lean build passed 3,708 jobs, with zero `sorry`, zero `admit`, and no new
+axioms.  Two focused amplifier regressions passed.
+
+The claim boundary remains strict.  The first 30-zero block is rigorously
+enclosed, but the abstract Jensen intercept has not yet been reduced to an
+explicit numeric upper bound inside Lean.  More fundamentally, an RH proof
+must handle an arbitrary simultaneous collection of off-line quartets, not a
+single selected quartet against critical-line background.  The next two proof
+units are therefore fixed:
+
+1. close the critical-line tail by explicitly bounding the existing Jensen
+   constant and importing the Arb enclosure as a replayable certificate;
+2. replace the single-quartet scenario by an extremal/localization theorem
+   showing that, if any off-line zero exists, some amplifier in a controlled
+   family retains a negative total contribution after every other quartet is
+   included.
+
+Only after the second item is proved and the localized form is transferred to
+an unconditional prime/Gamma/pole inequality would this route become a proof
+of RH.  At present it is a much sharper, rigorously tested detector and a
+plausible proof architecture, not a proof or disproof.
