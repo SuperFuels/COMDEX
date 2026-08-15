@@ -320,4 +320,149 @@ theorem riemannXiEntire_local_jensen_bound_scaled
   norm_num at h
   simpa using h
 
+/-- The Gamma lower factor at the moving centre, rewritten so that its
+exponential cancellation against the boundary majorant is explicit. -/
+theorem jensenCenterGammaLowerSq_eq (T : ℝ) :
+    jensenCenterGammaLowerSq T =
+      (Real.pi⁻¹) ^ 2 * (Real.pi * T) *
+        Real.exp (-(Real.pi * T / 2)) := by
+  unfold jensenCenterGammaLowerSq
+  rw [Real.rpow_neg_one, Real.exp_neg]
+  field_simp [Real.exp_ne_zero]
+  <;> ring
+
+theorem rawSharpJensenBoundaryMajorant_sq {T : ℝ} (hT : 0 ≤ T) :
+    rawSharpJensenBoundaryMajorant T ^ 2 =
+      extendedXiBoundaryBound ^ 2 * (T + 10) ^ 12 *
+        Real.exp (-(Real.pi * (T - 4) / 2)) := by
+  unfold rawSharpJensenBoundaryMajorant
+  rw [abs_of_nonneg hT]
+  simp only [mul_pow]
+  rw [← Real.exp_nat_mul]
+  congr 1 <;> ring
+
+noncomputable def jensenCenterSqCoefficient : ℝ :=
+  (Real.pi⁻¹) ^ 2 * Real.pi * (6 / Real.pi ^ 2) ^ 2
+
+theorem jensenCenterSqCoefficient_pos : 0 < jensenCenterSqCoefficient := by
+  unfold jensenCenterSqCoefficient
+  positivity
+
+theorem jensenCenter_sq_lower_explicit {T : ℝ} (hT : 2 ≤ T) :
+    jensenCenterSqCoefficient * T * Real.exp (-(Real.pi * T / 2)) ≤
+      ‖riemannXiEntire (riemannXiJensenCenter T)‖ ^ 2 := by
+  have h := jensenCenter_sq_lower hT
+  rw [jensenCenterGammaLowerSq_eq] at h
+  convert h using 1 <;> unfold jensenCenterSqCoefficient <;> ring
+
+noncomputable def jensenQuotientSqConstant : ℝ :=
+  extendedXiBoundaryBound ^ 2 * Real.exp (2 * Real.pi) /
+    jensenCenterSqCoefficient
+
+theorem jensenQuotientSqConstant_pos : 0 < jensenQuotientSqConstant := by
+  unfold jensenQuotientSqConstant
+  exact div_pos
+    (mul_pos (sq_pos_of_pos extendedXiBoundaryBound_pos) (Real.exp_pos _))
+    jensenCenterSqCoefficient_pos
+
+theorem scaledJensenBoundaryMajorant_sq_le {T : ℝ} (hT : 2 ≤ T) :
+    scaledJensenBoundaryMajorant T ^ 2 ≤
+      jensenQuotientSqConstant * (T + 10) ^ 12 / T := by
+  have hT0 : 0 < T := by linarith
+  have hnorm : 0 < ‖riemannXiEntire (riemannXiJensenCenter T)‖ ^ 2 := by
+    exact sq_pos_of_pos (norm_pos_iff.mpr
+      (riemannXiEntire_ne_zero_jensenCenter T))
+  have hlower := jensenCenter_sq_lower_explicit hT
+  have hfactor :
+      0 ≤ jensenQuotientSqConstant * (T + 10) ^ 12 / T := by
+    exact div_nonneg
+      (mul_nonneg jensenQuotientSqConstant_pos.le (by positivity)) hT0.le
+  unfold scaledJensenBoundaryMajorant
+  rw [div_pow]
+  apply (div_le_iff₀ hnorm).2
+  calc
+    rawSharpJensenBoundaryMajorant T ^ 2 =
+        extendedXiBoundaryBound ^ 2 * (T + 10) ^ 12 *
+          Real.exp (-(Real.pi * (T - 4) / 2)) :=
+      rawSharpJensenBoundaryMajorant_sq hT0.le
+    _ = (jensenQuotientSqConstant * (T + 10) ^ 12 / T) *
+        (jensenCenterSqCoefficient * T *
+          Real.exp (-(Real.pi * T / 2))) := by
+      unfold jensenQuotientSqConstant
+      field_simp [jensenCenterSqCoefficient_pos.ne', hT0.ne']
+      rw [mul_assoc]
+      congr 1
+      rw [← Real.exp_add]
+      congr 1 <;> ring
+    _ ≤ (jensenQuotientSqConstant * (T + 10) ^ 12 / T) *
+        ‖riemannXiEntire (riemannXiJensenCenter T)‖ ^ 2 :=
+      mul_le_mul_of_nonneg_left hlower hfactor
+
+noncomputable def jensenQuotientPolynomialConstant : ℝ :=
+  jensenQuotientSqConstant * (6 : ℝ) ^ 12
+
+theorem jensenQuotientPolynomialConstant_pos :
+    0 < jensenQuotientPolynomialConstant := by
+  unfold jensenQuotientPolynomialConstant
+  exact mul_pos jensenQuotientSqConstant_pos (pow_pos (by norm_num) 12)
+
+/-- After centre scaling, the exponential factors cancel completely: the
+Jensen boundary quotient has a uniform polynomial majorant.  Degree twelve
+is deliberately coarse; its logarithm is still `O(log T)`. -/
+theorem scaledJensenBoundaryMajorant_le_polynomial
+    {T : ℝ} (hT : 2 ≤ T) :
+    scaledJensenBoundaryMajorant T ≤
+      jensenQuotientPolynomialConstant * T ^ 12 := by
+  have hT0 : 0 < T := by linarith
+  have hscaledOne := one_le_scaledJensenBoundaryMajorant hT
+  have hselfsq : scaledJensenBoundaryMajorant T ≤
+      scaledJensenBoundaryMajorant T ^ 2 := by nlinarith
+  have hsq := scaledJensenBoundaryMajorant_sq_le hT
+  have hbase : T + 10 ≤ 6 * T := by linarith
+  have hp : (T + 10) ^ 12 ≤ (6 * T) ^ 12 := by gcongr
+  calc
+    scaledJensenBoundaryMajorant T ≤
+        scaledJensenBoundaryMajorant T ^ 2 := hselfsq
+    _ ≤ jensenQuotientSqConstant * (T + 10) ^ 12 / T := hsq
+    _ ≤ jensenQuotientSqConstant * (6 * T) ^ 12 / T := by
+      exact div_le_div_of_nonneg_right
+        (mul_le_mul_of_nonneg_left hp jensenQuotientSqConstant_pos.le) hT0.le
+    _ = jensenQuotientSqConstant * 6 ^ 12 * T ^ 11 := by
+      field_simp [hT0.ne']
+    _ ≤ jensenQuotientSqConstant * 6 ^ 12 * T ^ 12 := by
+      have hpow : T ^ 11 ≤ T ^ 12 := by
+        nlinarith [mul_nonneg (pow_nonneg hT0.le 11) (sub_nonneg.mpr (by linarith : 1 ≤ T))]
+      exact mul_le_mul_of_nonneg_left hpow
+        (mul_nonneg jensenQuotientSqConstant_pos.le (pow_nonneg (by norm_num) 12))
+    _ = jensenQuotientPolynomialConstant * T ^ 12 := by
+      rfl
+
+theorem log_scaledJensenBoundaryMajorant_le {T : ℝ} (hT : 2 ≤ T) :
+    Real.log (scaledJensenBoundaryMajorant T) ≤
+      Real.log jensenQuotientPolynomialConstant + 12 * Real.log T := by
+  have hspos : 0 < scaledJensenBoundaryMajorant T :=
+    lt_of_lt_of_le zero_lt_one (one_le_scaledJensenBoundaryMajorant hT)
+  have hTpos : 0 < T := by linarith
+  have hrhspos : 0 < jensenQuotientPolynomialConstant * T ^ 12 :=
+    mul_pos jensenQuotientPolynomialConstant_pos (pow_pos hTpos 12)
+  have hlog := (Real.log_le_log_iff hspos hrhspos).2
+    (scaledJensenBoundaryMajorant_le_polynomial hT)
+  rw [Real.log_mul jensenQuotientPolynomialConstant_pos.ne'
+      (pow_ne_zero 12 hTpos.ne'), Real.log_pow] at hlog
+  norm_num at hlog ⊢
+  exact hlog
+
+/-- Explicit local zero-counting increment.  This is the checked
+`O(log T)` Jensen estimate, with constants left visible. -/
+theorem riemannXiEntire_local_zero_count_le_log
+    {T : ℝ} (hT : 2 ≤ T) :
+    ∑ᶠ u, divisor riemannXiEntire
+        (Metric.closedBall (riemannXiJensenCenter T) 3) u ≤
+      (Real.log jensenQuotientPolynomialConstant + 12 * Real.log T) /
+        Real.log (4 / 3) := by
+  have hj := riemannXiEntire_local_jensen_bound_scaled hT
+  have hden : 0 < Real.log (4 / 3) := Real.log_pos (by norm_num)
+  exact hj.trans (div_le_div_of_nonneg_right
+    (log_scaledJensenBoundaryMajorant_le hT) hden.le)
+
 end RiemannLab
