@@ -66,4 +66,41 @@ theorem IsRightOffCriticalZero.symmetry_quartet {ρ : ℂ}
       IsNontrivialZetaZero (1 - starRingEnd ℂ ρ) :=
   hρ.1.symmetry_orbit
 
+/-- The Möbius ratio occurring in Li's coefficients is contractive exactly
+to the right of the critical line. -/
+theorem norm_one_sub_inv_lt_one_iff {ρ : ℂ} (hρ0 : ρ ≠ 0) :
+    ‖1 - ρ⁻¹‖ < 1 ↔ 1 / 2 < ρ.re := by
+  have hratio : 1 - ρ⁻¹ = (ρ - 1) / ρ := by
+    field_simp
+  rw [hratio, norm_div, div_lt_one (norm_pos_iff.mpr hρ0)]
+  rw [← sq_lt_sq₀ (norm_nonneg (ρ - 1)) (norm_nonneg ρ),
+    Complex.sq_norm, Complex.sq_norm]
+  simp [Complex.normSq_apply]
+  constructor <;> intro h <;> nlinarith
+
+/-- Dually, the Li ratio is expansive exactly to the left of the critical
+line.  This growing mode is what the numerical quartet detector measures. -/
+theorem one_lt_norm_one_sub_inv_iff {ρ : ℂ} (hρ0 : ρ ≠ 0) :
+    1 < ‖1 - ρ⁻¹‖ ↔ ρ.re < 1 / 2 := by
+  have hratio : 1 - ρ⁻¹ = (ρ - 1) / ρ := by
+    field_simp
+  rw [hratio, norm_div, one_lt_div (norm_pos_iff.mpr hρ0)]
+  rw [← sq_lt_sq₀ (norm_nonneg ρ) (norm_nonneg (ρ - 1)),
+    Complex.sq_norm, Complex.sq_norm]
+  simp [Complex.normSq_apply]
+  constructor <;> intro h <;> nlinarith
+
+/-- A right-hand counterexample therefore supplies an expansive Li mode at
+its reflected zero. -/
+theorem IsRightOffCriticalZero.reflection_has_expansive_li_ratio
+    {ρ : ℂ} (hρ : IsRightOffCriticalZero ρ) :
+    1 < ‖1 - (1 - ρ)⁻¹‖ := by
+  apply (one_lt_norm_one_sub_inv_iff ?_).2
+  · rw [one_sub_re]
+    linarith [hρ.2]
+  · intro hzero
+    have hre := congrArg Complex.re hzero
+    simp at hre
+    linarith [hρ.1.re_lt_one]
+
 end RiemannLab
