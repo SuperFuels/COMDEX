@@ -21,6 +21,7 @@ import RiemannLab.Tasks.AdmissibleHeights
 import RiemannLab.Tasks.RightHalfPlaneLogDerivBound
 import RiemannLab.Tasks.CompletedZetaGrowth
 import RiemannLab.Tasks.ComplexGammaVertical
+import RiemannLab.Tasks.NormalizedXiThreeLines
 import RiemannLab.Tasks.AdmissibleHeightBounds
 import RiemannLab.Tasks.DisplacedLeftEdge
 import RiemannLab.Tasks.AdmissibleContourEdges

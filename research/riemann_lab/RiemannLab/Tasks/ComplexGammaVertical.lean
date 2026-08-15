@@ -20,6 +20,19 @@ theorem norm_sin_pi_mul_I_mul (t : ℝ) :
     ← Complex.ofReal_sinh, norm_mul, norm_real, norm_I, mul_one]
   exact Real.norm_eq_abs _
 
+/-- Deligne's real Gamma factor has conjugation-invariant norm. -/
+theorem norm_GammaR_conj (s : ℂ) : ‖Gammaℝ (starRingEnd ℂ s)‖ = ‖Gammaℝ s‖ := by
+  rw [Gammaℝ_def, Gammaℝ_def, norm_mul, norm_mul]
+  rw [Complex.norm_cpow_eq_rpow_re_of_pos Real.pi_pos,
+    Complex.norm_cpow_eq_rpow_re_of_pos Real.pi_pos]
+  have hdiv : (starRingEnd ℂ s) / 2 = starRingEnd ℂ (s / 2) := by
+    rw [map_div₀]
+    congr 1
+    apply Complex.ext <;> norm_num
+  rw [hdiv, Complex.Gamma_conj, norm_conj]
+  congr 2
+  simp
+
 theorem norm_sin_pi_mul_I_mul_of_pos {t : ℝ} (ht : 0 < t) :
     ‖Complex.sin ((Real.pi : ℂ) * ((t : ℂ) * I))‖ =
       Real.sinh (Real.pi * t) := by

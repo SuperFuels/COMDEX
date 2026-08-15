@@ -272,6 +272,39 @@ functional equation to discharge the horizontal and displaced-left edges.
 The complete Chebyshev explicit formula and the classical RH frontier remain
 open until that estimate is kernel-checked.  No new RH mathematics is claimed.
 
+## 15 August continuation: normalized xi boundary bounds
+
+`NormalizedXiThreeLines.lean` now completes the sharp boundary-data layer for
+the strip argument.  Lean proves the functional symmetry of the entire
+xi-type function and introduces the fourth-power normalization
+
+`Xi(s)/(s+4)^4`.
+
+The fourth power is essential: after the exponential Gamma decay is cancelled
+by the analytic weight `exp(-i*pi*s/4)`, it also absorbs the remaining
+polynomial growth.  The only denominator zero is `s=-4`, strictly outside the
+working strip `-3 <= Re(s) <= 4`.
+
+The module proves differentiability and continuity on the strip closure,
+constructs an explicit global bound for the unweighted normalized xi function,
+and proves a uniform zeta bound on `Re(s)>=4` directly from absolute
+convergence of its Dirichlet series.  Exact norm bookkeeping then gives a
+height-independent bound for the exponentially weighted normalized xi
+function on the complete right boundary `Re(s)=4`.
+
+Complex-Gamma norm invariance under conjugation is formalized, and the xi
+functional equation transfers the estimate to a height-independent bound on
+the complete left boundary `Re(s)=-3`.  Thus both sharp boundary hypotheses
+required by the strip principle are now kernel-checked.
+
+The remaining step in this subchain is no longer Gamma or boundary analysis:
+apply a Gaussian-regularized Hadamard three-lines argument (or the existing
+Phragmen--Lindelof strip theorem) to propagate these two bounds through the
+closed strip, then remove the regularizer.  The propagated polynomial-times-
+exponential xi estimate must then be combined with the exact center lower
+bound in Jensen's formula.  No `O(log T)` zero-count theorem, complete explicit
+formula, or RH claim is made at this checkpoint.
+
 ## 15 August continuation: exact complex-Gamma vertical decay
 
 `ComplexGammaVertical.lean` begins the final quantitative classical layer
