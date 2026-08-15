@@ -379,18 +379,13 @@ theorem bddAbove_extendedGaussianXi_closedStrip
   exact norm_extendedGaussianXi_le hε hs
 
 noncomputable def extendedXiBoundaryBound : ℝ :=
-  max upperWeightedXiRightBound extendedXiRightBound
+  max weightedXiBoundaryBound extendedXiRightBound
 
 noncomputable def extendedRegularizedBoundaryBound (ε : ℝ) : ℝ :=
   Real.exp (36 * ε) * extendedXiBoundaryBound
 
 theorem extendedXiBoundaryBound_pos : 0 < extendedXiBoundaryBound := by
-  have hr : 0 < upperWeightedXiRightBound := by
-    unfold upperWeightedXiRightBound
-    have hprod : 0 ≤ Real.exp (Real.pi / 2) * normalizedXiStripBound :=
-      mul_nonneg (Real.exp_nonneg _) normalizedXiStripBound_nonneg
-    linarith [upperWeightedXiRightSqBound_nonneg]
-  exact lt_of_lt_of_le hr (le_max_left _ _)
+  exact lt_of_lt_of_le weightedXiBoundaryBound_pos (le_max_left _ _)
 
 theorem norm_extendedGaussianXi_boundary_le
     {ε : ℝ} (hε : 0 < ε) {s : ℂ}
@@ -407,7 +402,8 @@ theorem norm_extendedGaussianXi_boundary_le
     · have hz : s = 4 + (s.im : ℂ) * I := by
         apply Complex.ext <;> simp [hs]
       rw [hz]
-      exact (norm_extendedWeightedXi_four_le s.im).trans (le_max_left _ _)
+      exact (norm_extendedWeightedXi_four_le s.im).trans
+        (le_trans (le_max_right _ _) (le_max_left _ _))
     · have hz : s = 6 + (s.im : ℂ) * I := by
         apply Complex.ext <;> simp [hs]
       rw [hz]
