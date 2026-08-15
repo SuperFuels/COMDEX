@@ -16,6 +16,7 @@ from rh_frontier_pascal_structure import (  # noqa: E402
     transformed_coefficients,
     verify_exact_identity,
 )
+from rh_frontier_pascal_toeplitz import verify as verify_toeplitz  # noqa: E402
 
 
 class PascalStructureTests(unittest.TestCase):
@@ -38,6 +39,10 @@ class PascalStructureTests(unittest.TestCase):
     def test_exact_identity_grid(self) -> None:
         report = verify_exact_identity(8)
         self.assertEqual(report["matrix_entries_checked"], 36)
+
+    def test_toeplitz_generating_function_grid(self) -> None:
+        report = verify_toeplitz(8)
+        self.assertEqual(report["coefficient_pairs_checked"], 64)
 
 
 if __name__ == "__main__":
