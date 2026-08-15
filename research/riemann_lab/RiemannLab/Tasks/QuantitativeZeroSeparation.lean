@@ -126,6 +126,33 @@ noncomputable def xiJensenDivisorSupport (T : ℝ) : Finset ℂ :=
         (Metric.closedBall (riemannXiJensenCenter T) 3) z ≠ 0 := by
   simp [xiJensenDivisorSupport, Function.mem_support]
 
+theorem riemannXiEntire_eq_zero_iff_mem_xiJensenDivisorSupport
+    {T : ℝ} {z : ℂ}
+    (hz : z ∈ Metric.closedBall (riemannXiJensenCenter T) 3) :
+    riemannXiEntire z = 0 ↔ z ∈ xiJensenDivisorSupport T := by
+  let U := Metric.closedBall (riemannXiJensenCenter T) 3
+  have hana : AnalyticOnNhd ℂ riemannXiEntire U :=
+    fun w _ ↦ analyticAt_riemannXiEntire w
+  have hc : riemannXiJensenCenter T ∈ U := by simp [U]
+  have hcenterOrder : meromorphicOrderAt riemannXiEntire
+      (riemannXiJensenCenter T) ≠ ⊤ := by
+    rw [(analyticAt_riemannXiEntire _).meromorphicOrderAt_eq,
+      (analyticAt_riemannXiEntire _).analyticOrderAt_eq_zero.2
+        (riemannXiEntire_ne_zero_jensenCenter T)]
+    simp
+  have horder : ∀ w : U, meromorphicOrderAt riemannXiEntire w ≠ ⊤ := by
+    intro w
+    exact hana.meromorphicOn.meromorphicOrderAt_ne_top_of_isPreconnected
+      Metric.isPreconnected_closedBall hc w.2 hcenterOrder
+  have hzero := hana.meromorphicNFOn.zero_set_eq_divisor_support horder
+  have hzU : z ∈ U := hz
+  have hziff : riemannXiEntire z = 0 ↔
+      z ∈ Function.support (divisor riemannXiEntire U) := by
+    have := Set.ext_iff.mp hzero z
+    simpa [hzU] using this
+  rw [hziff]
+  simp [xiJensenDivisorSupport, U, Function.mem_support]
+
 /-- Each point in the support contributes at least one to the analytic xi
 divisor, so its cardinality is bounded by the multiplicity-aware Jensen sum. -/
 theorem xiJensenDivisorSupport_card_le_finsum (T : ℝ) :
@@ -166,6 +193,10 @@ theorem xiJensenDivisorSupport_card_le_log
 noncomputable def xiJensenZeroOrdinates (T : ℝ) : Finset ℝ :=
   (xiJensenDivisorSupport T).image Complex.im
 
+noncomputable def jensenLocalLogBound (T : ℝ) : ℝ :=
+  (Real.log jensenQuotientPolynomialConstant + 12 * Real.log T) /
+    Real.log (4 / 3)
+
 /-- Quantitative height selection for the actual finite xi divisor support.
 The following cardinal estimate turns this denominator into `O(log T)`. -/
 theorem exists_height_separated_from_xiJensenZeros
@@ -178,5 +209,111 @@ theorem exists_height_separated_from_xiJensenZeros
   refine ⟨H, hHab, ?_⟩
   intro z hz
   exact hH z.im (Finset.mem_image.mpr ⟨z, hz, rfl⟩)
+
+/-- The selected height has the explicit reciprocal-logarithmic separation
+which is needed in the logarithmic-derivative estimate. -/
+theorem exists_height_with_logarithmic_xi_separation
+    {T : ℝ} (hT : 2 ≤ T) {a b : ℝ} (hab : a < b) :
+    ∃ H ∈ Icc a b, ∀ z ∈ xiJensenDivisorSupport T,
+      (b - a) / (2 * (jensenLocalLogBound T + 2)) ≤ |H - z.im| := by
+  obtain ⟨H, hHI, hH⟩ := exists_height_separated_from_xiJensenZeros T hab
+  refine ⟨H, hHI, ?_⟩
+  have hsupp : ((xiJensenDivisorSupport T).card : ℝ) ≤
+      jensenLocalLogBound T := by
+    simpa [jensenLocalLogBound] using xiJensenDivisorSupport_card_le_log hT
+  have himage : ((xiJensenZeroOrdinates T).card : ℝ) ≤
+      (xiJensenDivisorSupport T).card := by
+    exact_mod_cast Finset.card_image_le
+  have hbound : ((xiJensenZeroOrdinates T).card : ℝ) ≤
+      jensenLocalLogBound T := himage.trans hsupp
+  have hsmallpos : 0 < 2 * ((xiJensenZeroOrdinates T).card + 2 : ℝ) := by
+    positivity
+  have hden : 2 * ((xiJensenZeroOrdinates T).card + 2 : ℝ) ≤
+      2 * (jensenLocalLogBound T + 2) := by
+    nlinarith
+  intro z hz
+  exact (div_le_div_of_nonneg_left (sub_nonneg.mpr hab.le) hsmallpos hden).trans
+    (hH z hz)
+
+/-- A canonical quantitatively separated height in each unit interval. -/
+noncomputable def quantitativeAdmissibleZetaHeight (n : ℕ) : ℝ :=
+  Classical.choose (exists_height_separated_from_xiJensenZeros
+    ((n : ℝ) + 3) (by linarith : (n : ℝ) + 2 < (n : ℝ) + 3))
+
+theorem quantitativeAdmissibleZetaHeight_spec (n : ℕ) :
+    quantitativeAdmissibleZetaHeight n ∈
+        Icc ((n : ℝ) + 2) ((n : ℝ) + 3) ∧
+      ∀ z ∈ xiJensenDivisorSupport ((n : ℝ) + 3),
+        (((n : ℝ) + 3) - ((n : ℝ) + 2)) /
+            (2 * ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card + 2)) ≤
+          |quantitativeAdmissibleZetaHeight n - z.im| := by
+  unfold quantitativeAdmissibleZetaHeight
+  exact Classical.choose_spec (exists_height_separated_from_xiJensenZeros
+    ((n : ℝ) + 3) (by linarith : (n : ℝ) + 2 < (n : ℝ) + 3))
+
+theorem quantitativeAdmissibleZetaHeight_mem (n : ℕ) :
+    quantitativeAdmissibleZetaHeight n ∈
+      Icc ((n : ℝ) + 2) ((n : ℝ) + 3) :=
+  (quantitativeAdmissibleZetaHeight_spec n).1
+
+theorem quantitativeAdmissibleZetaHeight_separation (n : ℕ)
+    {z : ℂ} (hz : z ∈ xiJensenDivisorSupport ((n : ℝ) + 3)) :
+    1 / (2 * ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card + 2)) ≤
+      |quantitativeAdmissibleZetaHeight n - z.im| := by
+  have h := (quantitativeAdmissibleZetaHeight_spec n).2 z hz
+  norm_num at h ⊢
+  exact h
+
+theorem quantitativeAdmissibleZetaHeight_log_separation (n : ℕ)
+    {z : ℂ} (hz : z ∈ xiJensenDivisorSupport ((n : ℝ) + 3)) :
+    1 / (2 * (jensenLocalLogBound ((n : ℝ) + 3) + 2)) ≤
+      |quantitativeAdmissibleZetaHeight n - z.im| := by
+  have hT : 2 ≤ (n : ℝ) + 3 := by
+    have hn : 0 ≤ (n : ℝ) := Nat.cast_nonneg n
+    linarith
+  have hsupp : ((xiJensenDivisorSupport ((n : ℝ) + 3)).card : ℝ) ≤
+      jensenLocalLogBound ((n : ℝ) + 3) := by
+    simpa [jensenLocalLogBound] using xiJensenDivisorSupport_card_le_log hT
+  have himage : ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card : ℝ) ≤
+      (xiJensenDivisorSupport ((n : ℝ) + 3)).card := by
+    exact_mod_cast Finset.card_image_le
+  have hbound := himage.trans hsupp
+  have hsmall : 0 <
+      2 * ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card + 2 : ℝ) := by
+    positivity
+  have hden :
+      2 * ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card + 2 : ℝ) ≤
+        2 * (jensenLocalLogBound ((n : ℝ) + 3) + 2) := by
+    nlinarith
+  exact (div_le_div_of_nonneg_left zero_le_one hsmall hden).trans
+    (quantitativeAdmissibleZetaHeight_separation n hz)
+
+theorem riemannZeta_ne_zero_on_quantitativeAdmissibleZetaHeight
+    (n : ℕ) (σ : ℝ) :
+    riemannZeta (σ + quantitativeAdmissibleZetaHeight n * Complex.I) ≠ 0 := by
+  intro hzeta
+  let ρ : ℂ := σ + quantitativeAdmissibleZetaHeight n * Complex.I
+  have hH := quantitativeAdmissibleZetaHeight_mem n
+  have hρim : ρ.im = quantitativeAdmissibleZetaHeight n := by simp [ρ]
+  have hρ : IsNontrivialZetaZero ρ := by
+    refine ⟨hzeta, ?_⟩
+    rintro ⟨k, hk⟩
+    have him := congrArg Complex.im hk
+    simp [ρ] at him
+    linarith [hH.1]
+  have him : |ρ.im - ((n : ℝ) + 3)| ≤ 1 := by
+    rw [hρim, abs_of_nonpos]
+    · linarith [hH.1]
+    · linarith [hH.2]
+  have hball := hρ.mem_jensenClosedBall him
+  have hsupport : ρ ∈ xiJensenDivisorSupport ((n : ℝ) + 3) :=
+    (riemannXiEntire_eq_zero_iff_mem_xiJensenDivisorSupport hball).1
+      hρ.riemannXiEntire_eq_zero
+  have hsep := quantitativeAdmissibleZetaHeight_separation n hsupport
+  rw [hρim, sub_self, abs_zero] at hsep
+  have hpos : 0 <
+      1 / (2 * ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card + 2) : ℝ) := by
+    positivity
+  linarith
 
 end RiemannLab
