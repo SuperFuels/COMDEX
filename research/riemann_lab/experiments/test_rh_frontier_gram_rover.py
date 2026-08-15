@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import unittest
 import sys
+import tempfile
 from pathlib import Path
 
 from flint import ctx
@@ -12,6 +13,9 @@ from flint import ctx
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from rh_frontier_gram_rover import execute_attempt
+from rh_frontier_gram_rover import IncrementalLDL, gram_entry, overlaps
+from rh_frontier_gram_rover_block import load_state, save_json_atomic, serialize_state
+from rh_frontier_li_full_arb import certified_li_coefficients
 
 
 class GramRoverTests(unittest.TestCase):
@@ -49,6 +53,24 @@ class GramRoverTests(unittest.TestCase):
         self.assertEqual(stages[0]["previous_stage_hash"], "0" * 64)
         for previous, current in zip(stages, stages[1:]):
             self.assertEqual(current["previous_stage_hash"], previous["stage_hash"])
+
+    def test_persistent_factor_round_trip(self) -> None:
+        ctx.dps = 100
+        coefficients = certified_li_coefficients(8, 100)
+        factor = IncrementalLDL()
+        for n in range(1, 9):
+            border = [gram_entry(coefficients, i, n) for i in range(1, n)]
+            pivot, _ = factor.extend(border, gram_entry(coefficients, n, n))
+            self.assertTrue(pivot > 0)
+        state = serialize_state(factor, coefficients, 8, 100, "a" * 64, [])
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "state.json"
+            save_json_atomic(path, state)
+            loaded, restored, cached = load_state(path, 100)
+        self.assertEqual(loaded["completed_order"], 8)
+        self.assertEqual(len(restored.pivots), 8)
+        self.assertEqual(len(cached), 9)
+        self.assertTrue(all(overlaps(left, right) for left, right in zip(factor.pivots, restored.pivots)))
 
 
 if __name__ == "__main__":

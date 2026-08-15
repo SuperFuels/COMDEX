@@ -304,3 +304,26 @@ not overcome the infinity barrier: successful travel through any finite
 order is not an RH proof.  Its research purpose is to expose pivot structure
 from which a uniform lower bound or inductive invariant might be conjectured,
 attacked, and ultimately proved.
+
+## Durable block continuation
+
+`rh_frontier_gram_rover_block.py` adds atomic checkpoint persistence.  A saved
+state contains the interval-certified lower-triangular factor, its Schur
+pivots, the Li coefficient enclosures used to build it, the evidence-chain
+head, checkpoint hashes, precision, and a hash of the complete state.  On
+resume the coefficients are recomputed and required to overlap the cached
+intervals before the factorization is extended.
+
+The first durable state rebuilt the certified order-100 factorization at 800
+digits and then resumed it in a separate process.  The resumed rover certified
+orders 101--105 positive and saved a new checkpoint at order 105.  At order
+106 the 800-digit interval was unresolved, so the rover stopped without
+promoting that stage and preserved the last valid state.  The state hash is
+
+`5c7647b60fd3b8ce1a9ed730518d5cc8ca5c1be8298288373c8d3ce1aa702db6`.
+
+This demonstrates continuation rather than replay of the earlier matrix
+factorization.  Precision promotion remains deliberately non-magical: an
+800-digit interval state cannot be converted into a 1600-digit state without
+recomputation.  After that refuelling rebuild, subsequent blocks can again
+resume from the new higher-precision state.
