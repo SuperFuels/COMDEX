@@ -256,6 +256,23 @@ theorem quantitativeAdmissibleZetaHeight_mem (n : ℕ) :
       Icc ((n : ℝ) + 2) ((n : ℝ) + 3) :=
   (quantitativeAdmissibleZetaHeight_spec n).1
 
+theorem quantitativeAdmissibleZetaHeight_lower (n : ℕ) :
+    (n : ℝ) + 2 ≤ quantitativeAdmissibleZetaHeight n :=
+  (quantitativeAdmissibleZetaHeight_mem n).1
+
+theorem quantitativeAdmissibleZetaHeight_upper (n : ℕ) :
+    quantitativeAdmissibleZetaHeight n ≤ (n : ℝ) + 3 :=
+  (quantitativeAdmissibleZetaHeight_mem n).2
+
+theorem tendsto_quantitativeAdmissibleZetaHeight_atTop :
+    Filter.Tendsto quantitativeAdmissibleZetaHeight Filter.atTop Filter.atTop := by
+  refine Filter.tendsto_atTop.2 fun b ↦ ?_
+  obtain ⟨N, hN⟩ := exists_nat_ge b
+  filter_upwards [Filter.eventually_ge_atTop N] with n hn
+  have hNn : (N : ℝ) ≤ n := by exact_mod_cast hn
+  exact hN.trans (hNn.trans (by
+    linarith [quantitativeAdmissibleZetaHeight_lower n]))
+
 theorem quantitativeAdmissibleZetaHeight_separation (n : ℕ)
     {z : ℂ} (hz : z ∈ xiJensenDivisorSupport ((n : ℝ) + 3)) :
     1 / (2 * ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card + 2)) ≤
@@ -315,5 +332,17 @@ theorem riemannZeta_ne_zero_on_quantitativeAdmissibleZetaHeight
       1 / (2 * ((xiJensenZeroOrdinates ((n : ℝ) + 3)).card + 2) : ℝ) := by
     positivity
   linarith
+
+/-- Conjugation transfers quantitative zero-freeness to the reflected lower
+horizontal line. -/
+theorem riemannZeta_ne_zero_on_neg_quantitativeAdmissibleZetaHeight
+    (n : ℕ) (σ : ℝ) :
+    riemannZeta (σ - quantitativeAdmissibleZetaHeight n * Complex.I) ≠ 0 := by
+  intro hz
+  have hzconj := riemannZeta_conj
+    ((σ : ℂ) - quantitativeAdmissibleZetaHeight n * Complex.I)
+  rw [hz, map_zero] at hzconj
+  apply riemannZeta_ne_zero_on_quantitativeAdmissibleZetaHeight n σ
+  convert hzconj using 1 <;> push_cast <;> simp
 
 end RiemannLab
