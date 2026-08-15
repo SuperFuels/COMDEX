@@ -612,3 +612,67 @@ The next irreducible research unit is now narrower:
 This is structural frontier work, but it is not an RH proof.  The unresolved
 step is still unconditional positivity after the contributions of the entire
 zero divisor, or equivalently the complete arithmetic side, are assembled.
+
+## Sparse three-lag off-critical quartet witness
+
+The reflected/conjugate Toeplitz quartet can be reduced further.  Put
+
+`q = 1-rho^(-1)` and `q+q^(-1)=a+ib`.
+
+Its first three real Toeplitz lags are
+
+`4`, `2a`, and `2(a^2-b^2)-4`.
+
+Lean now evaluates the associated three-by-three determinant exactly as
+
+`16*b^2*(a^2-b^2-4)`.
+
+More importantly, determinant analysis is unnecessary.  The explicit vector
+
+`c=(1,-a,1)`
+
+satisfies the universal quadratic-form identity
+
+`c^T T_3(a,b) c = -4*b^2`.
+
+Consequently, every isolated reflected/conjugate quartet with `b != 0` is
+certifiably not positive semidefinite in dimension three.  No eigenvalue
+search, large Gram matrix, asymptotic limit, or height restriction is needed.
+
+For `rho=beta+i*gamma`, Lean also verifies the coordinate reduction
+
+`b = -gamma*(2*beta-1) / (X^2+C^2)`,
+
+where
+
+`X=gamma^2+beta*(1-beta)` and `C=gamma*(2*beta-1)`.
+
+The denominator is positive whenever `C != 0`.  Therefore, for every
+nonreal point (`gamma != 0`), leaving the critical line
+`beta=1/2` produces the explicit negative witness above.  On the critical
+line `b=0`, the witness value is zero, consistently with the existing
+rank-two cosine Gram representation.
+
+High-precision synthetic controls at the first-zero ordinate behaved exactly
+as predicted.  The critical case `beta=0.5` gave zero.  Perturbations
+`beta=0.5001`, `0.51`, `0.55`, `0.60`, and `0.75` all gave negative
+three-by-three certificates; for example,
+
+`beta=0.5001: det_3 approximately -1.59e-15`,
+
+`beta=0.51: det_3 approximately -1.59e-11`.
+
+The implementation commit is `99ed96aa`.  Five focused regression tests and
+the complete Lean build passed: 3,707 jobs, zero `sorry`, zero `admit`, and no
+new axioms.  The numerical-control payload SHA--256 is
+
+`49f6b8a5cc806a913a8847ca789dfd296a2a44f7fe9c61f0721b2533fbf047ee`.
+
+This is a substantial detector improvement, but not an RH proof.  The full
+zeta divisor is a sum of quartet kernels.  Positive contributions from other
+zeros can mask the negative value of one isolated off-line quartet.  The next
+hard target is therefore a spectral localization or amplifier polynomial that
+preserves the explicit `-4*b^2` defect of a selected quartet while bounding
+the contribution of the remaining divisor.  That localized quadratic form
+must then be transferred to the prime/Gamma/pole side and controlled without
+assuming RH.
