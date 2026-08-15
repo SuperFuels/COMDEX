@@ -327,3 +327,38 @@ factorization.  Precision promotion remains deliberately non-magical: an
 800-digit interval state cannot be converted into a 1600-digit state without
 recomputation.  After that refuelling rebuild, subsequent blocks can again
 resume from the new higher-precision state.
+
+## High-precision extension to order 190
+
+The rover was refuelled by rebuilding at 1600 decimal digits.  The first run
+certified the complete prefix through order 150, including direct determinant
+checkpoints at orders 25, 50, 75, 100, 125, and 150.  Its stage-150 Schur
+complement was approximately `1.04e-637` and remained strictly positive.
+
+Two subsequent processes loaded the saved factorization rather than replaying
+the earlier LDL transitions.  They extended the certificate first through
+order 180 and then through order 190.  The order-190 pivot was approximately
+`2.84e-833` and was strictly positive.  At order 191, 1600-digit arithmetic
+produced an interval containing zero; the rover therefore stopped, rejected
+the unresolved stage, and preserved order 190 as the last certified state.
+The current durable state hash is
+
+`85be8aa153b81649f7c4c29d5b1f26a772edd69bff3785a3220240619990fc5b`.
+
+This raises the certified incremental frontier from 100 to 190.  It remains a
+finite verification and is not evidence that all future pivots are positive.
+Continuing past 190 requires a new higher-precision rebuild, expected at 3200
+digits under the current doubling policy.
+
+The invariant-stability analysis now covers 189 transitions.  Every observed
+pivot is certified positive and every observed transition is certified
+strictly decreasing.  Thirty-stage window fits place the best simple ratio
+model between powers `n^(-5/4)` and `n^(-3/2)`; the final window marginally
+prefers
+
+`d_n / d_(n-1) approximately 0.00788 / n^(5/4)`.
+
+The neighbouring `n^(-3/2)` fit is nearly as good, so no exponent has been
+promoted to a conjectured inequality.  The analysis is being retained as a
+symbolic-search target only.  Its payload SHA-256 is
+`3c064ae81b883d9fff0d3622671a9c5c3dab7b30b50b976bde42a3f0bd7c627e`.
