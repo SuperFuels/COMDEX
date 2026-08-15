@@ -95,6 +95,44 @@ theorem GammaR_jensenCenter_sq_lower
     · exact sinh_le_exp_div_two _
   · exact sq_nonneg _
 
+/-- One further Gamma recurrence, needed on the widened right boundary
+`Re(s)=6` containing the complete Jensen circle. -/
+theorem norm_Gamma_three_add_mul_I_sq
+    {t : ℝ} (ht : 0 < t) :
+    ‖Complex.Gamma (3 + (t : ℂ) * I)‖ ^ 2 =
+      (4 + t ^ 2) * (1 + t ^ 2) *
+        (Real.pi * t / Real.sinh (Real.pi * t)) := by
+  have hs : (2 : ℂ) + (t : ℂ) * I ≠ 0 := by
+    intro h
+    have := congrArg Complex.re h
+    norm_num at this
+  have hrec : Complex.Gamma (3 + (t : ℂ) * I) =
+      (2 + (t : ℂ) * I) * Complex.Gamma (2 + (t : ℂ) * I) := by
+    convert Complex.Gamma_add_one (2 + (t : ℂ) * I) hs using 1 <;> ring
+  have hnorm : ‖(2 : ℂ) + (t : ℂ) * I‖ ^ 2 = 4 + t ^ 2 := by
+    rw [Complex.sq_norm]
+    simp [Complex.normSq_apply]
+    ring
+  rw [hrec, norm_mul, mul_pow, hnorm,
+    norm_Gamma_two_add_mul_I_sq ht]
+  ring
+
+theorem norm_GammaR_six_add_two_mul_I_sq
+    {t : ℝ} (ht : 0 < t) :
+    ‖Gammaℝ (6 + ((2 * t : ℝ) : ℂ) * I)‖ ^ 2 =
+      (Real.pi ^ (-3 : ℝ)) ^ 2 *
+        ((4 + t ^ 2) * (1 + t ^ 2) *
+          (Real.pi * t / Real.sinh (Real.pi * t))) := by
+  rw [Gammaℝ_def, norm_mul, mul_pow]
+  rw [Complex.norm_cpow_eq_rpow_re_of_pos Real.pi_pos]
+  have hre : (-(6 + ((2 * t : ℝ) : ℂ) * I) / 2).re = -3 := by
+    norm_num
+  rw [hre]
+  have harg : (6 + ((2 * t : ℝ) : ℂ) * I) / 2 =
+      3 + (t : ℂ) * I := by
+    apply Complex.ext <;> norm_num <;> ring
+  rw [harg, norm_Gamma_three_add_mul_I_sq ht]
+
 /-- Exact product decomposition of xi at the moving Jensen centre. -/
 theorem norm_riemannXiEntire_jensenCenter
     (T : ℝ) :
