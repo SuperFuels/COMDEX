@@ -179,3 +179,67 @@ finite instance is positive semidefinite would force all Li coefficients
 nonnegative, while a negative principal minor would supply a finite
 countercertificate.  Candidate constructions must not assume unit-modulus
 zero ratios, since that would assume RH in disguise.
+
+## Literature identification and correction of novelty status
+
+A literature audit identified the distance--Gram matrix exactly as the Weil
+scalar product on the Li test-function basis.  This is Theorem 3.1 of
+J. C. Lagarias, ``Li coefficients for automorphic L-functions'', Annales de
+l'Institut Fourier 57 (2007), 1689--1740.  For
+
+`G_n(s) = 1 - (1 - 1/s)^n`,
+
+Lagarias proves
+
+`<G_n,G_m>_W = lambda_n + lambda_(-m) - lambda_(n-m)`.
+
+For the Riemann zeta function the coefficient symmetries reduce the real
+positive-index matrix to the distance--Gram form tested here.  The same work
+also proves that positive semidefiniteness of the Weil form on the full Li
+class is equivalent to RH.  Therefore the matrix criterion itself is not a
+new RH equivalence and must not be presented as one.
+
+The original contributions of the present laboratory are limited to the Lean
+formalization of the finite algebra and reflection defect, the certified
+full-coefficient matrix calculation, and its quantified adversarial
+sensitivity tests.  `LiWeilBasis.lean` now verifies the core finite identity
+
+`G_n(rho) G_m(1-rho) = G_n(rho) + G_m(1-rho) - G_(n-m)(rho)`
+
+for natural indices with `m <= n`.  This locks the matrix to its correct
+classical provenance and prevents an established equivalence from being
+mistaken for a proof mechanism.
+
+## Certified obstruction to place-by-place positivity
+
+The arithmetic formula splits each Li coefficient into elementary/pole,
+archimedean Gamma, and regularized finite-place contributions.  Because the
+centered matrix construction is linear, the full distance--Gram matrix splits
+into the corresponding three matrices.
+
+`rh_frontier_li_place_decomposition.py` computes this split directly from the
+Taylor expansion of `log xi` with Arb ball arithmetic.  The following leading
+principal minors are rigorously negative:
+
+| Component | First certified negative leading minor |
+|---|---:|
+| Archimedean Gamma | `1` |
+| Elementary pole and pi normalization | `2` |
+| Regularized finite-place zeta contribution | `21` |
+| Complete combined matrix | none through `30` |
+
+Thus no proof can proceed by declaring each natural local-place matrix
+positive semidefinite and summing them.  The positivity visible in the full
+matrix depends on cancellation between individually indefinite components.
+This is a negative but strategically decisive result: it eliminates the most
+direct prime-by-prime/local-place Gram ansatz.
+
+The preserved decomposition has payload SHA-256
+`ef28cf3477f48d98b2749b64691e3a72cb9ae608fd943512b914f6db9c60ecda`.
+
+The surviving frontier question is therefore not whether the known Weil
+form exists, but whether its global archimedean--finite cancellation can be
+represented by a new unconditional positive operator, flow, or paired-prime
+identity.  Any proposed construction must reproduce the complete combined
+form; positivity of isolated Euler factors or isolated archimedean terms is
+now certified to be false for the natural decomposition.
