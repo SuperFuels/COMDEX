@@ -20,8 +20,9 @@ and nontrivial zeta zeros and proves:
 8. the local formulation is equivalent to Mathlib's `RiemannHypothesis`.
 
 All nine theorems compile without `sorry`, `admit`, new axioms, or unsafe
-assumptions. Together with the earlier foundation, the laboratory now contains
-26 kernel-checked zeta theorems.
+assumptions. A second module adds five kernel-checked bridge and bound-structure
+theorems for the selected Chebyshev route. Together with the earlier foundation,
+the laboratory now contains 34 kernel-checked theorems.
 
 ## Core mechanism of the left-half-plane proof
 
@@ -50,6 +51,17 @@ bounds, and the logarithmic derivative identity for zeta on `Re(s) > 1`.
 The missing bridge is substantial and precise: formalize an explicit formula
 relating the `psi` remainder to nontrivial zeta zeros, then kernel-check the
 classical equivalence between the square-root-scale remainder bound and RH.
+
+`CriticalLineCriterion.lean` now defines the exact remainder and bound, records
+the RH equivalence as an open proposition rather than an axiom, reconstructs the
+finite von Mangoldt sum, and connects its L-series to `-zeta'/zeta` on the
+right half-plane. The next proof obligation is the explicit-formula bridge.
+
+`ZetaZeroMultiplicity.lean` begins the multiplicity-aware side of that bridge.
+It defines zeta's analytic vanishing order, proves zeta is analytic at every
+nontrivial zero, proves that such a zero has nonzero order, and characterizes
+order zero away from the pole. The next unit is a finite compact zeta divisor
+that can participate in residue sums.
 
 ## Isolation from retention evaluation
 

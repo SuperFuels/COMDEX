@@ -2,7 +2,7 @@
   "schema": "aion.riemann_curriculum.v3",
   "created": "2026-08-15",
   "claim_boundary": "A structured curriculum of established or explicitly open prerequisites; inclusion is not a claim of RH progress.",
-  "summary": {"total": 36, "kernel_reconstructed": 20, "source_closed_eval": 7, "queued_reconstruction": 8, "research_frontier": 1, "kernel_theorems_in_foundation_files": 26},
+  "summary": {"total": 36, "kernel_reconstructed": 21, "source_closed_eval": 7, "queued_reconstruction": 7, "research_frontier": 1, "kernel_theorems_in_foundation_files": 34},
   "tasks": [
     {"id":"A01","tier":"analytic","status":"kernel_reconstructed","target":"Differentiability of zeta away from one"},
     {"id":"A02","tier":"analytic","status":"kernel_reconstructed","target":"Differentiability on the complement of one"},
@@ -14,7 +14,7 @@
     {"id":"D02","tier":"dirichlet","status":"kernel_reconstructed","target":"Dirichlet-series summation for Re(s) > 1"},
     {"id":"D03","tier":"dirichlet","status":"queued_reconstruction","target":"Absolute convergence abscissa equals one"},
     {"id":"D04","tier":"dirichlet","status":"queued_reconstruction","target":"Möbius inverse identity"},
-    {"id":"D05","tier":"dirichlet","status":"queued_reconstruction","target":"Logarithmic derivative via von Mangoldt"},
+    {"id":"D05","tier":"dirichlet","status":"kernel_reconstructed","target":"Logarithmic derivative via von Mangoldt"},
     {"id":"D06","tier":"dirichlet","status":"source_closed_eval","target":"Right-half-plane real-part positivity"},
     {"id":"N01","tier":"nonvanishing","status":"kernel_reconstructed","target":"Nonvanishing for Re(s) > 1"},
     {"id":"N02","tier":"nonvanishing","status":"kernel_reconstructed","target":"Nonvanishing for Re(s) >= 1"},

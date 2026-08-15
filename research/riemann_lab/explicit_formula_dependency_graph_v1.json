@@ -1,0 +1,36 @@
+{
+  "schema": "aion.riemann_explicit_formula_dependencies.v1",
+  "claim_boundary": "Dependency analysis for reconstructing an established RH-equivalent criterion; no missing edge is assumed and no new theorem is claimed.",
+  "target": "RiemannHypothesis iff CriticalPsiBound",
+  "nodes": [
+    {"id":"psi_definition","status":"kernel_available","authority":"Chebyshev.psi"},
+    {"id":"von_mangoldt_sum","status":"kernel_reconstructed","authority":"chebyshevPsiRemainder_eq_sum_vonMangoldt"},
+    {"id":"zeta_log_derivative","status":"kernel_reconstructed","authority":"vonMangoldt_LSeries_eq_zeta_logDeriv"},
+    {"id":"zeta_zero_multiset","status":"partial_kernel_scaffold","authority":"zetaZeroOrder and its nonzero/order-zero characterizations","need":"Prove finite multiplicity and integrate analytic order with a compactly supported divisor suitable for contour residues."},
+    {"id":"perron_transform","status":"missing_in_specialized_form","need":"Recover truncated psi sums from a vertical integral of -zeta'/zeta times x^s/s."},
+    {"id":"contour_shift","status":"library_primitives_only","need":"A rectangular contour shift with pole and zero residues plus explicit horizontal and vertical error bounds."},
+    {"id":"explicit_formula","status":"open_formalization_target","need":"psi main term minus the sum over nontrivial zeros, with trivial-zero and pole corrections."},
+    {"id":"rh_implies_psi_bound","status":"open_established_direction","need":"Bound the zero contribution assuming every nontrivial zero has real part one half."},
+    {"id":"psi_bound_implies_zero_free","status":"open_established_direction","need":"Use Mellin/Dirichlet continuation to exclude a zero with real part greater than one half."},
+    {"id":"reflection_closes_other_half","status":"kernel_reconstructed","authority":"IsNontrivialZetaZero.one_sub"},
+    {"id":"rh_psi_equivalence","status":"open_target","authority":"CriticalPsiEquivalenceTarget"}
+  ],
+  "edges": [
+    ["psi_definition","von_mangoldt_sum"],
+    ["von_mangoldt_sum","perron_transform"],
+    ["zeta_log_derivative","perron_transform"],
+    ["zeta_zero_multiset","contour_shift"],
+    ["perron_transform","contour_shift"],
+    ["contour_shift","explicit_formula"],
+    ["explicit_formula","rh_implies_psi_bound"],
+    ["explicit_formula","psi_bound_implies_zero_free"],
+    ["psi_bound_implies_zero_free","reflection_closes_other_half"],
+    ["rh_implies_psi_bound","rh_psi_equivalence"],
+    ["reflection_closes_other_half","rh_psi_equivalence"]
+  ],
+  "next_smallest_buildable_unit": {
+    "id":"compact_zeta_divisor",
+    "reason":"Analytic vanishing order is now defined and nonzero at every nontrivial zero. The nearest missing unit is finite multiplicity plus a compactly supported divisor compatible with contour residues.",
+    "non_goal":"Do not attempt the full explicit formula until compact divisor support and residue accounting are kernel-ready."
+  }
+}

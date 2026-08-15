@@ -2,8 +2,8 @@
   "schema": "aion.riemann_dependency_graph.v2",
   "claim_boundary": "This graph organises and reconstructs established prerequisites. It does not assert new RH mathematics.",
   "kernel_checked_foundation": {
-    "files": ["RiemannLab/Tasks/CriticalStripFoundation.lean", "RiemannLab/Tasks/NontrivialZeros.lean"],
-    "theorem_count": 26,
+    "files": ["RiemannLab/Tasks/CriticalStripFoundation.lean", "RiemannLab/Tasks/NontrivialZeros.lean", "RiemannLab/Tasks/CriticalLineCriterion.lean", "RiemannLab/Tasks/ZetaZeroMultiplicity.lean"],
+    "theorem_count": 34,
     "upper_boundary_result": "RiemannLab.zeta_zero_re_lt_one",
     "upper_boundary_status": "verified_established_consequence"
   },
@@ -48,6 +48,7 @@
     "id": "critical_line",
     "next_subtarget": "Select and formalize a non-circular equivalent criterion capable of constraining zeros inside the open critical strip.",
     "preferred_route": "Chebyshev psi error-bound criterion, because pinned Mathlib already contains psi, von Mangoldt identities, and the zeta logarithmic derivative on Re(s) > 1.",
+    "formal_scaffold": "RiemannLab/Tasks/CriticalLineCriterion.lean defines the psi remainder, the square-root/log-squared bound, and the open RH-equivalence target without axioms.",
     "missing_bridge": "An explicit-formula framework relating the Chebyshev psi remainder to nontrivial zeta zeros; Mathlib has no existing RH equivalence theorem for this route.",
     "new_mathematics_claimed": false
   }
