@@ -21,8 +21,10 @@ and nontrivial zeta zeros and proves:
 
 All nine theorems compile without `sorry`, `admit`, new axioms, or unsafe
 assumptions. A second module adds five kernel-checked bridge and bound-structure
-theorems for the selected Chebyshev route. Together with the earlier foundation,
-the laboratory now contains 34 kernel-checked theorems.
+theorems for the selected Chebyshev route. The compact-divisor and finite
+explicit-formula modules add fifteen further checked theorems. Together with
+the earlier foundation, the laboratory now contains 49 kernel-checked research
+theorems (52 declarations including the three baseline reproduction checks).
 
 ## Core mechanism of the left-half-plane proof
 
@@ -60,8 +62,44 @@ right half-plane. The next proof obligation is the explicit-formula bridge.
 `ZetaZeroMultiplicity.lean` begins the multiplicity-aware side of that bridge.
 It defines zeta's analytic vanishing order, proves zeta is analytic at every
 nontrivial zero, proves that such a zero has nonzero order, and characterizes
-order zero away from the pole. The next unit is a finite compact zeta divisor
-that can participate in residue sums.
+order zero away from the pole.
+
+## Compact divisor milestone
+
+`CompactZetaDivisor.lean` now constructs the integer-valued zeta divisor on any
+set avoiding the pole. Lean verifies that:
+
+1. its support is finite on compact regions;
+2. its values are analytic vanishing orders;
+3. all multiplicities are nonnegative;
+4. zeta has finite analytic order everywhere away from `1`;
+5. support membership is exactly zeta vanishing; and
+6. finite weighted, multiplicity-aware zero sums are well-defined.
+
+The explicit pole exclusion is intentional. Pinned Mathlib exposes zeta as
+analytic on `{1}ᶜ`, but does not expose a global meromorphic-continuation theorem
+that could justify crossing the pole silently.
+
+## Explicit-formula interface
+
+`ExplicitFormula.lean` constructs compact truncation regions by removing a
+shrinking ball around `1` from an expanding closed ball. Each region is proved
+compact and pole-free, and the regions are proved to exhaust every point away
+from `1`. It then filters the divisor to nontrivial zeros, proves that every
+nontrivial zero appears in some finite truncation, and defines the finite sum
+
+`sum multiplicity(ρ) * x^ρ / ρ`.
+
+Every selected term is proved to be a nontrivial zeta zero with strictly
+positive multiplicity. The classical limiting identity with the Chebyshev
+`psi` remainder, including the elementary pole/trivial-zero correction, is now
+recorded precisely as `ChebyshevExplicitFormulaTarget`. It remains an open
+proposition: no convergence theorem or explicit formula has been claimed.
+
+The next genuine proof unit is the specialized Perron/Mellin inversion step for
+the finite von Mangoldt sum, followed by a rectangular contour shift with
+residue accounting and error bounds. Those analytic steps—not the divisor data
+structure—are now the missing bridge.
 
 ## Isolation from retention evaluation
 

@@ -6,10 +6,11 @@
     {"id":"psi_definition","status":"kernel_available","authority":"Chebyshev.psi"},
     {"id":"von_mangoldt_sum","status":"kernel_reconstructed","authority":"chebyshevPsiRemainder_eq_sum_vonMangoldt"},
     {"id":"zeta_log_derivative","status":"kernel_reconstructed","authority":"vonMangoldt_LSeries_eq_zeta_logDeriv"},
-    {"id":"zeta_zero_multiset","status":"partial_kernel_scaffold","authority":"zetaZeroOrder and its nonzero/order-zero characterizations","need":"Prove finite multiplicity and integrate analytic order with a compactly supported divisor suitable for contour residues."},
+    {"id":"zeta_zero_multiset","status":"kernel_reconstructed","authority":"zetaZeroOrder, zetaZeroOrder_ne_top, zetaDivisorOn, zetaDivisorOn_support_finite, and mem_compactZetaDivisorSupport_iff_zero"},
+    {"id":"finite_zero_truncations","status":"kernel_reconstructed","authority":"zetaZeroTruncationRegion, exists_mem_zetaZeroTruncationRegion, compactNontrivialZetaZeros, IsNontrivialZetaZero.exists_mem_compactTruncation, truncatedNontrivialZeroContribution, and compactNontrivialZetaZero_multiplicity_pos"},
     {"id":"perron_transform","status":"missing_in_specialized_form","need":"Recover truncated psi sums from a vertical integral of -zeta'/zeta times x^s/s."},
     {"id":"contour_shift","status":"library_primitives_only","need":"A rectangular contour shift with pole and zero residues plus explicit horizontal and vertical error bounds."},
-    {"id":"explicit_formula","status":"open_formalization_target","need":"psi main term minus the sum over nontrivial zeros, with trivial-zero and pole corrections."},
+    {"id":"explicit_formula","status":"open_formalization_target","authority":"ChebyshevExplicitFormulaTarget","need":"Prove convergence of the pre-defined multiplicity-weighted compact truncations to the psi remainder with the elementary correction term."},
     {"id":"rh_implies_psi_bound","status":"open_established_direction","need":"Bound the zero contribution assuming every nontrivial zero has real part one half."},
     {"id":"psi_bound_implies_zero_free","status":"open_established_direction","need":"Use Mellin/Dirichlet continuation to exclude a zero with real part greater than one half."},
     {"id":"reflection_closes_other_half","status":"kernel_reconstructed","authority":"IsNontrivialZetaZero.one_sub"},
@@ -19,7 +20,9 @@
     ["psi_definition","von_mangoldt_sum"],
     ["von_mangoldt_sum","perron_transform"],
     ["zeta_log_derivative","perron_transform"],
+    ["zeta_zero_multiset","finite_zero_truncations"],
     ["zeta_zero_multiset","contour_shift"],
+    ["finite_zero_truncations","contour_shift"],
     ["perron_transform","contour_shift"],
     ["contour_shift","explicit_formula"],
     ["explicit_formula","rh_implies_psi_bound"],
@@ -29,8 +32,8 @@
     ["reflection_closes_other_half","rh_psi_equivalence"]
   ],
   "next_smallest_buildable_unit": {
-    "id":"compact_zeta_divisor",
-    "reason":"Analytic vanishing order is now defined and nonzero at every nontrivial zero. The nearest missing unit is finite multiplicity plus a compactly supported divisor compatible with contour residues.",
-    "non_goal":"Do not attempt the full explicit formula until compact divisor support and residue accounting are kernel-ready."
+    "id":"specialized_perron_transform",
+    "reason":"The compact multiplicity-aware divisor and finite zero sums are kernel-ready. The nearest missing analytic unit is a truncated Perron/Mellin representation of the finite von Mangoldt sum using -zeta'/zeta times x^s/s.",
+    "non_goal":"Do not claim the explicit formula from the finite sum definitions alone; contour shifting, residues, limiting convergence, and error bounds remain open."
   }
 }

@@ -3,3 +3,5 @@ import RiemannLab.Tasks.CriticalStripFoundation
 import RiemannLab.Tasks.NontrivialZeros
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
+import RiemannLab.Tasks.CompactZetaDivisor
+import RiemannLab.Tasks.ExplicitFormula
