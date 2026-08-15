@@ -159,8 +159,8 @@
 \addcontentsline{toc}{section}{Document control}
 
 \begin{tabularx}{\textwidth}{>{\bfseries}p{37mm}X}
-Version & 1.1 \\
-Status & Extended through compact-divisor and finite explicit-formula formalization \\
+Version & 1.2 \\
+Status & Scalar Perron theorem and finite Chebyshev inversion kernel-checked; infinite growing-height interchange open \\
 Scope & Formal RH programme only; excludes unrelated prime-search, factoring, visual probes, and Photon Algebra work \\
 Primary evidence & Lean sources, pinned environment, immutable JSON results, SHA-256 hashes, focused tests \\
 Interpretive authority & The Lean kernel decides proof acceptance; this report interprets experiments but cannot create mathematical truth \\
@@ -181,10 +181,10 @@ self-awarded scores are not proofs.
 \section{Executive summary}
 
 The AION RH programme now has a credible formal laboratory, a pinned Lean and
-Mathlib authority path, strict rejection of incomplete proofs, one immutable
-paid baseline experiment, genuine governed retrieval from AION's persistent
-knowledge store, explicit diagnostic repair routing, and a six-family v2 task
-packet that passes local kernel verification.
+Mathlib authority path, strict rejection of incomplete proofs, immutable
+matched experiments, governed retrieval from AION's persistent knowledge
+store, and an extended kernel-checked mathematics chain reaching from zeta-zero
+infrastructure to finite Chebyshev--Perron inversion.
 
 The strongest verified engineering result is not a theorem about RH. It is a
 research-control result: the system can now distinguish a proposed Lean proof
@@ -200,19 +200,25 @@ because the generated source omitted the Mathlib module containing the needed
 theorem. The result therefore validates the live provider-to-Lean path but does
 not measure the intended architecture.
 
-The continuation work corrected that defect and prepared a scientifically
-stronger test. The next legitimate action is an independent sealing review of
-the v2 packet. Only after that review should exactly one bounded paid comparison
-run. A delayed, source-closed reconstruction test must follow at a precommitted
-time boundary. Only a measurable full-AION advantage over every matched
-ablation would justify an architectural claim.
+The continuation work corrected that defect and completed both the v3 matched
+comparison and its delayed source-closed retention test. Neither passed its
+precommitted superiority gate. These negative results are preserved, and the
+programme has moved to the mathematical dependency chain without converting an
+engineering signal into a capability claim.
+
+The strongest new formal result is the completion of the scalar Perron theorem.
+Lean verifies the squared-Cauchy Fourier value, the sharp away-from-jump scalar
+limit, generic finite Dirichlet-polynomial inversion, and its finite von
+Mangoldt specialization to $\psi(x)$. It also proves pointwise absolute
+convergence of the full von Mangoldt Perron series on $\RePart(s)>1$. The next
+irreducible gate is uniform coefficient-tail control for a vertical integral
+whose height tends to infinity.
 
 \begin{resultbox}
-Final local verification status: \textbf{PASS}. The established baseline,
-catalogue, generated templates, and six v2 reformulations are Lean-accepted.
-The scoped AION store contains six active claims, six verified evidence
-capsules, and zero contradictions. Focused tests pass 13 of 13. Provider/API
-calls during this continuation phase: 0.
+Final formal verification status: \textbf{PASS}. The complete RH library builds
+in the pinned environment in 3,588 jobs. The new Fourier, scalar Perron, finite
+inversion, and pointwise L-series results contain no \code{sorry}, \code{admit},
+project axiom, unsafe declaration, paid call, or hidden oracle step.
 \end{resultbox}
 
 \subsection{Status at a glance}
@@ -228,10 +234,14 @@ Live provider-to-Lean experiment & \pass & One paid run completed and evidence i
 Genuine verified-memory retrieval & \pass & AION persistent knowledge retrieval is now wired \\
 Bounded diagnostic repair records & \pass & Failure classes produce auditable routes \\
 Six-family v2 packet locally verified & \pass & All hidden oracle proofs compile locally \\
-V2 independently sealed & \pending & Required before credentials can load \\
-Delayed source-closed retention & \pending & Decisive architectural test not yet run \\
-AION superiority established & \fail & Existing experiment is tied and confounded \\
-New RH-relevant mathematics & \fail & None established \\
+V2/v3 governed execution & \pass & Sealed comparison completed with immutable evidence \\
+Delayed source-closed retention & \pass & Completed once; memory arm scored 2/6 versus cold 3/6 \\
+Compact multiplicity-aware zeta divisor & \pass & Finite compact zero sums are kernel-checked \\
+Scalar Perron theorem & \pass & Sharp limit proved away from $y=1$ \\
+Finite Chebyshev--Perron inversion & \pass & Finite von Mangoldt specialization converges to $\psi(x)$ \\
+Full Chebyshev Perron formula & \pending & Growing-height series/integral interchange remains \\
+AION superiority established & \fail & Neither precommitted experiment met the gate \\
+New original RH mathematics & \fail & Classical dependencies formalized; no novel theorem \\
 RH solved & \fail & No \\
 \bottomrule
 \end{tabularx}
@@ -677,10 +687,10 @@ Stage & Objective & Exit criterion & Current \\
 0 & Trusted formal laboratory & Pinned compiler, strict policy, immutable evidence & \pass \\
 1 & Exact-template reconstruction & Known-correct terms compile through live generator & \pass \\
 2 & Real memory and repair & Provenance IDs and repair records differ causally by arm & \pass \\
-3 & Sealed immediate transfer & Full-AION advantage on precommitted held-out tasks & \pending \\
-4 & Delayed retention & Fresh Lean acceptance after source closure and delay & \pending \\
-5 & Critical-strip dependency reconstruction & Complete formal map of existing prerequisite chain & \pending \\
-6 & Missing formalization & One useful, precise known-math gap formalized & \pending \\
+3 & Sealed immediate transfer & Run and score the precommitted held-out comparison & \pass \\
+4 & Delayed retention & Fresh Lean acceptance after source closure and delay & \pass \\
+5 & Critical-strip dependency reconstruction & Formal map through compact divisors and Perron interfaces & \pass \\
+6 & Missing formalization & Scalar Perron and finite Chebyshev inversion kernel-checked & \pass \\
 7 & Genuine bottleneck lemma & New candidate survives Lean and expert review & \pending \\
 8 & RH-level contribution & Independent community validation of material progress & \pending \\
 \bottomrule
@@ -688,47 +698,34 @@ Stage & Objective & Exit criterion & Current \\
 
 \subsection{Immediate next steps}
 
-\textbf{Phase A - Preserve and seal}
+\textbf{Phase A - Complete the Chebyshev Perron bridge}
 \begin{enumerate}
-  \item Add the untracked RH laboratory and evidence policy to version control
-  in a dedicated, reviewed commit without including secrets or mutable runtime
-  noise.
-  \item Conduct an independent v2 sealing review and record reviewer, timestamp,
-  packet hash, environment hash, and decision.
-  \item Freeze the exact provider model alias, resolved-version recording rule,
-  temperature, output-token cap, attempt cap, and arm order.
-  \item Precommit the delayed-retention interval and equivalent task forms.
+  \item Prove fixed-height interchange of the absolutely convergent von
+  Mangoldt coefficient series and the vertical interval integral.
+  \item Establish an explicit coefficient-tail bound uniform in the truncation
+  height, or an equivalent two-parameter convergence theorem.
+  \item Combine that bound with finite Chebyshev inversion to prove
+  \code{ChebyshevPerronInversionTarget} for nonintegral $x>1$ and $c>1$.
 \end{enumerate}
 
-\textbf{Phase B - One bounded immediate comparison}
+\textbf{Phase B - Shift the contour and recover residues}
 \begin{enumerate}
-  \item Change only the reviewed packet status to \code{ready}.
-  \item Launch exactly one matched run and retain a process/session identifier.
-  \item Allow the fail-closed preflight to validate hashes before credentials
-  load.
-  \item Report every arm and failure; do not rerun to improve appearance.
-  \item Stop and interpret against the precommitted scoring rule.
+  \item Construct admissible rectangles avoiding poles and nontrivial zeros.
+  \item Prove the horizontal and displaced vertical boundary estimates.
+  \item Account for the pole at $s=1$, nontrivial zeros with multiplicity, the
+  trivial zeros, and the $1/s$ contribution.
+  \item Pass from finite compact zero sums to the selected explicit-formula
+  convergence convention.
 \end{enumerate}
 
-\textbf{Phase C - Delayed source-closed retention}
+\textbf{Phase C - Reach the selected RH-equivalent criterion}
 \begin{enumerate}
-  \item Keep acquisition sources closed for the precommitted interval.
-  \item Present equivalent formulations with fresh declaration and prompt
-  hashes.
-  \item Count only new Lean acceptance; do not replay oracle proofs.
-  \item Compare retention, attempts, token cost, and failure modes across arms.
-\end{enumerate}
-
-\textbf{Phase D - Critical-strip formal programme}
-\begin{enumerate}
-  \item Inventory Mathlib coverage for analytic continuation, functional
-  equation, Euler product, zero symmetry, and zero-set topology.
-  \item Construct a statement-level dependency graph with exact theorem names,
-  imports, signatures, and missing edges.
-  \item Reconstruct the established chain under source closure.
-  \item Select one missing formalization whose mathematical content is known and
-  whose addition would make the dependency graph materially more complete.
-  \item Submit that formalization for independent Lean and mathematical review.
+  \item Derive the Chebyshev $\psi$ remainder from the explicit formula.
+  \item Formalize the RH-to-square-root-remainder direction.
+  \item Formalize the converse implication from the remainder bound to
+  localization of every nontrivial zero on $\RePart(s)=1/2$.
+  \item Submit every new mathematical lemma to independent expert review before
+  raising its claim level.
 \end{enumerate}
 
 \subsection{Longer-term research directions}
@@ -911,21 +908,20 @@ locally verified next experiment. That is meaningful progress in research
 method and AI-mathematics infrastructure. It is not evidence that AION is
 closer to proving RH in the mathematical sense.
 
-The completed v3 result and the pending retention result determine the immediate
-research decision:
+The completed v3 and retention results determine the architectural conclusion:
 
 \begin{enumerate}
   \item v3 produced a directional mechanism signal (3/6 for full AION versus
   0/6 proposer), but missed the absolute 4/6 superiority floor; and
-  \item a delayed source-closed test showing whether any improvement is retained
-  and transferred.
+  \item delayed source-closed retention scored 2/6 for the memory-and-repair arm
+  versus 3/6 for isolated cold AION, so it supplied no retained advantage.
 \end{enumerate}
 
-If both fail, the architecture must be revised before approaching deeper RH
-content. If both succeed under the precommitted rules, the programme earns the
-right to move into a complete critical-strip dependency reconstruction and one
-precise missing formalization. Either outcome is valuable because the claims
-remain aligned with evidence.
+The programme therefore makes no AION-superiority claim. The governed
+experiments remain useful negative evidence, while mathematical continuation
+is assessed only through Lean-checked artifacts. That continuation has now
+completed the critical-strip foundation, compact multiplicity-aware divisor,
+scalar Perron theorem, and finite Chebyshev inversion.
 
 \section{Post-seal execution addendum}
 
@@ -951,17 +947,16 @@ every zero with nonpositive real part as a member of the negative-even trivial
 zero family. This reconstruction is the next mathematical target; it is not a
 claim of new mathematics.
 
-The curriculum now contains 36 governed tasks. A separate six-task retention
-packet is locally verified and frozen. The heartbeat
-\code{aion-rh-retention-gate} checks hourly, remains closed until 15 August 2026
-at 08:00 UTC, then runs one full-AION versus isolated-cold comparison and
-disables itself.
+The curriculum contains 36 governed tasks. The separate six-task retention
+packet was sealed, executed exactly once after its recorded time gate, scored,
+and closed. Its automation is disabled.
 
 \begin{truthbox}
-As of 15 August 2026: trusted formal laboratory - yes; genuine governed memory
-retrieval - yes; deterministic Mathlib discovery - yes; 17-theorem foundation -
-yes; full AION led all v3 controls - yes; precommitted AION superiority - no;
-delayed retention - scheduled, not yet measured; new RH mathematics - none;
+As of 15 August 2026: trusted formal laboratory - yes; governed memory
+retrieval - yes; deterministic Mathlib discovery - yes; v3 and retention
+experiments complete - yes; precommitted AION superiority - no; scalar Perron
+theorem kernel-checked - yes; finite Chebyshev inversion kernel-checked - yes;
+full Chebyshev Perron formula - not yet; new original RH mathematics - none;
 Riemann Hypothesis solved - no.
 \end{truthbox}
 
@@ -1550,7 +1545,8 @@ Scalar kernel, logarithmic reduction, half-weight value at the jump, and exact
 equivalence with the oscillatory Cauchy limit. \\
 \path{RiemannLab/Tasks/OscillatoryCauchy.lean} &
 Sharp convergence, integration-by-parts tail control, Laplace representation,
-absolute squared-kernel reduction, and the named remaining Fourier value. \\
+and the absolute squared-kernel reduction subsequently discharged by Fourier
+inversion. \\
 \path{RiemannLab/Tasks/SquaredCauchyFourier.lean} &
 One-sided exponential moment, Fourier transform and inversion, exact
 squared-Cauchy value, and completed scalar Perron theorem. \\
