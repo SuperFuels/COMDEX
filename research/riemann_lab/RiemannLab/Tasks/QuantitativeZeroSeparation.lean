@@ -114,26 +114,29 @@ theorem exists_height_separated_from_finset
       nlinarith
     linarith
 
-/-- The finite support of the xi divisor in the radius-three Jensen disk. -/
+/-- The finite support of the xi divisor in the radius-seven-halves Jensen
+disk.  This enlarged packet covers the full displaced-left contour corners. -/
 noncomputable def xiJensenDivisorSupport (T : ℝ) : Finset ℂ :=
   ((divisor riemannXiEntire
-    (Metric.closedBall (riemannXiJensenCenter T) 3)).finiteSupport
+    (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ))).finiteSupport
       (isCompact_closedBall _ _)).toFinset
 
 @[simp] theorem mem_xiJensenDivisorSupport {T : ℝ} {z : ℂ} :
     z ∈ xiJensenDivisorSupport T ↔
       divisor riemannXiEntire
-        (Metric.closedBall (riemannXiJensenCenter T) 3) z ≠ 0 := by
+        (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)) z ≠ 0 := by
   simp [xiJensenDivisorSupport, Function.mem_support]
 
 theorem riemannXiEntire_eq_zero_iff_mem_xiJensenDivisorSupport
     {T : ℝ} {z : ℂ}
-    (hz : z ∈ Metric.closedBall (riemannXiJensenCenter T) 3) :
+    (hz : z ∈ Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)) :
     riemannXiEntire z = 0 ↔ z ∈ xiJensenDivisorSupport T := by
-  let U := Metric.closedBall (riemannXiJensenCenter T) 3
+  let U := Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)
   have hana : AnalyticOnNhd ℂ riemannXiEntire U :=
     fun w _ ↦ analyticAt_riemannXiEntire w
-  have hc : riemannXiJensenCenter T ∈ U := by simp [U]
+  have hc : riemannXiJensenCenter T ∈ U := by
+    simp [U]
+    norm_num
   have hcenterOrder : meromorphicOrderAt riemannXiEntire
       (riemannXiJensenCenter T) ≠ ⊤ := by
     rw [(analyticAt_riemannXiEntire _).meromorphicOrderAt_eq,
@@ -158,11 +161,11 @@ divisor, so its cardinality is bounded by the multiplicity-aware Jensen sum. -/
 theorem xiJensenDivisorSupport_card_le_finsum (T : ℝ) :
     (xiJensenDivisorSupport T).card ≤
       ∑ᶠ u, divisor riemannXiEntire
-        (Metric.closedBall (riemannXiJensenCenter T) 3) u := by
+        (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)) u := by
   let D := divisor riemannXiEntire
-    (Metric.closedBall (riemannXiJensenCenter T) 3)
+    (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ))
   have hana : AnalyticOnNhd ℂ riemannXiEntire
-      (Metric.closedBall (riemannXiJensenCenter T) 3) :=
+      (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)) :=
     fun z _ ↦ analyticAt_riemannXiEntire z
   rw [finsum_eq_sum_of_support_subset (s := xiJensenDivisorSupport T)]
   · change ((xiJensenDivisorSupport T).card : ℤ) ≤
@@ -182,20 +185,20 @@ theorem xiJensenDivisorSupport_card_le_log
     {T : ℝ} (hT : 2 ≤ T) :
     ((xiJensenDivisorSupport T).card : ℝ) ≤
       (Real.log jensenQuotientPolynomialConstant + 12 * Real.log T) /
-        Real.log (4 / 3) := by
+        Real.log (8 / 7) := by
   have hcard := xiJensenDivisorSupport_card_le_finsum T
   have hcardR : ((xiJensenDivisorSupport T).card : ℝ) ≤
       ((∑ᶠ u, divisor riemannXiEntire
-        (Metric.closedBall (riemannXiJensenCenter T) 3) u : ℤ) : ℝ) := by
+        (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)) u : ℤ) : ℝ) := by
     exact_mod_cast hcard
-  exact hcardR.trans (riemannXiEntire_local_zero_count_le_log hT)
+  exact hcardR.trans (riemannXiEntire_local_zero_count_seven_halves_le_log hT)
 
 noncomputable def xiJensenZeroOrdinates (T : ℝ) : Finset ℝ :=
   (xiJensenDivisorSupport T).image Complex.im
 
 noncomputable def jensenLocalLogBound (T : ℝ) : ℝ :=
   (Real.log jensenQuotientPolynomialConstant + 12 * Real.log T) /
-    Real.log (4 / 3)
+    Real.log (8 / 7)
 
 /-- Quantitative height selection for the actual finite xi divisor support.
 The following cardinal estimate turns this denominator into `O(log T)`. -/
@@ -322,7 +325,10 @@ theorem riemannZeta_ne_zero_on_quantitativeAdmissibleZetaHeight
     rw [hρim, abs_of_nonpos]
     · linarith [hH.1]
     · linarith [hH.2]
-  have hball := hρ.mem_jensenClosedBall him
+  have hball3 := hρ.mem_jensenClosedBall him
+  have hball : ρ ∈ Metric.closedBall
+      (riemannXiJensenCenter ((n : ℝ) + 3)) (7 / 2 : ℝ) :=
+    Metric.closedBall_subset_closedBall (by norm_num) hball3
   have hsupport : ρ ∈ xiJensenDivisorSupport ((n : ℝ) + 3) :=
     (riemannXiEntire_eq_zero_iff_mem_xiJensenDivisorSupport hball).1
       hρ.riemannXiEntire_eq_zero

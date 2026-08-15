@@ -28,6 +28,7 @@ import RiemannLab.Tasks.SharpJensenZeroCount
 import RiemannLab.Tasks.QuantitativeZeroSeparation
 import RiemannLab.Tasks.LocalAnalyticLog
 import RiemannLab.Tasks.LocalXiCanonicalDecomp
+import RiemannLab.Tasks.CanonicalFactorLogDeriv
 import RiemannLab.Tasks.AdmissibleHeightBounds
 import RiemannLab.Tasks.DisplacedLeftEdge
 import RiemannLab.Tasks.AdmissibleContourEdges

@@ -465,4 +465,39 @@ theorem riemannXiEntire_local_zero_count_le_log
   exact hj.trans (div_le_div_of_nonneg_right
     (log_scaledJensenBoundaryMajorant_le hT) hden.le)
 
+/-- The radius-seven-halves form needed to cover the complete contour segment
+from `re = -1` to the Perron line while retaining the radius-four Jensen
+boundary.  In particular, `sqrt (3^2 + 1^2) < 7/2`, removing the radius-three
+corner gap in the first admissible-height construction. -/
+theorem riemannXiEntire_local_jensen_bound_scaled_seven_halves
+    {T : ℝ} (hT : 2 ≤ T) :
+    ∑ᶠ u, divisor riemannXiEntire
+        (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)) u ≤
+      Real.log (scaledJensenBoundaryMajorant T) / Real.log (8 / 7) := by
+  have hana : AnalyticOnNhd ℂ (centerScaledXi T)
+      (Metric.closedBall (riemannXiJensenCenter T) 4) :=
+    fun z _ ↦ analyticAt_centerScaledXi T z
+  have h := AnalyticOnNhd.sum_divisor_le
+    (f := centerScaledXi T) (c := riemannXiJensenCenter T)
+    (r := (7 / 2 : ℝ)) (R := 4) (M := scaledJensenBoundaryMajorant T)
+    (by norm_num) (by norm_num) (one_le_scaledJensenBoundaryMajorant hT)
+    (by simpa using hana) (by simp) (fun z hz ↦ norm_centerScaledXi_le_scaledMajorant
+      (by simpa using hz))
+  have habs : |(7 / 2 : ℝ)| = 7 / 2 := abs_of_nonneg (by norm_num)
+  rw [habs, divisor_centerScaledXi_eq T (7 / 2 : ℝ) (by norm_num)] at h
+  norm_num at h
+  simpa [show (4 : ℝ) / (7 / 2) = 8 / 7 by norm_num] using h
+
+/-- Explicit `O(log T)` local zero count on the enlarged inner disk. -/
+theorem riemannXiEntire_local_zero_count_seven_halves_le_log
+    {T : ℝ} (hT : 2 ≤ T) :
+    ∑ᶠ u, divisor riemannXiEntire
+        (Metric.closedBall (riemannXiJensenCenter T) (7 / 2 : ℝ)) u ≤
+      (Real.log jensenQuotientPolynomialConstant + 12 * Real.log T) /
+        Real.log (8 / 7) := by
+  have hj := riemannXiEntire_local_jensen_bound_scaled_seven_halves hT
+  have hden : 0 < Real.log (8 / 7) := Real.log_pos (by norm_num)
+  exact hj.trans (div_le_div_of_nonneg_right
+    (log_scaledJensenBoundaryMajorant_le hT) hden.le)
+
 end RiemannLab
