@@ -989,3 +989,84 @@ certificate must expose a genuinely global cancellation coupling the pole/pi,
 Gamma, and prime contributions simultaneously.  This negative result is
 strategically useful: it prevents further effort being spent on a local-place
 sum-of-squares that certified data has already falsified.
+
+## Actual zeta-tail reduction and stationary three-place kernel
+
+The abstract subdominant-tail theorem has now been instantiated on the actual
+type of nontrivial zeta zeros.  `LiZetaTailEnvelope.lean` proves that this type
+is countable from the verified finite compact truncations and their exhaustion
+theorem.  It defines the intrinsic Li spectral rate
+
+\[
+  r(\rho)=\left|1-\rho^{-1}\right|
+\]
+
+and weights every localized amplitude by the analytic vanishing multiplicity
+of zeta.  Under `not RH`, the already-proved expansive-target theorem now
+produces an actual target, a threshold strictly between one and the target
+rate, and a finite dominant cluster.  For the complete subtype of actual zeros
+below that threshold, Lean proves exponential domination by the target as soon
+as the multiplicity-weighted localized amplitude is summable.
+
+This is a real instantiation, but it deliberately does not hide the final
+analytic input.  The remaining tail theorem is to prove summability for the
+specific damped finite-cluster annihilator.  The damping factor is expected to
+reduce this to the checked local zero-counting estimate, but that implication
+has not yet been formalized.
+
+A second reduction converts the nonstationary Li distance kernel into a
+stationary problem.  For a sequence `a` with `a(0)=0`, define
+
+\[
+  \tau_0=a_1,
+  \qquad
+  \tau_k=\frac{a_{k-1}-2a_k+a_{k+1}}{2}\quad(k\geq1).
+\]
+
+`LiStationaryIncrement.lean` proves that the mixed first difference of
+
+\[
+  G_{ij}=a_i+a_j-a_{|i-j|}
+\]
+
+is exactly the Toeplitz kernel `tau_|i-j|`.  It also proves the converse finite
+telescoping identity
+
+\[
+  G_{mn}=2\sum_{i<m}\sum_{j<n}\tau_{|i-j|}.
+\]
+
+Thus a positive stationary increment kernel reconstructs every Li
+distance--Gram matrix through cumulative summation.  This reframes the global
+three-place search as a trigonometric moment problem rather than an unrelated
+positivity problem at every matrix size.
+
+The first certified continuous test used the Fejer polynomial
+
+\[
+  F_N(\theta)=\tau_0+2\sum_{k=1}^{N}
+    \left(1-\frac{k}{N+1}\right)\tau_k\cos(k\theta).
+\]
+
+At `N=30`, Arb evaluated the polynomial on 131,073 interval points and used a
+rigorous derivative majorant to cover every point between them.  The completed
+three-place polynomial is certified positive on the entire interval
+`0 <= theta <= pi`, with global lower bound greater than
+
+\[
+  1.403646844\times10^{-4}.
+\]
+
+The elementary pole/pi component and the archimedean Gamma component each have
+certified negative values, whereas the regularized finite-place component and
+the completed combination pass this particular continuous test.  The evidence
+is stored in `li_three_place_toeplitz_fejer_v1.json`, whose payload hash is
+`66fcbe5f8d26ce25c9b3a819a46ce78995d356b835b45779d1b919e3c9b613c9`.
+
+This finite continuum certificate is stronger than a point grid but remains a
+necessary-condition experiment at one order.  It does not prove the full
+infinite Fejer family, construct a positive representing measure, or establish
+RH.  The genuine frontier target is now sharper: derive an unconditional
+positive measure or positive operator for the completed stationary increment
+kernel, using an identity in which the prime, Gamma, and pole/pi terms are
+coupled before positivity is taken.
