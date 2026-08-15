@@ -497,3 +497,48 @@ the uniform bound `|zeta'/zeta| = O(log(T)^2)` across the required horizontal
 strip.  After that still come the expanding horizontal and displaced-left
 edge limits and the final finite-ledger assembly.  The complete Chebyshev
 explicit formula and RH are not claimed at this checkpoint.
+
+## 15 August continuation: local canonical logarithmic derivative
+
+`LocalAnalyticLog.lean` proves the analytic tool required for a local, rather
+than global, partial-fraction argument.  On a zero-free complex ball it
+constructs a normalized analytic logarithm directly from a primitive of the
+logarithmic derivative.  Borel--Caratheodory bounds that logarithm from a
+normalized norm bound, and Cauchy's derivative estimate then gives the fully
+explicit inequality
+
+`|g'(z)/g(z)| <= 8 B R/(R-r)^2`
+
+on the concentric radius-`r` closed ball.  This avoids assuming a global
+Hadamard product for xi.
+
+`LocalXiCanonicalDecomp.lean` translates the actual entire xi-function so the
+moving radius-four Jensen disk is centred at zero, verifies the hypotheses of
+Mathlib's canonical decomposition theorem, fixes a canonical zero-free
+remainder, and proves that remainder analytic and nonvanishing throughout the
+open disk.  With radii `R=4` and `r=7/2`, the preceding analytic theorem is
+instantiated as
+
+`|g_T'(z)/g_T(z)| <= 128 * max(1, log A_T)`.
+
+This is a genuine verified reduction of the partial-fraction stage, but it
+does not close that stage.  Three obligations remain and must not be merged
+into one claim:
+
+1. derive the normalized remainder bound `A_T` from the sharp xi boundary
+   estimate while controlling the finite canonical factors;
+2. bound their logarithmic derivatives at the quantitatively separated
+   heights and combine them with the remainder estimate;
+3. transfer the xi logarithmic derivative to `zeta'/zeta`, which separately
+   requires a quantitative vertical bound for the complex Gamma logarithmic
+   derivative (digamma), not merely the already-proved Gamma norm identities.
+
+The audit also found a wiring issue: the quantitative height sequence in
+`QuantitativeZeroSeparation.lean` is distinct from the older qualitative
+`admissibleZetaHeight` still referenced by the contour-edge modules.  Those
+modules must be parameterized by, or migrated to, the quantitative sequence
+before their decay theorems can discharge the final assembly interface.
+
+Accordingly the complete Chebyshev explicit formula is still not proved.  No
+RH result, constraint on zero real parts, or new frontier mathematics is
+claimed.
