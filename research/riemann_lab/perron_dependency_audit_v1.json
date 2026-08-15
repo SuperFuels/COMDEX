@@ -1,7 +1,7 @@
 {
   "schema": "aion.riemann_perron_dependency_audit.v1",
   "date": "2026-08-15",
-  "claim_boundary": "Pinned-library capability audit and formal interface reconstruction only; Perron inversion and the explicit formula remain unproved.",
+  "claim_boundary": "Pinned-library capability audit, formal interface reconstruction, scalar logarithmic reduction, and the symmetric y=1 half-weight limit only; the away-from-jump Perron inversion and the explicit formula remain unproved.",
   "pinned_environment": {
     "lean": "4.24.0",
     "mathlib": "v4.32.1"
@@ -52,9 +52,11 @@
     ]
   },
   "next_smallest_proof_unit": {
-    "id": "scalar_perron_kernel_limit",
-    "target": "Prove the symmetric finite-height limit for (2*pi)^-1 integral from -T to T of y^(c+it)/(c+it), away from y = 1.",
-    "reason": "This is the analytic step-function kernel underlying termwise Perron inversion and isolates Fourier/Mellin convergence from arithmetic-series interchange.",
+    "id": "nonzero_frequency_oscillatory_cauchy_limit",
+    "status": "reduced_but_open",
+    "completed_reduction": "The y-form is kernel-checked equivalent under a=log(y) to exp(a*c) times the normalized symmetric integral of exp(i*a*t)/(c+i*t). The y=1 half-weight limit is proved.",
+    "target": "For c > 0 and a != 0, prove that (2*pi)^-1 integral from -T to T of exp(i*a*t)/(c+i*t) converges to exp(-a*c) for a > 0 and to zero for a < 0.",
+    "reason": "This is now the only conditional Fourier/Dirichlet limit inside the scalar step-function kernel; the pinned inversion theorem does not apply because the transform is not absolutely integrable.",
     "then": [
       "finite_dirichlet_polynomial_perron",
       "absolute_tail_control_on_re_gt_one",

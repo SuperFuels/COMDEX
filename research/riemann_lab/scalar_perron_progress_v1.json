@@ -1,0 +1,50 @@
+{
+  "schema": "aion.riemann_scalar_perron_progress.v1",
+  "date": "2026-08-15",
+  "status": "partial_kernel_verified",
+  "claim_boundary": "Finite-height normalization, logarithmic reduction, factorization, continuity, and the symmetric half-weight limit at y=1 are Lean-verified. The nonzero-frequency scalar Perron limit remains unproved; no RH progress or novel mathematics is claimed.",
+  "pinned_environment": {
+    "lean": "4.24.0",
+    "mathlib": "v4.32.1",
+    "lean_toolchain_sha256": "8e3538e0ab5f81a3ee04927d8838c8c674e0e112838b4b3ce87ec218143276af",
+    "lakefile_sha256": "c5c14b14556f058ec2feabcd3aad33b37a4a53cd892c7263795b86a54a2f4632",
+    "lake_manifest_sha256": "e831969b2c2ba7ea67939bc37c359c74b25c5338827e65bfa800bae752e63f23"
+  },
+  "formal_module": {
+    "path": "RiemannLab/Tasks/ScalarPerron.lean",
+    "sha256": "702e16ee04f4c11d68eb268bdc9ddb7abffd63185bdb854b4e0f62f0d6649a90",
+    "definitions": 8,
+    "kernel_checked_theorems": 21,
+    "sorry": 0,
+    "admit": 0,
+    "axiom": 0,
+    "unsafe": 0
+  },
+  "verified_units": [
+    "positive vertical line avoids the pole at zero",
+    "complex power equals the exponential-logarithmic kernel for y > 0",
+    "finite-height y-form equals the a = log(y) oscillatory form",
+    "the constant exp(a*c) factors exactly from the finite-height integral",
+    "the scalar and logarithmic open targets are logically equivalent",
+    "all finite scalar truncations are interval integrable",
+    "at y = 1 the raw integral equals 2*arctan(T/c)",
+    "at y = 1 the normalized symmetric limit is 1/2"
+  ],
+  "open_unit": {
+    "id": "nonzero_frequency_oscillatory_cauchy_limit",
+    "statement_shape": "For c > 0 and a != 0, the normalized symmetric integral of exp(i*a*t)/(c+i*t) has limit exp(-a*c) when a > 0 and zero when a < 0.",
+    "why_open": "The kernel decays only as 1/|t|, so the available absolute-integrability Fourier inversion theorem does not apply. A Dirichlet-type estimate, sharp truncation argument, or a proved comparison with a regularized inversion theorem is still required.",
+    "unlocks": [
+      "ScalarPerronLimitTarget",
+      "finite Dirichlet-polynomial Perron inversion",
+      "absolute Dirichlet-series tail control",
+      "ChebyshevPerronInversionTarget"
+    ]
+  },
+  "verification": {
+    "command": "lake build",
+    "result": "PASS",
+    "jobs": 3585,
+    "api_calls": 0
+  }
+}
