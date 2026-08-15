@@ -9,6 +9,8 @@ import RiemannLab.Tasks.LiWeilBasis
 import RiemannLab.Tasks.LiPascalTransform
 import RiemannLab.Tasks.LiToeplitzQuartet
 import RiemannLab.Tasks.LiToeplitzAmplifier
+import RiemannLab.Tasks.LiFiniteSpectralIsolation
+import RiemannLab.Tasks.LiExpansiveModeIsolation
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor
