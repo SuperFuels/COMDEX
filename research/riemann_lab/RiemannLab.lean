@@ -24,6 +24,8 @@ import RiemannLab.Tasks.LiWitnessAssembly
 import RiemannLab.Tasks.LiStationaryPositiveOperator
 import RiemannLab.Tasks.LiWeilLaurentNormalization
 import RiemannLab.Tasks.LiCaratheodoryTransform
+import RiemannLab.Tasks.LiUniversalPositiveKernel
+import RiemannLab.Tasks.CompletedXiLogDerivative
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor

@@ -1387,3 +1387,67 @@ It may not be assumed, inferred from finitely many coefficients, or obtained
 by proving the prime, Gamma, and pole pieces positive separately.  A successful
 next step must expose a new global cancellation or positive realization of
 their combined expression.
+
+## Universal-kernel correction and exact arithmetic disk ledger
+
+The positive-operator target has been corrected in
+`LiUniversalPositiveKernel.lean`.  The earlier finite atomic measure is a
+valid source of finite sum-of-squares certificates, but finite atomicity is
+not an appropriate universal requirement for the actual Li kernel.  A finite
+atomic cosine sequence is quasiperiodic, whereas the expected stationary Li
+increments have non-atomic asymptotic behaviour.  The research target is now
+defined directly as positivity of every finite Toeplitz compression:
+
+\[
+  \sum_{i,j}c_i c_j\tau_{|n_i-n_j|}\geq0
+\]
+
+for every finite choice of real coefficients and positions.  Lean proves
+that this universal condition reconstructs every Li inequality.  It also
+proves that a finite atomic certificate implies the universal condition, so
+the previous finite experiments remain valid tests without being mistaken
+for the required infinite representation.
+
+`CompletedXiLogDerivative.lean` supplies the exact arithmetic normalization
+on the absolute-convergence half-plane.  For `Re(s)>1`, Lean proves
+
+\[
+  \frac{\Xi'}{\Xi}(s)
+   =\frac1s+\frac1{s-1}
+    +\frac{\Gamma_{\mathbb R}'}{\Gamma_{\mathbb R}}(s)
+    -\sum_{n\geq1}\frac{\Lambda(n)}{n^s}.
+\]
+
+The proof is germ-level: the entire xi factorization is established on a
+neighborhood, differentiated there, and then joined to Mathlib's verified
+von Mangoldt logarithmic-derivative theorem.  This rules out a hidden
+normalization or sign choice in the proposed operator.
+
+The same module pulls this identity back through the Li map
+
+\[
+  s=\frac1{1-z},\qquad
+  \operatorname{Re}s=
+  \frac{1-\operatorname{Re}z}
+       {(1-\operatorname{Re}z)^2+(\operatorname{Im}z)^2}.
+\]
+
+It proves that the completed disk function equals the prime--Gamma--pole
+ledger wherever the mapped point has real part greater than one.  This also
+exposes the exact continuation obstruction: the prime Dirichlet series only
+controls a proper subregion of the Li disk, while Herglotz positivity is
+required on the complete disk, corresponding to `Re(s)>1/2`.
+
+Two tempting but invalid routes are therefore removed:
+
+1. a finite atomic measure cannot be imposed as the definition of the final
+   operator;
+2. the prime term cannot be made positive independently, because it occurs
+   with the opposite sign in the completed ledger.
+
+The remaining possible breakthrough must construct the full Toeplitz
+quadratic form after the pole, Gamma, and prime terms have already been
+combined, and must continue it from the absolute-convergence subdisk to the
+whole Li disk without assuming zero-freeness.  That continuation-plus-global-
+cancellation theorem remains open and is RH-level work; it is not supplied by
+the identities above.
