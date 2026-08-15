@@ -1458,10 +1458,65 @@ transform has precisely the squared denominator in
 Equation~\eqref{eq:squared-cauchy-value}.
 
 \begin{resultbox}
-Sharp truncation, endpoint decay, and conditional tail control are complete.
-The scalar Perron gate is now reduced to one absolutely convergent Fourier
-transform value. This is established classical analysis being formalized; it
-is not a proof of the Chebyshev Perron formula, an RH-equivalent bound, or RH.
+At this intermediate checkpoint, sharp truncation, endpoint decay, and
+conditional tail control reduced the scalar Perron gate to one absolutely
+convergent Fourier value. The following section records the subsequent closure
+of that value.
+\end{resultbox}
+
+\subsection{Fourier value and scalar Perron theorem completed}
+
+The final scalar value has now been kernel-checked in
+\path{RiemannLab/Tasks/SquaredCauchyFourier.lean}. For $c>0$, Lean constructs
+the continuous one-sided exponential moment
+\[
+  f_c(u)=\begin{cases}u e^{-cu},&u>0,\\0,&u\leq0,\end{cases}
+\]
+proves its whole-line integrability, computes its Fourier transform, verifies
+the integrability of that transform, and applies the pinned Mathlib Fourier
+inversion theorem. This proves Equation~\eqref{eq:squared-cauchy-value} and
+propagates through the prior reductions to establish
+\[
+  \frac1{2\pi}\int_{-T}^{T}\frac{y^{c+it}}{c+it}\,dt
+  \longrightarrow
+  \begin{cases}1,&y>1,\\0,&0<y<1,\end{cases}
+\]
+for every $c>0$ away from the jump $y=1$. The scalar Perron target is therefore
+no longer open.
+
+\subsection{Finite von Mangoldt and Chebyshev inversion completed}
+
+The new module \path{RiemannLab/Tasks/FinitePerron.lean} lifts the scalar
+result to an arbitrary finite coefficient family. In particular, for
+nonintegral $x>0$ it proves the finite von Mangoldt specialization
+\begin{equation}
+  \sum_{n\leq\lfloor x\rfloor}\Lambda(n)
+    \frac1{2\pi}\int_{-T}^{T}
+      \frac{(x/n)^{c+it}}{c+it}\,dt
+  \longrightarrow \psi(x).
+  \label{eq:finite-chebyshev-perron}
+\end{equation}
+All sums in Equation~\eqref{eq:finite-chebyshev-perron} are finite, so this
+theorem contains no hidden exchange of an infinite series and an integral.
+
+The full Perron module now also proves, at each fixed $s$ with
+$\RePart(s)>1$, absolute summability of the von Mangoldt Perron coefficient
+series and pointwise convergence of its finite range sums to the full kernel
+\[
+  L(s,\Lambda)\frac{x^s}{s}.
+\]
+Consequently the remaining inversion gate has been narrowed to one precise
+noncompact problem: obtain domination, or an equivalent two-parameter tail
+estimate, strong enough to exchange the coefficient limit with the vertical
+integral while its height tends to infinity. Pointwise absolute convergence
+does not alone justify this growing-domain exchange.
+
+\begin{resultbox}
+The scalar theorem, generic finite inversion, finite Chebyshev specialization,
+and pointwise infinite-series convergence are complete. The next irreducible
+gate is uniform coefficient-tail control for the growing vertical integral.
+This is significant formalization of classical analysis, not a new theorem
+about zeta zeros and not a proof of RH.
 \end{resultbox}
 
 \subsection{Formal artifact map}
@@ -1488,14 +1543,20 @@ Pole-free compact exhaustion, finite nontrivial-zero sets, positive
 multiplicities, finite $x^\rho/\rho$ sums, and the open convergence target. \\
 \path{RiemannLab/Tasks/PerronFormula.lean} &
 Normalized zeta and von Mangoldt Perron kernels, finite-height vertical
-integrals, their exact equality on $\RePart(s)>1$, and the open inversion
-target. \\
+integrals, their exact equality on $\RePart(s)>1$, pointwise absolute series
+convergence, and the remaining full inversion target. \\
 \path{RiemannLab/Tasks/ScalarPerron.lean} &
 Scalar kernel, logarithmic reduction, half-weight value at the jump, and exact
 equivalence with the oscillatory Cauchy limit. \\
 \path{RiemannLab/Tasks/OscillatoryCauchy.lean} &
 Sharp convergence, integration-by-parts tail control, Laplace representation,
 absolute squared-kernel reduction, and the named remaining Fourier value. \\
+\path{RiemannLab/Tasks/SquaredCauchyFourier.lean} &
+One-sided exponential moment, Fourier transform and inversion, exact
+squared-Cauchy value, and completed scalar Perron theorem. \\
+\path{RiemannLab/Tasks/FinitePerron.lean} &
+Generic finite coefficient inversion and finite von Mangoldt specialization
+to the Chebyshev function away from integer jumps. \\
 \path{explicit_formula_dependency_graph_v1.json} &
 Machine-readable dependency state and the precommitted next proof unit. \\
 \path{perron_dependency_audit_v1.json} &
@@ -1505,13 +1566,11 @@ Perron-kernel decomposition. \\
 \end{longtable}
 
 \begin{resultbox}
-The compact multiplicity-aware divisor and the specialized finite-height
-Perron interface are no longer blockers. The programme now has exhaustive
-zero sums and an exact normalized arithmetic/zeta vertical integral. Sharp
-scalar convergence is proved and its value is reduced to the absolutely
-convergent squared-Cauchy Fourier integral in
-Equation~\eqref{eq:squared-cauchy-value}. After that value comes series-tail
-control, contour shifting, residue calculation, convergence, and the two
+The compact multiplicity-aware divisor, scalar Perron theorem, and finite
+Chebyshev inversion are no longer blockers. Pointwise absolute convergence of
+the full von Mangoldt Perron series is also verified. The next blocker is the
+uniform tail estimate needed for the growing vertical integral. After that
+come contour shifting, residue calculation, convergence, and the two
 directions of the RH-equivalent Chebyshev bound.
 \end{resultbox}
 
@@ -1563,9 +1622,9 @@ Run from the COMDEX repository root:
 .venv/bin/python -m pytest backend/tests/test_aion_riemann_lab.py -q
 \end{lstlisting}
 
-The v3 live comparison is complete and protected by its one-shot execution
-receipt. The separate retention packet remains time-gated and must not run
-before its recorded due time.
+The v3 live comparison and the delayed retention comparison are complete and
+protected by their one-shot execution receipts. Neither result established an
+AION advantage, and no further paid run is scheduled by this document.
 
 \section{Selected references}
 

@@ -1,5 +1,5 @@
 import RiemannLab.Tasks.ExplicitFormula
-import RiemannLab.Tasks.ScalarPerron
+import RiemannLab.Tasks.FinitePerron
 import Mathlib.Analysis.MellinInversion
 import Mathlib.Analysis.Complex.CauchyIntegral
 
@@ -25,6 +25,45 @@ noncomputable def zetaPerronKernel (x : ℝ) (s : ℂ) : ℂ :=
 /-- The same Perron integrand expressed using the von Mangoldt L-series. -/
 noncomputable def vonMangoldtPerronKernel (x : ℝ) (s : ℂ) : ℂ :=
   L ↗ArithmeticFunction.vonMangoldt s * (x : ℂ) ^ s / s
+
+/-- The `n`th summand before passing from the absolutely convergent von
+Mangoldt Dirichlet series to the Perron kernel. -/
+noncomputable def vonMangoldtPerronSeriesTerm (x : ℝ) (s : ℂ) (n : ℕ) : ℂ :=
+  LSeries.term ↗ArithmeticFunction.vonMangoldt s n * ((x : ℂ) ^ s / s)
+
+/-- The first `N` terms of the von Mangoldt Perron kernel. -/
+noncomputable def partialVonMangoldtPerronKernel
+    (N : ℕ) (x : ℝ) (s : ℂ) : ℂ :=
+  ∑ n ∈ Finset.range N, vonMangoldtPerronSeriesTerm x s n
+
+/-- The Perron-kernel series is absolutely summable at each point of the
+vertical half-plane `Re(s) > 1`. -/
+theorem summable_vonMangoldtPerronSeriesTerm
+    {x : ℝ} {s : ℂ} (hs : 1 < s.re) :
+    Summable (vonMangoldtPerronSeriesTerm x s) := by
+  unfold vonMangoldtPerronSeriesTerm
+  exact (ArithmeticFunction.LSeriesSummable_vonMangoldt hs).mul_right _
+
+/-- The absolutely convergent coefficient series sums pointwise to the
+von Mangoldt Perron kernel on `Re(s) > 1`. -/
+theorem hasSum_vonMangoldtPerronSeriesTerm
+    {x : ℝ} {s : ℂ} (hs : 1 < s.re) :
+    HasSum (vonMangoldtPerronSeriesTerm x s) (vonMangoldtPerronKernel x s) := by
+  unfold vonMangoldtPerronSeriesTerm vonMangoldtPerronKernel
+  simpa [LSeries, div_eq_mul_inv, mul_assoc] using
+    (HasSum.mul_right ((x : ℂ) ^ s / s)
+      (ArithmeticFunction.LSeriesSummable_vonMangoldt hs).hasSum)
+
+/-- Partial von Mangoldt Perron kernels converge pointwise to the full kernel
+throughout the half-plane of absolute convergence. The remaining global gate
+is uniform domination strong enough to interchange this limit and the growing
+vertical integral. -/
+theorem tendsto_partialVonMangoldtPerronKernel
+    {x : ℝ} {s : ℂ} (hs : 1 < s.re) :
+    Tendsto (fun N : ℕ ↦ partialVonMangoldtPerronKernel N x s) atTop
+      (nhds (vonMangoldtPerronKernel x s)) := by
+  simpa [partialVonMangoldtPerronKernel] using
+    (hasSum_vonMangoldtPerronSeriesTerm (x := x) hs).tendsto_sum_nat
 
 /-- On the half-plane of absolute convergence, the two Perron kernels agree. -/
 theorem vonMangoldtPerronKernel_eq_zeta {x : ℝ} {s : ℂ} (hs : 1 < s.re) :

@@ -1,8 +1,8 @@
 {
   "schema": "aion.riemann_oscillatory_cauchy_progress.v1",
   "date": "2026-08-15",
-  "status": "sharp_limit_reduced_to_absolute_fourier_value",
-  "claim_boundary": "Lean verifies sharp symmetric convergence and reduces its value exactly to one absolutely convergent squared-denominator Fourier integral. The classical piecewise value of that integral is not yet verified.",
+  "status": "completed_by_fourier_inversion",
+  "claim_boundary": "Lean verifies sharp symmetric convergence and the exact piecewise value through Fourier inversion of a continuous one-sided exponential moment. This closes the scalar analytic gate but does not prove the infinite Chebyshev Perron formula or RH.",
   "pinned_environment": {
     "lean": "4.24.0",
     "mathlib": "v4.32.1"
@@ -35,20 +35,16 @@
     "exact equality between the sharp limit and the normalized whole-line squared-kernel integral",
     "sufficiency of the named squared-kernel Fourier value target for the original oscillatory limit"
   ],
-  "remaining_gate": {
+  "completed_gate": {
     "id": "squared_cauchy_fourier_value",
     "target": "integral_R exp(i*a*t)/(c+i*t)^2 dt = if 0 < a then 2*pi*a*exp(-a*c) else 0",
-    "status": "open",
-    "candidate_routes": [
-      "apply Fourier inversion to the continuous one-sided function u*exp(-c*u) and compute its transform",
-      "evaluate by Laplace representation plus justified Fubini",
-      "perform a source-precise contour calculation for the absolutely integrable squared kernel"
-    ]
+    "status": "lean_verified",
+    "proof_route": "Fourier inversion for the continuous one-sided function u*exp(-c*u) on u>0, including integrability, transform computation, primitive evaluation, and scaling."
   },
   "verification": {
     "command": "lake build",
     "result": "PASS",
-    "jobs": 3586,
+    "jobs": 3588,
     "api_calls": 0
   }
 }

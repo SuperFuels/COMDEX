@@ -1,7 +1,7 @@
 {
   "schema": "aion.riemann_perron_dependency_audit.v1",
   "date": "2026-08-15",
-  "claim_boundary": "Pinned-library capability audit, formal interface reconstruction, scalar logarithmic reduction, and the symmetric y=1 half-weight limit only; the away-from-jump Perron inversion and the explicit formula remain unproved.",
+  "claim_boundary": "The scalar Perron theorem, finite Dirichlet-polynomial inversion, finite Chebyshev specialization, and pointwise absolute convergence of the full von Mangoldt Perron series are kernel-checked. The growing-height integral/series interchange and explicit formula remain unproved.",
   "pinned_environment": {
     "lean": "4.24.0",
     "mathlib": "v4.32.1"
@@ -48,17 +48,19 @@
       "vonMangoldtPerronKernel_eq_zeta",
       "verticalLine_re_gt_one",
       "truncatedVonMangoldtPerronIntegral_eq_zeta",
+      "summable_vonMangoldtPerronSeriesTerm",
+      "hasSum_vonMangoldtPerronSeriesTerm",
+      "tendsto_partialVonMangoldtPerronKernel",
       "chebyshevPerronInversionTarget_iff_vonMangoldt"
     ]
   },
   "next_smallest_proof_unit": {
-    "id": "oscillatory_cauchy_explicit_value",
-    "status": "sharp_convergence_proved_value_open",
-    "completed_reduction": "The y-form is kernel-checked equivalent under a=log(y) to exp(a*c) times the normalized symmetric integral of exp(i*a*t)/(c+i*t). Integration by parts proves the sharp symmetric integral converges for every a != 0, with an absolutely convergent remainder expression. The y=1 half-weight limit is also proved.",
-    "target": "Evaluate the proved sharp-limit expression as exp(-a*c) for a > 0 and zero for a < 0.",
-    "reason": "Conditional convergence and truncation control are discharged. The only remaining scalar gate is an explicit value calculation for an absolutely convergent remainder, likely through contour, Laplace, or regularized Fourier analysis.",
+    "id": "growing_vertical_integral_interchange",
+    "status": "pointwise_absolute_convergence_proved_uniform_control_open",
+    "completed_reduction": "Fourier inversion closes the squared-Cauchy value and scalar Perron limit. Generic finite inversion and the finite von Mangoldt/Chebyshev specialization are proved. On Re(s)>1 the full Perron coefficient series is absolutely summable and its range partial sums converge pointwise to the von Mangoldt Perron kernel.",
+    "target": "Prove domination or a two-parameter coefficient-tail estimate sufficient to pass from finite von Mangoldt Perron inversion to the full growing-height vertical integral.",
+    "reason": "The finite and pointwise infinite statements are complete; only the noncompact integral/series limit exchange separates them from ChebyshevPerronInversionTarget.",
     "then": [
-      "finite_dirichlet_polynomial_perron",
       "absolute_tail_control_on_re_gt_one",
       "chebyshev_perron_inversion",
       "rectangular_contour_shift"

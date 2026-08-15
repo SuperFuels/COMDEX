@@ -2,7 +2,7 @@
 
 **Date:** 15 August 2026  
 **Authority:** Lean 4.24.0 kernel with pinned Mathlib v4.32.1  
-**Build:** PASS, 3,586 jobs
+**Build:** PASS, 3,588 jobs
 **External/API calls:** 0
 
 ## Completed formal work
@@ -128,9 +128,58 @@ Lean also verifies that this named squared-kernel value target is sufficient
 to close the original oscillatory Cauchy target. No conditional convergence,
 tail estimate, or normalization ambiguity remains in that final gate.
 
+## Fourier value and scalar Perron limit completed
+
+The formerly open squared-kernel value is now proved in
+`RiemannLab/Tasks/SquaredCauchyFourier.lean`. The proof constructs the
+continuous one-sided exponential moment
+
+\[
+f_c(u)=\begin{cases}u e^{-cu},&u>0,\\0,&u\leq0,\end{cases}
+\]
+
+proves its integrability, computes its Fourier transform, and applies Mathlib's
+Fourier inversion theorem with all continuity and integrability obligations
+discharged. Lean consequently proves
+
+\[
+\int_{-\infty}^{\infty}\frac{e^{iat}}{(c+it)^2}\,dt
+=
+\begin{cases}2\pi a e^{-ac},&a>0,\\0,&a<0,\end{cases}
+\]
+
+then propagates it through the prior reduction to prove the oscillatory Cauchy
+target and the complete scalar Perron limit away from \(y=1\).
+
+## Finite Chebyshev inversion completed
+
+`RiemannLab/Tasks/FinitePerron.lean` now proves generic finite
+Dirichlet-polynomial inversion. Specializing the coefficients to the von
+Mangoldt function gives, for non-integer \(x>0\),
+
+\[
+\sum_{n\leq\lfloor x\rfloor}\Lambda(n)
+  \frac1{2\pi}\int_{-T}^{T}
+  \frac{(x/n)^{c+it}}{c+it}\,dt
+\longrightarrow \psi(x).
+\]
+
+The full Perron module additionally verifies that the infinite von Mangoldt
+coefficient series is absolutely summable at every point with
+\(\operatorname{Re}(s)>1\), and that its finite range sums converge pointwise
+to the full Perron kernel.
+
+## Exact remaining gate
+
+The remaining Perron obstruction is a uniform, noncompact limit exchange:
+control the coefficient tail strongly enough to replace the full L-series by
+finite sums inside a vertical integral whose height also tends to infinity.
+Pointwise absolute convergence alone is insufficient because the integration
+interval grows with \(T\).
+
 ## Claim boundary
 
-This is serious formal-engineering progress on a classical analytic bridge. It
-does not prove the away-from-jump scalar Perron limit, the Chebyshev Perron
-formula, an RH-equivalent estimate, or the Riemann Hypothesis. No new
-mathematics or AION superiority is claimed.
+This closes a substantial classical-analysis formalization gate and reaches a
+kernel-checked finite Chebyshev inversion theorem. It does not yet prove the
+full Chebyshev Perron formula, the explicit formula, an RH-equivalent estimate,
+or the Riemann Hypothesis. No new mathematics or AION superiority is claimed.

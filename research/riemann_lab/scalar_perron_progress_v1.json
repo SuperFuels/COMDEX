@@ -1,8 +1,8 @@
 {
   "schema": "aion.riemann_scalar_perron_progress.v1",
   "date": "2026-08-15",
-  "status": "sharp_limit_reduced_to_absolute_fourier_value",
-  "claim_boundary": "Finite-height normalization, the half-weight at y=1, sharp convergence away from the jump, and exact reduction to an absolutely convergent squared-denominator Fourier integral are Lean-verified. The classical value of that final integral remains unproved; no RH progress or novel mathematics is claimed.",
+  "status": "scalar_limit_and_finite_chebyshev_inversion_proved",
+  "claim_boundary": "The squared-Cauchy Fourier value, sharp scalar Perron limit away from y=1, generic finite Dirichlet-polynomial inversion, and finite von Mangoldt specialization to Chebyshev.psi are Lean-verified. Infinite-series/integral interchange and the full Chebyshev Perron formula remain open; no RH result or novel mathematics is claimed.",
   "pinned_environment": {
     "lean": "4.24.0",
     "mathlib": "v4.32.1",
@@ -30,21 +30,32 @@
     "at y = 1 the raw integral equals 2*arctan(T/c)",
     "at y = 1 the normalized symmetric limit is 1/2"
   ],
+  "completed_extension": {
+    "fourier_module": "RiemannLab/Tasks/SquaredCauchyFourier.lean",
+    "fourier_module_sha256": "19129c9c1041369f1c4aaaa752616e664266a1c5c78b6e382706cc9b6f042ebf",
+    "finite_perron_module": "RiemannLab/Tasks/FinitePerron.lean",
+    "finite_perron_module_sha256": "7644aba46751106fb2869443002cef4ef524e8029797de2e068e2bf1eb894ceb",
+    "verified": [
+      "one-sided exponential moment Fourier transform",
+      "exact squared-Cauchy Fourier integral",
+      "oscillatory Cauchy value target",
+      "sharp scalar Perron limit away from the jump",
+      "generic finite coefficient Perron inversion",
+      "finite von Mangoldt inversion to Chebyshev.psi"
+    ]
+  },
   "open_unit": {
-    "id": "squared_cauchy_fourier_value",
-    "statement_shape": "Evaluate the absolutely convergent integral of exp(i*a*t)/(c+i*t)^2 as 2*pi*a*exp(-a*c) for a > 0 and zero for a < 0.",
-    "why_open": "Lean now proves that this single whole-line Fourier value implies the original conditional Perron limit. It still requires a checked Fourier-inversion, Laplace/Fubini, or contour evaluation.",
+    "id": "growing_vertical_integral_interchange",
+    "statement_shape": "Justify replacing the full von Mangoldt L-series inside the height-T vertical Perron integral by finite coefficient sums with control compatible with T tending to infinity.",
+    "why_open": "Pointwise absolute summability on Re(s)>1 is verified, but a uniform domination or two-parameter tail estimate is still required to interchange the infinite coefficient limit with the growing vertical integral.",
     "unlocks": [
-      "ScalarPerronLimitTarget",
-      "finite Dirichlet-polynomial Perron inversion",
-      "absolute Dirichlet-series tail control",
       "ChebyshevPerronInversionTarget"
     ]
   },
   "verification": {
     "command": "lake build",
     "result": "PASS",
-    "jobs": 3586,
+    "jobs": 3588,
     "api_calls": 0
   }
 }
