@@ -1736,6 +1736,80 @@ complete Chebyshev explicit formula is claimed at this checkpoint.  All new
 results remain formalizations of classical analytic infrastructure and provide
 no new restriction on nontrivial zero locations.
 
+\section{Geometric admissible heights and exact three-edge assembly}
+
+The geometric portion of the admissible-height construction is now
+machine-checked.  The module
+\path{RiemannLab/Tasks/AdmissibleHeights.lean} selects, for every
+$n\in\mathbb N$, a height
+\[
+  n+2<T_n<n+3
+\]
+such that
+\[
+  \zeta(\sigma+iT_n)\ne0\qquad(\sigma\in\mathbb R).
+\]
+Compact discreteness supplies only finitely many zeros in the relevant closed
+ball.  An ordinate outside that finite set is then selected inside the unit
+interval.  The classification of zeros with nonpositive real part and the
+critical-strip location theorem ensure that every possible zero on the line
+would have appeared in that compact set.  Complex conjugation gives the
+reflected zero-free line at $-T_n$, and Lean proves $T_n\to\infty$.
+
+On every fixed compact interval $[a,b]$, continuity of $\zeta'/\zeta$ on the
+two selected lines now yields a finite common uniform bound.  This deliberately
+does not assert a rate.  The exact quantitative proposition isolated in
+\path{RiemannLab/Tasks/AdmissibleHeightBounds.lean} requires bounds $B_n$ with
+\[
+  \sup_{-1\leq\sigma\leq c}
+  \left|\frac{\zeta'}{\zeta}(\sigma\mathbin{\pm}iT_n)\right|
+  \leq B_n,
+  \qquad \frac{B_n}{T_n}\longrightarrow0.
+\]
+From this input Lean proves that the corresponding upper and lower
+fixed-strip kernel integrals vanish.
+
+The module \path{RiemannLab/Tasks/DisplacedLeftEdge.lean} defines the
+displaced real parts
+\[
+  L_n=-(2n+1).
+\]
+These lines tend to $-\infty$ and avoid every zeta zero: nontrivial zeros lie
+in $0<\Re s<1$, whereas trivial zeros are negative even integers.  The file
+states the exact remaining functional-equation and Gamma-factor decay target
+and proves that it forces the oriented left-edge integral to vanish.
+
+Finally, \path{RiemannLab/Tasks/AdmissibleContourEdges.lean} assembles the
+bottom, top, and displaced-left sides with the precise signs inherited from
+the verified rectangle orientation.  For
+\[
+  K_x(s)=-\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s},
+\]
+the normalized error is
+\[
+ E_n(x,c)=\frac{1}{2\pi i}\left(
+   \int_{L_n}^{c}K_x(\sigma-iT_n)\,d\sigma
+  -\int_{L_n}^{c}K_x(\sigma+iT_n)\,d\sigma
+  -i\int_{-T_n}^{T_n}K_x(L_n+it)\,dt\right).
+\]
+Lean proves $E_n(x,c)\to0$ once the two expanding horizontal integrals and the
+left integral vanish.  Thus no sign or normalization step remains hidden in
+the final contour assembly.
+
+The full pinned build passes in \textbf{3,603 jobs}.  The unresolved theorem is
+now stated more accurately than at the previous checkpoint.  Merely avoiding
+zero ordinates is insufficient: one needs quantitative separation from nearby
+zeros together with a zero-counting/logarithmic-derivative estimate strong
+enough on the expanding interval $[L_n,c]$.  One also needs the displaced-left
+decay from the functional equation and quantitative Gamma estimates.  The
+finite rectangle ledger must then be matched to the compact nontrivial-zero
+truncation and to the vanishing tail of the already summed trivial-zero series.
+These are established classical results, but they are not present globally in
+the pinned Mathlib library and have not yet been proved in this project.
+Consequently neither the complete explicit formula nor the classical RH
+frontier is claimed at this checkpoint, and no new progress on RH itself is
+claimed.
+
 \appendix
 
 \section{Key evidence hashes}

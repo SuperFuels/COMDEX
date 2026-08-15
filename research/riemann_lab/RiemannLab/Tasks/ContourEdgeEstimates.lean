@@ -77,4 +77,25 @@ theorem tendsto_horizontal_explicitFormulaContourKernel_integral_zero
   exact norm_horizontal_explicitFormulaContourKernel_integral_le
     (fun σ hσ ↦ hbound n σ hσ)
 
+/-- A sequence of uniform vertical-edge bounds tending to zero after
+multiplication by the edge length forces the vertical contour integrals to
+vanish. -/
+theorem tendsto_vertical_explicitFormulaContourKernel_integral_zero
+    {x : ℝ} {realPart lower upper bound : ℕ → ℝ}
+    (hbound : ∀ n t, t ∈ Ι (lower n) (upper n) →
+      ‖explicitFormulaContourKernel x
+        (realPart n + t * Complex.I)‖ ≤ bound n)
+    (hzero : Tendsto (fun n ↦ bound n * |upper n - lower n|) atTop (𝓝 0)) :
+    Tendsto (fun n ↦ Complex.I *
+      (∫ t in lower n..upper n, explicitFormulaContourKernel x
+        (realPart n + t * Complex.I))) atTop (𝓝 0) := by
+  rw [tendsto_zero_iff_norm_tendsto_zero]
+  refine squeeze_zero' (Eventually.of_forall (fun n : ℕ ↦ norm_nonneg
+    (Complex.I * (∫ t in lower n..upper n,
+      explicitFormulaContourKernel x
+        (realPart n + t * Complex.I))))) ?_ hzero
+  filter_upwards with n
+  exact norm_vertical_explicitFormulaContourKernel_integral_le
+    (fun t ht ↦ hbound n t ht)
+
 end RiemannLab

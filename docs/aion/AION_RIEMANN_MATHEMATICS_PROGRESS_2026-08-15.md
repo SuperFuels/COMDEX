@@ -189,3 +189,47 @@ Pinned Mathlib supplies local zeta analysis but not the required global
 large-height growth theorem. Consequently the complete explicit formula is
 not yet claimed. This checkpoint formalizes established classical analysis;
 it gives no new zero-free information and no evidence that RH is solved.
+
+## 15 August continuation: geometric heights and exact edge assembly
+
+Four further modules now separate the completed geometric work from the
+remaining quantitative analytic number theory.
+
+`AdmissibleHeights.lean` constructs, for every natural `n`, a height `T_n` in
+`(n+2,n+3)` at which the complete horizontal line contains no zeta zero.  The
+proof uses compact discreteness of the zeta zero set, the classification of
+nonpositive-real-part zeros as negative-even trivial zeros, and the critical
+strip location of every nontrivial zero.  Conjugation gives the corresponding
+lower line, and Lean proves `T_n -> infinity`.  Continuity then supplies a
+finite uniform bound for `zeta'/zeta` on every fixed compact segment of each
+selected line.  This is a geometric zero-avoidance theorem, not yet the
+quantitative admissible-height theorem used in the classical explicit-formula
+proof.
+
+`AdmissibleHeightBounds.lean` records the exact missing rate as
+`ZetaAdmissibleHeightGrowthTarget`: on each fixed strip, a common upper/lower
+bound `B_n` must satisfy `B_n/T_n -> 0`.  Lean proves that this hypothesis makes
+both fixed-strip horizontal kernel integrals vanish.
+
+`DisplacedLeftEdge.lean` selects the negative odd vertical lines
+`Re(s)=-(2n+1)`, proves they tend to negative infinity, and proves that no zeta
+zero lies on any such line.  It isolates the functional-equation/gamma-factor
+decay statement and proves that this statement makes the oriented left-edge
+integral vanish.
+
+`AdmissibleContourEdges.lean` fixes the signs of the bottom, top, and left
+edges exactly as they occur in the project's rectangle definition.  It proves
+that their normalized sum tends to zero from the two remaining edge-decay
+inputs.  This prevents the final contour shift from concealing an orientation
+or normalization assumption.
+
+Full verification passes: **3,603 build jobs**.  The remaining gate has not
+disappeared: the fixed-strip theorem must be strengthened to the expanding
+horizontal interval whose left endpoint tends to negative infinity, and the
+displaced-left kernel decay must be proved from the zeta functional equation
+and quantitative Gamma estimates.  The selected geometric height is only
+known to avoid zeros; no separation rate from nearby zeros has yet been proved.
+After those estimates, the finite rectangle ledger still has to be aligned
+with the compact nontrivial-zero truncation and the vanishing tail of the
+trivial-zero series.  Therefore the complete explicit formula and the
+classical RH frontier are not yet claimed.
