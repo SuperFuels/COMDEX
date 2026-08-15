@@ -96,10 +96,21 @@ positive multiplicity. The classical limiting identity with the Chebyshev
 recorded precisely as `ChebyshevExplicitFormulaTarget`. It remains an open
 proposition: no convergence theorem or explicit formula has been claimed.
 
-The next genuine proof unit is the specialized Perron/Mellin inversion step for
-the finite von Mangoldt sum, followed by a rectangular contour shift with
-residue accounting and error bounds. Those analytic steps—not the divisor data
-structure—are now the missing bridge.
+`PerronFormula.lean` now defines the exact logarithmic-derivative kernel
+`(-zeta'/zeta)(s) * x^s / s`, its normalized finite-height vertical integral,
+and the corresponding von Mangoldt L-series integral. Lean proves pointwise and
+finite-height equality of the two forms on every vertical line `Re(s) = c > 1`.
+It also records the required convergence to `Chebyshev.psi x` as
+`ChebyshevPerronInversionTarget` and proves that its zeta and von Mangoldt forms
+are equivalent; the convergence itself is not claimed.
+
+The laboratory now contains 55 kernel-checked research theorems (58
+declarations including the three baseline reproduction checks). The next
+irreducible proof unit is the scalar Perron kernel limit for
+`y^(c+it)/(c+it)` away from `y = 1`. That is followed by finite Dirichlet
+polynomial inversion, absolutely convergent tail control, the full Chebyshev
+Perron limit, and finally the rectangular contour shift with residue accounting
+and error bounds.
 
 ## Isolation from retention evaluation
 

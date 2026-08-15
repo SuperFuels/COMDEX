@@ -1,0 +1,65 @@
+{
+  "schema": "aion.riemann_perron_dependency_audit.v1",
+  "date": "2026-08-15",
+  "claim_boundary": "Pinned-library capability audit and formal interface reconstruction only; Perron inversion and the explicit formula remain unproved.",
+  "pinned_environment": {
+    "lean": "4.24.0",
+    "mathlib": "v4.32.1"
+  },
+  "available_primitives": [
+    {
+      "module": "Mathlib.Analysis.MellinTransform",
+      "declarations": ["Complex.VerticalIntegrable", "mellin", "mellinInv"]
+    },
+    {
+      "module": "Mathlib.Analysis.MellinInversion",
+      "declarations": ["mellinInv_mellin_eq", "mellinInv_eq_fourierInv"]
+    },
+    {
+      "module": "Mathlib.Analysis.Complex.CauchyIntegral",
+      "declarations": [
+        "Complex.integral_boundary_rect_eq_zero_of_differentiable_on_off_countable",
+        "Complex.integral_boundary_rect_eq_zero_of_continuousOn_of_differentiableOn"
+      ]
+    },
+    {
+      "module": "Mathlib.NumberTheory.LSeries.Dirichlet",
+      "declarations": [
+        "ArithmeticFunction.LSeriesSummable_vonMangoldt",
+        "ArithmeticFunction.LSeries_vonMangoldt_eq_deriv_riemannZeta_div"
+      ]
+    }
+  ],
+  "missing_specialized_primitive": {
+    "id": "arithmetic_perron_inversion",
+    "statement_shape": "For nonintegral x > 1 and c > 1, the normalized finite-height vertical integral of (-zeta'/zeta)(s) x^s/s converges to Chebyshev.psi x.",
+    "status": "not_found_in_pinned_mathlib"
+  },
+  "kernel_reconstructed_interface": {
+    "module": "RiemannLab.Tasks.PerronFormula",
+    "definitions": [
+      "zetaPerronKernel",
+      "vonMangoldtPerronKernel",
+      "truncatedZetaPerronIntegral",
+      "truncatedVonMangoldtPerronIntegral",
+      "ChebyshevPerronInversionTarget"
+    ],
+    "theorems": [
+      "vonMangoldtPerronKernel_eq_zeta",
+      "verticalLine_re_gt_one",
+      "truncatedVonMangoldtPerronIntegral_eq_zeta",
+      "chebyshevPerronInversionTarget_iff_vonMangoldt"
+    ]
+  },
+  "next_smallest_proof_unit": {
+    "id": "scalar_perron_kernel_limit",
+    "target": "Prove the symmetric finite-height limit for (2*pi)^-1 integral from -T to T of y^(c+it)/(c+it), away from y = 1.",
+    "reason": "This is the analytic step-function kernel underlying termwise Perron inversion and isolates Fourier/Mellin convergence from arithmetic-series interchange.",
+    "then": [
+      "finite_dirichlet_polynomial_perron",
+      "absolute_tail_control_on_re_gt_one",
+      "chebyshev_perron_inversion",
+      "rectangular_contour_shift"
+    ]
+  }
+}
