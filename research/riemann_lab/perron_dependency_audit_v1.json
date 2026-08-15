@@ -52,11 +52,11 @@
     ]
   },
   "next_smallest_proof_unit": {
-    "id": "nonzero_frequency_oscillatory_cauchy_limit",
-    "status": "reduced_but_open",
-    "completed_reduction": "The y-form is kernel-checked equivalent under a=log(y) to exp(a*c) times the normalized symmetric integral of exp(i*a*t)/(c+i*t). The y=1 half-weight limit is proved.",
-    "target": "For c > 0 and a != 0, prove that (2*pi)^-1 integral from -T to T of exp(i*a*t)/(c+i*t) converges to exp(-a*c) for a > 0 and to zero for a < 0.",
-    "reason": "This is now the only conditional Fourier/Dirichlet limit inside the scalar step-function kernel; the pinned inversion theorem does not apply because the transform is not absolutely integrable.",
+    "id": "oscillatory_cauchy_explicit_value",
+    "status": "sharp_convergence_proved_value_open",
+    "completed_reduction": "The y-form is kernel-checked equivalent under a=log(y) to exp(a*c) times the normalized symmetric integral of exp(i*a*t)/(c+i*t). Integration by parts proves the sharp symmetric integral converges for every a != 0, with an absolutely convergent remainder expression. The y=1 half-weight limit is also proved.",
+    "target": "Evaluate the proved sharp-limit expression as exp(-a*c) for a > 0 and zero for a < 0.",
+    "reason": "Conditional convergence and truncation control are discharged. The only remaining scalar gate is an explicit value calculation for an absolutely convergent remainder, likely through contour, Laplace, or regularized Fourier analysis.",
     "then": [
       "finite_dirichlet_polynomial_perron",
       "absolute_tail_control_on_re_gt_one",

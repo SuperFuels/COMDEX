@@ -144,6 +144,13 @@ def LogarithmicScalarPerronLimitTarget : Prop :=
     Tendsto (fun T : ℝ ↦ logarithmicTruncatedPerronIntegral c a T) atTop
       (𝓝 (if 0 < a then (1 : ℂ) else 0))
 
+/-- The final normalized oscillatory Cauchy-transform limit after removing the
+constant factor `exp (a*c)`. -/
+def OscillatoryCauchyLimitTarget : Prop :=
+  ∀ c a : ℝ, 0 < c → a ≠ 0 →
+    Tendsto (fun T : ℝ ↦ oscillatoryTruncatedCauchyIntegral c a T) atTop
+      (𝓝 (if 0 < a then (Real.exp (-a * c) : ℂ) else 0))
+
 /-- The `y`-form and the logarithmic oscillatory form of the open limit are
 logically equivalent, with all changes of variables kernel-checked. -/
 theorem scalarPerronLimitTarget_iff_logarithmic :
@@ -166,6 +173,47 @@ theorem scalarPerronLimitTarget_iff_logarithmic :
     have hsign : (0 < Real.log y) ↔ 1 < y := by
       rw [← Real.exp_lt_exp, Real.exp_zero, Real.exp_log hy]
     simpa only [scalarTruncatedPerronIntegral_eq_logarithmic hy, hsign] using H
+
+/-- Removing the nonzero constant `exp (a*c)` loses no information: the
+logarithmic scalar target is exactly the oscillatory Cauchy target. -/
+theorem logarithmicScalarPerronLimitTarget_iff_oscillatory :
+    LogarithmicScalarPerronLimitTarget ↔ OscillatoryCauchyLimitTarget := by
+  constructor
+  · intro h c a hc ha
+    have H := h c a hc ha
+    have Hmul := H.const_mul (Real.exp (-a * c) : ℂ)
+    by_cases hpos : 0 < a
+    · simp only [hpos, if_true, mul_one] at Hmul ⊢
+      apply Hmul.congr'
+      filter_upwards with T
+      rw [logarithmicTruncatedPerronIntegral_eq_exp_mul]
+      push_cast
+      rw [← mul_assoc]
+      rw [← Complex.exp_add]
+      ring_nf
+      simp
+    · simp only [hpos, if_false, mul_zero] at Hmul ⊢
+      apply Hmul.congr'
+      filter_upwards with T
+      rw [logarithmicTruncatedPerronIntegral_eq_exp_mul]
+      push_cast
+      rw [← mul_assoc]
+      rw [← Complex.exp_add]
+      ring_nf
+      simp
+  · intro h c a hc ha
+    have H := h c a hc ha
+    have Hmul := H.const_mul (Real.exp (a * c) : ℂ)
+    by_cases hpos : 0 < a
+    · simp only [hpos, if_true] at Hmul ⊢
+      rw [show (Real.exp (a * c) : ℂ) * Real.exp (-a * c) = 1 by
+        push_cast
+        rw [← Complex.exp_add]
+        ring_nf
+        simp] at Hmul
+      simpa only [one_mul, ← logarithmicTruncatedPerronIntegral_eq_exp_mul] using Hmul
+    · simp only [hpos, if_false, mul_zero] at Hmul ⊢
+      simpa only [← logarithmicTruncatedPerronIntegral_eq_exp_mul] using Hmul
 
 /-- Positive `y ≠ 1` is equivalently on one of the two sides of the jump. -/
 theorem scalarPerron_side_cases {y : ℝ} (_hy : 0 < y) (hy1 : y ≠ 1) :

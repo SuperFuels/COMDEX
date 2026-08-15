@@ -6,4 +6,5 @@ import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor
 import RiemannLab.Tasks.ExplicitFormula
 import RiemannLab.Tasks.ScalarPerron
+import RiemannLab.Tasks.OscillatoryCauchy
 import RiemannLab.Tasks.PerronFormula

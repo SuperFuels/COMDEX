@@ -71,6 +71,25 @@ transform, cannot close this gate. The next proof must supply a genuine
 Dirichlet-type sharp-truncation estimate or prove a comparison with an
 appropriate regularization.
 
+## Sharp convergence subsequently completed
+
+The required Dirichlet-type control has now been formalized in
+`RiemannLab/Tasks/OscillatoryCauchy.lean`. Lean proves an exact finite-interval
+integration-by-parts identity. Its endpoint term is bounded by
+\(1/(|a|T)\), and its squared-denominator remainder is absolutely integrable.
+Consequently both the one-sided and normalized symmetric sharp truncations
+converge for every \(c>0\) and \(a\ne0\).
+
+The original scalar target is now equivalent to a single explicit identity
+
+\[
+L(c,a)=\begin{cases}e^{-ac},&a>0,\\0,&a<0,\end{cases}
+\]
+
+where \(L(c,a)\) is a fully defined, absolutely convergent remainder
+expression. Conditional convergence and tail control are no longer open. The
+remaining work is the classical value evaluation of \(L(c,a)\).
+
 ## Claim boundary
 
 This is serious formal-engineering progress on a classical analytic bridge. It

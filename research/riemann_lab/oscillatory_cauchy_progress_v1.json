@@ -1,0 +1,49 @@
+{
+  "schema": "aion.riemann_oscillatory_cauchy_progress.v1",
+  "date": "2026-08-15",
+  "status": "sharp_symmetric_convergence_verified",
+  "claim_boundary": "Lean verifies integration-by-parts tail control and existence of the sharp symmetric oscillatory Cauchy limit for c > 0 and a != 0. The classical piecewise value is not yet verified.",
+  "pinned_environment": {
+    "lean": "4.24.0",
+    "mathlib": "v4.32.1"
+  },
+  "formal_module": {
+    "path": "RiemannLab/Tasks/OscillatoryCauchy.lean",
+    "sha256": "3ab4d0460c019a2024dd2ad4d112303060c75e28661afc5317cd4da463f18a2c",
+    "definitions": 3,
+    "kernel_checked_theorems": 18,
+    "sorry": 0,
+    "admit": 0,
+    "axiom": 0,
+    "unsafe": 0
+  },
+  "verified_units": [
+    "derivative of the reciprocal vertical-line parameter",
+    "normalized primitive of exp(i*a*t)",
+    "exact finite-interval integration by parts",
+    "constant norm of the oscillatory primitive",
+    "1/|t| endpoint bound",
+    "exact norm and absolute integrability of the squared-denominator remainder",
+    "vanishing of the endpoint term at positive infinity",
+    "existence and explicit remainder formula for the one-sided sharp limit",
+    "reflection/conjugation identity for negative heights",
+    "existence of the normalized symmetric sharp limit",
+    "equivalence of the original oscillatory target to one explicit value identity"
+  ],
+  "remaining_gate": {
+    "id": "oscillatory_cauchy_explicit_value",
+    "target": "oscillatoryCauchyLimitValue c a = if 0 < a then exp(-a*c) else 0",
+    "status": "open",
+    "candidate_routes": [
+      "evaluate the absolutely convergent remainder by Laplace representation and Fubini",
+      "prove a regularized Fourier transform identity and remove the regulator",
+      "perform a source-precise complex contour calculation"
+    ]
+  },
+  "verification": {
+    "command": "lake build",
+    "result": "PASS",
+    "jobs": 3586,
+    "api_calls": 0
+  }
+}

@@ -1,8 +1,8 @@
 {
   "schema": "aion.riemann_scalar_perron_progress.v1",
   "date": "2026-08-15",
-  "status": "partial_kernel_verified",
-  "claim_boundary": "Finite-height normalization, logarithmic reduction, factorization, continuity, and the symmetric half-weight limit at y=1 are Lean-verified. The nonzero-frequency scalar Perron limit remains unproved; no RH progress or novel mathematics is claimed.",
+  "status": "sharp_limit_existence_verified_value_open",
+  "claim_boundary": "Finite-height normalization, logarithmic reduction, factorization, continuity, the symmetric half-weight limit at y=1, and existence of the sharp symmetric limit for every nonzero frequency are Lean-verified. Identification of that limit with the classical piecewise value remains unproved; no RH progress or novel mathematics is claimed.",
   "pinned_environment": {
     "lean": "4.24.0",
     "mathlib": "v4.32.1",
@@ -12,9 +12,9 @@
   },
   "formal_module": {
     "path": "RiemannLab/Tasks/ScalarPerron.lean",
-    "sha256": "702e16ee04f4c11d68eb268bdc9ddb7abffd63185bdb854b4e0f62f0d6649a90",
-    "definitions": 8,
-    "kernel_checked_theorems": 21,
+    "sha256": "981cb868319315ee35a4b6b8a01bdf62869a43b1b51eaf5607e03a4473b12bb3",
+    "definitions": 9,
+    "kernel_checked_theorems": 22,
     "sorry": 0,
     "admit": 0,
     "axiom": 0,
@@ -31,9 +31,9 @@
     "at y = 1 the normalized symmetric limit is 1/2"
   ],
   "open_unit": {
-    "id": "nonzero_frequency_oscillatory_cauchy_limit",
-    "statement_shape": "For c > 0 and a != 0, the normalized symmetric integral of exp(i*a*t)/(c+i*t) has limit exp(-a*c) when a > 0 and zero when a < 0.",
-    "why_open": "The kernel decays only as 1/|t|, so the available absolute-integrability Fourier inversion theorem does not apply. A Dirichlet-type estimate, sharp truncation argument, or a proved comparison with a regularized inversion theorem is still required.",
+    "id": "oscillatory_cauchy_explicit_value",
+    "statement_shape": "Identify the now-proved sharp symmetric limit value with exp(-a*c) when a > 0 and zero when a < 0.",
+    "why_open": "Integration by parts now proves sharp convergence and reduces the limit to an absolutely convergent remainder. That remainder still requires an explicit contour, Laplace, or regularized Fourier evaluation.",
     "unlocks": [
       "ScalarPerronLimitTarget",
       "finite Dirichlet-polynomial Perron inversion",
@@ -44,7 +44,7 @@
   "verification": {
     "command": "lake build",
     "result": "PASS",
-    "jobs": 3585,
+    "jobs": 3586,
     "api_calls": 0
   }
 }
