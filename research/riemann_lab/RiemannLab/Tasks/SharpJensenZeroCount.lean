@@ -4,19 +4,22 @@ namespace RiemannLab
 
 open Complex Set Filter Topology MeromorphicOn
 
+noncomputable def rawSharpJensenBoundaryMajorant (T : ℝ) : ℝ :=
+  extendedXiBoundaryBound * (|T| + 10) ^ 6 *
+    Real.exp (-(Real.pi * (T - 4) / 4))
+
 noncomputable def sharpJensenBoundaryMajorant (T : ℝ) : ℝ :=
-  max 1 (extendedXiBoundaryBound * (|T| + 10) ^ 6 *
-    Real.exp (-(Real.pi * (T - 4) / 4)))
+  max 1 (rawSharpJensenBoundaryMajorant T)
 
 theorem one_le_sharpJensenBoundaryMajorant (T : ℝ) :
     1 ≤ sharpJensenBoundaryMajorant T := le_max_left _ _
 
 /-- The sharp xi estimates now cover the complete Jensen circle, including
 the portion between real parts four and six. -/
-theorem norm_riemannXiEntire_le_sharpJensenBoundaryMajorant
+theorem norm_riemannXiEntire_le_rawSharpJensenBoundaryMajorant
     {T : ℝ} {z : ℂ}
     (hz : z ∈ Metric.sphere (riemannXiJensenCenter T) 4) :
-    ‖riemannXiEntire z‖ ≤ sharpJensenBoundaryMajorant T := by
+    ‖riemannXiEntire z‖ ≤ rawSharpJensenBoundaryMajorant T := by
   have hdist : ‖z - riemannXiJensenCenter T‖ = 4 := by
     simpa only [Metric.mem_sphere, dist_eq_norm] using hz
   have hreabs : |z.re - 2| ≤ 4 := by
@@ -94,7 +97,6 @@ theorem norm_riemannXiEntire_le_sharpJensenBoundaryMajorant
     · exact norm_riemannXiEntire_le_rightExtensionBound
         (s := z) ⟨le_of_not_ge hre, hreUpper⟩
   apply hbase.trans
-  apply le_trans _ (le_max_right 1 _)
   have hK : 0 ≤ extendedXiBoundaryBound := extendedXiBoundaryBound_pos.le
   have hp : ‖z + 4‖ ^ 6 ≤ (|T| + 10) ^ 6 := by gcongr
   calc
@@ -104,6 +106,13 @@ theorem norm_riemannXiEntire_le_sharpJensenBoundaryMajorant
           Real.exp (-(Real.pi * z.im / 4)) := by gcongr
     _ ≤ extendedXiBoundaryBound * (|T| + 10) ^ 6 *
         Real.exp (-(Real.pi * (T - 4) / 4)) := by gcongr
+
+theorem norm_riemannXiEntire_le_sharpJensenBoundaryMajorant
+    {T : ℝ} {z : ℂ}
+    (hz : z ∈ Metric.sphere (riemannXiJensenCenter T) 4) :
+    ‖riemannXiEntire z‖ ≤ sharpJensenBoundaryMajorant T :=
+  (norm_riemannXiEntire_le_rawSharpJensenBoundaryMajorant hz).trans
+    (le_max_right _ _)
 
 /-- Fully instantiated sharp local Jensen bound. -/
 theorem riemannXiEntire_local_jensen_bound_sharp (T : ℝ) :
@@ -175,5 +184,140 @@ theorem jensenCenter_sq_lower {T : ℝ} (hT : 2 ≤ T) :
     _ ≤ ‖s‖ ^ 2 * ‖s - 1‖ ^ 2 * ‖Gammaℝ s‖ ^ 2 *
         ‖riemannZeta s‖ ^ 2 := by
       gcongr
+
+/-- Xi normalized to have value one at the moving Jensen centre. -/
+noncomputable def centerScaledXi (T : ℝ) (z : ℂ) : ℂ :=
+  (riemannXiEntire (riemannXiJensenCenter T))⁻¹ * riemannXiEntire z
+
+@[simp] theorem centerScaledXi_center (T : ℝ) :
+    centerScaledXi T (riemannXiJensenCenter T) = 1 := by
+  unfold centerScaledXi
+  exact inv_mul_cancel₀ (riemannXiEntire_ne_zero_jensenCenter T)
+
+theorem analyticAt_centerScaledXi (T : ℝ) (z : ℂ) :
+    AnalyticAt ℂ (centerScaledXi T) z := by
+  unfold centerScaledXi
+  exact analyticAt_const.mul (analyticAt_riemannXiEntire z)
+
+/-- Multiplying xi by its nonzero inverse centre value does not alter its
+divisor on the Jensen disk. -/
+theorem divisor_centerScaledXi_eq (T r : ℝ) (hr : 0 ≤ r) :
+    divisor (centerScaledXi T) (Metric.closedBall (riemannXiJensenCenter T) r) =
+      divisor riemannXiEntire (Metric.closedBall (riemannXiJensenCenter T) r) := by
+  let U := Metric.closedBall (riemannXiJensenCenter T) r
+  let c : ℂ := (riemannXiEntire (riemannXiJensenCenter T))⁻¹
+  have hc : c ≠ 0 := inv_ne_zero (riemannXiEntire_ne_zero_jensenCenter T)
+  have hconst : MeromorphicOn (fun _ : ℂ ↦ c) U := MeromorphicOn.const c
+  have hxi : MeromorphicOn riemannXiEntire U :=
+    fun z _ ↦ (analyticAt_riemannXiEntire z).meromorphicAt
+  have hconstOrder : ∀ z ∈ U,
+      meromorphicOrderAt (fun _ : ℂ ↦ c) z ≠ ⊤ := by
+    intro z hz
+    simp [meromorphicOrderAt_const, hc]
+  have hcenterMem : riemannXiJensenCenter T ∈ U := by
+    simp [U, hr]
+  have hcenterOrder : meromorphicOrderAt riemannXiEntire
+      (riemannXiJensenCenter T) ≠ ⊤ := by
+    rw [(analyticAt_riemannXiEntire _).meromorphicOrderAt_eq,
+      (analyticAt_riemannXiEntire _).analyticOrderAt_eq_zero.2
+        (riemannXiEntire_ne_zero_jensenCenter T)]
+    simp
+  have hxiOrder : ∀ z ∈ U, meromorphicOrderAt riemannXiEntire z ≠ ⊤ := by
+    intro z hz
+    exact hxi.meromorphicOrderAt_ne_top_of_isPreconnected
+      Metric.isPreconnected_closedBall hcenterMem hz hcenterOrder
+  have hmul := divisor_mul hconst hxi hconstOrder hxiOrder
+  have hfun : centerScaledXi T = (fun _ : ℂ ↦ c) * riemannXiEntire := by
+    funext z
+    rfl
+  rw [hfun, hmul]
+  simpa [U]
+
+theorem norm_jensenCenter_le_rawMajorant {T : ℝ} (hT : 2 ≤ T) :
+    ‖riemannXiEntire (riemannXiJensenCenter T)‖ ≤
+      rawSharpJensenBoundaryMajorant T := by
+  let s := riemannXiJensenCenter T
+  have hs : s ∈ xiVerticalClosedStrip := by
+    change -3 ≤ s.re ∧ s.re ≤ 4
+    norm_num [s]
+  have h := norm_riemannXiEntire_le_sharpStripBound hs
+  have hnorm : ‖s + 4‖ ≤ T + 10 := by
+    calc
+      ‖s + 4‖ ≤ |(s + 4).re| + |(s + 4).im| :=
+        Complex.norm_le_abs_re_add_abs_im _
+      _ = 6 + T := by norm_num [s, abs_of_nonneg (by linarith : 0 ≤ T)]
+      _ ≤ T + 10 := by linarith
+  have hbase : 1 ≤ T + 10 := by linarith
+  have hp : ‖s + 4‖ ^ 4 ≤ (T + 10) ^ 6 := by
+    calc
+      ‖s + 4‖ ^ 4 ≤ (T + 10) ^ 4 := by gcongr
+      _ ≤ (T + 10) ^ 6 := by
+        nlinarith [sq_nonneg ((T + 10) ^ 2),
+          sq_nonneg ((T + 10) ^ 2 - 1)]
+  have hexp : Real.exp (-(Real.pi * s.im / 4)) ≤
+      Real.exp (-(Real.pi * (T - 4) / 4)) := by
+    apply Real.exp_le_exp.mpr
+    simp [s]
+    nlinarith [Real.pi_pos]
+  have hp4 : 0 ≤ ‖s + 4‖ ^ 4 := by positivity
+  have hp6 : 0 ≤ (T + 10) ^ 6 := by positivity
+  calc
+    ‖riemannXiEntire s‖ ≤ weightedXiBoundaryBound * ‖s + 4‖ ^ 4 *
+        Real.exp (-(Real.pi * s.im / 4)) := h
+    _ ≤ extendedXiBoundaryBound * (T + 10) ^ 6 *
+        Real.exp (-(Real.pi * (T - 4) / 4)) := by
+      apply mul_le_mul
+      · exact mul_le_mul (le_max_left _ _) hp hp4
+          extendedXiBoundaryBound_pos.le
+      · exact hexp
+      · exact Real.exp_nonneg _
+      · exact mul_nonneg extendedXiBoundaryBound_pos.le hp6
+    _ = rawSharpJensenBoundaryMajorant T := by
+      unfold rawSharpJensenBoundaryMajorant
+      rw [abs_of_nonneg (by linarith : 0 ≤ T)]
+
+noncomputable def scaledJensenBoundaryMajorant (T : ℝ) : ℝ :=
+  rawSharpJensenBoundaryMajorant T /
+    ‖riemannXiEntire (riemannXiJensenCenter T)‖
+
+theorem one_le_scaledJensenBoundaryMajorant {T : ℝ} (hT : 2 ≤ T) :
+    1 ≤ scaledJensenBoundaryMajorant T := by
+  unfold scaledJensenBoundaryMajorant
+  exact (le_div_iff₀ (norm_pos_iff.mpr
+    (riemannXiEntire_ne_zero_jensenCenter T))).2
+      (by simpa using norm_jensenCenter_le_rawMajorant hT)
+
+theorem norm_centerScaledXi_le_scaledMajorant
+    {T : ℝ} {z : ℂ}
+    (hz : z ∈ Metric.sphere (riemannXiJensenCenter T) 4) :
+    ‖centerScaledXi T z‖ ≤ scaledJensenBoundaryMajorant T := by
+  unfold centerScaledXi scaledJensenBoundaryMajorant
+  rw [norm_mul, norm_inv]
+  have hc : 0 < ‖riemannXiEntire (riemannXiJensenCenter T)‖ :=
+    norm_pos_iff.mpr (riemannXiEntire_ne_zero_jensenCenter T)
+  rw [inv_mul_eq_div]
+  apply (div_le_div_iff_of_pos_right hc).2
+  exact norm_riemannXiEntire_le_rawSharpJensenBoundaryMajorant hz
+
+/-- Jensen's inequality in the correct centre-scaled form.  Its centre norm
+is exactly one and its divisor is the original xi divisor. -/
+theorem riemannXiEntire_local_jensen_bound_scaled
+    {T : ℝ} (hT : 2 ≤ T) :
+    ∑ᶠ u, divisor riemannXiEntire
+        (Metric.closedBall (riemannXiJensenCenter T) 3) u ≤
+      Real.log (scaledJensenBoundaryMajorant T) / Real.log (4 / 3) := by
+  have hana : AnalyticOnNhd ℂ (centerScaledXi T)
+      (Metric.closedBall (riemannXiJensenCenter T) 4) :=
+    fun z _ ↦ analyticAt_centerScaledXi T z
+  have h := AnalyticOnNhd.sum_divisor_le
+    (f := centerScaledXi T) (c := riemannXiJensenCenter T)
+    (r := 3) (R := 4) (M := scaledJensenBoundaryMajorant T)
+    (by norm_num) (by norm_num) (one_le_scaledJensenBoundaryMajorant hT)
+    (by simpa using hana) (by simp) (fun z hz ↦ norm_centerScaledXi_le_scaledMajorant
+      (by simpa using hz))
+  have habs3 : |(3 : ℝ)| = 3 := abs_of_nonneg (by norm_num)
+  rw [habs3, divisor_centerScaledXi_eq T 3 (by norm_num)] at h
+  norm_num at h
+  simpa using h
 
 end RiemannLab
