@@ -970,3 +970,22 @@ Weil functional.  However, the decisive research target is now the discovery
 of a strictly stronger prime-side identity, sum-of-squares decomposition,
 positive operator, or monotonicity principle that proves positivity for the
 localized amplifier family independently of the zero locations.
+
+The existing 250-digit Arb place decomposition was re-audited over every
+nonempty subset of the three arithmetic components through matrix order 30.
+The first certified negative principal-minor orders were:
+
+* elementary/pole/pi alone: order 2;
+* archimedean Gamma alone: order 1;
+* regularized finite place alone: order 21;
+* elementary plus Gamma: order 1;
+* elementary plus finite place: order 4;
+* Gamma plus finite place: order 1.
+
+Only the complete three-place combination remained positive through all 30
+checked orders.  This rigorously rules out every naive termwise or two-place
+positivity decomposition at those finite orders.  Any successful arithmetic
+certificate must expose a genuinely global cancellation coupling the pole/pi,
+Gamma, and prime contributions simultaneously.  This negative result is
+strategically useful: it prevents further effort being spent on a local-place
+sum-of-squares that certified data has already falsified.
