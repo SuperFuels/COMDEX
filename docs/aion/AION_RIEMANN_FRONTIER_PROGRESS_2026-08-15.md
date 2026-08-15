@@ -539,3 +539,76 @@ quadratic form into elementary/pole, Gamma, and prime contributions and test
 whether the combined form admits an unconditional sum-of-squares, moment, or
 self-adjoint-operator certificate.  The rover remains a falsifier and
 conjecture miner, not the main proof engine.
+
+## Universal Pascal--Toeplitz reduction
+
+The first part of the next proof unit has now been completed in Lean.  Four
+new universal results were added:
+
+1. every nonzeroth inverse-Pascal row has total mass zero;
+2. double summation against two zero-mass rows removes every separable term
+   from a centered kernel;
+3. inverse-Pascal congruence preserves the underlying finite quadratic form;
+4. the complete two-index transform of a centered Li zero mode reduces exactly
+   to a Toeplitz geometric kernel.
+
+Writing
+
+`q(rho)=1-rho^(-1)`,
+
+the last theorem is
+
+`sum_(i=0)^n sum_(j=0)^m B_(n,i) B_(m,j)
+  [L_i(rho)+L_j(rho)-L_|i-j|(rho)]
+ = sum_(i=0)^n sum_(j=0)^m B_(n,i) B_(m,j) q(rho)^|i-j|`,
+
+for all positive `n,m` and every complex `rho`.  Here
+`B_(n,i)=(-1)^(n-i)binom(n,i)`.  No critical-line or RH assumption occurs in
+the proof.
+
+This is stronger than a finite coefficient check: it identifies the exact
+two-variable object that remains after changing coordinates.  All constant
+and one-variable pieces cancel because the two Pascal rows have zero mass.
+Only the discrete-distance kernel survives.
+
+The finite quadratic-form theorem proves, for an arbitrary kernel `K`, that
+
+`Q_(B K B^T)(c) = Q_K(B^T c)`.
+
+Thus positivity is neither created nor lost by the coordinate change.  A
+positive representation of the Toeplitz-side form would transfer directly to
+the original Li--Gram form.
+
+The surviving single-mode kernel also has the bivariate generating function
+
+`sum_(n,m>=1) h_(n,m)(x) z^n w^m
+ = x*z*w*(2+x*(z+w)) /
+   [(1+z+w)(1+x*z)(1+x*w)]`,
+
+where `x=rho^(-1)`.  A new exact-integer verifier checked the rational
+coefficient recurrence for all `1024` pairs in the square
+`1 <= n,m <= 32`.  The resulting payload hash is
+
+`39ce330a7d67ef42fcff042b4a6a3e4d98e67a1c935be7499abf9099ff9c8f52`.
+
+The rational generating function is not yet a universal Lean theorem, but it
+provides a compact target for that proof and reproduces the earlier explicit
+reciprocal-power coefficient formula.
+
+The implementation commit is `97cc6cca`.  Four focused regression tests and
+the full Lean build passed: 3,706 jobs, zero `sorry`, zero `admit`, and no new
+axioms.
+
+The next irreducible research unit is now narrower:
+
+* formalize the rational generating-function identity in Lean;
+* combine reflected modes `q` and `q^(-1)` and conjugate modes at the level of
+  the Toeplitz quadratic form;
+* transfer the resulting full-divisor form to the explicit prime/Gamma/pole
+  side;
+* search there for an unconditional positive operator or sum-of-squares
+  representation.
+
+This is structural frontier work, but it is not an RH proof.  The unresolved
+step is still unconditional positivity after the contributions of the entire
+zero divisor, or equivalently the complete arithmetic side, are assembled.
