@@ -125,3 +125,57 @@ target is now precise: reproduce this norm-square structure from unconditional
 prime-side or operator data without assuming `re(rho)=1/2`.  Any construction
 that uses reflection-as-conjugation before establishing the critical-line
 condition will be rejected as circular.
+
+## Distance-Gram reformulation and sensitivity gain
+
+The failed scalar moment models have been replaced by a structurally natural
+matrix criterion.  From the Li sequence, with `lambda_0 = 0`, define
+
+`G_(i,j) = lambda_i + lambda_j - lambda_|i-j|`.
+
+For one critical-line zero mode, write its unit-circle ratio as an angle
+`theta`.  `LiDistanceGram.lean` proves the exact identity
+
+`(1-cos x) + (1-cos y) - (1-cos(x-y))`
+
+`= (1-cos x)(1-cos y) + sin x sin y`.
+
+Consequently every finite quadratic form for one mode is exactly the sum of
+two squares
+
+`(sum_i c_i(1-cos x_i))^2 + (sum_i c_i sin x_i)^2 >= 0`.
+
+Thus the proposed matrix is the correct Gram object under the critical-line
+geometry.  Conversely, positivity of every finite matrix forces
+`lambda_n >= 0` from its diagonal entries, so after the standard analytic
+zero-sum passage this is an RH-equivalent matrix target rather than a merely
+necessary numerical pattern.
+
+`rh_frontier_li_distance_gram.py` constructs these matrices directly from
+the Arb-certified full Li coefficients.  All leading principal minors through
+order **100** are rigorously positive at 800-digit working precision.  This is
+finite evidence only and does not prove the infinite matrix criterion.
+
+The same test was attacked by adding one synthetic off-line quartet at
+`gamma = 14.134725...` to the complete zeta Li background.  A negative leading
+principal minor was rigorously found at the following much smaller matrix
+orders:
+
+| Synthetic beta | First negative Gram minor | First negative isolated quartet mode |
+|---:|---:|---:|
+| `0.51` | `11` | `444` |
+| `0.55` | `9` | `89` |
+| `0.60` | `8` | `89` |
+| `0.75` | `7` | `88` |
+
+The matrix therefore exposes off-line geometry far earlier than coefficient-
+by-coefficient sign testing in these adversarial cases.  The injected points
+are not asserted to be zeta zeros.  The preserved certified result has payload
+SHA-256 `4c307cd07e8a61ee2d1b08dc87ce6dc40d8cde4622d26c2d8b6f6fb172138c78`.
+
+The frontier target is now sharper: seek an unconditional prime-side or
+operator construction of this distance-Gram matrix.  A proof that every
+finite instance is positive semidefinite would force all Li coefficients
+nonnegative, while a negative principal minor would supply a finite
+countercertificate.  Candidate constructions must not assume unit-modulus
+zero ratios, since that would assume RH in disguise.
