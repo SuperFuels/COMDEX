@@ -11,6 +11,7 @@ import RiemannLab.Tasks.LiToeplitzQuartet
 import RiemannLab.Tasks.LiToeplitzAmplifier
 import RiemannLab.Tasks.LiFiniteSpectralIsolation
 import RiemannLab.Tasks.LiExpansiveModeIsolation
+import RiemannLab.Tasks.LiSubdominantTail
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor
