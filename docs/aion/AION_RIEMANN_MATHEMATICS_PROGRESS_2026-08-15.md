@@ -233,3 +233,41 @@ After those estimates, the finite rectangle ledger still has to be aligned
 with the compact nontrivial-zero truncation and the vanishing tail of the
 trivial-zero series.  Therefore the complete explicit formula and the
 classical RH frontier are not yet claimed.
+
+## 15 August continuation: completed-zeta growth and local Jensen control
+
+`CompletedZetaGrowth.lean` now derives a genuinely global growth layer from
+Mathlib's Mellin construction of the pole-removed completed zeta function.
+The modified theta kernel is Mellin-integrable at every complex parameter.
+After rewriting the Mellin transform as a Fourier transform, Lean proves an
+ordinate-independent `L1` bound on every vertical line and then a uniform
+bound on every fixed closed vertical strip.
+
+The module constructs an entire xi-type function
+
+`Xi(s) = s(s-1) completedRiemannZeta0(s) + 1`,
+
+proves that it agrees with `s(s-1) completedRiemannZeta(s)` away from `0` and
+`1`, proves that every nontrivial zeta zero is a zero of `Xi`, and proves that
+`Xi` is nonzero on `Re(s)>1`.  It then instantiates Mathlib's Jensen formula
+with an explicit boundary majorant.  At every height `T`, the radius-three
+disk centered at `2+iT` now has a kernel-checked divisor bound, and every
+nontrivial zero with `|Im(rho)-T| <= 1` is proved to lie in that disk.
+
+Full verification passes: **3,632 build jobs**.  This closes the previously
+missing qualitative entire-function and local-zero-count infrastructure.  It
+does **not** yet give the quantitative `O(log T)` local zero count needed for
+the standard admissible-height argument: the present Jensen quotient contains
+the center value `|Xi(2+iT)|`.  Controlling its ratio to the boundary majorant
+requires a vertical complex-Gamma/Stirling estimate (or an equivalent sharp
+completed-zeta estimate).  The pinned Mathlib revision contains factorial
+Stirling bounds but no complex-Gamma vertical asymptotic, digamma growth
+theorem, or global `zeta'/zeta` estimate.
+
+Accordingly, no assumption or opaque axiom has been inserted to manufacture
+the final contour limit.  The remaining classical dependency is now exposed
+at theorem level: prove the sharp center-to-boundary Jensen ratio, derive the
+uniform local zero count and quantitative zero separation, and use it with the
+functional equation to discharge the horizontal and displaced-left edges.
+The complete Chebyshev explicit formula and the classical RH frontier remain
+open until that estimate is kernel-checked.  No new RH mathematics is claimed.
