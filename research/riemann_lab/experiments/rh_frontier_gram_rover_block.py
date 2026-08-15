@@ -11,6 +11,7 @@ precision merely by reloading them.
 from __future__ import annotations
 
 import argparse
+import gzip
 import json
 import os
 import sys
@@ -38,15 +39,30 @@ def save_json_atomic(path: Path, payload: dict) -> None:
         prefix=f".{path.name}.", suffix=".tmp", dir=path.parent
     )
     try:
-        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
-            json.dump(payload, handle, indent=2, sort_keys=True)
-            handle.write("\n")
-            handle.flush()
-            os.fsync(handle.fileno())
+        if path.suffix == ".gz":
+            with os.fdopen(descriptor, "wb") as raw:
+                with gzip.open(raw, "wt", encoding="utf-8", compresslevel=6) as handle:
+                    json.dump(payload, handle, separators=(",", ":"), sort_keys=True)
+                    handle.write("\n")
+                raw.flush()
+                os.fsync(raw.fileno())
+        else:
+            with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+                json.dump(payload, handle, indent=2, sort_keys=True)
+                handle.write("\n")
+                handle.flush()
+                os.fsync(handle.fileno())
         Path(temporary_name).replace(path)
     except Exception:
         Path(temporary_name).unlink(missing_ok=True)
         raise
+
+
+def read_json(path: Path) -> dict:
+    if path.suffix == ".gz":
+        with gzip.open(path, "rt", encoding="utf-8") as handle:
+            return json.load(handle)
+    return json.loads(path.read_text(encoding="utf-8"))
 
 
 def serialize_state(
@@ -72,7 +88,7 @@ def serialize_state(
 
 
 def load_state(path: Path, digits: int) -> tuple[dict, IncrementalLDL, list[arb]]:
-    payload = json.loads(path.read_text(encoding="utf-8"))
+    payload = read_json(path)
     if payload.get("format") != STATE_FORMAT:
         raise ValueError("unsupported rover state format")
     saved_hash = payload.pop("state_sha256", None)
@@ -211,7 +227,7 @@ def main() -> None:
         final_state_hash = state["state_sha256"]
     else:
         final_state_hash = (
-            json.loads(args.state.read_text(encoding="utf-8"))["state_sha256"]
+            read_json(args.state)["state_sha256"]
             if args.state.exists() else None
         )
     result = {

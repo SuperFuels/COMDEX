@@ -64,7 +64,7 @@ class GramRoverTests(unittest.TestCase):
             self.assertTrue(pivot > 0)
         state = serialize_state(factor, coefficients, 8, 100, "a" * 64, [])
         with tempfile.TemporaryDirectory() as directory:
-            path = Path(directory) / "state.json"
+            path = Path(directory) / "state.json.gz"
             save_json_atomic(path, state)
             loaded, restored, cached = load_state(path, 100)
         self.assertEqual(loaded["completed_order"], 8)

@@ -362,3 +362,42 @@ The neighbouring `n^(-3/2)` fit is nearly as good, so no exponent has been
 promoted to a conjectured inequality.  The analysis is being retained as a
 symbolic-search target only.  Its payload SHA-256 is
 `3c064ae81b883d9fff0d3622671a9c5c3dab7b30b50b976bde42a3f0bd7c627e`.
+
+## Refuelling to 3200 digits and extension to order 210
+
+The persistent state format now supports atomic gzip compression, including
+hash verification and resume checks.  This was required because the full
+3200-digit triangular factor contains tens of thousands of rigorous interval
+entries.
+
+A fresh 3200-digit rebuild certified every Schur complement through order
+210.  Direct determinant checkpoints were completed at orders 25, 50, 75,
+100, 125, 150, 175, 200, and 210.  The final pivot was
+
+`d_210 approximately 4.5303091e-933 > 0`.
+
+The durable compressed state has hash
+
+`dc7ea72e71b90490b6186d775e854d07d0f5691e596526b2d0fe86de0c40b7a3`,
+
+and the block result has payload hash
+
+`8102831bf806a4aafda2957080d2dae6127948a6e9322fa6c688d16b35d1557f`.
+
+The complete rebuild took approximately 500 seconds locally.  High-precision
+full-Li coefficient regeneration, rather than the resumed LDL transition, is
+now the dominant scaling bottleneck.  The next engineering optimization
+should therefore persist extendable Taylor and Stieltjes-series state in
+addition to the Gram factorization.
+
+The order-210 invariant analysis certifies 209 positive, strictly decreasing
+transitions.  The last 30-stage midpoint window again marginally favours a
+ratio proportional to `n^(-5/4)`, but neighbouring powers fit almost equally
+well.  No power law has been promoted to a bound.  The invariant-analysis
+payload hash is
+
+`2110bd91b4b57d5083208fdd83f7fa5128664245bbbbb7bb95cb29d1d96910ff`.
+
+The certified finite frontier is now order 210.  This remains neither an RH
+proof nor evidence sufficient for RH; the universal positivity problem is
+unchanged.

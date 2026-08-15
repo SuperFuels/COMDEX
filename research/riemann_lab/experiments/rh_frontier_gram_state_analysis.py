@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import math
@@ -49,7 +50,11 @@ def main() -> None:
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
 
-    state = json.loads(args.state.read_text(encoding="utf-8"))
+    if args.state.suffix == ".gz":
+        with gzip.open(args.state, "rt", encoding="utf-8") as handle:
+            state = json.load(handle)
+    else:
+        state = json.loads(args.state.read_text(encoding="utf-8"))
     saved_hash = state.get("state_sha256")
     core = {key: value for key, value in state.items() if key != "state_sha256"}
     if canonical_hash(core) != saved_hash:
