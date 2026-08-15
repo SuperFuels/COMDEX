@@ -243,3 +243,64 @@ represented by a new unconditional positive operator, flow, or paired-prime
 identity.  Any proposed construction must reproduce the complete combined
 form; positivity of isolated Euler factors or isolated archimedean terms is
 now certified to be false for the natural decomposition.
+
+## Governed incremental Gram rover
+
+`rh_frontier_gram_rover.py` implements the proposed proof-carrying transition
+system.  It maintains an interval-certified factorization
+
+`G_N = L_N D_N L_N^T`
+
+and extends it by one row and column.  The next diagonal entry of `D` is the
+Schur complement
+
+`d_(N+1) = G_(N+1,N+1) - g^T G_N^(-1) g`.
+
+The rover has fail-closed traffic states:
+
+* a strictly positive Arb interval extends the certificate;
+* a strictly negative interval halts with the explicit vector
+  `[-G_N^(-1)g, 1]` and its certified negative quadratic form;
+* an interval containing zero triggers a complete rerun at doubled precision;
+* direct-determinant checkpoints must overlap the product of the LDL pivots;
+* every stage and checkpoint is joined into a SHA-256 evidence chain.
+
+The first preserved run covered the unmodified full-Li matrix through order
+`100`.  It began at 200 digits, encountered unresolved pivots at stages 34 and
+60, and automatically refuelled to 400 and then 800 digits.  At 800 digits all
+100 Schur complements were certified positive.  Direct determinant checks at
+orders 25, 50, 75, and 100 were positive and overlapped the independently
+assembled LDL determinants.  Total wall-clock time was approximately seven
+seconds on the local machine.
+
+The three synthetic control lanes halted as intended:
+
+| Control lane | Halt stage | Negative witness verified |
+|---|---:|---:|
+| `beta = 0.51` | `11` | yes |
+| `beta = 0.55` | `9` | yes |
+| `beta = 0.75` | `7` | yes |
+
+The preserved rover result has payload SHA-256
+`ba21fe371c84243b01aaabae5466cedc24301e7eedd07570d1307c43d6a521f5`.
+Regression tests cover the positive lane, adversarial halt certificate,
+checkpoint agreement, and stage-hash continuity.
+
+The invariant-mining diagnostic certified that every one of the 99 observed
+pivot transitions was strictly decreasing.  Its best simple midpoint-only
+tail fit was
+
+`d_n / d_(n-1) approximately C / n^(3/2)`
+
+over stages 71--100, with fitted `C approximately 0.0270` and relative spread
+about 5.6 percent.  This is only a conjecture-generation signal: it is not a
+certified lower bound, it has not been derived analytically, and extrapolating
+it would not prove positivity.  It supplies a concrete pattern for the next
+symbolic attack rather than an RH claim.
+
+This establishes that the rover is fast enough for substantial finite
+exploration and sensitive enough to detect the injected controls.  It does
+not overcome the infinity barrier: successful travel through any finite
+order is not an RH proof.  Its research purpose is to expose pivot structure
+from which a uniform lower bound or inductive invariant might be conjectured,
+attacked, and ultimately proved.
