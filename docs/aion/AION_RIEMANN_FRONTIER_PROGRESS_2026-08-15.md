@@ -102,3 +102,26 @@ sequence: a test-function Gram form, a matrix-valued moment problem, or a
 prime-side sum-of-squares identity.  Candidates will continue to be required
 to survive rigorous enclosures and injected off-line quartets before any Lean
 formalization effort.
+
+## Reflection-paired norm-square identity
+
+`LiPairIdentity.lean` formalizes the exact algebraic structure that survives
+the failed scalar moment ansatzes.  For the single-zero Li mode
+
+`a_n(rho) = 1 - (1 - 1/rho)^n`,
+
+Lean proves
+
+`a_n(rho) + a_n(1-rho) = a_n(rho) * a_n(1-rho)`.
+
+When `re(rho)=1/2`, reflection equals conjugation, and the right side becomes
+
+`|a_n(rho)|^2 >= 0`.
+
+This is a genuine checked sum-of-squares identity for each reflected pair,
+but it is conditional on that pair already lying on the critical line.  It
+therefore explains Li positivity under RH; it does not prove RH.  The new-idea
+target is now precise: reproduce this norm-square structure from unconditional
+prime-side or operator data without assuming `re(rho)=1/2`.  Any construction
+that uses reflection-as-conjugation before establishing the critical-line
+condition will be rejected as circular.
