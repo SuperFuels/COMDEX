@@ -4,6 +4,8 @@ import Mathlib.Analysis.Meromorphic.Divisor
 namespace RiemannLab
 
 open MeromorphicOn
+open Filter
+open scoped Topology
 
 /-!
 A compact, multiplicity-aware divisor for the zeros of the Riemann zeta function.
@@ -57,6 +59,21 @@ theorem zetaZeroOrder_ne_top {s : ℂ} (hs : s ≠ 1) : zetaZeroOrder s ≠ ⊤ 
     hconnected h2mem hsmem (by
       change zetaZeroOrder (2 : ℂ) ≠ ⊤
       simp [h2order])
+
+/-- At every nontrivial zeta zero, the residue of `ζ'/ζ` is its complete
+analytic multiplicity. -/
+theorem IsNontrivialZetaZero.tendsto_mul_zetaLogDeriv {ρ : ℂ}
+    (hρ : IsNontrivialZetaZero ρ) :
+    Filter.Tendsto (fun s ↦ (s - ρ) * logDeriv riemannZeta s)
+      (nhdsWithin ρ {ρ}ᶜ) (𝓝 (analyticOrderNatAt riemannZeta ρ : ℂ)) := by
+  have hρ1 : ρ ≠ 1 := by
+    intro h
+    subst ρ
+    have hlt := hρ.re_lt_one
+    norm_num at hlt
+  simpa using
+    RiemannLab.AnalyticAt.tendsto_mul_logDeriv_zeroOrder hρ.analyticAt
+      (zetaZeroOrder_ne_top hρ1)
 
 /-- The finite set of points carrying nonzero zeta multiplicity in `K`. -/
 noncomputable def compactZetaDivisorSupport (K : Set ℂ) (hK : IsCompact K) : Finset ℂ :=

@@ -331,6 +331,13 @@ Fourier integral. -/
 noncomputable def squaredOscillatoryCauchyKernel (c a t : ℝ) : ℂ :=
   Complex.exp ((a * t : ℝ) * Complex.I) / (c + t * Complex.I : ℂ) ^ 2
 
+theorem norm_squaredOscillatoryCauchyKernel (c a t : ℝ) :
+    ‖squaredOscillatoryCauchyKernel c a t‖ = (c ^ 2 + t ^ 2)⁻¹ := by
+  unfold squaredOscillatoryCauchyKernel
+  rw [norm_div, Complex.norm_exp_ofReal_mul_I, norm_pow, Complex.sq_norm,
+    Complex.normSq_add_mul_I]
+  simp only [one_div]
+
 /-- Unlike the original Cauchy kernel, the squared-denominator kernel is
 absolutely integrable on the whole real line. -/
 theorem integrable_squaredOscillatoryCauchyKernel {c a : ℝ} (hc : c ≠ 0) :
@@ -342,15 +349,40 @@ theorem integrable_squaredOscillatoryCauchyKernel {c a : ℝ} (hc : c ≠ 0) :
     exact (hnum.div hden (fun t ↦
       pow_ne_zero 2 (verticalLine_ne_zero_of_re_ne_zero hc t))).aestronglyMeasurable
   rw [← integrable_norm_iff hmeas]
-  have hnorm : ∀ t : ℝ, ‖squaredOscillatoryCauchyKernel c a t‖ =
-      (c ^ 2 + t ^ 2)⁻¹ := by
-    intro t
-    unfold squaredOscillatoryCauchyKernel
-    rw [norm_div, Complex.norm_exp_ofReal_mul_I, norm_pow, Complex.sq_norm,
-      Complex.normSq_add_mul_I]
-    simp only [one_div]
-  simp_rw [hnorm]
+  simp_rw [norm_squaredOscillatoryCauchyKernel]
   exact integrable_inv_sq_add_sq hc
+
+/-- Uniform finite-height bound for the absolutely integrable squared kernel. -/
+theorem norm_integral_squaredOscillatoryCauchyKernel_le
+    {c a T : ℝ} (hc : 0 < c) :
+    ‖∫ t in -T..T, squaredOscillatoryCauchyKernel c a t‖ ≤ c⁻¹ * Real.pi := by
+  calc
+    ‖∫ t in -T..T, squaredOscillatoryCauchyKernel c a t‖ ≤
+        |∫ t in -T..T, ‖squaredOscillatoryCauchyKernel c a t‖| :=
+      intervalIntegral.norm_integral_le_abs_integral_norm
+    _ = |c⁻¹ * (Real.arctan (T / c) - Real.arctan (-T / c))| := by
+      congr 1
+      simp_rw [norm_squaredOscillatoryCauchyKernel]
+      exact integral_inv_sq_add_sq hc.ne'
+    _ ≤ c⁻¹ * Real.pi := by
+      rw [show -T / c = -(T / c) by ring, Real.arctan_neg, sub_neg_eq_add,
+        ← two_mul, abs_mul, abs_of_pos (inv_pos.mpr hc)]
+      rw [abs_mul, abs_of_pos (by norm_num : (0 : ℝ) < 2)]
+      have hatan : |Real.arctan (T / c)| ≤ Real.pi / 2 := by
+        rw [abs_le]
+        constructor <;> linarith [Real.neg_pi_div_two_lt_arctan (T / c),
+          Real.arctan_lt_pi_div_two (T / c)]
+      calc
+        c⁻¹ * (2 * |Real.arctan (T / c)|) ≤
+            c⁻¹ * (2 * (Real.pi / 2)) := by gcongr
+        _ = c⁻¹ * Real.pi := by ring
+
+theorem norm_verticalLine_inv_le_inv {c : ℝ} (hc : 0 < c) (t : ℝ) :
+    ‖(c + t * Complex.I : ℂ)⁻¹‖ ≤ c⁻¹ := by
+  rw [norm_inv]
+  apply (inv_le_inv₀
+    (norm_pos_iff.mpr (scalarPerron_vertical_ne_zero hc t)) hc).2
+  simpa using Complex.re_le_norm (c + t * Complex.I)
 
 /-- Symmetric integration by parts removes the conditional kernel in favour
 of the absolutely integrable squared-denominator kernel. -/
@@ -388,6 +420,46 @@ theorem oscillatoryCauchy_symmetric_integrationByParts {c a T : ℝ}
         have haC : (a : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr ha
         field_simp
       rw [sub_eq_add_neg, hint]
+
+/-- A height-independent Dirichlet bound for the symmetric oscillatory Cauchy
+integral. -/
+theorem norm_integral_oscillatoryCauchyKernel_le
+    {c a T : ℝ} (hc : 0 < c) (ha : a ≠ 0) :
+    ‖∫ t in -T..T, oscillatoryCauchyKernel c a t‖ ≤
+      |a|⁻¹ * (2 * c⁻¹ + c⁻¹ * Real.pi) := by
+  rw [oscillatoryCauchy_symmetric_integrationByParts hc ha]
+  let e₁ : ℂ := (c + T * Complex.I : ℂ)⁻¹ * oscillatoryPrimitive a T
+  let e₂ : ℂ := (c + (-T) * Complex.I : ℂ)⁻¹ * oscillatoryPrimitive a (-T)
+  let r : ℂ := (a : ℂ)⁻¹ *
+    ∫ t in -T..T, squaredOscillatoryCauchyKernel c a t
+  have htri : ‖e₁ - e₂ + r‖ ≤ ‖e₁‖ + ‖e₂‖ + ‖r‖ := by
+    calc
+      ‖e₁ - e₂ + r‖ ≤ ‖e₁ - e₂‖ + ‖r‖ := norm_add_le _ _
+      _ ≤ (‖e₁‖ + ‖e₂‖) + ‖r‖ :=
+        by simpa [add_comm, add_left_comm, add_assoc] using
+          add_le_add_right (norm_sub_le e₁ e₂) ‖r‖
+      _ = ‖e₁‖ + ‖e₂‖ + ‖r‖ := rfl
+  apply htri.trans
+  have he₁ : ‖e₁‖ ≤ c⁻¹ * |a|⁻¹ := by
+    unfold e₁
+    rw [norm_mul, norm_oscillatoryPrimitive]
+    gcongr
+    exact norm_verticalLine_inv_le_inv hc T
+  have he₂ : ‖e₂‖ ≤ c⁻¹ * |a|⁻¹ := by
+    unfold e₂
+    rw [norm_mul, norm_oscillatoryPrimitive]
+    gcongr
+    simpa only [Complex.ofReal_neg] using norm_verticalLine_inv_le_inv hc (-T)
+  have hr : ‖r‖ ≤ |a|⁻¹ * (c⁻¹ * Real.pi) := by
+    unfold r
+    rw [norm_mul, norm_inv, norm_real, Real.norm_eq_abs]
+    gcongr
+    exact norm_integral_squaredOscillatoryCauchyKernel_le hc
+  calc
+    ‖e₁‖ + ‖e₂‖ + ‖r‖ ≤
+        c⁻¹ * |a|⁻¹ + c⁻¹ * |a|⁻¹ +
+          |a|⁻¹ * (c⁻¹ * Real.pi) := by gcongr
+    _ = |a|⁻¹ * (2 * c⁻¹ + c⁻¹ * Real.pi) := by ring
 
 /-- The negative-height endpoint in the symmetric integration-by-parts
 formula also vanishes. -/

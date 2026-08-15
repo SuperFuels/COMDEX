@@ -1,5 +1,6 @@
 import RiemannLab.Tasks.CompactZetaDivisor
 import RiemannLab.Tasks.CriticalLineCriterion
+import Mathlib.Analysis.SpecialFunctions.Pow.Continuity
 
 namespace RiemannLab
 
@@ -61,6 +62,34 @@ noncomputable def compactNontrivialZetaZeros (n : ℕ) : Finset ℂ :=
 noncomputable def explicitFormulaZeroKernel (x : ℝ) (ρ : ℂ) : ℂ :=
   (x : ℂ) ^ ρ / ρ
 
+/-- The meromorphic integrand whose contour shift produces the Chebyshev
+explicit formula. -/
+noncomputable def explicitFormulaContourKernel (x : ℝ) (s : ℂ) : ℂ :=
+  (-logDeriv riemannZeta s) * ((x : ℂ) ^ s / s)
+
+/-- A nontrivial zero cannot be the origin. -/
+theorem IsNontrivialZetaZero.ne_zero {ρ : ℂ} (hρ : IsNontrivialZetaZero ρ) : ρ ≠ 0 := by
+  intro h
+  have hpos := hρ.re_pos
+  rw [h] at hpos
+  norm_num at hpos
+
+/-- The full local residue of the explicit-formula contour kernel at a
+nontrivial zero, including both multiplicity and the Perron weight. -/
+theorem IsNontrivialZetaZero.tendsto_mul_explicitFormulaContourKernel
+    {ρ : ℂ} (hρ : IsNontrivialZetaZero ρ) {x : ℝ} (hx : 0 < x) :
+    Tendsto (fun s ↦ (s - ρ) * explicitFormulaContourKernel x s) (𝓝[≠] ρ)
+      (𝓝 (-(analyticOrderNatAt riemannZeta ρ : ℂ) * explicitFormulaZeroKernel x ρ)) := by
+  have hweight : Tendsto (fun s : ℂ ↦ (x : ℂ) ^ s / s) (𝓝[≠] ρ)
+      (𝓝 ((x : ℂ) ^ ρ / ρ)) := by
+    have hcontinuous : ContinuousAt (fun s : ℂ ↦ (x : ℂ) ^ s / s) ρ :=
+      (continuousAt_const_cpow (Complex.ofReal_ne_zero.mpr hx.ne')).div
+        continuousAt_id hρ.ne_zero
+    exact hcontinuous.tendsto.mono_left nhdsWithin_le_nhds
+  have hproduct := hρ.tendsto_mul_zetaLogDeriv.neg.mul hweight
+  simpa [explicitFormulaContourKernel, explicitFormulaZeroKernel, mul_assoc,
+    neg_mul] using hproduct
+
 /-- The finite, symmetrically expanding nontrivial-zero contribution, with
 each zero weighted by its divisor multiplicity. -/
 noncomputable def truncatedNontrivialZeroContribution (n : ℕ) (x : ℝ) : ℂ :=
@@ -68,12 +97,55 @@ noncomputable def truncatedNontrivialZeroContribution (n : ℕ) (x : ℝ) : ℂ 
     (zetaDivisorOn (zetaZeroTruncationRegion n) ρ : ℂ) *
       explicitFormulaZeroKernel x ρ
 
+/-- The finite residue ledger contributed by all nontrivial zeros in the
+`n`th compact truncation. -/
+noncomputable def truncatedNontrivialZeroResidueSum (n : ℕ) (x : ℝ) : ℂ :=
+  ∑ ρ ∈ compactNontrivialZetaZeros n,
+    -(zetaDivisorOn (zetaZeroTruncationRegion n) ρ : ℂ) *
+      explicitFormulaZeroKernel x ρ
+
+/-- The residue ledger is exactly the negative of the zero contribution in
+the conventional explicit-formula sign convention. -/
+theorem truncatedNontrivialZeroResidueSum_eq_neg (n : ℕ) (x : ℝ) :
+    truncatedNontrivialZeroResidueSum n x =
+      -truncatedNontrivialZeroContribution n x := by
+  classical
+  simp only [truncatedNontrivialZeroResidueSum, truncatedNontrivialZeroContribution,
+    Finset.sum_neg_distrib, neg_mul]
+
 /-- Every term selected by the finite truncation really is a nontrivial zeta
 zero. -/
 theorem mem_compactNontrivialZetaZeros {n : ℕ} {ρ : ℂ}
     (hρ : ρ ∈ compactNontrivialZetaZeros n) : IsNontrivialZetaZero ρ := by
   classical
   simpa [compactNontrivialZetaZeros] using (Finset.mem_filter.mp hρ).2
+
+/-- On a compact truncation, the local contour residue agrees exactly with
+the integer multiplicity stored in the compact zeta divisor. -/
+theorem tendsto_mul_explicitFormulaContourKernel_eq_divisor
+    {n : ℕ} {ρ : ℂ} (hρ : ρ ∈ compactNontrivialZetaZeros n)
+    {x : ℝ} (hx : 0 < x) :
+    Tendsto (fun s ↦ (s - ρ) * explicitFormulaContourKernel x s) (𝓝[≠] ρ)
+      (𝓝 (-(zetaDivisorOn (zetaZeroTruncationRegion n) ρ : ℂ) *
+        explicitFormulaZeroKernel x ρ)) := by
+  classical
+  have hzero := mem_compactNontrivialZetaZeros hρ
+  have hregion : ρ ∈ zetaZeroTruncationRegion n := by
+    have hsupp : ρ ∈ compactZetaDivisorSupport (zetaZeroTruncationRegion n)
+        (zetaZeroTruncationRegion_isCompact n) :=
+      (Finset.mem_filter.mp (by simpa [compactNontrivialZetaZeros] using hρ)).1
+    exact (zetaDivisorOn (zetaZeroTruncationRegion n)).supportWithinDomain
+      ((mem_compactZetaDivisorSupport
+        (zetaZeroTruncationRegion_isCompact n)).mp hsupp)
+  have hρ1 : ρ ≠ 1 := zetaZeroTruncationRegion_avoidsPole n hregion
+  have hcast : (zetaDivisorOn (zetaZeroTruncationRegion n) ρ : ℂ) =
+      (analyticOrderNatAt riemannZeta ρ : ℂ) := by
+    rw [zetaDivisorOn_apply (zetaZeroTruncationRegion_avoidsPole n) hregion]
+    have hfinite := zetaZeroOrder_ne_top hρ1
+    rw [show zetaZeroOrder ρ = (analyticOrderNatAt riemannZeta ρ : ℕ) by
+      exact (ENat.coe_toNat_eq_self.mpr hfinite).symm]
+    simp
+  simpa [hcast] using hzero.tendsto_mul_explicitFormulaContourKernel hx
 
 /-- The compact finite sets exhaust all nontrivial zeros. -/
 theorem IsNontrivialZetaZero.exists_mem_compactTruncation {ρ : ℂ}

@@ -159,8 +159,8 @@
 \addcontentsline{toc}{section}{Document control}
 
 \begin{tabularx}{\textwidth}{>{\bfseries}p{37mm}X}
-Version & 1.2 \\
-Status & Scalar Perron theorem and finite Chebyshev inversion kernel-checked; infinite growing-height interchange open \\
+Version & 1.3 \\
+Status & Full Chebyshev Perron formula kernel-checked; contour orientation and the residues at nontrivial zeros, $s=1$, and $s=0$ checked \\
 Scope & Formal RH programme only; excludes unrelated prime-search, factoring, visual probes, and Photon Algebra work \\
 Primary evidence & Lean sources, pinned environment, immutable JSON results, SHA-256 hashes, focused tests \\
 Interpretive authority & The Lean kernel decides proof acceptance; this report interprets experiments but cannot create mathematical truth \\
@@ -206,18 +206,20 @@ precommitted superiority gate. These negative results are preserved, and the
 programme has moved to the mathematical dependency chain without converting an
 engineering signal into a capability claim.
 
-The strongest new formal result is the completion of the scalar Perron theorem.
+The strongest new formal result is now the complete Chebyshev Perron formula.
 Lean verifies the squared-Cauchy Fourier value, the sharp away-from-jump scalar
-limit, generic finite Dirichlet-polynomial inversion, and its finite von
-Mangoldt specialization to $\psi(x)$. It also proves pointwise absolute
-convergence of the full von Mangoldt Perron series on $\RePart(s)>1$. The next
-irreducible gate is uniform coefficient-tail control for a vertical integral
-whose height tends to infinity.
+limit, finite Dirichlet-polynomial inversion, fixed-height interchange of the
+full von Mangoldt series and vertical integral, a height-independent summable
+majorant, and the limit to $\psi(x)$ for nonintegral $x>1$. Initial contour
+infrastructure is also checked: exact rectangle orientation, identification of
+the right edge with the proved Perron integral, multiplicity-aware zero
+residues, the main-term residue $x$ at $s=1$, and the $-\log(2\pi)$ residue at
+$s=0$.
 
 \begin{resultbox}
 Final formal verification status: \textbf{PASS}. The complete RH library builds
-in the pinned environment in 3,588 jobs. The new Fourier, scalar Perron, finite
-inversion, and pointwise L-series results contain no \code{sorry}, \code{admit},
+in the pinned environment in 3,590 jobs. The Fourier, full Perron, compact
+divisor, and initial contour-residue results contain no \code{sorry}, \code{admit},
 project axiom, unsafe declaration, paid call, or hidden oracle step.
 \end{resultbox}
 
@@ -239,7 +241,10 @@ Delayed source-closed retention & \pass & Completed once; memory arm scored 2/6 
 Compact multiplicity-aware zeta divisor & \pass & Finite compact zero sums are kernel-checked \\
 Scalar Perron theorem & \pass & Sharp limit proved away from $y=1$ \\
 Finite Chebyshev--Perron inversion & \pass & Finite von Mangoldt specialization converges to $\psi(x)$ \\
-Full Chebyshev Perron formula & \pending & Growing-height series/integral interchange remains \\
+Full Chebyshev Perron formula & \pass & Growing-height interchange and uniform domination proved \\
+Multiplicity-aware local zero residues & \pass & Residue is $-m(\rho)x^\rho/\rho$ \\
+Pole residues at $s=1$ and $s=0$ & \pass & Contributions $x$ and $-\log(2\pi)$ checked \\
+Global contour shift and explicit formula & \pending & Pole excision, trivial-zero sum, and edge limits remain \\
 AION superiority established & \fail & Neither precommitted experiment met the gate \\
 New original RH mathematics & \fail & Classical dependencies formalized; no novel theorem \\
 RH solved & \fail & No \\
@@ -698,7 +703,7 @@ Stage & Objective & Exit criterion & Current \\
 
 \subsection{Immediate next steps}
 
-\textbf{Phase A - Complete the Chebyshev Perron bridge}
+\textbf{Phase A - Complete the Chebyshev Perron bridge (completed)}
 \begin{enumerate}
   \item Prove fixed-height interchange of the absolutely convergent von
   Mangoldt coefficient series and the vertical interval integral.
@@ -708,12 +713,12 @@ Stage & Objective & Exit criterion & Current \\
   \code{ChebyshevPerronInversionTarget} for nonintegral $x>1$ and $c>1$.
 \end{enumerate}
 
-\textbf{Phase B - Shift the contour and recover residues}
+\textbf{Phase B - Shift the contour and recover residues (active)}
 \begin{enumerate}
   \item Construct admissible rectangles avoiding poles and nontrivial zeros.
   \item Prove the horizontal and displaced vertical boundary estimates.
-  \item Account for the pole at $s=1$, nontrivial zeros with multiplicity, the
-  trivial zeros, and the $1/s$ contribution.
+  \item Use the checked residues at $s=1$, at $s=0$, and at every nontrivial
+  zero; prove simplicity and sum the negative-even trivial-zero residues.
   \item Pass from finite compact zero sums to the selected explicit-formula
   convergence convention.
 \end{enumerate}
@@ -956,7 +961,8 @@ As of 15 August 2026: trusted formal laboratory - yes; governed memory
 retrieval - yes; deterministic Mathlib discovery - yes; v3 and retention
 experiments complete - yes; precommitted AION superiority - no; scalar Perron
 theorem kernel-checked - yes; finite Chebyshev inversion kernel-checked - yes;
-full Chebyshev Perron formula - not yet; new original RH mathematics - none;
+full Chebyshev Perron formula - yes; initial contour and residue ledger - yes;
+global explicit formula - not yet; new original RH mathematics - none;
 Riemann Hypothesis solved - no.
 \end{truthbox}
 
@@ -1295,17 +1301,15 @@ is
   \lim_{T\to\infty}P^{\zeta}_T(c,x)=\psi(x).
   \label{eq:chebyshev-perron-target}
 \end{equation}
-This is now represented exactly by the Lean proposition
-\code{ChebyshevPerronInversionTarget}. Lean additionally proves that the target
-written with $P^{\zeta}_T$ is logically equivalent to the target written with
-$P^{\Lambda}_T$, using Equation~\eqref{eq:truncated-perron-equality}. Neither
-convergence statement is asserted as a theorem.
+This is represented by the Lean proposition
+\code{ChebyshevPerronInversionTarget}, and is now proved by
+\code{chebyshevPerronInversion}. The proof passes through the arithmetic and
+zeta forms using Equation~\eqref{eq:truncated-perron-equality}.
 
 \begin{warningbox}
-The finite-height equality is complete; Perron inversion is not. Equality of
-the two integrands on $\RePart(s)>1$ does not justify the limit
-$T\to\infty$, interchange an infinite Dirichlet series with an improper
-integral, or settle the value at a jump of $\psi$.
+Perron inversion is complete away from jumps. The theorem deliberately assumes
+$x$ is not a natural number, so no half-weight convention at a jump of
+$\psi$ is being smuggled into the result.
 \end{warningbox}
 
 \subsubsection{Pinned-library capability audit}
@@ -1392,19 +1396,15 @@ Equation~\eqref{eq:explicit-formula-target} is decomposed as follows.
   analytic continuation to exclude zeros with real part greater than $1/2$.
 \end{enumerate}
 
-The new irreducible unit is Item~1. After substituting $u=\log y$, it is a
-Fourier inversion problem for a one-sided exponential. The obstacle is
-precise: the transformed kernel behaves like $(c+it)^{-1}$ and is not
-absolutely integrable on the real line, so Mathlib's directly available
-absolute-integrability inversion theorem does not apply without an additional
-regularization or Dirichlet-type argument.
+Items 1--3 are complete. The irreducible unit is now the global punctured
+rectangle theorem: excise finitely many poles, relate the small-circle
+integrals to the checked local residues, and prove the displaced vertical and
+horizontal edges vanish along admissible heights.
 
 \begin{decisionbox}
-The specialized Perron representation is no longer undefined: its kernel,
-normalization, vertical line, arithmetic form, zeta form, and intended limit
-are all formal objects with checked finite-height equivalences. The next work
-must prove the scalar discontinuous inversion kernel; it must not be replaced
-by an unjustified invocation of general Mellin inversion.
+The specialized Perron representation and its limit to $\psi(x)$ are checked.
+The next work must complete genuine pole excision and boundary estimates; a
+formal residue ledger alone is not a contour-shift theorem.
 \end{decisionbox}
 
 \subsection{Sharp convergence and absolute Fourier reduction completed}
@@ -1494,24 +1494,18 @@ nonintegral $x>0$ it proves the finite von Mangoldt specialization
 All sums in Equation~\eqref{eq:finite-chebyshev-perron} are finite, so this
 theorem contains no hidden exchange of an infinite series and an integral.
 
-The full Perron module now also proves, at each fixed $s$ with
-$\RePart(s)>1$, absolute summability of the von Mangoldt Perron coefficient
-series and pointwise convergence of its finite range sums to the full kernel
-\[
-  L(s,\Lambda)\frac{x^s}{s}.
-\]
-Consequently the remaining inversion gate has been narrowed to one precise
-noncompact problem: obtain domination, or an equivalent two-parameter tail
-estimate, strong enough to exchange the coefficient limit with the vertical
-integral while its height tends to infinity. Pointwise absolute convergence
-does not alone justify this growing-domain exchange.
+The full Perron module also proves fixed-height interchange of the absolutely
+convergent von Mangoldt series and the vertical integral. A
+height-independent Dirichlet bound supplies a summable coefficient majorant,
+so Tannery's theorem passes the growing-height limit through the series. Thus
+the complete zeta Perron integral converges to $\psi(x)$ away from integer
+jumps.
 
 \begin{resultbox}
-The scalar theorem, generic finite inversion, finite Chebyshev specialization,
-and pointwise infinite-series convergence are complete. The next irreducible
-gate is uniform coefficient-tail control for the growing vertical integral.
-This is significant formalization of classical analysis, not a new theorem
-about zeta zeros and not a proof of RH.
+The scalar theorem, finite inversion, fixed-height interchange, uniform
+coefficient domination, and the complete Chebyshev Perron formula are all
+kernel-checked. This is significant formalization of classical analysis, not
+a new theorem about zeta zeros and not a proof of RH.
 \end{resultbox}
 
 \subsection{Formal artifact map}
@@ -1538,8 +1532,11 @@ Pole-free compact exhaustion, finite nontrivial-zero sets, positive
 multiplicities, finite $x^\rho/\rho$ sums, and the open convergence target. \\
 \path{RiemannLab/Tasks/PerronFormula.lean} &
 Normalized zeta and von Mangoldt Perron kernels, finite-height vertical
-integrals, their exact equality on $\RePart(s)>1$, pointwise absolute series
-convergence, and the remaining full inversion target. \\
+integrals, exact equality on $\RePart(s)>1$, fixed-height interchange,
+summable uniform majorant, Tannery limit, and full Chebyshev Perron formula. \\
+\path{RiemannLab/Tasks/ContourShift.lean} &
+Oriented rectangle boundary, normalized right-edge identity, local
+multiplicity-aware zero residues, and residues at $s=1$ and $s=0$. \\
 \path{RiemannLab/Tasks/ScalarPerron.lean} &
 Scalar kernel, logarithmic reduction, half-weight value at the jump, and exact
 equivalence with the oscillatory Cauchy limit. \\
@@ -1562,13 +1559,45 @@ Perron-kernel decomposition. \\
 \end{longtable}
 
 \begin{resultbox}
-The compact multiplicity-aware divisor, scalar Perron theorem, and finite
-Chebyshev inversion are no longer blockers. Pointwise absolute convergence of
-the full von Mangoldt Perron series is also verified. The next blocker is the
-uniform tail estimate needed for the growing vertical integral. After that
-come contour shifting, residue calculation, convergence, and the two
-directions of the RH-equivalent Chebyshev bound.
+The compact divisor and complete Chebyshev Perron formula are no longer
+blockers. Local zero residues with full multiplicity, the residues at $s=1$
+and $s=0$, rectangle orientation, and the right-edge normalization are also
+verified. The remaining classical blocker is global pole excision together
+with trivial-zero summation and vanishing-edge estimates. After the explicit
+formula, the programme reaches the exact classical RH frontier.
 \end{resultbox}
+
+\section{Full Perron inversion and initial contour residues completed}
+
+The module \path{RiemannLab/Tasks/PerronFormula.lean} now proves
+\begin{equation}
+  \lim_{T\to\infty}\frac{1}{2\pi}
+  \int_{-T}^{T}-\frac{\zeta'(c+it)}{\zeta(c+it)}
+    \frac{x^{c+it}}{c+it}\,dt=\psi(x)
+\end{equation}
+for $c>1$, $x>1$, and nonintegral $x$. The decisive new estimate bounds each
+normalized coefficient integral by a summable majorant independent of $T$;
+Tannery's theorem then passes the limit through the infinite von Mangoldt
+series.
+
+The new module \path{RiemannLab/Tasks/ContourShift.lean} fixes the four-side
+orientation of the rectangle and proves that its normalized right edge is
+exactly the established finite-height Perron integral. Analytic factorization
+at a zero gives the multiplicity-aware limit
+\begin{equation}
+  (s-\rho)\frac{\zeta'(s)}{\zeta(s)}\longrightarrow m(\rho),
+\end{equation}
+and therefore the contour kernel has local residue
+$-m(\rho)x^\rho/\rho$. The compact divisor converts these local values into a
+finite residue ledger with the same multiplicities used by the truncated zero
+sum. Mathlib's Laurent asymptotic at $s=1$ yields the main term $x$, while the
+known values $\zeta(0)=-1/2$ and
+$\zeta'(0)=-\log(2\pi)/2$ yield the residue $-\log(2\pi)$ at the Perron pole.
+
+These are classical results formalized with kernel checking. They do not yet
+constitute the explicit formula: the global punctured-contour identity, the
+negative-even trivial-zero series, admissible-height estimates, and limiting
+ordering remain open.
 
 \appendix
 
