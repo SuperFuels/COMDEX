@@ -124,4 +124,56 @@ theorem riemannXiEntire_local_jensen_bound_sharp (T : ℝ) :
   norm_num at h
   exact h
 
+noncomputable def jensenCenterGammaLowerSq (T : ℝ) : ℝ :=
+  (Real.pi ^ (-1 : ℝ)) ^ 2 *
+    (Real.pi * (T / 2) / (Real.exp (Real.pi * (T / 2)) / 2))
+
+theorem six_div_pi_sq_le_norm_zeta_jensenCenter (T : ℝ) :
+    6 / Real.pi ^ 2 ≤ ‖riemannZeta (riemannXiJensenCenter T)‖ := by
+  have hA : 0 < Real.pi ^ 2 / 6 := by positivity
+  have h := pi_sq_div_six_mul_norm_riemannZeta_ge_one
+    (s := riemannXiJensenCenter T) (by simp)
+  have hdiv : 1 / (Real.pi ^ 2 / 6) ≤
+      ‖riemannZeta (riemannXiJensenCenter T)‖ :=
+    (div_le_iff₀ hA).2 (by simpa [mul_comm] using h)
+  convert hdiv using 1 <;> field_simp [Real.pi_ne_zero]
+
+/-- Explicit squared lower bound for the moving Jensen centre. -/
+theorem jensenCenter_sq_lower {T : ℝ} (hT : 2 ≤ T) :
+    jensenCenterGammaLowerSq T * (6 / Real.pi ^ 2) ^ 2 ≤
+      ‖riemannXiEntire (riemannXiJensenCenter T)‖ ^ 2 := by
+  let s := riemannXiJensenCenter T
+  let t := T / 2
+  have ht : 0 < t := by dsimp [t]; linarith
+  have hsSq : ‖s‖ ^ 2 = 4 + T ^ 2 := by
+    rw [Complex.sq_norm]
+    simp [s, riemannXiJensenCenter, Complex.normSq_apply]
+    ring
+  have hs1Sq : ‖s - 1‖ ^ 2 = 1 + T ^ 2 := by
+    rw [Complex.sq_norm]
+    simp [s, riemannXiJensenCenter, Complex.normSq_apply]
+    ring
+  have hsOne : 1 ≤ ‖s‖ ^ 2 := by rw [hsSq]; nlinarith [sq_nonneg T]
+  have hs1One : 1 ≤ ‖s - 1‖ ^ 2 := by rw [hs1Sq]; nlinarith [sq_nonneg T]
+  have hgamma := GammaR_jensenCenter_sq_lower ht
+  have hcenter : s = 2 + ((2 * t : ℝ) : ℂ) * I := by
+    apply Complex.ext <;> simp [s, t, riemannXiJensenCenter] <;> ring
+  rw [← hcenter] at hgamma
+  change jensenCenterGammaLowerSq T ≤ ‖Gammaℝ s‖ ^ 2 at hgamma
+  have hzeta := six_div_pi_sq_le_norm_zeta_jensenCenter T
+  change 6 / Real.pi ^ 2 ≤ ‖riemannZeta s‖ at hzeta
+  rw [norm_riemannXiEntire_jensenCenter T]
+  change _ ≤ (‖s‖ * ‖s - 1‖ * ‖Gammaℝ s‖ * ‖riemannZeta s‖) ^ 2
+  simp only [mul_pow]
+  have hG : 0 ≤ jensenCenterGammaLowerSq T := by
+    unfold jensenCenterGammaLowerSq
+    positivity
+  have hz0 : 0 ≤ 6 / Real.pi ^ 2 := by positivity
+  calc
+    jensenCenterGammaLowerSq T * (6 / Real.pi ^ 2) ^ 2 =
+        1 * 1 * jensenCenterGammaLowerSq T * (6 / Real.pi ^ 2) ^ 2 := by ring
+    _ ≤ ‖s‖ ^ 2 * ‖s - 1‖ ^ 2 * ‖Gammaℝ s‖ ^ 2 *
+        ‖riemannZeta s‖ ^ 2 := by
+      gcongr
+
 end RiemannLab
