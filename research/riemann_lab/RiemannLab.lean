@@ -25,6 +25,7 @@ import RiemannLab.Tasks.NormalizedXiThreeLines
 import RiemannLab.Tasks.QuantitativeJensen
 import RiemannLab.Tasks.ExtendedXiStrip
 import RiemannLab.Tasks.SharpJensenZeroCount
+import RiemannLab.Tasks.QuantitativeZeroSeparation
 import RiemannLab.Tasks.AdmissibleHeightBounds
 import RiemannLab.Tasks.DisplacedLeftEdge
 import RiemannLab.Tasks.AdmissibleContourEdges
