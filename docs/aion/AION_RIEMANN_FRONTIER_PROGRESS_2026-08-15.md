@@ -883,3 +883,90 @@ or disproved.  The advance is that the former ``all off-line zeros act at
 once'' objection is now resolved for the entire finite dominant cluster.  The
 frontier has moved to an infinite subdominant-tail theorem and the arithmetic
 positivity theorem.
+
+## Abstract domination of the complete subdominant family
+
+The exponential-gap mechanism required for the infinite remainder is now
+formalized in Lean.  Let a selected target have magnitude
+
+`A*R^n`,
+
+where `A>0` and `R>0`, and suppose a remainder is bounded by
+
+`C*r^n`
+
+with `0<=r<R`.  Lean proves
+
+`C*(r/R)^n -> 0`
+
+and consequently
+
+`C*r^n < A*R^n`
+
+for all sufficiently large `n`.  Therefore any remainder satisfying
+
+`tail(n) <= C*r^n`
+
+obeys
+
+`-A*R^n + tail(n) < 0`
+
+eventually.  The same conclusion is proved from the stronger two-sided bound
+
+`|tail(n)| <= C*r^n`.
+
+The result was also lifted from one preassembled tail to an arbitrary infinite
+mode family.  Let `weight(i)>=0` be summable, let `rate(i)>=0`, and suppose
+
+`rate(i)<=r<R`
+
+for every remaining mode.  Lean proves the complete infinite-sum estimate
+
+`sum_i weight(i)*rate(i)^n
+ <= (sum_i weight(i))*r^n`.
+
+It follows that the entire infinite family is eventually smaller than
+`A*R^n`.  This is the exact abstract theorem needed after the finite dominant
+cluster has been removed.
+
+The implementation commit is `8a03db92`.  The complete Lean build passed
+3,711 jobs, with no `sorry`, `admit`, or new axioms.
+
+The remaining analytic instantiation is precise: construct the actual
+multiplicity-weighted amplitudes of the localized zeta divisor, prove that
+their static weights are summable using the damping factor and the verified
+`O(log T)` local zero count, and prove the uniform rate bound below the chosen
+threshold.  Once those hypotheses are connected, the new theorem supplies the
+strictly negative full-divisor form automatically.
+
+## Literature audit and novelty correction
+
+A literature comparison was performed before promoting this architecture as
+new RH mathematics.  Bombieri and Lagarias proved that Li's criterion follows
+from general inequalities for arbitrary multisets of complex numbers and
+related its arithmetic formula to the Guinand--Weil explicit formula.  Weil's
+positivity statement asserts that RH is equivalent to positivity of the Weil
+quadratic functional over an appropriate family of test functions.  Lagarias
+also explicitly relates Li coefficients to values of this Weil functional.
+
+Accordingly, the current spectral programme must be interpreted carefully.
+The expansive-mode selection, finite annihilation, four-channel phase removal,
+and abstract exponential domination constitute a detailed Lean-verified
+realization of the negative-witness direction of a Li--Weil positivity
+criterion.  They are valuable formal infrastructure and may provide useful
+new detector constructions, but they have not yet been shown to exceed the
+known Bombieri--Lagarias/Weil equivalence framework.
+
+In particular, proving that the final prime/Gamma/pole quadratic form is
+nonnegative for every required localized test function is not a routine last
+step.  Weil positivity for the full admissible class is itself equivalent to
+RH.  A genuine breakthrough must therefore identify additional arithmetic
+structure making the AION amplifier family unconditionally positive for a
+reason that does not assume, restate, or smuggle in RH.
+
+This audit changes the strategic emphasis.  Completing the actual summable
+tail remains worthwhile because it produces a fully checked bridge into the
+Weil functional.  However, the decisive research target is now the discovery
+of a strictly stronger prime-side identity, sum-of-squares decomposition,
+positive operator, or monotonicity principle that proves positivity for the
+localized amplifier family independently of the zero locations.
