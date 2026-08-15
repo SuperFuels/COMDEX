@@ -1243,3 +1243,69 @@ positive measure, positive operator, sum-of-squares identity, or comparable
 global principle for the completed prime--Gamma--pole stationary kernel.  The
 finite order-80 certificate is evidence for that search, not a replacement for
 the universal theorem.
+
+## Negative-channel assembly and the positive-operator interface
+
+`LiWitnessAssembly.lean` now performs the final sign bookkeeping between the
+four-channel detector and the complete actual zeta tail.  The four possible
+target coefficients are represented by one function on `Fin 4`; Lean proves
+that a nonzero transverse localized target has a channel coefficient `D<0`.
+It then proves the exact implication
+
+\[
+  \operatorname{tail}_n<-D R^n
+  \quad\Longrightarrow\quad
+  D R^n+\operatorname{tail}_n<0.
+\]
+
+Combining this with the two-sided summability theorem gives an eventual
+negative assembled form under `not RH`.  The theorem intentionally keeps one
+normalization bridge visible: the selected algebraic channel coefficient must
+still be identified with the selected target's literal Weil-test-function
+contribution.  This is no longer an infinite-tail estimate, but it must be
+proved before the result may be called a complete Weil negative witness.
+
+`LiStationaryPositiveOperator.lean` establishes the complementary operator
+interface.  For a finite nonnegative spectral measure
+
+\[
+  \tau_n=\sum_x w_x\cos(n\theta_x),\qquad w_x\geq0,
+\]
+
+every stationary Toeplitz quadratic form has the exact factorization
+
+\[
+  \sum_{i,j}c_i c_j\tau_{|i-j|}
+  =\sum_x w_x\left[
+    \left(\sum_i c_i\cos(i\theta_x)\right)^2+
+    \left(\sum_i c_i\sin(i\theta_x)\right)^2
+  \right]\geq0.
+\]
+
+Lean also joins this identity to the previously verified cumulative
+reconstruction of the Li distance kernel.  A positive stationary operator for
+the increment lags forces
+
+\[
+  \lambda_n\geq0\qquad\text{for every }n.
+\]
+
+This is a sufficient operator certificate, not a construction of the required
+measure for the actual completed arithmetic lags.  Assuming such a certificate
+without constructing it would merely repackage the unresolved positivity
+problem.
+
+The selected direction is consistent with current primary operator work:
+Suzuki's 2026 screw-function framework constructs self-adjoint localized Weil
+operators without assuming RH but leaves the decisive limiting spectral
+statement conjectural, while the finite Guinand--Weil dictionary and
+archimedean-tail theorem give exact finite forms and a positive omitted
+archimedean increment without proving the complete prime-coupled form positive.
+See `arXiv:2606.09096` and `arXiv:2607.02828`.
+
+The genuine frontier theorem is therefore now typed precisely: construct,
+from primes, Gamma and pole terms together and without zero-location
+assumptions, a positive spectral measure or operator whose moments are the
+completed stationary Li increments.  Such a construction would make every Li
+coefficient nonnegative through the checked SOS and reconstruction chain.  It
+has not been obtained here.
