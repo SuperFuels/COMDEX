@@ -185,8 +185,8 @@ def test_completed_packet_blocks_live_exam_before_loading_api_key(monkeypatch):
     assert key_loaded is False
 
 
-def test_v2_packet_is_hash_frozen_multi_family_and_live_ready():
-    packet_path = LAB / "live_task_packet_v2.json"
+def test_v3_packet_is_hash_frozen_multi_family_and_live_ready():
+    packet_path = LAB / "live_task_packet_v3.json"
     packet = json.loads(packet_path.read_text())
     assert packet["execution_status"] == "ready"
     assert len(packet["source_closed_tasks"]) == 6
@@ -194,7 +194,7 @@ def test_v2_packet_is_hash_frozen_multi_family_and_live_ready():
     cold = next(arm for arm in packet["arms"] if arm["id"] == "cold_aion")
     assert cold == {"id": "cold_aion", "memory": True, "repair": True, "isolated_state": True}
     assert packet["precommitted_scoring"]["full_aion_minimum_passed"] == 4
-    assert packet["budgets"]["max_output_tokens_per_call"] == 400
+    assert packet["budgets"]["max_output_tokens_per_call"] == 1000
     for task in packet["source_closed_tasks"]:
         assert hashlib.sha256(task["statement"].encode()).hexdigest() == task["statement_sha256"]
         assert task["proof_body_disclosed"] is False

@@ -91,6 +91,12 @@ def response_text(payload: dict[str, Any]) -> str:
     return "\n".join(chunks)
 
 
+class ProviderOutputError(RuntimeError):
+    def __init__(self, message: str, provider: dict[str, Any]) -> None:
+        super().__init__(message)
+        self.provider = provider
+
+
 def call_openai(key: str, prompt: str, *, max_output_tokens: int) -> tuple[str, dict[str, Any]]:
     body = {
         "model": MODEL,
@@ -134,14 +140,21 @@ def call_openai(key: str, prompt: str, *, max_output_tokens: int) -> tuple[str, 
     except urllib.error.HTTPError as exc:
         detail = exc.read().decode("utf-8", errors="replace")
         raise RuntimeError(f"OpenAI HTTP {exc.code}: {detail[:800]}") from exc
-    text = response_text(payload)
-    parsed = json.loads(text)
-    proof = str(parsed["proof"]).strip()
-    return proof, {
+    provider = {
         "response_id": payload.get("id"),
         "usage": payload.get("usage", {}),
         "model": payload.get("model", MODEL),
+        "status": payload.get("status"),
+        "incomplete_details": payload.get("incomplete_details"),
     }
+    text = response_text(payload)
+    try:
+        parsed = json.loads(text)
+        proof = str(parsed["proof"]).strip()
+    except (json.JSONDecodeError, KeyError, TypeError) as exc:
+        provider["raw_output_sha256"] = hashlib.sha256(text.encode("utf-8")).hexdigest()
+        raise ProviderOutputError("provider returned incomplete or invalid structured output", provider) from exc
+    return proof, provider
 
 
 def theorem_source(task: dict[str, Any], proof: str) -> str:
@@ -307,13 +320,27 @@ def _score_decision(result: dict[str, Any], packet: dict[str, Any]) -> dict[str,
     comparators = {key: value for key, value in scores.items() if key != "aion_memory_repair"}
     minimum = int(rules["full_aion_minimum_passed"])
     margin = int(rules["full_aion_minimum_margin_over_each_ablation"])
-    passed = full >= minimum and all(full - score >= margin for score in comparators.values())
+    infrastructure_failures = sum(
+        1
+        for arm in result["arms"]
+        for task in arm["tasks"]
+        for attempt in task["attempts"]
+        if attempt.get("infrastructure_failure")
+    )
+    allowed_failures = int(rules.get("infrastructure_failures_allowed", 0))
+    passed = (
+        infrastructure_failures <= allowed_failures
+        and full >= minimum
+        and all(full - score >= margin for score in comparators.values())
+    )
     return {
         "criterion_met": passed,
         "full_aion_score": full,
         "absolute_minimum": minimum,
         "required_margin": margin,
         "comparator_scores": comparators,
+        "infrastructure_failures": infrastructure_failures,
+        "infrastructure_failures_allowed": allowed_failures,
         "interpretation": (
             "The precommitted operational superiority criterion was met."
             if passed else
@@ -391,6 +418,7 @@ def main() -> int:
     max_output_tokens = int(packet["budgets"]["max_output_tokens_per_call"])
     for arm in arms:
         arm_result: dict[str, Any] = {**arm, "tasks": []}
+        result["arms"].append(arm_result)
         for task in tasks:
             task_result: dict[str, Any] = {"task_id": task["task_id"], "attempts": []}
             memories = (
@@ -422,10 +450,22 @@ def main() -> int:
                     task, arm, attempt, prior, memories, repair_record, theorem_discovery
                 )
                 t0 = time.monotonic()
-                proof, provider = call_openai(
-                    key, prompt, max_output_tokens=max_output_tokens
-                )
-                verification = verify(task, proof)
+                infrastructure_failure = False
+                try:
+                    proof, provider = call_openai(
+                        key, prompt, max_output_tokens=max_output_tokens
+                    )
+                    verification = verify(task, proof)
+                except ProviderOutputError as exc:
+                    proof = ""
+                    provider = exc.provider
+                    infrastructure_failure = True
+                    verification = {
+                        "passed": False,
+                        "returncode": None,
+                        "diagnostic": str(exc),
+                        "source_hash": None,
+                    }
                 record = {
                     "attempt": attempt,
                     "prompt_hash": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
@@ -434,6 +474,7 @@ def main() -> int:
                     "verification": verification,
                     "repair_record": repair_record,
                     "theorem_discovery": theorem_discovery,
+                    "infrastructure_failure": infrastructure_failure,
                     "elapsed_seconds": round(time.monotonic() - t0, 3),
                 }
                 task_result["attempts"].append(record)
@@ -453,12 +494,13 @@ def main() -> int:
         arm_result["total"] = len(arm_result["tasks"])
         arm_result["success_rate"] = passed / max(1, len(arm_result["tasks"]))
         arm_result["model_calls"] = sum(len(item["attempts"]) for item in arm_result["tasks"])
-        result["arms"].append(arm_result)
         _atomic_json(checkpoint, result)
     result["completed_at"] = datetime.now(timezone.utc).isoformat()
     result["duration_seconds"] = round((datetime.now(timezone.utc) - started).total_seconds(), 3)
-    result["all_infrastructure_checks_passed"] = True
     result["precommitted_decision"] = _score_decision(result, packet)
+    result["all_infrastructure_checks_passed"] = (
+        result["precommitted_decision"]["infrastructure_failures"] == 0
+    )
     output = RESULTS / f"live_exam_{stamp}.json"
     latest = RESULTS / "live_exam_latest.json"
     rendered = json.dumps(result, indent=2, ensure_ascii=False) + "\n"
