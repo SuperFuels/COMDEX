@@ -1,0 +1,24 @@
+{
+  "schema": "aion.riemann_live_exam_outcome.v1",
+  "completed_at": "2026-08-15T00:06:54.773369Z",
+  "sealed_packet": "research/riemann_lab/live_task_packet_v3.json",
+  "sealed_packet_sha256": "1771f8b9977ce0cf1ffac73b1284361e61ae92d4f86672afe97a241a786abb6e",
+  "result": "results/riemann_lab/live_exam_20260815T000136Z.json",
+  "result_sha256": "52899a504530456f1c6f90acf28a34edddc54ccbb4ce765d145c2f9166bc951d",
+  "duration_seconds": 318.234,
+  "model_calls": 58,
+  "tokens": {"input":27588,"output":3909,"total":31497},
+  "scores": {
+    "proposer_alone": "0/6",
+    "aion_memory_repair": "3/6",
+    "aion_no_memory": "0/6",
+    "aion_no_repair": "2/6",
+    "cold_aion": "1/6"
+  },
+  "infrastructure_failures": 0,
+  "precommitted_absolute_floor": 4,
+  "precommitted_margin": 1,
+  "criterion_met": false,
+  "interpretation": "Full AION led every matched comparator but missed the conjunctive absolute floor. This is a mechanism signal; no AION superiority claim is supported.",
+  "claim_boundary": {"rh_solved":false,"new_mathematics":false,"aion_superiority_established":false}
+}

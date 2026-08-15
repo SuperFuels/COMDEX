@@ -133,7 +133,7 @@
     Programme & AION formal Riemann Hypothesis research \\
     Repository & \path{/Users/kevinrobinson/dev/COMDEX} \\
     Formal authority & Lean 4.24.0 kernel and Mathlib v4.32.1 \\
-    Current stage & Trusted laboratory and locally verified v2 experiment design \\
+    Current stage & Completed v3 comparison; delayed retention gate scheduled \\
     Research status & No new RH mathematics; RH remains unsolved \\
   \end{tabularx}
 
@@ -828,7 +828,7 @@ preferences:
   \item[\code{CatalogProbe.lean}] Exact theorem-name and signature probes.
   \item[\code{dependency\_graph.json}] RH prerequisite graph and selected critical-strip target.
   \item[\code{live\_task\_packet.json}] Truthful record of the completed v1 run.
-  \item[\code{live\_task\_packet\_v2.json}] Hash-frozen six-family packet, currently blocked.
+  \item[\code{live\_task\_packet\_v3.json}] Completed hash-frozen six-family comparison packet.
 \end{description}
 
 \subsection{Harnesses and tests}
@@ -838,7 +838,7 @@ preferences:
   \item[\code{scripts/aion\_riemann\_live\_exam.py}] Live matched experiment and fail-closed preflight.
   \item[\code{scripts/aion\_riemann\_verified\_memory.py}] Governed memory adapter and Lean repair controller.
   \item[\code{scripts/aion\_riemann\_local\_verify.py}] Unpaid authority audit, clean memory build, and report generation.
-  \item[\code{backend/tests/test\_aion\_riemann\_lab.py}] Thirteen focused policy and regression tests.
+  \item[\code{backend/tests/test\_aion\_riemann\_lab.py}] Fourteen focused policy and regression tests.
 \end{description}
 
 \subsection{Evidence}
@@ -911,11 +911,12 @@ locally verified next experiment. That is meaningful progress in research
 method and AI-mathematics infrastructure. It is not evidence that AION is
 closer to proving RH in the mathematical sense.
 
-The next two results will determine whether the programme should advance:
+The completed v3 result and the pending retention result determine the immediate
+research decision:
 
 \begin{enumerate}
-  \item a clean, one-shot v2 matched comparison showing whether genuine memory
-  and repair causally improve immediate formal proof reconstruction; and
+  \item v3 produced a directional mechanism signal (3/6 for full AION versus
+  0/6 proposer), but missed the absolute 4/6 superiority floor; and
   \item a delayed source-closed test showing whether any improvement is retained
   and transferred.
 \end{enumerate}
@@ -926,11 +927,42 @@ right to move into a complete critical-strip dependency reconstruction and one
 precise missing formalization. Either outcome is valuable because the claims
 remain aligned with evidence.
 
+\section{Post-seal execution addendum}
+
+The fresh v3 matched comparison completed with zero infrastructure failures.
+The primary scores were: proposer alone 0/6, full AION memory plus repair 3/6,
+AION without memory 0/6, AION without repair 2/6, and cold AION with isolated
+state 1/6. Full AION exceeded every comparator, but the precommitted absolute
+floor was 4/6. Consequently the superiority gate was not met and no superiority
+claim is supported.
+
+The result is nevertheless diagnostically useful. Verified memory plus repair
+recovered a scaled special value, a specialized trivial zero, and real-axis
+positivity. Memory without repair recovered two tasks; deterministic repair
+without memory recovered none; isolated cold AION recovered one. This is a
+mechanism signal to replicate, not a scientific conclusion about general
+capability.
+
+The local formal foundation now contains 17 kernel-checked established results.
+In particular, the programme reconstructs the strict upper boundary
+\code{riemannZeta s = 0 -> s.re < 1} from Mathlib's nonvanishing theorem on the
+closed half-plane. The remaining critical-strip blocker is precise: classify
+every zero with nonpositive real part as a member of the negative-even trivial
+zero family. This reconstruction is the next mathematical target; it is not a
+claim of new mathematics.
+
+The curriculum now contains 36 governed tasks. A separate six-task retention
+packet is locally verified and frozen. The heartbeat
+\code{aion-rh-retention-gate} checks hourly, remains closed until 15 August 2026
+at 08:00 UTC, then runs one full-AION versus isolated-cold comparison and
+disables itself.
+
 \begin{truthbox}
 As of 15 August 2026: trusted formal laboratory - yes; genuine governed memory
-retrieval - yes; bounded Lean repair records - yes; six-family v2 packet locally
-verified - yes; AION advantage - not established; delayed retention - not run;
-new RH mathematics - none; Riemann Hypothesis solved - no.
+retrieval - yes; deterministic Mathlib discovery - yes; 17-theorem foundation -
+yes; full AION led all v3 controls - yes; precommitted AION superiority - no;
+delayed retention - scheduled, not yet measured; new RH mathematics - none;
+Riemann Hypothesis solved - no.
 \end{truthbox}
 
 \appendix
@@ -946,6 +978,8 @@ Immutable paid live result & \hash{5795e3faa55cf2a7466a3537ac41005056d44711eaa82
 Established zeta baseline & \hash{d121313f104e8e9d3a62fd2270e46aa6c4a7c6888ebc7d996f004fae5a25943c} \\
 Catalogue probe & \hash{6691c0dff28a5b761b7c4d1da63f7820cb0b57976b21979594be093e149fd5b5} \\
 V2 packet & \hash{2190c93a840eebabf0ad7cbfc3dbfe53a01ca32ead4f56765143d190e50d3660} \\
+Sealed v3 packet & \hash{1771f8b9977ce0cf1ffac73b1284361e61ae92d4f86672afe97a241a786abb6e} \\
+Completed v3 result & \hash{52899a504530456f1c6f90acf28a34edddc54ccbb4ce765d145c2f9166bc951d} \\
 Pinned v2 environment & \hash{6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591} \\
 \bottomrule
 \end{longtable}
@@ -979,9 +1013,9 @@ Run from the COMDEX repository root:
 .venv/bin/python -m pytest backend/tests/test_aion_riemann_lab.py -q
 \end{lstlisting}
 
-The live harness must not be invoked until an independently reviewed packet is
-marked \code{ready}. The v2 packet can be explicitly selected through the
-\code{AION\_RIEMANN\_TASK\_PACKET} environment variable after sealing.
+The v3 live comparison is complete and protected by its one-shot execution
+receipt. The separate retention packet remains time-gated and must not run
+before its recorded due time.
 
 \section{Selected references}
 
