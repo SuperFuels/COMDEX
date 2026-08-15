@@ -1643,7 +1643,7 @@ left edges tend to zero, and the finite residue ledger is instantiated, no
 further complex analysis or limit algebra remains: the already proved Perron
 limit forces the complete Chebyshev explicit formula.
 
-The full pinned build now passes in 3,593 jobs.  Two tightly coupled obligations
+The full pinned build at that checkpoint passed in 3,593 jobs.  Two tightly coupled obligations
 remain: instantiate the finite principal-parts theorem for the actual zeta
 kernel on each chosen rectangle, and prove the zeta logarithmic-derivative
 estimate needed to construct admissible heights and make the three displaced
@@ -1653,6 +1653,88 @@ estimate. Pinned Mathlib supplies neither that growth estimate nor a ready
 theorem from which it can be obtained. This is still established classical
 analytic number theory being formalized; it is not new evidence for RH and
 imposes no new constraint on the real parts of nontrivial zeros.
+
+\section{Finite principal parts for the actual zeta kernel}
+
+The analytic-packaging obligation from the preceding section is now complete.
+The new module \path{RiemannLab/Tasks/MeromorphicPrincipalPart.lean} proves a
+generic removal theorem.  If $F$ is meromorphic at $p$ and
+\[
+  (s-p)F(s)\longrightarrow r
+  \qquad(s\to p,\ s\ne p),
+\]
+then there is a function analytic at $p$ which agrees punctured-locally with
+$F(s)-r/(s-p)$.  The proof is carried out through Mathlib's meromorphic order:
+multiplication by $(s-p)$ raises the order by one, and convergence to zero
+forces the remaining order to be nonnegative.
+
+The module \path{RiemannLab/Tasks/FinitePrincipalParts.lean} lifts this local
+statement to an arbitrary finite pole set $P$.  Given residues $r_p$, it
+constructs a single function $g$ analytic at every $s\in\mathbb C$ such that
+\[
+  F(s)=g(s)+\sum_{p\in P}\frac{r_p}{s-p},\qquad s\notin P.
+\]
+The construction patches the removable values at the finitely many poles and
+proves analyticity both at each patched point and on the complement.  Thus the
+finite residue theorem can now be applied without assuming that independently
+chosen local extensions form a global holomorphic remainder.
+
+The module \path{RiemannLab/Tasks/ZetaContourPrincipalParts.lean} instantiates
+this theorem for the actual contour kernel
+\[
+  K_x(s)=-\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s}.
+\]
+It proves global meromorphy of $\zeta$ from its completed-zeta representation
+at $s=1$ and analyticity elsewhere, hence global meromorphy of $K_x$.  The
+principal parts are then removed at all four pole classes:
+\[
+\begin{array}{c|c}
+  \text{point} & \operatorname*{Res} K_x \\
+  \hline
+  1 & x \\
+  0 & -\log(2\pi) \\
+  -2(n+1) & -x^{-2(n+1)}/[-2(n+1)] \\
+  \rho\ \text{nontrivial} & -m(\rho)x^\rho/\rho.
+\end{array}
+\]
+For any finite ledger whose entries carry one of these classifications, and
+which contains every singularity under discussion, Lean now produces the
+globally analytic remainder required by the rectangular residue theorem.
+
+\section{Quantitative reduction of the contour edges}
+
+The new module \path{RiemannLab/Tasks/ContourEdgeEstimates.lean} isolates the
+remaining large-height input by proving the exact identity
+\[
+  \lVert K_x(s)\rVert
+  =\left\lVert\frac{\zeta'(s)}{\zeta(s)}\right\rVert
+    \frac{x^{\Re s}}{\lVert s\rVert},\qquad x>0.
+\]
+It then converts any supplied bound
+$\lVert\zeta'(s)/\zeta(s)\rVert\leq L$ and lower bound
+$R\leq\lVert s\rVert$ into
+\[
+  \lVert K_x(s)\rVert\leq \frac{Lx^{\Re s}}{R}.
+\]
+Uniform pointwise bounds are lifted to the exact horizontal and vertical
+interval integrals used by the project.  In particular, if $C_n$ uniformly
+bounds a horizontal edge from $a$ to $b$ and
+$C_n|b-a|\to0$, Lean proves that the corresponding complex edge integral
+tends to zero.
+
+The full pinned build now passes in 3,599 jobs.  The finite principal-parts
+instantiation is therefore closed.  What remains is the substantive classical
+large-height theorem: construct heights avoiding zero ordinates with a uniform
+bound for $\zeta'/\zeta$, discharge the top and bottom edges through the new
+norm estimates, and combine the functional equation and gamma-factor bounds
+with a displaced-left sequence to make the left edge vanish.  The finite
+ledger must finally be identified with the compact multiplicity-aware zero
+truncation already used by the target statement.
+
+Pinned Mathlib does not contain this global admissible-height estimate.  No
+complete Chebyshev explicit formula is claimed at this checkpoint.  All new
+results remain formalizations of classical analytic infrastructure and provide
+no new restriction on nontrivial zero locations.
 
 \appendix
 

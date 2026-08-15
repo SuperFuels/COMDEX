@@ -139,9 +139,53 @@ limit still required and proves that this one target implies the complete
 `ChebyshevExplicitFormulaTarget`. The Perron limit, residue arithmetic, and
 final limit algebra are therefore no longer open.
 
-Full verification passes: 3,593 build jobs. What remains is the concrete
-principal-parts instantiation for the zeta kernel on each rectangle, followed
-by the substantive admissible-height growth estimate for `zeta'/zeta` and the
-resulting vanishing of the horizontal and displaced-left edges. Pinned Mathlib
-does not currently provide the growth theorem. No RH consequence or new
-zero-free information is claimed.
+Full verification at that checkpoint passed: 3,593 build jobs.
+
+## 15 August continuation: actual zeta principal parts instantiated
+
+Four further modules now close the analytic-packaging part of the contour
+shift.
+
+`MeromorphicPrincipalPart.lean` proves a general pole-removal theorem directly
+from meromorphic order: if `(z-p)F(z)` tends to `r`, then
+`F(z)-r/(z-p)` has an analytic extension through `p`.
+
+`FinitePrincipalParts.lean` patches finitely many such local extensions into a
+single globally analytic remainder. This step includes the finite isolation
+argument needed to replace the values at all poles consistently; it is not an
+assumed global residue theorem.
+
+`ZetaContourPrincipalParts.lean` proves that zeta and the complete contour
+kernel are meromorphic at every complex point. It instantiates the removal
+theorem at the pole `1`, the Perron pole `0`, every negative-even trivial zero,
+and every nontrivial zero with its full analytic multiplicity. A finite pole
+ledger satisfying those four classifications now yields one analytic
+remainder for the actual kernel
+
+`-(zeta'/zeta)(s) * x^s / s`.
+
+`ContourEdgeEstimates.lean` proves the exact norm identity
+
+`||kernel(s)|| = ||zeta'/zeta(s)|| * x^Re(s) / ||s||`,
+
+derives the pointwise bound from any supplied logarithmic-derivative estimate,
+proves uniform horizontal and vertical interval-integral bounds, and proves
+that a vanishing sequence of uniform horizontal bounds makes the actual edge
+integrals tend to zero.
+
+Full verification now passes: **3,599 build jobs**. The finite
+principal-parts instantiation requested at the previous checkpoint is
+complete. The remaining classical gate is narrower and substantive:
+
+1. prove an admissible-height theorem giving a uniform bound for
+   `zeta'/zeta` on the horizontal strips while avoiding zero ordinates;
+2. use the proved norm reductions to discharge the top and bottom edges;
+3. combine the zeta functional equation, gamma-factor estimates, and a
+   displaced-left sequence to make the left edge vanish; and
+4. identify each finite rectangular pole ledger with the project's compact
+   multiplicity-aware zero truncation.
+
+Pinned Mathlib supplies local zeta analysis but not the required global
+large-height growth theorem. Consequently the complete explicit formula is
+not yet claimed. This checkpoint formalizes established classical analysis;
+it gives no new zero-free information and no evidence that RH is solved.
