@@ -106,6 +106,41 @@ theorem norm_inv_sub_le_of_im_separation
   rw [norm_inv]
   simpa [one_div] using one_div_le_one_div_of_le hδ hdist
 
+/-- The full horizontal segment from `re = -1` to the Jensen centre lies in
+the radius-thirteen-quarters evaluation disk whenever its height differs from
+the moving centre by at most one. -/
+theorem horizontal_translate_mem_closedBall_thirteen_quarters
+    {T H σ : ℝ} (hσlower : -1 ≤ σ) (hσupper : σ ≤ 2)
+    (hheight : |H - T| ≤ 1) :
+    ((σ : ℂ) + H * Complex.I - riemannXiJensenCenter T) ∈
+      Metric.closedBall (0 : ℂ) (13 / 4 : ℝ) := by
+  rw [Metric.mem_closedBall, dist_zero_right]
+  rw [← sq_le_sq₀ (norm_nonneg _) (by norm_num : 0 ≤ (13 / 4 : ℝ)),
+    Complex.sq_norm]
+  have himsq : (H - T) ^ 2 ≤ 1 := by
+    calc
+      (H - T) ^ 2 = |H - T| ^ 2 := (sq_abs (H - T)).symm
+      _ ≤ 1 ^ 2 := (sq_le_sq₀ (abs_nonneg _) zero_le_one).2 hheight
+      _ = 1 := by ring
+  have hresq : (σ - 2) ^ 2 ≤ 9 := by
+    nlinarith [sq_nonneg (σ + 1), sq_nonneg (2 - σ)]
+  simp [riemannXiJensenCenter, Complex.normSq_apply]
+  nlinarith
+
+theorem quantitative_horizontal_translate_mem_closedBall_thirteen_quarters
+    (n : ℕ) {σ : ℝ} (hσlower : -1 ≤ σ) (hσupper : σ ≤ 2) :
+    ((σ : ℂ) + quantitativeAdmissibleZetaHeight n * Complex.I -
+        riemannXiJensenCenter ((n : ℝ) + 3)) ∈
+      Metric.closedBall (0 : ℂ) (13 / 4 : ℝ) := by
+  have hH := quantitativeAdmissibleZetaHeight_mem n
+  have hheight :
+      |quantitativeAdmissibleZetaHeight n - ((n : ℝ) + 3)| ≤ 1 := by
+    rw [abs_of_nonpos]
+    · linarith [hH.1]
+    · exact sub_nonpos.mpr hH.2
+  exact horizontal_translate_mem_closedBall_thirteen_quarters
+    hσlower hσupper hheight
+
 theorem norm_canonicalFactor_log_kernel_le
     {w z : ℂ} {δ : ℝ} (hδ : 0 < δ)
     (hw : w ∈ Metric.ball (0 : ℂ) (7 / 2 : ℝ))
