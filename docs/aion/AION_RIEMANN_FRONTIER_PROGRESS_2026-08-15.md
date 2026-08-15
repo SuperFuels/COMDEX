@@ -1309,3 +1309,81 @@ assumptions, a positive spectral measure or operator whose moments are the
 completed stationary Li increments.  Such a construction would make every Li
 coefficient nonnegative through the checked SOS and reconstruction chain.  It
 has not been obtained here.
+
+## Laurent normalization and the exact Carathéodory target
+
+`LiWeilLaurentNormalization.lean` closes the remaining finite algebraic
+normalization ambiguity.  The quadratic seed, fourth-power damping,
+oscillator, and complete finite conjugate-pair annihilator are now represented
+by one finite Laurent polynomial
+
+\[
+  P(T)=
+  (T^2-aT+1)(1-T)^4(1+T^{2M})
+  \prod_{v\in\mathcal C}
+  (T+T^{-1}-v)(T+T^{-1}-\overline v).
+\]
+
+Lean proves that evaluation at the literal zeta mode
+
+\[
+  q(\rho)=1-\rho^{-1}
+\]
+
+is exactly the localized amplitude used in the already-verified two-sided
+summability and tail-domination theorem.  It also proves that the Laurent
+autocorrelation is exactly the reciprocal-mode product
+
+\[
+  P(q)P(q^{-1}).
+\]
+
+Thus there is no longer a choice of normalization hidden between the finite
+spectral detector and the global zeta-tail estimate.  What remains on this
+side is analytic rather than algebraic: show that this finite Laurent test is
+the literal member of the chosen admissible Weil test family, with the same
+Fourier convention and completed prime--Gamma--pole normalization.
+
+`LiCaratheodoryTransform.lean` isolates the positive-operator obligation even
+more sharply.  For any real sequence `a` with `a(0)=0`, let
+
+\[
+  L_a(z)=\sum_{n\geq0}a(n+1)z^n,
+  \qquad
+  \tau_0=a(1),\qquad
+  \tau_n=\frac{a(n-1)-2a(n)+a(n+1)}2\quad(n\geq1).
+\]
+
+Lean proves the exact formal-power-series identity
+
+\[
+  \tau_0+2\sum_{n\geq1}\tau_n z^n=(1-z)^2L_a(z).
+\]
+
+For the Li coefficients, the classical Li generating identity then predicts
+
+\[
+  \tau_0+2\sum_{n\geq1}\tau_n z^n
+  =\frac{\Xi'}{\Xi}\!\left(\frac1{1-z}\right).
+\]
+
+This identifies the sought spectral measure with a Herglotz representation
+of one explicit disk function.  The possible proof theorem is therefore:
+
+\[
+  \operatorname{Re}
+  \frac{\Xi'}{\Xi}\!\left(\frac1{1-z}\right)\geq0
+  \qquad(|z|<1),
+\]
+
+derived unconditionally from the combined prime, Gamma, and pole expression.
+If established, Herglotz representation supplies the positive measure, the
+checked Toeplitz SOS supplies every finite quadratic-form inequality, and the
+checked reconstruction supplies every Li inequality.
+
+This is a major reduction in specification, not an RH proof: positivity of
+this completed disk function is itself an RH-equivalent frontier statement.
+It may not be assumed, inferred from finitely many coefficients, or obtained
+by proving the prime, Gamma, and pole pieces positive separately.  A successful
+next step must expose a new global cancellation or positive realization of
+their combined expression.
