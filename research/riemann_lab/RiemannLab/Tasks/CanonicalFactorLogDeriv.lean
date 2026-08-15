@@ -49,6 +49,40 @@ theorem canonicalFactor_seven_halves_reflected_denom_ne_zero
   rw [hzero, norm_zero] at h
   norm_num at h
 
+/-- Exact logarithmic derivative of one radius-seven-halves canonical factor,
+away from its zero. -/
+theorem logDeriv_canonicalFactor_seven_halves
+    {w z : ℂ} (hw : w ∈ Metric.ball (0 : ℂ) (7 / 2 : ℝ))
+    (hz : z ∈ Metric.closedBall (0 : ℂ) (13 / 4 : ℝ))
+    (hzw : z ≠ w) :
+    logDeriv (canonicalFactor (7 / 2 : ℝ) w) z =
+      -(conj w) / (((7 / 2 : ℝ) : ℂ) ^ 2 - conj w * z) - 1 / (z - w) := by
+  rw [canonicalFactor_def]
+  have hnum : ((7 / 2 : ℝ) : ℂ) ^ 2 - conj w * z ≠ 0 :=
+    canonicalFactor_seven_halves_reflected_denom_ne_zero hw hz
+  have hden : ((7 / 2 : ℝ) : ℂ) * (z - w) ≠ 0 :=
+    mul_ne_zero (by norm_num) (sub_ne_zero.mpr hzw)
+  have hdnum : DifferentiableAt ℂ
+      (fun z : ℂ => ((7 / 2 : ℝ) : ℂ) ^ 2 - conj w * z) z :=
+    DifferentiableAt.const_sub (differentiableAt_id.const_mul (conj w)) _
+  have hdden : DifferentiableAt ℂ
+      (fun z : ℂ => ((7 / 2 : ℝ) : ℂ) * (z - w)) z :=
+    (differentiableAt_id.sub_const w).const_mul _
+  rw [logDeriv_div z hnum hden hdnum hdden]
+  simp only [logDeriv_apply]
+  have hR : ((7 / 2 : ℝ) : ℂ) ≠ 0 := by norm_num
+  have hdnum' : HasDerivAt
+      (fun z : ℂ => ((7 / 2 : ℝ) : ℂ) ^ 2 - conj w * z) (-(conj w)) z := by
+    simpa only [id_eq, mul_one] using
+      ((hasDerivAt_id z).const_mul (conj w)).const_sub
+        (((7 / 2 : ℝ) : ℂ) ^ 2)
+  have hdden' : HasDerivAt
+      (fun z : ℂ => ((7 / 2 : ℝ) : ℂ) * (z - w)) ((7 / 2 : ℝ) : ℂ) z := by
+    simpa only [id_eq, mul_one] using
+      ((hasDerivAt_id z).sub_const w).const_mul (((7 / 2 : ℝ) : ℂ))
+  rw [hdnum'.deriv, hdden'.deriv]
+  field_simp
+
 theorem norm_canonicalFactor_reflected_term_le_four
     {w z : ℂ} (hw : w ∈ Metric.ball (0 : ℂ) (7 / 2 : ℝ))
     (hz : z ∈ Metric.closedBall (0 : ℂ) (13 / 4 : ℝ)) :

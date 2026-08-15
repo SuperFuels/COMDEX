@@ -542,3 +542,38 @@ before their decay theorems can discharge the final assembly interface.
 Accordingly the complete Chebyshev explicit formula is still not proved.  No
 RH result, constraint on zero real parts, or new frontier mathematics is
 claimed.
+
+## 15 August continuation: radius-safe canonical-factor geometry
+
+A subsequent geometry audit found that the radius-three divisor packet did
+not cover the complete intended horizontal contour: at the displaced-left
+corner the translated distance can be `sqrt(3^2+1^2)=sqrt(10)>3`.  This was a
+real domain mismatch, so the affected construction was corrected rather than
+carried forward under a false coverage claim.
+
+`SharpJensenZeroCount.lean` now instantiates the same centre-scaled Jensen
+argument with inner radius `7/2` and outer radius `4`, giving the explicit
+multiplicity-aware estimate
+
+`sum divisor <= (log C + 12*log T) / log(8/7)`.
+
+`QuantitativeZeroSeparation.lean` now forms its finite support and admissible
+heights from that enlarged disk.  The local canonical decomposition uses the
+same radius `7/2`, and its zero-free remainder estimate is valid on the
+radius-`13/4` disk, which contains the complete contour corner with positive
+margin.  `CanonicalFactorLogDeriv.lean` proves a uniform lower bound for the
+reflected canonical-factor denominator and the corresponding kernel bound
+
+`|-conj(w)/(R^2-conj(w)z) - 1/(z-w)| <= 4 + 1/delta`,
+
+for `R=7/2`, whenever the selected height is separated from the zero ordinate
+by `delta`.  Full verification passed with **3,700 jobs**, no `sorry`, no
+`admit`, and no new axioms.  Commit: `03fee8bf`.
+
+The exact logarithmic-derivative identity for a single canonical factor has
+also been checked locally.  The remaining proof obligations are to sum these
+kernels with multiplicity, obtain a quantitative normalized bound for the
+zero-free canonical remainder, transfer the resulting xi estimate to
+`zeta'/zeta` including the digamma term, and discharge the expanding contour
+edges.  Thus the radius defect is closed, but the complete explicit formula
+is not yet proved and no RH progress is claimed.
