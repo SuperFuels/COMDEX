@@ -1412,6 +1412,58 @@ must prove the scalar discontinuous inversion kernel; it must not be replaced
 by an unjustified invocation of general Mellin inversion.
 \end{decisionbox}
 
+\subsection{Sharp convergence and absolute Fourier reduction completed}
+
+The conditional-convergence obstacle has now been separated from the value
+calculation in \path{RiemannLab/Tasks/OscillatoryCauchy.lean}. For $c>0$ and
+$a\neq0$, define
+\[
+  H_T(c,a):=\frac{1}{2\pi}\int_{-T}^{T}
+    \frac{e^{iat}}{c+it}\,dt.
+\]
+Lean verifies an exact finite-interval integration-by-parts identity, proves
+that both endpoint terms vanish like $O((|a|T)^{-1})$, and proves absolute
+integrability of the squared-denominator remainder. Consequently the sharp
+symmetric truncations $H_T(c,a)$ genuinely converge; this is no longer an open
+assumption.
+
+The same module now proves the source-closed Laplace identity
+\[
+  \frac{1}{c+it}=\int_0^\infty e^{-(c+it)u}\,du
+\]
+and the exact reduction
+\begin{equation}
+  \lim_{T\to\infty}H_T(c,a)
+  =\frac{1}{2\pi a}\int_{-\infty}^{\infty}
+    \frac{e^{iat}}{(c+it)^2}\,dt.
+  \label{eq:squared-cauchy-reduction}
+\end{equation}
+The integral on the right of
+Equation~\eqref{eq:squared-cauchy-reduction} is absolutely convergent. Thus the
+remaining analytic gate has the single named statement
+\begin{equation}
+  \int_{-\infty}^{\infty}\frac{e^{iat}}{(c+it)^2}\,dt
+  =
+  \begin{cases}
+    2\pi a e^{-ac},&a>0,\\
+    0,&a<0.
+  \end{cases}
+  \label{eq:squared-cauchy-value}
+\end{equation}
+Lean also verifies that Equation~\eqref{eq:squared-cauchy-value} implies the
+original oscillatory Cauchy target and hence the away-from-jump scalar Perron
+limit. The preferred next route is Fourier inversion for the continuous
+one-sided function $u\mapsto u e^{-cu}\mathbf{1}_{(0,\infty)}(u)$, whose
+transform has precisely the squared denominator in
+Equation~\eqref{eq:squared-cauchy-value}.
+
+\begin{resultbox}
+Sharp truncation, endpoint decay, and conditional tail control are complete.
+The scalar Perron gate is now reduced to one absolutely convergent Fourier
+transform value. This is established classical analysis being formalized; it
+is not a proof of the Chebyshev Perron formula, an RH-equivalent bound, or RH.
+\end{resultbox}
+
 \subsection{Formal artifact map}
 
 \begin{longtable}{@{}p{47mm}p{101mm}@{}}
@@ -1438,6 +1490,12 @@ multiplicities, finite $x^\rho/\rho$ sums, and the open convergence target. \\
 Normalized zeta and von Mangoldt Perron kernels, finite-height vertical
 integrals, their exact equality on $\RePart(s)>1$, and the open inversion
 target. \\
+\path{RiemannLab/Tasks/ScalarPerron.lean} &
+Scalar kernel, logarithmic reduction, half-weight value at the jump, and exact
+equivalence with the oscillatory Cauchy limit. \\
+\path{RiemannLab/Tasks/OscillatoryCauchy.lean} &
+Sharp convergence, integration-by-parts tail control, Laplace representation,
+absolute squared-kernel reduction, and the named remaining Fourier value. \\
 \path{explicit_formula_dependency_graph_v1.json} &
 Machine-readable dependency state and the precommitted next proof unit. \\
 \path{perron_dependency_audit_v1.json} &
@@ -1449,8 +1507,10 @@ Perron-kernel decomposition. \\
 \begin{resultbox}
 The compact multiplicity-aware divisor and the specialized finite-height
 Perron interface are no longer blockers. The programme now has exhaustive
-zero sums and an exact normalized arithmetic/zeta vertical integral. The
-unresolved bridge begins with the scalar Perron limit, followed by series-tail
+zero sums and an exact normalized arithmetic/zeta vertical integral. Sharp
+scalar convergence is proved and its value is reduced to the absolutely
+convergent squared-Cauchy Fourier integral in
+Equation~\eqref{eq:squared-cauchy-value}. After that value comes series-tail
 control, contour shifting, residue calculation, convergence, and the two
 directions of the RH-equivalent Chebyshev bound.
 \end{resultbox}

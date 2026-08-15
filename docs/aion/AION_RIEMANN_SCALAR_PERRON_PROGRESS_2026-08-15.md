@@ -2,7 +2,7 @@
 
 **Date:** 15 August 2026  
 **Authority:** Lean 4.24.0 kernel with pinned Mathlib v4.32.1  
-**Build:** PASS, 3,585 jobs  
+**Build:** PASS, 3,586 jobs
 **External/API calls:** 0
 
 ## Completed formal work
@@ -89,6 +89,44 @@ L(c,a)=\begin{cases}e^{-ac},&a>0,\\0,&a<0,\end{cases}
 where \(L(c,a)\) is a fully defined, absolutely convergent remainder
 expression. Conditional convergence and tail control are no longer open. The
 remaining work is the classical value evaluation of \(L(c,a)\).
+
+## Absolute-integrability reduction completed
+
+Lean now goes one step further. It proves the exact Laplace representation
+
+\[
+\frac{1}{c+it}=\int_0^\infty e^{-(c+it)u}\,du
+\]
+
+and performs symmetric integration by parts to replace the conditional kernel
+by
+
+\[
+S(c,a,t)=\frac{e^{iat}}{(c+it)^2}.
+\]
+
+The new kernel is absolutely integrable on the whole real line, and the sharp
+limit value satisfies the kernel-checked identity
+
+\[
+L(c,a)=\frac{1}{2\pi a}\int_{-\infty}^{\infty}
+  \frac{e^{iat}}{(c+it)^2}\,dt.
+\]
+
+The remaining theorem is therefore exactly
+
+\[
+\int_{-\infty}^{\infty}\frac{e^{iat}}{(c+it)^2}\,dt
+=
+\begin{cases}
+2\pi a e^{-ac},&a>0,\\
+0,&a<0.
+\end{cases}
+\]
+
+Lean also verifies that this named squared-kernel value target is sufficient
+to close the original oscillatory Cauchy target. No conditional convergence,
+tail estimate, or normalization ambiguity remains in that final gate.
 
 ## Claim boundary
 

@@ -297,4 +297,171 @@ theorem oscillatoryCauchyLimitTarget_iff_value :
     rw [← h c a hc ha]
     exact tendsto_oscillatoryTruncatedCauchyIntegral_value hc ha
 
+/-! A Laplace representation for the remaining value calculation. -/
+
+/-- The reciprocal Cauchy denominator is the Laplace transform of a decaying
+complex exponential. -/
+theorem integral_exp_neg_verticalLine_mul_Ioi {c t : ℝ} (hc : 0 < c) :
+    (∫ u : ℝ in Set.Ioi 0,
+      Complex.exp (-(c + t * Complex.I : ℂ) * u)) =
+        (c + t * Complex.I : ℂ)⁻¹ := by
+  have hre : (-(c + t * Complex.I : ℂ)).re < 0 := by simpa using hc
+  rw [integral_exp_mul_complex_Ioi hre 0]
+  norm_num
+  rw [show (-((t : ℂ) * Complex.I) + -(c : ℂ)) =
+      -(c + t * Complex.I : ℂ) by ring]
+  rw [neg_div_neg_eq]
+  exact one_div _
+
+/-- Consequently the oscillatory Cauchy kernel has an exact source-closed
+Laplace representation, ready for a regularized Fubini calculation. -/
+theorem oscillatoryCauchyKernel_eq_laplace {c a t : ℝ} (hc : 0 < c) :
+    oscillatoryCauchyKernel c a t =
+      Complex.exp ((a * t : ℝ) * Complex.I) *
+        ∫ u : ℝ in Set.Ioi 0,
+          Complex.exp (-(c + t * Complex.I : ℂ) * u) := by
+  rw [integral_exp_neg_verticalLine_mul_Ioi hc]
+  unfold oscillatoryCauchyKernel
+  field_simp
+
+/-! Reduction of the remaining value theorem to an absolutely convergent
+Fourier integral. -/
+
+/-- The squared-denominator kernel left after integration by parts. -/
+noncomputable def squaredOscillatoryCauchyKernel (c a t : ℝ) : ℂ :=
+  Complex.exp ((a * t : ℝ) * Complex.I) / (c + t * Complex.I : ℂ) ^ 2
+
+/-- Unlike the original Cauchy kernel, the squared-denominator kernel is
+absolutely integrable on the whole real line. -/
+theorem integrable_squaredOscillatoryCauchyKernel {c a : ℝ} (hc : c ≠ 0) :
+    Integrable (squaredOscillatoryCauchyKernel c a) := by
+  have hmeas : AEStronglyMeasurable (squaredOscillatoryCauchyKernel c a) volume := by
+    have hnum : Continuous (fun t : ℝ ↦
+        Complex.exp ((a * t : ℝ) * Complex.I)) := by fun_prop
+    have hden : Continuous (fun t : ℝ ↦ (c + t * Complex.I : ℂ) ^ 2) := by fun_prop
+    exact (hnum.div hden (fun t ↦
+      pow_ne_zero 2 (verticalLine_ne_zero_of_re_ne_zero hc t))).aestronglyMeasurable
+  rw [← integrable_norm_iff hmeas]
+  have hnorm : ∀ t : ℝ, ‖squaredOscillatoryCauchyKernel c a t‖ =
+      (c ^ 2 + t ^ 2)⁻¹ := by
+    intro t
+    unfold squaredOscillatoryCauchyKernel
+    rw [norm_div, Complex.norm_exp_ofReal_mul_I, norm_pow, Complex.sq_norm,
+      Complex.normSq_add_mul_I]
+    simp only [one_div]
+  simp_rw [hnorm]
+  exact integrable_inv_sq_add_sq hc
+
+/-- Symmetric integration by parts removes the conditional kernel in favour
+of the absolutely integrable squared-denominator kernel. -/
+theorem oscillatoryCauchy_symmetric_integrationByParts {c a T : ℝ}
+    (hc : 0 < c) (ha : a ≠ 0) :
+    (∫ t in -T..T, oscillatoryCauchyKernel c a t) =
+      (c + T * Complex.I : ℂ)⁻¹ * oscillatoryPrimitive a T -
+      (c + (-T) * Complex.I : ℂ)⁻¹ * oscillatoryPrimitive a (-T) +
+      (a : ℂ)⁻¹ * ∫ t in -T..T, squaredOscillatoryCauchyKernel c a t := by
+  calc
+    (∫ t in -T..T, oscillatoryCauchyKernel c a t) =
+        ∫ t in -T..T,
+          (c + t * Complex.I : ℂ)⁻¹ * Complex.exp ((a * t : ℝ) * Complex.I) := by
+      apply intervalIntegral.integral_congr
+      intro t _
+      unfold oscillatoryCauchyKernel
+      field_simp
+    _ = (c + T * Complex.I : ℂ)⁻¹ * oscillatoryPrimitive a T -
+        (c + (-T) * Complex.I : ℂ)⁻¹ * oscillatoryPrimitive a (-T) -
+        ∫ t in -T..T,
+          (-Complex.I / (c + t * Complex.I : ℂ) ^ 2) *
+            oscillatoryPrimitive a t :=
+      by simpa only [Complex.ofReal_neg] using
+        oscillatoryCauchy_integrationByParts (A := -T) (B := T) hc ha
+    _ = _ := by
+      have hint :
+          -(∫ t in -T..T,
+              (-Complex.I / (c + t * Complex.I : ℂ) ^ 2) *
+                oscillatoryPrimitive a t) =
+            (a : ℂ)⁻¹ * ∫ t in -T..T, squaredOscillatoryCauchyKernel c a t := by
+        rw [← intervalIntegral.integral_neg, ← intervalIntegral.integral_const_mul]
+        apply intervalIntegral.integral_congr
+        intro t _
+        unfold squaredOscillatoryCauchyKernel oscillatoryPrimitive
+        have haC : (a : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr ha
+        field_simp
+      rw [sub_eq_add_neg, hint]
+
+/-- The negative-height endpoint in the symmetric integration-by-parts
+formula also vanishes. -/
+theorem tendsto_negative_vertical_inv_mul_oscillatoryPrimitive_atTop_zero
+    {c a : ℝ} (hc : 0 < c) :
+    Tendsto (fun T : ℝ ↦
+      (c + (-T) * Complex.I : ℂ)⁻¹ * oscillatoryPrimitive a (-T)) atTop (𝓝 0) := by
+  rw [tendsto_zero_iff_norm_tendsto_zero]
+  apply squeeze_zero' (g := fun T : ℝ ↦ T⁻¹ * |a|⁻¹)
+  · exact Eventually.of_forall (fun T ↦ norm_nonneg _)
+  · filter_upwards [eventually_gt_atTop (0 : ℝ)] with T hT
+    rw [norm_mul, norm_oscillatoryPrimitive]
+    calc
+      ‖(c + (-T) * Complex.I : ℂ)⁻¹‖ * |a|⁻¹
+          ≤ |-T|⁻¹ * |a|⁻¹ := by
+            gcongr
+            have hb := norm_verticalLine_inv_le_abs_inv (c := c) (t := -T) hc
+              (neg_ne_zero.mpr hT.ne')
+            simpa only [Complex.ofReal_neg] using hb
+      _ = T⁻¹ * |a|⁻¹ := by rw [abs_neg, abs_of_pos hT]
+  · simpa using tendsto_inv_atTop_zero.mul_const |a|⁻¹
+
+/-- The already-constructed sharp limit is exactly a normalized, absolutely
+convergent Fourier integral. This isolates the remaining value computation. -/
+theorem oscillatoryCauchyLimitValue_eq_integral_squared {c a : ℝ}
+    (hc : 0 < c) (ha : a ≠ 0) :
+    oscillatoryCauchyLimitValue c a =
+      (1 / (2 * (Real.pi : ℂ))) * (a : ℂ)⁻¹ *
+        ∫ t : ℝ, squaredOscillatoryCauchyKernel c a t := by
+  have hInt := intervalIntegral_tendsto_integral
+    (l := atTop) (a := fun T : ℝ ↦ -T) (b := fun T : ℝ ↦ T)
+    (integrable_squaredOscillatoryCauchyKernel (a := a) hc.ne')
+    tendsto_neg_atTop_atBot (tendsto_id : Tendsto (fun T : ℝ ↦ T) atTop atTop)
+  have hPos := tendsto_vertical_inv_mul_oscillatoryPrimitive_atTop_zero
+    (c := c) (a := a) hc
+  have hNeg := tendsto_negative_vertical_inv_mul_oscillatoryPrimitive_atTop_zero
+    (c := c) (a := a) hc
+  have hRhs := ((hPos.sub hNeg).add
+    (hInt.const_mul (a : ℂ)⁻¹)).const_mul (1 / (2 * (Real.pi : ℂ)))
+  have hSharp := tendsto_oscillatoryTruncatedCauchyIntegral_value hc ha
+  have hRhs' : Tendsto
+      (fun T : ℝ ↦ oscillatoryTruncatedCauchyIntegral c a T) atTop
+      (𝓝 ((1 / (2 * (Real.pi : ℂ))) * (a : ℂ)⁻¹ *
+        ∫ t : ℝ, squaredOscillatoryCauchyKernel c a t)) := by
+    convert hRhs using 1
+    · funext T
+      unfold oscillatoryTruncatedCauchyIntegral
+      rw [oscillatoryCauchy_symmetric_integrationByParts hc ha]
+    · ring_nf
+  exact tendsto_nhds_unique hSharp hRhs'
+
+/-- The remaining absolutely convergent Fourier-transform evaluation. Its
+normalization is chosen so that it closes the original scalar Perron gate
+without any further conditional-limit argument. -/
+def SquaredCauchyFourierValueTarget : Prop :=
+  ∀ c a : ℝ, 0 < c → a ≠ 0 →
+    (∫ t : ℝ, squaredOscillatoryCauchyKernel c a t) =
+      if 0 < a then
+        (2 * (Real.pi : ℂ)) * (a : ℂ) * Real.exp (-a * c)
+      else 0
+
+/-- The absolutely convergent Fourier value is sufficient for the complete
+oscillatory Cauchy limit, hence (through `ScalarPerron.lean`) for the scalar
+Perron limit away from its jump. -/
+theorem oscillatoryCauchyLimitTarget_of_squaredCauchyFourierValueTarget
+    (h : SquaredCauchyFourierValueTarget) : OscillatoryCauchyLimitTarget := by
+  rw [oscillatoryCauchyLimitTarget_iff_value]
+  intro c a hc ha
+  rw [oscillatoryCauchyLimitValue_eq_integral_squared hc ha, h c a hc ha]
+  by_cases hapos : 0 < a
+  · simp only [if_pos hapos]
+    have haC : (a : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr ha
+    have hpiC : (Real.pi : ℂ) ≠ 0 := Complex.ofReal_ne_zero.mpr Real.pi_ne_zero
+    field_simp
+  · simp only [if_neg hapos, mul_zero]
+
 end RiemannLab

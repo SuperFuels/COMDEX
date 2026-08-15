@@ -1,8 +1,8 @@
 {
   "schema": "aion.riemann_scalar_perron_progress.v1",
   "date": "2026-08-15",
-  "status": "sharp_limit_existence_verified_value_open",
-  "claim_boundary": "Finite-height normalization, logarithmic reduction, factorization, continuity, the symmetric half-weight limit at y=1, and existence of the sharp symmetric limit for every nonzero frequency are Lean-verified. Identification of that limit with the classical piecewise value remains unproved; no RH progress or novel mathematics is claimed.",
+  "status": "sharp_limit_reduced_to_absolute_fourier_value",
+  "claim_boundary": "Finite-height normalization, the half-weight at y=1, sharp convergence away from the jump, and exact reduction to an absolutely convergent squared-denominator Fourier integral are Lean-verified. The classical value of that final integral remains unproved; no RH progress or novel mathematics is claimed.",
   "pinned_environment": {
     "lean": "4.24.0",
     "mathlib": "v4.32.1",
@@ -31,9 +31,9 @@
     "at y = 1 the normalized symmetric limit is 1/2"
   ],
   "open_unit": {
-    "id": "oscillatory_cauchy_explicit_value",
-    "statement_shape": "Identify the now-proved sharp symmetric limit value with exp(-a*c) when a > 0 and zero when a < 0.",
-    "why_open": "Integration by parts now proves sharp convergence and reduces the limit to an absolutely convergent remainder. That remainder still requires an explicit contour, Laplace, or regularized Fourier evaluation.",
+    "id": "squared_cauchy_fourier_value",
+    "statement_shape": "Evaluate the absolutely convergent integral of exp(i*a*t)/(c+i*t)^2 as 2*pi*a*exp(-a*c) for a > 0 and zero for a < 0.",
+    "why_open": "Lean now proves that this single whole-line Fourier value implies the original conditional Perron limit. It still requires a checked Fourier-inversion, Laplace/Fubini, or contour evaluation.",
     "unlocks": [
       "ScalarPerronLimitTarget",
       "finite Dirichlet-polynomial Perron inversion",
