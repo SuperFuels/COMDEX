@@ -1070,3 +1070,94 @@ RH.  The genuine frontier target is now sharper: derive an unconditional
 positive measure or positive operator for the completed stationary increment
 kernel, using an identity in which the prime, Gamma, and pole/pi terms are
 coupled before positivity is taken.
+
+## Multiplicity transfer and global damped-divisor summability
+
+The summability programme has now moved beyond the conditional actual-tail
+interface.  Four additional Lean modules close the complete positive-height
+analytic chain.
+
+`XiZetaMultiplicity.lean` proves the germ-level factorization
+
+\[
+  \Xi(s)=s(s-1)\Gamma_{\mathbb R}(s)\zeta(s)
+\]
+
+throughout the open critical strip.  The elementary/Gamma factor is proved
+analytic and nonzero there.  Consequently, at every nontrivial zero,
+
+\[
+  \operatorname{ord}_{\rho}\Xi
+  =\operatorname{ord}_{\rho}\zeta.
+\]
+
+This closes a genuine interface mismatch: the Jensen theorem counts the xi
+divisor, whereas the Li amplifier uses zeta multiplicities.
+
+`SummableShellEnvelope.lean` proves a general summability engine.  If a
+countable divisor has nonnegative shell mass bounded by `C(n+1)`, then
+
+\[
+  \sum_i \frac{m_i}{(\operatorname{shell}(i)+1)^4}<\infty.
+\]
+
+The proof partitions the complete countable family into its exact fibers and
+compares the outer series with the convergent cubic p-series.
+
+`ZetaJensenShells.lean` then performs the actual geometric specialization.
+Every nontrivial zero with
+
+\[
+  T\leq\Im\rho<T+1
+\]
+
+lies in the radius-`7/2` Jensen disk centred at `2+iT`.  Each such zeta shell
+is therefore finite and contained in the exact xi-divisor support.  Lean
+transfers the analytic multiplicities pointwise and proves
+
+\[
+  \sum_{T\leq\Im\rho<T+1}m(\rho)
+  \leq
+  \frac{\log C_J+12\log T}{\log(8/7)}
+\]
+
+for `T>=2`.  This is further converted to one explicit linear bound
+
+\[
+  \sum_{n+2\leq\Im\rho<n+3}m(\rho)
+  \leq C_{\mathrm{shell}}(n+1).
+\]
+
+Finally, `ZetaDampedSummability.lean` assembles all positive shells into one
+dependent countable union.  Lean proves that every nontrivial zero with
+`Im(rho)>=2` occurs in exactly one shell and that
+
+\[
+  \sum_{\substack{\zeta(\rho)=0\\ \Im\rho\geq2}}
+    \frac{m(\rho)}{(\operatorname{shell}(\rho)+1)^4}<\infty.
+\]
+
+Thus the positive-height multiplicity-weighted divisor is now unconditionally
+summable under fourth-power damping.  To obtain the complete two-sided actual
+amplifier weight, the remaining connection work is limited to conjugation
+transfer for multiplicity and the finite low-height block, followed by the
+polynomial bound for the already-constructed finite annihilator.
+
+The completed stationary-symbol experiment was also extended from order 30 to
+order 80.  At 150-digit Arb precision, 524,289 interval points and a rigorous
+derivative covering estimate certify
+
+\[
+  F_{80}(\theta) > 5.701501820\times10^{-5}
+  \qquad(0\leq\theta\leq\pi).
+\]
+
+The raw minimum enclosure is approximately
+`1.102775392e-4`, and the covering error leaves the stated positive global
+lower bound.  The evidence payload is
+`li_three_place_toeplitz_fejer_v2_order80.json`, with SHA-256
+`2f534607ea16ff90f7465ed7823804e2e02a0fb2406b7461377a44a4e6585db7`.
+
+This order-80 result remains one finite continuum certificate.  It does not
+prove positivity for every order or produce a positive representing measure.
+The universal three-place operator remains the genuine frontier problem.

@@ -14,6 +14,10 @@ import RiemannLab.Tasks.LiFiniteSpectralIsolation
 import RiemannLab.Tasks.LiExpansiveModeIsolation
 import RiemannLab.Tasks.LiSubdominantTail
 import RiemannLab.Tasks.LiZetaTailEnvelope
+import RiemannLab.Tasks.XiZetaMultiplicity
+import RiemannLab.Tasks.SummableShellEnvelope
+import RiemannLab.Tasks.ZetaJensenShells
+import RiemannLab.Tasks.ZetaDampedSummability
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor

@@ -85,6 +85,17 @@ def main() -> None:
     parser.add_argument("--order", type=int, default=30)
     parser.add_argument("--digits", type=int, default=150)
     parser.add_argument("--grid", type=int, default=131072)
+    parser.add_argument(
+        "--component",
+        action="append",
+        choices=(
+            "elementary_pole_pi",
+            "archimedean_gamma",
+            "regularized_finite_place",
+            "complete",
+        ),
+        help="component to certify; repeat as needed (default: all)",
+    )
     parser.add_argument("--output", type=Path)
     args = parser.parse_args()
     if args.order < 1 or args.digits < 50 or args.grid < 1024:
@@ -92,11 +103,12 @@ def main() -> None:
 
     ctx.dps = args.digits
     components = component_li_coefficients(args.order + 1, args.digits)
+    selected = args.component or list(components)
     reports = {
         name: certify_fejer_symbol(
-            increment_lags(values, args.order), args.order, args.grid
+            increment_lags(components[name], args.order), args.order, args.grid
         )
-        for name, values in components.items()
+        for name in selected
     }
     payload = {
         "experiment": "certified_completed_li_increment_fejer_symbol",
