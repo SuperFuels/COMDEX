@@ -2,7 +2,7 @@
   "schema": "aion.riemann_curriculum.v3",
   "created": "2026-08-15",
   "claim_boundary": "A structured curriculum of established or explicitly open prerequisites; inclusion is not a claim of RH progress.",
-  "summary": {"total": 36, "kernel_reconstructed": 15, "source_closed_eval": 7, "queued_reconstruction": 11, "research_frontier": 3, "kernel_theorems_in_foundation_file": 17},
+  "summary": {"total": 36, "kernel_reconstructed": 20, "source_closed_eval": 7, "queued_reconstruction": 8, "research_frontier": 1, "kernel_theorems_in_foundation_files": 26},
   "tasks": [
     {"id":"A01","tier":"analytic","status":"kernel_reconstructed","target":"Differentiability of zeta away from one"},
     {"id":"A02","tier":"analytic","status":"kernel_reconstructed","target":"Differentiability on the complement of one"},
@@ -32,12 +32,12 @@
     {"id":"Z08","tier":"zeros","status":"kernel_reconstructed","target":"Finite zeros in compact intersections"},
     {"id":"Z09","tier":"zeros","status":"source_closed_eval","target":"Held-out compact-intersection reconstruction"},
     {"id":"Z10","tier":"zeros","status":"queued_reconstruction","target":"Cofinite-to-cocompact escape of zeros"},
-    {"id":"S01","tier":"symmetry","status":"queued_reconstruction","target":"One-minus-s functional equation"},
-    {"id":"S02","tier":"symmetry","status":"queued_reconstruction","target":"Conjugation symmetry of zeta"},
-    {"id":"S03","tier":"symmetry","status":"queued_reconstruction","target":"Reflection symmetry of nontrivial zeros"},
+    {"id":"S01","tier":"symmetry","status":"kernel_reconstructed","target":"One-minus-s functional equation"},
+    {"id":"S02","tier":"symmetry","status":"kernel_reconstructed","target":"Conjugation symmetry of zeta"},
+    {"id":"S03","tier":"symmetry","status":"kernel_reconstructed","target":"Reflection symmetry of nontrivial zeros"},
     {"id":"C01","tier":"critical_strip","status":"kernel_reconstructed","target":"Strict upper boundary Re(s) < 1 for every zero"},
-    {"id":"C02","tier":"critical_strip","status":"research_frontier","target":"Classify all zeros with Re(s) <= 0 as trivial"},
-    {"id":"C03","tier":"critical_strip","status":"research_frontier","target":"Nontrivial zeros satisfy 0 < Re(s) < 1"},
+    {"id":"C02","tier":"critical_strip","status":"kernel_reconstructed","target":"Classify all zeros with Re(s) <= 0 as trivial"},
+    {"id":"C03","tier":"critical_strip","status":"kernel_reconstructed","target":"Nontrivial zeros satisfy 0 < Re(s) < 1"},
     {"id":"C04","tier":"critical_line","status":"research_frontier","target":"All nontrivial zeros satisfy Re(s) = 1/2"},
     {"id":"E01","tier":"evaluation","status":"source_closed_eval","target":"Six-family matched AION ablation and cold-state exam"}
   ]

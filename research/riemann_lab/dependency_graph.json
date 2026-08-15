@@ -2,8 +2,8 @@
   "schema": "aion.riemann_dependency_graph.v2",
   "claim_boundary": "This graph organises and reconstructs established prerequisites. It does not assert new RH mathematics.",
   "kernel_checked_foundation": {
-    "file": "RiemannLab/Tasks/CriticalStripFoundation.lean",
-    "theorem_count": 17,
+    "files": ["RiemannLab/Tasks/CriticalStripFoundation.lean", "RiemannLab/Tasks/NontrivialZeros.lean"],
+    "theorem_count": 26,
     "upper_boundary_result": "RiemannLab.zeta_zero_re_lt_one",
     "upper_boundary_status": "verified_established_consequence"
   },
@@ -11,14 +11,14 @@
     {"id": "complex_analysis", "status": "library_foundation", "label": "Complex analysis and meromorphic functions"},
     {"id": "dirichlet_series", "status": "kernel_reconstructed", "label": "Dirichlet-series identity and summation for Re(s) > 1"},
     {"id": "analytic_continuation", "status": "kernel_reconstructed", "label": "Analyticity away from the pole at one"},
-    {"id": "functional_equation", "status": "library_established_not_yet_reconstructed", "label": "Functional equation"},
+    {"id": "functional_equation", "status": "kernel_reconstructed", "label": "Completed and ordinary zeta functional equations"},
     {"id": "closed_half_plane_nonvanishing", "status": "kernel_reconstructed", "label": "Non-vanishing for Re(s) >= 1"},
     {"id": "trivial_zeros", "status": "kernel_reconstructed", "label": "Trivial zeros at negative even integers"},
     {"id": "zero_set_topology", "status": "kernel_reconstructed", "label": "Closedness, discreteness, and compact finiteness of the zero set"},
     {"id": "strict_upper_boundary", "status": "kernel_reconstructed", "label": "Every zeta zero satisfies Re(s) < 1"},
-    {"id": "left_half_plane_classification", "status": "precise_blocker", "label": "Classify zeros with Re(s) <= 0 as trivial zeros"},
-    {"id": "critical_strip", "status": "partially_reconstructed", "label": "Non-trivial zeros satisfy 0 < Re(s) < 1"},
-    {"id": "zero_symmetry", "status": "library_established_not_yet_reconstructed", "label": "Symmetry of non-trivial zeros"},
+    {"id": "left_half_plane_classification", "status": "kernel_reconstructed", "label": "Every zero with Re(s) <= 0 is a negative-even trivial zero"},
+    {"id": "critical_strip", "status": "kernel_reconstructed", "label": "Non-trivial zeros satisfy 0 < Re(s) < 1"},
+    {"id": "zero_symmetry", "status": "kernel_reconstructed", "label": "Reflection and conjugation symmetry orbit of non-trivial zeros"},
     {"id": "critical_line", "status": "open", "label": "Every non-trivial zero has real part one half"}
   ],
   "edges": [
@@ -38,10 +38,17 @@
   ],
   "selected_target": {
     "id": "critical_strip",
-    "next_subtarget": "left_half_plane_classification",
-    "completed_subtarget": "strict_upper_boundary",
-    "precise_blocker": "The remaining lower boundary requires a kernel-level theorem that any zeta zero with nonpositive real part belongs to the negative-even trivial-zero family, or an equivalent consequence of the functional equation plus Gamma/sine zero classification.",
+    "status": "completed_reconstruction",
+    "completed_subtargets": ["strict_upper_boundary", "left_half_plane_classification", "critical_strip", "reflection_symmetry", "conjugation_symmetry"],
+    "precise_blocker": "All classical location and symmetry prerequisites in this graph are reconstructed. The remaining target is the open assertion that every nontrivial zero has real part one half; progress now requires a genuinely stronger analytic or arithmetic inequality, not additional rearrangement of the functional equation.",
     "success_authority": "Lean kernel through the pinned Mathlib dependency",
+    "new_mathematics_claimed": false
+  },
+  "next_target": {
+    "id": "critical_line",
+    "next_subtarget": "Select and formalize a non-circular equivalent criterion capable of constraining zeros inside the open critical strip.",
+    "preferred_route": "Chebyshev psi error-bound criterion, because pinned Mathlib already contains psi, von Mangoldt identities, and the zeta logarithmic derivative on Re(s) > 1.",
+    "missing_bridge": "An explicit-formula framework relating the Chebyshev psi remainder to nontrivial zeta zeros; Mathlib has no existing RH equivalence theorem for this route.",
     "new_mathematics_claimed": false
   }
 }
