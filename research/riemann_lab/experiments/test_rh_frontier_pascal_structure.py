@@ -17,6 +17,7 @@ from rh_frontier_pascal_structure import (  # noqa: E402
     verify_exact_identity,
 )
 from rh_frontier_pascal_toeplitz import verify as verify_toeplitz  # noqa: E402
+from rh_frontier_toeplitz_quartet_detector import analyse_case  # noqa: E402
 
 
 class PascalStructureTests(unittest.TestCase):
@@ -43,6 +44,12 @@ class PascalStructureTests(unittest.TestCase):
     def test_toeplitz_generating_function_grid(self) -> None:
         report = verify_toeplitz(8)
         self.assertEqual(report["coefficient_pairs_checked"], 64)
+
+    def test_three_lag_quartet_control(self) -> None:
+        critical = analyse_case("0.5", "14.134725141734693790457251983562")
+        off_line = analyse_case("0.51", "14.134725141734693790457251983562")
+        self.assertEqual(Decimal(critical["determinant_3x3"]), 0)
+        self.assertTrue(off_line["determinant_negative"])
 
 
 if __name__ == "__main__":
