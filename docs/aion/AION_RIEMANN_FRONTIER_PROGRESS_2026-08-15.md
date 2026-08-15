@@ -60,3 +60,45 @@ Gram or sum-of-squares representation.  A successful result must apply to all
 indices, not merely a finite verified range.  Numerical work remains a
 falsification and conjecture-generation layer; theorem claims require Lean
 verification.
+
+## Certified full-coefficient computation
+
+`rh_frontier_li_full_arb.py` now computes Li coefficients from the Taylor
+expansion of the complete xi-function at `s=1`.  It uses Stieltjes constants
+and Arb ball arithmetic rather than truncating a list of zeros, so every
+reported interval encloses the corresponding full coefficient.  The
+calculation uses the generating identity
+
+`log xi(1/(1-z)) = log xi(1) + sum_(n>=1) lambda_n*z^n/n`.
+
+The first **300** full Li coefficients have strictly positive certified
+intervals.  The calculation was repeated at 400 and 500 decimal digits; all
+corresponding intervals overlap and all remain strictly positive.  The
+preserved 400-digit result has payload SHA-256
+`812f43dfa783a211699ee7be0d6a43f0d31e3c47642297a46cab4222d224a6d9`.
+This is a finite validation result and is not evidence sufficient to prove
+RH.  Li's criterion requires every coefficient.
+
+## First certified moment/Gram rejection
+
+`rh_frontier_li_moment_search.py` tests the necessary Hankel positivity
+condition for three natural positive-measure moment ansatzes.  Arb proves that
+their order-two leading Hankel determinants are strictly negative:
+
+| Candidate moment sequence | Certified determinant sign |
+|---|---:|
+| `lambda_(n+1)` | negative |
+| `lambda_(n+1)/(n+1)` | negative |
+| `lambda_(n+2)-lambda_(n+1)` | negative |
+
+Thus none of these three sequences can be the moments of a positive measure,
+and the corresponding simple Hankel-Gram strategies are rejected globally by
+a finite certificate.  This does not rule out other Gram, norm, kernel, or
+sum-of-squares representations.  The preserved rejection result has payload
+SHA-256 `54195428c770be1122056bcc5c176d3dbddae54afcbcb1de6fae34ff9dde2f5b`.
+
+The next search must therefore use structure beyond a scalar positive moment
+sequence: a test-function Gram form, a matrix-valued moment problem, or a
+prime-side sum-of-squares identity.  Candidates will continue to be required
+to survive rigorous enclosures and injected off-line quartets before any Lean
+formalization effort.
