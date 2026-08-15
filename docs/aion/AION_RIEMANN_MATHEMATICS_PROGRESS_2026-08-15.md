@@ -118,3 +118,30 @@ No verified-memory record, held-out retention task, packet, model prompt, or
 paid-call configuration was changed. The mathematics work is confined to new
 Lean source and research metadata, so the delayed retention comparison remains
 frozen and uncontaminated.
+
+## 15 August continuation: residue gates closed
+
+Three additional modules now reduce the classical explicit-formula bridge to
+one analytic estimate.
+
+`TrivialZeroResidues.lean` proves that all negative-even zeta zeros are simple,
+identifies every local contour residue, proves summability, and evaluates their
+complete contribution as `-(1/2) * log (1 - x⁻¹ ^ 2)` for `x > 1`.
+
+`RectangularResidues.lean` proves directly that the project's positively
+oriented rectangular boundary integral of `(s-p)⁻¹` is `2*pi*I` for a strictly
+interior pole. It lifts the kernel calculation to a finite global residue
+theorem for a holomorphic remainder plus finitely many principal parts, with
+edge integrability discharged from continuity and strict containment.
+
+`ExplicitFormulaAssembly.lean` records the exact admissible-height contour
+limit still required and proves that this one target implies the complete
+`ChebyshevExplicitFormulaTarget`. The Perron limit, residue arithmetic, and
+final limit algebra are therefore no longer open.
+
+Full verification passes: 3,593 build jobs. What remains is the concrete
+principal-parts instantiation for the zeta kernel on each rectangle, followed
+by the substantive admissible-height growth estimate for `zeta'/zeta` and the
+resulting vanishing of the horizontal and displaced-left edges. Pinned Mathlib
+does not currently provide the growth theorem. No RH consequence or new
+zero-free information is claimed.

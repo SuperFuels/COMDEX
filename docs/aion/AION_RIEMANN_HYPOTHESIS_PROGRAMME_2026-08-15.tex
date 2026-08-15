@@ -1595,9 +1595,64 @@ known values $\zeta(0)=-1/2$ and
 $\zeta'(0)=-\log(2\pi)/2$ yield the residue $-\log(2\pi)$ at the Perron pole.
 
 These are classical results formalized with kernel checking. They do not yet
-constitute the explicit formula: the global punctured-contour identity, the
-negative-even trivial-zero series, admissible-height estimates, and limiting
-ordering remain open.
+constitute the explicit formula: admissible-height estimates for the remaining
+three contour edges remain open.
+
+\section{Global residue theorem, trivial-zero sum, and final assembly}
+
+The classical contour infrastructure has advanced through three further
+machine-checked gates.  The module
+\path{RiemannLab/Tasks/TrivialZeroResidues.lean} proves that every negative-even
+zero $-2(n+1)$ is simple.  It identifies its contour residue as
+\[
+  -\frac{x^{-2(n+1)}}{-2(n+1)}
+  = \frac{x^{-2(n+1)}}{2(n+1)}
+\]
+and evaluates the full series as
+\[
+  \sum_{n\geq0}\frac{x^{-2(n+1)}}{2(n+1)}
+  =-\frac12\log(1-x^{-2}), \qquad x>1.
+\]
+Thus the trivial-zero simplicity and summation gate is complete.
+
+The module \path{RiemannLab/Tasks/RectangularResidues.lean} proves the missing
+rectangular Cauchy kernel identity directly in the exact four-edge orientation
+used by the project:
+\[
+  \int_{\partial R}\frac{ds}{s-p}=2\pi i
+  \qquad (p\in\operatorname{int}R).
+\]
+The proof controls the branch cut by using $\log(s-p)$ on three sides and
+$\log(-(s-p))$ on the left side.  It then lifts this identity to a finite
+global residue theorem.  For a holomorphic remainder $g$, a finite pole set
+$P$, pole locations $p_j$, and residues $r_j$, Lean proves
+\[
+ \int_{\partial R}
+ \left(g(s)+\sum_{j\in P}\frac{r_j}{s-p_j}\right)ds
+ =2\pi i\sum_{j\in P}r_j,
+\]
+provided every $p_j$ lies strictly inside $R$.  Continuity supplies the edge
+integrability automatically.  This closes the global finite residue-collection
+gate without assuming a residue theorem absent from the pinned Mathlib version.
+
+Finally, \path{RiemannLab/Tasks/ExplicitFormulaAssembly.lean} defines the exact
+remaining admissible-contour limit proposition and proves that it implies
+\code{ChebyshevExplicitFormulaTarget}.  In particular, once a sequence of
+admissible heights tends to infinity, the normalized top, bottom, and displaced
+left edges tend to zero, and the finite residue ledger is instantiated, no
+further complex analysis or limit algebra remains: the already proved Perron
+limit forces the complete Chebyshev explicit formula.
+
+The full pinned build now passes in 3,593 jobs.  Two tightly coupled obligations
+remain: instantiate the finite principal-parts theorem for the actual zeta
+kernel on each chosen rectangle, and prove the zeta logarithmic-derivative
+estimate needed to construct admissible heights and make the three displaced
+edge integrals vanish.  The first is now bounded analytic packaging around the
+proved residue theorem; the second is the substantive remaining classical
+estimate. Pinned Mathlib supplies neither that growth estimate nor a ready
+theorem from which it can be obtained. This is still established classical
+analytic number theory being formalized; it is not new evidence for RH and
+imposes no new constraint on the real parts of nontrivial zeros.
 
 \appendix
 

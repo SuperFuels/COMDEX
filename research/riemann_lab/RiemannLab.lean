@@ -11,3 +11,6 @@ import RiemannLab.Tasks.SquaredCauchyFourier
 import RiemannLab.Tasks.FinitePerron
 import RiemannLab.Tasks.PerronFormula
 import RiemannLab.Tasks.ContourShift
+import RiemannLab.Tasks.TrivialZeroResidues
+import RiemannLab.Tasks.RectangularResidues
+import RiemannLab.Tasks.ExplicitFormulaAssembly
