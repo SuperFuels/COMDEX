@@ -379,3 +379,15 @@ corresponding right-boundary estimate across the wider symmetric strip (or an
 equivalent extension strip), and only then form the quantitative Jensen
 quotient.  Until that domain extension is checked, `N(T+1)-N(T)=O(log T)` and
 the subsequent contour limits remain unproved.  No RH progress is claimed.
+
+`ExtendedXiStrip.lean` now completes the exact norm ledger on that required
+right boundary.  With the sixth-power normalization it proves a uniform
+high-ordinate bound for
+
+`exp(-i*pi*s/4) Xi(s)/(s+4)^6`
+
+on `Re(s)=6`; all exponential and polynomial factors are explicitly
+cancelled.  Full verification passes with **3,684 jobs**.  What remains in
+this local substep is the Gaussian three-lines propagation from `Re(s)=4` to
+`Re(s)=6` (and the functional-equation transfer on the left), not any further
+Gamma asymptotic.

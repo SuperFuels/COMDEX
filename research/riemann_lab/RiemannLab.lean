@@ -23,6 +23,7 @@ import RiemannLab.Tasks.CompletedZetaGrowth
 import RiemannLab.Tasks.ComplexGammaVertical
 import RiemannLab.Tasks.NormalizedXiThreeLines
 import RiemannLab.Tasks.QuantitativeJensen
+import RiemannLab.Tasks.ExtendedXiStrip
 import RiemannLab.Tasks.AdmissibleHeightBounds
 import RiemannLab.Tasks.DisplacedLeftEdge
 import RiemannLab.Tasks.AdmissibleContourEdges
