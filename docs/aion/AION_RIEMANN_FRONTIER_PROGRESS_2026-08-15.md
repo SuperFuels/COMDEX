@@ -756,3 +756,130 @@ Only after the second item is proved and the localized form is transferred to
 an unconditional prime/Gamma/pole inequality would this route become a proof
 of RH.  At present it is a much sharper, rigorously tested detector and a
 plausible proof architecture, not a proof or disproof.
+
+## Exact isolation of every finite dominant off-line cluster
+
+The single-synthetic-quartet restriction has now been removed at the finite
+dominant-cluster level.  The new construction has three machine-checked
+components.
+
+First, for a target mode `t` and a finite set `S` of competitors, Lean defines
+the normalized interpolation filter
+
+`I_(t,S)(z) = product_(w in S) (z-w)/(t-w)`.
+
+If `t` is not in `S`, then
+
+`I_(t,S)(t)=1`,
+
+whereas
+
+`I_(t,S)(w)=0`
+
+for every `w in S`.  The construction was instantiated directly on the
+multiplicity-aware compact zeta divisor, proving that any selected compact
+zeta mode can be preserved while every other mode in that compact divisor is
+annihilated exactly.
+
+Second, a real-coefficient conjugate-pair annihilator was introduced:
+
+`A_S(u) = product_(v in S) (u-v)(u-conj(v))`.
+
+It vanishes at every listed coordinate and its conjugate, and it satisfies
+
+`A_S(conj(u)) = conj(A_S(u))`.
+
+Thus the filter can remove an arbitrary finite collection containing both
+critical and off-critical competitors without sacrificing the conjugation
+structure required for critical-line positivity.  The corresponding filter
+in the Toeplitz variable is obtained by substituting
+
+`u=z+z^(-1)`.
+
+Lean verifies that this pulled-back filter is reciprocal symmetric:
+
+`A_S(z^(-1)+z)=A_S(z+z^(-1))`,
+
+so reciprocal pairing produces the exact square of one localized amplitude.
+
+Third, a four-channel quadrature theorem removes the remaining complex-phase
+ambiguity.  Let `w != 0` be the localized target amplitude and let `b != 0` be
+the target's transverse off-critical coordinate.  The four channels are
+
+`w`, `i*b*w`, `(1+i*b)w`, and `(-1+i*b)w`.
+
+Lean proves that at least one of their squared real parts is strictly positive.
+Multiplication by the quartet prefactor `-4*b^2` therefore gives a strict
+negative certificate in at least one channel.  Consequently, after any finite
+conjugate-symmetric competitor cluster has been annihilated, a separated
+off-critical target cannot hide in all four channels.
+
+The remaining question was whether the modes capable of competing with an
+expansive target actually form a finite cluster.  This has also been answered
+in Lean.  For every complex `rho != 0`,
+
+`|1-rho^(-1)|^2 =
+ ((Re(rho)-1)^2+Im(rho)^2)/(Re(rho)^2+Im(rho)^2)`.
+
+If `Re(rho)>=0`, `R>1`, and
+
+`R <= |1-rho^(-1)|`,
+
+then Lean derives the explicit height bound
+
+`Im(rho)^2 <= 1/(R^2-1)`.
+
+Every nontrivial zeta zero also satisfies `0<Re(rho)<1`; hence all zeros whose
+Li ratio has norm at least `R` lie in the explicit compact ball
+
+`|rho| <= sqrt(1+1/(R^2-1))`.
+
+The previously verified discreteness of the zeta zero set then implies:
+
+`{rho : nontrivial zeta zero and R <= |1-rho^(-1)|}`
+
+is finite for every `R>1`.
+
+Finally, Lean combines this with the verified logical normal form for RH
+failure.  If RH is false, reflection supplies an actual expansive zero mode
+`rho` with
+
+`1 < |1-rho^(-1)|`.
+
+Choosing
+
+`R=(1+|1-rho^(-1)|)/2`
+
+gives
+
+`1<R<|1-rho^(-1)|`,
+
+and the complete set of modes capable of competing at threshold `R` is
+finite.  Therefore all equally or more expansive competitors can be collected
+into one finite cluster and removed by the exact conjugate-pair annihilator.
+
+This closes the following parts of the proposed contradiction architecture:
+
+1. selection of an expansive target from the assumption that RH is false;
+2. proof that the complete dominant competitor set is finite;
+3. exact annihilation of every dominant critical or off-critical competitor;
+4. preservation of reciprocal and conjugation symmetry;
+5. a four-channel guarantee that the selected target retains a strict negative
+   defect despite an arbitrary complex phase.
+
+The implementation commit is `978669d1`.  The complete Lean build passed
+3,710 jobs, with zero `sorry`, zero `admit`, and no new axioms.
+
+The proof is not complete.  Two irreducible obligations remain.  The first is
+to show quantitatively that the infinitely many subdominant modes, whose Li
+ratios have norm strictly below `R`, are overwhelmed by powers of the selected
+target after zero-counting and multiplicities are included.  The second is to
+transfer the resulting full-divisor negative form to the prime/Gamma/pole side
+and establish the unconditional nonnegativity inequality needed for a
+contradiction.
+
+No actual off-critical zeta zero has been found, and RH is not claimed proved
+or disproved.  The advance is that the former ``all off-line zeros act at
+once'' objection is now resolved for the entire finite dominant cluster.  The
+frontier has moved to an infinite subdominant-tail theorem and the arithmetic
+positivity theorem.
