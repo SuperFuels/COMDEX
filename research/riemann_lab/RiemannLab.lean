@@ -18,6 +18,7 @@ import RiemannLab.Tasks.FinitePrincipalParts
 import RiemannLab.Tasks.ZetaContourPrincipalParts
 import RiemannLab.Tasks.ContourEdgeEstimates
 import RiemannLab.Tasks.AdmissibleHeights
+import RiemannLab.Tasks.RightHalfPlaneLogDerivBound
 import RiemannLab.Tasks.AdmissibleHeightBounds
 import RiemannLab.Tasks.DisplacedLeftEdge
 import RiemannLab.Tasks.AdmissibleContourEdges

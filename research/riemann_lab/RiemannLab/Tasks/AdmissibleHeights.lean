@@ -1,5 +1,6 @@
 import RiemannLab.Tasks.ContourEdgeEstimates
 import Mathlib.Order.Interval.Set.Infinite
+import Mathlib.Topology.MetricSpace.HausdorffDistance
 
 namespace RiemannLab
 
@@ -95,6 +96,60 @@ theorem riemannZeta_ne_zero_on_neg_admissibleZetaHeight (n : ℕ) (σ : ℝ) :
   rw [hz, map_zero] at hconj
   apply riemannZeta_ne_zero_on_admissibleZetaHeight n σ
   convert hconj using 1 <;> push_cast <;> simp
+
+/-- Each selected height has a strictly positive separation from all zeta-zero
+ordinates in the compact ball used to construct it.  This is qualitative
+separation; no lower bound in terms of `n` is asserted. -/
+theorem exists_admissibleZetaHeight_zero_separation (n : ℕ) :
+    ∃ δ : ℝ, 0 < δ ∧ ∀ ρ ∈ zetaZerosInClosedBall (n + 4),
+      δ ≤ |admissibleZetaHeight n - ρ.im| := by
+  let E : Finset ℝ := zetaZeroOrdinatesInClosedBall (n + 4)
+  have hnot : admissibleZetaHeight n ∉ E := by
+    intro hmem
+    simp only [E, zetaZeroOrdinatesInClosedBall, Finset.mem_image] at hmem
+    obtain ⟨ρ, hρ, hρim⟩ := hmem
+    have hρzero : riemannZeta ρ = 0 :=
+      (mem_zetaZerosInClosedBall.mp hρ).2
+    apply riemannZeta_ne_zero_on_admissibleZetaHeight n ρ.re
+    have hsEq : (ρ.re : ℂ) + admissibleZetaHeight n * Complex.I = ρ := by
+      apply Complex.ext <;> simp [hρim]
+    rw [hsEq]
+    exact hρzero
+  rcases E.eq_empty_or_nonempty with hE | hE
+  · refine ⟨1, by norm_num, ?_⟩
+    intro ρ hρ
+    have him : ρ.im ∈ E :=
+      Finset.mem_image.mpr ⟨ρ, hρ, rfl⟩
+    rw [hE] at him
+    simp at him
+  · let δ : ℝ := Metric.infDist (admissibleZetaHeight n) (E : Set ℝ)
+    have hδ : 0 < δ := by
+      exact (E.finite_toSet.isClosed.notMem_iff_infDist_pos
+        (by simpa using hE)).mp (by simpa using hnot)
+    refine ⟨δ, hδ, ?_⟩
+    intro ρ hρ
+    have hρim : ρ.im ∈ (E : Set ℝ) := by
+      simp only [E, zetaZeroOrdinatesInClosedBall, Finset.mem_coe,
+        Finset.mem_image]
+      exact ⟨ρ, hρ, rfl⟩
+    have hdist := Metric.infDist_le_dist_of_mem
+      (x := admissibleZetaHeight n) hρim
+    simpa only [δ, Real.dist_eq] using hdist
+
+/-- A canonical positive, qualitative separation radius for the selected
+height. -/
+noncomputable def admissibleZetaHeightSeparation (n : ℕ) : ℝ :=
+  Classical.choose (exists_admissibleZetaHeight_zero_separation n)
+
+theorem admissibleZetaHeightSeparation_pos (n : ℕ) :
+    0 < admissibleZetaHeightSeparation n :=
+  (Classical.choose_spec (exists_admissibleZetaHeight_zero_separation n)).1
+
+theorem admissibleZetaHeightSeparation_le (n : ℕ)
+    {ρ : ℂ} (hρ : ρ ∈ zetaZerosInClosedBall (n + 4)) :
+    admissibleZetaHeightSeparation n ≤
+      |admissibleZetaHeight n - ρ.im| :=
+  (Classical.choose_spec (exists_admissibleZetaHeight_zero_separation n)).2 ρ hρ
 
 private theorem continuous_logDeriv_on_horizontalLine
     (n : ℕ) (sign : ℝ) (hsign : sign = 1 ∨ sign = -1)
