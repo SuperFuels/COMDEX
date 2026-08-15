@@ -977,9 +977,9 @@ section is deliberately explicit about the boundary between what the kernel has
 accepted and what remains an open analytic proof obligation.
 
 The implementation recorded here is repository commit
-\code{10f672c0}. The complete Lean library builds successfully against Lean
-4.24.0 and pinned Mathlib v4.32.1. The research modules contain 49
-kernel-checked theorems, or 52 declarations when the three baseline
+\code{651f65f8}. The complete Lean library builds successfully against Lean
+4.24.0 and pinned Mathlib v4.32.1. The research modules contain 55
+kernel-checked theorems, or 58 declarations when the three baseline
 reproduction checks are included. No project-authored \code{sorry},
 \code{admit}, axiom, or unsafe declaration is used in the new modules.
 
@@ -1222,20 +1222,159 @@ the required residues. Those are the current mathematical proof obligations.
 \end{warningbox}
 
 \clearpage
+\subsection{Completed specialized Perron interface}
+\label{subsec:perron-interface}
+
+The first Perron unit has now been constructed in
+\path{RiemannLab/Tasks/PerronFormula.lean}. Define the zeta
+logarithmic-derivative kernel
+\begin{equation}
+  \mathcal K_{\zeta}(x,s)
+  :=-\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s}
+  \label{eq:zeta-perron-kernel}
+\end{equation}
+and the equivalent von Mangoldt L-series kernel
+\begin{equation}
+  \mathcal K_{\Lambda}(x,s)
+  :=\left(\sum_{n=1}^{\infty}\frac{\Lambda(n)}{n^s}\right)
+    \frac{x^s}{s}.
+  \label{eq:von-mangoldt-perron-kernel}
+\end{equation}
+For $\RePart(s)>1$, the previously verified logarithmic-derivative identity
+gives the kernel-checked equality
+\begin{equation}
+  \mathcal K_{\Lambda}(x,s)=\mathcal K_{\zeta}(x,s).
+  \label{eq:perron-kernel-equality}
+\end{equation}
+
+For $c>1$ and finite height $T$, parametrize the vertical segment by
+$s=c+it$. Since $ds=i\,dt$, the factor $i$ cancels against the $i$ in
+$(2\pi i)^{-1}$. The formal normalized truncations are therefore
+\begin{align}
+  P^{\zeta}_T(c,x)
+    &:=\frac{1}{2\pi}\int_{-T}^{T}
+      \mathcal K_{\zeta}(x,c+it)\,dt,
+      \label{eq:truncated-zeta-perron}\\
+  P^{\Lambda}_T(c,x)
+    &:=\frac{1}{2\pi}\int_{-T}^{T}
+      \mathcal K_{\Lambda}(x,c+it)\,dt.
+      \label{eq:truncated-von-mangoldt-perron}
+\end{align}
+Lean proves that every point $c+it$ remains in the half-plane of absolute
+convergence and hence, for every finite $T$,
+\begin{equation}
+  c>1
+  \quad\Longrightarrow\quad
+  P^{\Lambda}_T(c,x)=P^{\zeta}_T(c,x).
+  \label{eq:truncated-perron-equality}
+\end{equation}
+The zero-height specializations are also checked:
+\[
+  P^{\zeta}_0(c,x)=P^{\Lambda}_0(c,x)=0.
+\]
+
+Representative Lean declarations are:
+\begin{lstlisting}
+noncomputable def zetaPerronKernel (x : R) (s : C) : C :=
+  (-deriv riemannZeta s / riemannZeta s) * (x : C) ^ s / s
+
+noncomputable def truncatedZetaPerronIntegral
+    (c T x : R) : C :=
+  (1 / (2 * (Real.pi : C))) *
+    integral t in -T..T, zetaPerronKernel x (c + t * Complex.I)
+
+theorem truncatedVonMangoldtPerronIntegral_eq_zeta
+    {c T x : R} (hc : 1 < c) :
+    truncatedVonMangoldtPerronIntegral c T x =
+      truncatedZetaPerronIntegral c T x
+\end{lstlisting}
+The listing uses portable ASCII placeholders; the checked source uses Lean's
+native Unicode notation and interval integral syntax.
+
+\subsubsection{Exact inversion target}
+
+For nonintegral $x>1$, the classical Perron conclusion required by the programme
+is
+\begin{equation}
+  \forall c>1,\qquad
+  \lim_{T\to\infty}P^{\zeta}_T(c,x)=\psi(x).
+  \label{eq:chebyshev-perron-target}
+\end{equation}
+This is now represented exactly by the Lean proposition
+\code{ChebyshevPerronInversionTarget}. Lean additionally proves that the target
+written with $P^{\zeta}_T$ is logically equivalent to the target written with
+$P^{\Lambda}_T$, using Equation~\eqref{eq:truncated-perron-equality}. Neither
+convergence statement is asserted as a theorem.
+
+\begin{warningbox}
+The finite-height equality is complete; Perron inversion is not. Equality of
+the two integrands on $\RePart(s)>1$ does not justify the limit
+$T\to\infty$, interchange an infinite Dirichlet series with an improper
+integral, or settle the value at a jump of $\psi$.
+\end{warningbox}
+
+\subsubsection{Pinned-library capability audit}
+
+The dependency audit found the following usable primitives in pinned Mathlib:
+\begin{center}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{55mm}X}
+\toprule
+Module (prefix \code{Mathlib.}) & Available role \\
+\midrule
+\path{Analysis.MellinTransform} &
+Mellin transform, inverse Mellin transform, and vertical integrability. \\
+\path{Analysis.MellinInversion} &
+General Mellin inversion through Fourier inversion under its stated
+integrability and continuity hypotheses. \\
+\path{Analysis.Complex.CauchyIntegral} &
+Rectangle boundary integrals and Cauchy--Goursat machinery needed for later
+contour shifting. \\
+\path{NumberTheory.LSeries.Dirichlet} &
+Absolute convergence of the von Mangoldt L-series for $\RePart(s)>1$ and its
+identity with $-\zeta'/\zeta$. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+No specialized arithmetic Perron theorem matching
+Equation~\eqref{eq:chebyshev-perron-target} was found. This negative result is
+recorded in \path{perron_dependency_audit_v1.json}; it prevents the programme
+from treating a general Mellin inversion theorem as though all hypotheses for
+the discontinuous arithmetic step function had already been discharged.
+
 \subsection{Remaining analytic bridge}
 
-The shortest credible path from Equation~\eqref{eq:von-mangoldt-log-derivative}
-to Equation~\eqref{eq:explicit-formula-target} is now decomposed as follows.
+The Perron interface and the finite-height arithmetic/zeta identification are
+now complete. The shortest credible path from this interface to
+Equation~\eqref{eq:explicit-formula-target} is decomposed as follows.
 
 \begin{enumerate}
-  \item \textbf{Specialized Perron/Mellin inversion.} For $c>1$, reconstruct a
-  truncated vertical-integral representation of the finite von Mangoldt sum
-  using
+  \item \textbf{Scalar Perron kernel limit.} For $c>0$, $y>0$, and $y\neq1$,
+  prove
+  \begin{equation}
+    Q_T(c,y):=\frac{1}{2\pi}\int_{-T}^{T}
+      \frac{y^{c+it}}{c+it}\,dt
+    \longrightarrow
+    \begin{cases}
+      1,&y>1,\\
+      0,&0<y<1.
+    \end{cases}
+    \label{eq:scalar-perron-target}
+  \end{equation}
+  The omitted point $y=1$ is the half-weight discontinuity. This isolates the
+  Fourier/Mellin convergence issue from all arithmetic-series bookkeeping.
+
+  \item \textbf{Finite Dirichlet-polynomial inversion.} Apply
+  Equation~\eqref{eq:scalar-perron-target} term by term to a finite sum
   \[
-    -\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s}.
+    \sum_{n\leq N}\frac{\Lambda(n)}{n^s},
   \]
-  The theorem must specify the treatment of integral $x$, truncation height,
-  and the remainder term.
+  producing the corresponding finite partial sum of $\psi(x)$.
+
+  \item \textbf{Absolute tail control.} Use absolute convergence on
+  $\RePart(s)=c>1$ to control the omitted Dirichlet-series tail uniformly
+  enough to pass from finite polynomials to
+  Equation~\eqref{eq:chebyshev-perron-target}.
 
   \item \textbf{Rectangular contour shift.} Move the vertical line from
   $\RePart(s)=c$ into the left half-plane while avoiding zeros and the pole.
@@ -1249,20 +1388,29 @@ to Equation~\eqref{eq:explicit-formula-target} is now decomposed as follows.
 
   \item \textbf{Limit and ordering control.} Relate the zeros encountered by
   rectangular contours to the compact exhaustion $K_n$, prove the required
-  convergence mode, and show that the selected symmetric ordering is
-  legitimate for the conditionally convergent zero contribution.
+  convergence mode, and justify the symmetric ordering of the conditionally
+  convergent zero contribution.
 
   \item \textbf{RH-equivalent estimates.} Only after the explicit formula is
   established should the programme prove RH implies
   Equation~\eqref{eq:critical-psi-bound}, and conversely use the psi bound plus
-  analytic continuation to exclude zeros with real part greater than
-  $1/2$. Reflection then handles the other half of the strip.
+  analytic continuation to exclude zeros with real part greater than $1/2$.
 \end{enumerate}
 
-The smallest next buildable unit is Item~1: a source-precise Perron transform
-specialized to the finite von Mangoldt sum. Attempting the entire contour
-argument in one step would obscure the location of missing Mathlib primitives
-and make kernel failures difficult to diagnose.
+The new irreducible unit is Item~1. After substituting $u=\log y$, it is a
+Fourier inversion problem for a one-sided exponential. The obstacle is
+precise: the transformed kernel behaves like $(c+it)^{-1}$ and is not
+absolutely integrable on the real line, so Mathlib's directly available
+absolute-integrability inversion theorem does not apply without an additional
+regularization or Dirichlet-type argument.
+
+\begin{decisionbox}
+The specialized Perron representation is no longer undefined: its kernel,
+normalization, vertical line, arithmetic form, zeta form, and intended limit
+are all formal objects with checked finite-height equivalences. The next work
+must prove the scalar discontinuous inversion kernel; it must not be replaced
+by an unjustified invocation of general Mellin inversion.
+\end{decisionbox}
 
 \subsection{Formal artifact map}
 
@@ -1286,17 +1434,25 @@ equivalence, nonnegativity, and finite weighted sums. \\
 \path{RiemannLab/Tasks/ExplicitFormula.lean} &
 Pole-free compact exhaustion, finite nontrivial-zero sets, positive
 multiplicities, finite $x^\rho/\rho$ sums, and the open convergence target. \\
+\path{RiemannLab/Tasks/PerronFormula.lean} &
+Normalized zeta and von Mangoldt Perron kernels, finite-height vertical
+integrals, their exact equality on $\RePart(s)>1$, and the open inversion
+target. \\
 \path{explicit_formula_dependency_graph_v1.json} &
 Machine-readable dependency state and the precommitted next proof unit. \\
+\path{perron_dependency_audit_v1.json} &
+Pinned Mathlib capability audit, missing specialized theorem, and scalar
+Perron-kernel decomposition. \\
 \bottomrule
 \end{longtable}
 
 \begin{resultbox}
-The compact multiplicity-aware divisor is no longer the blocker. The programme
-now has finite, exhaustive, kernel-governed zero sums suitable for residue
-accounting. The unresolved bridge is analytic: Perron inversion, contour
-shifting, residue calculation, convergence, and the two directions of the
-RH-equivalent Chebyshev bound.
+The compact multiplicity-aware divisor and the specialized finite-height
+Perron interface are no longer blockers. The programme now has exhaustive
+zero sums and an exact normalized arithmetic/zeta vertical integral. The
+unresolved bridge begins with the scalar Perron limit, followed by series-tail
+control, contour shifting, residue calculation, convergence, and the two
+directions of the RH-equivalent Chebyshev bound.
 \end{resultbox}
 
 \appendix
