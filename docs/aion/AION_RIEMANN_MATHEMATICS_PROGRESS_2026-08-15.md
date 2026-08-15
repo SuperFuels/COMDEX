@@ -271,3 +271,31 @@ uniform local zero count and quantitative zero separation, and use it with the
 functional equation to discharge the horizontal and displaced-left edges.
 The complete Chebyshev explicit formula and the classical RH frontier remain
 open until that estimate is kernel-checked.  No new RH mathematics is claimed.
+
+## 15 August continuation: exact complex-Gamma vertical decay
+
+`ComplexGammaVertical.lean` begins the final quantitative classical layer
+without postulating a general Stirling expansion.  Euler's complex reflection
+formula, the Gamma recurrence, and conjugation are combined to prove the exact
+identity
+
+`|Gamma(1+it)|^2 = pi*t/sinh(pi*t)` for `t>0`.
+
+The recurrence then gives the corresponding exact identity on `Re(s)=2`, and
+the definition of Deligne's `GammaR` factor gives an exact squared-norm formula
+on `Re(s)=4`.  Lean additionally proves the elementary exponential estimate
+
+`exp(x)/4 <= sinh(x)` for `x>=1`,
+
+and hence an explicit exponentially decaying upper bound for
+`|Gamma(1+it)|^2`.  These results recover precisely the vertical exponential
+decay discarded by the earlier coarse Mellin-strip majorant.
+
+This is a strict reduction of the remaining task.  Instead of first building
+the complete general complex Stirling asymptotic, the programme can normalize
+the entire xi function by a pole-free polynomial factor, establish sharp
+bounds on the integer boundary lines, and propagate them through the strip
+using Mathlib's existing Hadamard three-lines theorem.  The resulting sharp
+xi bound must still be assembled and inserted into Jensen's formula before an
+`O(log T)` local zero count can be claimed.  The explicit formula and RH remain
+open; this checkpoint is established classical Gamma analysis only.
