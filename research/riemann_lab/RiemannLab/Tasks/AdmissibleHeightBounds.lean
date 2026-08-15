@@ -1,4 +1,4 @@
-import RiemannLab.Tasks.AdmissibleHeights
+import RiemannLab.Tasks.QuantitativeZeroSeparation
 
 namespace RiemannLab
 
@@ -21,12 +21,12 @@ def ZetaAdmissibleHeightGrowthTarget : Prop :=
   ∀ c : ℝ, 1 < c →
     ∃ B : ℕ → ℝ,
       (∀ n, 0 ≤ B n) ∧
-      Tendsto (fun n ↦ B n / admissibleZetaHeight n) atTop (𝓝 0) ∧
+      Tendsto (fun n ↦ B n / quantitativeAdmissibleZetaHeight n) atTop (𝓝 0) ∧
       ∀ n σ, σ ∈ [[(-1 : ℝ), c]] →
         ‖logDeriv riemannZeta
-          (σ + admissibleZetaHeight n * Complex.I)‖ ≤ B n ∧
+          (σ + quantitativeAdmissibleZetaHeight n * Complex.I)‖ ≤ B n ∧
         ‖logDeriv riemannZeta
-          (σ - admissibleZetaHeight n * Complex.I)‖ ≤ B n
+          (σ - quantitativeAdmissibleZetaHeight n * Complex.I)‖ ≤ B n
 
 private theorem rpow_le_rpow_right_endpoint
     {x a b σ : ℝ} (hx : 1 < x) (hab : a ≤ b) (hσ : σ ∈ [[a, b]]) :
@@ -44,27 +44,27 @@ theorem tendsto_upper_horizontal_segment_zero
     {x c : ℝ} (hx : 1 < x) (hc : 1 < c) :
     Tendsto (fun n ↦ ∫ σ in (-1 : ℝ)..c,
       explicitFormulaContourKernel x
-        (σ + admissibleZetaHeight n * Complex.I)) atTop (𝓝 0) := by
+        (σ + quantitativeAdmissibleZetaHeight n * Complex.I)) atTop (𝓝 0) := by
   obtain ⟨B, hBnonneg, hBratio, hB⟩ := hgrowth c hc
-  let bound : ℕ → ℝ := fun n ↦ B n * x ^ c / admissibleZetaHeight n
+  let bound : ℕ → ℝ := fun n ↦ B n * x ^ c / quantitativeAdmissibleZetaHeight n
   apply tendsto_horizontal_explicitFormulaContourKernel_integral_zero
-    (height := admissibleZetaHeight) (bound := bound)
+    (height := quantitativeAdmissibleZetaHeight) (bound := bound)
   · intro n σ hσ
     have hσ' : σ ∈ [[(-1 : ℝ), c]] := uIoc_subset_uIcc hσ
-    have hheight : 0 < admissibleZetaHeight n :=
-      lt_trans (by positivity) (admissibleZetaHeight_lower n)
-    have him : admissibleZetaHeight n ≤
-        ‖(σ : ℂ) + admissibleZetaHeight n * Complex.I‖ := by
+    have hheight : 0 < quantitativeAdmissibleZetaHeight n :=
+      lt_of_lt_of_le (by positivity) (quantitativeAdmissibleZetaHeight_lower n)
+    have him : quantitativeAdmissibleZetaHeight n ≤
+        ‖(σ : ℂ) + quantitativeAdmissibleZetaHeight n * Complex.I‖ := by
       have := Complex.abs_im_le_norm
-        ((σ : ℂ) + admissibleZetaHeight n * Complex.I)
+        ((σ : ℂ) + quantitativeAdmissibleZetaHeight n * Complex.I)
       simpa [abs_of_pos hheight] using this
     calc
       ‖explicitFormulaContourKernel x
-          (σ + admissibleZetaHeight n * Complex.I)‖ ≤
-          B n * x ^ σ / admissibleZetaHeight n := by
+          (σ + quantitativeAdmissibleZetaHeight n * Complex.I)‖ ≤
+          B n * x ^ σ / quantitativeAdmissibleZetaHeight n := by
         simpa using norm_explicitFormulaContourKernel_le (zero_lt_one.trans hx)
           (hB n σ hσ').1 him hheight
-      _ ≤ B n * x ^ c / admissibleZetaHeight n := by
+      _ ≤ B n * x ^ c / quantitativeAdmissibleZetaHeight n := by
         exact div_le_div_of_nonneg_right
           (mul_le_mul_of_nonneg_left
             (rpow_le_rpow_right_endpoint hx (by linarith) hσ') (hBnonneg n))
@@ -73,7 +73,7 @@ theorem tendsto_upper_horizontal_segment_zero
         (𝓝 (x ^ c * |c - (-1 : ℝ)|)) := tendsto_const_nhds
     have hmul := hBratio.mul hconst
     have hfun : (fun n ↦ bound n * |c - (-1 : ℝ)|) =
-        (fun n ↦ (B n / admissibleZetaHeight n) *
+        (fun n ↦ (B n / quantitativeAdmissibleZetaHeight n) *
           (x ^ c * |c - (-1 : ℝ)|)) := by
       funext n
       dsimp [bound]
@@ -88,30 +88,30 @@ theorem tendsto_lower_horizontal_segment_zero
     {x c : ℝ} (hx : 1 < x) (hc : 1 < c) :
     Tendsto (fun n ↦ ∫ σ in (-1 : ℝ)..c,
       explicitFormulaContourKernel x
-        (σ - admissibleZetaHeight n * Complex.I)) atTop (𝓝 0) := by
+        (σ - quantitativeAdmissibleZetaHeight n * Complex.I)) atTop (𝓝 0) := by
   obtain ⟨B, hBnonneg, hBratio, hB⟩ := hgrowth c hc
-  let bound : ℕ → ℝ := fun n ↦ B n * x ^ c / admissibleZetaHeight n
+  let bound : ℕ → ℝ := fun n ↦ B n * x ^ c / quantitativeAdmissibleZetaHeight n
   have hbound : ∀ n σ, σ ∈ Ι (-1 : ℝ) c →
       ‖explicitFormulaContourKernel x
-        (σ + (-admissibleZetaHeight n) * Complex.I)‖ ≤ bound n := by
+        (σ + (-quantitativeAdmissibleZetaHeight n) * Complex.I)‖ ≤ bound n := by
     intro n σ hσ
     have hσ' : σ ∈ [[(-1 : ℝ), c]] := uIoc_subset_uIcc hσ
-    have hheight : 0 < admissibleZetaHeight n :=
-      lt_trans (by positivity) (admissibleZetaHeight_lower n)
-    have him : admissibleZetaHeight n ≤
-        ‖(σ : ℂ) - admissibleZetaHeight n * Complex.I‖ := by
+    have hheight : 0 < quantitativeAdmissibleZetaHeight n :=
+      lt_of_lt_of_le (by positivity) (quantitativeAdmissibleZetaHeight_lower n)
+    have him : quantitativeAdmissibleZetaHeight n ≤
+        ‖(σ : ℂ) - quantitativeAdmissibleZetaHeight n * Complex.I‖ := by
       have := Complex.abs_im_le_norm
-        ((σ : ℂ) - admissibleZetaHeight n * Complex.I)
+        ((σ : ℂ) - quantitativeAdmissibleZetaHeight n * Complex.I)
       simpa [abs_of_pos hheight] using this
     have hkernel :
         ‖explicitFormulaContourKernel x
-          (σ - admissibleZetaHeight n * Complex.I)‖ ≤
-          B n * x ^ σ / admissibleZetaHeight n := by
+          (σ - quantitativeAdmissibleZetaHeight n * Complex.I)‖ ≤
+          B n * x ^ σ / quantitativeAdmissibleZetaHeight n := by
       simpa using norm_explicitFormulaContourKernel_le (zero_lt_one.trans hx)
         (hB n σ hσ').2 him hheight
     have hkernel' :
         ‖explicitFormulaContourKernel x
-          (σ - admissibleZetaHeight n * Complex.I)‖ ≤ bound n :=
+          (σ - quantitativeAdmissibleZetaHeight n * Complex.I)‖ ≤ bound n :=
       hkernel.trans (div_le_div_of_nonneg_right
         (mul_le_mul_of_nonneg_left
           (rpow_le_rpow_right_endpoint hx (by linarith) hσ') (hBnonneg n))
@@ -122,7 +122,7 @@ theorem tendsto_lower_horizontal_segment_zero
         (𝓝 (x ^ c * |c - (-1 : ℝ)|)) := tendsto_const_nhds
     have hmul := hBratio.mul hconst
     have hfun : (fun n ↦ bound n * |c - (-1 : ℝ)|) =
-        (fun n ↦ (B n / admissibleZetaHeight n) *
+        (fun n ↦ (B n / quantitativeAdmissibleZetaHeight n) *
           (x ^ c * |c - (-1 : ℝ)|)) := by
       funext n
       dsimp [bound]
@@ -131,17 +131,17 @@ theorem tendsto_lower_horizontal_segment_zero
     simpa using hmul
   have hbound' : ∀ n σ, σ ∈ Ι (-1 : ℝ) c →
       ‖explicitFormulaContourKernel x
-        (σ + ((-admissibleZetaHeight n : ℝ) : ℂ) * Complex.I)‖ ≤ bound n := by
+        (σ + ((-quantitativeAdmissibleZetaHeight n : ℝ) : ℂ) * Complex.I)‖ ≤ bound n := by
     intro n σ hσ
     convert hbound n σ hσ using 1 <;> push_cast <;> ring
   have htend := tendsto_horizontal_explicitFormulaContourKernel_integral_zero
     (x := x) (a := (-1 : ℝ)) (b := c)
-    (height := fun n ↦ -admissibleZetaHeight n) (bound := bound) hbound' hzero
+    (height := fun n ↦ -quantitativeAdmissibleZetaHeight n) (bound := bound) hbound' hzero
   have heq :
       (fun n ↦ ∫ σ in (-1 : ℝ)..c, explicitFormulaContourKernel x
-        (σ - admissibleZetaHeight n * Complex.I)) =
+        (σ - quantitativeAdmissibleZetaHeight n * Complex.I)) =
       (fun n ↦ ∫ σ in (-1 : ℝ)..c, explicitFormulaContourKernel x
-        (σ + ((-admissibleZetaHeight n : ℝ) : ℂ) * Complex.I)) := by
+        (σ + ((-quantitativeAdmissibleZetaHeight n : ℝ) : ℂ) * Complex.I)) := by
     funext n
     apply intervalIntegral.integral_congr
     intro σ hσ

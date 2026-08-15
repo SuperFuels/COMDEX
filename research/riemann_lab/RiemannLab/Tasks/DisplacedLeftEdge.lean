@@ -51,18 +51,18 @@ functional equation and gamma-factor estimates are expected to supply such a
 bound. -/
 def DisplacedLeftKernelDecayTarget (x : ℝ) : Prop :=
   ∃ C : ℕ → ℝ,
-    (∀ n t, t ∈ Ι (-admissibleZetaHeight n) (admissibleZetaHeight n) →
+    (∀ n t, t ∈ Ι (-quantitativeAdmissibleZetaHeight n) (quantitativeAdmissibleZetaHeight n) →
       ‖explicitFormulaContourKernel x
         (displacedLeftRealPart n + t * Complex.I)‖ ≤ C n) ∧
     Tendsto (fun n ↦ C n *
-      |admissibleZetaHeight n - (-admissibleZetaHeight n)|) atTop (𝓝 0)
+      |quantitativeAdmissibleZetaHeight n - (-quantitativeAdmissibleZetaHeight n)|) atTop (𝓝 0)
 
 /-- Once the displaced-left kernel decay estimate is supplied, the actual
 oriented left-edge integrals vanish. -/
 theorem tendsto_displacedLeft_edge_zero {x : ℝ}
     (hdecay : DisplacedLeftKernelDecayTarget x) :
     Tendsto (fun n ↦ Complex.I *
-      (∫ t in (-admissibleZetaHeight n)..admissibleZetaHeight n,
+      (∫ t in (-quantitativeAdmissibleZetaHeight n)..quantitativeAdmissibleZetaHeight n,
         explicitFormulaContourKernel x
           (displacedLeftRealPart n + t * Complex.I))) atTop (𝓝 0) := by
   obtain ⟨C, hC, hzero⟩ := hdecay

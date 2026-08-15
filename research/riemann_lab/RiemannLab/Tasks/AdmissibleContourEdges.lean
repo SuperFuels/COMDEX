@@ -3,6 +3,8 @@ import RiemannLab.Tasks.ExplicitFormulaAssembly
 
 namespace RiemannLab
 
+set_option maxHeartbeats 3000000
+
 open Filter
 open scoped Topology Interval
 
@@ -20,12 +22,12 @@ noncomputable def normalizedDisplacedEdgeError
   (1 / (2 * (Real.pi : ℂ) * Complex.I)) *
     ((∫ σ in displacedLeftRealPart n..c,
         explicitFormulaContourKernel x
-          (σ - admissibleZetaHeight n * Complex.I)) -
+          (σ - quantitativeAdmissibleZetaHeight n * Complex.I)) -
       (∫ σ in displacedLeftRealPart n..c,
         explicitFormulaContourKernel x
-          (σ + admissibleZetaHeight n * Complex.I)) -
+          (σ + quantitativeAdmissibleZetaHeight n * Complex.I)) -
       Complex.I *
-        (∫ t in (-admissibleZetaHeight n)..admissibleZetaHeight n,
+        (∫ t in (-quantitativeAdmissibleZetaHeight n)..quantitativeAdmissibleZetaHeight n,
           explicitFormulaContourKernel x
             (displacedLeftRealPart n + t * Complex.I)))
 
@@ -38,12 +40,12 @@ theorem tendsto_normalizedDisplacedEdgeError_zero
     {x c : ℝ}
     (htop : Tendsto (fun n ↦ ∫ σ in displacedLeftRealPart n..c,
       explicitFormulaContourKernel x
-        (σ + admissibleZetaHeight n * Complex.I)) atTop (𝓝 0))
+        (σ + quantitativeAdmissibleZetaHeight n * Complex.I)) atTop (𝓝 0))
     (hbottom : Tendsto (fun n ↦ ∫ σ in displacedLeftRealPart n..c,
       explicitFormulaContourKernel x
-        (σ - admissibleZetaHeight n * Complex.I)) atTop (𝓝 0))
+        (σ - quantitativeAdmissibleZetaHeight n * Complex.I)) atTop (𝓝 0))
     (hleft : Tendsto (fun n ↦ Complex.I *
-      (∫ t in (-admissibleZetaHeight n)..admissibleZetaHeight n,
+      (∫ t in (-quantitativeAdmissibleZetaHeight n)..quantitativeAdmissibleZetaHeight n,
         explicitFormulaContourKernel x
           (displacedLeftRealPart n + t * Complex.I))) atTop (𝓝 0)) :
     Tendsto (normalizedDisplacedEdgeError x c) atTop (𝓝 0) := by
@@ -62,10 +64,10 @@ zero-free heights have been constructed. -/
 def ExpandingHorizontalEdgesDecayTarget (x c : ℝ) : Prop :=
   Tendsto (fun n ↦ ∫ σ in displacedLeftRealPart n..c,
     explicitFormulaContourKernel x
-      (σ + admissibleZetaHeight n * Complex.I)) atTop (𝓝 0) ∧
+      (σ + quantitativeAdmissibleZetaHeight n * Complex.I)) atTop (𝓝 0) ∧
   Tendsto (fun n ↦ ∫ σ in displacedLeftRealPart n..c,
     explicitFormulaContourKernel x
-      (σ - admissibleZetaHeight n * Complex.I)) atTop (𝓝 0)
+      (σ - quantitativeAdmissibleZetaHeight n * Complex.I)) atTop (𝓝 0)
 
 /-- The two remaining analytic estimates imply decay of the full normalized
 three-edge contribution. -/
