@@ -1161,3 +1161,85 @@ lower bound.  The evidence payload is
 This order-80 result remains one finite continuum certificate.  It does not
 prove positivity for every order or produce a positive representing measure.
 The universal three-place operator remains the genuine frontier problem.
+
+## Complete two-sided localized-amplifier summability
+
+The three connection obligations left by the positive-height result are now
+closed in Lean.
+
+`ZetaTwoSidedDampedSummability.lean` proves directly from
+
+\[
+  \Xi(1-s)=\Xi(s)
+\]
+
+that functional-equation reflection preserves the exact analytic order of
+`Xi`, and hence the zeta multiplicity of every nontrivial zero.  Reflection
+maps every zero of ordinate at most `-2` into one of the verified
+positive-height shells.  The complete negative-height multiplicity divisor is
+therefore a second summable copy of the positive-height divisor.
+
+The same module proves that
+
+\[
+  \{\rho:\zeta(\rho)=0,\ 0<\Re\rho<1,\ |\Im\rho|<2\}
+\]
+
+is finite by placing it inside a compact disk.  Thus no asymptotic estimate is
+needed for the central block.
+
+`ZetaAmplifierSummability.lean` treats the actual finite spectral amplifier.
+For
+
+\[
+  q(\rho)=1-\rho^{-1}
+\]
+
+and `|Im rho|>=2`, Lean proves the uniform bounds
+
+\[
+  |q(\rho)|\leq\frac32,\qquad
+  |q(\rho)^{-1}|\leq\frac32,\qquad
+  |q(\rho)+q(\rho)^{-1}|\leq3.
+\]
+
+Consequently every fixed finite conjugate-pair annihilator is uniformly
+bounded on the high-zero divisor.  For the fourth-power damped amplifier
+
+\[
+  A(\rho)=
+  \bigl(q^2-aq+1\bigr)(1-q)^4
+  \bigl(1+q^{2M}\bigr)
+  \prod_{v\in\mathcal C}
+    (q+q^{-1}-v)(q+q^{-1}-\overline v),
+\]
+
+Lean obtains an explicit finite constant `C(C,a,M)` satisfying
+
+\[
+  |A(\rho)|\leq \frac{C(\mathcal C,a,M)}{|\rho|^4}.
+\]
+
+This estimate is compared shell-by-shell with the previously verified
+fourth-power divisor envelope.  The positive tail, reflected negative tail,
+and finite central block are then reindexed onto the actual nontrivial-zero
+subtype and assembled into the global theorem
+
+\[
+  \sum_{\rho}
+    m(\rho)|A(\rho)|<\infty.
+\]
+
+Finally, `not_rh_localizedZetaAmplifier_tail_dominated` inserts this concrete
+summability result into the expansive-mode theorem.  Under `not RH`, for every
+fixed finite competitor set and amplifier channel, the complete
+multiplicity-weighted subdominant zeta tail is eventually strictly smaller
+than the selected expansive target.  The infinite-tail masking problem for
+this amplifier is therefore closed.
+
+This completes the analytic negative-witness envelope; it does not prove RH.
+The remaining frontier is the opposite-sign theorem: an unconditional
+positive measure, positive operator, sum-of-squares identity, or comparable
+global principle for the completed prime--Gamma--pole stationary kernel.  The
+finite order-80 certificate is evidence for that search, not a replacement for
+the universal theorem.

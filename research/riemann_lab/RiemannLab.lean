@@ -18,6 +18,8 @@ import RiemannLab.Tasks.XiZetaMultiplicity
 import RiemannLab.Tasks.SummableShellEnvelope
 import RiemannLab.Tasks.ZetaJensenShells
 import RiemannLab.Tasks.ZetaDampedSummability
+import RiemannLab.Tasks.ZetaTwoSidedDampedSummability
+import RiemannLab.Tasks.ZetaAmplifierSummability
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor
