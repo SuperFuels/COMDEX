@@ -428,3 +428,38 @@ by its nonzero centre value; its centre is then exactly one and the exponential
 factors cancel before the `max 1` operation.  The divisor is unchanged because
 the normalizing scalar is nonzero.  The `O(log T)` theorem is not claimed until
 that scaled-divisor argument is checked.
+
+## 15 August continuation: scaled Jensen and logarithmic local zero count
+
+The centre-scaling issue is now closed in `SharpJensenZeroCount.lean`.  The
+function
+
+`z |-> Xi(z) / Xi(2+iT)`
+
+is proved analytic, equal to one at the moving Jensen centre, and to have
+exactly the same divisor as `Xi` on every closed Jensen disk.  Jensen's theorem
+has been re-instantiated for this normalized function, so the earlier
+premature `max 1` operation no longer loses the archimedean exponential.
+Full verification passed with **3,685 jobs**.  Commit: `3a5101d5`.
+
+The upper boundary and lower centre estimates are then simplified inside
+Lean.  Their exponential factors cancel exactly.  The normalized Jensen
+boundary quotient is bounded by a fixed constant times `T^12` for every
+`T >= 2`; the deliberately coarse degree is immaterial after taking a
+logarithm.  Consequently Lean proves the explicit radius-three divisor bound
+
+`sum divisor <= (log C + 12*log T) / log(4/3)`.
+
+This is the required constant-visible `O(log T)` local xi-zero count.  The
+result is stronger than a bare asymptotic declaration and contains no
+unproved growth interface.  Full verification again passed with **3,685
+jobs**, with no `sorry`, `admit`, or new axioms.  Commit: `54f98a81`.
+
+The next classical step is now quantitative gap selection: convert the local
+divisor count into heights separated from all relevant zero ordinates by a
+reciprocal-logarithmic distance.  That separation must then be combined with
+a verified partial-fraction estimate for `zeta'/zeta`; expanding horizontal
+and displaced-left contour limits and the already-proved final assembly
+remain downstream.  The complete explicit formula is therefore not yet
+claimed, and this work still does not constrain the real parts of nontrivial
+zeros or constitute progress on RH itself.
