@@ -332,3 +332,50 @@ using Mathlib's existing Hadamard three-lines theorem.  The resulting sharp
 xi bound must still be assembled and inserted into Jensen's formula before an
 `O(log T)` local zero count can be claimed.  The explicit formula and RH remain
 open; this checkpoint is established classical Gamma analysis only.
+
+## 15 August continuation: Gaussian three-lines propagation
+
+`NormalizedXiThreeLines.lean` now closes the three-lines step itself.  The
+module introduces the Gaussian regularization
+
+`exp(epsilon*s^2) exp(-i*pi*s/4) Xi(s)/(s+4)^4`,
+
+proves a global bound on the complete closed strip for every `epsilon>0`, and
+checks all analyticity, closure-continuity, and boundedness hypotheses of
+Mathlib's Hadamard three-lines theorem.  The equal boundary bounds propagate
+through the strip.  Lean then sends `epsilon` to zero through positive values
+and obtains the unregularized estimate
+
+`|Xi(s)| <= C |s+4|^4 exp(-pi*Im(s)/4)`
+
+for `-3 <= Re(s) <= 4`.  This is a theorem, not a target interface.  Full
+verification passed with **3,643 jobs** and no `sorry`, `admit`, or new axioms.
+Commit: `4c52aa91`.
+
+## 15 August continuation: quantitative Jensen-centre data
+
+`QuantitativeJensen.lean` supplies the lower half of the Jensen quotient at
+the moving centre `2+iT`.  The Möbius L-series identity
+
+`zeta(s) L(mu,s) = 1`
+
+is combined with absolute termwise domination by the Basel series to prove
+
+`1 <= (pi^2/6) |zeta(2+iT)|`.
+
+The module also proves the exact `GammaR` norm identity at `2+2it`, the
+matching exponential lower bound obtained from `sinh(x) <= exp(x)/2`, and the
+exact factorization of `|Xi(2+iT)|`.  These results rigorously provide the
+centre estimate needed to cancel the archimedean exponential in Jensen's
+quotient.  The full project build passed with **3,683 jobs**.  Commits:
+`f6a10781` and `dcb26fc3`.
+
+The Jensen geometry revealed an additional domain requirement that must not
+be suppressed: the already-instantiated radius-four circle centred at
+`2+iT` reaches `Re(s)=6`, whereas the first sharp strip theorem ends at
+`Re(s)=4`.  The exact Gamma recurrence has therefore also been extended to
+`Gamma(3+it)` and `GammaR(6+2it)`.  The next valid step is to propagate the
+corresponding right-boundary estimate across the wider symmetric strip (or an
+equivalent extension strip), and only then form the quantitative Jensen
+quotient.  Until that domain extension is checked, `N(T+1)-N(T)=O(log T)` and
+the subsequent contour limits remain unproved.  No RH progress is claimed.
