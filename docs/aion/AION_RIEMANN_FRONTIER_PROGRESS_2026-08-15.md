@@ -1451,3 +1451,98 @@ combined, and must continue it from the absolute-convergence subdisk to the
 whole Li disk without assuming zero-freeness.  That continuation-plus-global-
 cancellation theorem remains open and is RH-level work; it is not supplied by
 the identities above.
+
+## Minimal Fejer-prefix target and arithmetic dominance
+
+`LiPrefixEnergy.lean` audits the strength of the proposed universal operator.
+For every normalized real sequence `a(0)=0`, Lean now proves the exact
+telescoping identity
+
+\[
+  a(n)=\sum_{0\leq i,j<n}\tau_{|i-j|},
+\]
+
+where `tau` is the stationary second-difference sequence.  Thus termwise Li
+positivity requires only the nested all-ones prefix forms, not every Toeplitz
+quadratic form.  In a spectral representation these are precisely the Fejer
+sum-of-squares tests
+
+\[
+  \left|\sum_{j=0}^{n-1}e^{ij\theta}\right|^2.
+\]
+
+Lean also verifies that universal Toeplitz positivity is strictly stronger
+for general sequences: the normalized nonnegative sequence
+
+\[
+  a(0)=0,\qquad a(1)=1,\qquad a(2)=10,\qquad a(n)=0\ (n\geq3)
+\]
+
+has a negative two-point stationary quadratic form.  The universal operator
+remains a valid sufficient route for zeta, but it is no longer treated as the
+minimal theorem that must be proved.
+
+This refinement agrees with Lagarias's primary Li--Weil analysis, which
+identifies each Li coefficient with one Weil test and gives the arithmetic
+decomposition
+
+\[
+  \lambda_n=S_\infty(n)-S_f(n)+1.
+\]
+
+See Jeffrey C. Lagarias, *Li Coefficients for Automorphic L-Functions*,
+arXiv:math/0404394, especially equations (1.4)--(1.11) and Sections 3--4.
+
+`LiArithmeticDominance.lean` encodes the resulting weakest arithmetic target.
+For any exact ledger
+
+\[
+  a(n)=A(n)-F(n)+P(n),
+\]
+
+Lean proves the equivalences
+
+\[
+  F(n)\leq A(n)+P(n)\ \text{for every }n
+  \quad\Longleftrightarrow\quad
+  a(n)\geq0\ \text{for every }n
+  \quad\Longleftrightarrow\quad
+  \text{every prefix energy is nonnegative}.
+\]
+
+It also proves that a failure of dominance at one index gives an immediate
+finite negative prefix certificate.  After instantiating the ledger for the
+Riemann xi function, the frontier theorem is therefore exactly
+
+\[
+  S_f(n)\leq S_\infty(n)+1\qquad(n\geq1).
+\]
+
+This is a smaller and more accurate target than construction of an arbitrary
+positive operator.  It is nevertheless still RH-equivalent after the
+classical Li/Weil identification is installed.  The next nonclassical task is
+to find a new uniform cancellation estimate for the signed finite-place term
+strong enough to prove this inequality for every index; finite computations
+or the unconditional leading asymptotic alone cannot supply it.
+
+`RiemannLiSequence.lean` now attaches the minimal programme to an actual
+completed-xi sequence.  It defines
+
+\[
+  G(z)=\frac{1}{(1-z)^2}
+       \frac{\Xi'}{\Xi}\!\left(\frac1{1-z}\right)
+\]
+
+and takes the real Taylor coefficients of `G` at the origin, with
+`lambda(0)=0`, as the derivative-normalized Riemann Li sequence.  Lean proves
+that every one of these coefficients is exactly its corresponding stationary
+Fejer-prefix energy and that positivity of the derivative-defined sequence is
+equivalent to positivity of all those prefix energies.
+
+This removes the final generic-sequence ambiguity.  Two classical analytic
+identifications are still deliberately not asserted: equality of these Taylor
+coefficients with the symmetrically truncated multiplicity-weighted zero sum,
+and instantiation of the abstract arithmetic ledger by the literal Riemann
+archimedean, finite-prime, and pole terms.  Those are the next formal bridge.
+After it is installed, the only nonclassical statement remaining in this
+route is the all-index dominance inequality above.

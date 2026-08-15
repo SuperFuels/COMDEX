@@ -26,6 +26,9 @@ import RiemannLab.Tasks.LiWeilLaurentNormalization
 import RiemannLab.Tasks.LiCaratheodoryTransform
 import RiemannLab.Tasks.LiUniversalPositiveKernel
 import RiemannLab.Tasks.CompletedXiLogDerivative
+import RiemannLab.Tasks.LiPrefixEnergy
+import RiemannLab.Tasks.LiArithmeticDominance
+import RiemannLab.Tasks.RiemannLiSequence
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor
