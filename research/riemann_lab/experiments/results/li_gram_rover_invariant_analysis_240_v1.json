@@ -1,0 +1,255 @@
+{
+  "best_power_range": [
+    1.25,
+    1.5
+  ],
+  "certified_all_pivots_positive": true,
+  "certified_strict_decrease_count": 239,
+  "claim_boundary": "Positivity and strict-decrease counts are interval-certified. Power-law fits use midpoints and are diagnostic only; they provide no all-n inequality.",
+  "completed_order": 240,
+  "decision": "retain_power_law_candidate_for_symbolic_attack",
+  "digits": 3200,
+  "experiment": "gram_rover_pivot_invariant_stability",
+  "payload_sha256": "24685d89a7eb13e92c84e6f7f0961f5a25a364d26b66fe1aa3043fd206197d17",
+  "power_grid": "0, 0.25, ..., 4",
+  "source_state": "experiments/results/li_gram_rover_state_3200d_v1.json.gz",
+  "source_state_sha256": "a8c9f92ea20edbfb669ba7ca5f85016cea431989a60e70ec9ef8dd03e98a2129",
+  "stable_power_at_quarter_grid_resolution": true,
+  "transition_count": 239,
+  "windows": [
+    {
+      "best": {
+        "mean_C": 0.009271180497331983,
+        "power": 1.25,
+        "relative_spread": 0.07910679852111467
+      },
+      "end": 54,
+      "start": 25,
+      "top_three": [
+        {
+          "mean_C": 0.009271180497331983,
+          "power": 1.25,
+          "relative_spread": 0.07910679852111467
+        },
+        {
+          "mean_C": 0.023131475119705133,
+          "power": 1.5,
+          "relative_spread": 0.09545377368981196
+        },
+        {
+          "mean_C": 0.0037278991632618903,
+          "power": 1.0,
+          "relative_spread": 0.0994036120199899
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.009103564805331078,
+        "power": 1.25,
+        "relative_spread": 0.059406588421303294
+      },
+      "end": 79,
+      "start": 50,
+      "top_three": [
+        {
+          "mean_C": 0.009103564805331078,
+          "power": 1.25,
+          "relative_spread": 0.059406588421303294
+        },
+        {
+          "mean_C": 0.025745777583829108,
+          "power": 1.5,
+          "relative_spread": 0.06319734172722476
+        },
+        {
+          "mean_C": 0.0032227387153314297,
+          "power": 1.0,
+          "relative_spread": 0.07399437117751059
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.008786654477877036,
+        "power": 1.25,
+        "relative_spread": 0.049595108285697215
+      },
+      "end": 104,
+      "start": 75,
+      "top_three": [
+        {
+          "mean_C": 0.008786654477877036,
+          "power": 1.25,
+          "relative_spread": 0.049595108285697215
+        },
+        {
+          "mean_C": 0.0028609580157955877,
+          "power": 1.0,
+          "relative_spread": 0.05528844002404562
+        },
+        {
+          "mean_C": 0.027001900989101005,
+          "power": 1.5,
+          "relative_spread": 0.055396915943279446
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.00851674841574943,
+        "power": 1.25,
+        "relative_spread": 0.04922778361847595
+      },
+      "end": 129,
+      "start": 100,
+      "top_three": [
+        {
+          "mean_C": 0.00851674841574943,
+          "power": 1.25,
+          "relative_spread": 0.04922778361847595
+        },
+        {
+          "mean_C": 0.02784370150472832,
+          "power": 1.5,
+          "relative_spread": 0.052125634426937434
+        },
+        {
+          "mean_C": 0.00260603132522112,
+          "power": 1.0,
+          "relative_spread": 0.05372370473535916
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.028352077272079234,
+        "power": 1.5,
+        "relative_spread": 0.04693528397492983
+      },
+      "end": 154,
+      "start": 125,
+      "top_three": [
+        {
+          "mean_C": 0.028352077272079234,
+          "power": 1.5,
+          "relative_spread": 0.04693528397492983
+        },
+        {
+          "mean_C": 0.09739853581508659,
+          "power": 1.75,
+          "relative_spread": 0.04858051740992327
+        },
+        {
+          "mean_C": 0.008255118102596406,
+          "power": 1.25,
+          "relative_spread": 0.0504173965320495
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.007998056536708495,
+        "power": 1.25,
+        "relative_spread": 0.035268015697325364
+      },
+      "end": 179,
+      "start": 150,
+      "top_three": [
+        {
+          "mean_C": 0.007998056536708495,
+          "power": 1.25,
+          "relative_spread": 0.035268015697325364
+        },
+        {
+          "mean_C": 0.02863483971508293,
+          "power": 1.5,
+          "relative_spread": 0.036635429867506224
+        },
+        {
+          "mean_C": 0.0022343414320720465,
+          "power": 1.0,
+          "relative_spread": 0.03862477470487957
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.02892279453949833,
+        "power": 1.5,
+        "relative_spread": 0.044862272774208324
+      },
+      "end": 204,
+      "start": 175,
+      "top_three": [
+        {
+          "mean_C": 0.02892279453949833,
+          "power": 1.5,
+          "relative_spread": 0.044862272774208324
+        },
+        {
+          "mean_C": 0.0077974375279533875,
+          "power": 1.25,
+          "relative_spread": 0.045016151236624606
+        },
+        {
+          "mean_C": 0.10729658877967371,
+          "power": 1.75,
+          "relative_spread": 0.04762218269584457
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.029152438072742665,
+        "power": 1.5,
+        "relative_spread": 0.03786789973388032
+      },
+      "end": 229,
+      "start": 200,
+      "top_three": [
+        {
+          "mean_C": 0.029152438072742665,
+          "power": 1.5,
+          "relative_spread": 0.03786789973388032
+        },
+        {
+          "mean_C": 0.11154711036489123,
+          "power": 1.75,
+          "relative_spread": 0.038843858260987456
+        },
+        {
+          "mean_C": 0.007619672473801443,
+          "power": 1.25,
+          "relative_spread": 0.03963662221562083
+        }
+      ]
+    },
+    {
+      "best": {
+        "mean_C": 0.007509779696208803,
+        "power": 1.25,
+        "relative_spread": 0.033181068148532424
+      },
+      "end": 240,
+      "start": 211,
+      "top_three": [
+        {
+          "mean_C": 0.007509779696208803,
+          "power": 1.25,
+          "relative_spread": 0.033181068148532424
+        },
+        {
+          "mean_C": 0.0019383069918333569,
+          "power": 1.0,
+          "relative_spread": 0.03345410820471935
+        },
+        {
+          "mean_C": 0.029098571731582555,
+          "power": 1.5,
+          "relative_spread": 0.03555643408635457
+        }
+      ]
+    }
+  ]
+}

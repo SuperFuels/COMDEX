@@ -28,6 +28,7 @@ from rh_frontier_gram_rover import (
     overlaps,
 )
 from rh_frontier_li_full_arb import certified_li_coefficients
+from rh_frontier_li_coefficient_cache import extend_cache
 
 
 STATE_FORMAT = "aion_li_gram_rover_state_v1"
@@ -114,6 +115,7 @@ def main() -> None:
     parser.add_argument("--target", type=int, required=True)
     parser.add_argument("--digits", type=int, required=True)
     parser.add_argument("--state", type=Path, required=True)
+    parser.add_argument("--coefficient-cache", type=Path)
     parser.add_argument("--checkpoint-every", type=int, default=25)
     parser.add_argument("--progress-every", type=int, default=10)
     parser.add_argument("--result", type=Path)
@@ -122,7 +124,14 @@ def main() -> None:
         raise SystemExit("invalid target or precision")
 
     ctx.dps = args.digits
-    coefficients = certified_li_coefficients(args.target, args.digits)
+    if args.coefficient_cache:
+        _, coefficients = extend_cache(
+            args.coefficient_cache, args.target, args.digits
+        )
+        coefficient_source = "extendable_cache"
+    else:
+        coefficients = certified_li_coefficients(args.target, args.digits)
+        coefficient_source = "direct_rebuild"
     if args.state.exists():
         saved, factor, cached_coefficients = load_state(args.state, args.digits)
         completed = saved["completed_order"]
@@ -234,6 +243,7 @@ def main() -> None:
         "experiment": "persistent_li_gram_rover_block",
         "status": status,
         "digits": args.digits,
+        "coefficient_source": coefficient_source,
         "starting_order": saved["completed_order"] if args.state.exists() and 'saved' in locals() else 0,
         "completed_order": completed,
         "target_order": args.target,

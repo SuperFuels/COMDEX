@@ -401,3 +401,52 @@ payload hash is
 The certified finite frontier is now order 210.  This remains neither an RH
 proof nor evidence sufficient for RH; the universal positivity problem is
 unchanged.
+
+## Extendable Taylor--Stieltjes cache and order 240
+
+`rh_frontier_li_coefficient_cache.py` removes the principal coefficient
+rebuild bottleneck.  The cache preserves four interval series at fixed
+precision:
+
+* the regularized series for `(s-1) zeta(s)`;
+* its formal logarithm;
+* the Taylor coefficients of `log xi(1+t)`;
+* the resulting full Li coefficients.
+
+The saved stage-210 Li coefficients were used to bootstrap this cache without
+recomputing all earlier Stieltjes constants.  The bootstrap inverts the exact
+binomial transform
+
+`lambda_n/n = sum_(k=1)^n binom(n-1,k-1) a_k`
+
+to recover the completed-xi Taylor coefficients.  It then subtracts the
+elementary and Gamma terms, exponentiates the remaining formal logarithm, and
+performs direct Stieltjes overlap checks at degrees 1, 105, and 210.  All spot
+checks passed.  Regression testing also compares a bootstrapped-and-extended
+cache with an independently constructed coefficient sequence.
+
+The cache produced coefficients 211--220 in approximately 39 seconds,
+including the one-time bootstrap, and the rover certified stages 211--220 in
+approximately 24 seconds.  A subsequent true extension computed only
+coefficients 221--240 in approximately 69 seconds; the rover then certified
+stages 221--240 in approximately 52 seconds without replaying the first 220
+Gram transitions.
+
+The order-240 pivot is
+
+`d_240 approximately 4.8618720e-1085 > 0`.
+
+The current hashes are:
+
+* coefficient cache: `8a4aa0b84304f87815e5487e281ff0fe927b8fb6cf1651f03d504c1878962b86`;
+* durable Gram state: `a8c9f92ea20edbfb669ba7ca5f85016cea431989a60e70ec9ef8dd03e98a2129`;
+* stages 221--240 result: `cf7c75ebd30d7369c0eb0f653fbd24508eeb1bffa3c440d44a600b0a74fae8bc`;
+* order-240 invariant analysis: `24685d89a7eb13e92c84e6f7f0961f5a25a364d26b66fe1aa3043fd206197d17`.
+
+All 239 observed pivot transitions remain certified strictly decreasing.  The
+last 30-stage heuristic window still marginally favours an `n^(-5/4)` ratio,
+but the neighbouring powers remain competitive.  No numerical fit is treated
+as a lower bound.
+
+The certified finite frontier is now order 240.  This remains neither an RH
+proof nor a disproof.

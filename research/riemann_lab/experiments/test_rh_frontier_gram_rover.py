@@ -16,6 +16,10 @@ from rh_frontier_gram_rover import execute_attempt
 from rh_frontier_gram_rover import IncrementalLDL, gram_entry, overlaps
 from rh_frontier_gram_rover_block import load_state, save_json_atomic, serialize_state
 from rh_frontier_li_full_arb import certified_li_coefficients
+from rh_frontier_li_coefficient_cache import (
+    bootstrap_cache_from_rover_state,
+    extend_cache,
+)
 
 
 class GramRoverTests(unittest.TestCase):
@@ -71,6 +75,42 @@ class GramRoverTests(unittest.TestCase):
         self.assertEqual(len(restored.pivots), 8)
         self.assertEqual(len(cached), 9)
         self.assertTrue(all(overlaps(left, right) for left, right in zip(factor.pivots, restored.pivots)))
+
+    def test_coefficient_cache_extends_and_matches_direct_construction(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            cache_path = Path(directory) / "coefficients.json.gz"
+            first_payload, first = extend_cache(cache_path, 8, 100)
+            second_payload, extended = extend_cache(cache_path, 14, 100)
+            direct = certified_li_coefficients(14, 100)
+        self.assertEqual(first_payload["count"], 8)
+        self.assertEqual(second_payload["count"], 14)
+        self.assertTrue(
+            all(overlaps(left, right) for left, right in zip(extended, direct))
+        )
+
+    def test_cache_bootstraps_from_rover_state_and_extends(self) -> None:
+        ctx.dps = 120
+        coefficients = certified_li_coefficients(10, 120)
+        factor = IncrementalLDL()
+        for n in range(1, 11):
+            border = [gram_entry(coefficients, i, n) for i in range(1, n)]
+            pivot, _ = factor.extend(border, gram_entry(coefficients, n, n))
+            self.assertTrue(pivot > 0)
+        with tempfile.TemporaryDirectory() as directory:
+            state_path = Path(directory) / "state.json.gz"
+            cache_path = Path(directory) / "cache.json.gz"
+            state = serialize_state(factor, coefficients, 10, 120, "b" * 64, [])
+            save_json_atomic(state_path, state)
+            bootstrapped = bootstrap_cache_from_rover_state(
+                state_path, cache_path, 120
+            )
+            extended_payload, extended = extend_cache(cache_path, 14, 120)
+            direct = certified_li_coefficients(14, 120)
+        self.assertEqual(bootstrapped["count"], 10)
+        self.assertEqual(extended_payload["count"], 14)
+        self.assertTrue(
+            all(overlaps(left, right) for left, right in zip(extended, direct))
+        )
 
 
 if __name__ == "__main__":
