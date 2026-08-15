@@ -133,7 +133,7 @@
     Programme & AION formal Riemann Hypothesis research \\
     Repository & \path{/Users/kevinrobinson/dev/COMDEX} \\
     Formal authority & Lean 4.24.0 kernel and Mathlib v4.32.1 \\
-    Current stage & Completed v3 comparison; delayed retention gate scheduled \\
+    Current stage & Compact zeta divisor complete; explicit-formula bridge open \\
     Research status & No new RH mathematics; RH remains unsolved \\
   \end{tabularx}
 
@@ -159,8 +159,8 @@
 \addcontentsline{toc}{section}{Document control}
 
 \begin{tabularx}{\textwidth}{>{\bfseries}p{37mm}X}
-Version & 1.0 \\
-Status & Baseline programme record after local v2 verification \\
+Version & 1.1 \\
+Status & Extended through compact-divisor and finite explicit-formula formalization \\
 Scope & Formal RH programme only; excludes unrelated prime-search, factoring, visual probes, and Photon Algebra work \\
 Primary evidence & Lean sources, pinned environment, immutable JSON results, SHA-256 hashes, focused tests \\
 Interpretive authority & The Lean kernel decides proof acceptance; this report interprets experiments but cannot create mathematical truth \\
@@ -964,6 +964,340 @@ yes; full AION led all v3 controls - yes; precommitted AION superiority - no;
 delayed retention - scheduled, not yet measured; new RH mathematics - none;
 Riemann Hypothesis solved - no.
 \end{truthbox}
+
+\clearpage
+\section{Mathematics continuation: compact zeta divisors and the explicit-formula interface}
+\label{sec:compact-divisor-explicit-formula}
+
+This section records the mathematical continuation completed after the v3
+experiment. It supersedes the earlier forward-looking statements that named
+left-half-plane classification or compact divisor construction as future work;
+those established prerequisites have now been reconstructed in Lean. The
+section is deliberately explicit about the boundary between what the kernel has
+accepted and what remains an open analytic proof obligation.
+
+The implementation recorded here is repository commit
+\code{10f672c0}. The complete Lean library builds successfully against Lean
+4.24.0 and pinned Mathlib v4.32.1. The research modules contain 49
+kernel-checked theorems, or 52 declarations when the three baseline
+reproduction checks are included. No project-authored \code{sorry},
+\code{admit}, axiom, or unsafe declaration is used in the new modules.
+
+\begin{truthbox}
+This continuation formalizes established zeta-function infrastructure and
+states the next explicit-formula theorem precisely. It does not prove the
+explicit formula, improve a zero-free region, constrain a previously unknown
+zero, or establish the Riemann Hypothesis. Its classification is
+\emph{formalization progress}, not new mathematical progress on RH.
+\end{truthbox}
+
+\subsection{Nontrivial zeros and the reconstructed critical strip}
+
+The local formalization distinguishes the negative-even trivial zeros from all
+other zeta zeros. In mathematical notation,
+\begin{align*}
+  \operatorname{Triv}(s)
+    &\;:\Longleftrightarrow\;
+      \exists n\in\mathbb N,\quad s=-2(n+1),\\
+  \operatorname{Nontriv}(s)
+    &\;:\Longleftrightarrow\;
+      \zeta(s)=0\quad\text{and}\quad\neg\operatorname{Triv}(s).
+\end{align*}
+
+The kernel-checked classification theorem reconstructs the established
+left-half-plane result
+\[
+  \zeta(s)=0\ \wedge\ \RePart(s)\leq 0
+  \quad\Longrightarrow\quad
+  \operatorname{Triv}(s).
+\]
+Together with nonvanishing on the closed right half-plane, this yields
+\[
+  \operatorname{Nontriv}(s)
+  \quad\Longrightarrow\quad
+  0<\RePart(s)<1.
+\]
+The proof uses the completed functional equation, nonvanishing of the reflected
+point $1-s$, and the exact zero classification of Mathlib's real Gamma factor.
+It therefore reconstructs classical mathematics rather than assuming the
+critical strip as a local axiom.
+
+The standard symmetries are also checked:
+\[
+  \rho\longmapsto 1-\rho,
+  \qquad
+  \rho\longmapsto \overline{\rho},
+\]
+and hence every nontrivial zero generates the formal four-point orbit
+\[
+  \left\{\rho,\ 1-\rho,\ \overline{\rho},\
+  1-\overline{\rho}\right\}.
+\]
+The local predicate is proved equivalent to Mathlib's formal statement of
+\code{RiemannHypothesis}.
+
+\subsection{Selected Chebyshev--psi criterion}
+
+The programme now follows an RH-equivalent Chebyshev error-bound route. Define
+the remainder
+\[
+  E_{\psi}(x):=\psi(x)-x,
+\]
+where
+\[
+  \psi(x)=\sum_{n\leq x}\Lambda(n)
+\]
+and $\Lambda$ is the von Mangoldt function. The selected square-root-scale
+target is
+\begin{equation}
+  \exists C>0\ \ \forall x\geq 2,\qquad
+  |E_{\psi}(x)|
+  \leq C\sqrt{x}\,(\log x)^2.
+  \label{eq:critical-psi-bound}
+\end{equation}
+
+The Lean development currently verifies the finite von Mangoldt representation
+of $E_{\psi}$ and the right-half-plane logarithmic-derivative identity
+\begin{equation}
+  \sum_{n=1}^{\infty}\frac{\Lambda(n)}{n^s}
+  =-\frac{\zeta'(s)}{\zeta(s)},
+  \qquad \RePart(s)>1.
+  \label{eq:von-mangoldt-log-derivative}
+\end{equation}
+It also records the equivalence between RH and
+Equation~\eqref{eq:critical-psi-bound} as a proposition to reconstruct, not as
+an axiom or completed theorem.
+
+\subsection{Multiplicity as analytic vanishing order}
+
+For $s\neq 1$, zeta is analytic at $s$. Its zero multiplicity is represented by
+the analytic order
+\[
+  m(s):=\operatorname{ord}_{s}(\zeta)\in\mathbb N\cup\{\infty\}.
+\]
+The formal development proves:
+\begin{align*}
+  \operatorname{Nontriv}(\rho)
+    &\Longrightarrow m(\rho)\neq 0,\\
+  s\neq 1
+    &\Longrightarrow
+      \bigl(m(s)=0\Longleftrightarrow\zeta(s)\neq 0\bigr),\\
+  s\neq 1
+    &\Longrightarrow m(s)\neq\infty.
+\end{align*}
+The last statement is important: it justifies converting the extended natural
+analytic order into an ordinary finite integer multiplicity. Its Lean proof
+propagates finite order from $s=2$, where zeta is nonzero, across the connected
+punctured plane $\mathbb C\setminus\{1\}$.
+
+\subsection{Compact, multiplicity-aware zeta divisor}
+
+Let $K\subset\mathbb C$ avoid the pole:
+\[
+  K\subseteq\mathbb C\setminus\{1\}.
+\]
+The local zeta divisor is the integer-valued locally finite function
+\[
+  D_K(s):=\operatorname{div}_{K}(\zeta)(s).
+\]
+For $s\in K$, the divisor value agrees with the finite analytic vanishing
+order. Outside $K$ it is zero. The following properties are kernel-checked:
+\begin{enumerate}
+  \item if $K$ is compact, then
+    $\operatorname{supp}(D_K)$ is finite;
+  \item $D_K(s)\geq 0$ for every $s$, because zeta is analytic on $K$;
+  \item for $s\in K$,
+    \[
+      s\in\operatorname{supp}(D_K)
+      \quad\Longleftrightarrow\quad
+      \zeta(s)=0;
+    \]
+  \item every selected nontrivial zero has strictly positive integer
+    multiplicity; and
+  \item for any weight $w:\mathbb C\to\mathbb C$, the multiplicity-aware sum
+    \[
+      \sum_{\rho\in\operatorname{supp}(D_K)}D_K(\rho)w(\rho)
+    \]
+    is a genuine finite sum.
+\end{enumerate}
+
+Pinned Mathlib exposes zeta as analytic on
+$\mathbb C\setminus\{1\}$ but does not currently expose, through the imports
+used by this programme, a global meromorphic-continuation theorem suitable for
+silently crossing the pole. The explicit pole-avoidance hypothesis is therefore
+a formal safety condition, not merely a presentation choice.
+
+Representative Lean declarations are:
+\begin{lstlisting}
+noncomputable def zetaDivisorOn (K : Set C) :
+    Function.locallyFinsuppWithin K Z :=
+  divisor riemannZeta K
+
+theorem zetaDivisorOn_support_finite {K : Set C}
+    (hK : IsCompact K) :
+    (zetaDivisorOn K).support.Finite
+
+theorem mem_compactZetaDivisorSupport_iff_zero
+    {K : Set C} (hK : IsCompact K)
+    (havoid : K subset {1}^c) {s : C} (hs : s in K) :
+    s in compactZetaDivisorSupport K hK <-> riemannZeta s = 0
+\end{lstlisting}
+As elsewhere in this report, ASCII placeholders in listings stand for the
+corresponding Unicode Lean symbols used in the checked source.
+
+\subsection{Pole-free compact exhaustion}
+
+For $n\in\mathbb N$, define
+\begin{equation}
+  K_n:=\overline{B}(0,n)
+       \setminus B\!\left(1,\frac{1}{n+1}\right).
+  \label{eq:zeta-truncation-region}
+\end{equation}
+Each $K_n$ is compact and excludes $1$. The shrinking deleted ball is necessary
+because a plain expanding closed ball eventually contains the pole, where the
+available analytic divisor theorem cannot be applied.
+
+The formalization proves the exhaustion property
+\begin{equation}
+  s\neq 1
+  \quad\Longrightarrow\quad
+  \exists n\in\mathbb N,\ s\in K_n.
+  \label{eq:truncation-exhaustion}
+\end{equation}
+Filtering the finite divisor support by the nontrivial-zero predicate gives
+\[
+  \mathcal Z_n
+  :=\left\{\rho\in\operatorname{supp}(D_{K_n}):
+      \operatorname{Nontriv}(\rho)\right\}.
+\]
+The sets $\mathcal Z_n$ are finite, and every nontrivial zero belongs to at
+least one of them. Thus the formal truncation cannot permanently omit an
+arbitrary fixed nontrivial zero.
+
+\subsection{Finite zero contribution and the exact open target}
+
+The zero kernel required by the classical explicit formula is
+\[
+  W_x(\rho):=\frac{x^{\rho}}{\rho}.
+\]
+Using the compact divisor, the checked finite contribution is
+\begin{equation}
+  Z_n(x)
+  :=\sum_{\rho\in\mathcal Z_n}
+      D_{K_n}(\rho)\frac{x^{\rho}}{\rho}.
+  \label{eq:finite-zero-contribution}
+\end{equation}
+This construction is multiplicity-aware by definition; repeated zeros do not
+need to be represented by duplicated list entries.
+
+For the current convention and nonintegral $x>1$, define the elementary
+pole/trivial-zero correction
+\begin{equation}
+  A(x):=\log(2\pi)
+  +\frac12\log\!\left(1-x^{-2}\right).
+  \label{eq:archimedean-correction}
+\end{equation}
+The next analytic theorem has now been recorded exactly as
+\code{ChebyshevExplicitFormulaTarget}:
+\begin{equation}
+  \forall x>1,\quad x\notin\mathbb N
+  \quad\Longrightarrow\quad
+  Z_n(x)\longrightarrow -E_{\psi}(x)-A(x).
+  \label{eq:explicit-formula-target}
+\end{equation}
+Equivalently, once convergence and conventions are justified,
+\[
+  E_{\psi}(x)
+  =-\lim_{n\to\infty}Z_n(x)-A(x).
+\]
+The nonintegrality hypothesis avoids selecting a left-, right-, or half-weight
+value at jump points of $\psi$. A later extension may introduce the standard
+symmetrized convention at prime-power jumps.
+
+\begin{warningbox}
+Equation~\eqref{eq:explicit-formula-target} is a typed Lean proposition, not a
+proved theorem. Defining $Z_n(x)$ and proving that its summands are genuine
+zeros does not establish convergence, justify a contour shift, or calculate
+the required residues. Those are the current mathematical proof obligations.
+\end{warningbox}
+
+\clearpage
+\subsection{Remaining analytic bridge}
+
+The shortest credible path from Equation~\eqref{eq:von-mangoldt-log-derivative}
+to Equation~\eqref{eq:explicit-formula-target} is now decomposed as follows.
+
+\begin{enumerate}
+  \item \textbf{Specialized Perron/Mellin inversion.} For $c>1$, reconstruct a
+  truncated vertical-integral representation of the finite von Mangoldt sum
+  using
+  \[
+    -\frac{\zeta'(s)}{\zeta(s)}\frac{x^s}{s}.
+  \]
+  The theorem must specify the treatment of integral $x$, truncation height,
+  and the remainder term.
+
+  \item \textbf{Rectangular contour shift.} Move the vertical line from
+  $\RePart(s)=c$ into the left half-plane while avoiding zeros and the pole.
+  Formal obligations include path composition, orientation, integrability,
+  horizontal-edge bounds, and a sequence of admissible heights.
+
+  \item \textbf{Residue accounting.} Prove that the pole at $s=1$ supplies the
+  main term $x$, each nontrivial zero $\rho$ supplies
+  $-m(\rho)x^{\rho}/\rho$, and the remaining pole/kernel and trivial-zero
+  contributions combine into Equation~\eqref{eq:archimedean-correction}.
+
+  \item \textbf{Limit and ordering control.} Relate the zeros encountered by
+  rectangular contours to the compact exhaustion $K_n$, prove the required
+  convergence mode, and show that the selected symmetric ordering is
+  legitimate for the conditionally convergent zero contribution.
+
+  \item \textbf{RH-equivalent estimates.} Only after the explicit formula is
+  established should the programme prove RH implies
+  Equation~\eqref{eq:critical-psi-bound}, and conversely use the psi bound plus
+  analytic continuation to exclude zeros with real part greater than
+  $1/2$. Reflection then handles the other half of the strip.
+\end{enumerate}
+
+The smallest next buildable unit is Item~1: a source-precise Perron transform
+specialized to the finite von Mangoldt sum. Attempting the entire contour
+argument in one step would obscure the location of missing Mathlib primitives
+and make kernel failures difficult to diagnose.
+
+\subsection{Formal artifact map}
+
+\begin{longtable}{@{}p{47mm}p{101mm}@{}}
+\toprule
+Artifact & Technical role \\
+\midrule
+\endhead
+\path{RiemannLab/Tasks/NontrivialZeros.lean} &
+Trivial/nontrivial predicates, critical-strip classification, reflection,
+conjugation, four-point orbit, and RH equivalence. \\
+\path{RiemannLab/Tasks/CriticalLineCriterion.lean} &
+Chebyshev remainder, square-root-scale criterion, finite von Mangoldt sum, and
+zeta logarithmic-derivative bridge. \\
+\path{RiemannLab/Tasks/ZetaZeroMultiplicity.lean} &
+Analytic zero order, analyticity at nontrivial zeros, and zero/nonzero
+characterization away from the pole. \\
+\path{RiemannLab/Tasks/CompactZetaDivisor.lean} &
+Locally finite integer divisor, compact support, finite order, support/zero
+equivalence, nonnegativity, and finite weighted sums. \\
+\path{RiemannLab/Tasks/ExplicitFormula.lean} &
+Pole-free compact exhaustion, finite nontrivial-zero sets, positive
+multiplicities, finite $x^\rho/\rho$ sums, and the open convergence target. \\
+\path{explicit_formula_dependency_graph_v1.json} &
+Machine-readable dependency state and the precommitted next proof unit. \\
+\bottomrule
+\end{longtable}
+
+\begin{resultbox}
+The compact multiplicity-aware divisor is no longer the blocker. The programme
+now has finite, exhaustive, kernel-governed zero sums suitable for residue
+accounting. The unresolved bridge is analytic: Perron inversion, contour
+shifting, residue calculation, convergence, and the two directions of the
+RH-equivalent Chebyshev bound.
+\end{resultbox}
 
 \appendix
 
