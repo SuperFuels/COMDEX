@@ -1,7 +1,7 @@
 {
   "schema": "aion.riemann_local_verification.v1",
-  "started_at": "2026-08-14T23:51:32.177915+00:00",
-  "completed_at": "2026-08-14T23:51:41.802355+00:00",
+  "started_at": "2026-08-15T08:30:55.615814+00:00",
+  "completed_at": "2026-08-15T08:31:12.373520+00:00",
   "paid_api_calls": 0,
   "baseline": {
     "path": "research/riemann_lab/RiemannLab/Tasks/EstablishedZeta.lean",
@@ -30,7 +30,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
       "memory_promotion": {
         "capsule_id": "rh_lean_213bc1c575945fe9b010",
         "claim_ids": [
@@ -44,7 +44,7 @@
             "goal": "maintain_coherence",
             "source": "pinned_lean_kernel_and_mathlib"
           },
-          "state_hash": "96886bc0c200673ad2edbc8adb75fca9519b25a4b29e10e3e884a276812c7ea9"
+          "state_hash": "6ccda6a390cf1a6a30285fc344bc0a0fa073db927e6227e42eb7a493bbcbf9a9"
         }
       },
       "retrieved_claim_ids": [
@@ -57,7 +57,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
       "memory_promotion": {
         "capsule_id": "rh_lean_c9f648ab39a4d482b725",
         "claim_ids": [
@@ -71,7 +71,7 @@
             "goal": "maintain_coherence",
             "source": "pinned_lean_kernel_and_mathlib"
           },
-          "state_hash": "b58a2c2bad1157b77076caf5419ac9544f675a8947a35b233f627bc235e35552"
+          "state_hash": "d9918bff515e9a27fb71602b37887b30829948bf3357cba12466ac64cec109aa"
         }
       },
       "retrieved_claim_ids": [
@@ -85,7 +85,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
       "memory_promotion": {
         "capsule_id": "rh_lean_056b6dc1b8be244e2c35",
         "claim_ids": [
@@ -99,7 +99,7 @@
             "goal": "maintain_coherence",
             "source": "pinned_lean_kernel_and_mathlib"
           },
-          "state_hash": "071ce12d45d6279c0e79f0858d9ab4e07e084e9f965c0ab44bd6da61ff3cdc9b"
+          "state_hash": "b33a71831ae31a0f28fd8d869f32668cff1237933936399c24d456a802ddc78c"
         }
       },
       "retrieved_claim_ids": [
@@ -114,7 +114,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
       "memory_promotion": {
         "capsule_id": "rh_lean_836c1d3c8a4db2028198",
         "claim_ids": [
@@ -128,7 +128,7 @@
             "goal": "maintain_coherence",
             "source": "pinned_lean_kernel_and_mathlib"
           },
-          "state_hash": "90e3930ba37499681614739b9f321fee06d865bc6f9f0aba907ae3e0ace1423a"
+          "state_hash": "d4b05525c0340e2f295a19d6223c12a10f9696a8e6ad4d01540cf21d82c80d9a"
         }
       },
       "retrieved_claim_ids": [
@@ -143,7 +143,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
       "memory_promotion": {
         "capsule_id": "rh_lean_9c703b767dfab116a532",
         "claim_ids": [
@@ -157,7 +157,7 @@
             "goal": "maintain_coherence",
             "source": "pinned_lean_kernel_and_mathlib"
           },
-          "state_hash": "50597657f5f13233595b95660606e5c084d9d6124c41c296cb61e80ab4bfa7af"
+          "state_hash": "57be7d3d28dbb99020f08fdf6c7519e62d7a147b53fd11e5dc8d87f6b605014d"
         }
       },
       "retrieved_claim_ids": [
@@ -172,7 +172,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`",
       "memory_promotion": {
         "capsule_id": "rh_lean_053ff73c7bdb160c6f5e",
         "claim_ids": [
@@ -186,7 +186,7 @@
             "goal": "maintain_coherence",
             "source": "pinned_lean_kernel_and_mathlib"
           },
-          "state_hash": "6d7e395ac8f0fb7da1bf85d2906a9b39b16755fbc89424a089377f2aedae3468"
+          "state_hash": "2a7bbb482598ddf9dc990ef41a416e97c8b7c52f844fa4df32da59c243f6b966"
         }
       },
       "retrieved_claim_ids": [
@@ -205,7 +205,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
     },
     {
       "task_id": "trivial_zero_at_neg_six",
@@ -214,7 +214,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
     },
     {
       "task_id": "zero_implies_re_le_one",
@@ -223,7 +223,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
     },
     {
       "task_id": "zeta_differentiable_away_from_one",
@@ -232,7 +232,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
     },
     {
       "task_id": "zeta_real_part_positive",
@@ -241,7 +241,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
     },
     {
       "task_id": "compact_has_finitely_many_zeta_zeros",
@@ -250,7 +250,7 @@
       "passed": true,
       "returncode": 0,
       "source_sha256": "085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366",
-      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpp6z589_6.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
+      "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:38:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpw96xnm8z.lean:64:56: warning: Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice\n\nNote: This linter can be disabled with `set_option linter.unnecessarySeqFocus false`"
     }
   ],
   "retention_templates": [
@@ -305,7 +305,7 @@
   ],
   "v2_packet": {
     "path": "research/riemann_lab/live_task_packet_v2.json",
-    "sha256": "01d71ee79056952a8c03367c0872fbc0570cc0a11932c236f536b3d50a606a59",
+    "sha256": "ed3275b00d4c02514c6a88003e7ed27698013a6be47e718f45cb978bf2e62bf9",
     "execution_status": "ready",
     "task_families": [
       "analytic_prerequisite",
@@ -322,10 +322,10 @@
       "task_id": "zeta_at_zero",
       "attempt": 1,
       "category": "unknown_theorem",
-      "diagnostic_sha256": "43ddf423b59f50793f494fc419021ac409e907679ed6002730c64cc9b8191437",
+      "diagnostic_sha256": "7b62149cc37bb48a07fa477362d1a97e606053c04a0695990140c41c31f83e59",
       "instruction": "Search the installed Mathlib catalogue, inspect the exact signature, and replace invented names.",
       "max_next_attempts": 1,
-      "repair_record_id": "lean_repair_b8f82580eca0824a599a"
+      "repair_record_id": "lean_repair_ea59f364344ff9e1f4da"
     }
   },
   "state_reconciliation": {
@@ -356,7 +356,7 @@
     "outcomes": 0,
     "failure_queues": 0,
     "procedure_mutation_cycles": 0,
-    "state_hash": "858eec1f0f56048648397e5c997f37fd06507625bfcc722d9d55e873e829c22a"
+    "state_hash": "10cc5bf437d7ebf7b64aec35430cf216937dfe2848895b56587fd23492ee7a0e"
   },
   "claim_boundary": {
     "rh_solved": false,

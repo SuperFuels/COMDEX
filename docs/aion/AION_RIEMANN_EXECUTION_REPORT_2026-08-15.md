@@ -92,12 +92,23 @@ zero contradictions, high-level method patterns, and no retained proof bodies.
 Repair now includes deterministic theorem discovery over the pinned local
 Mathlib source tree with exact declaration provenance.
 
-## Delayed retention gate
+## Delayed retention result
 
-Six fresh retention tasks have already been locally Lean-verified and hash
-frozen. Automation `aion-rh-retention-gate` checks hourly, remains fail-closed
-until 2026-08-15 08:00 UTC, and then executes one full-AION versus isolated-cold
-comparison. It is instructed to disable itself after completion.
+The time gate released after 08:00 UTC. All six source-closed tasks and the
+pinned environment were locally reverified before a ready copy was sealed.
+The paid runner ignored the stale process credential and used the valid
+repository credential. Exactly one two-arm comparison was executed.
+
+- AION memory plus repair: **2/6**.
+- Isolated cold AION: **3/6**.
+- Model calls: **24**; tokens: **15,704** total.
+- Infrastructure incidents: **1** incomplete structured provider output. The
+  affected task passed on its second attempt, but the incident still counts
+  under the precommitted zero-failure rule.
+
+The memory-and-repair arm missed the 4/6 floor, trailed cold AION by one task,
+and failed the infrastructure rule. The criterion was not met. This establishes
+neither delayed-retention advantage nor AION superiority.
 
 ## Evidence
 
@@ -105,6 +116,10 @@ comparison. It is instructed to disable itself after completion.
 - Sealed v3 packet SHA-256: `1771f8b9977ce0cf1ffac73b1284361e61ae92d4f86672afe97a241a786abb6e`
 - Pinned environment SHA-256: `6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591`
 - Original immutable v1 result SHA-256: `5795e3faa55cf2a7466a3537ac41005056d44711eaa826c84935af318437b2e6`
+- Retention ready packet SHA-256: `2a103a6634f2819e5320f68f4aa20790691d422bbbc26b299082e004b095530a`
+- Retention seal SHA-256: `49d8142a93100005fafa01de8bbe2635a9d08be3cf86375c915db19ae8487c57`
+- Retention result SHA-256: `875a5248dbc1e4f8d161c71930b78c7bf7839bd94406ff350cd6e47b1f37bcbd`
+- Retention one-shot receipt SHA-256: `0d5c959f081bbb74da112dc435abb9809942bc8921940195dad8d9fe7ab19571`
 
 ## Truth boundary
 

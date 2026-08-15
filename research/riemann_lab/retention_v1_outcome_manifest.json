@@ -1,0 +1,45 @@
+{
+  "schema": "aion.riemann_retention_outcome.v1",
+  "completed_at": "2026-08-15T08:35:01.534782Z",
+  "ready_packet": "research/riemann_lab/retention_task_packet_v1_ready.json",
+  "ready_packet_sha256": "2a103a6634f2819e5320f68f4aa20790691d422bbbc26b299082e004b095530a",
+  "seal_manifest": "research/riemann_lab/retention_v1_seal_manifest.json",
+  "seal_manifest_sha256": "49d8142a93100005fafa01de8bbe2635a9d08be3cf86375c915db19ae8487c57",
+  "result": "results/riemann_lab/live_exam_20260815T083253Z.json",
+  "result_sha256": "875a5248dbc1e4f8d161c71930b78c7bf7839bd94406ff350cd6e47b1f37bcbd",
+  "one_shot_receipt": "results/riemann_lab/execution_started_2a103a6634f2819e5320.json",
+  "one_shot_receipt_sha256": "0d5c959f081bbb74da112dc435abb9809942bc8921940195dad8d9fe7ab19571",
+  "local_preflight": {
+    "result": "results/riemann_lab/local_verification_20260815T083112Z.json",
+    "sha256": "c91a9ee8cc9bc2b8c20c2188caebce50bec9d1ff0860a6fe8605c9796970a24e",
+    "six_retention_tasks_lean_verified": true,
+    "tests_passed": 14,
+    "tests_failed": 0,
+    "paid_api_calls": 0
+  },
+  "execution": {
+    "model": "gpt-4.1",
+    "duration_seconds": 128.358,
+    "model_calls": 24,
+    "tokens": {"input":14021,"output":1683,"total":15704},
+    "scores": {"aion_memory_repair":"2/6","cold_aion":"3/6"}
+  },
+  "precommitted_decision": {
+    "absolute_minimum": 4,
+    "required_margin": 1,
+    "infrastructure_failures_allowed": 0,
+    "infrastructure_failures_observed": 1,
+    "criterion_met": false,
+    "aion_superiority_established": false,
+    "retention_advantage_established": false
+  },
+  "incident": {
+    "kind": "provider_incomplete_structured_output",
+    "arm": "aion_memory_repair",
+    "task": "retained_zeta_zero_set_closed",
+    "attempt": 1,
+    "scoring_effect": "Counted as an infrastructure failure under the precommitted zero-failure rule; the task passed on attempt 2."
+  },
+  "interpretation": "The isolated cold arm scored one task higher than the memory-and-repair arm. The full arm also missed the absolute floor, required margin, and infrastructure rule. No retention advantage or AION superiority claim is supported.",
+  "claim_boundary": {"rh_solved":false,"new_mathematics":false,"aion_superiority_established":false,"retention_advantage_established":false}
+}

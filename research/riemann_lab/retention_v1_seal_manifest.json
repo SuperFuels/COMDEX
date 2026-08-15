@@ -1,0 +1,45 @@
+{
+  "schema": "aion.riemann_retention_machine_seal.v1",
+  "sealed_at": "2026-08-15T08:31:12Z",
+  "authorization": "Governed delayed retention comparison authorized by the user and released only after the precommitted not_before time.",
+  "review_type": "machine_preflight_delayed_retention",
+  "independent_external_review": false,
+  "packet": {
+    "path": "research/riemann_lab/retention_task_packet_v1_ready.json",
+    "sha256": "2a103a6634f2819e5320f68f4aa20790691d422bbbc26b299082e004b095530a",
+    "execution_status": "ready",
+    "source_closed_tasks": 6,
+    "arms": 2,
+    "max_output_tokens_per_call": 400
+  },
+  "source_packet": {
+    "path": "research/riemann_lab/retention_task_packet_v1.json",
+    "sha256": "272bf6e920d66fd9064fe2e3ab81c7f1200ef67414304052a7736f97c87efc3f",
+    "not_before": "2026-08-15T08:00:00Z"
+  },
+  "completed_v3": {
+    "manifest": "research/riemann_lab/v3_outcome_manifest.json",
+    "result_sha256": "52899a504530456f1c6f90acf28a34edddc54ccbb4ce765d145c2f9166bc951d",
+    "completed_at": "2026-08-15T00:06:54.773369Z"
+  },
+  "pinned_environment_sha256": "6776200251cfd041ecda62038ae8ff02980bf1066a332289b6c96ca015485591",
+  "implementation_hashes": {
+    "scripts/aion_riemann_live_exam.py": "4ec3de04143c71968f5f0510b9a97f2e7492539ebb5cf9a1230d1cd9180ba249",
+    "scripts/aion_riemann_verified_memory.py": "4d98ad00abad44ace86dd928d9ec03771e5c0d8b9d8e0702735d3352a354ab9d",
+    "scripts/aion_riemann_local_verify.py": "93d7d6a2f576a21f7a0637147d4ed951951984f01d7c5d6ce1230911e2020ba0",
+    "backend/tests/test_aion_riemann_lab.py": "e0b884fddcfeca7864181aecc3aca4f2f56978ee32dd0ccdfdbba208a156578d"
+  },
+  "verified_memory": {
+    "state_sha256": "33eb22185b4a1c9b1963d13710947c74cf9bcfb74789814eed8e647dcf68c8f8",
+    "active_claims": 6,
+    "proof_bodies_retained": false
+  },
+  "preflight": {
+    "fresh_tasks_locally_lean_verified": 6,
+    "tests_passed": 14,
+    "tests_failed": 0,
+    "paid_api_calls": 0
+  },
+  "oracle_separation": "Retention proof bodies are absent from the ready packet and live prompts; they were used only for local Lean preflight.",
+  "claim_boundary": "This seal authorizes one delayed two-arm proof-reconstruction comparison. It is not RH evidence, new mathematics, or evidence of AION superiority."
+}

@@ -1,0 +1,1637 @@
+{
+  "experiment": "aion_riemann_source_closed_live_exam_v1",
+  "task_packet_schema": "aion.riemann_retention_exam.v1",
+  "started_at": "2026-08-15T08:32:53.177090+00:00",
+  "model": "gpt-4.1",
+  "task_packet_hash": "2a103a6634f2819e5320f68f4aa20790691d422bbbc26b299082e004b095530a",
+  "aion_mechanisms": {
+    "memory": "HexCorePersistentLearningRuntime.knowledge.retrieve",
+    "memory_state_hash": "10cc5bf437d7ebf7b64aec35430cf216937dfe2848895b56587fd23492ee7a0e",
+    "active_verified_claims": 6,
+    "repair": "AionLeanRepairController.diagnose",
+    "theorem_discovery": "AionMathlibTheoremDiscovery.search over pinned local Mathlib sources"
+  },
+  "claim_boundary": "This evaluates formal proof reconstruction, retained operational memory, and compiler-guided repair. It does not prove RH or claim new mathematics.",
+  "arms": [
+    {
+      "id": "aion_memory_repair",
+      "memory": true,
+      "repair": true,
+      "arm_id": "aion_memory_repair",
+      "memory_enabled": true,
+      "repair_enabled": true,
+      "isolated_state": false,
+      "tasks": [
+        {
+          "task_id": "retained_shifted_zero_value",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "30ea874571f8c3850de403cb8040033c5b06cf2efa2654359e5f69b0a0ecf6f7",
+              "proof": "rw [riemannZeta_zero, add_neg_eq_zero]",
+              "provider": {
+                "response_id": "resp_019ad7a599cfade6006a8024364d4481968b7ab237e1473cbb",
+                "usage": {
+                  "input_tokens": 524,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 18,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 542
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpurfdb8cl.lean:6:24: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  ?m.22 + -?m.23 = 0\nin the target expression\n  -1 / 2 + 1 / 2 = 0\n\n⊢ -1 / 2 + 1 / 2 = 0",
+                "source_hash": "c3e210ee2620f723f0289353d06c34fec17270200ea437938c0058f5d0ccadfe"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 6.225
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "1b21b9337cdb2b5f275f401ba6b6dea3688b108148cfadf31a891bb5a76fc77e",
+              "proof": "rw [riemannZeta_zero], field_simps, ring",
+              "provider": {
+                "response_id": "resp_0f38b15a15dce3d4006a80243ba19081938e95670a009e248c",
+                "usage": {
+                  "input_tokens": 949,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 18,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 967
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpurmum_ez.lean:5:73: error: unsolved goals\n⊢ -1 / 2 + 1 / 2 = 0\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpurmum_ez.lean:6:23: error: unexpected token ','; expected command",
+                "source_hash": "a60e5e512c5139cb6df95fea1618cb50a030363cbf4ba922d8783994c0cf994c"
+              },
+              "repair_record": {
+                "task_id": "retained_shifted_zero_value",
+                "attempt": 1,
+                "category": "unclassified_failure",
+                "diagnostic_sha256": "60914c7c5f7cc1fcab11c8a83031f47f8c8d39b2d00a52afec63510715bb81c6",
+                "instruction": "Abandon the failed branch and construct a materially different, minimal proof.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_b998007672190d58514f"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_cd2b9c756872449fa5f9"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_ce98334332cf9fd008cf"
+                },
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_e9affda7a1c9e07fe6f6"
+                },
+                {
+                  "name": "HurwitzZeta.cosZeta_zero",
+                  "signature": "lemma HurwitzZeta.cosZeta_zero : cosZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 125,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_9896f103688332000b41"
+                },
+                {
+                  "name": "HurwitzZeta.expZeta_zero",
+                  "signature": "lemma HurwitzZeta.expZeta_zero : expZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 133,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_946d9a35cad8d454c9f8"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.243
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": false,
+            "claim_ids": [
+              "claim_61d8afe0d7656c60",
+              "claim_2739dc139545a189",
+              "claim_0c379f2461e378d8"
+            ],
+            "capsule_ids": [
+              "rh_lean_213bc1c575945fe9b010",
+              "rh_lean_c9f648ab39a4d482b725",
+              "rh_lean_056b6dc1b8be244e2c35"
+            ]
+          },
+          "passed": false
+        },
+        {
+          "task_id": "retained_trivial_zero_neg_eight",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "09de38a59d6365b4f33fe1d35a07249102aa59eed7f7b65d4344cf8f6307680d",
+              "proof": "rw [←neg_two_mul_nat_add_one 3], norm_num",
+              "provider": {
+                "response_id": "resp_0d49ec02de8c1448006a802440e0dc8196b50f21b52ec17224",
+                "usage": {
+                  "input_tokens": 517,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 19,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 536
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpd9ksfcve.lean:6:7: error(lean.unknownIdentifier): Unknown identifier `neg_two_mul_nat_add_one`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpd9ksfcve.lean:5:66: error: unsolved goals\n⊢ riemannZeta (-8) = 0\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpd9ksfcve.lean:6:33: error: unexpected token ','; expected command",
+                "source_hash": "1c2298237fd78393b615be95f88689d1e230a501f10bd1d0558c0652249ae17b"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 4.654
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "abdb0d8beb46303b89dc414b1abeadcc985880c972416b426b1b452e9a478a8d",
+              "proof": "rw [riemannZeta_neg_two_mul_nat_add_one 3], norm_num",
+              "provider": {
+                "response_id": "resp_03bd4ae35055eca0006a8024458f548197866f91c7d68423d9",
+                "usage": {
+                  "input_tokens": 988,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 22,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 1010
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpmwlaw43t.lean:6:6: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  riemannZeta (-2 * (↑3 + 1))\nin the target expression\n  riemannZeta (-8) = 0\n\n⊢ riemannZeta (-8) = 0\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpmwlaw43t.lean:6:44: error: unexpected token ','; expected command",
+                "source_hash": "554979d2b93c9a1f3bf214dc630a8d2e0c47174b71f7fb1bcb05d7faafb606b1"
+              },
+              "repair_record": {
+                "task_id": "retained_trivial_zero_neg_eight",
+                "attempt": 1,
+                "category": "unknown_theorem",
+                "diagnostic_sha256": "f6a399d949a1d97981c08311a46c9b0d5a11bf02b46b91c0a4f80b521d2a3b3c",
+                "instruction": "Search the installed Mathlib catalogue, inspect the exact signature, and replace invented names.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_b859e6e6f93be5bf051c"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_cd2b9c756872449fa5f9"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_ce98334332cf9fd008cf"
+                },
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_e9affda7a1c9e07fe6f6"
+                },
+                {
+                  "name": "HurwitzZeta.cosZeta_zero",
+                  "signature": "lemma HurwitzZeta.cosZeta_zero : cosZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 125,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_9896f103688332000b41"
+                },
+                {
+                  "name": "HurwitzZeta.expZeta_zero",
+                  "signature": "lemma HurwitzZeta.expZeta_zero : expZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 133,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_946d9a35cad8d454c9f8"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.075
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": false,
+            "claim_ids": [
+              "claim_2739dc139545a189",
+              "claim_0c379f2461e378d8",
+              "claim_61d8afe0d7656c60"
+            ],
+            "capsule_ids": [
+              "rh_lean_c9f648ab39a4d482b725",
+              "rh_lean_056b6dc1b8be244e2c35",
+              "rh_lean_213bc1c575945fe9b010"
+            ]
+          },
+          "passed": false
+        },
+        {
+          "task_id": "retained_zero_strict_upper_boundary",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "187f97f1b62ba0e4968beed09ced50990ae387c2989837ccca3a3d33bd0abb03",
+              "proof": "intro s hzero\nby_contra h\npush_neg at h\nhave hne := riemannZeta_ne_zero_of_one_lt_re h\nexact hne hzero",
+              "provider": {
+                "response_id": "resp_0a463dd30737955c006a80244aa4ac8193bd380bdf0251c231",
+                "usage": {
+                  "input_tokens": 535,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 41,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 576
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpb2kaaay3.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ns : ℂ\nhz : riemannZeta s = 0\n⊢ s.re < 1",
+                "source_hash": "3910eb02c224062ca403cb67008fd3193b7d0fa9a1574fe53b077e5f90c536e8"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.695
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "5330f451de8ec1a95853d61aa0cc74201d2bb0215220f12593bb6ab817d2abc6",
+              "proof": "intro s hz\nby_contra h\nhave h1 : 1 < s.re := not_lt.mp h\nhave hne := riemannZeta_ne_zero_of_one_lt_re h1\nexact hne hz",
+              "provider": {
+                "response_id": "resp_0f1523acad8f0ff4006a80245073d087d29fe8af33825e2e29",
+                "usage": {
+                  "input_tokens": 990,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 50,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 1040
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpn9fykvbi.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ns : ℂ\nhz : riemannZeta s = 0\n⊢ s.re < 1",
+                "source_hash": "1502ebdbbd94969fe40cb0c34335079fe978d8a0eb44cba5667b8c8beda51c87"
+              },
+              "repair_record": {
+                "task_id": "retained_zero_strict_upper_boundary",
+                "attempt": 1,
+                "category": "unclassified_failure",
+                "diagnostic_sha256": "443b0ecfcbadb7544d3d9ec849e52f93357b62636c7e93be15a260bb8a3ae0d0",
+                "instruction": "Abandon the failed branch and construct a materially different, minimal proof.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_2c87fc94128991ecdb21"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 30.5,
+                  "discovery_id": "mathlib_609cac619c583cc821e1"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_ce98334332cf9fd008cf"
+                },
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_e9affda7a1c9e07fe6f6"
+                },
+                {
+                  "name": "differentiableAt_riemannZeta",
+                  "signature": "theorem differentiableAt_riemannZeta {s : ℂ} (hs' : s ≠ 1) : DifferentiableAt ℂ riemannZeta s",
+                  "source": "RiemannZeta.lean",
+                  "line": 139,
+                  "score": 22.5,
+                  "discovery_id": "mathlib_949bce9df6477ad16650"
+                },
+                {
+                  "name": "differentiableOn_riemannZeta",
+                  "signature": "lemma differentiableOn_riemannZeta : DifferentiableOn ℂ riemannZeta {1}ᶜ",
+                  "source": "RiemannZeta.lean",
+                  "line": 142,
+                  "score": 22.5,
+                  "discovery_id": "mathlib_5acb49343fb12c316a05"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.983
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": false,
+            "claim_ids": [
+              "claim_0c379f2461e378d8",
+              "claim_2739dc139545a189",
+              "claim_6191a337447ce941"
+            ],
+            "capsule_ids": [
+              "rh_lean_056b6dc1b8be244e2c35",
+              "rh_lean_c9f648ab39a4d482b725",
+              "rh_lean_9c703b767dfab116a532"
+            ]
+          },
+          "passed": false
+        },
+        {
+          "task_id": "retained_zeta_analytic",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "1f00142d47113d258d6640c864187f8b65b10760c41d3ae3b7e79978bbe5f379",
+              "proof": "apply analyticOn_iff_differentiableAt.mpr\nintro s hs\nexact differentiableAt_riemannZeta hs",
+              "provider": {
+                "response_id": "resp_0ff0f316327eaeba006a8024564b0c8197ad57fe450850a367",
+                "usage": {
+                  "input_tokens": 526,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 32,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 558
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpq4gweiwa.lean:6:8: error(lean.unknownIdentifier): Unknown identifier `analyticOn_iff_differentiableAt.mpr`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpq4gweiwa.lean:7:8: error: No goals to be solved",
+                "source_hash": "977b5b027739f857df0c8ebdbb93e6b371d5429a02a24894ee384e0c68e4b8f1"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.08
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "03cb5b050d6f82c09f79b375813afa5dc286f4ed92df18422c9c3dde77e06146",
+              "proof": "exact analyticOn_riemannZeta",
+              "provider": {
+                "response_id": "resp_0a127620c334682d006a80245b5de887d1a1bd8d6924ee6e9b",
+                "usage": {
+                  "input_tokens": 1072,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 13,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 1085
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "26175d6317c622fd88fba24744c51714933faf0cb1cd5de84655edca0f54039d"
+              },
+              "repair_record": {
+                "task_id": "retained_zeta_analytic",
+                "attempt": 1,
+                "category": "unknown_theorem",
+                "diagnostic_sha256": "65714bb4c6a55847922d0ef5fc4ed27490ff2b89856de0c68853d9bc70cd1175",
+                "instruction": "Search the installed Mathlib catalogue, inspect the exact signature, and replace invented names.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_702f701e0ef7e5167516"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "analyticOn_riemannZeta",
+                  "signature": "lemma analyticOn_riemannZeta : AnalyticOnNhd ℂ riemannZeta {1}ᶜ",
+                  "source": "RiemannZeta.lean",
+                  "line": 146,
+                  "score": 29.5,
+                  "discovery_id": "mathlib_6a6278a1777a8093d8d3"
+                },
+                {
+                  "name": "zeta_nat_eq_tsum_of_gt_one",
+                  "signature": "theorem zeta_nat_eq_tsum_of_gt_one {k : ℕ} (hk : 1 < k) : riemannZeta k = ∑' n : ℕ, 1 / (n : ℂ) ^ k",
+                  "source": "RiemannZeta.lean",
+                  "line": 223,
+                  "score": 26.5,
+                  "discovery_id": "mathlib_7d126375c9b44a41f75a"
+                },
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 24.5,
+                  "discovery_id": "mathlib_43916d0ca09b42853ef3"
+                },
+                {
+                  "name": "riemannZeta_one_sub",
+                  "signature": "theorem riemannZeta_one_sub {s : ℂ} (hs : ∀ n : ℕ, s ≠ -n) (hs' : s ≠ 1) : riemannZeta (1 - s) = 2 * (2 * π) ^ (-s) * Gamma s * cos (π * s / 2) * riemannZeta s",
+                  "source": "RiemannZeta.lean",
+                  "line": 178,
+                  "score": 24.5,
+                  "discovery_id": "mathlib_7614af2557781d87d0cd"
+                },
+                {
+                  "name": "zeta_eq_tsum_one_div_nat_add_one_cpow",
+                  "signature": "theorem zeta_eq_tsum_one_div_nat_add_one_cpow {s : ℂ} (hs : 1 < re s) : riemannZeta s = ∑' n : ℕ, 1 / (n + 1 : ℂ) ^ s",
+                  "source": "RiemannZeta.lean",
+                  "line": 214,
+                  "score": 24.5,
+                  "discovery_id": "mathlib_ebc51958a9cda2b02075"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 4.793
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": false,
+            "claim_ids": [
+              "claim_ecc0f098e161d467",
+              "claim_0c379f2461e378d8",
+              "claim_6191a337447ce941"
+            ],
+            "capsule_ids": [
+              "rh_lean_836c1d3c8a4db2028198",
+              "rh_lean_056b6dc1b8be244e2c35",
+              "rh_lean_9c703b767dfab116a532"
+            ]
+          },
+          "passed": true
+        },
+        {
+          "task_id": "retained_zeta_real_axis",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "682d355986137287e914c052be0df45262fde2b55c8f9cb0fabcbaf5b73d009d",
+              "proof": "intro x hx\nhave : riemannZeta x = riemannZeta (x : ℂ), by rw [ofReal_re]\n-- On the real axis, riemannZeta is real-valued for x > 1\nrw [this, Complex.im_ofReal]",
+              "provider": {
+                "response_id": "resp_0c6ed942691d5a7e006a80246033788197b71db14234f44118",
+                "usage": {
+                  "input_tokens": 523,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 65,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 588
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmphke_ljpv.lean:7:44: error: unexpected token ','; expected ':=' or '|'",
+                "source_hash": "aecf1981a389f0ff54b8bc23775dcbc0848d1b409274580df0ec1e0a4182fc93"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.697
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "1f70fbd521b978542d470c2ee39a9be3991d27188765b9915a3ab8b2fe3c06dc",
+              "proof": "intro x hx\nexact riemannZeta_im_eq_zero_of_one_lt hx",
+              "provider": {
+                "response_id": "resp_0b1aa1b1f7425237006a802465d7c887d18d24ed8021c05dd9",
+                "usage": {
+                  "input_tokens": 1033,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 21,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 1054
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpe3jwtl8o.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\nx : ℝ\nhx : 1 < x\n⊢ (riemannZeta ↑x).im = 0",
+                "source_hash": "ecd86c98cfb119166b1e91fd37362954922470f5ec1e72316917cec65704e8b3"
+              },
+              "repair_record": {
+                "task_id": "retained_zeta_real_axis",
+                "attempt": 1,
+                "category": "syntax_failure",
+                "diagnostic_sha256": "b7777868b6b996d1e70353e682cd32a1979e113fbe4e26eb1dc862d9a1278393",
+                "instruction": "Correct Lean tactic syntax and return one well-indented tactic body.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_673e2f4fe970931b4db5"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 38.0,
+                  "discovery_id": "mathlib_acf2b3b09204a7578bfc"
+                },
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_cd2b9c756872449fa5f9"
+                },
+                {
+                  "name": "zeta_eq_tsum_one_div_nat_add_one_cpow",
+                  "signature": "theorem zeta_eq_tsum_one_div_nat_add_one_cpow {s : ℂ} (hs : 1 < re s) : riemannZeta s = ∑' n : ℕ, 1 / (n + 1 : ℂ) ^ s",
+                  "source": "RiemannZeta.lean",
+                  "line": 214,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_eada301b47d19bdb194f"
+                },
+                {
+                  "name": "zeta_eq_tsum_one_div_nat_cpow",
+                  "signature": "theorem zeta_eq_tsum_one_div_nat_cpow {s : ℂ} (hs : 1 < re s) : riemannZeta s = ∑' n : ℕ, 1 / (n : ℂ) ^ s",
+                  "source": "RiemannZeta.lean",
+                  "line": 207,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_2b492fda22b25a823273"
+                },
+                {
+                  "name": "zeta_nat_eq_tsum_of_gt_one",
+                  "signature": "theorem zeta_nat_eq_tsum_of_gt_one {k : ℕ} (hk : 1 < k) : riemannZeta k = ∑' n : ℕ, 1 / (n : ℂ) ^ k",
+                  "source": "RiemannZeta.lean",
+                  "line": 223,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_82e8f1014cfbdb8574fa"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.087
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": false,
+            "claim_ids": [
+              "claim_6191a337447ce941",
+              "claim_0c379f2461e378d8",
+              "claim_61d8afe0d7656c60"
+            ],
+            "capsule_ids": [
+              "rh_lean_9c703b767dfab116a532",
+              "rh_lean_056b6dc1b8be244e2c35",
+              "rh_lean_213bc1c575945fe9b010"
+            ]
+          },
+          "passed": false
+        },
+        {
+          "task_id": "retained_zeta_zero_set_closed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "004e328844c1b9dae74c032d47ad58b9ee1ccbc6f3f30ae9c47e0a5fe885a24a",
+              "proof": "",
+              "provider": {
+                "response_id": "resp_0cfd8c6d7f93bb68006a80246af6c881979c92d12c713548d2",
+                "usage": {
+                  "input_tokens": 521,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 400,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 921
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "incomplete",
+                "incomplete_details": {
+                  "reason": "max_output_tokens"
+                },
+                "raw_output_sha256": "12e238272a8e6e75d58c37f500905ecef4ce97f8b09cc8ba74ceefb4956845e5"
+              },
+              "verification": {
+                "passed": false,
+                "returncode": null,
+                "diagnostic": "provider returned incomplete or invalid structured output",
+                "source_hash": null
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": true,
+              "elapsed_seconds": 3.775
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "c07b32c256e80f1580b9f47fd2b997c7cddc68f5363dd591af04968cae99c0be",
+              "proof": "exact isClosed_riemannZetaZeros",
+              "provider": {
+                "response_id": "resp_067e7f553b437170006a80246ebb648194b352ef521479ea35",
+                "usage": {
+                  "input_tokens": 847,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 14,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 861
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "20b89ab9b3944b5df9667a4af6be6a56f4a71f8b1563e57bfc4007f2b92e16e7"
+              },
+              "repair_record": {
+                "task_id": "retained_zeta_zero_set_closed",
+                "attempt": 1,
+                "category": "unclassified_failure",
+                "diagnostic_sha256": "efdcd484ad281ff511c3b270431e0ea4ed18cc8173ffc9a9a3fe3d9147239856",
+                "instruction": "Abandon the failed branch and construct a materially different, minimal proof.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_0f2a49e0e631fb408f91"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "isClosed_riemannZetaZeros",
+                  "signature": "lemma isClosed_riemannZetaZeros : IsClosed riemannZetaZeros",
+                  "source": "ZetaZeros.lean",
+                  "line": 57,
+                  "score": 42.0,
+                  "discovery_id": "mathlib_742d8dff6fe1217a8869"
+                },
+                {
+                  "name": "IsCompact.inter_riemannZetaZeros_finite",
+                  "signature": "lemma IsCompact.inter_riemannZetaZeros_finite {S : Set ℂ} (hS : IsCompact S) : (S ∩ riemannZetaZeros).Finite",
+                  "source": "ZetaZeros.lean",
+                  "line": 64,
+                  "score": 35.0,
+                  "discovery_id": "mathlib_18a22db1c9e4e6159f81"
+                },
+                {
+                  "name": "isDiscrete_riemannZetaZeros",
+                  "signature": "lemma isDiscrete_riemannZetaZeros : IsDiscrete riemannZetaZeros",
+                  "source": "ZetaZeros.lean",
+                  "line": 60,
+                  "score": 35.0,
+                  "discovery_id": "mathlib_6c1e20a10ae141646ccc"
+                },
+                {
+                  "name": "tendsto_riemannZeta_cofinite_cocompact",
+                  "signature": "lemma tendsto_riemannZeta_cofinite_cocompact : Tendsto ((↑) : riemannZetaZeros → ℂ) cofinite (cocompact ℂ)",
+                  "source": "ZetaZeros.lean",
+                  "line": 70,
+                  "score": 35.0,
+                  "discovery_id": "mathlib_94e2cea4b922b9268700"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 33.0,
+                  "discovery_id": "mathlib_42be1470239b8c773254"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.69
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": false,
+            "claim_ids": [
+              "claim_08e71b46acfda05d",
+              "claim_0c379f2461e378d8",
+              "claim_61d8afe0d7656c60"
+            ],
+            "capsule_ids": [
+              "rh_lean_053ff73c7bdb160c6f5e",
+              "rh_lean_056b6dc1b8be244e2c35",
+              "rh_lean_213bc1c575945fe9b010"
+            ]
+          },
+          "passed": true
+        }
+      ],
+      "passed": 2,
+      "total": 6,
+      "success_rate": 0.3333333333333333,
+      "model_calls": 12
+    },
+    {
+      "id": "cold_aion",
+      "memory": true,
+      "repair": true,
+      "isolated_state": true,
+      "arm_id": "cold_aion",
+      "memory_enabled": true,
+      "repair_enabled": true,
+      "tasks": [
+        {
+          "task_id": "retained_shifted_zero_value",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "f5b43caa077cfd8a25175f4edea27b9cb1df3a1fc88fc3a5482254283cc89096",
+              "proof": "rw [riemannZeta_zero, add_assoc, add_left_neg, zero_add]",
+              "provider": {
+                "response_id": "resp_01d03c7aae34f15f006a8024746e188190908ff364177d40e5",
+                "usage": {
+                  "input_tokens": 160,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 23,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 183
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpjtmx573f.lean:6:24: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern\n  ?a + ?b + ?c\nin the target expression\n  -1 / 2 + 1 / 2 = 0\n\n⊢ -1 / 2 + 1 / 2 = 0",
+                "source_hash": "aac09f60ed42438659ffa1f42a18d8f4aa88bd501a254b99f17f2580cd68ef11"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 4.94
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "41a39dfc7bf9527b92bea7724706b81d2448ee063a3f253a180e7df0c0bbfa53",
+              "proof": "rw [riemannZeta_zero]; field_simp; ring",
+              "provider": {
+                "response_id": "resp_07e20057f8c906c8006a8024795b9881949ba00fd4dd8cc004",
+                "usage": {
+                  "input_tokens": 589,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 18,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 607
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "28683ae57c9d44fd8277382e33ce895ef6be42341f3a5eff0d3c8fdfad114fbc"
+              },
+              "repair_record": {
+                "task_id": "retained_shifted_zero_value",
+                "attempt": 1,
+                "category": "unclassified_failure",
+                "diagnostic_sha256": "6e4eb3f30fe0bc4abb72c642990dd46e4b6c4ee12e6cca4c69ac0fb832ca5f6e",
+                "instruction": "Abandon the failed branch and construct a materially different, minimal proof.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_ed99a48c60af2ff5d77e"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_cd2b9c756872449fa5f9"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_ce98334332cf9fd008cf"
+                },
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_e9affda7a1c9e07fe6f6"
+                },
+                {
+                  "name": "HurwitzZeta.cosZeta_zero",
+                  "signature": "lemma HurwitzZeta.cosZeta_zero : cosZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 125,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_9896f103688332000b41"
+                },
+                {
+                  "name": "HurwitzZeta.expZeta_zero",
+                  "signature": "lemma HurwitzZeta.expZeta_zero : expZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 133,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_946d9a35cad8d454c9f8"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 4.653
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": true,
+            "claim_ids": [],
+            "capsule_ids": []
+          },
+          "passed": true
+        },
+        {
+          "task_id": "retained_trivial_zero_neg_eight",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "4fda9fb04dfb90a68b4fc81f8795d2680e0efbcfb6d1a921afff3d66003e7fa2",
+              "proof": "rw riemannZeta_eq_zeta,\n  exact zeta_function.zero_neg_nat 8",
+              "provider": {
+                "response_id": "resp_03ad94ce14019041006a80247e01bc8196bbac8d128c86fa62",
+                "usage": {
+                  "input_tokens": 153,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 25,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 178
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpru5_apgg.lean:6:4: error: unexpected identifier; expected '['\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpru5_apgg.lean:5:66: error: unsolved goals\n⊢ riemannZeta (-8) = 0",
+                "source_hash": "75bf3eedd2ed03cae72d5ec1a7a60f92706f7037ebe82d01eb716cba951a9592"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.142
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "9ce2b78906543d06fa0067aad71db5122e28678291e5bb49a784a0608b041fa2",
+              "proof": "convert riemannZeta_neg_two_mul_nat_add_one 3, norm_num",
+              "provider": {
+                "response_id": "resp_0b293b182727b1f6006a8024832e8c81909bdd2ce4c2be6e36",
+                "usage": {
+                  "input_tokens": 579,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 21,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 600
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpr63etej3.lean:5:66: error: unsolved goals\n⊢ -8 = -2 * (↑3 + 1)\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpr63etej3.lean:6:47: error: unexpected token ','; expected command",
+                "source_hash": "489d2e55a2b2937e2ed4f7fef3c0da953167f520f0fdd6f35ebd8733365b72fd"
+              },
+              "repair_record": {
+                "task_id": "retained_trivial_zero_neg_eight",
+                "attempt": 1,
+                "category": "unsolved_goal",
+                "diagnostic_sha256": "7c9391341d87342f55fc2190fe4814a5840048645279b05f7bb4fc9b54828528",
+                "instruction": "Decompose the remaining goal or apply a verified theorem whose conclusion matches it exactly.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_a9379b9a4a2a66dfcf09"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_cd2b9c756872449fa5f9"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_ce98334332cf9fd008cf"
+                },
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_e9affda7a1c9e07fe6f6"
+                },
+                {
+                  "name": "HurwitzZeta.cosZeta_zero",
+                  "signature": "lemma HurwitzZeta.cosZeta_zero : cosZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 125,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_9896f103688332000b41"
+                },
+                {
+                  "name": "HurwitzZeta.expZeta_zero",
+                  "signature": "lemma HurwitzZeta.expZeta_zero : expZeta 0 = riemannZeta",
+                  "source": "RiemannZeta.lean",
+                  "line": 133,
+                  "score": 20.5,
+                  "discovery_id": "mathlib_946d9a35cad8d454c9f8"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 4.883
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": true,
+            "claim_ids": [],
+            "capsule_ids": []
+          },
+          "passed": false
+        },
+        {
+          "task_id": "retained_zero_strict_upper_boundary",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "0c83723383d4fd36e41dcb66103684e0688e64264149696bc5893a108988b11c",
+              "proof": "intro s h\nhave h1 : s ≠ 1 := by\n  intro h_eq\n  rw [h_eq, riemannZeta_one] at h\n  exact one_ne_zero h\napply riemannZeta.zero_imp_re_lt_one h1 h",
+              "provider": {
+                "response_id": "resp_09cc7c9a48262c34006a80248807c08194bf256bce44fbaa7c",
+                "usage": {
+                  "input_tokens": 162,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 61,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 223
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpuri4wnrz.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ns : ℂ\nhz : riemannZeta s = 0\n⊢ s.re < 1",
+                "source_hash": "fe67de99fbf4fcbb5cf8e4ff5a99ccabd72e2fce39e584295e098d90e5d65979"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.629
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "35f2aa54948a389822a20a813933816301b63a01c0ae344c02a29fb3ef1c79ea",
+              "proof": "intro s hz\nby_contra h\nhave h1 : 1 ≤ s.re := not_lt.mp h\nhave hne1 : s ≠ 1 := by\n  intro h_eq\n  rw [h_eq, riemannZeta_one] at hz\n  exact one_ne_zero hz\nhave hpos : 1 < s.re ∨ s.re = 1 := lt_or_eq_of_le h1\ncases hpos\ncase inl hlt {\n  -- s.re > 1: riemannZeta is nonzero in this region\n  have hne : riemannZeta s ≠ 0 := riemannZeta.ne_zero_of_one_lt_re hlt\n  exact hne hz\n}\ncase inr heq {\n  -- s.re = 1: s = 1 + it for some t, but riemannZeta has a simple pole at s = 1\n  rw [heq] at hne1\n  have : s = 1 ↔ s.re = 1 ∧ s.im = 0 := by exact Complex.ext_iff.trans (and.congr_right (λ _, iff.rfl))\n  by_cases him : s.im = 0\n  { rw [this] at him; rw [him.left, him.right] at hne1; exact hne1 rfl }\n  { -- s ≠ 1, s.re = 1, s.im ≠ 0\n    have hne : riemannZeta s ≠ 0 := riemannZeta.ne_zero_of_re_eq_one_of_im_ne_zero heq him\n    exact hne hz }\n}",
+              "provider": {
+                "response_id": "resp_0b23b88570c8329d006a80248da8a48195bc30a4fef397a74a",
+                "usage": {
+                  "input_tokens": 634,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 359,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 993
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpvlvfc9bm.lean:6:8: error: Tactic `introN` failed: There are no additional binders or `let` bindings in the goal to introduce\n\ns : ℂ\nhz : riemannZeta s = 0\n⊢ s.re < 1\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpvlvfc9bm.lean:15:15: error: unexpected token '{'; expected command",
+                "source_hash": "0c73d1a4dbea94711dcc04f09fe56bfa193d6d49e94077504fe604baedb4d181"
+              },
+              "repair_record": {
+                "task_id": "retained_zero_strict_upper_boundary",
+                "attempt": 1,
+                "category": "unclassified_failure",
+                "diagnostic_sha256": "2ac121098a95454ab87f7a3889cf89f18eb484110ddffe9662b350dee0524dd8",
+                "instruction": "Abandon the failed branch and construct a materially different, minimal proof.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_d46adb499638a02f2284"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 30.5,
+                  "discovery_id": "mathlib_609cac619c583cc821e1"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_ce98334332cf9fd008cf"
+                },
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 28.0,
+                  "discovery_id": "mathlib_e9affda7a1c9e07fe6f6"
+                },
+                {
+                  "name": "differentiableAt_riemannZeta",
+                  "signature": "theorem differentiableAt_riemannZeta {s : ℂ} (hs' : s ≠ 1) : DifferentiableAt ℂ riemannZeta s",
+                  "source": "RiemannZeta.lean",
+                  "line": 139,
+                  "score": 22.5,
+                  "discovery_id": "mathlib_949bce9df6477ad16650"
+                },
+                {
+                  "name": "differentiableOn_riemannZeta",
+                  "signature": "lemma differentiableOn_riemannZeta : DifferentiableOn ℂ riemannZeta {1}ᶜ",
+                  "source": "RiemannZeta.lean",
+                  "line": 142,
+                  "score": 22.5,
+                  "discovery_id": "mathlib_5acb49343fb12c316a05"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 6.762
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": true,
+            "claim_ids": [],
+            "capsule_ids": []
+          },
+          "passed": false
+        },
+        {
+          "task_id": "retained_zeta_analytic",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "7a78eecf86da73a0dbfe825eb4115046c38e54e51790f545ca5fde2006a40833",
+              "proof": "apply Complex.analyticOn_riemannZeta",
+              "provider": {
+                "response_id": "resp_0fed82860156bcc4006a8024946b448197b23e61299a9b18e9",
+                "usage": {
+                  "input_tokens": 153,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 15,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 168
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpnnzzbcop.lean:6:8: error(lean.unknownIdentifier): Unknown constant `Complex.analyticOn_riemannZeta`",
+                "source_hash": "efc58cdb1fb040225d542d1b6afbe7664361c5e9bcbe0756159559c2af332595"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 4.609
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "a83a82a5589b26b7cae3ddd2628b81d18bf30fd7f1e9f5208e38174fa4e6cf25",
+              "proof": "exact analyticOn_riemannZeta",
+              "provider": {
+                "response_id": "resp_0e0f5b9fdf1cd75d006a80249906948197b5fd6c0d18f7e952",
+                "usage": {
+                  "input_tokens": 602,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 13,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 615
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "26175d6317c622fd88fba24744c51714933faf0cb1cd5de84655edca0f54039d"
+              },
+              "repair_record": {
+                "task_id": "retained_zeta_analytic",
+                "attempt": 1,
+                "category": "unknown_theorem",
+                "diagnostic_sha256": "caa9dc461a0fdd27affdd4740bb216866b88098d55e5bbd9b71b385caf02fec6",
+                "instruction": "Search the installed Mathlib catalogue, inspect the exact signature, and replace invented names.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_7cb977761ca177dd55cb"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "analyticOn_riemannZeta",
+                  "signature": "lemma analyticOn_riemannZeta : AnalyticOnNhd ℂ riemannZeta {1}ᶜ",
+                  "source": "RiemannZeta.lean",
+                  "line": 146,
+                  "score": 34.5,
+                  "discovery_id": "mathlib_bff0b023947a08cb0b28"
+                },
+                {
+                  "name": "differentiableOn_riemannZeta",
+                  "signature": "lemma differentiableOn_riemannZeta : DifferentiableOn ℂ riemannZeta {1}ᶜ",
+                  "source": "RiemannZeta.lean",
+                  "line": 142,
+                  "score": 27.5,
+                  "discovery_id": "mathlib_296c06592d55e5f47ad8"
+                },
+                {
+                  "name": "zeta_nat_eq_tsum_of_gt_one",
+                  "signature": "theorem zeta_nat_eq_tsum_of_gt_one {k : ℕ} (hk : 1 < k) : riemannZeta k = ∑' n : ℕ, 1 / (n : ℂ) ^ k",
+                  "source": "RiemannZeta.lean",
+                  "line": 223,
+                  "score": 26.5,
+                  "discovery_id": "mathlib_7d126375c9b44a41f75a"
+                },
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 24.5,
+                  "discovery_id": "mathlib_43916d0ca09b42853ef3"
+                },
+                {
+                  "name": "riemannZeta_one_sub",
+                  "signature": "theorem riemannZeta_one_sub {s : ℂ} (hs : ∀ n : ℕ, s ≠ -n) (hs' : s ≠ 1) : riemannZeta (1 - s) = 2 * (2 * π) ^ (-s) * Gamma s * cos (π * s / 2) * riemannZeta s",
+                  "source": "RiemannZeta.lean",
+                  "line": 178,
+                  "score": 24.5,
+                  "discovery_id": "mathlib_7614af2557781d87d0cd"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 4.659
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": true,
+            "claim_ids": [],
+            "capsule_ids": []
+          },
+          "passed": true
+        },
+        {
+          "task_id": "retained_zeta_real_axis",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "14df7ada28fdfad9804072592b3927fe125fc480b6aed1f30d48645951ab1504",
+              "proof": "have hx : 1 < x := by assumption\n  rw [riemannZeta_eq_tsum_one_div_nat_cast_pow],\n  have hconv : Summable (λ n : ℕ, (1 / (n + 1 : ℝ) ^ x)) := summable_one_div_nat_cast_pow_of_one_lt x hx,\n  have hreal : ∀ n : ℕ, (1 / (n + 1 : ℝ) ^ x : ℂ).im = 0 := by\n    intro n\n    simp only [ofReal_pow, ofReal_div, ofReal_one, Complex.im_ofReal],\n  rw [tsum_congr hreal],\n  simp only [tsum_zero],\n  exact rfl,",
+              "provider": {
+                "response_id": "resp_02bbcbc6d7e039bf006a80249db0d88196b59365cf6f2401f1",
+                "usage": {
+                  "input_tokens": 163,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 169,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 332
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpqjb4438o.lean:5:81: error: unsolved goals\nx : ℝ\nhx✝ hx : 1 < x\n⊢ (riemannZeta ↑x).im = 0\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpqjb4438o.lean:7:4: error: unexpected identifier; expected command",
+                "source_hash": "95b10a579e389f94f25224259146bfb97003235aa32c21ef96d4be17021cbcfb"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.495
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "35b7f484723fe35a5e58eb649d0ae403da46b4ab4377330c3592e4ea5158ac2b",
+              "proof": "apply riemannZeta_im_eq_zero_of_one_lt",
+              "provider": {
+                "response_id": "resp_0b79e993a804ace2006a8024a33d8887d2b61062735481ddb7",
+                "usage": {
+                  "input_tokens": 831,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 16,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 847
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpukbfjdgs.lean:5:81: error: unsolved goals\nx : ℝ\nhx : 1 < x\n⊢ 1 < x",
+                "source_hash": "fa4908b9d4642a9b747a67d4ffa5b6e2d7fcd4a8188a6f0f2ebcc77c263ee47b"
+              },
+              "repair_record": {
+                "task_id": "retained_zeta_real_axis",
+                "attempt": 1,
+                "category": "syntax_failure",
+                "diagnostic_sha256": "3259171d9b59045485ede33d91f162911c23ca2db4bdb595206321b4543ae8ba",
+                "instruction": "Correct Lean tactic syntax and return one well-indented tactic body.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_43341360aebe31d09e9e"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "riemannZeta_im_eq_zero_of_one_lt",
+                  "signature": "lemma riemannZeta_im_eq_zero_of_one_lt {x : ℝ} (hx : 1 < x) : (riemannZeta x).im = 0",
+                  "source": "Dirichlet.lean",
+                  "line": 347,
+                  "score": 38.0,
+                  "discovery_id": "mathlib_acf2b3b09204a7578bfc"
+                },
+                {
+                  "name": "riemannZeta_neg_two_mul_nat_add_one",
+                  "signature": "theorem riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * (n + 1)) = 0",
+                  "source": "RiemannZeta.lean",
+                  "line": 173,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_cd2b9c756872449fa5f9"
+                },
+                {
+                  "name": "zeta_eq_tsum_one_div_nat_add_one_cpow",
+                  "signature": "theorem zeta_eq_tsum_one_div_nat_add_one_cpow {s : ℂ} (hs : 1 < re s) : riemannZeta s = ∑' n : ℕ, 1 / (n + 1 : ℂ) ^ s",
+                  "source": "RiemannZeta.lean",
+                  "line": 214,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_eada301b47d19bdb194f"
+                },
+                {
+                  "name": "zeta_eq_tsum_one_div_nat_cpow",
+                  "signature": "theorem zeta_eq_tsum_one_div_nat_cpow {s : ℂ} (hs : 1 < re s) : riemannZeta s = ∑' n : ℕ, 1 / (n : ℂ) ^ s",
+                  "source": "RiemannZeta.lean",
+                  "line": 207,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_2b492fda22b25a823273"
+                },
+                {
+                  "name": "zeta_nat_eq_tsum_of_gt_one",
+                  "signature": "theorem zeta_nat_eq_tsum_of_gt_one {k : ℕ} (hk : 1 < k) : riemannZeta k = ∑' n : ℕ, 1 / (n : ℂ) ^ k",
+                  "source": "RiemannZeta.lean",
+                  "line": 223,
+                  "score": 28.5,
+                  "discovery_id": "mathlib_82e8f1014cfbdb8574fa"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 6.475
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": true,
+            "claim_ids": [],
+            "capsule_ids": []
+          },
+          "passed": false
+        },
+        {
+          "task_id": "retained_zeta_zero_set_closed",
+          "attempts": [
+            {
+              "attempt": 1,
+              "prompt_hash": "25b464184f572292882b472bc19131a3cdaf24b521747026508cd64c11f82771",
+              "proof": "rw [Metric.isClosed_iff],\n  intros x hx,\n  rw [riemannZetaZeros, Set.mem_setOf_eq] at hx ⊢,\n  have h : ∀ ε > 0, ∃ y, y ≠ x ∧ Complex.abs (y - x) < ε ∧ riemannZeta y = 0,\n  { intros ε ε_pos,\n    specialize hx ε ε_pos,\n    rcases hx with ⟨y, hy, hyx, hyz⟩,\n    exact ⟨y, hy, hyx, hyz⟩ },\n  by_contra h',\n  push_neg at h',\n  have h_cont : ContinuousAt riemannZeta x := riemannZeta.continuous.continuous_at,\n  have h_val : riemannZeta x = 0,\n  { apply isSeqClosed_of_continuousAt_zero_of_zeros,\n    exact h_cont,\n    exact h },\n  exact h' h_val,",
+              "provider": {
+                "response_id": "resp_08df07ca20e8aa27006a8024a9b2d881978a2756e7f9261a54",
+                "usage": {
+                  "input_tokens": 154,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 236,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 390
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": false,
+                "returncode": 1,
+                "diagnostic": "/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpkpq8khzq.lean:6:6: error(lean.unknownIdentifier): Unknown identifier `Metric.isClosed_iff`\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpkpq8khzq.lean:5:69: error: unsolved goals\n⊢ IsClosed riemannZetaZeros\n/Users/kevinrobinson/dev/COMDEX/research/riemann_lab/tmpkpq8khzq.lean:6:26: error: unexpected token ','; expected command",
+                "source_hash": "fe793376a4a83dddeb1c1885c53c1799278cca3733a5950f83e2713a3ed1a683"
+              },
+              "repair_record": null,
+              "theorem_discovery": [],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 6.654
+            },
+            {
+              "attempt": 2,
+              "prompt_hash": "6dcb6331b2d0f1859e54112ba767bb30f51786fdfab347fca1fef1ae635aa82e",
+              "proof": "exact isClosed_riemannZetaZeros",
+              "provider": {
+                "response_id": "resp_00164df81bebae83006a8024b051d087d18a3690783d8b0fa4",
+                "usage": {
+                  "input_tokens": 816,
+                  "input_tokens_details": {
+                    "cache_write_tokens": 0,
+                    "cached_tokens": 0
+                  },
+                  "output_tokens": 14,
+                  "output_tokens_details": {
+                    "reasoning_tokens": 0
+                  },
+                  "total_tokens": 830
+                },
+                "model": "gpt-4.1-2025-04-14",
+                "status": "completed",
+                "incomplete_details": null
+              },
+              "verification": {
+                "passed": true,
+                "returncode": 0,
+                "diagnostic": "",
+                "source_hash": "20b89ab9b3944b5df9667a4af6be6a56f4a71f8b1563e57bfc4007f2b92e16e7"
+              },
+              "repair_record": {
+                "task_id": "retained_zeta_zero_set_closed",
+                "attempt": 1,
+                "category": "unknown_theorem",
+                "diagnostic_sha256": "4f4f961be335192f755089849076f32605b8a01be943df8d24eea210ca898251",
+                "instruction": "Search the installed Mathlib catalogue, inspect the exact signature, and replace invented names.",
+                "max_next_attempts": 1,
+                "repair_record_id": "lean_repair_ec762cc52bae56569c0c"
+              },
+              "theorem_discovery": [
+                {
+                  "name": "isClosed_riemannZetaZeros",
+                  "signature": "lemma isClosed_riemannZetaZeros : IsClosed riemannZetaZeros",
+                  "source": "ZetaZeros.lean",
+                  "line": 57,
+                  "score": 42.0,
+                  "discovery_id": "mathlib_742d8dff6fe1217a8869"
+                },
+                {
+                  "name": "IsCompact.inter_riemannZetaZeros_finite",
+                  "signature": "lemma IsCompact.inter_riemannZetaZeros_finite {S : Set ℂ} (hS : IsCompact S) : (S ∩ riemannZetaZeros).Finite",
+                  "source": "ZetaZeros.lean",
+                  "line": 64,
+                  "score": 35.0,
+                  "discovery_id": "mathlib_18a22db1c9e4e6159f81"
+                },
+                {
+                  "name": "isDiscrete_riemannZetaZeros",
+                  "signature": "lemma isDiscrete_riemannZetaZeros : IsDiscrete riemannZetaZeros",
+                  "source": "ZetaZeros.lean",
+                  "line": 60,
+                  "score": 35.0,
+                  "discovery_id": "mathlib_6c1e20a10ae141646ccc"
+                },
+                {
+                  "name": "tendsto_riemannZeta_cofinite_cocompact",
+                  "signature": "lemma tendsto_riemannZeta_cofinite_cocompact : Tendsto ((↑) : riemannZetaZeros → ℂ) cofinite (cocompact ℂ)",
+                  "source": "ZetaZeros.lean",
+                  "line": 70,
+                  "score": 35.0,
+                  "discovery_id": "mathlib_94e2cea4b922b9268700"
+                },
+                {
+                  "name": "mem_riemannZetaZeros",
+                  "signature": "lemma mem_riemannZetaZeros {z : ℂ} : z ∈ riemannZetaZeros ↔ riemannZeta z = 0",
+                  "source": "ZetaZeros.lean",
+                  "line": 35,
+                  "score": 33.0,
+                  "discovery_id": "mathlib_42be1470239b8c773254"
+                }
+              ],
+              "infrastructure_failure": false,
+              "elapsed_seconds": 5.421
+            }
+          ],
+          "memory_retrieval": {
+            "enabled": true,
+            "isolated_state": true,
+            "claim_ids": [],
+            "capsule_ids": []
+          },
+          "passed": true
+        }
+      ],
+      "passed": 3,
+      "total": 6,
+      "success_rate": 0.5,
+      "model_calls": 12
+    }
+  ],
+  "completed_at": "2026-08-15T08:35:01.534782+00:00",
+  "duration_seconds": 128.358,
+  "precommitted_decision": {
+    "criterion_met": false,
+    "full_aion_score": 2,
+    "absolute_minimum": 4,
+    "required_margin": 1,
+    "comparator_scores": {
+      "cold_aion": 3
+    },
+    "infrastructure_failures": 1,
+    "infrastructure_failures_allowed": 0,
+    "interpretation": "The precommitted operational superiority criterion was not met; no superiority claim is supported."
+  },
+  "all_infrastructure_checks_passed": false
+}

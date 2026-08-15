@@ -23,7 +23,7 @@
         "rh_lean_053ff73c7bdb160c6f5e"
       ],
       "object": "{\"lean_returncode\": 0, \"method_pattern\": \"Apply the verified compact-intersection finiteness theorem for the zeta zero set.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.ZetaZeros\"], \"statement\": \"Every compact S : Set ℂ has finite intersection with riemannZetaZeros\", \"task_id\": \"catalog_compact_zero_set_finite\", \"theorem_signature\": \"IsCompact.inter_riemannZetaZeros_finite {S : Set ℂ} (hS : IsCompact S) : (S ∩ riemannZetaZeros).Finite\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.800785+00:00",
+      "observed_at": "2026-08-15T08:31:12.372008+00:00",
       "predicate": "has compiler verified Lean method",
       "revision": 1,
       "schema_version": "aion.hexcore.knowledge_claim.v1",
@@ -38,7 +38,7 @@
         "rh_lean_056b6dc1b8be244e2c35"
       ],
       "object": "{\"lean_returncode\": 0, \"method_pattern\": \"Use the verified right-half-plane nonvanishing theorem or its order-theoretic contrapositive.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.Dirichlet\"], \"statement\": \"For s : ℂ with 1 < s.re, riemannZeta s ≠ 0\", \"task_id\": \"zero_free_right_half_plane\", \"theorem_signature\": \"riemannZeta_ne_zero_of_one_lt_re {s : ℂ} (hs : 1 < s.re) : riemannZeta s ≠ 0\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.796826+00:00",
+      "observed_at": "2026-08-15T08:31:12.367886+00:00",
       "predicate": "has compiler verified Lean method",
       "revision": 1,
       "schema_version": "aion.hexcore.knowledge_claim.v1",
@@ -53,7 +53,7 @@
         "rh_lean_c9f648ab39a4d482b725"
       ],
       "object": "{\"lean_returncode\": 0, \"method_pattern\": \"Specialize the verified indexed trivial-zero family, then normalize the complex argument.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.RiemannZeta\"], \"statement\": \"For n : ℕ, riemannZeta (-2 * ((n : ℂ) + 1)) = 0\", \"task_id\": \"trivial_zero_family\", \"theorem_signature\": \"riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * ((n : ℂ) + 1)) = 0\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.795509+00:00",
+      "observed_at": "2026-08-15T08:31:12.366642+00:00",
       "predicate": "has compiler verified Lean method",
       "revision": 1,
       "schema_version": "aion.hexcore.knowledge_claim.v1",
@@ -68,7 +68,7 @@
         "rh_lean_9c703b767dfab116a532"
       ],
       "object": "{\"lean_returncode\": 0, \"method_pattern\": \"Apply the verified real-axis positivity theorem under the strict right-half-plane hypothesis.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.Dirichlet\"], \"statement\": \"For x : ℝ with 1 < x, 0 < (riemannZeta x).re\", \"task_id\": \"catalog_real_part_positive\", \"theorem_signature\": \"riemannZeta_re_pos_of_one_lt {x : ℝ} (hx : 1 < x) : 0 < (riemannZeta x).re\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.799426+00:00",
+      "observed_at": "2026-08-15T08:31:12.370578+00:00",
       "predicate": "has compiler verified Lean method",
       "revision": 1,
       "schema_version": "aion.hexcore.knowledge_claim.v1",
@@ -83,7 +83,7 @@
         "rh_lean_213bc1c575945fe9b010"
       ],
       "object": "{\"lean_returncode\": 0, \"method_pattern\": \"Rewrite with the verified zeta special value, then normalize scalar arithmetic.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.RiemannZeta\"], \"statement\": \"riemannZeta 0 = -(1 : ℂ) / 2\", \"task_id\": \"zeta_at_zero\", \"theorem_signature\": \"riemannZeta_zero : riemannZeta 0 = -(1 : ℂ) / 2\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.794094+00:00",
+      "observed_at": "2026-08-15T08:31:12.364941+00:00",
       "predicate": "has compiler verified Lean method",
       "revision": 1,
       "schema_version": "aion.hexcore.knowledge_claim.v1",
@@ -98,7 +98,7 @@
         "rh_lean_836c1d3c8a4db2028198"
       ],
       "object": "{\"lean_returncode\": 0, \"method_pattern\": \"Apply the verified pointwise differentiability theorem with the exclusion of the pole.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.RiemannZeta\"], \"statement\": \"For s : ℂ with s ≠ 1, riemannZeta is differentiable at s\", \"task_id\": \"catalog_differentiable_away_from_one\", \"theorem_signature\": \"differentiableAt_riemannZeta {s : ℂ} (hs : s ≠ 1) : DifferentiableAt ℂ riemannZeta s\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.798108+00:00",
+      "observed_at": "2026-08-15T08:31:12.369163+00:00",
       "predicate": "has compiler verified Lean method",
       "revision": 1,
       "schema_version": "aion.hexcore.knowledge_claim.v1",
@@ -153,7 +153,7 @@
       ],
       "confidence": 1.0,
       "content": "{\"lean_returncode\": 0, \"method_pattern\": \"Apply the verified compact-intersection finiteness theorem for the zeta zero set.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.ZetaZeros\"], \"statement\": \"Every compact S : Set ℂ has finite intersection with riemannZetaZeros\", \"task_id\": \"catalog_compact_zero_set_finite\", \"theorem_signature\": \"IsCompact.inter_riemannZetaZeros_finite {S : Set ℂ} (hS : IsCompact S) : (S ∩ riemannZetaZeros).Finite\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.800785+00:00",
+      "observed_at": "2026-08-15T08:31:12.372008+00:00",
       "schema_version": "aion.hexcore.evidence_capsule.v1",
       "source_uri": "scripts/aion_riemann_local_verify.py#CATALOG/catalog_compact_zero_set_finite",
       "verified": true
@@ -171,7 +171,7 @@
       ],
       "confidence": 1.0,
       "content": "{\"lean_returncode\": 0, \"method_pattern\": \"Use the verified right-half-plane nonvanishing theorem or its order-theoretic contrapositive.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.Dirichlet\"], \"statement\": \"For s : ℂ with 1 < s.re, riemannZeta s ≠ 0\", \"task_id\": \"zero_free_right_half_plane\", \"theorem_signature\": \"riemannZeta_ne_zero_of_one_lt_re {s : ℂ} (hs : 1 < s.re) : riemannZeta s ≠ 0\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.796826+00:00",
+      "observed_at": "2026-08-15T08:31:12.367886+00:00",
       "schema_version": "aion.hexcore.evidence_capsule.v1",
       "source_uri": "scripts/aion_riemann_local_verify.py#CATALOG/zero_free_right_half_plane",
       "verified": true
@@ -189,7 +189,7 @@
       ],
       "confidence": 1.0,
       "content": "{\"lean_returncode\": 0, \"method_pattern\": \"Rewrite with the verified zeta special value, then normalize scalar arithmetic.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.RiemannZeta\"], \"statement\": \"riemannZeta 0 = -(1 : ℂ) / 2\", \"task_id\": \"zeta_at_zero\", \"theorem_signature\": \"riemannZeta_zero : riemannZeta 0 = -(1 : ℂ) / 2\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.794094+00:00",
+      "observed_at": "2026-08-15T08:31:12.364941+00:00",
       "schema_version": "aion.hexcore.evidence_capsule.v1",
       "source_uri": "scripts/aion_riemann_local_verify.py#CATALOG/zeta_at_zero",
       "verified": true
@@ -207,7 +207,7 @@
       ],
       "confidence": 1.0,
       "content": "{\"lean_returncode\": 0, \"method_pattern\": \"Apply the verified pointwise differentiability theorem with the exclusion of the pole.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.RiemannZeta\"], \"statement\": \"For s : ℂ with s ≠ 1, riemannZeta is differentiable at s\", \"task_id\": \"catalog_differentiable_away_from_one\", \"theorem_signature\": \"differentiableAt_riemannZeta {s : ℂ} (hs : s ≠ 1) : DifferentiableAt ℂ riemannZeta s\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.798108+00:00",
+      "observed_at": "2026-08-15T08:31:12.369163+00:00",
       "schema_version": "aion.hexcore.evidence_capsule.v1",
       "source_uri": "scripts/aion_riemann_local_verify.py#CATALOG/catalog_differentiable_away_from_one",
       "verified": true
@@ -225,7 +225,7 @@
       ],
       "confidence": 1.0,
       "content": "{\"lean_returncode\": 0, \"method_pattern\": \"Apply the verified real-axis positivity theorem under the strict right-half-plane hypothesis.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.Dirichlet\"], \"statement\": \"For x : ℝ with 1 < x, 0 < (riemannZeta x).re\", \"task_id\": \"catalog_real_part_positive\", \"theorem_signature\": \"riemannZeta_re_pos_of_one_lt {x : ℝ} (hx : 1 < x) : 0 < (riemannZeta x).re\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.799426+00:00",
+      "observed_at": "2026-08-15T08:31:12.370578+00:00",
       "schema_version": "aion.hexcore.evidence_capsule.v1",
       "source_uri": "scripts/aion_riemann_local_verify.py#CATALOG/catalog_real_part_positive",
       "verified": true
@@ -243,7 +243,7 @@
       ],
       "confidence": 1.0,
       "content": "{\"lean_returncode\": 0, \"method_pattern\": \"Specialize the verified indexed trivial-zero family, then normalize the complex argument.\", \"proof_body_retained\": false, \"required_imports\": [\"Mathlib.NumberTheory.LSeries.RiemannZeta\"], \"statement\": \"For n : ℕ, riemannZeta (-2 * ((n : ℂ) + 1)) = 0\", \"task_id\": \"trivial_zero_family\", \"theorem_signature\": \"riemannZeta_neg_two_mul_nat_add_one (n : ℕ) : riemannZeta (-2 * ((n : ℂ) + 1)) = 0\", \"verified_source_sha256\": \"085eb181d967299e98aecdd7cc8a82a6f0c4915d753bc09952972a657b67c366\"}",
-      "observed_at": "2026-08-14T23:51:41.795509+00:00",
+      "observed_at": "2026-08-15T08:31:12.366642+00:00",
       "schema_version": "aion.hexcore.evidence_capsule.v1",
       "source_uri": "scripts/aion_riemann_local_verify.py#CATALOG/trivial_zero_family",
       "verified": true
@@ -287,7 +287,7 @@
       "source": "pinned_lean_kernel_and_mathlib"
     },
     "reason": "knowledge_ingest:rh_lean_053ff73c7bdb160c6f5e",
-    "state_hash": "6d7e395ac8f0fb7da1bf85d2906a9b39b16755fbc89424a089377f2aedae3468"
+    "state_hash": "2a7bbb482598ddf9dc990ef41a416e97c8b7c52f844fa4df32da59c243f6b966"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -381,7 +381,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-08-14T23:51:41.801026+00:00",
+  "updated_at": "2026-08-15T08:31:12.372251+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},

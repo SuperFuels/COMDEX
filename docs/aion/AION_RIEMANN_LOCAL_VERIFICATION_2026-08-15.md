@@ -2,7 +2,7 @@
 
 **Completed:** 15 August 2026  
 **Authority:** Lean 4.24.0 kernel and Mathlib v4.32.1  
-**Provider/API calls:** 0  
+**Local-preflight API calls:** 0
 **Result:** PASS
 
 ## Outcome
@@ -54,3 +54,26 @@ independent sealing review confirms source closure and delayed-retention timing.
 This work establishes a trusted local experiment path. It establishes neither
 an AION advantage nor new RH-relevant mathematics. It does not solve the
 Riemann Hypothesis.
+
+## Delayed retention outcome
+
+After the 08:00 UTC gate released, all six source-closed tasks and the pinned
+environment were locally reverified. A ready copy was machine-sealed without
+oracle proof bodies. The runner explicitly ignored the process-level API key
+and used the repository credential. Exactly one two-arm comparison ran.
+
+- AION memory plus repair: **2/6**.
+- Isolated cold AION: **3/6**.
+- Model calls: **24**; total tokens: **15,704**.
+- Infrastructure incidents: **1** incomplete structured provider output.
+
+The memory-and-repair arm missed the 4/6 absolute floor, trailed the cold arm,
+and violated the precommitted zero-incident condition. No delayed-retention
+advantage or AION superiority is established.
+
+Retention evidence hashes:
+
+- ready packet: `2a103a6634f2819e5320f68f4aa20790691d422bbbc26b299082e004b095530a`;
+- machine seal: `49d8142a93100005fafa01de8bbe2635a9d08be3cf86375c915db19ae8487c57`;
+- paid result: `875a5248dbc1e4f8d161c71930b78c7bf7839bd94406ff350cd6e47b1f37bcbd`;
+- one-shot receipt: `0d5c959f081bbb74da112dc435abb9809942bc8921940195dad8d9fe7ab19571`.

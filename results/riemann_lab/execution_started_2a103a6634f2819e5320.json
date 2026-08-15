@@ -1,0 +1,8 @@
+{
+  "packet_sha256": "2a103a6634f2819e5320f68f4aa20790691d422bbbc26b299082e004b095530a",
+  "started_at": "2026-08-15T08:32:53.177090+00:00",
+  "completed_at": "2026-08-15T08:35:01.534782+00:00",
+  "status": "completed",
+  "result": "results/riemann_lab/live_exam_20260815T083253Z.json",
+  "result_sha256": "875a5248dbc1e4f8d161c71930b78c7bf7839bd94406ff350cd6e47b1f37bcbd"
+}
