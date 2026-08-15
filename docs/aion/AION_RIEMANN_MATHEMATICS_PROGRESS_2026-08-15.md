@@ -391,3 +391,25 @@ cancelled.  Full verification passes with **3,684 jobs**.  What remains in
 this local substep is the Gaussian three-lines propagation from `Re(s)=4` to
 `Re(s)=6` (and the functional-equation transfer on the left), not any further
 Gamma asymptotic.
+
+## 15 August continuation: full Jensen-circle propagation
+
+`ExtendedXiStrip.lean` now completes the Gaussian-regularized Hadamard
+propagation on `4 <= Re(s) <= 6`, removes the regulator, and proves the sharp
+polynomial-times-exponential xi estimate throughout the extension strip.
+Together with the earlier `-3 <= Re(s) <= 4` theorem, this covers the complete
+radius-four Jensen circle centred at `2+iT`.  Commit: `d3249ebf`.
+
+`SharpJensenZeroCount.lean` performs the complete circle geometry and
+instantiates Mathlib's Jensen theorem with the sharp boundary majorant and
+verified nonzero centre.  The radius-three xi divisor therefore has a fully
+quantitative Jensen bound with no remaining boundary-growth interface.  Full
+verification passes with **3,685 jobs**, no `sorry`, no `admit`, and no new
+axioms.  Commit: `6e339453`.
+
+The next theorem is the asymptotic simplification of this verified quotient
+using the already-proved Möbius lower bound and exact centre Gamma estimate.
+Only after that quotient is proved `O(log T)` may the local zero count be
+stated asymptotically.  Quantitative gap selection, the partial-fraction
+logarithmic-derivative estimate, expanding horizontal edges, and the
+displaced-left limit remain downstream; none is claimed at this checkpoint.
