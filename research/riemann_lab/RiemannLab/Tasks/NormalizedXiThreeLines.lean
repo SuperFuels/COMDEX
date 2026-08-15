@@ -2,7 +2,7 @@ import RiemannLab.Tasks.ComplexGammaVertical
 
 namespace RiemannLab
 
-open Complex Set
+open Complex Set Filter Topology
 open scoped LSeries.notation
 
 /-!
@@ -554,5 +554,236 @@ theorem norm_upperWeightedNormalizedXi_left_le (T : ℝ) :
       _ ≤ upperWeightedXiLeftBound := by
         unfold upperWeightedXiLeftBound
         linarith [normalizedXiStripBound_nonneg]
+
+/-- Gaussian regularization used to apply the bounded version of Hadamard's
+three-lines theorem. -/
+noncomputable def gaussianRegularizedUpperXi (ε : ℝ) (s : ℂ) : ℂ :=
+  Complex.exp ((ε : ℂ) * s ^ 2) * upperWeightedNormalizedXi s
+
+theorem norm_gaussianFactor (ε : ℝ) (s : ℂ) :
+    ‖Complex.exp ((ε : ℂ) * s ^ 2)‖ =
+      Real.exp (ε * (s.re ^ 2 - s.im ^ 2)) := by
+  rw [Complex.norm_exp]
+  congr 1
+  simp [pow_two, Complex.mul_re]
+
+theorem differentiableOn_gaussianRegularizedUpperXi_closure (ε : ℝ) :
+    DifferentiableOn ℂ (gaussianRegularizedUpperXi ε)
+      (closure xiVerticalStrip) := by
+  intro s hs
+  apply DifferentiableAt.differentiableWithinAt
+  unfold gaussianRegularizedUpperXi
+  have hupper : DifferentiableAt ℂ upperWeightedNormalizedXi s := by
+    unfold upperWeightedNormalizedXi normalizedRiemannXi
+    have hden : s + 4 ≠ 0 :=
+      add_four_ne_zero_of_mem_xiVerticalClosedStrip
+        (closure_xiVerticalStrip_subset hs)
+    exact (Complex.differentiable_exp.differentiableAt.comp s
+      (((differentiable_const (-I * (Real.pi : ℂ) / 4)).mul
+        differentiable_id).differentiableAt)).mul
+      (differentiable_riemannXiEntire.differentiableAt.div
+        ((differentiable_id.add_const 4).pow 4).differentiableAt
+        (pow_ne_zero 4 hden))
+  exact (Complex.differentiable_exp.differentiableAt.comp s
+    (((differentiable_const (ε : ℂ)).mul
+      (differentiable_id.pow 2)).differentiableAt)).mul hupper
+
+theorem diffContOnCl_gaussianRegularizedUpperXi (ε : ℝ) :
+    DiffContOnCl ℂ (gaussianRegularizedUpperXi ε) xiVerticalStrip :=
+  (differentiableOn_gaussianRegularizedUpperXi_closure ε).diffContOnCl
+
+noncomputable def gaussianRegularizedXiBound (ε : ℝ) : ℝ :=
+  Real.exp (16 * ε + (Real.pi / 4) ^ 2 / (4 * ε)) *
+    normalizedXiStripBound
+
+theorem norm_gaussianRegularizedUpperXi_le
+    {ε : ℝ} (hε : 0 < ε) {s : ℂ} (hs : s ∈ xiVerticalClosedStrip) :
+    ‖gaussianRegularizedUpperXi ε s‖ ≤ gaussianRegularizedXiBound ε := by
+  have hnorm := norm_normalizedRiemannXi_le_of_mem hs
+  change ‖normalizedRiemannXi s‖ ≤ normalizedXiStripBound at hnorm
+  have hreSq : s.re ^ 2 ≤ 16 := by
+    change -3 ≤ s.re ∧ s.re ≤ 4 at hs
+    nlinarith [sq_nonneg (s.re + 3), sq_nonneg (4 - s.re)]
+  have hquad : -ε * s.im ^ 2 + (Real.pi / 4) * s.im ≤
+      (Real.pi / 4) ^ 2 / (4 * ε) := by
+    have hsq := sq_nonneg (2 * ε * s.im - Real.pi / 4)
+    apply (le_div_iff₀ (by positivity : 0 < 4 * ε)).2
+    nlinarith
+  have hexpArg : ε * (s.re ^ 2 - s.im ^ 2) +
+      Real.pi * s.im / 4 ≤
+      16 * ε + (Real.pi / 4) ^ 2 / (4 * ε) := by
+    nlinarith
+  unfold gaussianRegularizedUpperXi
+  rw [norm_mul, norm_gaussianFactor]
+  unfold upperWeightedNormalizedXi
+  rw [norm_mul, norm_upperWeight]
+  unfold gaussianRegularizedXiBound
+  calc
+    Real.exp (ε * (s.re ^ 2 - s.im ^ 2)) *
+        (Real.exp (Real.pi * s.im / 4) * ‖normalizedRiemannXi s‖) =
+        Real.exp (ε * (s.re ^ 2 - s.im ^ 2) + Real.pi * s.im / 4) *
+          ‖normalizedRiemannXi s‖ := by rw [Real.exp_add]; ring
+    _ ≤ Real.exp (16 * ε + (Real.pi / 4) ^ 2 / (4 * ε)) *
+        normalizedXiStripBound :=
+      mul_le_mul (Real.exp_le_exp.mpr hexpArg) hnorm
+        (norm_nonneg _) (Real.exp_nonneg _)
+
+theorem bddAbove_gaussianRegularizedUpperXi_closedStrip
+    {ε : ℝ} (hε : 0 < ε) :
+    BddAbove ((norm ∘ gaussianRegularizedUpperXi ε) ''
+      xiVerticalClosedStrip) := by
+  refine ⟨gaussianRegularizedXiBound ε, ?_⟩
+  rintro _ ⟨s, hs, rfl⟩
+  exact norm_gaussianRegularizedUpperXi_le hε hs
+
+noncomputable def weightedXiBoundaryBound : ℝ :=
+  max upperWeightedXiLeftBound upperWeightedXiRightBound
+
+noncomputable def regularizedWeightedXiBoundaryBound (ε : ℝ) : ℝ :=
+  Real.exp (16 * ε) * weightedXiBoundaryBound
+
+theorem weightedXiBoundaryBound_nonneg : 0 ≤ weightedXiBoundaryBound := by
+  unfold weightedXiBoundaryBound
+  have hright : 0 ≤ upperWeightedXiRightBound := by
+    unfold upperWeightedXiRightBound
+    have hprod : 0 ≤ Real.exp (Real.pi / 2) * normalizedXiStripBound :=
+      mul_nonneg (Real.exp_nonneg _) normalizedXiStripBound_nonneg
+    linarith [upperWeightedXiRightSqBound_nonneg]
+  exact le_max_of_le_left (by
+    unfold upperWeightedXiLeftBound
+    exact add_nonneg normalizedXiStripBound_nonneg
+      (mul_nonneg (by norm_num) hright))
+
+theorem norm_gaussianRegularizedUpperXi_boundary_le
+    {ε : ℝ} (hε : 0 < ε) {s : ℂ}
+    (hs : s.re = -3 ∨ s.re = 4) :
+    ‖gaussianRegularizedUpperXi ε s‖ ≤
+      regularizedWeightedXiBoundaryBound ε := by
+  have hgauss : ‖Complex.exp ((ε : ℂ) * s ^ 2)‖ ≤
+      Real.exp (16 * ε) := by
+    rw [norm_gaussianFactor]
+    apply Real.exp_le_exp.mpr
+    rcases hs with hs | hs <;> rw [hs] <;>
+      nlinarith [sq_nonneg s.im]
+  have hweighted : ‖upperWeightedNormalizedXi s‖ ≤
+      weightedXiBoundaryBound := by
+    rcases hs with hs | hs
+    · have hz : s = -3 + (s.im : ℂ) * I := by
+        apply Complex.ext <;> simp [hs]
+      rw [hz]
+      exact (norm_upperWeightedNormalizedXi_left_le s.im).trans
+        (le_max_left _ _)
+    · have hz : s = 4 + (s.im : ℂ) * I := by
+        apply Complex.ext <;> simp [hs]
+      rw [hz]
+      exact (norm_upperWeightedNormalizedXi_right_le s.im).trans
+        (le_max_right _ _)
+  unfold gaussianRegularizedUpperXi regularizedWeightedXiBoundaryBound
+  rw [norm_mul]
+  exact mul_le_mul hgauss hweighted (norm_nonneg _) (Real.exp_nonneg _)
+
+/-- Gaussian-regularized Hadamard three-lines propagation across the complete
+closed strip. -/
+theorem norm_gaussianRegularizedUpperXi_le_threeLines
+    {ε : ℝ} (hε : 0 < ε) {s : ℂ}
+    (hs : s ∈ xiVerticalClosedStrip) :
+    ‖gaussianRegularizedUpperXi ε s‖ ≤
+      (regularizedWeightedXiBoundaryBound ε) ^
+          (1 - (s.re - (-3)) / (4 - (-3))) *
+        (regularizedWeightedXiBoundaryBound ε) ^
+          ((s.re - (-3)) / (4 - (-3))) := by
+  apply Complex.HadamardThreeLines.norm_le_interp_of_mem_verticalClosedStrip'
+    (l := -3) (u := 4) (a := regularizedWeightedXiBoundaryBound ε)
+    (b := regularizedWeightedXiBoundaryBound ε)
+  · norm_num
+  · exact hs
+  · exact diffContOnCl_gaussianRegularizedUpperXi ε
+  · exact bddAbove_gaussianRegularizedUpperXi_closedStrip hε
+  · intro z hz
+    exact norm_gaussianRegularizedUpperXi_boundary_le hε (Or.inl hz)
+  · intro z hz
+    exact norm_gaussianRegularizedUpperXi_boundary_le hε (Or.inr hz)
+
+theorem weightedXiBoundaryBound_pos : 0 < weightedXiBoundaryBound := by
+  unfold weightedXiBoundaryBound
+  apply lt_of_lt_of_le _ (le_max_right _ _)
+  unfold upperWeightedXiRightBound
+  have hprod : 0 ≤ Real.exp (Real.pi / 2) * normalizedXiStripBound :=
+    mul_nonneg (Real.exp_nonneg _) normalizedXiStripBound_nonneg
+  linarith [upperWeightedXiRightSqBound_nonneg]
+
+theorem regularizedWeightedXiBoundaryBound_pos (ε : ℝ) :
+    0 < regularizedWeightedXiBoundaryBound ε := by
+  unfold regularizedWeightedXiBoundaryBound
+  exact mul_pos (Real.exp_pos _) weightedXiBoundaryBound_pos
+
+theorem norm_gaussianRegularizedUpperXi_le_boundaryBound
+    {ε : ℝ} (hε : 0 < ε) {s : ℂ}
+    (hs : s ∈ xiVerticalClosedStrip) :
+    ‖gaussianRegularizedUpperXi ε s‖ ≤
+      regularizedWeightedXiBoundaryBound ε := by
+  have h := norm_gaussianRegularizedUpperXi_le_threeLines hε hs
+  rw [← Real.rpow_add (regularizedWeightedXiBoundaryBound_pos ε)] at h
+  have hsum : 1 - (s.re - (-3)) / (4 - (-3)) +
+      (s.re - (-3)) / (4 - (-3)) = 1 := by ring
+  rw [hsum, Real.rpow_one] at h
+  exact h
+
+/-- Sharp unregularized strip bound, obtained by sending the Gaussian
+parameter to zero through positive values. -/
+theorem norm_upperWeightedNormalizedXi_le_boundaryBound
+    {s : ℂ} (hs : s ∈ xiVerticalClosedStrip) :
+    ‖upperWeightedNormalizedXi s‖ ≤ weightedXiBoundaryBound := by
+  let l : Filter ℝ := 𝓝[Set.Ioi 0] 0
+  letI : NeBot l := by dsimp [l]; infer_instance
+  have hl_le : l ≤ 𝓝 0 := by
+    dsimp [l]
+    exact inf_le_left
+  have hleft : Tendsto
+      (fun ε : ℝ ↦ ‖gaussianRegularizedUpperXi ε s‖) l
+      (𝓝 ‖upperWeightedNormalizedXi s‖) := by
+    have hc : ContinuousAt
+        (fun ε : ℝ ↦ ‖gaussianRegularizedUpperXi ε s‖) 0 := by
+      unfold gaussianRegularizedUpperXi
+      fun_prop
+    have ht := hc.tendsto.mono_left hl_le
+    simpa [l, gaussianRegularizedUpperXi] using ht
+  have hright : Tendsto
+      (fun ε : ℝ ↦ regularizedWeightedXiBoundaryBound ε) l
+      (𝓝 weightedXiBoundaryBound) := by
+    have hc : ContinuousAt
+        (fun ε : ℝ ↦ regularizedWeightedXiBoundaryBound ε) 0 := by
+      unfold regularizedWeightedXiBoundaryBound
+      fun_prop
+    have ht := hc.tendsto.mono_left hl_le
+    simpa [l, regularizedWeightedXiBoundaryBound] using ht
+  apply le_of_tendsto_of_tendsto hleft hright
+  filter_upwards [self_mem_nhdsWithin] with ε hε
+  exact norm_gaussianRegularizedUpperXi_le_boundaryBound hε hs
+
+/-- Sharp polynomial-times-exponential xi growth bound throughout the strip.
+This is the unregularized output needed by the Jensen step. -/
+theorem norm_riemannXiEntire_le_sharpStripBound
+    {s : ℂ} (hs : s ∈ xiVerticalClosedStrip) :
+    ‖riemannXiEntire s‖ ≤
+      weightedXiBoundaryBound * ‖s + 4‖ ^ 4 *
+        Real.exp (-(Real.pi * s.im / 4)) := by
+  have h := norm_upperWeightedNormalizedXi_le_boundaryBound hs
+  unfold upperWeightedNormalizedXi normalizedRiemannXi at h
+  rw [norm_mul, norm_upperWeight, norm_div, norm_pow] at h
+  have hnorm : 0 < ‖s + 4‖ :=
+    norm_pos_iff.mpr (add_four_ne_zero_of_mem_xiVerticalClosedStrip hs)
+  have hden : 0 < ‖s + 4‖ ^ 4 := by
+    exact pow_pos hnorm _
+  have hexp : 0 < Real.exp (Real.pi * s.im / 4) := Real.exp_pos _
+  calc
+    ‖riemannXiEntire s‖ =
+        (Real.exp (Real.pi * s.im / 4) *
+          (‖riemannXiEntire s‖ / ‖s + 4‖ ^ 4)) *
+          ‖s + 4‖ ^ 4 * Real.exp (-(Real.pi * s.im / 4)) := by
+        rw [Real.exp_neg]
+        field_simp [ne_of_gt hnorm, ne_of_gt hexp]
+    _ ≤ weightedXiBoundaryBound * ‖s + 4‖ ^ 4 *
+        Real.exp (-(Real.pi * s.im / 4)) := by gcongr
 
 end RiemannLab
