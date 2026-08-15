@@ -3,7 +3,7 @@ import Mathlib.Data.Fintype.Pigeonhole
 
 namespace RiemannLab
 
-open Set
+open Set MeromorphicOn
 
 /-!
 A finite, quantitative avoidance lemma used to turn the local Jensen count
@@ -113,5 +113,70 @@ theorem exists_height_separated_from_finset
       dsimp [grid]
       nlinarith
     linarith
+
+/-- The finite support of the xi divisor in the radius-three Jensen disk. -/
+noncomputable def xiJensenDivisorSupport (T : ℝ) : Finset ℂ :=
+  ((divisor riemannXiEntire
+    (Metric.closedBall (riemannXiJensenCenter T) 3)).finiteSupport
+      (isCompact_closedBall _ _)).toFinset
+
+@[simp] theorem mem_xiJensenDivisorSupport {T : ℝ} {z : ℂ} :
+    z ∈ xiJensenDivisorSupport T ↔
+      divisor riemannXiEntire
+        (Metric.closedBall (riemannXiJensenCenter T) 3) z ≠ 0 := by
+  simp [xiJensenDivisorSupport, Function.mem_support]
+
+/-- Each point in the support contributes at least one to the analytic xi
+divisor, so its cardinality is bounded by the multiplicity-aware Jensen sum. -/
+theorem xiJensenDivisorSupport_card_le_finsum (T : ℝ) :
+    (xiJensenDivisorSupport T).card ≤
+      ∑ᶠ u, divisor riemannXiEntire
+        (Metric.closedBall (riemannXiJensenCenter T) 3) u := by
+  let D := divisor riemannXiEntire
+    (Metric.closedBall (riemannXiJensenCenter T) 3)
+  have hana : AnalyticOnNhd ℂ riemannXiEntire
+      (Metric.closedBall (riemannXiJensenCenter T) 3) :=
+    fun z _ ↦ analyticAt_riemannXiEntire z
+  rw [finsum_eq_sum_of_support_subset (s := xiJensenDivisorSupport T)]
+  · change ((xiJensenDivisorSupport T).card : ℤ) ≤
+        ∑ u ∈ xiJensenDivisorSupport T, D u
+    rw [Finset.card_eq_sum_ones]
+    push_cast
+    apply Finset.sum_le_sum
+    intro z hz
+    have hzD : D z ≠ 0 := by
+      simpa [xiJensenDivisorSupport, D, Function.mem_support] using hz
+    have hz0 : 0 ≤ D z := hana.divisor_nonneg z
+    omega
+  · intro z hz
+    simpa [xiJensenDivisorSupport, D, Function.mem_support] using hz
+
+theorem xiJensenDivisorSupport_card_le_log
+    {T : ℝ} (hT : 2 ≤ T) :
+    ((xiJensenDivisorSupport T).card : ℝ) ≤
+      (Real.log jensenQuotientPolynomialConstant + 12 * Real.log T) /
+        Real.log (4 / 3) := by
+  have hcard := xiJensenDivisorSupport_card_le_finsum T
+  have hcardR : ((xiJensenDivisorSupport T).card : ℝ) ≤
+      ((∑ᶠ u, divisor riemannXiEntire
+        (Metric.closedBall (riemannXiJensenCenter T) 3) u : ℤ) : ℝ) := by
+    exact_mod_cast hcard
+  exact hcardR.trans (riemannXiEntire_local_zero_count_le_log hT)
+
+noncomputable def xiJensenZeroOrdinates (T : ℝ) : Finset ℝ :=
+  (xiJensenDivisorSupport T).image Complex.im
+
+/-- Quantitative height selection for the actual finite xi divisor support.
+The following cardinal estimate turns this denominator into `O(log T)`. -/
+theorem exists_height_separated_from_xiJensenZeros
+    (T : ℝ) {a b : ℝ} (hab : a < b) :
+    ∃ H ∈ Icc a b, ∀ z ∈ xiJensenDivisorSupport T,
+      (b - a) / (2 * ((xiJensenZeroOrdinates T).card + 2)) ≤
+        |H - z.im| := by
+  obtain ⟨H, hHab, hH⟩ :=
+    exists_height_separated_from_finset (xiJensenZeroOrdinates T) hab
+  refine ⟨H, hHab, ?_⟩
+  intro z hz
+  exact hH z.im (Finset.mem_image.mpr ⟨z, hz, rfl⟩)
 
 end RiemannLab
