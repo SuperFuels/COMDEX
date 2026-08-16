@@ -2156,3 +2156,72 @@ remaining work cleanly:
    proves the checkpoint margin for every \(n\).
 
 No proof or disproof of RH is claimed.
+
+## Source-faithful Johnston--Yang bridge
+
+The external PNT input has been sharpened from a generic placeholder to the
+literal statement of Johnston--Yang, Theorem 1.1:
+
+\[
+ |\psi(x)-x|\leq
+ 9.39x(\log x)^{1.515}
+ \exp\!\left(-0.8274\sqrt{\log x}\right)
+ \qquad(x\geq2).
+\]
+
+All four decimal constants are represented by exact rational numbers in
+Lean.  The theorem remains a proposition rather than an axiom.  Lean now
+proves that, on \(x\geq3\), this literal published envelope is bounded by the
+slightly relaxed project envelope
+
+\[
+ 10x(\log x)^2
+ \exp\!\left(-\frac45\sqrt{\log x}\right).
+\]
+
+The comparison is fully checked: it uses \(\log x\geq\log3>1\), monotonicity
+of real powers in the exponent, and the stronger exponential decay
+\(0.8274>0.8\).  A direct theorem now carries the source-faithful
+Johnston--Yang conclusion into the finite Li cutoff-error certificate.
+
+This does not yet constitute a Lean proof of Johnston--Yang's theorem.  The
+paper's proof depends on several substantial external inputs, including a
+certified RH verification up to height \(3{,}000{,}175{,}332{,}800\), explicit
+zero-free regions, explicit zero-density estimates, a truncated explicit
+formula, and finite numerical interval checks.  Neither the required
+certificates nor this complete dependency chain exists in the pinned
+Mathlib environment.  Replacing the proposition by a theorem with no
+assumptions therefore requires importing or reconstructing that full
+22-page analytic and computational proof; treating the published result as
+an axiom would violate the programme's verification policy.
+
+The formal boundary is consequently exact:
+
+* the published statement, constants, relaxed-envelope comparison, and
+  downstream Li tail connection are checked;
+* the analytic/computational proof of the published PNT statement remains a
+  classical formalization project; and
+* even completing it would establish fixed-index tail control, not the
+  all-index positive Li margin that is equivalent to the unresolved RH
+  content.
+
+The margin boundary is now a checked equivalence rather than an informal
+warning.  If a real cutoff sequence \(E(N)\) converges to \(L\), then
+
+\[
+ L>0
+ \quad\Longleftrightarrow\quad
+ \exists N,R\geq0\;\;
+ \left(
+   \forall M\geq N,\ |E(M)-E(N)|\leq R
+ \right)
+ \land R<E(N).
+\]
+
+The forward implication constructs \(R=L/2\) after entering an
+\(L/4\)-neighbourhood of the limit.  The reverse implication passes the
+uniform finite tail bound to the limit and uses the strict checkpoint
+surplus.  Applied separately at every Li index, the desired strict margin is
+therefore exactly Li positivity expressed in cutoff coordinates.  A PNT
+estimate can prove convergence and quantify the approach; it cannot supply
+the positive limiting sign without an additional idea.

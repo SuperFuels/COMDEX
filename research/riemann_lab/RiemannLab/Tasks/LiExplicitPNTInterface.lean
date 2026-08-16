@@ -13,6 +13,20 @@ deep analytic theorem establishing such an envelope is kept as a proposition,
 not introduced as an axiom.
 -/
 
+/-! ## Source-faithful Johnston--Yang statement -/
+
+/-- The literal envelope in Johnston--Yang, Theorem 1.1 (equation (1.3)).
+The decimal constants in the paper are represented by exact rationals. -/
+noncomputable def johnstonYangPNTEnvelope (x : ℝ) : ℝ :=
+  (939 / 100 : ℝ) * x * (Real.log x) ^ (1515 / 1000 : ℝ) *
+    Real.exp (-(8274 / 10000 : ℝ) * Real.sqrt (Real.log x))
+
+/-- The exact published Johnston--Yang conclusion.  This is a proposition to
+be proved from its analytic dependencies, not an axiom of the project. -/
+def JohnstonYangExplicitChebyshevPNT : Prop :=
+  ∀ x : ℝ, 2 ≤ x →
+    |chebyshevPsiRemainder x| ≤ johnstonYangPNTEnvelope x
+
 /-- A convenient explicit de la Vallee Poussin type envelope. -/
 noncomputable def explicitPNTEnvelope (x : ℝ) : ℝ :=
   10 * x * (Real.log x) ^ 2 *
@@ -22,6 +36,39 @@ noncomputable def explicitPNTEnvelope (x : ℝ) : ℝ :=
 def ExplicitChebyshevPNTBound : Prop :=
   ∀ x : ℝ, 3 ≤ x →
     |chebyshevPsiRemainder x| ≤ explicitPNTEnvelope x
+
+/-- On the range needed by the Li tail interface, the literal published
+Johnston--Yang envelope is bounded by the simpler project envelope. -/
+theorem johnstonYangPNTEnvelope_le_explicitPNTEnvelope
+    {x : ℝ} (hx : 3 ≤ x) :
+    johnstonYangPNTEnvelope x ≤ explicitPNTEnvelope x := by
+  have hx0 : 0 ≤ x := by positivity
+  have hlog1 : 1 ≤ Real.log x := by
+    have hlog3 : 1 < Real.log 3 :=
+      lt_trans (by norm_num) Real.log_three_gt_d9
+    exact hlog3.le.trans (Real.log_le_log (by norm_num) hx)
+  have hsqrt0 : 0 ≤ Real.sqrt (Real.log x) := Real.sqrt_nonneg _
+  have hpow :
+      (Real.log x) ^ (1515 / 1000 : ℝ) ≤ (Real.log x) ^ 2 := by
+    rw [← Real.rpow_two]
+    exact Real.rpow_le_rpow_of_exponent_le hlog1 (by norm_num)
+  have hexp :
+      Real.exp (-(8274 / 10000 : ℝ) * Real.sqrt (Real.log x)) ≤
+        Real.exp (-(4 / 5 : ℝ) * Real.sqrt (Real.log x)) := by
+    apply Real.exp_le_exp.mpr
+    nlinarith
+  unfold johnstonYangPNTEnvelope explicitPNTEnvelope
+  gcongr
+  norm_num
+
+/-- The source-faithful Johnston--Yang theorem discharges the convenient
+project PNT interface without adding any axiom. -/
+theorem explicitChebyshevPNTBound_of_johnstonYang
+    (hJY : JohnstonYangExplicitChebyshevPNT) :
+    ExplicitChebyshevPNTBound := by
+  intro x hx
+  exact (hJY x (by linarith)).trans
+    (johnstonYangPNTEnvelope_le_explicitPNTEnvelope hx)
 
 theorem continuousOn_explicitPNTEnvelope :
     ContinuousOn explicitPNTEnvelope (Set.Ioi 1) := by
@@ -83,6 +130,17 @@ theorem abs_riemannLiPrimeCutoffEnergy_sub_le_explicitPNT
     exact hNreal.trans hx.1
   · exact integrableOn_liDeriv_mul_explicitPNTEnvelope n N M hN
 
+/-- Direct source-to-certificate bridge: the literal Johnston--Yang theorem
+feeds the checked finite Li cutoff bound through the proved envelope
+comparison. -/
+theorem abs_riemannLiPrimeCutoffEnergy_sub_le_johnstonYang
+    (hJY : JohnstonYangExplicitChebyshevPNT)
+    (n N M : ℕ) (hN : 3 ≤ N) (hNM : N ≤ M) :
+    |riemannLiPrimeCutoffEnergy n M - riemannLiPrimeCutoffEnergy n N| ≤
+      riemannLiEnvelopeRadius explicitPNTEnvelope n N M := by
+  exact abs_riemannLiPrimeCutoffEnergy_sub_le_explicitPNT
+    (explicitChebyshevPNTBound_of_johnstonYang hJY) n N M hN hNM
+
 /-! ## Logical status of the checkpoint margin -/
 
 /-- Any convergent real sequence with a strictly positive limit eventually
@@ -113,6 +171,41 @@ theorem exists_uniform_cutoff_margin_of_pos_limit
   · have hN' := hN N le_rfl
     rw [Real.dist_eq] at hN'
     have hlower := (abs_lt.mp hN').1
+    linarith
+
+/-- With a strict checkpoint margin, the finite-tail certificate is exactly
+equivalent to positivity of the limit. -/
+theorem pos_limit_iff_exists_uniform_strict_cutoff_margin
+    {energy : ℕ → ℝ} {limit : ℝ}
+    (hlim : Filter.Tendsto energy Filter.atTop (nhds limit)) :
+    0 < limit ↔
+      ∃ N : ℕ, ∃ radius : ℝ,
+        0 ≤ radius ∧
+        (∀ M, N ≤ M → |energy M - energy N| ≤ radius) ∧
+        radius < energy N := by
+  constructor
+  · intro hpos
+    obtain ⟨N, hN⟩ := (Metric.tendsto_atTop.mp hlim)
+      (limit / 4) (by positivity)
+    refine ⟨N, limit / 2, by positivity, ?_, ?_⟩
+    · intro M hM
+      have hM' := hN M hM
+      have hN' := hN N le_rfl
+      rw [Real.dist_eq] at hM' hN'
+      calc
+        |energy M - energy N| =
+            |(energy M - limit) - (energy N - limit)| := by ring_nf
+        _ ≤ |energy M - limit| + |energy N - limit| := abs_sub _ _
+        _ ≤ limit / 4 + limit / 4 := (add_lt_add hM' hN').le
+        _ = limit / 2 := by ring
+    · have hN' := hN N le_rfl
+      rw [Real.dist_eq] at hN'
+      have hlower := (abs_lt.mp hN').1
+      linarith
+  · rintro ⟨N, radius, hradius, htail, hstrict⟩
+    have herror : |limit - energy N| ≤ radius :=
+      abs_limit_sub_le_of_uniform_cutoff_tail N hlim htail
+    have hlower := (abs_le.mp herror).1
     linarith
 
 end RiemannLab
