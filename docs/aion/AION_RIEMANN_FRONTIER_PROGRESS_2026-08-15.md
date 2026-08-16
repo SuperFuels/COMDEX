@@ -2000,3 +2000,73 @@ information, choose \(N=N_n\), and prove
 \(R_n(N_n)\leq E_n(N_n)\) for every \(n\).  This has not been proved; without
 the uniform tail estimate the new recurrence is an instrument, not an RH
 solution.
+
+## Exact Abel decomposition of the prime-cutoff tail
+
+The cutoff error has now been reduced to the Chebyshev remainder without any
+zero-side assumption.  Define the smooth Li weight
+
+\[
+  w_n(x)=\frac{P_n(\log x)}{x}.
+\]
+
+Lean verifies the derivative identity \(C_n'(u)=P_n(u)\), its logarithmic
+chain-rule form, all smoothness and finite-interval integrability conditions,
+and the required integration-by-parts formula.  Abel summation is then
+instantiated for the literal von Mangoldt sequence.  For \(1\leq N\leq M\),
+the compensated tail
+
+\[
+ T_n(N,M)=
+ \sum_{N<m\leq M}\frac{\Lambda(m)}mP_n(\log m)
+ -\bigl(C_n(\log M)-C_n(\log N)\bigr)
+\]
+
+satisfies the exact checked identity
+
+\[
+\begin{aligned}
+ T_n(N,M)
+  ={}&w_n(M)\bigl(\psi(M)-M\bigr)
+      -w_n(N)\bigl(\psi(N)-N\bigr)\\
+    &-\left(
+       \int_N^M w_n'(t)\psi(t)\,dt
+       -\int_N^M w_n'(t)t\,dt
+      \right).
+\end{aligned}
+\]
+
+The stored rover energy is connected to this expression exactly:
+
+\[
+ E_n(M)-E_n(N)=-T_n(N,M).
+\]
+
+Thus a tail budget can be derived solely from finite prime data and bounds on
+\(\psi(x)-x\).  `LiPrimeTailAbel.lean` defines the resulting explicit radius
+\(B_n(N,M)\), proves
+
+\[
+ |E_n(M)-E_n(N)|\leq B_n(N,M),
+\]
+
+and packages the final uniform certificate.  If one proves, for selected
+\(N_n\) and \(R_n\),
+
+\[
+ B_n(N_n,M)\leq R_n\leq E_n(N_n)
+ \qquad\text{for every }M\geq N_n,
+\]
+
+together with the classical convergence of the regularized cutoffs, then
+Lean derives every Li inequality.
+
+This exposes two distinct remaining obligations.  First, the classical
+regularized-cutoff convergence must be connected to the Taylor-defined Li
+coefficient; pinned Mathlib does not contain the required prime number
+theorem.  Second, and fundamentally, the resulting radius must beat the
+positive checkpoint margin uniformly for every \(n\).  Known unconditional
+prime-number-theorem bounds can make the tail converge for each fixed
+polynomial weight, but no checked argument currently proves this all-index
+margin.  Establishing it would be the RH-level breakthrough, not a final
+routine estimate.

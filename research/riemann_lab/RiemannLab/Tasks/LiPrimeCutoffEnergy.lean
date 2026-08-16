@@ -172,6 +172,45 @@ theorem RiemannLiPrimeCutoffCertificate.liPositivity
   exact nonneg_of_checkpoint_with_error (C.radius_nonneg n)
     (C.tail_bound n) (C.checkpoint_margin n)
 
+/-- A bound on every sufficiently late finite cutoff passes to the limiting
+error bound.  Unlike a direct estimate involving the limit, the hypothesis
+contains only finite cutoff values. -/
+theorem abs_limit_sub_le_of_uniform_cutoff_tail
+    {energy : ℕ → ℝ} {limit radius : ℝ} (N : ℕ)
+    (hlim : Filter.Tendsto energy Filter.atTop (nhds limit))
+    (htail : ∀ M, N ≤ M → |energy M - energy N| ≤ radius) :
+    |limit - energy N| ≤ radius := by
+  have htendsto : Filter.Tendsto (fun M ↦ |energy M - energy N|)
+      Filter.atTop (nhds |limit - energy N|) :=
+    (hlim.sub_const (energy N)).abs
+  apply isClosed_Iic.mem_of_tendsto htendsto
+  filter_upwards [Filter.eventually_ge_atTop N] with M hM
+  exact htail M hM
+
+/-- Fully finite-data tail certificate.  Apart from the classical convergence
+bridge, the error hypothesis compares only explicit prime cutoffs. -/
+structure RiemannLiUniformCutoffTailCertificate where
+  cutoff : ℕ → ℕ
+  radius : ℕ → ℝ
+  radius_nonneg : ∀ n, 0 ≤ radius n
+  cutoff_converges : ∀ n,
+    Filter.Tendsto (riemannLiPrimeCutoffEnergy n) Filter.atTop
+      (nhds (riemannLiCoefficient n))
+  uniform_tail : ∀ n M, cutoff n ≤ M →
+    |riemannLiPrimeCutoffEnergy n M -
+      riemannLiPrimeCutoffEnergy n (cutoff n)| ≤ radius n
+  checkpoint_margin : ∀ n,
+    radius n ≤ riemannLiPrimeCutoffEnergy n (cutoff n)
+
+/-- A uniform finite-prime tail certificate proves RH-level Li positivity. -/
+theorem RiemannLiUniformCutoffTailCertificate.liPositivity
+    (C : RiemannLiUniformCutoffTailCertificate) : RiemannLiPositivity := by
+  intro n
+  apply nonneg_of_checkpoint_with_error (C.radius_nonneg n)
+  · exact abs_limit_sub_le_of_uniform_cutoff_tail (C.cutoff n)
+      (C.cutoff_converges n) (C.uniform_tail n)
+  · exact C.checkpoint_margin n
+
 /-- If the literal Riemann Li coefficient is the limit of nonnegative
 coupled cutoff energies at every index, then all Li coefficients are
 nonnegative.  This formulation contains no zero-side hypothesis. -/

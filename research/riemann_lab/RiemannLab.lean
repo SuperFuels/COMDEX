@@ -38,6 +38,7 @@ import RiemannLab.Tasks.ZetaGenusOneUniformProduct
 import RiemannLab.Tasks.ZetaGenusOneMultiplicity
 import RiemannLab.Tasks.LiCoupledDominanceCertificate
 import RiemannLab.Tasks.LiPrimeCutoffEnergy
+import RiemannLab.Tasks.LiPrimeTailAbel
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor
