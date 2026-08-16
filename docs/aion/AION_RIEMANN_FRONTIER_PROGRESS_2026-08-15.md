@@ -1674,3 +1674,46 @@ separate all-index arithmetic inequality
 
 is still the RH-equivalent breakthrough target.  Neither that inequality nor
 RH has been proved.
+
+## Verified genus-one primary factor
+
+The local analytic component of the global Hadamard product is now closed in
+`ZetaGenusOneCanonicalFactor.lean`.  The programme defines the literal
+genus-one factor
+
+\[
+  E_{1,\rho}(z)=\left(1-\frac z\rho\right)e^{z/\rho}
+\]
+
+and Lean proves that it is entire, equals one at the origin, and, for
+\(\rho\ne0\), vanishes exactly at \(z=\rho\).  Its derivative and logarithmic
+derivative are checked exactly:
+
+\[
+  E_{1,\rho}'(z)
+  =-\frac{z}{\rho^2}e^{z/\rho},
+  \qquad
+  \frac{E_{1,\rho}'(z)}{E_{1,\rho}(z)}
+  =\frac1\rho+\frac1{z-\rho}.
+\]
+
+Most importantly, cancellation of the linear exponential term is formalized
+as the uniform quadratic estimate
+
+\[
+  \left|E_{1,\rho}(z)-1\right|
+  \leq 3\left|\frac z\rho\right|^2
+  \qquad\left(\left|\frac z\rho\right|\leq1\right).
+\]
+
+Together with the preceding quadratic zeta-divisor summability theorem, this
+is the exact Weierstrass majorant needed on every compact disk.  The remaining
+global connection is no longer missing local factor analysis: it must expand
+each zero according to its analytic multiplicity, apply Mathlib's uniform
+infinite-product theorem to the two shell tails, attach the finite central
+product, and then identify the resulting entire product with \(\Xi\) up to an
+exponential linear factor.  Only after that identification may the product be
+differentiated to close the symmetric Li zero-sum limit.
+
+This remains established classical complex analysis.  It does not prove the
+all-index arithmetic dominance inequality and does not prove RH.
