@@ -1546,3 +1546,73 @@ and instantiation of the abstract arithmetic ledger by the literal Riemann
 archimedean, finite-prime, and pole terms.  Those are the next formal bridge.
 After it is installed, the only nonclassical statement remaining in this
 route is the all-index dominance inequality above.
+
+## Literal Riemann ledger and exact zero-sum interface
+
+The abstract decomposition has now been instantiated on the actual
+Taylor-defined completed-xi sequence.  `RiemannLiArithmeticLedger.lean`
+constructs three analytic Li-disk functions: the elementary pole term, the
+completed Gamma term, and the analytically continued finite-prime residual.
+Lean proves the exact function identity
+
+\[
+  G(z)=G_\infty(z)-G_f(z)+\frac{1}{1-z}.
+\]
+
+On the portion of the disk mapped to \(\Re(s)>1\), the residual is proved to
+be literally
+
+\[
+  G_f(z)=\frac{1}{(1-z)^2}
+  \left(\sum_{m\geq1}\frac{\Lambda(m)}{m^s}-\frac{1}{s-1}\right),
+  \qquad s=\frac{1}{1-z}.
+\]
+
+Thus the prime term is not introduced as an unnamed sequence or an assumed
+ledger.  It is the analytic continuation of the regularized von Mangoldt
+series.  Taking checked Taylor coefficients gives
+
+\[
+  \lambda_n=S_\infty(n)-S_f(n)+
+  \begin{cases}0,&n=0,\\1,&n\geq1.\end{cases}
+\]
+
+Lean instantiates `LiArithmeticDecomposition` with these literal sequences and
+proves
+
+\[
+  \bigl(\forall n,\ S_f(n)\leq S_\infty(n)+1\bigr)
+  \quad\Longleftrightarrow\quad
+  \bigl(\forall n,\ \lambda_n\geq0\bigr),
+\]
+
+with the normalized zeroth row handled separately.  A strict failure at one
+index yields a finite negative Fejer-prefix certificate.
+
+`RiemannLiZeroSumBridge.lean` now places the other classical representation on
+the same compact multiplicity-aware zeta divisor used by the explicit-formula
+programme.  For cutoff \(T\), it defines
+
+\[
+  \lambda_{n,T}=\sum_{\rho\in Z_T}
+  m(\rho)\left[1-\left(1-\frac1\rho\right)^n\right],
+\]
+
+and proves that every stored divisor weight is exactly the analytic
+multiplicity of zeta.  The zeroth row converges unconditionally, and the exact
+remaining classical theorem is now named `RiemannLiTaylorZeroSumBridge`:
+
+\[
+  \lambda_{n,T}\longrightarrow\lambda_n
+  \qquad(T\to\infty)
+\]
+
+for every fixed \(n\).  Proving this requires the order-one Hadamard product
+with its symmetric convergence convention; pinned Mathlib does not provide
+that global factorization as a ready theorem.  It remains classical connection
+work, not an RH-level insight.
+
+The claim boundary is therefore exact.  The completed arithmetic ledger is
+closed.  The global Taylor-to-zero-sum Hadamard bridge remains classical and
+open.  The uniform dominance inequality remains the genuinely nonclassical
+RH-level theorem; it has not been proved.
