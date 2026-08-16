@@ -1851,3 +1851,53 @@ After multiplicity equality, the remaining Hadamard steps are the order-one
 zero-free quotient theorem, determination of the exponential-linear factor,
 and the symmetric Li truncation limit.  RH and the all-index arithmetic
 dominance inequality remain unproved.
+
+## Exact canonical-product multiplicities
+
+The remaining divisor-identification theorem is now complete in
+`ZetaGenusOneMultiplicity.lean`.  A generic inverse-square genus-one product
+theorem was proved first: after every copy of a selected divisor point is
+factored into a finite set, the complementary infinite product is locally
+uniformly convergent, entire, and nonzero at that point.  The analytic order
+of the full product is therefore exactly the number of selected copies.
+
+This theorem was instantiated separately on the positive and reflected
+negative multiplicity-expanded zeta tails.  Finite fibre finsets enumerate
+all copies over one shell point, shell uniqueness rules out any missing or
+duplicate base points, and their cardinalities are the verified xi/zeta
+multiplicities.  A finite-product analytic-order theorem closes the central
+height block.  The three regions are then assembled using additivity of
+analytic order and the previously proved height separation.  Lean now checks
+
+\[
+  \operatorname{ord}_{\rho} P
+  = \operatorname{ord}_{\rho}\Xi
+\]
+
+for every nontrivial zeta zero \(\rho\), where \(P\) is the complete
+multiplicity-aware genus-one product.  Together with the earlier exact
+zero-set theorem, this proves equality of the complete analytic divisors of
+\(P\) and \(\Xi\), including multiplicity.
+
+The full project build now passes 3,741 jobs.  The new file contains no
+`sorry`, `admit`, new axioms, or unsafe assumptions.
+
+The classical Hadamard bridge is consequently reduced to the zero-free
+quotient stage:
+
+1. extend \(\Xi/P\) across the common divisor and prove that it is entire and
+   zero-free;
+2. use the established order-one growth to prove
+   \(\Xi(z)/P(z)=e^{A+Bz}\);
+3. control \(A,B\) using normalization and functional symmetry; and
+4. differentiate the factorization and identify the prescribed symmetric
+   truncations, proving \(\lambda_{n,T}\to\lambda_n\).
+
+These are classical connection steps.  The separate all-index inequality
+
+\[
+  S_f(n)\leq S_\infty(n)+1 \qquad (n\geq 1)
+\]
+
+remains the RH-equivalent breakthrough target and is not proved by the
+divisor calculation.
