@@ -1901,3 +1901,42 @@ These are classical connection steps.  The separate all-index inequality
 
 remains the RH-equivalent breakthrough target and is not proved by the
 divisor calculation.
+
+## Non-circular certificate for the RH-level arithmetic inequality
+
+The exact arithmetic target has now been audited for circularity. In the
+current ledger, the finite-place quantity is defined by the completed
+prime--Gamma--pole residual. Consequently, unfolding that residual in
+\[
+  S_f(n)\leq S_\infty(n)+1
+\]
+does not prove the inequality: it recovers precisely \(\lambda_n\geq0\).
+Any argument based on that rearrangement has assumed the desired Li
+inequality in another form.
+
+`LiCoupledDominanceCertificate.lean` now records the minimal non-circular
+proof object. It requires an independently constructed majorant \(M_n\)
+satisfying
+\[
+  S_f(n)\leq M_n,
+  \qquad
+  M_n\leq S_\infty(n)+1
+  \quad (n\geq1).
+\]
+Lean proves that such a certificate makes every Riemann Li coefficient
+nonnegative. The intermediate \(M_n\) is deliberately not defined using a Li
+coefficient; this is where a new prime-cancellation, energy, or monotonicity
+theorem must enter.
+
+A checked countermodel proves that an exact three-place ledger plus separate
+nonnegativity of its archimedean, finite, and pole sequences is insufficient.
+All three components in the model are nonnegative and the ledger is exact,
+yet the represented Li-type sequence equals \(-1\) at every positive index
+and dominance fails at index one. Quantitative coupling between the prime
+and archimedean terms is therefore irreducible.
+
+This is a strategic reduction and an anti-circularity theorem, not a proof of
+RH. The surviving target is exact: construct \(M_n\) directly from the
+prime-side expression and prove both inequalities uniformly for every
+\(n\). Finite numerical positivity, a reconstructed residual, and separate
+sign estimates do not meet this certificate.

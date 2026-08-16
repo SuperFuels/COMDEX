@@ -36,6 +36,7 @@ import RiemannLab.Tasks.ZetaGenusOneCanonicalFactor
 import RiemannLab.Tasks.ZetaMultiplicityExpandedDivisor
 import RiemannLab.Tasks.ZetaGenusOneUniformProduct
 import RiemannLab.Tasks.ZetaGenusOneMultiplicity
+import RiemannLab.Tasks.LiCoupledDominanceCertificate
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor
