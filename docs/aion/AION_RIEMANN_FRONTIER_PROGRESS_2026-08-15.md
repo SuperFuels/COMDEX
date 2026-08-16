@@ -1717,3 +1717,39 @@ differentiated to close the symmetric Li zero-sum limit.
 
 This remains established classical complex analysis.  It does not prove the
 all-index arithmetic dominance inequality and does not prove RH.
+
+## Literal multiplicity-expanded zeta divisor
+
+The shellwise convergence model has now been converted into the literal
+factor index required by the Hadamard product.  For each zero in the positive
+tail, Lean introduces a finite fibre
+
+\[
+  \operatorname{Fin}(m(\rho)),
+\]
+
+so that the zero occurs once for every unit of its verified analytic
+multiplicity.  The same construction is made for the reflected negative tail
+and for the finite central block.
+
+The checked shell estimates are then transported through these finite fibres.
+Lean proves summability of the multiplicity-expanded quadratic shell weights,
+identifies the actual complex point carried by every factor copy, proves that
+none of those points is zero, and derives the literal inverse-square results
+
+\[
+  \sum_{j\in I_+}\frac1{|\rho_j|^2}<\infty,
+  \qquad
+  \sum_{j\in I_-}\frac1{|\rho_j|^2}<\infty.
+\]
+
+The multiplicity-expanded low-height index is proved finite, so its canonical
+factor contribution is a finite product.  Consequently the next product
+theorem no longer needs to reason indirectly through aggregate shell masses:
+it can be stated directly over one canonical factor per multiplicity copy.
+
+The remaining classical assembly is to apply the quadratic primary-factor
+bound on compact disks, construct both tail products, multiply by the finite
+central product, and identify the resulting entire function with the
+completed xi function up to \(e^{A+Bs}\).  The RH-equivalent arithmetic
+dominance inequality remains separate and unproved.
