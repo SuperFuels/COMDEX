@@ -111,6 +111,102 @@ def test_retention_cannot_mature_early_or_replay_sources(tmp_path):
     assert mature["verified"] is True
 
 
+def test_mature_retention_is_single_shot_and_calibration_is_excluded(tmp_path):
+    start = datetime(2026, 8, 8, tzinfo=timezone.utc)
+    governor = OpenMissionCompoundingGovernor(state_path=tmp_path / "state.json")
+    governor.authorize(_contract(start))
+    diagnostic = governor.register_mission(_mission())
+    governor.close_source(mission_id=diagnostic["mission_id"], closed_at=start)
+    failed = governor.record_retention({
+        "mission_id": diagnostic["mission_id"], "evaluator_authority": "hidden-ci",
+        "passed": False, "source_accessed": False,
+    }, now=start + timedelta(days=7))
+    assert failed["verified"] is False
+
+    calibration = _mission()
+    calibration["mission_id"] = "moonshot_public_change_forecast_v2_cursor_test"
+    registered = governor.register_mission(calibration)
+    governor.close_source(mission_id=registered["mission_id"], closed_at=start)
+
+    snapshot = governor.snapshot(now=start + timedelta(days=8))
+    assert diagnostic["mission_id"] not in snapshot["retention_due_missions"]
+    assert registered["mission_id"] not in snapshot["retention_due_missions"]
+    assert snapshot["retention_attempted_count"] == 1
+    assert snapshot["failed_retention_count"] == 1
+    assert snapshot["status"] == "retention_followup"
+
+
+def test_due_structured_retention_uses_fresh_variant_once(tmp_path, monkeypatch):
+    start = datetime(2026, 8, 8, tzinfo=timezone.utc)
+    state = tmp_path / "backend/modules/hexcore/data/open_mission_compounding/state.json"
+    governor = OpenMissionCompoundingGovernor(state_path=state)
+    governor.authorize(_contract(start))
+    spec = executor.STRUCTURED_REPAIR_SPECS[0]
+    mission = governor.register_mission({
+        "mission_id": spec["mission_id"], "lane": "software_systems",
+        "objective": spec["objective"], "evaluator_authority": spec["authority"],
+        "success_contract": {
+            "frozen_before_execution": True,
+            "required": ["base_hidden_tests", "later_repair_confirmation", "no_regression"],
+        },
+        "source_policy": {"closes_after_learning": True, "fault_answer_visible_to_proposer": False},
+        "risk_class": "disposable_structured_system_sandbox",
+    })
+    governor.close_source(mission_id=mission["mission_id"], closed_at=start)
+    monkeypatch.setattr(executor, "_propose_structured_order", lambda model, spec, memory: {
+        "available": True, "order": [spec["correct"]], "domain_memory_applied": memory,
+    })
+
+    first = executor.run_due_retention(
+        repo_root=tmp_path, now=start + timedelta(days=7)
+    )
+    second = executor.run_due_retention(
+        repo_root=tmp_path, now=start + timedelta(days=7, minutes=1)
+    )
+
+    assert first["status"] == "completed"
+    assert len(first["receipts"]) == 1
+    assert first["receipts"][0]["verified"] is True
+    assert first["receipts"][0]["source_accessed"] is False
+    assert "retention-" in first["receipts"][0]["renamed_application"]
+    assert second["status"] == "nothing_due"
+    final = OpenMissionCompoundingGovernor(state_path=state).state
+    assert len(final["retention_receipts"]) == 1
+
+
+def test_due_repository_retention_uses_fresh_disposable_repo_once(tmp_path, monkeypatch):
+    start = datetime(2026, 8, 8, tzinfo=timezone.utc)
+    state = tmp_path / "backend/modules/hexcore/data/open_mission_compounding/state.json"
+    governor = OpenMissionCompoundingGovernor(state_path=state)
+    governor.authorize(_contract(start))
+    mission = _mission()
+    mission["mission_id"] = executor.REPO_MISSION_ID
+    mission["evaluator_authority"] = "deterministic-repository-integrity-evaluator"
+    registered = governor.register_mission(mission)
+    governor.close_source(mission_id=registered["mission_id"], closed_at=start)
+    monkeypatch.setattr(executor, "_propose_repo_order", lambda model, memory: {
+        "available": True,
+        "order": ["validate_then_atomic_promote"],
+        "domain_memory_applied": memory,
+    })
+
+    first = executor.run_due_retention(
+        repo_root=tmp_path, now=start + timedelta(days=7)
+    )
+    second = executor.run_due_retention(
+        repo_root=tmp_path, now=start + timedelta(days=7, minutes=1)
+    )
+
+    assert first["status"] == "completed"
+    assert len(first["receipts"]) == 1
+    assert first["receipts"][0]["verified"] is True
+    assert first["receipts"][0]["source_accessed"] is False
+    assert first["receipts"][0]["evaluation_mode"] == "fresh_disposable_repository_variant"
+    assert second["status"] == "nothing_due"
+    final = OpenMissionCompoundingGovernor(state_path=state).state
+    assert len(final["retention_receipts"]) == 1
+
+
 def test_induced_repairs_require_precommit_and_later_authority(tmp_path):
     governor = OpenMissionCompoundingGovernor(state_path=tmp_path / "state.json")
     governor.authorize(_contract())

@@ -1,0 +1,70 @@
+{
+  "campaign_id": "aion_seven_day_open_mission_moonshot_202608",
+  "captured_at": "2026-08-16T13:32:24.354249+00:00",
+  "claim_boundary": {
+    "agi_claim_authorized": false,
+    "general_transfer_established": false,
+    "ten_x_claim_gate_passed": false
+  },
+  "contract": {
+    "action_budget_per_arm": 40,
+    "contract_hash": "dddddbea7ac14ce13f288629d31050e6103e82a373053c17755f42ba0c789cd4",
+    "ends_at": "2026-08-15T19:26:28.152255+00:00",
+    "proposer_id": "ollama:qwen3:1.7b@local",
+    "started_at": "2026-08-08T19:26:28.152255+00:00",
+    "tool_manifest_hash": "5e8c8074dedcae99606d670ac16e059c799ec93a9e4a939295869b46c78a3a85"
+  },
+  "matched_results": {
+    "aion_no_memory": {"investigation_actions": 169, "verified_successes": 34},
+    "aion_no_repair": {"investigation_actions": 68, "verified_successes": 1},
+    "cold_aion": {"investigation_actions": 68, "verified_successes": 0},
+    "full_aion": {"investigation_actions": 101, "verified_successes": 34},
+    "proposer_only": {"investigation_actions": 68, "verified_successes": 0}
+  },
+  "retention": {
+    "attempted": 4,
+    "failed": 0,
+    "next_due_at": "2026-08-18T00:31:33.069604+00:00",
+    "outstanding": 30,
+    "receipts": [
+      {
+        "mission_id": "moonshot_polyglot_systems_fault_v1",
+        "receipt_hash": "c8cd4a0ef54a172cd7b986f313b08c16c8181c06051ed5efb6c98230d7739768",
+        "relearning_actions": 0,
+        "source_accessed": false,
+        "verified": true
+      },
+      {
+        "evidence_sha256": "d9844e0cc0ff8474eb2b957fe21e02ff1eabc3c6bb017bd127ddcb1d15d1b1b1",
+        "mission_id": "moonshot_api_pagination_fault_v1",
+        "receipt_hash": "d8ce00710b330d16a3862c68059b80826309bc6e544928807afd070be96992c8",
+        "relearning_actions": 0,
+        "source_accessed": false,
+        "verified": true
+      },
+      {
+        "evidence_sha256": "768693b85d8834c8f7997565b3d0801338628db772db89543e6a2352ec01d280",
+        "mission_id": "moonshot_repo_repair_source_close_v1",
+        "receipt_hash": "5235d3d8fce65e75d8e5b53d3aa76fa8a80e4c699127b55e54019e75c0215130",
+        "relearning_actions": 0,
+        "source_accessed": false,
+        "verified": true
+      },
+      {
+        "evidence_sha256": "cdb83ed939a85dfe1dca2f5ffbc35309f5e87a2093323b52c6f71148658a880e",
+        "mission_id": "moonshot_schema_migration_fault_v1",
+        "receipt_hash": "ec3290d766ec984628bc5ad32455b5e496932ba50c24f5e4a351c071b217ab98",
+        "relearning_actions": 0,
+        "source_accessed": false,
+        "verified": true
+      }
+    ],
+    "verified": 4
+  },
+  "safety": {
+    "confirmed_repair_receipts": 33,
+    "false_or_unsafe_promotions": 0
+  },
+  "state_sha256_at_capture": "11d36d6658c1defd8076c977ccd52461f61a2d26a2a21ae5f28b116cff84f369",
+  "status": "retention_followup"
+}

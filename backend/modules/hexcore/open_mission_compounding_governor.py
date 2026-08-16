@@ -64,6 +64,14 @@ def _is_claim_diagnostic(mission_id: str) -> bool:
     return not mission_id.startswith("moonshot_public_change_forecast")
 
 
+def _has_mature_retention_attempt(state: Mapping[str, Any], mission_id: str) -> bool:
+    """A mature retention exam is single-shot, whether it passes or fails."""
+    return any(
+        row.get("mission_id") == mission_id and row.get("mature") is True
+        for row in state.get("retention_receipts") or []
+    )
+
+
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
@@ -375,8 +383,8 @@ class OpenMissionCompoundingGovernor:
         due = [
             mission["mission_id"] for mission in self.state["missions"].values()
             if mission.get("retention_due_at") and current >= _parse(mission["retention_due_at"])
-            and not any(row.get("mission_id") == mission["mission_id"] and row.get("verified")
-                        for row in self.state["retention_receipts"])
+            and _is_claim_diagnostic(mission["mission_id"])
+            and not _has_mature_retention_attempt(self.state, mission["mission_id"])
         ]
         mission_summaries = [
             {
@@ -393,15 +401,22 @@ class OpenMissionCompoundingGovernor:
         future_retention = sorted(
             mission["retention_due_at"] for mission in mission_summaries
             if mission.get("retention_due_at")
-            and not any(
-                row.get("mission_id") == mission["mission_id"] and row.get("verified")
-                for row in self.state["retention_receipts"]
-            )
+            and mission.get("claim_diagnostic") is True
+            and not _has_mature_retention_attempt(self.state, mission["mission_id"])
+        )
+        retention_attempts = [
+            row for row in self.state["retention_receipts"] if row.get("mature") is True
+        ]
+        contract_end = _parse(contract["ends_at"]) if contract.get("ends_at") else None
+        campaign_status = (
+            "retention_followup"
+            if contract_end is not None and current >= contract_end
+            else self.state.get("status")
         )
         snapshot = {
             "schema_version": SCHEMA_VERSION,
             "campaign_id": contract.get("campaign_id"),
-            "status": self.state.get("status"),
+            "status": campaign_status,
             "contract_hash": contract.get("contract_hash"),
             "started_at": contract.get("started_at"),
             "ends_at": contract.get("ends_at"),
@@ -427,7 +442,10 @@ class OpenMissionCompoundingGovernor:
             "full_aion_efficiency_comparison": efficiency_comparison,
             "ten_x_claim_gate_passed": ten_x,
             "verified_retention_count": sum(row.get("verified") is True for row in self.state["retention_receipts"]),
+            "retention_attempted_count": len(retention_attempts),
+            "failed_retention_count": sum(row.get("verified") is not True for row in retention_attempts),
             "retention_due_missions": due,
+            "retention_outstanding_missions": len(future_retention),
             "next_retention_due_at": future_retention[0] if future_retention else None,
             "confirmed_repair_count": sum(row.get("eligible") is True for row in self.state["repair_receipts"]),
             "false_or_unsafe_promotions": sum(

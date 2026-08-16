@@ -438,15 +438,18 @@ Choose an ordered list from {json.dumps(REPO_STRATEGIES)} and return strict JSON
     }
 
 
-def _evaluate_repo_strategy(strategy: str, *, prefix: str, repair: bool) -> dict[str, Any]:
+def _evaluate_repo_strategy(
+    strategy: str, *, prefix: str, repair: bool, variant: str = "base"
+) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix=f"aion_repo_{prefix}_") as directory:
         root = Path(directory)
         canonical = root / "state.json"
         staged = root / "state.json.stage"
         quarantine = root / "failed-write.bin"
         canonical.write_text(json.dumps({"version": 1, "records": []}), encoding="utf-8")
-        target = {"version": 2, "records": ["alpha", "beta"]}
-        interrupted = b'{"version":2,"records":["alpha"'
+        records = ["alpha", "beta"] if variant == "base" else [f"{variant}-alpha", f"{variant}-beta"]
+        target = {"version": 2, "records": records}
+        interrupted = json.dumps({"version": 2, "records": [records[0]]}).encode("utf-8")[:-2]
         if strategy == "overwrite_canonical_in_place":
             canonical.write_bytes(interrupted)
         elif strategy == "stage_without_promotion":
@@ -478,7 +481,7 @@ def _evaluate_repo_strategy(strategy: str, *, prefix: str, repair: bool) -> dict
             final = {}
         later_confirmed = bool(
             final.get("version") == 2
-            and final.get("records") == ["alpha", "beta"]
+            and final.get("records") == records
             and final.get("record_count") == 2
             and quarantine.exists()
         )
@@ -489,15 +492,20 @@ def _evaluate_repo_strategy(strategy: str, *, prefix: str, repair: bool) -> dict
             "passed": later_confirmed,
             "canonical_sha256": hashlib.sha256(canonical.read_bytes()).hexdigest(),
             "quarantine_sha256": hashlib.sha256(quarantine.read_bytes()).hexdigest() if quarantine.exists() else None,
+            "variant": variant,
         }
 
 
-def _execute_repo_arm(*, arm: str, proposal: Mapping[str, Any], action_budget: int) -> dict[str, Any]:
+def _execute_repo_arm(
+    *, arm: str, proposal: Mapping[str, Any], action_budget: int, variant: str = "base"
+) -> dict[str, Any]:
     memory, repair = _arm_config(arm)
     maximum = min(action_budget, len(proposal["order"])) if repair else 1
     attempts = []
     for strategy in list(proposal["order"])[:maximum]:
-        outcome = _evaluate_repo_strategy(strategy, prefix=arm, repair=repair)
+        outcome = _evaluate_repo_strategy(
+            strategy, prefix=arm, repair=repair, variant=variant
+        )
         attempts.append(outcome)
         if outcome["passed"] or outcome["base_passed"]:
             break
@@ -1031,28 +1039,125 @@ def run_public_change(*, repo_root: Path) -> dict[str, Any]:
     return output
 
 
-def run_due_retention(*, repo_root: Path) -> dict[str, Any]:
-    """Execute mature source-closed tests without replaying training sources."""
+def _structured_spec_for_mission(mission_id: str) -> dict[str, Any] | None:
+    """Resolve a frozen structured mission without reading its former task source."""
+    for base in STRUCTURED_REPAIR_SPECS:
+        if mission_id == base["mission_id"]:
+            return dict(base)
+        for wave in STRUCTURED_MISSION_WAVES:
+            if mission_id == f"{base['mission_id']}_{wave['suffix']}":
+                return {**base, "variant": wave["name"]}
+    return None
+
+
+def _run_structured_retention(
+    *, mission: Mapping[str, Any], spec: Mapping[str, Any]
+) -> dict[str, Any]:
+    """Apply retained method memory to a fresh renamed structured variant."""
+    conditions = mission["arm_conditions"]["full_aion"]
+    proposal = _propose_structured_order(
+        str(conditions["proposer_id"]), spec=spec, memory=True
+    )
+    attempts = []
+    variant = f"retention-{str(mission['mission_hash'])[:12]}"
+    maximum = min(int(conditions["action_budget"]), len(proposal["order"]))
+    for strategy in proposal["order"][:maximum]:
+        outcome = _evaluate_structured_strategy(
+            family=str(spec["family"]), strategy=str(strategy), repair=True,
+            variant=variant,
+        )
+        attempts.append(outcome)
+        if outcome["passed"] or outcome["base_passed"]:
+            break
+    passed = bool(attempts and attempts[-1]["passed"])
+    evidence = attempts[-1].get("evidence_sha256") if attempts else None
+    return {
+        "passed": passed,
+        "renamed_application": f"retained-{spec['family']}-{variant}",
+        "relearning_actions": max(0, len(attempts) - 1),
+        "retained_method_identifier": spec["memory"],
+        "evaluation_mode": "fresh_source_disjoint_structured_variant",
+        "evidence_sha256": evidence,
+        "proposal_available": proposal.get("available"),
+        "attempt_count": len(attempts),
+    }
+
+
+def _run_repository_retention(*, mission: Mapping[str, Any]) -> dict[str, Any]:
+    """Apply the retained atomic-promotion method in a fresh repository sandbox."""
+    conditions = mission["arm_conditions"]["full_aion"]
+    proposal = _propose_repo_order(str(conditions["proposer_id"]), memory=True)
+    variant = f"retention-{str(mission['mission_hash'])[:12]}"
+    result = _execute_repo_arm(
+        arm="full_aion", proposal=proposal,
+        action_budget=int(conditions["action_budget"]), variant=variant,
+    )
+    final = result["attempts"][-1] if result["attempts"] else {}
+    return {
+        "passed": bool(result["passed"]),
+        "renamed_application": f"repository-atomic-promotion-{variant}",
+        "relearning_actions": max(0, len(result["attempts"]) - 1),
+        "retained_method_identifier": REPO_RETAINED_METHOD,
+        "evaluation_mode": "fresh_disposable_repository_variant",
+        "evidence_sha256": final.get("canonical_sha256"),
+        "proposal_available": proposal.get("available"),
+        "attempt_count": len(result["attempts"]),
+    }
+
+
+def run_due_retention(
+    *, repo_root: Path, now: datetime | None = None
+) -> dict[str, Any]:
+    """Execute every supported mature source-closed exam exactly once.
+
+    Calibration forecasts are excluded by the governor. Unsupported mission
+    families remain visibly due and receive no fabricated receipt.
+    """
     governor = OpenMissionCompoundingGovernor(
         state_path=repo_root / "backend/modules/hexcore/data/open_mission_compounding/state.json"
     )
-    due = governor.snapshot().get("retention_due_missions") or []
+    due = governor.snapshot(now=now).get("retention_due_missions") or []
     completed = []
+    unsupported = []
     for mission_id in due:
+        mission = governor.state["missions"][mission_id]
         if mission_id == MISSION_ID:
-            authority = governor.state["missions"][mission_id]["evaluator_authority"]
             outcome = _evaluate("isolate_preserve_then_continue", prefix="telemetryretention")
-            receipt = governor.record_retention({
-                "mission_id": mission_id,
-                "evaluator_authority": authority,
+            result = {
                 "passed": outcome["passed"],
-                "source_accessed": False,
                 "renamed_application": "telemetry_event_continuity",
                 "relearning_actions": 0,
-            })
-            completed.append(receipt)
+                "retained_method_identifier": RETAINED_METHOD,
+                "evaluation_mode": "fresh_hidden_polyglot_integration_tests",
+                "evidence_sha256": hashlib.sha256(
+                    json.dumps(outcome, sort_keys=True).encode("utf-8")
+                ).hexdigest(),
+                "attempt_count": 1,
+            }
+        elif mission_id == REPO_MISSION_ID:
+            result = _run_repository_retention(mission=mission)
+        else:
+            spec = _structured_spec_for_mission(mission_id)
+            if spec is None:
+                unsupported.append({
+                    "mission_id": mission_id,
+                    "reason": "no_frozen_family_specific_retention_evaluator",
+                })
+                continue
+            result = _run_structured_retention(mission=mission, spec=spec)
+        receipt = governor.record_retention({
+            "mission_id": mission_id,
+            "evaluator_authority": mission["evaluator_authority"],
+            "source_accessed": False,
+            **result,
+        }, now=now)
+        completed.append(receipt)
     if completed:
         governor.publish_snapshot(
             repo_root / "results/aion_open_mission_compounding_status.json"
         )
-    return {"status": "completed" if completed else "nothing_due", "receipts": completed}
+    return {
+        "status": "completed" if completed else "unsupported_due" if unsupported else "nothing_due",
+        "receipts": completed,
+        "unsupported": unsupported,
+    }

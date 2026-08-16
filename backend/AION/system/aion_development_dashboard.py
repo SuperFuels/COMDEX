@@ -1246,7 +1246,7 @@ def render_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tuple[st
     moonshot = snapshot.get("open_mission_compounding") or {}
     executor = snapshot.get("open_mission_executor") or {}
     lines.extend(("section", line) for line in _section("SEVEN-DAY MOONSHOT", width))
-    lines.append(("good" if moonshot.get("status") == "active" else "warn", _clip(
+    lines.append(("good" if moonshot.get("status") in {"active", "retention_followup"} else "warn", _clip(
         f" Campaign: {str(moonshot.get('status', 'unknown')).upper()} | diagnostic cohorts "
         f"{moonshot.get('claim_diagnostic_cohorts', 0)} | completed records "
         f"{moonshot.get('cohort_complete_missions', 0)} | "
@@ -1327,8 +1327,11 @@ def render_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tuple[st
         lines.append(("good", _clip(
             f" Last independent outcome: cycle {last_scored.get('revealed_cycle', '-')} scored | {scores}", width)))
     lines.append(("muted", _clip(
-        f" Source-closed retention due: {_local_time(moonshot.get('next_retention_due_at'))} | "
-        "the executor will score it only after the frozen seven-day boundary", width)))
+        f" Retention attempts {moonshot.get('retention_attempted_count', 0)} | "
+        f"passed {moonshot.get('verified_retention_count', 0)} | "
+        f"failed {moonshot.get('failed_retention_count', 0)} | "
+        f"outstanding {moonshot.get('retention_outstanding_missions', 0)} | "
+        f"next due {_local_time(moonshot.get('next_retention_due_at'))}", width)))
     if public.get("status") == "waiting":
         lines.append(("normal", " Next action: honour the already-frozen outcome, then close forecast calibration and continue novel repair work."))
     elif public.get("status") == "portfolio_limit_reached":
