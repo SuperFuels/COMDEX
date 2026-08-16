@@ -76,6 +76,17 @@ theorem logDeriv_zetaGenusOneFactor {ρ z : ℂ} (hρ : ρ ≠ 0) (hz : z ≠ ρ
   field_simp
   ring
 
+/-- Each genus-one primary factor has a simple zero at its own divisor
+point. -/
+theorem analyticOrderAt_zetaGenusOneFactor_self {ρ : ℂ} (hρ : ρ ≠ 0) :
+    analyticOrderAt (zetaGenusOneFactor ρ) ρ = 1 := by
+  apply (zetaGenusOneFactor_analytic ρ ρ).analyticOrderAt_eq_one_of_zero_deriv_ne_zero
+  · exact (zetaGenusOneFactor_eq_zero_iff hρ).2 rfl
+  · rw [(hasDerivAt_zetaGenusOneFactor hρ).deriv]
+    apply mul_ne_zero
+    · exact neg_ne_zero.mpr (div_ne_zero hρ (pow_ne_zero 2 hρ))
+    · exact Complex.exp_ne_zero _
+
 /-- Cancellation of the linear exponential term makes the genus-one factor
 quadratically close to one on the unit disk. -/
 theorem norm_zetaGenusOneFactor_sub_one_le {ρ z : ℂ} (hρ : ρ ≠ 0)

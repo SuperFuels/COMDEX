@@ -1810,3 +1810,44 @@ Differentiating that identity and matching the prescribed symmetric
 truncations will close \(\lambda_{n,T}\to\lambda_n\).  None of these classical
 connections proves the separate RH-equivalent arithmetic dominance
 inequality, which remains open.
+
+## Exact zero-set identification and exclusion of phantom zeros
+
+The first half of divisor identification is now complete.  A new generic
+nonvanishing theorem combines pointwise absolute summability of
+\(E_1(z/\rho)-1\) with Mathlib's nonzero infinite-product criterion.  It
+proves
+
+\[
+  \prod_j E_1(z/\rho_j)=0
+  \quad\Longleftrightarrow\quad
+  \rho_j=z\text{ for at least one }j.
+\]
+
+Thus locally uniform convergence cannot introduce a phantom zero.  This
+theorem is instantiated separately on both infinite tails.  The analogous
+finite-product statement is proved for the central block, and the three
+results are combined into an exact zero ledger for the assembled product.
+
+Lean also proves that every nontrivial zeta zero has strictly positive natural
+analytic multiplicity.  Using the verified shell coverage, reflection, and
+the central height band, it constructs an actual multiplicity-indexed factor
+copy for every nontrivial zero.  Conversely, every factor point is already
+certified as a nontrivial zeta zero.  The resulting checked theorem is
+
+\[
+  P(z)=0
+  \quad\Longleftrightarrow\quad
+  z\text{ is a nontrivial zero of }\zeta.
+\]
+
+Finally, every individual primary factor is proved to have analytic order
+exactly one at its own zero.  The remaining divisor refinement is to isolate
+the finitely many equal factor copies at a selected zero, prove the complementary
+infinite product is locally nonvanishing, and sum these simple orders.  That
+will establish equality of analytic multiplicities between \(P\) and \(\Xi\).
+
+After multiplicity equality, the remaining Hadamard steps are the order-one
+zero-free quotient theorem, determination of the exponential-linear factor,
+and the symmetric Li truncation limit.  RH and the all-index arithmetic
+dominance inequality remain unproved.
