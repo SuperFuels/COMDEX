@@ -185,6 +185,21 @@ noncomputable instance finite_lowHeightZetaFactorIndex :
   letI : Fintype LowHeightZetaFactorIndex := Sigma.instFintype
   exact Finite.of_fintype _
 
+noncomputable instance fintype_lowHeightZetaFactorIndex :
+    Fintype LowHeightZetaFactorIndex := Fintype.ofFinite _
+
+/-- The actual central zero carried by a multiplicity copy. -/
+def lowHeightZetaFactorPoint (j : LowHeightZetaFactorIndex) : ℂ :=
+  j.1.1.1
+
+theorem lowHeightZetaFactorPoint_ne_zero (j : LowHeightZetaFactorIndex) :
+    lowHeightZetaFactorPoint j ≠ 0 := by
+  have hz := j.1.1.property
+  intro h
+  rw [show j.1.1.1 = 0 from h] at hz
+  have := hz.re_pos
+  norm_num at this
+
 /-- Any amplitude on the multiplicity-expanded central divisor is summable. -/
 theorem summable_lowHeightZetaFactorIndex (f : LowHeightZetaFactorIndex → ℂ) :
     Summable f := by

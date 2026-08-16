@@ -1753,3 +1753,60 @@ bound on compact disks, construct both tail products, multiply by the finite
 central product, and identify the resulting entire function with the
 completed xi function up to \(e^{A+Bs}\).  The RH-equivalent arithmetic
 dominance inequality remains separate and unproved.
+
+## Global entire genus-one canonical product
+
+The canonical product has now been constructed, rather than merely specified
+as a future obligation.  The local primary-factor estimate was strengthened
+to the global bound
+
+\[
+  \left|E_1(w)-1\right|
+  \leq 2|w|^2e^{|w|},
+\]
+
+which removes the need to discard finitely many factors when working on a
+fixed compact disk.  A generic Lean theorem now proves uniform
+multipliability on every closed disk for any nonzero divisor bounded away
+from the origin and satisfying inverse-square summability.
+
+Instantiating this theorem with the literal multiplicity-expanded zeta
+divisor gives uniform products for both infinite tails on every closed disk.
+Compact containment then promotes these results to locally uniform
+convergence across the whole complex plane.  The two actual tail functions
+
+\[
+  P_+(z)=\prod_{j\in I_+}E_1(z/\rho_j),
+  \qquad
+  P_-(z)=\prod_{j\in I_-}E_1(z/\rho_j)
+\]
+
+are defined by convergent `tprod`s and proved entire using the locally uniform
+limit theorem.  The finite central product \(P_0\) is also defined with one
+factor per unit of analytic multiplicity.  Lean therefore constructs the
+complete function
+
+\[
+  P(z)=P_+(z)P_-(z)P_0(z),
+\]
+
+proves that it is entire, and verifies the normalization
+
+\[
+  P(0)=1.
+\]
+
+This closes construction and analytic convergence of the full
+multiplicity-aware genus-one product.  What remains in the classical
+Hadamard bridge is the global divisor-identification theorem: prove that
+\(P\) and \(\Xi\) have precisely the same zeros with the same analytic orders,
+then use the checked order-one growth to show
+
+\[
+  \Xi(z)/P(z)=e^{A+Bz}.
+\]
+
+Differentiating that identity and matching the prescribed symmetric
+truncations will close \(\lambda_{n,T}\to\lambda_n\).  None of these classical
+connections proves the separate RH-equivalent arithmetic dominance
+inequality, which remains open.

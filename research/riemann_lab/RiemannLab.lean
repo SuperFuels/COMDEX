@@ -34,6 +34,7 @@ import RiemannLab.Tasks.RiemannLiZeroSumBridge
 import RiemannLab.Tasks.ZetaQuadraticSummability
 import RiemannLab.Tasks.ZetaGenusOneCanonicalFactor
 import RiemannLab.Tasks.ZetaMultiplicityExpandedDivisor
+import RiemannLab.Tasks.ZetaGenusOneUniformProduct
 import RiemannLab.Tasks.CriticalLineCriterion
 import RiemannLab.Tasks.ZetaZeroMultiplicity
 import RiemannLab.Tasks.CompactZetaDivisor

@@ -107,4 +107,43 @@ theorem norm_zetaGenusOneFactor_sub_one_le {ρ z : ℂ} (hρ : ρ ≠ 0)
       exact hexp1
     _ = 3 * ‖w‖ ^ 2 := by ring
 
+/-- A global quadratic-exponential primary-factor estimate.  Unlike the
+unit-disk estimate, this version has no smallness hypothesis and is therefore
+suited to uniform products on an arbitrary fixed compact disk. -/
+theorem norm_zetaGenusOneFactor_sub_one_le_global {ρ z : ℂ} :
+    ‖zetaGenusOneFactor ρ z - 1‖ ≤
+      2 * ‖z / ρ‖ ^ 2 * Real.exp ‖z / ρ‖ := by
+  let w : ℂ := z / ρ
+  have hexp2 : ‖Complex.exp w - 1 - w‖ ≤
+      ‖w‖ ^ 2 * Real.exp ‖w‖ := by
+    have h := Complex.norm_exp_sub_sum_le_norm_mul_exp w 2
+    simp [Finset.sum_range_succ] at h
+    convert h using 1
+    ring
+  have hexp1 : ‖Complex.exp w - 1‖ ≤
+      ‖w‖ * Real.exp ‖w‖ := by
+    simpa using Complex.norm_exp_sub_sum_le_norm_mul_exp w 1
+  have hid : (1 - w) * Complex.exp w - 1 =
+      (Complex.exp w - 1 - w) + w * (1 - Complex.exp w) := by ring
+  unfold zetaGenusOneFactor
+  change ‖(1 - w) * Complex.exp w - 1‖ ≤
+    2 * ‖w‖ ^ 2 * Real.exp ‖w‖
+  rw [hid]
+  calc
+    ‖(Complex.exp w - 1 - w) + w * (1 - Complex.exp w)‖ ≤
+        ‖Complex.exp w - 1 - w‖ + ‖w * (1 - Complex.exp w)‖ :=
+      norm_add_le _ _
+    _ ≤ ‖w‖ ^ 2 * Real.exp ‖w‖ +
+        ‖w‖ * (‖w‖ * Real.exp ‖w‖) := by
+      apply add_le_add hexp2
+      rw [norm_mul]
+      apply mul_le_mul_of_nonneg_left _ (norm_nonneg w)
+      have hnorm : ‖1 - Complex.exp w‖ = ‖Complex.exp w - 1‖ := by
+        rw [← norm_neg]
+        congr 1
+        ring
+      rw [hnorm]
+      exact hexp1
+    _ = 2 * ‖w‖ ^ 2 * Real.exp ‖w‖ := by ring
+
 end RiemannLab
