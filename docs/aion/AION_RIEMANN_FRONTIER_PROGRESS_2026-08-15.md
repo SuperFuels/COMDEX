@@ -1616,3 +1616,61 @@ The claim boundary is therefore exact.  The completed arithmetic ledger is
 closed.  The global Taylor-to-zero-sum Hadamard bridge remains classical and
 open.  The uniform dominance inequality remains the genuinely nonclassical
 RH-level theorem; it has not been proved.
+
+## Quadratic zeta-divisor summability for the genus-one product
+
+The first analytic prerequisite for the global Hadamard bridge is now
+machine-checked.  `ZetaQuadraticSummability.lean` strengthens the previously
+available fourth-power tail control to the quadratic damping required by a
+genus-one canonical product.
+
+Starting from the verified logarithmic bound for the multiplicity in each
+unit-height zero shell, Lean proves the explicit elementary estimate
+
+\[
+  \log(n+2)\leq 4\sqrt{n+1}
+\]
+
+and hence a square-root envelope for the multiplicity mass of the shell.  It
+then compares the quadratically damped shell series with the convergent
+\(3/2\)-series.  The resulting package proves summability for the complete
+positive-height shell union, transports it to negative heights using the
+functional-equation reflection, and absorbs the finite central block.  In
+schematic form, the checked conclusion is the convergence strength
+
+\[
+  \sum_{\rho}\frac{m(\rho)}{|\rho|^2}<\infty
+\]
+
+expressed through the programme's positive-shell, reflected negative-shell,
+and finite low-height divisor models.
+
+This is exactly the tail estimate needed to construct the primary factors
+
+\[
+  E_1\!\left(\frac{s}{\rho}\right)
+  =\left(1-\frac{s}{\rho}\right)e^{s/\rho}
+\]
+
+with locally uniform convergence.  It does not by itself identify the
+resulting product with the completed zeta function.  The remaining classical
+Hadamard work is now sharply separated into four steps:
+
+1. construct the locally uniformly convergent genus-one product from the
+   checked quadratic summability package;
+2. prove that its divisor, including multiplicities, is the nontrivial zeta
+   divisor;
+3. identify the quotient with \(e^{A+Bs}\) using the order-one growth of the
+   completed xi function; and
+4. differentiate the product and prove the symmetric truncation limit
+   \(\lambda_{n,T}\to\lambda_n\) for every fixed \(n\).
+
+All four remaining steps are established classical complex analysis.  The
+separate all-index arithmetic inequality
+
+\[
+  S_f(n)\leq S_\infty(n)+1\qquad(n\geq1)
+\]
+
+is still the RH-equivalent breakthrough target.  Neither that inequality nor
+RH has been proved.
