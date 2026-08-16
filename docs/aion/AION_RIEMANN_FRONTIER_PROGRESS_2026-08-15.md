@@ -1940,3 +1940,63 @@ RH. The surviving target is exact: construct \(M_n\) directly from the
 prime-side expression and prove both inequalities uniformly for every
 \(n\). Finite numerical positivity, a reconstructed residual, and separate
 sign estimates do not meet this certificate.
+
+## Literal prime-cutoff energy and certified-tail target
+
+The abstract majorant requirement has now been pulled down to a literal
+finite von Mangoldt calculation.  For the \(n\)-th Li test define
+
+\[
+ P_n(x)=\sum_{j=0}^{n-1}\binom{n}{j+1}\frac{x^j}{j!},
+ \qquad
+ C_n(x)=\sum_{j=0}^{n-1}\binom{n}{j+1}
+                 \frac{x^{j+1}}{(j+1)!}.
+\]
+
+Here \(P_n\) is the associated-Laguerre weight appearing in the Li--Weil
+prime formula, while \(C_n\) is its logarithmic compensation polynomial.
+The coupled finite energy is
+
+\[
+ E_n(N)=S_\infty(n)+1+C_n(\log N)
+   -\sum_{m\leq N}\frac{\Lambda(m)}{m}P_n(\log m).
+\]
+
+Keeping the compensation and prime sum together is essential: the two raw
+terms diverge separately.  This agrees with the cutoff regularization in
+[Lagarias's Li-coefficient treatment](https://www.numdam.org/item/AIF_2007__57_5_1689_0/).
+
+`LiPrimeCutoffEnergy.lean` proves the finite moment interchange and the exact
+prime-by-prime checkpoint equation
+
+\[
+ E_n(N+1)-E_n(N)
+ =C_n(\log(N+1))-C_n(\log N)
+  -\frac{\Lambda(N+1)}{N+1}P_n(\log(N+1)).
+\]
+
+It also proves the correct finite certification rule.  If a cutoff \(N_n\)
+and independently proved error radius \(R_n\geq0\) satisfy
+
+\[
+ |\lambda_n-E_n(N_n)|\leq R_n,
+ \qquad R_n\leq E_n(N_n),
+\]
+
+then \(\lambda_n\geq0\).  A uniform family of these certificates for all
+\(n\) implies Riemann Li positivity.
+
+Exploratory arithmetic stress tests rejected a tempting stronger invariant.
+The individual checkpoint increments take both signs; for example, at
+\(n=10\) there are both positive and negative increments below \(10^4\), and
+intermediate cutoff energies can be negative even though the known finite Li
+coefficient is positive.  Therefore neither monotonicity nor positivity at
+every raw cutoff is a valid proof route.  The rover must carry a rigorous
+tail-error budget, not merely inspect the current checkpoint sign.
+
+The surviving RH-level obligation is now constructive and finite at each
+index: derive a uniform analytic tail radius \(R_n(N)\) from prime-counting
+information, choose \(N=N_n\), and prove
+\(R_n(N_n)\leq E_n(N_n)\) for every \(n\).  This has not been proved; without
+the uniform tail estimate the new recurrence is an instrument, not an RH
+solution.
