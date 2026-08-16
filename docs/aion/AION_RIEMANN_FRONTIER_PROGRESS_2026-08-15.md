@@ -2070,3 +2070,89 @@ prime-number-theorem bounds can make the tail converge for each fixed
 polynomial weight, but no checked argument currently proves this all-index
 margin.  Establishing it would be the RH-level breakthrough, not a final
 routine estimate.
+
+## Prime-number-theorem envelope and the exact margin obstruction
+
+The Abel ledger has now been compressed to a single remainder integral.
+Lean proves
+
+\[
+ \int_N^M w_n'(t)\psi(t)\,dt-
+ \int_N^M w_n'(t)t\,dt
+ =\int_N^M w_n'(t)(\psi(t)-t)\,dt.
+\]
+
+Consequently, any independently established pointwise envelope
+
+\[
+ |\psi(x)-x|\leq H(x)
+\]
+
+produces the checked cutoff-oscillation estimate
+
+\[
+ |E_n(M)-E_n(N)|\leq
+ |w_n(M)|H(M)+|w_n(N)|H(N)
+ +\int_N^M |w_n'(t)|H(t)\,dt.
+\]
+
+This is a reusable interface: the formal Li machinery no longer depends on
+the particular proof or constants used for the prime-number theorem.
+
+The elementary Chebyshev estimate available in the pinned Mathlib version
+gives the linear envelope
+
+\[
+ H_0(x)=(\log 4+5)x.
+\]
+
+Lean proves that this estimate is quantitatively inadequate already for the
+first Li weight:
+
+\[
+ |w_1(x)|H_0(x)=\log 4+5.
+\]
+
+The boundary contribution therefore does not tend to zero.  This is a
+formal obstruction to using the library's elementary bound in the absolute
+tail method, rather than merely a failed numerical experiment.
+
+An explicit de la Vall\'ee Poussin--type envelope has also been installed:
+
+\[
+ H_{\mathrm{PNT}}(x)=
+ 10x(\log x)^2
+ \exp\!\left(-\frac45\sqrt{\log x}\right).
+\]
+
+The deep statement
+\( |\psi(x)-x|\leq H_{\mathrm{PNT}}(x) \) for \(x\geq3\) is represented as
+an explicit proposition, not as an axiom.  Assuming that proposition, Lean
+derives the corresponding Li cutoff-tail bound.  Formalizing suitable
+published explicit PNT estimates, such as those of
+[Johnston and Yang](https://arxiv.org/abs/2204.01980), would therefore close
+the classical fixed-\(n\) convergence input without altering the downstream
+certificate architecture.
+
+The decisive logical boundary has also been formalized.  For any real
+sequence \(E(N)\to L\) with \(L>0\), Lean constructs a checkpoint \(N\) and
+a nonnegative radius \(R\) such that
+
+\[
+ |E(M)-E(N)|\leq R\leq E(N)
+ \qquad(M\geq N).
+\]
+
+Thus a sufficiently strong PNT bound supplies convergence, but the existence
+of a positive all-index checkpoint margin still depends on the positivity of
+the limiting Li coefficient.  Proving such margins uniformly without already
+assuming \(\lambda_n>0\) is not a routine consequence of the PNT: it is the
+RH-level content of this route.  The programme has therefore separated the
+remaining work cleanly:
+
+1. reconstruct an explicit PNT estimate in Lean to close the classical
+   fixed-index tail convergence; and
+2. discover an independent uniform cancellation or positivity theorem that
+   proves the checkpoint margin for every \(n\).
+
+No proof or disproof of RH is claimed.
