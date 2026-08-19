@@ -207,6 +207,9 @@ backend/modules/hexcore/data/phase45_artifacts/
 backend/modules/hexcore/data/**/provider_cache.json
 backend/modules/hexcore/data/**/openai_provider_cache.json
 backend/modules/hexcore/data/**/teacher_cache.json
+# Large, rapidly changing local resume state.  Its compact governed evidence
+# snapshot is results/hexcore_situational_executive_driver.json.
+backend/modules/hexcore/data/situational_executive_driver/state.json
 
 # optional: if you never want ANY runtime data tracked
 # data/**# INERTIA artifacts: keep only what is already tracked; ignore future runs
