@@ -23334,8 +23334,8 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
 
     html body .aion-main-sidebar .aion-workflow-sidebar-toggle {
       width: 64px !important;
-      height: 58px !important;
-      min-height: 58px !important;
+      height: 71px !important;
+      min-height: 71px !important;
       display: grid !important;
       place-items: center !important;
       border: 0 !important;
@@ -113660,6 +113660,8 @@ html body .aion-pilot-tracked-change-strip ul {
     }
 
     html body > .aion-main-sidebar .aion-workflow-sidebar-toggle {
+      height: 71px !important;
+      min-height: 71px !important;
       border-top: 0 !important;
       background: #ffffff !important;
       color: #475569 !important;

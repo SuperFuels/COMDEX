@@ -121,4 +121,6 @@ def test_sidebar_remount_geometry_matches_the_root_sidebar():
     assert "width: 64px !important" in transient_sidebar
     assert "gap: 0 !important" in transient_sidebar
     assert "padding: 0 !important" in transient_sidebar
-    assert "height: 58px !important" in transient_sidebar
+    assert "height: 71px !important" in transient_sidebar
+    assert "min-height: 71px !important" in transient_sidebar
+    assert "html body > .aion-main-sidebar .aion-workflow-sidebar-toggle" in APP
