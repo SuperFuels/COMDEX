@@ -1,9 +1,9 @@
 {
-  "canonical_glyph_bytes": 3286216,
-  "compressed_glyph_bytes": 1531978,
-  "compressed_sha256": "c79c5c53a715c8925d2fd9c0953aa26c2356ac65415c396839ca6fb39c7a6a14",
+  "canonical_glyph_bytes": 3286320,
+  "compressed_glyph_bytes": 1532020,
+  "compressed_sha256": "627db76b7be25720a129eb04420b950d76d0bf6c1f582d1fa222c1316458dd2d",
   "compressed_store": "backend/modules/hexcore/data/intelligence_glyphs/glyphs.json.gz",
-  "created_at": "2026-08-20T12:11:52.188485+00:00",
+  "created_at": "2026-08-20T12:12:43.671328+00:00",
   "curriculum_glyphs": 13,
   "evidence": {
     "ev_0000eb0901e3fb3155c0": {
@@ -50986,6 +50986,14 @@
       "b": 2329,
       "h": "5743d8e208fb24c3c23ec5fd959c775bb1d981458c483de7a3248c0f623fb122",
       "p": "results/progressive_competency/competency_contract_93c9934930c207e09f2c.json",
+      "reported_only": false,
+      "verified": true
+    },
+    "ev_57441e850cb2177f19a5": {
+      "authority": "progressive_competency_outcome",
+      "b": 2328,
+      "h": "57441e850cb2177f19a53fd30e5452f77230a5362d510cbdee201fd6a1df9c60",
+      "p": "results/progressive_competency/competency_contract_e5b8638a70461e7a2480.json",
       "reported_only": false,
       "verified": true
     },
@@ -148059,13 +148067,13 @@
   },
   "glyph_count": 297,
   "knowledge_glyphs": 248,
-  "progressive_evidence_records": 27568,
+  "progressive_evidence_records": 27569,
   "progressive_subjects_consolidated": 30,
   "raw_evidence_duplicated_in_glyph_store": false,
-  "raw_source_bytes": 48049963,
+  "raw_source_bytes": 48052291,
   "schema_version": "aion.intelligence_glyph.v1",
   "skill_glyphs": 36,
   "source_evidence_deleted": 0,
-  "verified_source_count": 18507,
-  "working_memory_reduction": 0.9681169785708263
+  "verified_source_count": 18508,
+  "working_memory_reduction": 0.9681176491668212
 }

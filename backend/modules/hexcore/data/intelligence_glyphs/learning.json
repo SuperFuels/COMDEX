@@ -39845,6 +39845,11 @@
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
       "working_memory_reduction": 0.9682344995775434
     },
+    "627db76b7be25720a129eb04420b950d76d0bf6c1f582d1fa222c1316458dd2d": {
+      "glyph_count": 297,
+      "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
+      "working_memory_reduction": 0.9681176491668212
+    },
     "627fd0536b4e42601b6e725723b6fcf22e2d28fb837ca13cd0952887405e2985": {
       "glyph_count": 297,
       "index_path": "backend/modules/hexcore/data/intelligence_glyphs/index.json",
@@ -104163,7 +104168,7 @@
       "source": "glyph_consolidation_cau"
     },
     "reason": "governed_intelligence_glyph_consolidation",
-    "state_hash": "bc47dcab83bc7d1010d340e9b1b3363d6a31b63a60e8c4fac2947e19d4beeedf"
+    "state_hash": "6224399f9f5f38bedfb99c6ee192377a0b80d8d36abc1b7b29ae69b965cbc7e5"
   },
   "latent_event_modes": {},
   "latent_variables": {},
@@ -666228,6 +666233,33 @@
       "score": 1.968117,
       "success": true,
       "timestamp": "2026-08-20T12:11:54.795193+00:00"
+    },
+    {
+      "evidence": {
+        "gate": {
+          "accepted": true,
+          "all_provenance_resolves": true,
+          "compressed_checksum_verified": true,
+          "curriculum_glyphs": 13,
+          "curriculum_not_mistaken_for_learning": true,
+          "glyphs": 297,
+          "knowledge_glyphs": 248,
+          "progressive_evidence_records": 27569,
+          "progressive_subjects_consolidated": 30,
+          "raw_evidence_duplicated": false,
+          "skill_glyphs": 36,
+          "source_evidence_deleted": 0,
+          "unsafe_actions": 0,
+          "verified_sources": 18508,
+          "working_memory_reduction": 0.968118
+        }
+      },
+      "outcome_id": "outcome_9f7e326718674be6",
+      "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
+      "schema_version": "aion.hexcore.procedure_outcome.v1",
+      "score": 1.968118,
+      "success": true,
+      "timestamp": "2026-08-20T12:12:45.876080+00:00"
     }
   ],
   "polyglot_execution_contracts": {},
@@ -666324,7 +666356,7 @@
   "representation_models": {},
   "representation_revision_generations": [],
   "reproducibility_audits": [],
-  "revision": 41632,
+  "revision": 41634,
   "sandbox_patch_library": {},
   "schema_learning_projects": {},
   "schema_revision_sessions": [],
@@ -666347,7 +666379,7 @@
   "tool_skills": {},
   "topology_induction_sessions": [],
   "typed_dsl_programs": {},
-  "updated_at": "2026-08-20T12:11:55.933150+00:00",
+  "updated_at": "2026-08-20T12:12:47.121437+00:00",
   "verified_execution_adapters": {},
   "verified_property_programs": {},
   "verified_subprogram_library": {},
