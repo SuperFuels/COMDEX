@@ -108,6 +108,9 @@ def test_executive_strip_uses_white_and_light_blue_controls():
     assert "border: 1px solid #b9dcf7" in STYLES
     assert "background: #d8eeff" in STYLES
     assert ".aion-executive-sticky-action:focus-visible" in STYLES
+    assert "padding: 9px 24px 9px 88px" in STYLES
+    assert 'body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="true"]' in STYLES
+    assert "padding-left: 260px" in STYLES
 
 
 def test_sidebar_remount_geometry_matches_the_root_sidebar():

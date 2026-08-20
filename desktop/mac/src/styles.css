@@ -11182,7 +11182,7 @@ html body .surface-shell[data-aion-boardroom-view-mode]:has(.aion-main-sidebar) 
   grid-template-columns: minmax(170px, .7fr) minmax(480px, 1.8fr) auto;
   align-items: center;
   gap: 18px;
-  padding: 9px 24px;
+  padding: 9px 24px 9px 88px;
   color: #27445f;
   background: rgba(255, 255, 255, .98);
   border: 0;
@@ -11190,6 +11190,10 @@ html body .surface-shell[data-aion-boardroom-view-mode]:has(.aion-main-sidebar) 
   border-bottom: 1px solid #d7e9f7;
   box-shadow: 0 10px 28px rgba(33, 89, 132, .12);
   backdrop-filter: blur(18px) saturate(1.08);
+}
+
+body.aion-workflow-sidebar-expanded [data-aion-boardroom-sticky-team-header="true"] {
+  padding-left: 260px;
 }
 
 [data-aion-boardroom-sticky-session-label="true"] {
