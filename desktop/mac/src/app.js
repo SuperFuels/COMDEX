@@ -8187,6 +8187,14 @@ function renderBoardroomSpatialView(snapshot) {
   return `
     <div class="dashboard-shell" data-aion-spatial-boardroom-layout="clean-3d">
       <div
+        class="aion-executive-page-header-bleed"
+        data-aion-executive-page-header-bleed="true"
+        data-aion-executive-page-header-scope="boardroom"
+      >
+        ${renderAionBoardroomStickyTeamHeaderV1(snapshot, { fullRoomExpanded })}
+      </div>
+
+      <div
         class="panel large-panel"
         data-aion-spatial-boardroom-main-panel="true"
         style="
@@ -8195,8 +8203,6 @@ function renderBoardroomSpatialView(snapshot) {
           border:1px solid rgba(17,17,17,0.12);
         "
       >
-        ${renderAionBoardroomStickyTeamHeaderV1(snapshot, { fullRoomExpanded })}
-
         <div
           data-aion-boardroom-full-room-region="true"
           ${fullRoomExpanded ? "" : "hidden"}
@@ -23308,14 +23314,14 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
       left: 0 !important;
       top: 0 !important;
       bottom: 0 !important;
-      width: 72px !important;
+      width: 64px !important;
       height: 100vh !important;
       z-index: 9998 !important;
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
-      gap: 18px !important;
-      padding: 42px 8px 24px !important;
+      gap: 0 !important;
+      padding: 0 !important;
       border-radius: 0 !important;
       border-right: 2px solid rgba(71,85,105,0.28) !important;
       border-left: 0 !important;
@@ -23327,19 +23333,19 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
     }
 
     html body .aion-main-sidebar .aion-workflow-sidebar-toggle {
-      width: 48px !important;
-      height: 48px !important;
-      min-height: 48px !important;
+      width: 64px !important;
+      height: 58px !important;
+      min-height: 58px !important;
       display: grid !important;
       place-items: center !important;
-      border: 1px solid rgba(71,85,105,0.24) !important;
+      border: 0 !important;
       border-radius: 0 !important;
       background: #ffffff !important;
       color: #475569 !important;
       font-size: 20px !important;
       font-weight: 900 !important;
       padding: 0 !important;
-      margin: 0 0 18px !important;
+      margin: 0 !important;
       box-shadow: none !important;
     }
 
@@ -23348,7 +23354,7 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
       flex-direction: column !important;
       align-items: center !important;
       justify-content: flex-start !important;
-      gap: 20px !important;
+      gap: 0 !important;
       width: 100% !important;
       margin: 0 !important;
       padding: 0 !important;
@@ -23357,9 +23363,9 @@ if (!window.__aionPhase24FBusinessSubtabsInstalled) {
     }
 
     html body .aion-main-sidebar .aion-workflow-nav-btn {
-      width: 52px !important;
-      height: 52px !important;
-      min-height: 52px !important;
+      width: 64px !important;
+      height: 58px !important;
+      min-height: 58px !important;
       display: grid !important;
       place-items: center !important;
       padding: 0 !important;

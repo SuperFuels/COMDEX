@@ -11154,26 +11154,42 @@ textarea.aion-business-control,
   }
 }
 
-/* Boardroom cinematic-to-working transition: this strip sits below the full
-   room, then becomes the persistent executive presence while the terminal
-   scrolls beneath it. */
-[data-aion-boardroom-sticky-team-header="true"] {
-  position: sticky;
+/* Reusable page-level executive strip. It deliberately breaks out of the
+   centred content column to meet the fixed app sidebar, while the working
+   surface below remains at its normal readable width. */
+[data-aion-executive-page-header-bleed="true"] {
+  position: fixed;
   top: 0;
-  z-index: 90;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  width: 100vw;
+  margin: 0;
+}
+
+/* Boardroom rerenders briefly remount the global sidebar inside this surface.
+   Keep its geometry invariant during that handoff so the content cannot jump. */
+html body .surface-shell[data-aion-boardroom-view-mode],
+html body .surface-shell[data-aion-boardroom-view-mode]:has(.aion-main-sidebar) {
+  padding: 95px 24px 32px !important;
+  overflow-x: clip;
+}
+
+[data-aion-boardroom-sticky-team-header="true"] {
+  position: relative;
   min-height: 70px;
   display: grid;
   grid-template-columns: minmax(170px, .7fr) minmax(480px, 1.8fr) auto;
   align-items: center;
   gap: 18px;
-  padding: 9px 14px;
-  color: #f8fbff;
-  background:
-    linear-gradient(90deg, rgba(3, 20, 41, .97), rgba(7, 43, 70, .95) 52%, rgba(3, 20, 41, .97));
-  border: 1px solid rgba(121, 221, 244, .28);
-  border-top: 2px solid rgba(120, 226, 245, .72);
-  box-shadow: 0 14px 34px rgba(3, 20, 41, .24), inset 0 1px 0 rgba(255,255,255,.06);
-  backdrop-filter: blur(18px) saturate(1.15);
+  padding: 9px 24px;
+  color: #27445f;
+  background: rgba(255, 255, 255, .98);
+  border: 0;
+  border-top: 2px solid #8ccfff;
+  border-bottom: 1px solid #d7e9f7;
+  box-shadow: 0 10px 28px rgba(33, 89, 132, .12);
+  backdrop-filter: blur(18px) saturate(1.08);
 }
 
 [data-aion-boardroom-sticky-session-label="true"] {
@@ -11190,7 +11206,7 @@ textarea.aion-business-control,
 }
 
 [data-aion-boardroom-sticky-session-label="true"] strong {
-  color: #ffffff;
+  color: #173956;
   font-size: 11px;
   line-height: 1.1;
   letter-spacing: .16em;
@@ -11199,7 +11215,7 @@ textarea.aion-business-control,
 }
 
 [data-aion-boardroom-sticky-session-label="true"] small {
-  color: rgba(220, 240, 249, .64);
+  color: #6c8498;
   font-size: 9px;
   line-height: 1.2;
   white-space: nowrap;
@@ -11229,7 +11245,7 @@ textarea.aion-business-control,
   display: grid;
   justify-items: center;
   gap: 4px;
-  color: rgba(230, 243, 250, .72);
+  color: #688096;
 }
 
 [data-aion-boardroom-sticky-avatar="true"] {
@@ -11238,9 +11254,9 @@ textarea.aion-business-control,
   display: block;
   overflow: hidden;
   border-radius: 50%;
-  border: 1px solid rgba(181, 224, 238, .44);
-  background: #dbe7ed;
-  box-shadow: 0 5px 15px rgba(0,0,0,.28);
+  border: 1px solid #b9d9ef;
+  background: #eaf5fc;
+  box-shadow: 0 5px 14px rgba(35, 88, 126, .16);
   transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
@@ -11266,12 +11282,12 @@ textarea.aion-business-control,
 }
 
 [data-aion-boardroom-sticky-member][data-active="true"] {
-  color: #f6c850;
+  color: #1677c8;
 }
 
 [data-aion-boardroom-sticky-member][data-active="true"] [data-aion-boardroom-sticky-avatar="true"] {
-  border-color: #f6c850;
-  box-shadow: 0 0 0 3px rgba(246,200,80,.15), 0 5px 18px rgba(0,0,0,.34);
+  border-color: #3b9ee8;
+  box-shadow: 0 0 0 3px rgba(59,158,232,.14), 0 6px 18px rgba(35,88,126,.20);
   transform: translateY(-1px);
 }
 
@@ -11288,19 +11304,27 @@ textarea.aion-business-control,
   min-height: 38px;
   display: inline-grid;
   place-items: center;
-  border: 1px solid rgba(188, 225, 238, .34);
-  background: rgba(255,255,255,.07);
-  color: #f3f9fc;
+  border: 1px solid #b9dcf7;
+  background: #eaf6ff;
+  color: #1376c5;
   padding: 0;
   font-size: 19px;
   line-height: 1;
   font-weight: 900;
   cursor: pointer;
+  transition: background 150ms ease, border-color 150ms ease, color 150ms ease, transform 150ms ease;
 }
 
 .aion-executive-sticky-action:hover {
-  border-color: rgba(121,221,244,.72);
-  background: rgba(121,221,244,.13);
+  border-color: #62b2ef;
+  background: #d8eeff;
+  color: #075b9e;
+  transform: translateY(-1px);
+}
+
+.aion-executive-sticky-action:focus-visible {
+  outline: 3px solid rgba(59, 158, 232, .22);
+  outline-offset: 2px;
 }
 
 [data-aion-vault-ai-providers="true"] {
@@ -11328,6 +11352,9 @@ textarea.aion-business-control,
 }
 
 @media (max-width: 760px) {
+  [data-aion-executive-page-header-bleed="true"] {
+    width: 100vw;
+  }
   [data-aion-boardroom-sticky-session-label="true"] strong { display: none; }
   [data-aion-boardroom-sticky-member] { min-width: 44px; }
   [data-aion-boardroom-sticky-name="true"] { display: none; }

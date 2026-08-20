@@ -80,3 +80,42 @@ def test_sticky_boardroom_header_is_responsive_and_visually_distinct():
     assert '[data-aion-boardroom-sticky-member][data-active="true"]' in STYLES
     assert "@media (max-width: 1080px)" in STYLES
     assert "@media (max-width: 760px)" in STYLES
+
+
+def test_executive_strip_is_outside_the_contained_boardroom_panel():
+    start = APP.index("function renderBoardroomSpatialView")
+    end = APP.index("function renderAionExecutiveStickyHeaderV1", start)
+    spatial = APP[start:end]
+
+    header = spatial.index('data-aion-executive-page-header-bleed="true"')
+    panel = spatial.index('data-aion-spatial-boardroom-main-panel="true"')
+    assert header < panel
+    assert 'data-aion-executive-page-header-scope="boardroom"' in spatial
+    assert '[data-aion-executive-page-header-bleed="true"]' in STYLES
+    assert "width: 100vw" in STYLES
+    assert "position: fixed" in STYLES
+    assert "left: 0" in STYLES
+    assert "right: 0" in STYLES
+    assert 'html body .surface-shell[data-aion-boardroom-view-mode]' in STYLES
+    assert 'html body .surface-shell[data-aion-boardroom-view-mode]:has(.aion-main-sidebar)' in STYLES
+    assert "padding: 95px 24px 32px !important" in STYLES
+
+
+def test_executive_strip_uses_white_and_light_blue_controls():
+    assert "background: rgba(255, 255, 255, .98)" in STYLES
+    assert "border-bottom: 1px solid #d7e9f7" in STYLES
+    assert "background: #eaf6ff" in STYLES
+    assert "border: 1px solid #b9dcf7" in STYLES
+    assert "background: #d8eeff" in STYLES
+    assert ".aion-executive-sticky-action:focus-visible" in STYLES
+
+
+def test_sidebar_remount_geometry_matches_the_root_sidebar():
+    start = APP.index("function installAionMainLeftSidebarForcePhase25K")
+    end = APP.index("function installAionPhase25KRootMountedSidebarLock", start)
+    transient_sidebar = APP[start:end]
+
+    assert "width: 64px !important" in transient_sidebar
+    assert "gap: 0 !important" in transient_sidebar
+    assert "padding: 0 !important" in transient_sidebar
+    assert "height: 58px !important" in transient_sidebar
