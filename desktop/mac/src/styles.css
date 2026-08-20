@@ -11283,16 +11283,18 @@ textarea.aion-business-control,
 }
 
 .aion-executive-sticky-action {
-  min-height: 34px;
+  width: 38px;
+  height: 38px;
+  min-height: 38px;
+  display: inline-grid;
+  place-items: center;
   border: 1px solid rgba(188, 225, 238, .34);
   background: rgba(255,255,255,.07);
   color: #f3f9fc;
-  padding: 0 11px;
-  font-size: 9px;
+  padding: 0;
+  font-size: 19px;
+  line-height: 1;
   font-weight: 900;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  white-space: nowrap;
   cursor: pointer;
 }
 

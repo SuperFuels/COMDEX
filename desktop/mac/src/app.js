@@ -8234,6 +8234,7 @@ function renderAionExecutiveStickyHeaderV1({
   collapseLabel = "Close view",
   secondaryActionKey = "",
   secondaryActionLabel = "",
+  secondaryActionAriaLabel = "",
 } = {}) {
   const normalizedActiveHint = String(activeHint || "").toLowerCase();
   return `
@@ -8283,8 +8284,10 @@ function renderAionExecutiveStickyHeaderV1({
             class="aion-executive-sticky-action"
             data-aion-executive-secondary-action="${escapeHtml(secondaryActionKey)}"
             ${secondaryActionKey === "provider-council-add-key" ? 'data-aion-provider-council-add-key="true"' : ""}
+            aria-label="${escapeHtml(secondaryActionAriaLabel || secondaryActionLabel)}"
+            title="${escapeHtml(secondaryActionAriaLabel || secondaryActionLabel)}"
           >
-            ${escapeHtml(secondaryActionLabel)}
+            <span aria-hidden="true">${escapeHtml(secondaryActionLabel)}</span>
           </button>
         ` : ""}
         ${actionKey ? `
@@ -8294,9 +8297,10 @@ function renderAionExecutiveStickyHeaderV1({
             data-aion-executive-header-action="${escapeHtml(actionKey)}"
             data-aion-boardroom-return-full-room="true"
             aria-expanded="${expanded ? "true" : "false"}"
+            aria-label="${escapeHtml(expanded ? collapseLabel : expandLabel)}"
+            title="${escapeHtml(expanded ? collapseLabel : expandLabel)}"
           >
-            <span aria-hidden="true">${expanded ? "−" : "+"}</span>
-            ${escapeHtml(expanded ? collapseLabel : expandLabel)}
+            <span aria-hidden="true">${expanded ? "−" : "⤢"}</span>
           </button>
         ` : ""}
       </div>
@@ -8334,8 +8338,9 @@ function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}, { fullRoomExpanded
     actionKey: "toggle-boardroom-full-room",
     expandLabel: "Full room",
     collapseLabel: "Close room",
-    secondaryActionKey: fullRoomExpanded ? "provider-council-add-key" : "",
-    secondaryActionLabel: "+ New LLM",
+    secondaryActionKey: "provider-council-add-key",
+    secondaryActionLabel: "+",
+    secondaryActionAriaLabel: "Add new LLM",
   });
 }
 

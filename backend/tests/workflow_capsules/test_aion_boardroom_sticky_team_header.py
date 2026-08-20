@@ -47,8 +47,17 @@ def test_expanded_room_has_no_redundant_spatial_title_or_view_switcher():
     assert "Executive team view · board communication terminal below" not in spatial
     assert "2D Dashboard" not in spatial
     assert "3D Boardroom" not in spatial
-    assert 'secondaryActionLabel: "+ New LLM"' in APP
+    assert 'secondaryActionKey: "provider-council-add-key"' in APP
+    assert 'secondaryActionLabel: "+"' in APP
+    assert 'secondaryActionAriaLabel: "Add new LLM"' in APP
     assert 'data-aion-provider-council-add-key="true"' in APP
+
+
+def test_header_uses_compact_symbols_in_both_room_states():
+    assert '<span aria-hidden="true">${expanded ? "−" : "⤢"}</span>' in APP
+    assert 'aria-label="${escapeHtml(expanded ? collapseLabel : expandLabel)}"' in APP
+    assert "width: 38px" in STYLES
+    assert "height: 38px" in STYLES
 
 
 def test_sticky_boardroom_header_is_responsive_and_visually_distinct():
