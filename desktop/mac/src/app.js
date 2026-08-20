@@ -8201,62 +8201,6 @@ function renderBoardroomSpatialView(snapshot) {
           data-aion-boardroom-full-room-region="true"
           ${fullRoomExpanded ? "" : "hidden"}
         >
-        <div
-          data-aion-spatial-boardroom-topbar="true"
-          style="
-            display:flex;
-            align-items:center;
-            justify-content:space-between;
-            gap:10px;
-            margin-bottom:12px;
-          "
-        >
-          <div>
-            <div style="
-              font-size:11px;
-              letter-spacing:0.16em;
-              text-transform:uppercase;
-              color:rgba(17,17,17,0.48);
-              font-weight:900;
-            ">Spatial Boardroom</div>
-            <div style="
-              margin-top:2px;
-              font-size:12px;
-              color:rgba(17,17,17,0.58);
-              font-weight:650;
-            ">Executive team view · board communication terminal below</div>
-          </div>
-
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button
-              type="button"
-              class="secondary-btn boardroom-view-btn"
-              data-boardroom-view="dashboard"
-            >
-              2D Dashboard
-            </button>
-            <button
-              type="button"
-              class="secondary-btn boardroom-view-btn boardroom-view-btn-active"
-              data-boardroom-view="spatial"
-            >
-              3D Boardroom
-            </button>
-            <button
-              type="button"
-              class="secondary-btn"
-              data-aion-provider-council-add-key="true"
-              style="
-                border-color:rgba(2,132,199,0.38);
-                color:#0284c7;
-                font-weight:900;
-              "
-            >
-              + New LLM
-            </button>
-          </div>
-        </div>
-
         <div class="spatial-boardroom-shell" style="margin-top:0;">
           <div id="spatialBoardroomMount" class="spatial-boardroom-mount"></div>
         </div>
@@ -8288,6 +8232,8 @@ function renderAionExecutiveStickyHeaderV1({
   actionKey = "",
   expandLabel = "Full view",
   collapseLabel = "Close view",
+  secondaryActionKey = "",
+  secondaryActionLabel = "",
 } = {}) {
   const normalizedActiveHint = String(activeHint || "").toLowerCase();
   return `
@@ -8330,18 +8276,30 @@ function renderAionExecutiveStickyHeaderV1({
         }).join("")}
       </div>
 
-      ${actionKey ? `
-        <button
-          type="button"
-          class="aion-executive-sticky-action"
-          data-aion-executive-header-action="${escapeHtml(actionKey)}"
-          data-aion-boardroom-return-full-room="true"
-          aria-expanded="${expanded ? "true" : "false"}"
-        >
-          <span aria-hidden="true">${expanded ? "−" : "+"}</span>
-          ${escapeHtml(expanded ? collapseLabel : expandLabel)}
-        </button>
-      ` : ""}
+      <div class="aion-executive-sticky-actions" data-aion-executive-sticky-actions="true">
+        ${secondaryActionKey ? `
+          <button
+            type="button"
+            class="aion-executive-sticky-action"
+            data-aion-executive-secondary-action="${escapeHtml(secondaryActionKey)}"
+            ${secondaryActionKey === "provider-council-add-key" ? 'data-aion-provider-council-add-key="true"' : ""}
+          >
+            ${escapeHtml(secondaryActionLabel)}
+          </button>
+        ` : ""}
+        ${actionKey ? `
+          <button
+            type="button"
+            class="aion-executive-sticky-action"
+            data-aion-executive-header-action="${escapeHtml(actionKey)}"
+            data-aion-boardroom-return-full-room="true"
+            aria-expanded="${expanded ? "true" : "false"}"
+          >
+            <span aria-hidden="true">${expanded ? "−" : "+"}</span>
+            ${escapeHtml(expanded ? collapseLabel : expandLabel)}
+          </button>
+        ` : ""}
+      </div>
     </div>
   `;
 }
@@ -8376,6 +8334,8 @@ function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}, { fullRoomExpanded
     actionKey: "toggle-boardroom-full-room",
     expandLabel: "Full room",
     collapseLabel: "Close room",
+    secondaryActionKey: fullRoomExpanded ? "provider-council-add-key" : "",
+    secondaryActionLabel: "+ New LLM",
   });
 }
 

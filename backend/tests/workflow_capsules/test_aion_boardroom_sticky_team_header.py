@@ -38,6 +38,19 @@ def test_executive_header_is_reusable_outside_the_boardroom():
     assert "actionKey = \"\"" in APP
 
 
+def test_expanded_room_has_no_redundant_spatial_title_or_view_switcher():
+    start = APP.index("function renderBoardroomSpatialView")
+    end = APP.index("function renderAionExecutiveStickyHeaderV1", start)
+    spatial = APP[start:end]
+
+    assert "Spatial Boardroom" not in spatial
+    assert "Executive team view · board communication terminal below" not in spatial
+    assert "2D Dashboard" not in spatial
+    assert "3D Boardroom" not in spatial
+    assert 'secondaryActionLabel: "+ New LLM"' in APP
+    assert 'data-aion-provider-council-add-key="true"' in APP
+
+
 def test_sticky_boardroom_header_is_responsive_and_visually_distinct():
     assert '[data-aion-boardroom-sticky-team-header="true"]' in STYLES
     assert "position: sticky" in STYLES
