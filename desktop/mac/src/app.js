@@ -45276,6 +45276,14 @@ try {
 if (!window.__aionCouncilSessionTerminalControlsInstalled) {
   window.__aionCouncilSessionTerminalControlsInstalled = true;
 
+  function focusAionBoardroomOpeningConversationV1() {
+    window.setTimeout(() => {
+      document
+        .querySelector("[data-aion-visible-ask-board-result='true']")
+        ?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    }, 40);
+  }
+
   function runAionAutomaticBoardMeetingV1(requestedSessionType = "") {
     const select = document.querySelector("[data-aion-council-session-type='true']");
     const sessionType = String(
@@ -45289,19 +45297,37 @@ if (!window.__aionCouncilSessionTerminalControlsInstalled) {
     window.__aionCouncilTerminalExpanded = true;
     window.__aionCouncilContextInputOpen = false;
 
-    const confirmation =
+    let confirmation =
       typeof window.aionGetBusinessMapConfirmationV1 === "function"
         ? window.aionGetBusinessMapConfirmationV1()
         : null;
 
     if (confirmation && confirmation.valid === false) {
-      window.__aionPendingAutomaticBoardMeeting = true;
+      const mapReady = Boolean(confirmation.map?.source_payload_hash);
+      const confirmationRecord =
+        mapReady && typeof window.aionConfirmOriginalBusinessMapV2 === "function"
+          ? window.aionConfirmOriginalBusinessMapV2()
+          : null;
+
+      confirmation =
+        typeof window.aionGetBusinessMapConfirmationV1 === "function"
+          ? window.aionGetBusinessMapConfirmationV1()
+          : confirmation;
+
+      if (!confirmationRecord || confirmation?.valid !== true) {
+        window.__aionPendingAutomaticBoardMeeting = true;
+        safeAionDesktopPatch?.({
+          message: "The current Business Map is still loading. Confirm it when available to continue the Board analysis.",
+          messageTone: "warning",
+        });
+        requestRender?.();
+        return Promise.resolve(null);
+      }
+
       safeAionDesktopPatch?.({
-        message: "Confirm the current Business Map before the Board analysis starts.",
-        messageTone: "warning",
+        message: `Business Map revision ${confirmationRecord.business_map_revision || confirmation.map?.revision || "current"} confirmed by starting this meeting. Running the live Board analysis...`,
+        messageTone: "neutral",
       });
-      requestRender?.();
-      return Promise.resolve(null);
     }
 
     window.__aionPendingAutomaticBoardMeeting = false;
@@ -45358,6 +45384,7 @@ if (!window.__aionCouncilSessionTerminalControlsInstalled) {
           messageTone: "success",
         });
         requestRender?.();
+        focusAionBoardroomOpeningConversationV1();
         return result;
       })
       .catch((error) => {

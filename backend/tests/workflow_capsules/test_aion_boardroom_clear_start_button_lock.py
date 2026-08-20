@@ -53,4 +53,21 @@ def test_automatic_meeting_runs_live_analysis_and_saves_internal_record():
 
     assert "runAionLiveVisibleAskBoardResultV1(sessionType, runId)" in helper
     assert "commitAionBoardroomSessionArtifactPreview(sessionType)" in helper
+    assert "window.aionConfirmOriginalBusinessMapV2()" in helper
+    assert "confirmed by starting this meeting" in helper
+    assert "focusAionBoardroomOpeningConversationV1()" in helper
     assert "External actions remain approval-gated" in text
+
+
+def test_completed_opening_conversation_is_colour_coded_and_focused():
+    text = app_text()
+    result_start = text.index("function renderAionVisibleAskBoardResultHtmlV1")
+    result_end = text.index("/* END AION PATCH: Visible Ask Board Result v1 */", result_start)
+    result = text[result_start:result_end]
+
+    assert 'data-aion-visible-ask-board-result="true"' in result
+    assert "box-shadow:inset 4px 0 0 #22c55e" in result
+    assert "color:#15803d" in result
+    assert "color:#b45309" in result
+    assert "color:#be123c" in result
+    assert ".scrollIntoView?.({ behavior: \"smooth\", block: \"start\" })" in text
