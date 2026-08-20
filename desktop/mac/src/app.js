@@ -8254,6 +8254,8 @@ function renderBoardroomSpatialView(snapshot) {
           <div id="spatialBoardroomMount" class="spatial-boardroom-mount"></div>
         </div>
 
+        ${renderAionBoardroomStickyTeamHeaderV1(snapshot)}
+
         <div
           data-aion-spatial-boardroom-terminal-dock="true"
           style="
@@ -8268,6 +8270,78 @@ function renderBoardroomSpatialView(snapshot) {
       </div>
     </div>
   `;
+}
+
+function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}) {
+  const members = [
+    { key: "marketing", label: "Marketing", portrait: "./assets/department-pilots/marketing-character-v3.png", focus: "72% 25%" },
+    { key: "sales", label: "Sales", portrait: "./assets/department-pilots/sales-character-v2.png", focus: "68% 23%" },
+    { key: "finance", label: "Finance", portrait: "./assets/department-pilots/finance-character-v2.png", focus: "64% 22%" },
+    { key: "operations", label: "Operations", portrait: "./assets/department-pilots/operations-character-v2.png", focus: "64% 20%" },
+    { key: "support", label: "Support", portrait: "./assets/department-pilots/support-character-v2.png", focus: "69% 22%" },
+    { key: "hr", label: "People", portrait: "./assets/department-pilots/hr-character-v2.png", focus: "68% 24%" },
+  ];
+  const selectedHint = String(
+    snapshot.activeZone ||
+    snapshot.active_zone ||
+    snapshot.selectedSeatId ||
+    snapshot.selected_seat_id ||
+    (typeof getAionBoardroomSelectedDepartmentPulseKey === "function"
+      ? getAionBoardroomSelectedDepartmentPulseKey()
+      : "") ||
+    ""
+  ).toLowerCase();
+
+  return `
+    <div data-aion-boardroom-sticky-team-header="true" aria-label="Board members in session">
+      <div data-aion-boardroom-sticky-session-label="true">
+        <span data-aion-boardroom-sticky-live-dot="true"></span>
+        <span>
+          <strong>Board in session</strong>
+          <small>Executive team remains present while you work</small>
+        </span>
+      </div>
+
+      <div data-aion-boardroom-sticky-members="true">
+        ${members.map((member) => {
+          const active = selectedHint.includes(member.key);
+          return `
+            <div
+              data-aion-boardroom-sticky-member="${escapeHtml(member.key)}"
+              data-active="${active ? "true" : "false"}"
+              title="${escapeHtml(member.label)} agent"
+            >
+              <span data-aion-boardroom-sticky-avatar="true">
+                <img
+                  src="${escapeHtml(member.portrait)}"
+                  alt=""
+                  aria-hidden="true"
+                  style="object-position:${escapeHtml(member.focus)};transform-origin:${escapeHtml(member.focus)};"
+                />
+              </span>
+              <span data-aion-boardroom-sticky-name="true">${escapeHtml(member.label)}</span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+
+      <button type="button" data-aion-boardroom-return-full-room="true">
+        <span aria-hidden="true">↑</span> Full room
+      </button>
+    </div>
+  `;
+}
+
+if (!window.__aionBoardroomStickyTeamHeaderV1Installed) {
+  window.__aionBoardroomStickyTeamHeaderV1Installed = true;
+  document.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-boardroom-return-full-room='true']");
+    if (!button) return;
+    event.preventDefault();
+    document
+      .querySelector("[data-aion-spatial-boardroom-topbar='true']")
+      ?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+  }, true);
 }
 
 
