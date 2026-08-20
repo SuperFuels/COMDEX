@@ -8344,9 +8344,59 @@ function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}, { fullRoomExpanded
   });
 }
 
+function focusAionVaultBoardroomProvidersV1() {
+  const panel = document.querySelector('[data-aion-vault-ai-providers="true"]');
+  if (!panel) return false;
+
+  panel.setAttribute("data-aion-vault-boardroom-focus", "true");
+  panel.scrollIntoView?.({ behavior: "smooth", block: "start" });
+
+  window.setTimeout(() => {
+    const providerSelect = panel.querySelector('[data-aion-vault-ai-provider-select="true"]');
+    try { providerSelect?.focus?.({ preventScroll: true }); } catch { providerSelect?.focus?.(); }
+  }, 240);
+
+  window.setTimeout(() => {
+    panel.removeAttribute("data-aion-vault-boardroom-focus");
+  }, 2600);
+
+  return true;
+}
+
+function openAionVaultBoardroomProvidersV1() {
+  if (typeof window.setAionSidebarActiveTabHardV1 === "function") {
+    window.setAionSidebarActiveTabHardV1("vault");
+  } else {
+  const nextTab = typeof setActiveTab === "function" ? setActiveTab("vault") : "vault";
+  state.activeTab = nextTab;
+
+    try {
+      if (typeof safeAionDesktopPatch === "function") safeAionDesktopPatch({ activeTab: nextTab });
+      desktopStore?.persistCacheSoon?.(50);
+    } catch {}
+
+    if (typeof render === "function") render();
+    else if (typeof requestRender === "function") requestRender();
+  }
+
+  [0, 80, 220, 520].forEach((delay) => {
+    window.setTimeout(() => focusAionVaultBoardroomProvidersV1(), delay);
+  });
+}
+
 if (!window.__aionBoardroomStickyTeamHeaderV1Installed) {
   window.__aionBoardroomStickyTeamHeaderV1Installed = true;
   document.addEventListener("click", (event) => {
+    const addProvider = event.target?.closest?.(
+      '[data-aion-executive-secondary-action="provider-council-add-key"], [data-aion-provider-council-add-key="true"]'
+    );
+    if (addProvider) {
+      event.preventDefault();
+      event.stopPropagation();
+      openAionVaultBoardroomProvidersV1();
+      return;
+    }
+
     const button = event.target?.closest?.("[data-aion-executive-header-action='toggle-boardroom-full-room']");
     if (!button) return;
     event.preventDefault();

@@ -60,6 +60,18 @@ def test_header_uses_compact_symbols_in_both_room_states():
     assert "height: 38px" in STYLES
 
 
+def test_add_llm_routes_to_and_focuses_vault_provider_setup():
+    assert "function openAionVaultBoardroomProvidersV1" in APP
+    assert 'window.setAionSidebarActiveTabHardV1("vault")' in APP
+    assert 'setActiveTab("vault")' in APP
+    assert 'safeAionDesktopPatch({ activeTab: nextTab })' in APP
+    assert "function focusAionVaultBoardroomProvidersV1" in APP
+    assert 'document.querySelector(\'[data-aion-vault-ai-providers="true"]\')' in APP
+    assert 'panel.scrollIntoView?.({ behavior: "smooth", block: "start" })' in APP
+    assert 'providerSelect?.focus?.({ preventScroll: true })' in APP
+    assert '[data-aion-vault-ai-providers="true"][data-aion-vault-boardroom-focus="true"]' in STYLES
+
+
 def test_sticky_boardroom_header_is_responsive_and_visually_distinct():
     assert '[data-aion-boardroom-sticky-team-header="true"]' in STYLES
     assert "position: sticky" in STYLES

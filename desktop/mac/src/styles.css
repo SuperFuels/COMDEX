@@ -11303,6 +11303,16 @@ textarea.aion-business-control,
   background: rgba(121,221,244,.13);
 }
 
+[data-aion-vault-ai-providers="true"] {
+  scroll-margin-top: 18px;
+  transition: box-shadow 180ms ease, border-color 180ms ease;
+}
+
+[data-aion-vault-ai-providers="true"][data-aion-vault-boardroom-focus="true"] {
+  border-color: rgba(2,132,199,.72) !important;
+  box-shadow: 0 0 0 3px rgba(2,132,199,.13), 0 18px 38px rgba(15,23,42,.10) !important;
+}
+
 @media (max-width: 1080px) {
   [data-aion-boardroom-sticky-team-header="true"] {
     grid-template-columns: auto minmax(0,1fr) auto;
