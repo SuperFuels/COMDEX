@@ -8183,6 +8183,7 @@ if (!window.__aionBoardroomViewToggleAuthorityV1) {
 
 
 function renderBoardroomSpatialView(snapshot) {
+  const fullRoomExpanded = window.__aionBoardroomFullRoomExpandedV2 === true;
   return `
     <div class="dashboard-shell" data-aion-spatial-boardroom-layout="clean-3d">
       <div
@@ -8194,6 +8195,12 @@ function renderBoardroomSpatialView(snapshot) {
           border:1px solid rgba(17,17,17,0.12);
         "
       >
+        ${renderAionBoardroomStickyTeamHeaderV1(snapshot, { fullRoomExpanded })}
+
+        <div
+          data-aion-boardroom-full-room-region="true"
+          ${fullRoomExpanded ? "" : "hidden"}
+        >
         <div
           data-aion-spatial-boardroom-topbar="true"
           style="
@@ -8253,8 +8260,7 @@ function renderBoardroomSpatialView(snapshot) {
         <div class="spatial-boardroom-shell" style="margin-top:0;">
           <div id="spatialBoardroomMount" class="spatial-boardroom-mount"></div>
         </div>
-
-        ${renderAionBoardroomStickyTeamHeaderV1(snapshot)}
+        </div>
 
         <div
           data-aion-spatial-boardroom-terminal-dock="true"
@@ -8272,7 +8278,75 @@ function renderBoardroomSpatialView(snapshot) {
   `;
 }
 
-function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}) {
+function renderAionExecutiveStickyHeaderV1({
+  scope = "executive",
+  title = "Executive team",
+  subtitle = "Your agents remain present while you work",
+  members = [],
+  activeHint = "",
+  expanded = false,
+  actionKey = "",
+  expandLabel = "Full view",
+  collapseLabel = "Close view",
+} = {}) {
+  const normalizedActiveHint = String(activeHint || "").toLowerCase();
+  return `
+    <div
+      class="aion-executive-sticky-header"
+      data-aion-executive-sticky-header="true"
+      data-aion-executive-header-scope="${escapeHtml(scope)}"
+      data-aion-boardroom-sticky-team-header="true"
+      aria-label="${escapeHtml(title)}"
+    >
+      <div class="aion-executive-sticky-session-label" data-aion-boardroom-sticky-session-label="true">
+        <span data-aion-boardroom-sticky-live-dot="true"></span>
+        <span>
+          <strong>${escapeHtml(title)}</strong>
+          <small>${escapeHtml(subtitle)}</small>
+        </span>
+      </div>
+
+      <div class="aion-executive-sticky-members" data-aion-boardroom-sticky-members="true">
+        ${members.map((member) => {
+          const active = normalizedActiveHint.includes(String(member.key || "").toLowerCase());
+          return `
+            <div
+              class="aion-executive-sticky-member"
+              data-aion-boardroom-sticky-member="${escapeHtml(member.key)}"
+              data-active="${active ? "true" : "false"}"
+              title="${escapeHtml(member.label)} agent"
+            >
+              <span class="aion-executive-sticky-avatar" data-aion-boardroom-sticky-avatar="true">
+                <img
+                  src="${escapeHtml(member.portrait)}"
+                  alt=""
+                  aria-hidden="true"
+                  style="object-position:${escapeHtml(member.focus || "50% 24%")};transform-origin:${escapeHtml(member.focus || "50% 24%")}"
+                />
+              </span>
+              <span class="aion-executive-sticky-name" data-aion-boardroom-sticky-name="true">${escapeHtml(member.label)}</span>
+            </div>
+          `;
+        }).join("")}
+      </div>
+
+      ${actionKey ? `
+        <button
+          type="button"
+          class="aion-executive-sticky-action"
+          data-aion-executive-header-action="${escapeHtml(actionKey)}"
+          data-aion-boardroom-return-full-room="true"
+          aria-expanded="${expanded ? "true" : "false"}"
+        >
+          <span aria-hidden="true">${expanded ? "−" : "+"}</span>
+          ${escapeHtml(expanded ? collapseLabel : expandLabel)}
+        </button>
+      ` : ""}
+    </div>
+  `;
+}
+
+function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}, { fullRoomExpanded = false } = {}) {
   const members = [
     { key: "marketing", label: "Marketing", portrait: "./assets/department-pilots/marketing-character-v3.png", focus: "72% 25%" },
     { key: "sales", label: "Sales", portrait: "./assets/department-pilots/sales-character-v2.png", focus: "68% 23%" },
@@ -8292,55 +8366,28 @@ function renderAionBoardroomStickyTeamHeaderV1(snapshot = {}) {
     ""
   ).toLowerCase();
 
-  return `
-    <div data-aion-boardroom-sticky-team-header="true" aria-label="Board members in session">
-      <div data-aion-boardroom-sticky-session-label="true">
-        <span data-aion-boardroom-sticky-live-dot="true"></span>
-        <span>
-          <strong>Board in session</strong>
-          <small>Executive team remains present while you work</small>
-        </span>
-      </div>
-
-      <div data-aion-boardroom-sticky-members="true">
-        ${members.map((member) => {
-          const active = selectedHint.includes(member.key);
-          return `
-            <div
-              data-aion-boardroom-sticky-member="${escapeHtml(member.key)}"
-              data-active="${active ? "true" : "false"}"
-              title="${escapeHtml(member.label)} agent"
-            >
-              <span data-aion-boardroom-sticky-avatar="true">
-                <img
-                  src="${escapeHtml(member.portrait)}"
-                  alt=""
-                  aria-hidden="true"
-                  style="object-position:${escapeHtml(member.focus)};transform-origin:${escapeHtml(member.focus)};"
-                />
-              </span>
-              <span data-aion-boardroom-sticky-name="true">${escapeHtml(member.label)}</span>
-            </div>
-          `;
-        }).join("")}
-      </div>
-
-      <button type="button" data-aion-boardroom-return-full-room="true">
-        <span aria-hidden="true">↑</span> Full room
-      </button>
-    </div>
-  `;
+  return renderAionExecutiveStickyHeaderV1({
+    scope: "boardroom",
+    title: "Board in session",
+    subtitle: "Executive team remains present while you work",
+    members,
+    activeHint: selectedHint,
+    expanded: fullRoomExpanded,
+    actionKey: "toggle-boardroom-full-room",
+    expandLabel: "Full room",
+    collapseLabel: "Close room",
+  });
 }
 
 if (!window.__aionBoardroomStickyTeamHeaderV1Installed) {
   window.__aionBoardroomStickyTeamHeaderV1Installed = true;
   document.addEventListener("click", (event) => {
-    const button = event.target?.closest?.("[data-aion-boardroom-return-full-room='true']");
+    const button = event.target?.closest?.("[data-aion-executive-header-action='toggle-boardroom-full-room']");
     if (!button) return;
     event.preventDefault();
-    document
-      .querySelector("[data-aion-spatial-boardroom-topbar='true']")
-      ?.scrollIntoView?.({ behavior: "smooth", block: "start" });
+    window.__aionBoardroomFullRoomExpandedV2 = !(window.__aionBoardroomFullRoomExpandedV2 === true);
+    if (typeof requestRender === "function") requestRender();
+    else if (typeof render === "function") render();
   }, true);
 }
 
