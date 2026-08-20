@@ -22,6 +22,17 @@
           "open_meteo_madrid",
           "pypi_numpy"
         ]
+      },
+      {
+        "event_id": "4dd3db23ba490cb2e900a23b91f5f39bbc650ae6091e3669b92e2fa5f7197e3e",
+        "private_only": true,
+        "response": "retry_or_rebind_source_adapter",
+        "targets": [
+          "cpython",
+          "node",
+          "open_meteo_madrid",
+          "pypi_numpy"
+        ]
       }
     ]
   },
@@ -2214,23 +2225,1507 @@
       "outcome_sha256": "b7fa27ac6a347bd7b25bb338194f9fb71a191e54c400852245a2c228814ab04c",
       "response": "revise_source_world_model",
       "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "d6f885dc64c9d460d94624beb1f77bdb677665d2204c1570a884f1f71069e1f0",
+      "evidence": [
+        {
+          "revision": "6d2b551399342fc6621195abfde7d79bcb1d7a4b",
+          "source": "cpython"
+        },
+        {
+          "revision": "6a6dee3ed02cdb9510d298c53c6f5072f60916e3",
+          "source": "node"
+        },
+        {
+          "revision": "31a5a64bb7a1fb0dfc04c299ac02a18a66eb564605a244de59d66b403a0f17d4",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "d6f885dc64c9d460d94624beb1f77bdb677665d2204c1570a884f1f71069e1f0",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "023f66a965c6612543622c652f6dd4a2db2db9fa6061ccd46cc4c40395b6ccbe",
+      "evidence": [
+        {
+          "revision": "f3be08aa6f6f8fbb48b532dc75845be5b3c83a8b",
+          "source": "cpython"
+        },
+        {
+          "revision": "e53d87a57c0698fee8ecbbe92e80a7b01184a394",
+          "source": "node"
+        },
+        {
+          "revision": "551348917ba9235286b9ef4d18df5c6b373bb67186d647157330e7614ccfeb39",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "023f66a965c6612543622c652f6dd4a2db2db9fa6061ccd46cc4c40395b6ccbe",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "b735945a87a1b1033ca5d09fd8db1f21ca3fb402f19520d4263a116cd0467e2f",
+      "evidence": [
+        {
+          "revision": "4d3075655e8bfddb6f5015b43aade43b1265bd65",
+          "source": "cpython"
+        },
+        {
+          "revision": "673cdef7d9ea5cb41b26b2a48e710fab03e116b6",
+          "source": "node"
+        },
+        {
+          "revision": "5d95949c900a14fe2ef069685aab44177a057c419537877a51a7fee74ce48b7a",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "b735945a87a1b1033ca5d09fd8db1f21ca3fb402f19520d4263a116cd0467e2f",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "768161b522d8661fddb98e1c3499439ef47f113d8288c221c0926248142a66b7",
+      "evidence": [
+        {
+          "revision": "1cf7d898287972947f746fd647bd8aa8fc0e5aae",
+          "source": "cpython"
+        },
+        {
+          "revision": "6a447d7cd33035920aeba734458fb36cfd9a8a37",
+          "source": "node"
+        },
+        {
+          "revision": "55882231dd217cc815823a4d7d8f16ce00665950bbe8029eb348a9e389f25068",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "768161b522d8661fddb98e1c3499439ef47f113d8288c221c0926248142a66b7",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "ce963c05c79a696da5baf7801fba4bc0878d73c8051ae6705ba1fd6b9ecf9538",
+      "evidence": [
+        {
+          "revision": "3444ef9d30e0d4160357ab93109407d1ed377635",
+          "source": "cpython"
+        },
+        {
+          "revision": "2749388e44ac789b68e027d434cf7d9a59d62c26",
+          "source": "node"
+        },
+        {
+          "revision": "47e5b7739f8b79eb04f398b79e67492e75ab6d954611d4cda8b9fac3a75ec9b0",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "ce963c05c79a696da5baf7801fba4bc0878d73c8051ae6705ba1fd6b9ecf9538",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "e1d506bebf2a32ea48925e7b1ff1270231ad8f9061ddda93b5e9faada1801272",
+      "evidence": [
+        {
+          "revision": "eff293f61ea79ba14cff3cc647060fd766f13b71",
+          "source": "node"
+        },
+        {
+          "revision": "62418d7ff368291e24b5a751f64a036410a5a32dc5e7df0b2b41b14f30d741ab",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "e1d506bebf2a32ea48925e7b1ff1270231ad8f9061ddda93b5e9faada1801272",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "evidence_acquisition_failure",
+      "event_id": "4dd3db23ba490cb2e900a23b91f5f39bbc650ae6091e3669b92e2fa5f7197e3e",
+      "evidence": [
+        {
+          "event_id": "4dd3db23ba490cb2e900a23b91f5f39bbc650ae6091e3669b92e2fa5f7197e3e",
+          "private_failure_queue": "evidence_acquisition_failure"
+        }
+      ],
+      "outcome_sha256": "4dd3db23ba490cb2e900a23b91f5f39bbc650ae6091e3669b92e2fa5f7197e3e",
+      "response": "retry_or_rebind_source_adapter",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "9eb027fe91cf495662cae32720ac5e0b9f98f3a3438683b6da402cc16b5f1be2",
+      "evidence": [
+        {
+          "revision": "e37cf4955e933bb0e6bbdfed8940306b099fe81f",
+          "source": "cpython"
+        },
+        {
+          "revision": "2fbd056876d5cca78114ea823c05997406e930ea",
+          "source": "node"
+        },
+        {
+          "revision": "5aebfe962218b61aef9d0f0bb2cbd8a9513bdaf79278affaebdf7f50c169a11d",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "9eb027fe91cf495662cae32720ac5e0b9f98f3a3438683b6da402cc16b5f1be2",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "c5f4607fd166abf28cd39b410228f98e055cd386ef4000c0fce39fb32fbb0c2d",
+      "evidence": [
+        {
+          "revision": "a4a5a06767e03c09d169480f82da944fae663db1",
+          "source": "cpython"
+        },
+        {
+          "revision": "69bf45734992a4a593841b2d52809ead30927d6b",
+          "source": "node"
+        },
+        {
+          "revision": "72e60c47d86d9b257231e63c4e568da2dbca310e4ef62a7b200df2a924da3153",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "c5f4607fd166abf28cd39b410228f98e055cd386ef4000c0fce39fb32fbb0c2d",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "91c5487d23788a55ce45889080acaffbf33d9d6388b7354952822c5bd505f861",
+      "evidence": [
+        {
+          "revision": "3d6a50598ba7c89a6468f8e77afe2a39787c80e5",
+          "source": "cpython"
+        },
+        {
+          "revision": "19eadf41fcdfe51eb28d84590c47df0c21e92cbc0052a06c0ba18cf756735f27",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "91c5487d23788a55ce45889080acaffbf33d9d6388b7354952822c5bd505f861",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "42e9436d1105d13c4f6080fee3e4afd9fb5cbd2354a1d47a3872c56813704d58",
+      "evidence": [
+        {
+          "revision": "6bcac9664e3c822b7f9af5d4a2e95162b768acbd",
+          "source": "cpython"
+        },
+        {
+          "revision": "d9966100cfc7ed60ef00238a896c5a113672330e",
+          "source": "node"
+        },
+        {
+          "revision": "5817a9ec1d71c79bd8c330d2acd7c797161fc021101e47446ba80f18d7c5628f",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "42e9436d1105d13c4f6080fee3e4afd9fb5cbd2354a1d47a3872c56813704d58",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "8a5a8bf751386b8e012a9c428825fe69dd1168f55a884437b0ea97debb4429f9",
+      "evidence": [
+        {
+          "revision": "3f99ebe1929c4636e09db53b14c07f8b01b18238",
+          "source": "cpython"
+        },
+        {
+          "revision": "3b214e084c530a71d5dc64b75b82c1ecead9e50d",
+          "source": "node"
+        },
+        {
+          "revision": "2b7d121b2e65d8ffe4c5acf8e30454727540f1d814f695d0997407a606950d18",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "8a5a8bf751386b8e012a9c428825fe69dd1168f55a884437b0ea97debb4429f9",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "8512fb7d6d985a4b6b8a410c4f2c0e29116aec88348e6a4cbe64d89fc80eefde",
+      "evidence": [
+        {
+          "revision": "bc31217fe432b5ede1485bec2b62b2c67a48eee4",
+          "source": "cpython"
+        },
+        {
+          "revision": "f206420e9cdb35811021e8442766549efcf05bf2148a534cd3b5b65acc6e8c09",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "8512fb7d6d985a4b6b8a410c4f2c0e29116aec88348e6a4cbe64d89fc80eefde",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "0a972e24c1f3538bdd6fcd8625ff30f795a4905863a1a4e23277ef9fb95368d9",
+      "evidence": [
+        {
+          "revision": "1b2de5e052fc0fb95fd7fb6846dcec4ade598e9e",
+          "source": "node"
+        },
+        {
+          "revision": "ba0e0cde380b4bdb0b366439ecf7a5ba1d9bb9cb1828b38cbda7fb322215e158",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "0a972e24c1f3538bdd6fcd8625ff30f795a4905863a1a4e23277ef9fb95368d9",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "d3a6dd9cb9cacbf873e634047e77b8764d0f565c70f5e502d5026ad5c19bf5a8",
+      "evidence": [
+        {
+          "revision": "ee4fe00a8f72ea84a421bb626d7c78335c5c9ea1",
+          "source": "cpython"
+        },
+        {
+          "revision": "edfa50b3be4837237d87e53e11217e3a05739f31f336671a076f94a5baafdc7c",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "d3a6dd9cb9cacbf873e634047e77b8764d0f565c70f5e502d5026ad5c19bf5a8",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "3193c5b3c6c19395c1380ec0f4dee0f3c56599b4d418d3d1e9004172228b0b11",
+      "evidence": [
+        {
+          "revision": "5422bbc498544ef50f5f5caf33f5d8bab4d0a7e2fa36abc38b2980cad50ea6c4",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "3193c5b3c6c19395c1380ec0f4dee0f3c56599b4d418d3d1e9004172228b0b11",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "8ddae7f33618e9a9ab7731490395ef8ef1651e4596bc595c4ea4646f949de743",
+      "evidence": [
+        {
+          "revision": "a2104b7ce0a154a7c24ada33ff8c298f48156bd2",
+          "source": "cpython"
+        },
+        {
+          "revision": "6242a25fc5c9f0c4ca63306ffa1856cfacb31d8857ac4b512d6e9d19d0d3e571",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "8ddae7f33618e9a9ab7731490395ef8ef1651e4596bc595c4ea4646f949de743",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "d4f1aa4d8e5bd01ea447579892df64ed206fcb3d8a8d41d489854ba916302768",
+      "evidence": [
+        {
+          "revision": "025e7d278e29f3df2e95ed9daf9d9835760564c8",
+          "source": "cpython"
+        },
+        {
+          "revision": "1d9d49c1be80fe12827dcf731a947951b69a6a9a",
+          "source": "node"
+        },
+        {
+          "revision": "8f32641ac4431606f33a8def6b51377062aa83ca6889b70c9a9452391ffa2160",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "d4f1aa4d8e5bd01ea447579892df64ed206fcb3d8a8d41d489854ba916302768",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "8115c82301f56b51945bf8c15d1decd1027f72105e2906a21ad13f5a29d20b47",
+      "evidence": [
+        {
+          "revision": "1c9521f48511e6eb974057d4a1ddc49fa50736d1",
+          "source": "cpython"
+        },
+        {
+          "revision": "ef843104ba9d8b23b281babc0cdbc09078d20dd9847b01a68a1b35c2b0821c06",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "8115c82301f56b51945bf8c15d1decd1027f72105e2906a21ad13f5a29d20b47",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "efc2936b78e88e89a278a37ef0f86e2e947bbd8e46b92322cad6b0035015af91",
+      "evidence": [
+        {
+          "revision": "6e079e5f5e526c8a58792145e5a9543cc7cbb7ac",
+          "source": "cpython"
+        },
+        {
+          "revision": "19e09145beeac185476fb3857511ed404cf1705d368ce6eb97862bc3df7021a1",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "efc2936b78e88e89a278a37ef0f86e2e947bbd8e46b92322cad6b0035015af91",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "bcdf3442d6fed000b0f93dc6465768e00edc0ff2860841046194ae6b56e3b91a",
+      "evidence": [
+        {
+          "revision": "fa90680a1ddabd0dcc2901ea16fd04354d8bfc3c",
+          "source": "cpython"
+        },
+        {
+          "revision": "525e8f43e08aeaca491f409de19a5dc685438711",
+          "source": "node"
+        },
+        {
+          "revision": "6bc508d74757f431f8c3ac088ef407bdfd4e9a030842f5ed01af587071f6b0b9",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "bcdf3442d6fed000b0f93dc6465768e00edc0ff2860841046194ae6b56e3b91a",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "052e92d95b67bd8c824ccbe075c760c989266d65a521ac67bb4a88b7d9a352e0",
+      "evidence": [
+        {
+          "revision": "dd1194e2fc2c08c36f4fe7ee71f7ab0b82c09570",
+          "source": "cpython"
+        },
+        {
+          "revision": "73eed9be27928abadb87c6d4e5c3205fce113fdb",
+          "source": "node"
+        },
+        {
+          "revision": "99a10f998691a9b5612f4d16dccdc8c305a47b05183a5d5e88952b79a055b3b9",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "052e92d95b67bd8c824ccbe075c760c989266d65a521ac67bb4a88b7d9a352e0",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "f733b97e6e2f6782160254c6781ba0e71636a00b356162b4c0fbc298876d09e9",
+      "evidence": [
+        {
+          "revision": "b0ba60e28906c75dd43afe49791740c62205660f",
+          "source": "cpython"
+        },
+        {
+          "revision": "f914e45b2d3b871d0da03f238415642a308386f2",
+          "source": "node"
+        },
+        {
+          "revision": "dc50915711b249acd22304daaa6c9c1b8f650ce6da0ccb717fb901423d4e9057",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "f733b97e6e2f6782160254c6781ba0e71636a00b356162b4c0fbc298876d09e9",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "bf618577fe9064e7156771465b59f3f61ee34794c510a4a03e26fa637a6ab65d",
+      "evidence": [
+        {
+          "revision": "46c355fabff5833b77f72e26eb83f06b0e4d85ff",
+          "source": "cpython"
+        },
+        {
+          "revision": "4600581c0ce5817ad2c53bbf88b3fd3da618d775e652f044f7dbd0472041348b",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "bf618577fe9064e7156771465b59f3f61ee34794c510a4a03e26fa637a6ab65d",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "9fbd516f398e8ac371572f0e200273b413a1695c4e27479920493e06743f9baa",
+      "evidence": [
+        {
+          "revision": "d14729db9a4ad98dcb9f1c385c3c37dd8e0dd6a2",
+          "source": "node"
+        },
+        {
+          "revision": "974247a97e0ebc7246189b63fb21d4318015754f9fec6ed6fbb1d40ddd5633cb",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "9fbd516f398e8ac371572f0e200273b413a1695c4e27479920493e06743f9baa",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "06ffc523d9eb6537332b7df44d5ba40cfa6e770b377ebd709b72ac2947aad904",
+      "evidence": [
+        {
+          "revision": "5e7bd32c544038738f4ad0786a4eb02d57e09feb",
+          "source": "node"
+        },
+        {
+          "revision": "a2c76440e481809eebdca22ddeb68a60979b3a4ad30fbc128b1a4bd469ab751b",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "06ffc523d9eb6537332b7df44d5ba40cfa6e770b377ebd709b72ac2947aad904",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "b73259a264413a2d8d7807eb2d191874a2aa666c555bd75407a49794565f4ed0",
+      "evidence": [
+        {
+          "revision": "1bb7995e5a4f1b775fdb1c9cd374d3af7fe88096",
+          "source": "cpython"
+        },
+        {
+          "revision": "54ac460a6bd7d901a11b61338c654f63a3433868",
+          "source": "node"
+        },
+        {
+          "revision": "ebc8f9624260d8c33390d6283472c802ae95a76e37e048af421ef543ce8980cd",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "b73259a264413a2d8d7807eb2d191874a2aa666c555bd75407a49794565f4ed0",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "421cb44af551e90b76cd3ea550df3c9357ffc8028e1f1934c4c9b606e902265b",
+      "evidence": [
+        {
+          "revision": "94c606652c4943cb57ec7858d723511559849aab",
+          "source": "cpython"
+        },
+        {
+          "revision": "9e23066b8af4d1661c30ebb9179fad86430d6503",
+          "source": "node"
+        },
+        {
+          "revision": "d4e1667b75b9ce96eec69d2a938e1ac7ed620d8e16f56d4d9bbf7b5b9e1bbbb7",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "421cb44af551e90b76cd3ea550df3c9357ffc8028e1f1934c4c9b606e902265b",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "02a2741780d293970ec5a41cca5d23d11e6593aa52f66d1ced09ff411e85df3b",
+      "evidence": [
+        {
+          "revision": "c72ea530c3d7cffebc6497ea3c9d54f1055a3059",
+          "source": "cpython"
+        },
+        {
+          "revision": "97babf9f3e8aa6be532263662b1465ade616f00980943e136b496da9f4134a2a",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "02a2741780d293970ec5a41cca5d23d11e6593aa52f66d1ced09ff411e85df3b",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "32946e00218ae2a2808ef0dbb4842c52d93760ac8b502925027700fbc31a5e22",
+      "evidence": [
+        {
+          "revision": "58a620ae485c967f976fa6ea9082396aa5411389",
+          "source": "cpython"
+        },
+        {
+          "revision": "811836089a5c7a83b15e355101766b32216dc172e233fae6bf96b924cf795388",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "32946e00218ae2a2808ef0dbb4842c52d93760ac8b502925027700fbc31a5e22",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "6c23df11dae57293bb649290bf28b638dd55e1d78f9c73b834609c91f4c45e6c",
+      "evidence": [
+        {
+          "revision": "5d91cf6487eb5aa37107598c792573f61ebe310f",
+          "source": "cpython"
+        },
+        {
+          "revision": "729d1852536444689e60b2bd9378b8322b52cd34c869c256d8e6af586f29a02b",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "6c23df11dae57293bb649290bf28b638dd55e1d78f9c73b834609c91f4c45e6c",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "929da5ba521f3420bf5874668807529de72656d87cf49f7b5fc58e7007b93695",
+      "evidence": [
+        {
+          "revision": "6611f4df80bbceb4b2fdf9d132c7652eacbd7743",
+          "source": "cpython"
+        },
+        {
+          "revision": "d0c33e86c33c6e2223739fa92930dae988e9b81af1d975f2f95181b90510279f",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "929da5ba521f3420bf5874668807529de72656d87cf49f7b5fc58e7007b93695",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "b4e615b1f95278e43d177440ca09ee4e052a64969f93ba1840cec023bc811984",
+      "evidence": [
+        {
+          "revision": "967d4af5658dcbbc1e864f824854c405a7a53777",
+          "source": "node"
+        },
+        {
+          "revision": "56b4473a99a3ae13be1d3a9f7d26c3863831398354c0344a0df007852be95fbf",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "b4e615b1f95278e43d177440ca09ee4e052a64969f93ba1840cec023bc811984",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "e9679e55323a81f6fdf471d460ba2d6577629cf9c03adea5e6682d519ee5ae4c",
+      "evidence": [
+        {
+          "revision": "09b63170e339cae3c10d2a3fe0f115b5305f8e3f",
+          "source": "cpython"
+        },
+        {
+          "revision": "f83e7df96177a619a1c1258490443692650134c2",
+          "source": "node"
+        },
+        {
+          "revision": "09ce7d26154cbf87a7ae506358661aeb53e94eebc37f342758dd5a6ac616d64c",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "e9679e55323a81f6fdf471d460ba2d6577629cf9c03adea5e6682d519ee5ae4c",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "df1b265ea7ef69d3fedf2325c37874584238d1f70f758a817ea228ea0084d84f",
+      "evidence": [
+        {
+          "revision": "bc6749cc3b5ae4a5e88a6cc2d5b3bebbe354eae6",
+          "source": "cpython"
+        },
+        {
+          "revision": "9cf2ce75f20a3a175d05335da3143404046bac2f",
+          "source": "node"
+        },
+        {
+          "revision": "144cfe51ac677ddd0302bbaacc4a0eb9f927e2ddacaa814f6ba575929badc2d8",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "df1b265ea7ef69d3fedf2325c37874584238d1f70f758a817ea228ea0084d84f",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "5e509d44ba81e0f5c833d583230fd2f10db5211b91fe09c7c42f13e76e779189",
+      "evidence": [
+        {
+          "revision": "bc813a7a6dcf9d8c7320f5dffa6e8089fb9ccf68",
+          "source": "node"
+        },
+        {
+          "revision": "689072e5f7731b1e5c39ec8a0763b9a71fd57e47cef10ddfb40be5e8b1b49f69",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "5e509d44ba81e0f5c833d583230fd2f10db5211b91fe09c7c42f13e76e779189",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "f93e0e8456a7ca446e4b40456464a81cf63be1b0b51daf30eae434dcc6fd7937",
+      "evidence": [
+        {
+          "revision": "dffac6163e693cf80ed42cdc8e2cb5c0cb9577d7",
+          "source": "cpython"
+        },
+        {
+          "revision": "4551732bf1137bdc1e49d26ab6e26bec9c065e8d",
+          "source": "node"
+        },
+        {
+          "revision": "70907650411d619393dea2cb68ecea53dcf49be6ff420d838f88e3a08d42425c",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "f93e0e8456a7ca446e4b40456464a81cf63be1b0b51daf30eae434dcc6fd7937",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "9927f38cfe4d517bdda73c9b51284cf701ce3677734b69a9a269f3489c8a7c41",
+      "evidence": [
+        {
+          "revision": "6d2590b5d3b7ab01cc81d03f16e532270e56750159b75b9b95a69049349af624",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "9927f38cfe4d517bdda73c9b51284cf701ce3677734b69a9a269f3489c8a7c41",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "2bf57feeb7b3e8311b91713341afc4e546c37ba3c78e95d2d5dbeb38fd032b38",
+      "evidence": [
+        {
+          "revision": "c68220890ea87fd27aac4108dc5b0895c515897ece8852a8e18f7078049fcc7b",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "2bf57feeb7b3e8311b91713341afc4e546c37ba3c78e95d2d5dbeb38fd032b38",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "38713139a868e65a0b86df38f2ffbb73bbf5b097b54b03e5879f5e1c1ba90740",
+      "evidence": [
+        {
+          "revision": "fbd2e015d462870b9a48bb5e6628af6c372ed1d5",
+          "source": "cpython"
+        },
+        {
+          "revision": "2cc5e4e7f6b8e577f2e9c9223a3b1312b120eec1288036c62b35364e14d47d2b",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "38713139a868e65a0b86df38f2ffbb73bbf5b097b54b03e5879f5e1c1ba90740",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "f5cdaeff4718765f7ead55c40ea74980db494149b7eeb2c4a5e4ad98a408e6d7",
+      "evidence": [
+        {
+          "revision": "c92e2fd8f9c8af3ea383dec6222cfcca47a405ff",
+          "source": "cpython"
+        },
+        {
+          "revision": "e7e2d42751f6b3bf968962b497234093a9d0841bd5d0e839577a311bbbeeca0c",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "f5cdaeff4718765f7ead55c40ea74980db494149b7eeb2c4a5e4ad98a408e6d7",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "aee49ca595396a9c509c14d4eb3a38a90e2de1039d489c4228f5c897425c5731",
+      "evidence": [
+        {
+          "revision": "2929417e8ad4b2af515f6e07c04d2a2b285980e7",
+          "source": "node"
+        },
+        {
+          "revision": "8bff55b1f5c58aee52743b4006eb31e9e6ba5d7c5f295e4e24f98f8840f61d87",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "aee49ca595396a9c509c14d4eb3a38a90e2de1039d489c4228f5c897425c5731",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "6ff40a12f231d71d392596344efd5304eff236d66db8384e052cbb437ce22a35",
+      "evidence": [
+        {
+          "revision": "dfedd7ad18e2de391abcfd75dc42aa5c3807e0e6ddb4c608ec58de0b64b26618",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "6ff40a12f231d71d392596344efd5304eff236d66db8384e052cbb437ce22a35",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "40bf779ee4f8125c2be1f71ec49bd8d0c62be8e135beae89934093dda5f16e21",
+      "evidence": [
+        {
+          "revision": "948fd7e5c084274c3945d2004a7fffd19c907a15",
+          "source": "cpython"
+        },
+        {
+          "revision": "7f225f036552d2a4ef204990411963caa05a4023bb04cf76fbe673afb5eb7d88",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "40bf779ee4f8125c2be1f71ec49bd8d0c62be8e135beae89934093dda5f16e21",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "fb697432d678e810ad49d3ca23f59d8ecfe383438cdefef84172308d4c0f0fe2",
+      "evidence": [
+        {
+          "revision": "91aaf05a25ea22230daa7b777949006704c43b45",
+          "source": "node"
+        },
+        {
+          "revision": "37800e6c2520c100ac18b0807a609a515f387e8ed4f3c6e88c5791c3150d8454",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "fb697432d678e810ad49d3ca23f59d8ecfe383438cdefef84172308d4c0f0fe2",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "dd9426f679973a5536b308f6207407a67855b298e0aba7280b95d0e410bc6e66",
+      "evidence": [
+        {
+          "revision": "245d127b4f3e8b7b0628770ee329f10ca6ee5c432b36493ad1faf224fc40c9e9",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "dd9426f679973a5536b308f6207407a67855b298e0aba7280b95d0e410bc6e66",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "432cc64cffc55c582a112fea9a161b30339770f0c1c82b3aecf0558f70daa57c",
+      "evidence": [
+        {
+          "revision": "9ad097b82aaadf52f4bdcbe524a8c1b0946cd1a6",
+          "source": "node"
+        },
+        {
+          "revision": "6e67224d2866271469d664e0fb24d4da423e57c782f92b7cd8e53b638a694283",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "432cc64cffc55c582a112fea9a161b30339770f0c1c82b3aecf0558f70daa57c",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "3dc37c73a1b120cf1029b9c08d4aee9eb45e8c40f8773ab936d0d5c763baddd7",
+      "evidence": [
+        {
+          "revision": "e3287f631f3c88ed80191aa222e7fc4ba91edd17",
+          "source": "cpython"
+        },
+        {
+          "revision": "30bff4ad478a4041c7fcb4fa3ccfdebd2b314c59",
+          "source": "node"
+        },
+        {
+          "revision": "347d5def183cdb3a1882ef3913ffc82b07ae34dc2e3a8a31f8049d5bd7b6abe5",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "3dc37c73a1b120cf1029b9c08d4aee9eb45e8c40f8773ab936d0d5c763baddd7",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "c8ba70b6cce3b9894abfecab6d79dc29e616ae13d9592763807ab092c75ca8e0",
+      "evidence": [
+        {
+          "revision": "86c871eceda3cdbda53c870851cf6582b928550d",
+          "source": "node"
+        },
+        {
+          "revision": "d9c32af527ec9bb1475a4e9f6d2ce4d9ce0f0ad852c2f4c1f2ea019c7fdb6e3c",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "c8ba70b6cce3b9894abfecab6d79dc29e616ae13d9592763807ab092c75ca8e0",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "adaa9d873c8680bf4bd9fd85cdfc1152b8c1720a0c3b6054c86f14c38bff4e1a",
+      "evidence": [
+        {
+          "revision": "d099639740a2269131fd1ec9cb211c1286822885",
+          "source": "node"
+        },
+        {
+          "revision": "388bbab10fe7852ce458952770fdf92cbf8edc73431073c6a61ecef5e5179740",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "adaa9d873c8680bf4bd9fd85cdfc1152b8c1720a0c3b6054c86f14c38bff4e1a",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "d615602a005c70ef88ed4d21e6a830b963c112913f2cc43e133ac164477412c4",
+      "evidence": [
+        {
+          "revision": "b980db43cea4579157f89448b5f90de8b7f3aa466aed294bb1c07a99290e47cc",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "d615602a005c70ef88ed4d21e6a830b963c112913f2cc43e133ac164477412c4",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "7ffe5422f6f54208533498e5bace54f41a9b3dd715fde8f55d40666e63667fea",
+      "evidence": [
+        {
+          "revision": "76ac2dec7991fdd6b9365689a36922d1c1ae0a38",
+          "source": "cpython"
+        },
+        {
+          "revision": "e3398d5ffc909c999bb352b301a26451336e32bbb88957f744277b76ab1bc4c5",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "7ffe5422f6f54208533498e5bace54f41a9b3dd715fde8f55d40666e63667fea",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "054374cd0a98cbd688d681b454ddb2aedecaa44abbd8e4ad1b505d8d135d02ea",
+      "evidence": [
+        {
+          "revision": "4dd8f0bbf4ca7dc4e29290b3326ce50f2199e6a6",
+          "source": "cpython"
+        },
+        {
+          "revision": "ad7a5b8302ae54b6e6dc77e03eabc5a3218dfb85",
+          "source": "node"
+        },
+        {
+          "revision": "29cb73faf565664b4006577017e26c2359a3e1753ee93639b17556d0131c1135",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "054374cd0a98cbd688d681b454ddb2aedecaa44abbd8e4ad1b505d8d135d02ea",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "5580b417ea90b573d315b2b483cf3a5deb00bf2f154c2e8ec4b0274ba021c23a",
+      "evidence": [
+        {
+          "revision": "7a845ce16548bf94e777984458ea534c5a65a2a8",
+          "source": "cpython"
+        },
+        {
+          "revision": "0e493b2336d1af609bd644876b92724a6b6570ea673705598e14480f5f971fc2",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "5580b417ea90b573d315b2b483cf3a5deb00bf2f154c2e8ec4b0274ba021c23a",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "d96db5f1715baac25d4c315121c0f8102c8c8f6327bdd9062774edabca20abe8",
+      "evidence": [
+        {
+          "revision": "e98c50ec0af9d2135a1ba0ae3782c59a86ffba9943d6935c3d2e26696b537a5c",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "d96db5f1715baac25d4c315121c0f8102c8c8f6327bdd9062774edabca20abe8",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "d407df70659dc6027eafb73bb8ee7a9f5380d451087f25f18880c914506faf9f",
+      "evidence": [
+        {
+          "revision": "e88a9310d73f71b6cc68e14a2506fc045b2dfbcebc8efdce5e3d8bf3db0cafb6",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "d407df70659dc6027eafb73bb8ee7a9f5380d451087f25f18880c914506faf9f",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "be7c011caccf103974d490a5c57eabf5162884300efe378a4a956ed9c522e4db",
+      "evidence": [
+        {
+          "revision": "b6c11feb677f88f8367e80892b1c1979e16b68ee",
+          "source": "cpython"
+        },
+        {
+          "revision": "cc60845420c091ce933f5efa2afc1eba4f7dea4b",
+          "source": "node"
+        },
+        {
+          "revision": "119c6153e9fc98f8fe91025d0ef4eca9b258db8c62bd29c293be9f1da3ef571b",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "be7c011caccf103974d490a5c57eabf5162884300efe378a4a956ed9c522e4db",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "edae9c8e033b9713db36c416f42964c3aa2aa80971a9713fadd55922d222123a",
+      "evidence": [
+        {
+          "revision": "a7bb524fef61f77ede01f660ffbd591e1d5837ce",
+          "source": "cpython"
+        },
+        {
+          "revision": "45d6d31279be840e2f4184d72dbe0f369c481c29",
+          "source": "node"
+        },
+        {
+          "revision": "7654f6bfc4d5fc3455ea2f8a3b79544d8ee6957272617495f7296ce56f3d2935",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "edae9c8e033b9713db36c416f42964c3aa2aa80971a9713fadd55922d222123a",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "174a044fabb360b2d9e22df97e4aefb772aa84a97145360e8274dbcb382dda72",
+      "evidence": [
+        {
+          "revision": "350fc64fbd0c8ebb6452041b9d09511e7971f524",
+          "source": "cpython"
+        },
+        {
+          "revision": "0d84f29fa77aeba6b94db9984ed51c4817603139",
+          "source": "node"
+        },
+        {
+          "revision": "b095b481a7eed51802fbae318f9551fa0846fc2e781ff3ac3d0295e8c115a317",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "174a044fabb360b2d9e22df97e4aefb772aa84a97145360e8274dbcb382dda72",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "91b0e21e4eb88f8c3081b7e2e540454bc251603b9a0ce3d7cba7dd973347a404",
+      "evidence": [
+        {
+          "revision": "f2eaf174b2505be1b3dfbe817db243adf7fd5d6b",
+          "source": "cpython"
+        },
+        {
+          "revision": "e2b33e220f047a85c25d0e579b747cc7663821c1",
+          "source": "node"
+        },
+        {
+          "revision": "442f637f38aab0d8a3a8912502e76a8c141875062ce48cec23e79ca7278f1cde",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "91b0e21e4eb88f8c3081b7e2e540454bc251603b9a0ce3d7cba7dd973347a404",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "c624e2951c31c5f8ee3a00c0fcce12d1d1ec615e2d6aa46d768973282990c5dd",
+      "evidence": [
+        {
+          "revision": "7e109d084d55e7eb25837a5f3b47ef9beee547bc",
+          "source": "cpython"
+        },
+        {
+          "revision": "bfd75153f7827f63e097f9c7d0703c0fbff6668e8db05a637973ba2c47cb1b32",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "c624e2951c31c5f8ee3a00c0fcce12d1d1ec615e2d6aa46d768973282990c5dd",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "f97704cafef2bb3d96c88a1e1c2555bb8bff76744aeec5bac6baa97add4a5f26",
+      "evidence": [
+        {
+          "revision": "66d7c891044915ccb7a12e0cc2c78991508e816e",
+          "source": "cpython"
+        },
+        {
+          "revision": "2e98f2f5f3db6b0748b2eb13f7386e3b8a0717a2408a144672fa1dad3d76ad0d",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "f97704cafef2bb3d96c88a1e1c2555bb8bff76744aeec5bac6baa97add4a5f26",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "fd9f3b60b5198326485cade83e7559fc250258325544648a255b37001fba96d6",
+      "evidence": [
+        {
+          "revision": "c612fd4cf363cf1af28bb67f11b4a11dca57507f",
+          "source": "cpython"
+        },
+        {
+          "revision": "29a083cffbd3fa99f592317d7b420fafefcb7950",
+          "source": "node"
+        },
+        {
+          "revision": "6305e43791354aba082332ff56681289c9890ab18e74dcee4510e43c49dc323e",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "fd9f3b60b5198326485cade83e7559fc250258325544648a255b37001fba96d6",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "ed0d6170c967c93d67d184fc2da0d026821dfe79fc4eca99dc3157d34b7d17ab",
+      "evidence": [
+        {
+          "revision": "c5168eadf15665310b22ff44e23738034d3e5036",
+          "source": "cpython"
+        },
+        {
+          "revision": "55e4ca33f3a6dfe364bd9558b726576a6d1a2fba",
+          "source": "node"
+        },
+        {
+          "revision": "eb946587733467b81c60d1b7513fd20fac603d64eac29fc710db2343c02a3370",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "ed0d6170c967c93d67d184fc2da0d026821dfe79fc4eca99dc3157d34b7d17ab",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "8558676fc03cb14463d6aceb33f54c0186121c4528a99e2485f52a9a17f8828b",
+      "evidence": [
+        {
+          "revision": "af49df919dafc3767ae956767dce0482f9cd6d4e",
+          "source": "cpython"
+        },
+        {
+          "revision": "84a72cd7796789d905184a05e0af99bf3875d6bfd368219fae9edcc08f424134",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "8558676fc03cb14463d6aceb33f54c0186121c4528a99e2485f52a9a17f8828b",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "fe0d9f3e127b912a83596ac01ec572a2035761a6c89c3b0c9e418646c97cd26c",
+      "evidence": [
+        {
+          "revision": "38e3478691284a893d318d3c9c36ed6427ebe62ccb0cb050c76ff673f433a755",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "fe0d9f3e127b912a83596ac01ec572a2035761a6c89c3b0c9e418646c97cd26c",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "c45b15bcd84776681af9d55ae0e8bf17a9b9607a8ab1e63ad497e7d055e935ca",
+      "evidence": [
+        {
+          "revision": "183a771144958ae9e551a9b0c9fc8771e7660548bdec5845cd6a32bec9bba726",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "c45b15bcd84776681af9d55ae0e8bf17a9b9607a8ab1e63ad497e7d055e935ca",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "a7aa1e722bf58f788e4baa47359ecdc50faa2b5292ac305995c3b5e9b6b71c86",
+      "evidence": [
+        {
+          "revision": "2d35337a017d7697e0536e3957dfe61c3108fdbff9ee4348c9481dad6b12ae33",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "a7aa1e722bf58f788e4baa47359ecdc50faa2b5292ac305995c3b5e9b6b71c86",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "3beb964a93ea405d371d845ec2af1e2ba44f5b6ecc63d6ac880eb9ac35effa34",
+      "evidence": [
+        {
+          "revision": "61818b6087e59de6287ac71bd734a0420d6e8ee3",
+          "source": "cpython"
+        },
+        {
+          "revision": "64f4e6db2af16690d39cd026583084b2f954bb245586ad3bbc9b64d15d074f9a",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "3beb964a93ea405d371d845ec2af1e2ba44f5b6ecc63d6ac880eb9ac35effa34",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "0a6bba4b7b14b0d31ef658638b8e7dd35ce019fe6d0e2b1a5c02ed68c4029beb",
+      "evidence": [
+        {
+          "revision": "c79868f1020c0020ca0db328b90e267ba003c91c",
+          "source": "node"
+        },
+        {
+          "revision": "143458ac6503c541d024ed53825cd0427abbb21d1d7c4d3a10254e43f2e767c1",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "0a6bba4b7b14b0d31ef658638b8e7dd35ce019fe6d0e2b1a5c02ed68c4029beb",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "d566b4c67f4edcb511e52f96e1ff13d0d0aac4fc0c3d61b2b299ab5be3672c5a",
+      "evidence": [
+        {
+          "revision": "d6bbf5799ff2e58d86a38ce44642a5190cc150f4",
+          "source": "node"
+        },
+        {
+          "revision": "aa724d3d8849929789f434a61d7abd4613e773408043d2c8503b46d20f7beb4b",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "d566b4c67f4edcb511e52f96e1ff13d0d0aac4fc0c3d61b2b299ab5be3672c5a",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "72ab7bb0416a58165cd139ec28a493c04bd6b303b9e8dffa2051831b468a7d13",
+      "evidence": [
+        {
+          "revision": "20e6c2fc7c174342214d561845419c4030f8638f",
+          "source": "cpython"
+        },
+        {
+          "revision": "930c806f1ef7bd8f2bc032077f56bf2edc0a00441159647c03920b5828470757",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "72ab7bb0416a58165cd139ec28a493c04bd6b303b9e8dffa2051831b468a7d13",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "9411d5b0eb649b01bf1bc9b9b08aa880baee1a1f74d81e58b62b250aef2e8201",
+      "evidence": [
+        {
+          "revision": "c9e99a9139447c52407063c2d5b971f5ab17afe6460a1521d19303260baf4edc",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "9411d5b0eb649b01bf1bc9b9b08aa880baee1a1f74d81e58b62b250aef2e8201",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "c7e75f058a8d081ac917d2ec981261b89d92eca186f40ef866968f98028e3526",
+      "evidence": [
+        {
+          "revision": "4bd98213351a36fe623f6c8cec32a5c1be24e736",
+          "source": "node"
+        },
+        {
+          "revision": "d653b80bdee48a74c9b9077515f74ea09b3fb6758b8f298a318609793689d0c9",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "c7e75f058a8d081ac917d2ec981261b89d92eca186f40ef866968f98028e3526",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "a19ebd4f19929bc428258312943687b1541bd5336c3fdaf6527b0830e646c147",
+      "evidence": [
+        {
+          "revision": "59c976f68725d7e734e84d49334e80b106515875",
+          "source": "node"
+        },
+        {
+          "revision": "89bb8251154ffaecab62771acc392ce6b8fa5562b2cfc832a49044f1dcb3a69e",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "a19ebd4f19929bc428258312943687b1541bd5336c3fdaf6527b0830e646c147",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "7f31c76fb8d1596521050b525f80607377e14d97e7751570c544420eab3481b7",
+      "evidence": [
+        {
+          "revision": "47002644ec420f150d3586902b72ce12a85664db",
+          "source": "node"
+        },
+        {
+          "revision": "6fff53f3e289998b2a8b7a63cd7c968251f329a1205729e5a75dc3ae355637d2",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "7f31c76fb8d1596521050b525f80607377e14d97e7751570c544420eab3481b7",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "45467edb12b8406ace91e783cadd01b343cfe7403edea9cc3cebae82365eedce",
+      "evidence": [
+        {
+          "revision": "bf95881b84662d3dcd35143495b9880962164fee",
+          "source": "cpython"
+        },
+        {
+          "revision": "03fb38410b23eb7e443bfe586c212e3185aad86e",
+          "source": "node"
+        },
+        {
+          "revision": "0ea152db7c44a1c597297c09adbf083e3c080d7bdc57e992fde4373dc3e1345c",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "45467edb12b8406ace91e783cadd01b343cfe7403edea9cc3cebae82365eedce",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "078e1a989a2af366f4a356da597851b320089761f44ec0cfe23cd0932614ec96",
+      "evidence": [
+        {
+          "revision": "46541f93bf7f72764b9a8775df20f2ef4e943e20",
+          "source": "node"
+        },
+        {
+          "revision": "bc5b19c52e289d5bd68c11bf972daeb0d9f312cd8723f342283e33227203663f",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "078e1a989a2af366f4a356da597851b320089761f44ec0cfe23cd0932614ec96",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "43383de85b5e1a7c1e975ec436d70122ab39b27b4eb98803e2d69fedff6d0a83",
+      "evidence": [
+        {
+          "revision": "449b9504a4a7c51a674d26e3b71329af21386416",
+          "source": "node"
+        },
+        {
+          "revision": "0ecf3fae4091d655d4c0be030c1bc453012d9a549e1c69135cfaa7dd9ce302bd",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "43383de85b5e1a7c1e975ec436d70122ab39b27b4eb98803e2d69fedff6d0a83",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "f6dcf3c8adfbc68b3755560d7ec5d5a3fb635b576f776ec860f59d77294e35f1",
+      "evidence": [
+        {
+          "revision": "2051e821778dfc7d288398bb21905b3a7b04dbbe255a7eca1a9efc826a80cbe5",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "f6dcf3c8adfbc68b3755560d7ec5d5a3fb635b576f776ec860f59d77294e35f1",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "0523a421b8cb2f9409c7f7cba705a740f76b1bc678b93c02ab0015d181a32495",
+      "evidence": [
+        {
+          "revision": "28995396b22b60ab00e467419ba118842059047f",
+          "source": "node"
+        },
+        {
+          "revision": "f1cf3ed3dcbdeb9ca15e35f076cf3b0c928c5856bfd8d27f3ce5b22d5ca5e14e",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "0523a421b8cb2f9409c7f7cba705a740f76b1bc678b93c02ab0015d181a32495",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "be40b4e0b518255fad59102b5b74954d60cb8c5070ba01916a3ad91b20486623",
+      "evidence": [
+        {
+          "revision": "e67362ea57aa5456bddfdb07db530c0cf3b2746b9675e10cc92c7f29000dd074",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "be40b4e0b518255fad59102b5b74954d60cb8c5070ba01916a3ad91b20486623",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "b952f2931147bff31e9da942e3ee310f62396d572f21afdda10a770a33ba721f",
+      "evidence": [
+        {
+          "revision": "7f6389f48ee46df91e562d33564d02747b3f7ca3",
+          "source": "cpython"
+        },
+        {
+          "revision": "fd5b13557f1f2b6f4be7dd6a954a65f9d68a5294",
+          "source": "node"
+        },
+        {
+          "revision": "e0c220b54994d3fa954162fe077420756f40d52456d9ce610503ea6b39c20604",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "b952f2931147bff31e9da942e3ee310f62396d572f21afdda10a770a33ba721f",
+      "response": "revise_source_world_model",
+      "verified": true
+    },
+    {
+      "class": "external_world_change",
+      "event_id": "9f55280f625382e8453bf61cbf87b5f997c470a6bdce31b81e668362ab94096a",
+      "evidence": [
+        {
+          "revision": "e8158d1a02d6e5e974d4dbc0633b6a3ad960d7a3",
+          "source": "cpython"
+        },
+        {
+          "revision": "6d603523056fcd1b63c91684efeb7ecbe3dc30a5",
+          "source": "node"
+        },
+        {
+          "revision": "1e3ef73a859205fe5701bf7e34fb3d7f1fa68c9fffd6e2270dda306d26a760eb",
+          "source": "open_meteo_madrid"
+        }
+      ],
+      "outcome_sha256": "9f55280f625382e8453bf61cbf87b5f997c470a6bdce31b81e668362ab94096a",
+      "response": "revise_source_world_model",
+      "verified": true
     }
   ],
   "sources": {
     "cpython": {
       "authority": "https://github.com/python/cpython.git",
-      "observed_at": "2026-08-10T21:39:10.329117+00:00",
-      "revision": "219768ff531fc0686de623139562ee9f9537df98"
+      "observed_at": "2026-08-20T11:05:54.704337+00:00",
+      "revision": "e8158d1a02d6e5e974d4dbc0633b6a3ad960d7a3"
     },
     "node": {
       "authority": "https://github.com/nodejs/node.git",
-      "observed_at": "2026-08-11T02:57:26.245819+00:00",
-      "revision": "a576f1cd497c0b0735a4444de0efb9fbe9988090"
+      "observed_at": "2026-08-20T11:05:54.704337+00:00",
+      "revision": "6d603523056fcd1b63c91684efeb7ecbe3dc30a5"
     },
     "open_meteo_madrid": {
       "authority": "https://api.open-meteo.com/v1/forecast?latitude=40.4168&longitude=-3.7038&current=temperature_2m,wind_speed_10m",
-      "observed_at": "2026-08-11T02:57:26.245819+00:00",
-      "revision": "928567f976e12f6fd4e4c8de9bbca757c1e3ed30baf0e6d82dfc4fda33816da2"
+      "observed_at": "2026-08-20T11:05:54.704337+00:00",
+      "revision": "1e3ef73a859205fe5701bf7e34fb3d7f1fa68c9fffd6e2270dda306d26a760eb"
     },
     "pypi_numpy": {
       "authority": "https://pypi.org/pypi/numpy/json",

@@ -67,7 +67,7 @@
       ]
     },
     {
-      "artifact_count": 286,
+      "artifact_count": 287,
       "authority_id": "cau_verified_artifact_store",
       "independently_reveals_outcomes": false,
       "kind": "retained_evidence",
@@ -347,7 +347,7 @@
     "purpose_hash": "b4f83005014a0d0ecbcdca8038e803e8413dca2055ba56fd0fd5a15ba0b329bf",
     "terminal_mission_hash": "cf542ee72ebeb1fbef64c53fb3806c3b939b19df147b89253eb596a0340dba24",
     "terminal_objective_mutations": 0,
-    "updated_at": "2026-08-11T05:28:10.137782+00:00"
+    "updated_at": "2026-08-20T12:06:10.612041+00:00"
   },
   "curriculum_history": [
     {
@@ -782,7 +782,7 @@
       "task_type": "unfamiliar_apprenticeship_experiment"
     }
   ],
-  "evidence_revision": 2446,
+  "evidence_revision": 4147,
   "executor_contracts": {
     "procedure_executor_1edd5e4b2bc53b3b540c": {
       "authorities": [
@@ -1031,7 +1031,7 @@
             "curriculum"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_general_apprenticeship_executor.json",
@@ -1050,7 +1050,7 @@
             "curriculum"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -1423,7 +1423,7 @@
             "repair"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -1485,7 +1485,7 @@
             "repair"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "f512fc3839d39b9bfbc73c57229e676b8874d8670e2fefa3c49ce5a5adf74d87"
+          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -1517,7 +1517,7 @@
             "repair"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -1644,7 +1644,7 @@
             "repair"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -2295,7 +2295,7 @@
             "repair"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6eba86dc14a911dc41fb14b9bab2646c7eaf6d01780f3648f5091d5f43e7577e"
+          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -2710,7 +2710,7 @@
             "transfer"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -2748,7 +2748,7 @@
             "cross_domain"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -2848,7 +2848,7 @@
             "transfer"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -3180,7 +3180,7 @@
             "cross_domain"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6eba86dc14a911dc41fb14b9bab2646c7eaf6d01780f3648f5091d5f43e7577e"
+          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
         },
         {
           "artifact": "results/hexcore_public_physics_transfer_v9.json",
@@ -3596,7 +3596,7 @@
             "public"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -3657,7 +3657,7 @@
             "public"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "f512fc3839d39b9bfbc73c57229e676b8874d8670e2fefa3c49ce5a5adf74d87"
+          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -3687,7 +3687,7 @@
             "outcome"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -3810,7 +3810,7 @@
             "outcome"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -4433,7 +4433,7 @@
             "public"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6eba86dc14a911dc41fb14b9bab2646c7eaf6d01780f3648f5091d5f43e7577e"
+          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -4918,7 +4918,7 @@
             "retention"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -4976,7 +4976,7 @@
             "restart"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "f512fc3839d39b9bfbc73c57229e676b8874d8670e2fefa3c49ce5a5adf74d87"
+          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -5005,7 +5005,7 @@
             "retention"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -6092,7 +6092,7 @@
             "semantic"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -6167,7 +6167,7 @@
             "document"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -6268,7 +6268,7 @@
             "semantic"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -7171,7 +7171,7 @@
             "unfamiliar"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -7229,7 +7229,7 @@
             "open"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "f512fc3839d39b9bfbc73c57229e676b8874d8670e2fefa3c49ce5a5adf74d87"
+          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -7258,7 +7258,7 @@
             "learn"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -7374,7 +7374,7 @@
             "open"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -8343,7 +8343,7 @@
             "visual"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_neural_physical_policy_v14.json",
@@ -8380,7 +8380,7 @@
             "physical"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_teacher_python_core_cycle.json",
@@ -8816,7 +8816,7 @@
             "runtime"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -8872,7 +8872,7 @@
             "goal"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "f512fc3839d39b9bfbc73c57229e676b8874d8670e2fefa3c49ce5a5adf74d87"
+          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -8904,7 +8904,7 @@
             "runtime"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -9021,7 +9021,7 @@
             "project"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -9661,7 +9661,7 @@
             "goal"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6eba86dc14a911dc41fb14b9bab2646c7eaf6d01780f3648f5091d5f43e7577e"
+          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -10148,7 +10148,7 @@
             "tool"
           ],
           "procedure_id": "procedure_constitutional_north_star_mastery_registry_v1",
-          "sha256": "48a4d3401ca2cc1867cdb9fe9ff75cdf7f1c558da361cafc14587f5bfb0823f6"
+          "sha256": "e428b46c7279d51eeddd25c38e536627786aa820d156e29100c807b99644287c"
         },
         {
           "artifact": "results/hexcore_continual_native_cognitive_composition.json",
@@ -10206,7 +10206,7 @@
             "schema"
           ],
           "procedure_id": "procedure_continuous_real_outcome_learning_v1",
-          "sha256": "f512fc3839d39b9bfbc73c57229e676b8874d8670e2fefa3c49ce5a5adf74d87"
+          "sha256": "aaacb19b87ac8b6ac73f34dee8b83a79afd0be0ea313c429c71a9a7690818b75"
         },
         {
           "artifact": "results/hexcore_cost_aware_open_document.json",
@@ -10235,7 +10235,7 @@
             "schema"
           ],
           "procedure_id": "procedure_cross_domain_consequence_confirmed_self_repair_v1",
-          "sha256": "361afcf0a5c22134c32a51161ff20a17ec907a0c0800a46b1862bea19094470e"
+          "sha256": "49fc2725dfe6380012be8d5be09db44fd565c2665759825a5eb195c4944c9929"
         },
         {
           "artifact": "results/hexcore_cross_domain_semantic_transfer.json",
@@ -10357,7 +10357,7 @@
             "schema"
           ],
           "procedure_id": "procedure_governed_intelligence_glyph_consolidation_v1",
-          "sha256": "c29d3fa8de61e4e9e5cccfeb44e515e9878c3bfddef6469b9bee3608811c948d"
+          "sha256": "02980cde9706d9b1bd342169fb150774c59aee30f4daf3ff5fd6419cb1f2cb83"
         },
         {
           "artifact": "results/hexcore_governed_photon_tool_invention.json",
@@ -10999,7 +10999,7 @@
             "schema"
           ],
           "procedure_id": "procedure_prospective_cross_domain_outcome_operation_v1",
-          "sha256": "6eba86dc14a911dc41fb14b9bab2646c7eaf6d01780f3648f5091d5f43e7577e"
+          "sha256": "6dc3dcd9f97749995475d0b5402a43d29971796aa27f33631150f343ad4b6411"
         },
         {
           "artifact": "results/hexcore_prospective_temporal_planning.json",
@@ -11393,9 +11393,9 @@
     "procedure_split_leakage": [],
     "protocol_usage": "evaluation infrastructure only; never capability training truth",
     "splits": {
-      "development": 59,
-      "sealed": 25,
-      "train": 176
+      "development": 61,
+      "sealed": 26,
+      "train": 173
     }
   },
   "method_cards": [
@@ -23734,5 +23734,5 @@
   ],
   "schema_version": "aion.hexcore.autonomous_general_apprentice.v1",
   "status": "active",
-  "updated_at": "2026-08-11T05:28:10.137816+00:00"
+  "updated_at": "2026-08-20T12:11:03.763724+00:00"
 }

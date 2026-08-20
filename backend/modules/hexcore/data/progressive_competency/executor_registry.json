@@ -5,161 +5,161 @@
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "advanced_python",
-      "updated_epoch": 1786426127.575338
+      "updated_epoch": 1787227955.396847
     },
     "algorithms_data_structures": {
       "adapter_id": "progressive:algorithms_data_structures",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "algorithms_data_structures",
-      "updated_epoch": 1786426127.575339
+      "updated_epoch": 1787227955.3968482
     },
     "architecture_operations": {
       "adapter_id": "progressive:architecture_operations",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "architecture_operations",
-      "updated_epoch": 1786426127.575339
+      "updated_epoch": 1787227955.3968482
     },
     "cloud_devops_sre": {
       "adapter_id": "progressive:cloud_devops_sre",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "cloud_devops_sre",
-      "updated_epoch": 1786426127.57534
+      "updated_epoch": 1787227955.3968482
     },
     "data_statistics": {
       "adapter_id": "progressive:data_statistics",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "data_statistics",
-      "updated_epoch": 1786426127.57534
+      "updated_epoch": 1787227955.396849
     },
     "distributed_systems": {
       "adapter_id": "progressive:distributed_systems",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "distributed_systems",
-      "updated_epoch": 1786426127.57534
+      "updated_epoch": 1787227955.396849
     },
     "english": {
       "adapter_id": "progressive:english",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "english",
-      "updated_epoch": 1786426127.57534
+      "updated_epoch": 1787227955.396849
     },
     "integrated_engineering_capstone": {
       "adapter_id": "progressive:integrated_engineering_capstone",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "integrated_engineering_capstone",
-      "updated_epoch": 1786426127.575341
+      "updated_epoch": 1787227955.396849
     },
     "javascript_typescript": {
       "adapter_id": "progressive:javascript_typescript",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "javascript_typescript",
-      "updated_epoch": 1786426127.575341
+      "updated_epoch": 1787227955.3968499
     },
     "machine_learning_ai": {
       "adapter_id": "progressive:machine_learning_ai",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "machine_learning_ai",
-      "updated_epoch": 1786426127.575341
+      "updated_epoch": 1787227955.3968499
     },
     "mathematics": {
       "adapter_id": "progressive:mathematics",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "mathematics",
-      "updated_epoch": 1786426127.575341
+      "updated_epoch": 1787227955.3968499
     },
     "networking": {
       "adapter_id": "progressive:networking",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "networking",
-      "updated_epoch": 1786426127.575341
+      "updated_epoch": 1787227955.3968499
     },
     "operating_systems": {
       "adapter_id": "progressive:operating_systems",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "operating_systems",
-      "updated_epoch": 1786426127.575341
+      "updated_epoch": 1787227955.3968499
     },
     "python": {
       "adapter_id": "progressive:python",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "python",
-      "updated_epoch": 1786426127.5753422
+      "updated_epoch": 1787227955.396851
     },
     "python_core": {
       "adapter_id": "progressive:python_core",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "python_core",
-      "updated_epoch": 1786426127.5753422
+      "updated_epoch": 1787227955.396851
     },
     "research_communication": {
       "adapter_id": "progressive:research_communication",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "research_communication",
-      "updated_epoch": 1786426127.5753422
+      "updated_epoch": 1787227955.396851
     },
     "rust": {
       "adapter_id": "progressive:rust",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "rust",
-      "updated_epoch": 1786426127.5753422
+      "updated_epoch": 1787227955.396851
     },
     "scientific_method": {
       "adapter_id": "progressive:scientific_method",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "scientific_method",
-      "updated_epoch": 1786426127.5753431
+      "updated_epoch": 1787227955.396851
     },
     "secure_engineering": {
       "adapter_id": "progressive:secure_engineering",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "secure_engineering",
-      "updated_epoch": 1786426127.5753431
+      "updated_epoch": 1787227955.396852
     },
     "security_engineering": {
       "adapter_id": "progressive:security_engineering",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "security_engineering",
-      "updated_epoch": 1786426127.5753431
+      "updated_epoch": 1787227955.396852
     },
     "software_engineering": {
       "adapter_id": "progressive:software_engineering",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "software_engineering",
-      "updated_epoch": 1786426127.5753431
+      "updated_epoch": 1787227955.396852
     },
     "sql_databases": {
       "adapter_id": "progressive:sql_databases",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "sql_databases",
-      "updated_epoch": 1786426127.5753431
+      "updated_epoch": 1787227955.396852
     },
     "testing_debugging": {
       "adapter_id": "progressive:testing_debugging",
       "source": "progressive_runner_registry",
       "status": "verified_available",
       "subject_id": "testing_debugging",
-      "updated_epoch": 1786426127.575344
+      "updated_epoch": 1787227955.396852
     }
   },
   "events": [
@@ -1307,5 +1307,5 @@
     }
   },
   "schema_version": "aion.hexcore.progressive_executor_registry.v1",
-  "updated_epoch": 1786426127.57535
+  "updated_epoch": 1787227955.396859
 }

@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 
 from backend.modules.hexcore.file_locking import acquire_process_lock
+from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
 
 
 _STARTUP_PROCESS_LOCK = None
@@ -192,7 +193,7 @@ def run_service() -> None:
             repo_root / "results/hexcore_autonomous_general_apprentice_evidence_registry.json",
             repo_root / "results/hexcore_autonomous_general_apprentice_evidence_history.jsonl",
         )
-        time.sleep(interval)
+        wait_for_wall_clock(interval)
 
 
 if __name__ == "__main__":

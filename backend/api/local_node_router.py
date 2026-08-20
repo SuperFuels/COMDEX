@@ -28,6 +28,7 @@ from backend.workflow_capsules.aion_a2a_commercial_ticket import (
 
 
 from backend.services.aion_mission_mode.business_foundation_llm_extractor import scan_website_with_openai
+from backend.services.aion_mission_mode.website_foundation_extractor import collect_website_evidence, normalise_url
 from backend.services.aion_mission_mode.website_scan_usage_gate import website_scan_allowed
 
 router = APIRouter(prefix="/api/local-node", tags=["local-node"])
@@ -2124,6 +2125,21 @@ def _compact_website_scan_evidence(evidence: Any) -> Dict[str, Any]:
             return []
         return [bounded_text(item, item_limit) for item in value[:count] if bounded_text(item, item_limit)]
 
+    def bounded_css_tokens(value: Any) -> List[Dict[str, str]]:
+        if not isinstance(value, list):
+            return []
+        output: List[Dict[str, str]] = []
+        for item in value[:40]:
+            if not isinstance(item, dict):
+                continue
+            name = bounded_text(item.get("name"), 100)
+            token_value = bounded_text(item.get("value"), 32)
+            if name and token_value:
+                output.append({"name": name, "value": token_value})
+        return output
+
+    font_roles_source = source.get("font_roles") if isinstance(source.get("font_roles"), dict) else {}
+
     try:
         visible_text_length = max(0, int(source.get("visible_text_length") or 0))
     except (TypeError, ValueError):
@@ -2137,6 +2153,18 @@ def _compact_website_scan_evidence(evidence: Any) -> Dict[str, Any]:
         "emails": bounded_list(source.get("emails"), count=20, item_limit=320),
         "phones": bounded_list(source.get("phones"), count=20, item_limit=100),
         "social_links": bounded_list(source.get("social_links"), count=24, item_limit=2048),
+        "logo_candidates": bounded_list(source.get("logo_candidates"), count=12, item_limit=2048),
+        "icon_candidates": bounded_list(source.get("icon_candidates"), count=12, item_limit=2048),
+        "social_image_candidates": bounded_list(source.get("social_image_candidates"), count=12, item_limit=2048),
+        "colour_candidates": bounded_list(source.get("colour_candidates"), count=24, item_limit=32),
+        "font_candidates": bounded_list(source.get("font_candidates"), count=16, item_limit=300),
+        "css_custom_properties": bounded_css_tokens(source.get("css_custom_properties")),
+        "font_roles": {
+            "heading": bounded_text(font_roles_source.get("heading"), 200),
+            "body": bounded_text(font_roles_source.get("body"), 200),
+            "supporting": bounded_text(font_roles_source.get("supporting"), 200),
+        },
+        "stylesheet_urls": bounded_list(source.get("stylesheet_urls"), count=24, item_limit=2048),
         "visible_text_length": visible_text_length,
         "live_external_side_effect": False,
     }
@@ -2157,6 +2185,45 @@ async def api_aion_small_business_website_scan(payload: dict):
         }
 
     website = str(payload.get("website") or "").strip()
+
+    # Brand Design System discovery only needs objective public-page evidence.
+    # Keep that path independent of paid LLM availability and quota: logos,
+    # colours and declared fonts come directly from the site and are still
+    # suggestions until the user confirms them. The onboarding foundation scan
+    # continues to use the model-assisted extraction path below.
+    if payload.get("evidence_only") is True:
+        try:
+            evidence = await asyncio.to_thread(
+                collect_website_evidence,
+                normalise_url(website),
+                timeout_seconds=12,
+            )
+        except Exception as exc:
+            return {
+                "ok": False,
+                "usage_gate": gate,
+                "extracted_fields": {},
+                "foundation": {},
+                "evidence": {},
+                "source_facts": [],
+                "warnings": [str(exc) or "Public website evidence scan failed"],
+                "error": "website_evidence_scan_failed",
+                "provider": "deterministic_public_website",
+                "live_external_side_effect": False,
+            }
+
+        return {
+            "ok": True,
+            "url": normalise_url(website),
+            "extracted_fields": {},
+            "foundation": {},
+            "evidence": _compact_website_scan_evidence(evidence),
+            "source_facts": [],
+            "warnings": [],
+            "provider": "deterministic_public_website",
+            "live_external_side_effect": False,
+            "usage_gate": gate,
+        }
 
     try:
         # This scanner performs synchronous website and OpenAI network calls.

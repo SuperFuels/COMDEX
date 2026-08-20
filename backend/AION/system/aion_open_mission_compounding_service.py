@@ -8,6 +8,7 @@ import time
 from pathlib import Path
 
 from backend.modules.hexcore.file_locking import acquire_process_lock
+from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
 from backend.modules.hexcore.open_mission_compounding_governor import (
     OpenMissionCompoundingGovernor,
 )
@@ -58,7 +59,7 @@ def run_service() -> None:
         governor = OpenMissionCompoundingGovernor(state_path=state_path)
         _consume_json_inbox(governor, data_root / "inbox", data_root / "rejected")
         governor.publish_snapshot(repo_root / "results/aion_open_mission_compounding_status.json")
-        time.sleep(interval)
+        wait_for_wall_clock(interval)
 
 
 if __name__ == "__main__":

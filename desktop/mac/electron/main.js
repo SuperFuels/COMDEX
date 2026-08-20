@@ -178,6 +178,44 @@ async function playAionLocalVoiceInMain(payload = {}) {
   };
 }
 
+let activeAionSystemVoiceProcess = null;
+
+async function playAionSystemVoiceInMain(payload = {}) {
+  const text = String(payload.text || "").trim().slice(0, 1200);
+  if (!text) return { ok: false, error: "Missing voice text" };
+
+  const allowedVoices = new Set(["Samantha", "Daniel", "Karen", "Moira", "Rishi", "Tessa"]);
+  const requestedVoice = String(payload.voice || "Samantha").trim();
+  const voice = allowedVoices.has(requestedVoice) ? requestedVoice : "Samantha";
+  const rate = Math.max(130, Math.min(235, Number(payload.rate || 190)));
+
+  try {
+    if (activeAionSystemVoiceProcess && !activeAionSystemVoiceProcess.killed) {
+      activeAionSystemVoiceProcess.kill("SIGTERM");
+    }
+  } catch {}
+
+  return await new Promise((resolve) => {
+    const speaker = spawn("/usr/bin/say", ["-v", voice, "-r", String(rate), text], {
+      stdio: "ignore",
+    });
+    activeAionSystemVoiceProcess = speaker;
+    speaker.once("error", (error) => {
+      if (activeAionSystemVoiceProcess === speaker) activeAionSystemVoiceProcess = null;
+      resolve({ ok: false, error: String(error?.message || error), provider: "macos_say" });
+    });
+    speaker.once("exit", (code, signal) => {
+      if (activeAionSystemVoiceProcess === speaker) activeAionSystemVoiceProcess = null;
+      resolve({
+        ok: code === 0,
+        provider: "macos_say",
+        voice,
+        interrupted: signal === "SIGTERM",
+      });
+    });
+  });
+}
+
 async function isBackendHealthy() {
   try {
     const res = await httpGet(BACKEND_URL);
@@ -1362,6 +1400,28 @@ ipcMain.handle("aion-open-external-url", async (_event, rawUrl = "") => {
   return { ok: true };
 });
 
+ipcMain.handle("aion-open-business-artifact", async (_event, rawStoragePath = "") => {
+  const value = String(rawStoragePath || "").trim();
+  if (!value) return { ok: false, error: "artifact_path_missing" };
+  const runtimeRoot = path.resolve(DEV_PROJECT_ROOT, ".runtime", "AION_BUSINESS");
+  let candidate;
+  if (path.isAbsolute(value)) {
+    candidate = path.resolve(value);
+  } else if (value.startsWith(".runtime/AION_BUSINESS/")) {
+    candidate = path.resolve(DEV_PROJECT_ROOT, value);
+  } else {
+    candidate = path.resolve(runtimeRoot, value);
+  }
+  if (candidate !== runtimeRoot && !candidate.startsWith(`${runtimeRoot}${path.sep}`)) {
+    return { ok: false, error: "artifact_path_outside_business_runtime" };
+  }
+  if (!fs.existsSync(candidate) || !fs.statSync(candidate).isFile()) {
+    return { ok: false, error: "artifact_file_missing" };
+  }
+  const error = await shell.openPath(candidate);
+  return error ? { ok: false, error } : { ok: true };
+});
+
 ipcMain.handle("aion-choose-local-video", async () => {
   const owner = BrowserWindow.getFocusedWindow() || mainWindow || undefined;
   const result = await dialog.showOpenDialog(owner, {
@@ -1396,6 +1456,10 @@ ipcMain.handle("aion-play-local-voice", async (_event, payload = {}) => {
   } catch (error) {
     return { ok: false, error: String(error?.message || error) };
   }
+});
+
+ipcMain.handle("aion-play-system-voice", async (_event, payload = {}) => {
+  return await playAionSystemVoiceInMain(payload);
 });
 
 ipcMain.handle("aion-request-microphone-permission", async () => {

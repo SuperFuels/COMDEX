@@ -10,6 +10,7 @@ import urllib.request
 import pytest
 
 from backend.modules.aion_business.runtime.sales_revenue_service import SalesRevenueService
+from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.tests.test_finance_bookkeeping_service import configure
 
 
@@ -60,6 +61,30 @@ def test_company_identity_is_canonical_and_shared_across_people(monkeypatch, tmp
     )
     assert first["contact"]["company_id"] == second["contact"]["company_id"]
     assert len(sales.list_companies("acme")) == 1
+
+
+def test_legacy_underscore_business_alias_remains_inside_same_sales_workspace(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    playbook = sales.ensure_default_playbook("home-fixed")
+    playbook["workspace_id"] = "home_fixed"
+    sales._rehash(playbook, "playbook_hash")
+    sales._write(AIONBusinessPaths.business_container_dir("home-fixed") / "sales/revenue_spine/playbooks/inbound-enquiry.json", playbook)
+
+    workspace = sales.workspace("home-fixed")
+
+    assert workspace["workspace_id"] == "home-fixed"
+    assert workspace["playbook"]["workspace_id"] == "home_fixed"
+
+
+def test_different_business_record_still_fails_sales_workspace_isolation(monkeypatch, tmp_path):
+    sales, _ = service(monkeypatch, tmp_path)
+    playbook = sales.ensure_default_playbook("home-fixed")
+    playbook["workspace_id"] = "another-business"
+    sales._rehash(playbook, "playbook_hash")
+    sales._write(AIONBusinessPaths.business_container_dir("home-fixed") / "sales/revenue_spine/playbooks/inbound-enquiry.json", playbook)
+
+    with pytest.raises(PermissionError, match="sales_workspace_isolation_violation"):
+        sales.workspace("home-fixed")
 
 
 def test_qualification_handoff_and_booking_are_governed(monkeypatch, tmp_path):

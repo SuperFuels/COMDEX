@@ -9,6 +9,7 @@ from pathlib import Path
 from backend.modules.hexcore.autonomous_general_apprentice import (
     AutonomousGeneralApprentice,
 )
+from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
 
 
 def run_service() -> None:
@@ -23,7 +24,7 @@ def run_service() -> None:
             if outcome.get("status") == "bound":
                 apprentice.close_generation()
                 apprentice.next_task()
-        time.sleep(interval)
+        wait_for_wall_clock(interval)
 
 
 if __name__ == "__main__":

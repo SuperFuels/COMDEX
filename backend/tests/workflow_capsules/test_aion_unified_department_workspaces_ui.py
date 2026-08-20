@@ -14,10 +14,61 @@ def test_six_operating_departments_share_one_compact_director_and_package_system
         assert f'renderAionO14KCollapsedPackageDockUnderBoardroom("{key}")' in APP_JS
 
     assert 'data-aion-unified-department-director=' in APP_JS
-    assert 'height:176px;min-height:176px;max-height:176px' in APP_JS
+    assert 'grid-template-columns:minmax(360px,1fr) 260px' in APP_JS
+    assert 'width:260px' in APP_JS
+    assert 'height:260px' in APP_JS
+    assert 'data-aion-character-media' in APP_JS
+    assert 'width:177.683316%' in APP_JS
+    assert 'left:-58.262487%' in APP_JS
     assert 'data-aion-unified-department-conversation=' in APP_JS
     assert "openUnifiedDepartmentPilotConversation" in APP_JS
     assert "department-scoped conversation" in APP_JS
+
+
+def test_compact_directors_use_clickable_character_identity_portraits_not_robot_canvases():
+    expected_portraits = {
+        "marketing": "marketing-character-v3.png",
+        "sales": "sales-character-v2.png",
+        "finance": "finance-character-v2.png",
+        "operations": "operations-character-v2.png",
+        "support": "support-character-v2.png",
+        "hr": "hr-character-v2.png",
+    }
+    for key, filename in expected_portraits.items():
+        assert f'portrait: "./assets/department-pilots/{filename}"' in APP_JS
+        assert (ROOT / f"desktop/mac/src/assets/department-pilots/{filename}").is_file()
+
+    compact_director = APP_JS.split("function renderDepartmentCompactDirectorCard", 1)[1].split(
+        "function openUnifiedDepartmentPilotConversation", 1
+    )[0]
+    assert 'data-aion-unified-department-portrait=' in compact_director
+    assert "renderAionAnchoredCharacterMedia(config, key" in compact_director
+    assert "Synthetic agent · ready" in compact_director
+    assert 'data-aion-o14d-department-121-spatial-boardroom-mount="true"' not in compact_director
+    assert 'data-aion-unified-department-conversation="${escapeHtml(key)}"' in compact_director
+    assert 'data-aion-character-stage=' in compact_director
+    assert "function renderAionAnchoredCharacterMedia" in APP_JS
+
+
+def test_talk_to_pilot_uses_a_shared_runtime_registry_and_safe_renderer_fallback():
+    assert "window.AION_UNIFIED_DEPARTMENT_SHELLS = AION_UNIFIED_DEPARTMENT_SHELLS" in APP_JS
+    assert "const identityRegistry = window.AION_UNIFIED_DEPARTMENT_SHELLS || {}" in APP_JS
+    assert "const renderers = [" in APP_JS
+    assert "window.renderAionO18AADepartmentConversationCockpit" in APP_JS
+    assert "window.renderAionO18ADDepartmentConversationCockpit" in APP_JS
+    assert "Department Pilot conversation renderer failed" in APP_JS
+    assert "document.body.appendChild(dialog);\n  return true;" in APP_JS
+
+
+def test_character_identity_system_blinks_talks_and_listens_without_video_rendering():
+    assert "function ensureAionCharacterIdentityStyles" in APP_JS
+    assert "function renderAionCharacterFaceOverlay" in APP_JS
+    assert "@keyframes aionCharacterBlink" in APP_JS
+    assert "@keyframes aionCharacterTalk" in APP_JS
+    assert "@keyframes aionCharacterListen" in APP_JS
+    assert 'data-aion-character-eye="left"' in APP_JS
+    assert "setCharacterFaceStateO18AA(key, \"speaking\", 1800)" in APP_JS
+    assert "setCharacterFaceStateO18AA(key, \"listening\", 1800)" in APP_JS
 
 
 def test_main_department_routes_use_the_unified_workspaces_not_legacy_black_pilots():
@@ -40,6 +91,8 @@ def test_main_department_routes_use_the_unified_workspaces_not_legacy_black_pilo
 def test_real_sales_and_hr_workspaces_mount_below_their_boardroom_packages():
     assert 'data-aion-sales-revenue-mount="true"' in APP_JS
     assert "'[data-aion-sales-revenue-mount=\"true\"]" in SALES_JS
+    assert "if (!state.data)" in SALES_JS
+    assert "Sales workspace is loading its customer, pipeline, voice and outreach records." in SALES_JS
     assert 'data-aion-hr-people-mount="true"' in APP_JS
     assert "'[data-aion-hr-people-mount=\"true\"]" in HR_JS
 

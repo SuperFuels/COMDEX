@@ -1555,13 +1555,14 @@
       setNestedValue(next, path, value);
 
       if (String(path || "").startsWith("brandMap.")) {
-        const currentMap = getBrandMapFromBrand(next);
-        next.brandIntelligenceMap = cloneValue(currentMap);
+        /* The edited brandMap is authoritative for this operation.  Calling
+         * getBrandMapFromBrand here preferred the still-old
+         * brandIntelligenceMap alias and silently discarded the edit. */
+        next.brandIntelligenceMap = cloneValue(ensureObject(next.brandMap));
       }
 
       if (String(path || "").startsWith("brandIntelligenceMap.")) {
-        const currentMap = getBrandMapFromBrand(next);
-        next.brandMap = cloneValue(currentMap);
+        next.brandMap = cloneValue(ensureObject(next.brandIntelligenceMap));
       }
 
       return setBrandFoundationState({

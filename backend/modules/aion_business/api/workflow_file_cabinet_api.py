@@ -30,3 +30,17 @@ def save_workflow_file_cabinet(workspace_id: str, payload: Dict[str, Any]) -> Di
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+@router.get("/{workspace_id}/items/{item_id}/preview")
+def preview_workflow_file_cabinet_item(workspace_id: str, item_id: str) -> Dict[str, Any]:
+    try:
+        return WorkflowFileCabinetRepository.preview(workspace_id, item_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc

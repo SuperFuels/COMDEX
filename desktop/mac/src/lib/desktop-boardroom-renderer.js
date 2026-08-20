@@ -212,6 +212,80 @@
     return !!aionBoardroomAssetCache.assets[key];
   }
 
+  /* BEGIN AION O19C SYNTHETIC SEAT IDENTITY MASK LOCK */
+  /*
+   * The seated GLB owns the exact black visor surface as an independent source
+   * material. This small shared rig adds only animated eyes and voice bars. It
+   * works for both Executive and Board mode
+   * and does not depend on modifying the source GLB.
+   */
+  function addAionSyntheticSeatIdentityMask(parent, options = {}) {
+    const THREE = ensureThree();
+    if (!parent) return null;
+
+    const key = String(options.key || "agent").trim().toLowerCase();
+    const accent = Number.isFinite(Number(options.accent))
+      ? Number(options.accent)
+      : 0xf2af0d;
+    const scale = Number(options.scale || 1);
+    const face = new THREE.Group();
+    face.name = `aion_synthetic_identity_mask_${key}`;
+    face.position.set(
+      Number(options.x || 0),
+      Number(options.y || 1.5),
+      Number(options.z || 0.36),
+    );
+    face.scale.setScalar(scale);
+
+    const glowMaterial = new THREE.MeshBasicMaterial({
+      color: accent,
+      transparent: true,
+      opacity: 0.98,
+      depthTest: false,
+      depthWrite: false,
+    });
+    const eyes = [];
+    [-0.073, 0.073].forEach((x, index) => {
+      const eye = new THREE.Mesh(
+        new THREE.SphereGeometry(0.031, 18, 12),
+        glowMaterial.clone(),
+      );
+      eye.name = `aion_synthetic_face_eye_${key}_${index}`;
+      eye.scale.set(1.5, 0.58, 0.45);
+      eye.position.set(x, 0.042, 0.182);
+      face.add(eye);
+      eyes.push(eye);
+    });
+
+    const voiceBars = [];
+    [-0.044, -0.022, 0, 0.022, 0.044].forEach((x, index) => {
+      const bar = new THREE.Mesh(
+        new THREE.BoxGeometry(0.012, 0.026, 0.012),
+        glowMaterial.clone(),
+      );
+      bar.name = `aion_synthetic_voice_bar_${key}_${index}`;
+      bar.position.set(x, -0.058, 0.187);
+      face.add(bar);
+      voiceBars.push(bar);
+    });
+
+    parent.add(face);
+    face.traverse?.((child) => {
+      if (child?.isMesh) child.renderOrder = 40;
+    });
+    face.userData.aionSyntheticIdentity = true;
+    face.userData.seed = key.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0) * 0.017;
+    face.userData.eyes = eyes;
+    face.userData.voiceBars = voiceBars;
+
+    if (current) {
+      current.syntheticFaceRigs = current.syntheticFaceRigs || [];
+      current.syntheticFaceRigs.push(face);
+    }
+    return face;
+  }
+  /* END AION O19C SYNTHETIC SEAT IDENTITY MASK LOCK */
+
 
   if (!global.__aionBoardroomGLTFReadyRetryInstalled) {
     global.__aionBoardroomGLTFReadyRetryInstalled = true;
@@ -467,6 +541,8 @@
     const paddingY = opts.paddingY || 16;
     const color = opts.color || "#0f172a";
     const background = opts.background || "rgba(255,255,255,0)";
+    const border = opts.border || "rgba(255,255,255,0)";
+    const borderWidth = Number.isFinite(Number(opts.borderWidth)) ? Number(opts.borderWidth) : 3;
     const fontFamily =
       opts.fontFamily ||
       "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
@@ -483,6 +559,11 @@
     ctx.clearRect(0, 0, width, height);
     ctx.fillStyle = background;
     ctx.fillRect(0, 0, width, height);
+    if (borderWidth > 0) {
+      ctx.strokeStyle = border;
+      ctx.lineWidth = borderWidth;
+      ctx.strokeRect(borderWidth / 2, borderWidth / 2, width - borderWidth, height - borderWidth);
+    }
     ctx.font = `${fontWeight} ${fontSize}px ${fontFamily}`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -1478,99 +1559,138 @@ function buildBoardroomWorld(snapshot, options) {
     }
 
     function addTable(parent) {
-      const table = new THREE.Mesh(
-        new THREE.CylinderGeometry(6.9, 7.45, 0.58, 96),
-        standardMaterial(0x51433a, {
-          roughness: 0.46,
-          metalness: 0.18,
-        }),
-      );
-      table.scale.set(1.46, 1, 0.72);
-      table.position.set(0, 0.13, -4.6);
-      parent.add(table);
-
-      const tableTop = new THREE.Mesh(
-        new THREE.CylinderGeometry(6.35, 6.82, 0.08, 96),
-        standardMaterial(0x2f2926, {
-          roughness: 0.38,
-          metalness: 0.22,
-          emissive: 0x050505,
-          emissiveIntensity: 0.12,
-        }),
-      );
-      tableTop.scale.set(1.42, 1, 0.7);
-      tableTop.position.set(0, 0.48, -4.6);
-      parent.add(tableTop);
-
-      const ring = new THREE.Mesh(
-        new THREE.TorusGeometry(5.9, 0.06, 18, 120),
-        panelMaterial(0x93c5fd, 0.62),
-      );
-      ring.scale.set(1.46, 0.72, 1);
-      ring.rotation.x = Math.PI / 2;
-      ring.position.set(0, 0.58, -4.6);
-      parent.add(ring);
-
-      const core = new THREE.Mesh(
-        new THREE.CylinderGeometry(1.65, 1.65, 0.045, 72),
-        panelMaterial(0x60a5fa, 0.18),
-      );
-      core.position.set(0, 0.64, -4.6);
-      parent.add(core);
-
-      const coreLabel = makeTextSprite("A", {
-        fontSize: 74,
-        fontWeight: 950,
-        color: "#dbeafe",
-        heightWorld: 0.86,
+      // Futuristic executive table: pearl composite shell, dark smart-glass work surface,
+      // cyan light channels and illuminated architectural pedestals. No ornamental logo.
+      const pedestalMaterial = standardMaterial(0xdce7f1, {
+        roughness: 0.24,
+        metalness: 0.34,
+        emissive: 0x6ecff6,
+        emissiveIntensity: 0.045,
       });
-      coreLabel.position.set(0, 0.86, -4.6);
-      parent.add(coreLabel);
+      [-3.35, 3.35].forEach((x) => {
+        const pedestal = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.18, 1.62, 1.42, 8),
+          pedestalMaterial,
+        );
+        pedestal.scale.set(1.34, 1, 0.72);
+        pedestal.rotation.y = Math.PI / 8;
+        pedestal.position.set(x, -0.38, -4.6);
+        pedestal.castShadow = true;
+        pedestal.receiveShadow = true;
+        parent.add(pedestal);
 
-      /* BEGIN AION O16F DEPARTMENT 121 SAME TABLE CAMERA NO FRONT DESK LOCK */
-      const isDepartment121SameTableViewO16F = String(teamMode || "").endsWith("_121");
-      /* END AION O16F DEPARTMENT 121 SAME TABLE CAMERA NO FRONT DESK LOCK */
+        const pedestalFoot = new THREE.Mesh(
+          new THREE.CylinderGeometry(1.55, 1.72, 0.12, 8),
+          standardMaterial(0x122235, {
+            roughness: 0.24,
+            metalness: 0.66,
+            emissive: 0x22d3ee,
+            emissiveIntensity: 0.16,
+          }),
+        );
+        pedestalFoot.scale.set(1.28, 1, 0.68);
+        pedestalFoot.rotation.y = Math.PI / 8;
+        pedestalFoot.position.set(x, -1.08, -4.6);
+        parent.add(pedestalFoot);
 
-      const console = new THREE.Mesh(
-        new THREE.BoxGeometry(8.1, 1.1, 1.15),
-        standardMaterial(0x0f172a, {
-          roughness: 0.42,
-          metalness: 0.22,
-          opacity: 0.92,
-          emissive: 0x0a1020,
-          emissiveIntensity: 0.18,
+        const pedestalLight = new THREE.Mesh(
+          new THREE.BoxGeometry(0.12, 0.96, 0.72),
+          panelMaterial(0x67e8f9, 0.82),
+        );
+        pedestalLight.position.set(x, -0.34, -3.73);
+        parent.add(pedestalLight);
+      });
+
+      const apron = new THREE.Mesh(
+        new THREE.CylinderGeometry(6.72, 7.18, 0.48, 128),
+        standardMaterial(0x111d2d, {
+          roughness: 0.24,
+          metalness: 0.58,
+          emissive: 0x062c3d,
+          emissiveIntensity: 0.1,
         }),
       );
-      console.position.set(0, 1.05, 4.05);
-      console.visible = !isDepartment121SameTableViewO16F;
-      parent.add(console);
+      apron.scale.set(1.46, 1, 0.72);
+      apron.position.set(0, 0.12, -4.6);
+      apron.castShadow = true;
+      parent.add(apron);
 
-      const switchButton = new THREE.Mesh(
-        new THREE.BoxGeometry(3.75, 0.18, 0.7),
-        standardMaterial(teamMode === "board" ? 0x22c55e : 0x1a8aff, {
-          roughness: 0.38,
-          metalness: 0.22,
-          emissive: teamMode === "board" ? 0x22c55e : 0x1a8aff,
-          emissiveIntensity: 0.2,
+      const compositeEdge = new THREE.Mesh(
+        new THREE.CylinderGeometry(6.58, 6.94, 0.24, 128),
+        standardMaterial(0xd8e5ef, {
+          roughness: 0.2,
+          metalness: 0.3,
+          emissive: 0x9bdcf4,
+          emissiveIntensity: 0.045,
         }),
       );
-      switchButton.position.set(0, 1.72, 4.74);
-      switchButton.visible = !isDepartment121SameTableViewO16F;
-      parent.add(switchButton);
+      compositeEdge.scale.set(1.45, 1, 0.71);
+      compositeEdge.position.set(0, 0.48, -4.6);
+      compositeEdge.castShadow = true;
+      compositeEdge.receiveShadow = true;
+      parent.add(compositeEdge);
 
-      const switchText = makeTextSprite(teamMode === "board" ? "SWITCH TO EXECUTIVE TEAM" : "SWITCH TO BOARD TEAM", {
-        fontSize: 25,
-        fontWeight: 950,
-        color: "#ffffff",
-        heightWorld: 0.28,
-      });
-      switchText.position.set(0, 1.91, 4.86);
-      switchText.visible = !isDepartment121SameTableViewO16F;
-      parent.add(switchText);
+      const pearlDeck = new THREE.Mesh(
+        new THREE.CylinderGeometry(6.42, 6.58, 0.13, 128),
+        standardMaterial(0xf4f8fb, {
+          roughness: 0.16,
+          metalness: 0.24,
+          emissive: 0xc9f1ff,
+          emissiveIntensity: 0.055,
+        }),
+      );
+      pearlDeck.scale.set(1.43, 1, 0.695);
+      pearlDeck.position.set(0, 0.66, -4.6);
+      pearlDeck.castShadow = true;
+      pearlDeck.receiveShadow = true;
+      parent.add(pearlDeck);
 
-      registerInteractive(switchButton, {
-        type: "team_mode_switch",
+      const smartGlass = new THREE.Mesh(
+        new THREE.CylinderGeometry(5.82, 5.82, 0.035, 128),
+        standardMaterial(0x082338, {
+          roughness: 0.12,
+          metalness: 0.46,
+          opacity: 0.94,
+          emissive: 0x0a5d75,
+          emissiveIntensity: 0.24,
+        }),
+      );
+      smartGlass.scale.set(1.44, 1, 0.7);
+      smartGlass.position.set(0, 0.75, -4.6);
+      smartGlass.receiveShadow = true;
+      parent.add(smartGlass);
+
+      // Embedded data-light channels make the surface read as an active collaborative console.
+      [4.72, 5.42].forEach((radius, index) => {
+        const dataChannel = new THREE.Mesh(
+          new THREE.TorusGeometry(radius, index === 1 ? 0.055 : 0.025, 12, 128),
+          new THREE.MeshBasicMaterial({
+            color: index === 1 ? 0x67e8f9 : 0x38bdf8,
+            transparent: true,
+            opacity: index === 1 ? 0.92 : 0.5,
+            depthWrite: false,
+          }),
+        );
+        dataChannel.scale.set(1.44, 0.7, 1);
+        dataChannel.rotation.x = Math.PI / 2;
+        dataChannel.position.set(0, 0.79 + index * 0.004, -4.6);
+        parent.add(dataChannel);
       });
+
+      const collaborationField = new THREE.Mesh(
+        new THREE.CylinderGeometry(2.15, 2.15, 0.018, 96),
+        new THREE.MeshBasicMaterial({
+          color: 0x38bdf8,
+          transparent: true,
+          opacity: 0.1,
+          depthWrite: false,
+        }),
+      );
+      collaborationField.position.set(0, 0.81, -4.6);
+      parent.add(collaborationField);
+
+      // Team switching belongs to the interface overlay, not on the physical table.
+      // This keeps the collaborative surface clear in every camera position.
     }
 
     function addAgentSeat(parent, key, label, role, x, z, accent, active) {
@@ -1879,23 +1999,27 @@ function buildBoardroomWorld(snapshot, options) {
 
       // Clean label: move identity above the seat instead of across the agent.
       const labelPlate = makeTextSprite(label, {
-        fontSize: 38,
+        fontSize: 48,
+        fontWeight: 950,
         color: "#ffffff",
-        background: "rgba(2, 6, 23, 0.92)",
+        background: "rgba(7, 17, 31, 0.97)",
         border: active ? "rgba(251, 191, 36, 0.95)" : "rgba(255, 255, 255, 0.22)",
-        widthWorld: Math.max(1.15, String(label || "").length * 0.16),
-        heightWorld: 0.34,
+        borderWidth: active ? 5 : 3,
+        widthWorld: Math.max(1.45, String(label || "").length * 0.2),
+        heightWorld: 0.42,
       });
       labelPlate.position.set(0, 2.34, 0.54);
       group.add(labelPlate);
 
       const rolePlate = makeTextSprite(role, {
-        fontSize: 20,
+        fontSize: 23,
+        fontWeight: 850,
         color: active ? "#fef3c7" : "#dbeafe",
-        background: "rgba(15, 23, 42, 0.32)",
-        border: "rgba(255, 255, 255, 0.08)",
-        widthWorld: Math.max(1.35, String(role || "").length * 0.075),
-        heightWorld: 0.22,
+        background: "rgba(15, 23, 42, 0.88)",
+        border: "rgba(148, 163, 184, 0.3)",
+        borderWidth: 2,
+        widthWorld: Math.max(1.55, String(role || "").length * 0.082),
+        heightWorld: 0.26,
       });
       rolePlate.position.set(0, 2.08, 0.54);
       group.add(rolePlate);
@@ -2066,26 +2190,14 @@ function buildBoardroomWorld(snapshot, options) {
           const head = new THREE.Mesh(
             new THREE.SphereGeometry(0.21, 28, 18),
             new THREE.MeshStandardMaterial({
-              color: 0xffffff,
-              metalness: 0.12,
-              roughness: 0.26,
+              color: 0x090b0f,
+              metalness: 0.48,
+              roughness: 0.2,
             }),
           );
           head.scale.set(0.94, 1.08, 0.84);
           head.position.set(0, 1.48, 0.22);
           agent.add(head);
-
-          const visor = new THREE.Mesh(
-            new THREE.BoxGeometry(0.28, 0.10, 0.035),
-            new THREE.MeshBasicMaterial({
-              color: accent,
-              transparent: true,
-              opacity: 0.95,
-              depthWrite: false,
-            }),
-          );
-          visor.position.set(0, 1.49, 0.405);
-          agent.add(visor);
 
           const shoulderL = new THREE.Mesh(
             new THREE.SphereGeometry(0.10, 16, 10),
@@ -2102,6 +2214,17 @@ function buildBoardroomWorld(snapshot, options) {
           group.userData.realRobotAgentLoaded = false;
         }
 
+        addAionSyntheticSeatIdentityMask(group, {
+          key,
+          accent: 0xf2af0d,
+          // Anchored to the authored visor centre after robot_agent.glb is
+          // normalised into this seat.  The former generic head anchor placed
+          // the eyes above and in front of the real visor.
+          y: key === "operations" ? 1.4 : 1.225,
+          z: 0.11,
+          scale: key === "operations" ? 1.03 : 1,
+        });
+
         const ring = new THREE.Mesh(
           new THREE.TorusGeometry(0.62, 0.024, 8, 54),
           new THREE.MeshBasicMaterial({
@@ -2115,27 +2238,43 @@ function buildBoardroomWorld(snapshot, options) {
         ring.position.set(0, 0.035, 0.16);
         group.add(ring);
 
+        // CLEAN OVERHEAD DEPARTMENT SIGN: keep the full role in the agent's
+        // conversation metadata, but show only the department name in the room.
+        // A compact single-line sign remains clear above each executive without
+        // restoring the former secondary role strip or obscuring the agent.
         const labelPlate = makeTextSprite(label, {
-          fontSize: key === "operations" ? 44 : 36,
+          fontSize: key === "operations" ? 48 : 44,
+          fontWeight: 950,
           color: "#ffffff",
-          background: "rgba(2, 6, 23, 0.92)",
+          background: "rgba(7, 17, 31, 0.97)",
           border: key === "operations" ? "rgba(251, 191, 36, 0.95)" : "rgba(255, 255, 255, 0.2)",
-          widthWorld: Math.max(1.2, String(label).length * 0.15),
-          heightWorld: 0.34,
+          borderWidth: key === "operations" ? 5 : 3,
+          widthWorld: Math.max(1.5, String(label).length * 0.2),
+          heightWorld: key === "operations" ? 0.42 : 0.38,
         });
-        labelPlate.position.set(0, 2.18, 0.36);
+        labelPlate.position.set(0, 2.06, 0.34);
         group.add(labelPlate);
 
-        const rolePlate = makeTextSprite(role, {
-          fontSize: 18,
-          color: key === "operations" ? "#fef3c7" : "#dbeafe",
-          background: "rgba(15, 23, 42, 0.26)",
-          border: "rgba(255, 255, 255, 0.08)",
-          widthWorld: Math.max(1.35, String(role).length * 0.065),
-          heightWorld: 0.22,
+        const executiveConversationTarget = new THREE.Mesh(
+          new THREE.BoxGeometry(2.3, 2.45, 0.28),
+          new THREE.MeshBasicMaterial({
+            color: accent,
+            transparent: true,
+            opacity: 0.001,
+            depthWrite: false,
+          }),
+        );
+        executiveConversationTarget.position.set(0, 1.18, 0.34);
+        executiveConversationTarget.name = `aion_executive_conversation_target_${key}`;
+        group.add(executiveConversationTarget);
+        registerInteractive(executiveConversationTarget, {
+          type: "seat",
+          departmentKey: key,
+          seatId: getDepartmentSeatId(key) || `seat_${key}`,
+          seatLabel: label,
+          seatRole: role,
+          teamMode: "executive",
         });
-        rolePlate.position.set(0, 1.88, 0.36);
-        group.add(rolePlate);
 
         parent.add(group);
       });
@@ -2372,30 +2511,28 @@ function buildBoardroomWorld(snapshot, options) {
           const head = new THREE.Mesh(
             new THREE.SphereGeometry(0.22, 28, 18),
             new THREE.MeshStandardMaterial({
-              color: 0xffffff,
-              metalness: 0.12,
-              roughness: 0.26,
+              color: 0x090b0f,
+              metalness: 0.48,
+              roughness: 0.2,
             }),
           );
           head.scale.set(0.94, 1.08, 0.84);
           head.position.set(0, 1.53, 0.22);
           fallback.add(head);
 
-          const visor = new THREE.Mesh(
-            new THREE.BoxGeometry(0.30, 0.105, 0.035),
-            new THREE.MeshBasicMaterial({
-              color: accent,
-              transparent: true,
-              opacity: 0.95,
-              depthWrite: false,
-            }),
-          );
-          visor.position.set(0, 1.54, 0.41);
-          fallback.add(visor);
-
           group.add(fallback);
           group.userData.realBoardRobotAgentLoaded = false;
         }
+
+        addAionSyntheticSeatIdentityMask(group, {
+          key,
+          accent,
+          // Board seats use a slightly taller normalisation than Executive
+          // seats, so their authored visor centre is correspondingly higher.
+          y: key === "aion" ? 1.475 : 1.275,
+          z: 0.11,
+          scale: key === "aion" ? 1.05 : 1,
+        });
 
         const ring = new THREE.Mesh(
           new THREE.TorusGeometry(key === "aion" ? 0.76 : 0.66, 0.026, 8, 64),
@@ -2410,54 +2547,61 @@ function buildBoardroomWorld(snapshot, options) {
         ring.position.set(0, 0.035, 0.16);
         group.add(ring);
 
+        /* CLEAN BOARD MEMBER NAME SIGN
+         * Keep the room legible at a glance: one compact, high-contrast name
+         * sign above each member. Role and connection details remain attached
+         * to the interactive seat instead of becoming stacked scenery.
+         */
         const labelPlate = makeTextSprite(label, {
-          fontSize: key === "aion" ? 46 : 40,
+          fontSize: key === "aion" ? 50 : 46,
+          fontWeight: 950,
           color: "#ffffff",
-          background: "rgba(2, 6, 23, 0.92)",
+          background: "rgba(7, 17, 31, 0.97)",
           border: key === "aion" ? "rgba(139, 92, 246, 0.95)" : "rgba(255, 255, 255, 0.24)",
-          widthWorld: Math.max(1.2, String(label).length * 0.16),
-          heightWorld: 0.36,
+          borderWidth: key === "aion" ? 4 : 2,
+          widthWorld: Math.max(1.18, String(label).length * 0.18),
+          heightWorld: 0.4,
         });
-        labelPlate.position.set(0, 2.26, 0.38);
+        labelPlate.position.set(0, 2.1, 0.36);
         group.add(labelPlate);
-
-        const rolePlate = makeTextSprite(role, {
-          fontSize: 19,
-          color: key === "aion" ? "#ede9fe" : "#dbeafe",
-          background: "rgba(15, 23, 42, 0.26)",
-          border: "rgba(255, 255, 255, 0.08)",
-          widthWorld: Math.max(1.35, String(role).length * 0.068),
-          heightWorld: 0.23,
-        });
-        rolePlate.position.set(0, 1.96, 0.38);
-        group.add(rolePlate);
 
         /* BEGIN AION O15J REAL AGENT LIVE STATUS BADGE LOCK */
         /*
          * O15J:
          * - The real table agents are now the source of truth.
-         * - Show connection state on the actual 3D agent, not in the old bottom rail.
+         * - Keep connection state on the actual interactive 3D agent, without
+         *   adding a second visual badge beneath the clean name sign.
          */
         const liveStatusText =
           key === "ceo" || key === "aion"
             ? "ALWAYS ON"
             : "LIVE";
 
-        const liveStatusPlate = makeTextSprite(liveStatusText, {
-          fontSize: 18,
-          fontWeight: 950,
-          color: "#ffffff",
-          background:
-            key === "ceo" || key === "aion"
-              ? "rgba(22, 101, 52, 0.92)"
-              : "rgba(22, 163, 74, 0.94)",
-          border: "rgba(255, 255, 255, 0.22)",
-          widthWorld: key === "ceo" || key === "aion" ? 1.05 : 0.72,
-          heightWorld: 0.22,
-        });
-        liveStatusPlate.position.set(0, 1.68, 0.38);
-        group.add(liveStatusPlate);
+        group.userData.liveStatusText = liveStatusText;
+        group.userData.seatRole = role;
         /* END AION O15J REAL AGENT LIVE STATUS BADGE LOCK */
+
+        const boardConversationTarget = new THREE.Mesh(
+          new THREE.BoxGeometry(2.3, 2.45, 0.28),
+          new THREE.MeshBasicMaterial({
+            color: accent,
+            transparent: true,
+            opacity: 0.001,
+            depthWrite: false,
+          }),
+        );
+        boardConversationTarget.position.set(0, 1.18, 0.34);
+        boardConversationTarget.name = `aion_board_conversation_target_${key}`;
+        group.add(boardConversationTarget);
+        registerInteractive(boardConversationTarget, {
+          type: "seat",
+          departmentKey: key,
+          seatId: `seat_provider_${key}`,
+          seatLabel: label,
+          seatRole: role,
+          providerId: key,
+          teamMode: "board",
+        });
 
         parent.add(group);
       });
@@ -2479,37 +2623,11 @@ function buildBoardroomWorld(snapshot, options) {
     addBackScreen(root);
     addTable(root);
 
-    addSoftPanel(
-      root,
-      teamMode === "board" ? "BOARD SESSION · ACTIVE" : "EXEC SESSION · ACTIVE",
-      [
-        `Workspace ${workspaceDisplay.name}`,
-        `Mode ${teamMode === "board" ? "Strategy" : "Execution"}`,
-        `Cash ${center.cash || money(pulse?.cash?.onHand)}`,
-        `Runs ${safeArray(runtime?.runs).length}`,
-      ],
-      -12.8,
-      5.7,
-      -10.8,
-      0x22c55e,
-      false,
-    );
-
-    addSoftPanel(
-      root,
-      "AI STATUS",
-      [
-        "Coherence 0.96",
-        "Confidence High",
-        `Focus ${teamMode === "board" ? "Strategy" : activeZone}`,
-        "Entropy 0.14",
-      ],
-      12.8,
-      5.7,
-      -10.8,
-      0x67e8f9,
-      true,
-    );
+    /* SINGLE CENTRAL BOARDROOM DISPLAY
+     * The two angled side displays were unreadable from the seated camera and
+     * made the room feel like a monitor showroom. Live context remains in the
+     * terminal below; the room keeps one clear meeting focal point.
+     */
 
     const executiveSeats = [
       ["marketing", "Marketing", "Brand & Growth"],
@@ -2754,14 +2872,74 @@ function buildSceneShell(scene) {
     const rearShadow = new THREE.Mesh(
       new THREE.PlaneGeometry(34, 13),
       new THREE.MeshBasicMaterial({
-        color: 0x0f172a,
+        color: 0x163247,
         transparent: true,
-        opacity: 0.045,
+        opacity: 0.085,
         side: THREE.DoubleSide,
       }),
     );
     rearShadow.position.set(0, 6.6, -25.05);
     scene.add(rearShadow);
+
+    /* FUTURISTIC ARCHITECTURAL BACKDROP
+     * A dimensional pearl-metal feature wall, recessed bays and cyan light
+     * channels replace the former empty white wall and floating side TVs.
+     */
+    const featureWall = new THREE.Mesh(
+      new THREE.BoxGeometry(35.5, 14.2, 0.38),
+      new THREE.MeshStandardMaterial({
+        color: 0xe3ebf2,
+        roughness: 0.3,
+        metalness: 0.22,
+        emissive: 0x8acbe4,
+        emissiveIntensity: 0.025,
+      }),
+    );
+    featureWall.position.set(0, 7.25, -24.82);
+    featureWall.receiveShadow = true;
+    scene.add(featureWall);
+
+    [-15.2, -10.2, -5.15, 5.15, 10.2, 15.2].forEach((x, index) => {
+      const architecturalPanel = new THREE.Mesh(
+        new THREE.BoxGeometry(index === 2 || index === 3 ? 4.35 : 4.5, 11.65, 0.16),
+        new THREE.MeshStandardMaterial({
+          color: index % 2 === 0 ? 0xf3f7fa : 0xd8e3eb,
+          roughness: 0.38,
+          metalness: 0.16,
+          emissive: 0x9ddcf0,
+          emissiveIntensity: index % 2 === 0 ? 0.018 : 0.035,
+        }),
+      );
+      architecturalPanel.position.set(x, 7.2, -24.53);
+      architecturalPanel.receiveShadow = true;
+      scene.add(architecturalPanel);
+    });
+
+    [-17.6, -12.7, -7.65, 7.65, 12.7, 17.6].forEach((x) => {
+      const lightFin = new THREE.Mesh(
+        new THREE.BoxGeometry(0.085, 11.9, 0.055),
+        new THREE.MeshBasicMaterial({
+          color: 0x67e8f9,
+          transparent: true,
+          opacity: 0.58,
+        }),
+      );
+      lightFin.position.set(x, 7.2, -24.38);
+      scene.add(lightFin);
+    });
+
+    [1.35, 13.05].forEach((y) => {
+      const horizonLight = new THREE.Mesh(
+        new THREE.BoxGeometry(35.2, 0.075, 0.055),
+        new THREE.MeshBasicMaterial({
+          color: 0x93c5fd,
+          transparent: true,
+          opacity: 0.42,
+        }),
+      );
+      horizonLight.position.set(0, y, -24.36);
+      scene.add(horizonLight);
+    });
 
     const leftWall = new THREE.Mesh(
       new THREE.PlaneGeometry(30, 22),
@@ -2889,14 +3067,16 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
           lastX: 0,
           lastY: 0,
 
-          // AION seated POV: low camera, looking across the table at the agents.
+          // AION seated POV: the table is centred at z=-4.6 and its near edge is
+          // approximately z=0.2. Keep the camera just behind that edge so the
+          // opening frame reads as a seat at the table, not a view from the room.
           theta: 0,
-          phi: 0.052,
-          radius: 13.9,
-          y: 3.9,
+          phi: 0.045,
+          radius: 4.6,
+          y: 2.5,
           targetX: 0,
-          targetY: 2.05,
-          targetZ: -10.85,
+          targetY: 1.45,
+          targetZ: -6.4,
         };
 
     applyCameraPose(camera, state);
@@ -2926,7 +3106,7 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
 
     function onWheel(event) {
       event.preventDefault();
-      state.radius = clamp(state.radius + event.deltaY * 0.012, 8.8, 28);
+      state.radius = clamp(state.radius + event.deltaY * 0.012, 3.8, 28);
       applyCameraPose(camera, state);
     }
 
@@ -2988,7 +3168,10 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
           options.onActiveZoneChange(meta.departmentKey);
         }
         if (typeof options.onSeatSelect === "function") {
-          options.onSeatSelect(meta.seatId, meta.departmentKey);
+          options.onSeatSelect(meta.seatId, meta.departmentKey, {
+            ...meta,
+            teamMode: meta.teamMode || options.boardroomTeamMode || global.__aionSpatialBoardroomTeamMode || "executive",
+          });
         }
         if (typeof options.onInspectorTargetChange === "function") {
           options.onInspectorTargetChange({ kind: "seat", seatId: meta.seatId });
@@ -3104,6 +3287,7 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
     if (!current) return;
 
     clearInteractiveObjects();
+    current.syntheticFaceRigs = [];
 
     if (current.rootGroup) {
       current.scene.remove(current.rootGroup);
@@ -3120,6 +3304,15 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
       ...(options || {}),
       snapshot: snapshot || {},
     };
+
+    if (current.teamModeButton) {
+      const isBoardMode = current.options.boardroomTeamMode === "board";
+      current.teamModeButton.textContent = isBoardMode ? "Show Executive Team" : "Show Board Team";
+      current.teamModeButton.setAttribute(
+        "aria-label",
+        isBoardMode ? "Switch to Executive Team" : "Switch to Board Team",
+      );
+    }
   }
 
 
@@ -3395,6 +3588,10 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     container.innerHTML = "";
+    const containerStyle = global.getComputedStyle?.(container);
+    if (!containerStyle || containerStyle.position === "static") {
+      container.style.position = "relative";
+    }
     container.appendChild(renderer.domElement);
 
     const controlsCleanup = setupSimpleOrbitControls(renderer, camera, opts);
@@ -3440,7 +3637,40 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
         requestRender: opts.requestRender,
       },
       rootGroup: null,
+      syntheticFaceRigs: [],
+      teamModeButton: null,
     };
+
+    const teamModeButton = document.createElement("button");
+    teamModeButton.type = "button";
+    teamModeButton.dataset.aionBoardroomTeamSwitch = "true";
+    teamModeButton.style.position = "absolute";
+    teamModeButton.style.left = "50%";
+    teamModeButton.style.bottom = "16px";
+    teamModeButton.style.transform = "translateX(-50%)";
+    teamModeButton.style.zIndex = "12";
+    teamModeButton.style.padding = "10px 18px";
+    teamModeButton.style.border = "1px solid rgba(15, 23, 42, 0.28)";
+    teamModeButton.style.borderRadius = "4px";
+    teamModeButton.style.background = "rgba(255, 255, 255, 0.94)";
+    teamModeButton.style.color = "#0f172a";
+    teamModeButton.style.font = "800 12px Inter, ui-sans-serif, system-ui, sans-serif";
+    teamModeButton.style.letterSpacing = "0.08em";
+    teamModeButton.style.textTransform = "uppercase";
+    teamModeButton.style.boxShadow = "0 8px 24px rgba(15, 23, 42, 0.16)";
+    teamModeButton.style.cursor = "pointer";
+    teamModeButton.style.backdropFilter = "blur(10px)";
+    teamModeButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      if (!current) return;
+      const nextMode = current.options.boardroomTeamMode === "board" ? "executive" : "board";
+      current.options.boardroomTeamMode = nextMode;
+      global.__aionSpatialBoardroomTeamMode = nextMode;
+      rebuildWorld(current.options.snapshot, current.options);
+    });
+    container.appendChild(teamModeButton);
+    current.teamModeButton = teamModeButton;
 
     loadAionBoardroomAssetsOnce(() => {
       if (!current) return;
@@ -3472,6 +3702,20 @@ function setupSimpleOrbitControls(renderer, camera, options = {}) {
        * This keeps scrolling responsive without removing the live 3D room.
        */
       if (isVisible && now - (current.lastRenderAt || 0) >= 33) {
+        const faceTime = now * 0.001;
+        (current.syntheticFaceRigs || []).forEach((face) => {
+          if (!face?.userData?.aionSyntheticIdentity) return;
+          const seed = Number(face.userData.seed || 0);
+          const blinkPhase = (faceTime + seed) % 4.8;
+          const eyeScaleY = blinkPhase > 4.64 ? 0.08 : 0.58;
+          (face.userData.eyes || []).forEach((eye) => {
+            if (eye?.scale) eye.scale.y = eyeScaleY;
+          });
+          (face.userData.voiceBars || []).forEach((bar, index) => {
+            if (!bar?.scale) return;
+            bar.scale.y = 0.72 + Math.abs(Math.sin(faceTime * 2.1 + seed + index * 0.72)) * 0.58;
+          });
+        });
         current.renderer.render(current.scene, current.camera);
         current.lastRenderAt = now;
       }

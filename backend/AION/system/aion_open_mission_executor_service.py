@@ -9,6 +9,7 @@ import traceback
 from pathlib import Path
 
 from backend.modules.hexcore.file_locking import acquire_process_lock
+from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
 from backend.modules.hexcore.open_mission_compounding_executor import (
     run, run_due_retention, run_public_change, run_repository_repair,
     run_structured_repair_portfolio,
@@ -68,7 +69,7 @@ def run_service() -> None:
         temporary = status_path.with_suffix(".tmp")
         temporary.write_text(json.dumps(status, indent=2, sort_keys=True), encoding="utf-8")
         temporary.replace(status_path)
-        time.sleep(interval)
+        wait_for_wall_clock(interval)
 
 
 if __name__ == "__main__":

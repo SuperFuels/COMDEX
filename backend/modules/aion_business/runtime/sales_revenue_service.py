@@ -25,6 +25,7 @@ import urllib.request
 
 from backend.modules.aion_business.contracts.department_pilot import canonical_contract_hash
 from backend.modules.aion_business.runtime.business_container_repository import BusinessContainerRepository
+from backend.modules.aion_business.runtime.canonical_business_identity import canonical_business_id
 from backend.modules.aion_business.runtime.organization_authority_service import OrganizationAuthorityService
 from backend.modules.aion_business.runtime.paths import AIONBusinessPaths
 from backend.modules.aion_business.runtime.telephony_credentials import (
@@ -1325,7 +1326,12 @@ class SalesRevenueService:
         payload = dict(record); payload.pop(hash_field, None)
         if not expected or canonical_contract_hash(payload) != expected:
             raise ValueError(f"sales_{hash_field}_mismatch")
-        if record.get("workspace_id") != workspace_id:
+        try:
+            record_workspace_id = canonical_business_id(record.get("workspace_id"))
+            requested_workspace_id = canonical_business_id(workspace_id)
+        except ValueError as exc:
+            raise PermissionError("sales_workspace_isolation_violation") from exc
+        if record_workspace_id != requested_workspace_id:
             raise PermissionError("sales_workspace_isolation_violation")
         return record
 

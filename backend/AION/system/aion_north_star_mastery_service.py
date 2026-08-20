@@ -7,6 +7,7 @@ import time
 from pathlib import Path
 
 from backend.modules.hexcore.constitutional_north_star_mastery_registry import run
+from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
 
 
 def run_service() -> None:
@@ -21,7 +22,7 @@ def run_service() -> None:
                 state_path=repo_root / "backend/modules/hexcore/data/constitutional_north_star/state.json",
                 result_path=repo_root / "results/hexcore_constitutional_north_star_mastery_registry.json",
             )
-        time.sleep(interval)
+        wait_for_wall_clock(interval)
 
 
 if __name__ == "__main__":

@@ -32,6 +32,110 @@
   function persistDraft() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.model)); } catch {} }
   function rerender() { if (typeof global.requestRender === 'function') global.requestRender(); }
 
+  let conversationPersistTimer = null;
+
+  function conversationFacts() {
+    const provenance = state.model.provenance && typeof state.model.provenance === 'object'
+      ? state.model.provenance
+      : (state.model.provenance = {});
+    return Array.isArray(provenance.conversation_facts)
+      ? provenance.conversation_facts
+      : (provenance.conversation_facts = []);
+  }
+
+  function upsertFinancialTarget(id, name, value, unit) {
+    if (value == null || value === '' || !Number.isFinite(Number(value))) return;
+    const targets = list('financial_targets');
+    const current = targets.find((row) => row.id === id || row.source_fact_id === id);
+    const next = {
+      id,
+      source_fact_id: id,
+      name,
+      target_value: Number(value),
+      unit,
+      source: 'department_pilot_conversation',
+      status: 'owner_supplied_unverified',
+    };
+    if (current) Object.assign(current, next);
+    else targets.push(next);
+  }
+
+  function applyStructuredConversationFact(fact) {
+    const extracted = fact.extracted && typeof fact.extracted === 'object' ? fact.extracted : {};
+    const capacity = state.model.capacity_model && typeof state.model.capacity_model === 'object'
+      ? state.model.capacity_model
+      : (state.model.capacity_model = {});
+
+    if (fact.field === 'engineer_planning_rate' || fact.field === 'workforce_capacity_and_costs') {
+      capacity.engineer_planning_rate = {
+        ...extracted,
+        source_fact_id: fact.id,
+        status: 'owner_supplied_unverified',
+        updated_at: fact.updated_at,
+      };
+    }
+    if (fact.field === 'average_job_cost_by_service') {
+      capacity.average_job_cost_by_service = { ...extracted, raw: fact.answer, source_fact_id: fact.id };
+    }
+    if (fact.field === 'weekly_delivery_capacity') {
+      capacity.weekly_delivery_capacity = { raw: fact.answer, source_fact_id: fact.id };
+    }
+    if (fact.field === 'target_gross_margin') {
+      upsertFinancialTarget(fact.id, 'Target gross margin', extracted.percent, '%');
+    }
+    if (fact.field === 'minimum_profitable_job_value') {
+      upsertFinancialTarget(fact.id, 'Minimum profitable job value', extracted.primary_amount, extracted.currency || state.model.currency || 'EUR');
+    }
+    if (fact.field === 'campaign_spend_limit' || fact.field === 'financial_limit') {
+      upsertFinancialTarget(fact.id, fact.field === 'campaign_spend_limit' ? 'Campaign spend limit' : 'Financial limit', extracted.primary_amount, extracted.currency || state.model.currency || 'EUR');
+    }
+  }
+
+  async function persistConversationFactsToBackend() {
+    try {
+      if (!global.AionBusinessContainerClient?.saveOperatingModel) return;
+      const facts = [...conversationFacts()];
+      const expected = Number(state.model.revision || 0) || null;
+      const result = await global.AionBusinessContainerClient.saveOperatingModel(state.model, expected);
+      if (result?.payload) {
+        state.model = {
+          ...state.model,
+          ...result.payload,
+          provenance: {
+            ...(state.model.provenance || {}),
+            ...(result.payload.provenance || {}),
+            conversation_facts: facts,
+          },
+        };
+      }
+      state.savedAt = new Date().toLocaleTimeString();
+      persistDraft();
+      global.dispatchEvent(new CustomEvent('aion:operating-model-conversation-fact-saved', { detail: { count: facts.length } }));
+    } catch (error) {
+      state.error = `Conversation fact is saved locally; Business Container sync is pending: ${String(error?.message || error)}`;
+      persistDraft();
+    }
+  }
+
+  function applyConversationFact(fact, options = {}) {
+    const clean = fact && typeof fact === 'object' ? { ...fact } : null;
+    if (!clean?.id || !clean.answer) return null;
+    if (options.dryRun === true) return clean;
+
+    const facts = conversationFacts();
+    const index = facts.findIndex((item) => item.id === clean.id);
+    if (index >= 0) facts[index] = clean;
+    else facts.push(clean);
+    applyStructuredConversationFact(clean);
+    persistDraft();
+
+    if (options.persistBackend !== false) {
+      if (conversationPersistTimer) clearTimeout(conversationPersistTimer);
+      conversationPersistTimer = setTimeout(persistConversationFactsToBackend, 650);
+    }
+    return clean;
+  }
+
   async function load() {
     if (state.loading || state.loaded) return;
     state.loading = true;
@@ -110,10 +214,42 @@
 
   function personSelect(listName, index, field, value) {
     const options = state.people.map((person) => {
-      const cost = person.workforce_costing?.effective_hourly_cost;
-      return [person.id, `${person.name}${cost ? ` · ${money(cost)}/hour planning cost` : ' · costing incomplete'}`];
+      const costing = person.workforce_costing || {};
+      const hourly = Number(costing.effective_hourly_cost);
+      const daily = Number(costing.effective_daily_cost || (hourly * Number(costing.hours_per_day || 8)));
+      const costingLabel = Number.isFinite(hourly) && hourly > 0
+        ? ` · ${money(hourly)}/hour · ${money(daily)}/day`
+        : ' · costing incomplete';
+      return [person.id, `${person.name}${costingLabel}`];
     });
     return select(listName, index, field, value, [['','Select a person from HR'], ...options]);
+  }
+
+  function planningRateFromHR(row, basis = row?.cost_basis) {
+    const person = state.people.find((candidate) => String(candidate.id) === String(row?.person_id));
+    const costing = person?.workforce_costing || {};
+    const hourly = Number(costing.effective_hourly_cost);
+    if (!Number.isFinite(hourly) || hourly < 0) return null;
+    if (basis === 'daily') {
+      const daily = Number(costing.effective_daily_cost);
+      return Number.isFinite(daily) ? daily : hourly * Number(costing.hours_per_day || 8);
+    }
+    if (basis === 'monthly') {
+      return hourly * Number(costing.productive_hours_month || row?.available_hours_month || 160);
+    }
+    if (basis === 'per_job') return null;
+    return hourly;
+  }
+
+  function syncLabourPlanningRate(row, reason) {
+    const person = state.people.find((candidate) => String(candidate.id) === String(row?.person_id));
+    if (person) row.person_name = person.name || row.person_name || '';
+    const calculated = planningRateFromHR(row, row.cost_basis || 'hourly');
+    if (calculated == null) return false;
+    row.cost_rate = Number(calculated.toFixed(2));
+    row.rate_source = 'hr_effective_cost';
+    row.rate_sync_reason = reason;
+    return true;
   }
 
   function relationSelect(listName, index, field, value, rows, placeholder) {
@@ -123,10 +259,17 @@
   function remove(listName, index) { return `<button class="om-remove" type="button" data-om-remove="${listName}" data-om-index="${index}" title="Remove row">×</button>`; }
   function empty(message) { return `<div class="om-empty">${esc(message)}</div>`; }
 
+  function renderedConversationFacts(...sections) {
+    const wanted = new Set(sections.flat().filter(Boolean));
+    const rows = conversationFacts().filter((fact) => wanted.has(fact.target_section));
+    if (!rows.length) return '';
+    return `<section class="om-conversation-facts"><div class="om-conversation-facts-title">Captured by your AION agents</div>${rows.map((fact) => `<article><div><strong>${esc(fact.target_label || fact.field)}</strong><span>${esc(String(fact.question || ''))}</span></div><p>${esc(fact.answer)}</p><small>Owner supplied · available to the Boardroom · verify before external action</small></article>`).join('')}</section>`;
+  }
+
   function offerings() {
     const rows = list('offerings');
     const advanced = state.model.setup_mode === 'advanced';
-    return `
+    return `${renderedConversationFacts('offerings')}
       <div class="om-section-head"><div><h3>Products, services and rate card</h3><p>Add one day rate or build a full product catalogue. Use + for each additional line.</p></div><div class="om-actions"><label class="om-import">Import CSV/XLSX<input type="file" accept=".csv,.xlsx" data-om-import="offerings"></label><button class="om-add" data-om-add="offerings">+ Add offering</button></div></div>
       ${rows.length ? `<div class="om-table-wrap"><table><thead><tr><th>Name</th><th>Type</th><th>Charge basis</th><th>Rate</th><th>Unit</th><th>Expected monthly volume</th>${advanced ? '<th>Material/unit</th><th>Labour/unit</th><th>Other direct/unit</th>' : ''}<th></th></tr></thead><tbody>
       ${rows.map((row, i) => `<tr><td>${input('offerings', i, 'name', row.name, 'text', 'Plumber day rate')}</td><td>${select('offerings', i, 'offering_type', row.offering_type || 'service', [['service','Service'],['product','Product'],['subscription','Subscription'],['rental','Rental'],['experience','Experience'],['other','Other']])}</td><td>${select('offerings', i, 'pricing_basis', row.pricing_basis || 'day_rate', [['hourly','Hourly'],['day_rate','Day rate'],['fixed','One-off / fixed'],['per_unit','Per unit'],['subscription','Subscription'],['tiered','Tiered volume'],['quote','Quoted'],['cost_plus','Cost plus']])}</td><td>${input('offerings', i, 'price', row.price, 'number', '0')}</td><td>${input('offerings', i, 'unit', row.unit || 'day', 'text', 'day')}</td><td>${input('offerings', i, 'expected_monthly_volume', row.expected_monthly_volume, 'number', '0')}</td>${advanced ? `<td>${input('offerings', i, 'material_cost_per_unit', row.material_cost_per_unit, 'number')}</td><td>${input('offerings', i, 'labour_cost_per_unit', row.labour_cost_per_unit, 'number')}</td><td>${input('offerings', i, 'other_direct_cost_per_unit', row.other_direct_cost_per_unit, 'number')}</td>` : ''}<td>${remove('offerings', i)}</td></tr>`).join('')}
@@ -136,10 +279,10 @@
 
   function workforce() {
     const labour = list('labour_resources'); const lines = list('production_lines'); const bom = list('bills_of_materials');
-    return `
+    return `${renderedConversationFacts('workforce')}
       <div class="om-section-head"><div><h3>Workforce and direct labour</h3><p>Select real people from HR. Confidential pay, employment burden, leave and contractor rates stay owned by HR; this workspace receives an effective planning cost.</p></div><button class="om-add" data-om-add="labour_resources">+ Assign person</button></div>
       ${!state.people.length ? `<div class="om-route-note"><strong>Complete HR first</strong><p>Add employees, owners and contractors plus their confidential workforce costing, then return here.</p><button class="om-secondary" data-om-open-workspace="hr">Open HR people & costing</button></div>` : ''}
-      ${labour.length ? `<div class="om-table-wrap"><table><thead><tr><th>Person from HR</th><th>Cost basis</th><th>Effective planning rate</th><th>Available hours/month</th><th></th></tr></thead><tbody>${labour.map((r,i)=>`<tr><td>${personSelect('labour_resources',i,'person_id',r.person_id)}</td><td>${select('labour_resources',i,'cost_basis',r.cost_basis||'hourly',[['hourly','Hourly'],['daily','Daily'],['monthly','Monthly'],['per_job','Per job']])}</td><td>${r.cost_rate == null || r.cost_rate === '' ? 'Calculated from HR when saved' : money(r.cost_rate)}</td><td>${input('labour_resources',i,'available_hours_month',r.available_hours_month,'number')}</td><td>${remove('labour_resources',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Assign people only after they exist in HR. Never retype a person or confidential pay rate here.')}
+      ${labour.length ? `<div class="om-table-wrap"><table><thead><tr><th>Person from HR</th><th>Cost basis</th><th>Editable planning rate (${esc(state.model.currency || 'EUR')})</th><th>Available hours/month</th><th></th></tr></thead><tbody>${labour.map((r,i)=>`<tr><td>${personSelect('labour_resources',i,'person_id',r.person_id)}</td><td>${select('labour_resources',i,'cost_basis',r.cost_basis||'hourly',[['hourly','Hourly'],['daily','Daily'],['monthly','Monthly'],['per_job','Per job']])}</td><td><div class="om-rate-editor">${input('labour_resources',i,'cost_rate',r.cost_rate,'number','0.00')}<small>${r.rate_source === 'manual_planning_override' ? 'Planning override' : 'Synced from HR costing'}</small></div></td><td>${input('labour_resources',i,'available_hours_month',r.available_hours_month,'number')}</td><td>${remove('labour_resources',i)}</td></tr>`).join('')}</tbody></table></div><div class="om-note">Changing Hourly, Daily or Monthly recalculates the planning rate from HR. You may override the planning rate here; confidential pay in HR is never changed.</div>` : empty('Assign people only after they exist in HR. Never retype a person or confidential pay rate here.')}
       <div class="om-section-head"><div><h3>Production lines or delivery units</h3><p>Optional for factories, kitchens, workshops, crews or service teams.</p></div><button class="om-add" data-om-add="production_lines">+ Add line</button></div>
       ${lines.length ? `<div class="om-table-wrap"><table><thead><tr><th>Line / unit</th><th>Output unit</th><th>Capacity per day</th><th>Operating days/month</th><th>Constraint</th><th></th></tr></thead><tbody>${lines.map((r,i)=>`<tr><td>${input('production_lines',i,'name',r.name,'text','Cake line 1')}</td><td>${input('production_lines',i,'output_unit',r.output_unit,'text','cakes')}</td><td>${input('production_lines',i,'capacity_per_day',r.capacity_per_day,'number')}</td><td>${input('production_lines',i,'operating_days_month',r.operating_days_month,'number')}</td><td>${input('production_lines',i,'constraint',r.constraint,'text','oven capacity')}</td><td>${remove('production_lines',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('A sole trader can leave this empty; factories and production businesses can model each line.')}
       <div class="om-section-head"><div><h3>Materials used per product or job</h3><p>A lightweight bill of materials that links inputs to an offering.</p></div><button class="om-add" data-om-add="bills_of_materials">+ Add material</button></div>
@@ -148,7 +291,7 @@
 
   function jobs() {
     const jobs = list('jobs'); const assignments = list('job_labour_assignments'); const costs = list('job_cost_items'); const economics = list('job_economics');
-    return `
+    return `${renderedConversationFacts('jobs')}
       <div class="om-section-head"><div><h3>Quoted jobs and project economics</h3><p>Use this for variable work that cannot honestly be reduced to one standard unit cost. Start with an estimate, then track the accepted quote, live delivery and final actual result.</p></div><button class="om-add" data-om-add="jobs">+ Add job / quote</button></div>
       ${jobs.length ? `<div class="om-table-wrap"><table><thead><tr><th>Job / quote</th><th>Linked offering</th><th>Status</th><th>Estimated revenue</th><th>Actual revenue</th><th>Customer / reference</th><th></th></tr></thead><tbody>${jobs.map((r,i)=>`<tr><td>${input('jobs',i,'name',r.name,'text','Customer project or order')}</td><td>${relationSelect('jobs',i,'offering_id',r.offering_id,list('offerings'),'Optional offering')}</td><td>${select('jobs',i,'status',r.status||'estimate',[['estimate','Estimate'],['quote_draft','Quote draft'],['quote_sent','Quote sent'],['quote_accepted','Quote accepted'],['in_progress','Live job'],['completed','Completed'],['cancelled','Cancelled']])}</td><td>${input('jobs',i,'estimated_revenue',r.estimated_revenue,'number')}</td><td>${input('jobs',i,'actual_revenue',r.actual_revenue,'number')}</td><td>${input('jobs',i,'customer_reference',r.customer_reference,'text','Customer / order / project')}</td><td>${remove('jobs',i)}</td></tr>`).join('')}</tbody></table></div>` : empty('Add a job when price, labour or materials vary by customer, order, project or production batch.')}
 
@@ -182,7 +325,7 @@
   }
 
   function finance() {
-    return simpleTable('payment_terms','Default and customer payment terms','Examples: 50% upfront / 50% completion, net 30, or a customer-specific exception.',[['name','Customer / default'],['deposit_percent','Deposit %','number'],['balance_due_days','Balance due days','number'],['notes','Terms']], 'Add the default terms once, then only record exceptions.') +
+    return renderedConversationFacts('finance', 'targets') + simpleTable('payment_terms','Default and customer payment terms','Examples: 50% upfront / 50% completion, net 30, or a customer-specific exception.',[['name','Customer / default'],['deposit_percent','Deposit %','number'],['balance_due_days','Balance due days','number'],['notes','Terms']], 'Add the default terms once, then only record exceptions.') +
       simpleTable('overheads','Overheads','Confirm values imported from accounting or add monthly recurring costs manually.',[['name','Cost'],['monthly_amount','Monthly amount','number'],['category','Category'],['source','Source']], 'Add software, vehicles, premises, insurance, marketing or professional costs not already imported.') +
       simpleTable('debt_commitments','Debt and finance commitments','One row per loan, card, lease or vehicle finance agreement.',[['name','Lender / facility'],['balance','Balance','number'],['monthly_repayment','Monthly repayment','number'],['interest_rate','Interest %','number'],['remaining_months','Months left','number'],['security','Security / guarantee']], 'Leave empty if the business has no borrowing.') +
       simpleTable('financial_targets','12-month financial targets','Use an amount or percentage and add custom measures when needed.',[['name','Target'],['target_value','Value','number'],['unit','€ / % / days'],['deadline','Deadline','date']], 'Examples: revenue, gross margin, net profit, cash reserve or debtor days.');
@@ -190,7 +333,7 @@
 
   function summary() {
     const m = state.model.inventory_metrics || {}; const e = list('unit_economics'); const queue = list('procurement_queue');
-    return `<div class="om-summary-grid"><div><span>Offerings</span><strong>${list('offerings').length}</strong></div><div><span>Total stock value</span><strong>${money(m.total_stock_value)}</strong></div><div><span>Reorder items</span><strong>${m.reorder_items || 0}</strong></div><div><span>Suggested procurement cash</span><strong>${money(m.suggested_procurement_cash_required)}</strong></div><div><span>Purchases awaiting review</span><strong>${queue.filter(x=>['suggested','draft','review'].includes(x.status)).length}</strong></div></div>
+    return `${renderedConversationFacts('summary')}<div class="om-summary-grid"><div><span>Offerings</span><strong>${list('offerings').length}</strong></div><div><span>Total stock value</span><strong>${money(m.total_stock_value)}</strong></div><div><span>Reorder items</span><strong>${m.reorder_items || 0}</strong></div><div><span>Suggested procurement cash</span><strong>${money(m.suggested_procurement_cash_required)}</strong></div><div><span>Purchases awaiting review</span><strong>${queue.filter(x=>['suggested','draft','review'].includes(x.status)).length}</strong></div></div>
     <div class="om-section-head"><div><h3>Unit economics</h3><p>Calculated after saving from price, materials, labour and other direct costs.</p></div></div>${e.length ? `<div class="om-table-wrap"><table><thead><tr><th>Offering</th><th>Price/unit</th><th>Direct cost/unit</th><th>Contribution/unit</th><th>Gross margin</th><th>Monthly revenue</th></tr></thead><tbody>${e.map(r=>`<tr><td>${esc(r.name)}</td><td>${money(r.price_per_unit)}</td><td>${money(r.direct_cost_per_unit)}</td><td>${money(r.contribution_per_unit)}</td><td>${r.gross_margin_percent == null ? '—' : esc(r.gross_margin_percent)+'%'}</td><td>${money(r.expected_monthly_revenue)}</td></tr>`).join('')}</tbody></table></div>` : empty('Save the model to calculate unit economics.')}
     <div class="om-board-note"><strong>Boardroom use</strong><p>The Board receives these structured facts on every meeting: offer economics, production capacity, stock tied up in cash, shortages, procurement cash needs, payment terms, overheads, debt and targets. It can model discount or liquidation scenarios without relying on provider memory.</p></div>`;
   }
@@ -220,14 +363,26 @@
   document.addEventListener('input', (event) => {
     const el = event.target.closest?.('[data-om-list][data-om-field]'); if (!el) return;
     const row = list(el.dataset.omList)[Number(el.dataset.omIndex)]; if (!row) return;
-    row[el.dataset.omField] = el.value; persistDraft();
+    row[el.dataset.omField] = el.value;
+    if (el.dataset.omList === 'labour_resources' && el.dataset.omField === 'cost_rate') {
+      row.rate_source = 'manual_planning_override';
+      row.rate_sync_reason = 'owner_edit';
+    }
+    persistDraft();
   }, true);
   document.addEventListener('change', (event) => {
     const importInput = event.target.closest?.('[data-om-import]');
     if (importInput) { importSpreadsheet(importInput.files?.[0], importInput.dataset.omImport); return; }
     const el = event.target.closest?.('[data-om-list][data-om-field]'); if (!el) return;
     const row = list(el.dataset.omList)[Number(el.dataset.omIndex)]; if (!row) return;
-    row[el.dataset.omField] = el.value; persistDraft();
+    row[el.dataset.omField] = el.value;
+    if (el.dataset.omList === 'labour_resources' && (el.dataset.omField === 'cost_basis' || el.dataset.omField === 'person_id')) {
+      syncLabourPlanningRate(row, el.dataset.omField === 'person_id' ? 'person_changed' : 'basis_changed');
+      persistDraft();
+      rerender();
+      return;
+    }
+    persistDraft();
   }, true);
   document.addEventListener('click', (event) => {
     const tab = event.target.closest?.('[data-om-tab]'); if (tab) { state.activeTab = tab.dataset.omTab; rerender(); return; }
@@ -370,6 +525,8 @@
       }
       .om-shell .om-input::placeholder{color:#8295a8 !important;opacity:1}
       .om-shell .om-input:focus{outline:2px solid #f59e0b !important;outline-offset:0;border-color:#f59e0b !important}
+      .om-rate-editor{display:grid;gap:5px;min-width:145px}
+      .om-rate-editor small{color:var(--om-muted);font-size:10px;white-space:nowrap}
       .om-shell .om-remove{
         background:#ffffff !important;
         color:#b42318 !important;
@@ -385,6 +542,11 @@
         color:var(--om-muted) !important;
       }
       .om-route-note{border:1px solid #f59e0b;background:#fffbeb;padding:16px;margin:10px 0}.om-route-note p{color:var(--om-muted)}
+      .om-conversation-facts{display:grid;gap:8px;margin:0 0 18px;padding:14px;background:#f0f7ff;border-left:4px solid #2f80ed}
+      .om-conversation-facts-title{color:#1267d6;font-size:11px;font-weight:950;letter-spacing:.14em;text-transform:uppercase}
+      .om-conversation-facts article{display:grid;grid-template-columns:minmax(230px,.7fr) minmax(280px,1.3fr);gap:12px;padding:11px 12px;background:#fff;border:1px solid #cfe0f2}
+      .om-conversation-facts article strong,.om-conversation-facts article span{display:block}.om-conversation-facts article span{margin-top:4px;color:#617487;font-size:11px}
+      .om-conversation-facts article p{margin:0;color:#102a43;font-weight:750}.om-conversation-facts article small{grid-column:1/-1;color:#6b7f91}
       .om-secondary{border:1px solid #0284c7!important;background:#fff!important;color:#0369a1!important;padding:10px 13px;font-weight:900;cursor:pointer}
       .om-note{margin-top:10px}
       .om-quick{
@@ -426,5 +588,5 @@
   }
 
   style();
-  global.AionOperatingModelWorkspace = { render, load, save, state };
+  global.AionOperatingModelWorkspace = { render, load, save, applyConversationFact, state };
 })(window);

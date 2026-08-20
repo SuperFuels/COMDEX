@@ -216,6 +216,42 @@ def test_quoted_job_uses_hr_linked_labour_and_tracks_estimate_against_actual(tmp
     assert boardroom_operating["governance"]["individual_workforce_costs_redacted"] is True
 
 
+def test_owner_planning_rate_override_survives_operating_model_save(tmp_path, monkeypatch):
+    repository = BusinessContainerRepository(base_dir=tmp_path / "business_containers")
+    monkeypatch.setattr(api, "_repo", lambda: repository)
+    authority = OrganizationAuthorityService(repository)
+    organisation = authority.empty("home-fixed")
+    organisation["people"] = [{
+        "id": "person.one",
+        "name": "Person One",
+        "email": "one@example.com",
+        "employment_type": "employee",
+        "status": "active",
+        "role_ids": ["role.employee"],
+        "workforce_costing": {
+            "basis": "daily", "base_rate": 120,
+            "productive_hours_month": 160, "hours_per_day": 8,
+        },
+    }]
+    authority.save("home-fixed", organisation)
+
+    result = api.put_operating_model("home-fixed", api.ContainerWriteRequest(payload={
+        "currency": "EUR",
+        "labour_resources": [{
+            "person_id": "person.one",
+            "cost_basis": "daily",
+            "cost_rate": 145,
+            "rate_source": "manual_planning_override",
+        }],
+    }))
+
+    resource = result["payload"]["labour_resources"][0]
+    assert resource["cost_basis"] == "daily"
+    assert resource["cost_rate"] == 145
+    assert resource["rate_source"] == "manual_planning_override"
+    assert resource["cost_source"] == "owner_planning_override"
+
+
 @pytest.mark.asyncio
 async def test_finance_artifact_writes_bytes_receipt_and_file_cabinet_pointer(tmp_path, monkeypatch):
     runtime_root = tmp_path / "AION_BUSINESS"

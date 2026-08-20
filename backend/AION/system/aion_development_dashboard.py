@@ -91,7 +91,45 @@ def _clip(value: Any, width: int) -> str:
     return text if len(text) <= width else text[: width - 1] + "…"
 
 
-def _process_inventory() -> dict[str, dict[str, Any]]:
+def _classify_service_health(
+    *, active: bool, evidence_age_seconds: float | None, stale_after_seconds: float,
+    status: str = "", waiting: bool = False, disk_free_bytes: int | None = None,
+    error_after_evidence: bool = False,
+) -> tuple[str, str]:
+    """Classify observed service health; a PID alone is never enough."""
+    if not active:
+        return "offline", "no worker process"
+    if disk_free_bytes is not None and disk_free_bytes < 5 * 1024 ** 3:
+        return "degraded", "less than 5 GiB disk space available"
+    if str(status).lower() in {"error", "failed", "crashed", "stalled"}:
+        return "degraded", f"latest service status is {status}"
+    if error_after_evidence:
+        return "degraded", "a newer service error exists than the latest evidence"
+    if evidence_age_seconds is None:
+        return "degraded", "worker exists but no evidence ledger was found"
+    if evidence_age_seconds > stale_after_seconds:
+        return "degraded", f"evidence is stale ({_age(time.time() - evidence_age_seconds)})"
+    if waiting:
+        return "waiting", "healthy worker waiting for the next scheduled outcome"
+    return "healthy", "worker alive and evidence is fresh"
+
+
+def _payload_updated_epoch(path: Path, payload: Mapping[str, Any]) -> float:
+    candidates = []
+    for key in ("updated_at", "updated_epoch", "generated_at", "created_at"):
+        value = payload.get(key)
+        if isinstance(value, (int, float)):
+            candidates.append(float(value))
+        elif isinstance(value, str):
+            candidates.append(_iso_to_epoch(value))
+    try:
+        candidates.append(path.stat().st_mtime)
+    except OSError:
+        pass
+    return max((value for value in candidates if value > 0), default=0.0)
+
+
+def _process_inventory(root: Path) -> dict[str, dict[str, Any]]:
     patterns = {
         "Cognitive runtime": "aion_cognitive_runtime_service",
         "Real-outcome learner": "aion_real_outcome_learning_service.py",
@@ -102,6 +140,18 @@ def _process_inventory() -> dict[str, dict[str, Any]]:
         "Matched mission executor": "aion_open_mission_executor_service.py",
         "Arena v15 campaign": "long_duration_real_outcome_campaign",
     }
+    evidence = {
+        "Real-outcome learner": (root / "results/hexcore_continuous_real_outcome_learning.json", 15 * 60),
+        "General apprentice": (root / "backend/modules/hexcore/data/autonomous_general_apprentice/state.json", 15 * 60),
+        "North-Star registry": (root / "results/hexcore_constitutional_north_star_mastery_registry.json", 45 * 60),
+        "Mastery academy": (root / "results/aion_mastery_curriculum_service_status.json", 5 * 60),
+        "Open-mission governor": (root / "results/aion_open_mission_compounding_status.json", 5 * 60),
+        "Matched mission executor": (root / "results/aion_open_mission_executor_status.json", 45 * 60),
+        "Arena v15 campaign": (root / "results/aion_long_duration_campaign_service_status.json", 6 * 60 * 60),
+    }
+    logs = {
+        "Real-outcome learner": root / "logs/aion_real_outcome_learning_service.log",
+    }
     try:
         output = subprocess.run(
             ["ps", "-axo", "pid=,etime=,command="], text=True,
@@ -109,14 +159,57 @@ def _process_inventory() -> dict[str, dict[str, Any]]:
         ).stdout
     except Exception:
         output = ""
+    try:
+        disk_free = int(shutil.disk_usage(root).free)
+    except OSError:
+        disk_free = None
     inventory = {}
     for label, pattern in patterns.items():
         rows = [line.strip() for line in output.splitlines()
                 if pattern in line and "aion_development_dashboard" not in line]
+        active = bool(rows)
+        evidence_path, stale_after = evidence.get(label, (None, 15 * 60))
+        payload = _read_json(evidence_path) if evidence_path else {}
+        updated_epoch = _payload_updated_epoch(evidence_path, payload) if evidence_path else 0.0
+        age_seconds = max(0.0, time.time() - updated_epoch) if updated_epoch else None
+        raw_status = str(payload.get("status") or payload.get("campaign_status") or "")
+        waiting = bool(
+            label == "Open-mission governor"
+            and raw_status == "retention_followup"
+            and not (payload.get("retention_due_missions") or [])
+        ) or bool(
+            label == "Matched mission executor"
+            and (payload.get("retention") or {}).get("status") == "nothing_due"
+        )
+        error_after_evidence = False
+        log_path = logs.get(label)
+        if log_path:
+            try:
+                error_after_evidence = log_path.stat().st_mtime > updated_epoch
+            except OSError:
+                error_after_evidence = False
+        health, reason = _classify_service_health(
+            active=active,
+            evidence_age_seconds=age_seconds,
+            stale_after_seconds=float(stale_after),
+            status=raw_status,
+            waiting=waiting,
+            disk_free_bytes=disk_free,
+            error_after_evidence=error_after_evidence,
+        )
         inventory[label] = {
-            "active": bool(rows),
+            "active": active,
             "process": rows[0] if rows else None,
+            "health": health,
+            "health_reason": reason,
+            "evidence_age_seconds": age_seconds,
+            "evidence_path": str(evidence_path.relative_to(root)) if evidence_path else None,
         }
+    inventory["_system"] = {
+        "disk_free_bytes": disk_free,
+        "disk_free_gib": round(disk_free / 1024 ** 3, 1) if disk_free is not None else None,
+        "health": "degraded" if disk_free is not None and disk_free < 5 * 1024 ** 3 else "healthy",
+    }
     return inventory
 
 
@@ -289,7 +382,7 @@ def collect_snapshot(root: Path) -> dict[str, Any]:
         "schema_version": "aion.development_dashboard.v1",
         "generated_at": generated_at,
         "root": str(root),
-        "services": _process_inventory(),
+        "services": _process_inventory(root),
         "service_status": {
             "status": service_status.get("status", "unknown"),
             "age_seconds": max(0.0, generated_at - service_updated) if service_updated else None,
@@ -435,8 +528,15 @@ def render_full_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tup
 
     lines.extend(("section", line) for line in _section("LIVE SYSTEMS", width))
     for label, row in snapshot["services"].items():
-        state = "ACTIVE" if row["active"] else "OFFLINE"
-        lines.append(("good" if row["active"] else "bad", f" {state:7}  {label}"))
+        if label == "_system":
+            disk_free = row.get("disk_free_gib")
+            lines.append(("good" if row.get("health") == "healthy" else "warn",
+                          f" {'CAPACITY':8}  Disk available · {disk_free if disk_free is not None else 'unknown'} GiB"))
+            continue
+        health = str(row.get("health") or ("healthy" if row.get("active") else "offline"))
+        tone = {"healthy": "good", "waiting": "normal", "degraded": "warn", "offline": "bad"}.get(health, "warn")
+        state = {"healthy": "HEALTHY", "waiting": "WAITING", "degraded": "DEGRADED", "offline": "OFFLINE"}.get(health, health.upper())
+        lines.append((tone, _clip(f" {state:8}  {label} · {row.get('health_reason', '')}", width)))
     service = snapshot["service_status"]
     age = _age(snapshot["generated_at"] - service["age_seconds"] if service["age_seconds"] is not None else None)
     lines.append(("muted", f" Curriculum service ledger: {service['status']}  | last update {age} ago"))
@@ -1229,14 +1329,21 @@ def render_lines(snapshot: Mapping[str, Any], width: int = 120) -> list[tuple[st
 
     services = snapshot.get("services") or {}
     learning_labels = (
-        "General apprentice", "North-Star registry", "Mastery academy",
+        "Real-outcome learner", "General apprentice", "North-Star registry", "Mastery academy",
         "Open-mission governor", "Matched mission executor", "Arena v15 campaign",
     )
     lines.extend(("section", line) for line in _section("LEARNING SYSTEMS", width))
     for label in learning_labels:
         row = services.get(label) or {}
-        active = bool(row.get("active"))
-        lines.append(("good" if active else "bad", f" {'ACTIVE' if active else 'OFFLINE':7}  {label}"))
+        health = str(row.get("health") or ("healthy" if row.get("active") else "offline"))
+        tone = {"healthy": "good", "waiting": "normal", "degraded": "warn", "offline": "bad"}.get(health, "warn")
+        label_text = {"healthy": "HEALTHY", "waiting": "WAITING", "degraded": "DEGRADED", "offline": "OFFLINE"}.get(health, health.upper())
+        age = _age(snapshot["generated_at"] - row["evidence_age_seconds"]) if row.get("evidence_age_seconds") is not None else "unknown"
+        lines.append((tone, _clip(f" {label_text:8}  {label} · evidence {age} · {row.get('health_reason', '')}", width)))
+    system_health = services.get("_system") or {}
+    disk_free = system_health.get("disk_free_gib")
+    lines.append(("good" if system_health.get("health") == "healthy" else "warn", _clip(
+        f" System capacity: {disk_free if disk_free is not None else 'unknown'} GiB disk available", width)))
     service = snapshot.get("service_status") or {}
     service_age = service.get("age_seconds")
     age = _age(snapshot["generated_at"] - service_age if service_age is not None else None)

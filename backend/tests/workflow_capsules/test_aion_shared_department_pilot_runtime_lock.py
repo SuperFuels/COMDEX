@@ -33,25 +33,52 @@ def test_shared_runtime_is_modular_and_loaded_before_app():
 def test_hr_has_navigation_profile_route_and_goal_loop_scope():
     nav = function_block("renderLiveAgentsExecutiveDepartmentNavO14P")
     resolver = function_block("getSelectedLiveDepartmentKey")
-    route = function_block("renderLiveAgentsWorkspaceBody")
+    normalizer = function_block("normaliseAionDepartmentPilotKey")
     assert '["hr", "HR"]' in nav
     assert '"hr"' in resolver
-    assert '["marketing", "sales", "operations", "support", "hr"]' in route
+    assert '["marketing", "sales", "finance", "operations", "support", "hr"]' in normalizer
     assert 'title: "HR Pilot"' in APP
     assert 'title: "HR Specialist Pilot"' in APP
     assert '"hr_pilot"' in APP
     assert '"support",\n  "hr",' in APP
 
 
-def test_department_tabs_render_one_shared_pilot_terminal():
+def test_department_tabs_open_one_shared_pilot_conversation():
     route = function_block("renderLiveAgentsWorkspaceBody")
+    card = function_block("renderDepartmentCompactDirectorCard")
+    conversation = function_block("openUnifiedDepartmentPilotConversation")
     shared = function_block("renderAionDepartmentPilotRuntime")
     stream = function_block("renderAionPilotSimpleTaskStream")
-    assert "renderAionDepartmentPilotRuntime" in route
+    for renderer in (
+        "renderPilotMarketingWorkspaceSurface",
+        "renderSalesWorkspaceSurface",
+        "renderFinanceWorkspaceSurface",
+        "renderOperationsWorkspaceSurface",
+        "renderSupportWorkspaceSurface",
+        "renderHRWorkspaceSurface",
+    ):
+        assert renderer in route
+    assert 'data-aion-unified-department-conversation=' in card
+    assert "renderAionO18AADepartmentConversationCockpit" in conversation
     assert "renderAionPilotSimpleTaskStream" in shared
     assert 'data-aion-shared-pilot-terminal="true"' in stream
     assert "AionDepartmentPilotRuntime?.getContext" in stream
     assert "department_scope" in stream
+
+
+def test_live_agents_department_navigation_is_borderless_and_left_aligned():
+    nav = function_block("renderLiveAgentsExecutiveDepartmentNavO14P")
+    surface = function_block("renderLiveAgentsSurface")
+    assert "position:sticky" in nav
+    assert "flex-direction:row" in nav
+    assert "justify-content:flex-start" in nav
+    assert "border:0" in nav
+    assert '"#e8f2ff"' in nav
+    assert "padding:32px 48px 96px 96px" in surface
+    assert '[data-aion-o14p-live-agents-top-nav="true"] button:hover' in APP
+    assert "background:#f0f6ff !important" in APP
+    assert "outline:0 !important" in APP
+    assert "@media (max-width: 1120px)" in APP
 
 
 def test_each_department_has_isolated_persistent_runtime_state():

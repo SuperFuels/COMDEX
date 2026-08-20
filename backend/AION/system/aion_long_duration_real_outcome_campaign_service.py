@@ -11,6 +11,7 @@ from pathlib import Path
 
 from backend.modules.hexcore.long_duration_real_outcome_campaign import run_cycle
 from backend.modules.hexcore.file_locking import acquire_process_lock
+from backend.modules.hexcore.wall_clock_scheduler import wait_for_wall_clock
 
 
 def _write(path: Path, payload: dict) -> None:
@@ -69,7 +70,7 @@ def run_service() -> None:
                 "persistent_until_stopped": True,
             }
         _write(service_path, status)
-        time.sleep(float(status["next_observation_after_seconds"]))
+        wait_for_wall_clock(float(status["next_observation_after_seconds"]))
 
 
 if __name__ == "__main__":

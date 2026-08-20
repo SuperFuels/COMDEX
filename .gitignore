@@ -393,3 +393,14 @@ desktop/mac/env.local
 *.after-*
 desktop/mac/src/app.js.before*
 desktop/mac/src/app.js.after*
+
+# Local duplicate/scratch entry point; the authoritative desktop source is
+# desktop/mac/src/app.js.
+/app.js
+
+# Generated LaTeX build intermediates.  Keep the source document and PDF, not
+# machine-specific compiler state.
+*.aux
+*.out
+*.toc
+*.synctex.gz

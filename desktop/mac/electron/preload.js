@@ -31,6 +31,10 @@ contextBridge.exposeInMainWorld("aionDesktop", {
     return await ipcRenderer.invoke("aion-open-external-url", url);
   },
 
+  async openBusinessArtifact(storagePath = "") {
+    return await ipcRenderer.invoke("aion-open-business-artifact", storagePath);
+  },
+
   async chooseLocalVideo() {
     return await ipcRenderer.invoke("aion-choose-local-video");
   },
@@ -41,6 +45,10 @@ contextBridge.exposeInMainWorld("aionDesktop", {
 
   async playLocalVoice(payload = {}) {
     return await ipcRenderer.invoke("aion-play-local-voice", payload);
+  },
+
+  async playSystemVoice(payload = {}) {
+    return await ipcRenderer.invoke("aion-play-system-voice", payload);
   },
 
   async requestMicrophonePermission() {

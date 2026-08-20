@@ -658,6 +658,8 @@ def _add_finance_file_cabinet_pointer(*, business_id: str, category: str, record
         "source_of_truth": "business_container",
         "file_cabinet_role": "index_pointer_only",
         "status": "committed",
+        "provenance": {"created_by": "user_upload"},
+        "deletion_policy": "user_removable",
         "target": {
             "business_container_id": business_id,
             "sub_container": "finance",
@@ -699,6 +701,7 @@ def _add_operating_model_file_pointer(*, business_id: str, category: str, record
         "name": record["name"], "type": "business_container_artifact",
         "document_type": record["extension"], "source_of_truth": "business_container",
         "file_cabinet_role": "index_pointer_only", "status": "committed",
+        "provenance": {"created_by": "user_upload"}, "deletion_policy": "user_removable",
         "target": {
             "business_container_id": business_id, "sub_container": "operating_model",
             "category": category, "storage_path": record["storage_path"],
@@ -1245,19 +1248,30 @@ def put_operating_model(candidate: str, request: ContainerWriteRequest) -> Dict[
         if person:
             costing = _object(person.get("workforce_costing"))
             requested_basis = str(resource.get("cost_basis") or costing.get("basis") or "hourly")
-            if requested_basis == "daily":
+            manual_override = (
+                str(resource.get("rate_source") or "") == "manual_planning_override"
+                and resource.get("cost_rate") not in (None, "")
+            )
+            if manual_override:
+                effective_rate = resource.get("cost_rate")
+                cost_source = "owner_planning_override"
+            elif requested_basis == "daily":
                 effective_rate = costing.get("effective_daily_cost")
+                cost_source = "confidential_hr_effective_planning_cost"
             elif requested_basis == "monthly":
                 effective_rate = costing.get("effective_monthly_cost")
+                cost_source = "confidential_hr_effective_planning_cost"
             elif requested_basis == "per_job":
                 effective_rate = costing.get("base_rate")
+                cost_source = "confidential_hr_effective_planning_cost"
             else:
                 requested_basis = "hourly"
                 effective_rate = costing.get("effective_hourly_cost")
+                cost_source = "confidential_hr_effective_planning_cost"
             resource.update({
                 "person_name": person.get("name"), "engagement_type": person.get("employment_type"),
                 "cost_basis": requested_basis, "cost_rate": effective_rate,
-                "cost_source": "confidential_hr_effective_planning_cost",
+                "cost_source": cost_source,
             })
         hydrated_labour.append(resource)
     source_payload["labour_resources"] = hydrated_labour

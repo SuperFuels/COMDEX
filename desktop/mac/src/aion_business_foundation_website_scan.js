@@ -200,6 +200,12 @@
       emails: boundedList(evidence.emails, 20, 320),
       phones: boundedList(evidence.phones, 20, 100),
       social_links: boundedList(evidence.social_links, 24, 2048),
+      logo_candidates: boundedList(evidence.logo_candidates, 16, 2048),
+      icon_candidates: boundedList(evidence.icon_candidates, 16, 2048),
+      social_image_candidates: boundedList(evidence.social_image_candidates, 16, 2048),
+      colour_candidates: boundedList(evidence.colour_candidates, 24, 100),
+      font_candidates: boundedList(evidence.font_candidates, 24, 320),
+      stylesheet_urls: boundedList(evidence.stylesheet_urls, 24, 2048),
       visible_text_length:
         Number.isFinite(Number(evidence.visible_text_length))
           ? Math.max(0, Number(evidence.visible_text_length))
@@ -687,6 +693,33 @@
 
     packet.business_map.website_evidence =
       extendedWebsiteEvidence;
+
+    const detectedBrandEvidence = {
+      source: "public_website_scan",
+      authority: "detected_evidence_requires_confirmation",
+      website,
+      domain: safeEvidence.domain,
+      logoCandidates: safeEvidence.logo_candidates,
+      iconCandidates: safeEvidence.icon_candidates,
+      socialImageCandidates: safeEvidence.social_image_candidates,
+      colourCandidates: safeEvidence.colour_candidates,
+      fontCandidates: safeEvidence.font_candidates,
+      stylesheetUrls: safeEvidence.stylesheet_urls,
+      scannedAt: completedAt,
+    };
+
+    packet.business_map.brand_design_evidence =
+      detectedBrandEvidence;
+
+    try {
+      globalObject.desktopStore?.setBrandFoundationNestedValue?.(
+        "brandMap.visualIdentity.designSystem.detectedEvidence",
+        detectedBrandEvidence,
+      );
+    } catch (_error) {
+      // The scan receipt remains canonical evidence even when the desktop
+      // Brand Foundation store has not mounted yet.
+    }
 
     packet.business_map.website_scan =
       receipt;

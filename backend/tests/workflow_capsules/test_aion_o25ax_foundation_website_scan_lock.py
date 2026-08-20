@@ -171,6 +171,12 @@ def test_o25ax_preserves_founder_answers_and_maps_evidence():
         in MODULE
     )
 
+    assert "brand_design_evidence" in MODULE
+    assert "logo_candidates" in MODULE
+    assert "colour_candidates" in MODULE
+    assert "font_candidates" in MODULE
+    assert "detected_evidence_requires_confirmation" in MODULE
+
 
 def test_o25ax_module_has_no_business_specific_defaults():
     assert "Home Fixed" not in MODULE

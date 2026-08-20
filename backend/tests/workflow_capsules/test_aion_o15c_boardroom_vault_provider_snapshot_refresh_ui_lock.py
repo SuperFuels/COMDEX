@@ -48,7 +48,21 @@ def test_boardroom_round_progression_and_brand_context_are_explicit():
     assert "brand_foundation: liveBoardroomContext.brand_foundation" in text
     assert "ROUND 1 COMPLETE · CONTINUE THIS MEETING" in text
     assert "Restart Board Analysis" in text
-    assert "Use Debate Plan below to continue the current meeting." in text
+    assert "Answer relevant discovery questions or add founder feedback, then select" in text
     assert "const unresolvedText" in text
     assert "STRUCTURED INPUT REQUIRED · COMPLETE OUTSIDE THE MEETING" in text
     assert "data-aion-open-discovery-workspace" in text
+
+
+def test_boardroom_discovery_buttons_use_canonical_department_navigation():
+    text = APP.read_text(encoding="utf-8")
+    start = text.find("installAionDiscoveryQuestionInboxBindingsV1")
+    end = text.find("END AION PATCH: Generic Discovery Question Inbox v1", start)
+    block = text[start:end]
+
+    assert start >= 0
+    assert end > start
+    assert 'window.aionOpenLiveAgentsDepartmentO16A(destination)' in block
+    assert 'setActiveTab("live_agents")' in block
+    assert 'data-aion-open-discovery-section' in block
+    assert 'AionOperatingModelWorkspace.state.activeTab = section' in block

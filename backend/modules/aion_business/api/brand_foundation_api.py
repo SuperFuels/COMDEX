@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
+import hashlib
+import re
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
 from backend.modules.aion_business.runtime.business_container_service import (
@@ -14,6 +18,30 @@ router = APIRouter(
     prefix="/api/aion/business/brand-foundation",
     tags=["aion-business-brand-foundation"],
 )
+
+_BRAND_ASSET_ROLES = {
+    "primary_logo", "horizontal_logo", "stacked_logo", "reversed_logo",
+    "brand_mark", "social_avatar", "favicon", "brand_guidelines",
+    "imagery_reference", "social_template", "typography_reference",
+}
+_BRAND_ASSET_EXTENSIONS = {".png", ".jpg", ".jpeg", ".webp", ".svg", ".pdf"}
+_BRAND_ASSET_MAX_BYTES = 12 * 1024 * 1024
+
+
+def _safe_workspace_id(value: str) -> str:
+    clean = re.sub(r"[^a-zA-Z0-9._-]+", "-", str(value or "").strip()).strip(".-")
+    if not clean or clean != str(value or "").strip():
+        raise HTTPException(status_code=400, detail="Invalid workspace id")
+    return clean
+
+
+def _brand_asset_dir(service: BusinessContainerService, workspace_id: str) -> Path:
+    root = Path(service.repository.base_dir).resolve()
+    directory = (root / _safe_workspace_id(workspace_id) / "brand_assets").resolve()
+    if root not in directory.parents:
+        raise HTTPException(status_code=400, detail="Invalid brand asset path")
+    directory.mkdir(parents=True, exist_ok=True)
+    return directory
 
 
 def _utc_now_iso() -> str:
@@ -371,3 +399,72 @@ def save_brand_foundation(
             status_code=400,
             detail=f"{type(exc).__name__}: {exc}",
         ) from exc
+
+
+@router.post("/{workspace_id}/assets")
+async def upload_brand_asset(
+    workspace_id: str,
+    role: str = Form(...),
+    file: UploadFile = File(...),
+) -> Dict[str, Any]:
+    service = get_business_container_service()
+    clean_role = str(role or "").strip().lower()
+    if clean_role not in _BRAND_ASSET_ROLES:
+        raise HTTPException(status_code=400, detail="Unsupported brand asset role")
+
+    filename = Path(str(file.filename or "brand-asset")).name
+    suffix = Path(filename).suffix.lower()
+    if suffix not in _BRAND_ASSET_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="Use PNG, JPG, WEBP, SVG or PDF")
+
+    content = await file.read(_BRAND_ASSET_MAX_BYTES + 1)
+    if not content or len(content) > _BRAND_ASSET_MAX_BYTES:
+        raise HTTPException(status_code=400, detail="Brand asset must be between 1 byte and 12 MB")
+
+    digest = hashlib.sha256(content).hexdigest()
+    asset_id = f"brand_{clean_role}_{digest[:16]}"
+    stored_name = f"{asset_id}{suffix}"
+    path = _brand_asset_dir(service, workspace_id) / stored_name
+    path.write_bytes(content)
+
+    asset = {
+        "id": asset_id,
+        "role": clean_role,
+        "filename": filename,
+        "contentType": str(file.content_type or "application/octet-stream"),
+        "sizeBytes": len(content),
+        "sha256": digest,
+        "url": f"/api/aion/business/brand-foundation/{workspace_id}/assets/{stored_name}",
+        "source": "user_upload",
+        "authority": "user_supplied",
+        "deletionPolicy": "user_removable_before_evidence_use",
+        "uploadedAt": _utc_now_iso(),
+    }
+
+    payload = service.get_brand_foundation_payload(workspace_id)
+    brand_map = _first_dict(payload.get("brandMap"), payload.get("brand_map"))
+    visual = _as_dict(brand_map.get("visualIdentity"))
+    design_system = _as_dict(visual.get("designSystem"))
+    assets = [item for item in design_system.get("assets", []) if isinstance(item, dict)]
+    assets = [item for item in assets if item.get("role") != clean_role]
+    assets.append(asset)
+    design_system["assets"] = assets
+    design_system["updatedAt"] = _utc_now_iso()
+    visual["designSystem"] = design_system
+    brand_map["visualIdentity"] = visual
+    payload["brandMap"] = brand_map
+    saved = service.save_brand_foundation_payload(workspace_id, payload)
+
+    return {"ok": True, "workspace_id": workspace_id, "asset": asset, "item": saved}
+
+
+@router.get("/{workspace_id}/assets/{stored_name}")
+def get_brand_asset(workspace_id: str, stored_name: str) -> FileResponse:
+    service = get_business_container_service()
+    safe_name = Path(str(stored_name or "")).name
+    if safe_name != stored_name or not safe_name.startswith("brand_"):
+        raise HTTPException(status_code=404, detail="Brand asset not found")
+    path = (_brand_asset_dir(service, workspace_id) / safe_name).resolve()
+    if not path.exists() or _brand_asset_dir(service, workspace_id) not in path.parents:
+        raise HTTPException(status_code=404, detail="Brand asset not found")
+    return FileResponse(path)

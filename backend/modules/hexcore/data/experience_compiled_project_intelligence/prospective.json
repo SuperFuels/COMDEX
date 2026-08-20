@@ -179,6 +179,16 @@
       "owner_interventions": 0,
       "precommitment_sha256": "dafacce5b914c53a719faa2d043e5fe7d485faf3261a36a9d8a1d24cd30791ce",
       "specialist_objective_id": "objective_aab041e7b45947bcc1ed"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "committed_at": "2026-08-11T05:32:24.680965+00:00",
+      "goal_id": "autonomous_e9ecae6aff19cda72f",
+      "observable_feature_sha256": "d8fac74aa876fb994b387dac90a5d706637416a9b3ba2d8c416c7d4d38e07fc9",
+      "outcome_visible": false,
+      "owner_interventions": 0,
+      "precommitment_sha256": "20a5c06e84e9b774e80a8aa172224c928db1a6282fbdd7013c1190fd5308be09",
+      "specialist_objective_id": "objective_28a66ca7e9b39d6f6202"
     }
   ],
   "receipts": [
@@ -477,6 +487,18 @@
       "recovered_reference": true,
       "specialist_objective_id": "mission_4620973e7bec6814ff",
       "verification": "immutable_arbiter_reference_to_original_prospective_receipt"
+    },
+    {
+      "authority_program": "later_public_environmental_sensor",
+      "created_at": "2026-08-11T05:37:57.291758+00:00",
+      "goal_id": "autonomous_e9ecae6aff19cda72f",
+      "later_outcome_sha256": "06d81226459c8e44a6b2d87da71cc932d76e842d98e3014146d3b57ecaf5efce",
+      "owner_interventions": 0,
+      "precommitment_sha256": "20a5c06e84e9b774e80a8aa172224c928db1a6282fbdd7013c1190fd5308be09",
+      "receipt_sha256": "d79313593a63ae74fe91ce3e089816fae3bf6744460d4f911ff14d484c5a79f3",
+      "specialist_objective_id": "objective_28a66ca7e9b39d6f6202",
+      "unsafe_actions": 0,
+      "verification": "prospective_program_selection_plus_later_independent_consequence"
     }
   ],
   "rejected_precommitments": [
@@ -698,5 +720,5 @@
     }
   ],
   "schema_version": "aion.hexcore.prospective_experience_compiler.v1",
-  "updated_at": "2026-08-11T05:27:02.981521+00:00"
+  "updated_at": "2026-08-20T12:12:34.725309+00:00"
 }

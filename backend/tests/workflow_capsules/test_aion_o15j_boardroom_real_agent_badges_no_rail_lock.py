@@ -4,10 +4,11 @@ ROOT = Path(__file__).resolve().parents[3]
 RENDERER = ROOT / "desktop" / "mac" / "src" / "lib" / "desktop-boardroom-renderer.js"
 APP = ROOT / "desktop" / "mac" / "src" / "app.js"
 
-def test_o15j_real_agent_live_badges_installed():
+def test_o15j_real_agent_live_state_remains_on_interactive_seats_without_visual_clutter():
     text = RENDERER.read_text(encoding="utf-8")
     assert "O15J REAL AGENT LIVE STATUS BADGE LOCK" in text
-    assert "liveStatusPlate" in text
+    assert "group.userData.liveStatusText = liveStatusText" in text
+    assert "liveStatusPlate" not in text
     assert '"ALWAYS ON"' in text
     assert '"LIVE"' in text
 

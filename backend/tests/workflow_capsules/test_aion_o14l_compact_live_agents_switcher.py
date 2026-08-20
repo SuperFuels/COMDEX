@@ -28,6 +28,9 @@ def test_o14l_hides_file_cabinet_only_on_live_agents():
 def test_o14l_hides_legacy_department_tabs_but_keeps_workspace():
     assert "data-aion-o14l-hidden-legacy-department-tabs" in APP
     assert "data-aion-o14l-workspace-tightened" in APP
+    assert 'el.matches?.("#app, .desktop-root, .desktop-workspace-layout-no-rail, main, .surface-shell, [data-aion-o14p-live-agents-shell]")' in APP
+    assert "const leafMatches = matches.filter" in APP
+    assert "el.removeAttribute(\"data-aion-o14l-hidden-legacy-department-tabs\")" in APP
     assert "SPATIAL MARKETING BOARDROOM" in APP
     assert "SPATIAL SALES BOARDROOM" in APP
 

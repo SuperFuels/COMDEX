@@ -2,9 +2,9 @@
   "missions": [
     {
       "archetype": "engineering",
-      "created_at": "2026-08-11T05:26:44.234649+00:00",
+      "created_at": "2026-08-20T12:05:58.101638+00:00",
       "external_actions_authorized": 0,
-      "graph_sha256": "0b4ff99d083e9a0a240b18d6787e46d7e65e5a5d303f9f9760ccd9e0d19df920",
+      "graph_sha256": "0047b23a6b8693e5dfa1c28d6fcf214e88b86eae7bc3e9454a425badc41a373c",
       "milestones": [
         "mission_4620973e7bec6814ff:milestone:1:situation",
         "mission_4620973e7bec6814ff:milestone:2:capability",
@@ -562,5 +562,5 @@
     }
   ],
   "schema_version": "aion.hexcore.hierarchical_mission_state.v1",
-  "updated_at": "2026-08-11T05:26:44.349481+00:00"
+  "updated_at": "2026-08-20T12:05:58.526720+00:00"
 }

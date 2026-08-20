@@ -642,6 +642,25 @@
     }
   },
   "external_outcomes": {
+    "023f66a965c6612543622c652f6dd4a2db2db9fa6061ccd46cc4c40395b6ccbe": {
+      "class": "external_world_change",
+      "commitment": "b3b7a8c3e40509578ae6e3eecd123efec2a5655c97d3fe8db153e33cf1f69d38",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "02a2741780d293970ec5a41cca5d23d11e6593aa52f66d1ced09ff411e85df3b": {
+      "class": "external_world_change",
+      "commitment": "f6c088dc7bb7b7e8358f7fedbc4ab5042f4fef6eb59204b273dafe2a1064db39",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "040d0f9af40f9d72bfecb1894a477b1a12952d69de3b7d6352451e9ac902f66b": {
       "class": "external_world_change",
       "commitment": "90afeb89b3d0b087073597c74e333cf19c0057c5b248b5d9689709a8d6084724",
@@ -661,11 +680,58 @@
         "open_meteo_madrid"
       ]
     },
+    "0523a421b8cb2f9409c7f7cba705a740f76b1bc678b93c02ab0015d181a32495": {
+      "class": "external_world_change",
+      "commitment": "7858b2bc716d39031047fa701d748e0dc2e9bb3f18c482cddab8dd5a137088f5",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "052e92d95b67bd8c824ccbe075c760c989266d65a521ac67bb4a88b7d9a352e0": {
+      "class": "external_world_change",
+      "commitment": "adbf54a8e6e3d4cd3b20d5d715c2e0f696dd52e2abcff30965d02ebdca572d35",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "054374cd0a98cbd688d681b454ddb2aedecaa44abbd8e4ad1b505d8d135d02ea": {
+      "class": "external_world_change",
+      "commitment": "9b57caa676c5e8636451763c6b885cee7800fe5f5cd2461905b181587e9309c7",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "057e9ba362a1f5d0ed0ce128d6853f01ef3c52840c8c0ef365e1292af7bcc73e": {
       "class": "external_world_change",
       "commitment": "4d91f9360a3d154915570fd9890dcd051c0bced9dd7ab453946b96a38a1b3682",
       "response": "revise_source_world_model",
       "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "06ffc523d9eb6537332b7df44d5ba40cfa6e770b377ebd709b72ac2947aad904": {
+      "class": "external_world_change",
+      "commitment": "aa11012a7177317fc152fc2c25db3fa3a9add0881f12fb5b7c30363ae0798cce",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "078e1a989a2af366f4a356da597851b320089761f44ec0cfe23cd0932614ec96": {
+      "class": "external_world_change",
+      "commitment": "ce34b94bd0d9d3b4c9ae737cbf34ed55379230b05a9dc0843ddb85da475167b1",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
         "open_meteo_madrid"
       ]
     },
@@ -684,6 +750,24 @@
       "response": "revise_source_world_model",
       "targets": [
         "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "0a6bba4b7b14b0d31ef658638b8e7dd35ce019fe6d0e2b1a5c02ed68c4029beb": {
+      "class": "external_world_change",
+      "commitment": "81afe8b818afbd973517251601697e6d37d7e0b2584220ea18ec19c125b121e5",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "0a972e24c1f3538bdd6fcd8625ff30f795a4905863a1a4e23277ef9fb95368d9": {
+      "class": "external_world_change",
+      "commitment": "cf0aaa3b0faf577d664cbde156a1093b577a37e50372af2e5e25e0c5e18776bf",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
         "open_meteo_madrid"
       ]
     },
@@ -741,6 +825,16 @@
         "node",
         "open_meteo_madrid",
         "pypi_numpy"
+      ]
+    },
+    "174a044fabb360b2d9e22df97e4aefb772aa84a97145360e8274dbcb382dda72": {
+      "class": "external_world_change",
+      "commitment": "1f04ee92ee3338a606b057db4f526eea0d4c5bca700c66682abd16c81aceb8f2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
       ]
     },
     "1a0e60fae248a402091fb1f088ec32811868736df10ee9e25e2eb7d5f743e2be": {
@@ -842,6 +936,14 @@
         "open_meteo_madrid"
       ]
     },
+    "2bf57feeb7b3e8311b91713341afc4e546c37ba3c78e95d2d5dbeb38fd032b38": {
+      "class": "external_world_change",
+      "commitment": "f224598d0a07f89565aef864959fb944ecb681f0be0ba2fa382d86eb298c2408",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
     "2ca9244af84d6d81210d1cf6d716a99d74e945580e4b1b48aa8c80704e828a69": {
       "class": "external_world_change",
       "commitment": "c0e71280c6dd0262ecea6932bed4367bdbbf9b0a7fad8fb46957548c32310440",
@@ -889,6 +991,23 @@
         "open_meteo_madrid"
       ]
     },
+    "3193c5b3c6c19395c1380ec0f4dee0f3c56599b4d418d3d1e9004172228b0b11": {
+      "class": "external_world_change",
+      "commitment": "51455f146d085457248032fab8407ac8af82eeb54c86bdb150a7cd5d7a78261b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "32946e00218ae2a2808ef0dbb4842c52d93760ac8b502925027700fbc31a5e22": {
+      "class": "external_world_change",
+      "commitment": "cdb2b5d3adce8b38252b2f188b595377e1537275f38cae18c369ad4f489190e4",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "32f5c15122a7a130880cb00c45704bc0df4aa0bbfbdbfea7fb7385a149a767f3": {
       "class": "external_world_change",
       "commitment": "9752645a2d0d23d3c35bfa9c4d8f4626b2f5fe9f3e36d4c2ba0cf3e432089bb8",
@@ -924,6 +1043,15 @@
         "open_meteo_madrid"
       ]
     },
+    "38713139a868e65a0b86df38f2ffbb73bbf5b097b54b03e5879f5e1c1ba90740": {
+      "class": "external_world_change",
+      "commitment": "6f78a4d2227f199465969692b6c726f5652a78827e3fa3b6a8f53853c3a6dd42",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "38b436d8d31761a12ac45db451fcd6cf5e672334e7e77cf5e84df63adebc4c7d": {
       "class": "external_world_change",
       "commitment": "3f6c4ae4195a0926a4f31613e80a69ae447126eea76b735a12ef62dff33b6dc7",
@@ -938,6 +1066,25 @@
       "commitment": "0a105e6e55932fab5bb4a74e0c2b3c2d4c58acdd5b4544f1d83f72ce94603ad6",
       "response": "revise_source_world_model",
       "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "3beb964a93ea405d371d845ec2af1e2ba44f5b6ecc63d6ac880eb9ac35effa34": {
+      "class": "external_world_change",
+      "commitment": "d46d91ace147205cc3ebe71450bbc4a3dcd7aca1b2cc403be3637114d9106217",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "3dc37c73a1b120cf1029b9c08d4aee9eb45e8c40f8773ab936d0d5c763baddd7": {
+      "class": "external_world_change",
+      "commitment": "bece0e4cf108ed411127c5f20273f60b210b9d1839b03bf2b3511275422ce23b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
         "open_meteo_madrid"
       ]
     },
@@ -967,11 +1114,68 @@
         "open_meteo_madrid"
       ]
     },
+    "40bf779ee4f8125c2be1f71ec49bd8d0c62be8e135beae89934093dda5f16e21": {
+      "class": "external_world_change",
+      "commitment": "e28a21a1c45c5299e1a7f9edf8e9c60d8637f08c901533031e38744d1285e78a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "421cb44af551e90b76cd3ea550df3c9357ffc8028e1f1934c4c9b606e902265b": {
+      "class": "external_world_change",
+      "commitment": "fd5d32933af70f60566347a179882732f7e7378bbd13ddf669501e29d585e2f4",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "42e9436d1105d13c4f6080fee3e4afd9fb5cbd2354a1d47a3872c56813704d58": {
+      "class": "external_world_change",
+      "commitment": "d838d2c8cd0d79a69be5c043d6c7d791ec3e16b1ce7373e456c0d18983d0df2f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "432cc64cffc55c582a112fea9a161b30339770f0c1c82b3aecf0558f70daa57c": {
+      "class": "external_world_change",
+      "commitment": "336d256fa2da0f2888f09e10e46b1c241540fd2c7bcbc39c622d65aa82f1751c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "43383de85b5e1a7c1e975ec436d70122ab39b27b4eb98803e2d69fedff6d0a83": {
+      "class": "external_world_change",
+      "commitment": "6d703c475407116c5868c537b369c522860750478511ff15213ecbee9b7915e6",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "452c87978e5f47a539545adfd8a357e5cafe6fa7897c865eeedb07a6311fbf7a": {
       "class": "external_world_change",
       "commitment": "da888bf287a4efd4dcd11d1f558b0d35befa8f931cd7d7558e5652738ab343a8",
       "response": "revise_source_world_model",
       "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "45467edb12b8406ace91e783cadd01b343cfe7403edea9cc3cebae82365eedce": {
+      "class": "external_world_change",
+      "commitment": "30d5db1002516d0368b7b517559032c25f943703a06039db4998531a3d30befb",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
         "node",
         "open_meteo_madrid"
       ]
@@ -1032,6 +1236,17 @@
         "open_meteo_madrid"
       ]
     },
+    "4dd3db23ba490cb2e900a23b91f5f39bbc650ae6091e3669b92e2fa5f7197e3e": {
+      "class": "evidence_acquisition_failure",
+      "commitment": "cecae1397f4f8e08e826f9b85cd93572280e8e153a24e3840272dbdc3eaebde4",
+      "response": "retry_or_rebind_source_adapter",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid",
+        "pypi_numpy"
+      ]
+    },
     "4e406f3ce1370996d42c2b051300849b210e75dd94fc4dfbb5a0b657e70270f5": {
       "class": "external_world_change",
       "commitment": "4a9027ef35655a38e1c530b39a24c31dcb39b97af5f7c126f8b424bddb56b824",
@@ -1056,6 +1271,15 @@
       "commitment": "b3e7e470bcb835ebeb1908e16c338df5cab808e711e30fb892f711b0bb83fe8b",
       "response": "revise_source_world_model",
       "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "5580b417ea90b573d315b2b483cf3a5deb00bf2f154c2e8ec4b0274ba021c23a": {
+      "class": "external_world_change",
+      "commitment": "904a060a63e1d84c691d775e004e3fe798c492622d818cdd8933ddb48f03a1e6",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
         "open_meteo_madrid"
       ]
     },
@@ -1103,6 +1327,15 @@
         "open_meteo_madrid"
       ]
     },
+    "5e509d44ba81e0f5c833d583230fd2f10db5211b91fe09c7c42f13e76e779189": {
+      "class": "external_world_change",
+      "commitment": "78034b379396e4a6279df2c55df2eb90066e1e0ab66818bab05f81a3c130382f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "64b581b3d5bbdd59784c1f688dfa8aa0d9ac040440345d5b71491d4921fe27f6": {
       "class": "external_world_change",
       "commitment": "3c2ababc5e314901d9de7baddf7095c1db01196567e5bb4a36b2288b2bd2d766",
@@ -1119,12 +1352,29 @@
         "open_meteo_madrid"
       ]
     },
+    "6c23df11dae57293bb649290bf28b638dd55e1d78f9c73b834609c91f4c45e6c": {
+      "class": "external_world_change",
+      "commitment": "89c8db08a38ea47f79e6a53c25a65c421a520df184972bd1673d8ec89a2e3b5f",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "6cdd1946200d6a87d7c003837acdf6b12e7ccf04750548c420480e26d2cd43c5": {
       "class": "external_world_change",
       "commitment": "d5247be3c4a68eabb49f001169fa4cd91ed514375a475aece7da907666620651",
       "response": "revise_source_world_model",
       "targets": [
         "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "6ff40a12f231d71d392596344efd5304eff236d66db8384e052cbb437ce22a35": {
+      "class": "external_world_change",
+      "commitment": "f9a5fafa5fbf52e24e0519e9669eecb6b0421289208ce9f8edef98193a6c3749",
+      "response": "revise_source_world_model",
+      "targets": [
         "open_meteo_madrid"
       ]
     },
@@ -1146,11 +1396,30 @@
         "open_meteo_madrid"
       ]
     },
+    "72ab7bb0416a58165cd139ec28a493c04bd6b303b9e8dffa2051831b468a7d13": {
+      "class": "external_world_change",
+      "commitment": "fdfea095e7fcd67763f14f03e4ecaca3ec1832aa89a3a74b61f96ff91227becd",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "7380f4f2270792f86edc85a9dc22492f2963dbaf601f458741d24b2d7d5f6a04": {
       "class": "external_world_change",
       "commitment": "512e07059d7ed73c529b794305d6e589736768a297816102fcf2e2ec3ba8f8c2",
       "response": "revise_source_world_model",
       "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "768161b522d8661fddb98e1c3499439ef47f113d8288c221c0926248142a66b7": {
+      "class": "external_world_change",
+      "commitment": "b47749dd224d80f24185ae12dddc48e034477bd93b83c7a315792474050ccc94",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
         "node",
         "open_meteo_madrid"
       ]
@@ -1197,6 +1466,24 @@
         "open_meteo_madrid"
       ]
     },
+    "7f31c76fb8d1596521050b525f80607377e14d97e7751570c544420eab3481b7": {
+      "class": "external_world_change",
+      "commitment": "558a873c4a842f221e2278318a4ff4edb5f1975e884c313cdeaf5bdd5df3a4a7",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "7ffe5422f6f54208533498e5bace54f41a9b3dd715fde8f55d40666e63667fea": {
+      "class": "external_world_change",
+      "commitment": "4c23150584b2bc2a69bd37c78c7e3b912c8751293a0acf83c0420f090a8c8cce",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "80cdeeabde44fab131bd65e38c45e14216535fd00c6c8ab66d1e3aff73cf55e2": {
       "class": "stable_observation",
       "commitment": "0b238209ba40dfd66703acb059a907b5b77ef67499b963ac02d79cdfe93ba84e",
@@ -1204,6 +1491,15 @@
       "targets": [
         "cpython",
         "node"
+      ]
+    },
+    "8115c82301f56b51945bf8c15d1decd1027f72105e2906a21ad13f5a29d20b47": {
+      "class": "external_world_change",
+      "commitment": "e5dc355e32afd6dfa55246007426575410380d429988ff48ac24d6d1d910e742",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
       ]
     },
     "822adc3627e80cb23256b66dc8a84e751aa80a5022792cb757d23ed401083d91": {
@@ -1230,6 +1526,24 @@
       "response": "revise_source_world_model",
       "targets": [
         "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "8512fb7d6d985a4b6b8a410c4f2c0e29116aec88348e6a4cbe64d89fc80eefde": {
+      "class": "external_world_change",
+      "commitment": "bfa2dffc99cfcb12237a2898111a48ed7a3246b736a02189f7c47ae74f23d780",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "8558676fc03cb14463d6aceb33f54c0186121c4528a99e2485f52a9a17f8828b": {
+      "class": "external_world_change",
+      "commitment": "039afbdca9f81183dd7e5c677fcf5fb73d726edf2a36ea55c6133cdb7498548e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
         "open_meteo_madrid"
       ]
     },
@@ -1296,6 +1610,16 @@
         "open_meteo_madrid"
       ]
     },
+    "8a5a8bf751386b8e012a9c428825fe69dd1168f55a884437b0ea97debb4429f9": {
+      "class": "external_world_change",
+      "commitment": "50041c915eee0fc332521679124c88f12450c02dc517f150394f2319d2e7d6b8",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "8b15ab76a0931e2b82547470b6cf7019f03f3f5c7671a2d71a14ef6749ad3582": {
       "class": "evidence_acquisition_failure",
       "commitment": "f5956d07ab558a44cc85e0c648d265b99739ab155f83cfe994837893637ba868",
@@ -1305,6 +1629,15 @@
         "node",
         "open_meteo_madrid",
         "pypi_numpy"
+      ]
+    },
+    "8ddae7f33618e9a9ab7731490395ef8ef1651e4596bc595c4ea4646f949de743": {
+      "class": "external_world_change",
+      "commitment": "1a23ff501c90d5b338c5bff3f7ff4b10b8c4cb0989f51b3853282dccab5aec3e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
       ]
     },
     "8f022ea45f6a3e40938ce344ac242b354eeeb9e73a66efd00a0b36413fd03df1": {
@@ -1318,6 +1651,50 @@
     "912fff77e0a9537583f5d678ebbffefcfb73be2781a0c3bbc467922925ef26af": {
       "class": "external_world_change",
       "commitment": "952807d116e3e7a7240a90081b7001d38a390b2a496521b95ab6af9d5004d497",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "91b0e21e4eb88f8c3081b7e2e540454bc251603b9a0ce3d7cba7dd973347a404": {
+      "class": "external_world_change",
+      "commitment": "c7bb4a5047dfbd942b51ec4100339eff919e272ab48f4e8ee5387c27954a24a5",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "91c5487d23788a55ce45889080acaffbf33d9d6388b7354952822c5bd505f861": {
+      "class": "external_world_change",
+      "commitment": "ba2ce07f506f53aae7a9df856aefff6b3a4a1a6edf93902ef9c60bb5fdefbaa0",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "929da5ba521f3420bf5874668807529de72656d87cf49f7b5fc58e7007b93695": {
+      "class": "external_world_change",
+      "commitment": "aeda6de58d987b3b990d179ad018a52d30f7e3cc602145ecd8fba09a8d198f02",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "9411d5b0eb649b01bf1bc9b9b08aa880baee1a1f74d81e58b62b250aef2e8201": {
+      "class": "external_world_change",
+      "commitment": "f599eb40c2101613c1f2931bc66e755a55876b065028eb3419a67100bf0580a1",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "9927f38cfe4d517bdda73c9b51284cf701ce3677734b69a9a269f3489c8a7c41": {
+      "class": "external_world_change",
+      "commitment": "a800da08610c8f8c53edf05c1b02e5b59c7aad71785f67638e5a3de4bf33d9eb",
       "response": "revise_source_world_model",
       "targets": [
         "open_meteo_madrid"
@@ -1368,12 +1745,50 @@
         "open_meteo_madrid"
       ]
     },
+    "9eb027fe91cf495662cae32720ac5e0b9f98f3a3438683b6da402cc16b5f1be2": {
+      "class": "external_world_change",
+      "commitment": "fb666dfc68ac45f27e1523da72a8e3fb01f836a296c9086d808d3fbeba54b24a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "9f55280f625382e8453bf61cbf87b5f997c470a6bdce31b81e668362ab94096a": {
+      "class": "external_world_change",
+      "commitment": "d3ea7ebe62771265a0b54e59d861b73c70c42ce5c719907b1bdba3583adba890",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "9fbd516f398e8ac371572f0e200273b413a1695c4e27479920493e06743f9baa": {
+      "class": "external_world_change",
+      "commitment": "af2215e19c13412127701b07778451a3c7f991fd43767641550e3dddc1db90c2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "a1308f544d41854e639b674359d5b40dd00256589d9349ca3bf9b5289020a982": {
       "class": "external_world_change",
       "commitment": "e5e54549690e1a6de5d71bb1438fab79f1a1903686ce1d259522fed0771b6163",
       "response": "revise_source_world_model",
       "targets": [
         "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "a19ebd4f19929bc428258312943687b1541bd5336c3fdaf6527b0830e646c147": {
+      "class": "external_world_change",
+      "commitment": "c4d37642243dd543eca46e580f4177834e6cfdfbb08a1808cb92331cd3a7ead7",
+      "response": "revise_source_world_model",
+      "targets": [
         "node",
         "open_meteo_madrid"
       ]
@@ -1425,6 +1840,14 @@
         "open_meteo_madrid"
       ]
     },
+    "a7aa1e722bf58f788e4baa47359ecdc50faa2b5292ac305995c3b5e9b6b71c86": {
+      "class": "external_world_change",
+      "commitment": "74b864acba486a25b38c4975227252da4852dde6f06645d374e543638c7f26ae",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
     "ac0c0974f547420ec86a4bebca810ff5f673945a4f20e2ea21aac1003d2cc3df": {
       "class": "external_world_change",
       "commitment": "19b67c252b4bf9597fe700983876d6900baf0f1545a7ce7f9b8d430631a96c6f",
@@ -1435,12 +1858,30 @@
         "open_meteo_madrid"
       ]
     },
+    "adaa9d873c8680bf4bd9fd85cdfc1152b8c1720a0c3b6054c86f14c38bff4e1a": {
+      "class": "external_world_change",
+      "commitment": "09ea4b25cc387af24dab345f644be511c839295ef91f7aa6e5c682e310cb2053",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "aed5ae1c907ec8d0d1fb1cd4f81ca3976519a208087d6d47bac1b1fdef00e360": {
       "class": "external_world_change",
       "commitment": "3f9b229e7c647fc085efcaff92aee11656bd13d07eb3124f872641c995a445f5",
       "response": "revise_source_world_model",
       "targets": [
         "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "aee49ca595396a9c509c14d4eb3a38a90e2de1039d489c4228f5c897425c5731": {
+      "class": "external_world_change",
+      "commitment": "f51486bc58ebb2bb78bbdfc092ffa12e70e6b6900d24327f9dc490c9ed315dc1",
+      "response": "revise_source_world_model",
+      "targets": [
         "node",
         "open_meteo_madrid"
       ]
@@ -1518,6 +1959,15 @@
         "open_meteo_madrid"
       ]
     },
+    "b4e615b1f95278e43d177440ca09ee4e052a64969f93ba1840cec023bc811984": {
+      "class": "external_world_change",
+      "commitment": "96786262f009fc0ac48ade76e1e45974794647baadb45b7aba9e46b57b293254",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "b52163ad8d535b929dd5c6f8397177ed0afecd048bfd31184d682b6392d7ec9a": {
       "class": "external_world_change",
       "commitment": "e4f09e08ff17671291c38cef6a460d2f72a9c0dda770cd6d1ab41442bdabb874",
@@ -1536,11 +1986,41 @@
         "open_meteo_madrid"
       ]
     },
+    "b73259a264413a2d8d7807eb2d191874a2aa666c555bd75407a49794565f4ed0": {
+      "class": "external_world_change",
+      "commitment": "327e56288112e78ffd1ea10632ecd245faee32e2ef696104017c5fddd10affff",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b735945a87a1b1033ca5d09fd8db1f21ca3fb402f19520d4263a116cd0467e2f": {
+      "class": "external_world_change",
+      "commitment": "86b6277f41fdfc2be57efc97c7a3c28a03ca064aaca7915c6624017646438834",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "b7fa27ac6a347bd7b25bb338194f9fb71a191e54c400852245a2c228814ab04c": {
       "class": "external_world_change",
       "commitment": "9f5c13b173d25491b80f71826b4bed9fe4cff3994ad627ce91ba73aa95be527f",
       "response": "revise_source_world_model",
       "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "b952f2931147bff31e9da942e3ee310f62396d572f21afdda10a770a33ba721f": {
+      "class": "external_world_change",
+      "commitment": "44929c18bdc08d6081d71e6f7aa2fde99789757413356e63384f32d3b9a248bb",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
         "node",
         "open_meteo_madrid"
       ]
@@ -1563,6 +2043,34 @@
         "open_meteo_madrid"
       ]
     },
+    "bcdf3442d6fed000b0f93dc6465768e00edc0ff2860841046194ae6b56e3b91a": {
+      "class": "external_world_change",
+      "commitment": "e510f116cca235d3d35cee8773c1f36d290d98e99823d0ce41b81cf4bdfd1df2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "be40b4e0b518255fad59102b5b74954d60cb8c5070ba01916a3ad91b20486623": {
+      "class": "external_world_change",
+      "commitment": "2797f7fd61ebeeaa6430602f314953dcdde311a17d533ec858974bc567b79c4b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "be7c011caccf103974d490a5c57eabf5162884300efe378a4a956ed9c522e4db": {
+      "class": "external_world_change",
+      "commitment": "5a6ebc4d7be55a95533bfdcae78ab04b3c1ddfffdebe0fea2e1a8d7f5616d2a2",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "be9ebfb826c7cc8a716a4df1addbc4a30c4e501b7581aa2dd35ea8b8a559df42": {
       "class": "external_world_change",
       "commitment": "47c68bb6cd56d60dec7c3b85bf67b088194b6059308cbb87782d88cba88f2fbd",
@@ -1573,11 +2081,65 @@
         "open_meteo_madrid"
       ]
     },
+    "bf618577fe9064e7156771465b59f3f61ee34794c510a4a03e26fa637a6ab65d": {
+      "class": "external_world_change",
+      "commitment": "9f13280aab243be7ced781f64aaffc980627624cb15d50cb593bced018614a9d",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "c45b15bcd84776681af9d55ae0e8bf17a9b9607a8ab1e63ad497e7d055e935ca": {
+      "class": "external_world_change",
+      "commitment": "7cb21b418f017d6ecfff61186ac3f505c3702b8555745ea2b04e287915fb7079",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "c5f4607fd166abf28cd39b410228f98e055cd386ef4000c0fce39fb32fbb0c2d": {
+      "class": "external_world_change",
+      "commitment": "19bc4f31d52ae90fef9726fec98666726e0571a6f09f46fe0d7f3ee0fa6b3f58",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "c624e2951c31c5f8ee3a00c0fcce12d1d1ec615e2d6aa46d768973282990c5dd": {
+      "class": "external_world_change",
+      "commitment": "bd578e7e5f15d4de9b8d682791477b272cfcd54a763d929b23d0b9da8263c5ed",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "c6bc50a320c4fd04709c392f0e1a71daf5f7aef96ffd72954de7a991069ac2d8": {
       "class": "external_world_change",
       "commitment": "b44e9775c56020c9cbc2f8981d3ef6a4ad0129585eee91472857f6abcd569a05",
       "response": "revise_source_world_model",
       "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "c7e75f058a8d081ac917d2ec981261b89d92eca186f40ef866968f98028e3526": {
+      "class": "external_world_change",
+      "commitment": "877c8df685639b038e28afa42a2275e884b4e7be654773439456a8105db59d4e",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "c8ba70b6cce3b9894abfecab6d79dc29e616ae13d9592763807ab092c75ca8e0": {
+      "class": "external_world_change",
+      "commitment": "742c9dfc848b24ef663c0bec49a2d8b7363e21e458a2be2803b3b0aee5263ab9",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
         "open_meteo_madrid"
       ]
     },
@@ -1598,9 +2160,46 @@
         "open_meteo_madrid"
       ]
     },
+    "ce963c05c79a696da5baf7801fba4bc0878d73c8051ae6705ba1fd6b9ecf9538": {
+      "class": "external_world_change",
+      "commitment": "892eb68ffaa211ae93c78cc4294b027771c67b1015a50ab7e3d1f11479a25d68",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "d20d9deaaa955780104abcc627542ad620581a0fed073e2c01b63f3caee15c68": {
       "class": "external_world_change",
       "commitment": "9a4a9cde0619e7010700fdec992efcf3f91d83fa5696d1599f83752b2999765c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "d3a6dd9cb9cacbf873e634047e77b8764d0f565c70f5e502d5026ad5c19bf5a8": {
+      "class": "external_world_change",
+      "commitment": "a7b1841a9e4104d631364982f1bb391b22ed4a8662f1d89fc597dddd78e8f65a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
+    "d407df70659dc6027eafb73bb8ee7a9f5380d451087f25f18880c914506faf9f": {
+      "class": "external_world_change",
+      "commitment": "7f17b064946a2006d0fd86e8cb45d97de764c6e5d4064a55db86e6874d71df9a",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "d4f1aa4d8e5bd01ea447579892df64ed206fcb3d8a8d41d489854ba916302768": {
+      "class": "external_world_change",
+      "commitment": "e4c15260d5c22e1192df98316cdd41984ecc75a3e65f8f06013ee8f9b4f95b68",
       "response": "revise_source_world_model",
       "targets": [
         "cpython",
@@ -1617,6 +2216,41 @@
         "open_meteo_madrid"
       ]
     },
+    "d566b4c67f4edcb511e52f96e1ff13d0d0aac4fc0c3d61b2b299ab5be3672c5a": {
+      "class": "external_world_change",
+      "commitment": "9d45329da64c5210528598999d5d2f8e01865191dc48d82dc56354570de83459",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "d615602a005c70ef88ed4d21e6a830b963c112913f2cc43e133ac164477412c4": {
+      "class": "external_world_change",
+      "commitment": "a480e2dd7c31a5d57e0650e1ffedee47b71b4eab432d54ec4b79ac4395ee02ed",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "d6f885dc64c9d460d94624beb1f77bdb677665d2204c1570a884f1f71069e1f0": {
+      "class": "external_world_change",
+      "commitment": "7361cf9609726dbecee0c6e8eb3231b251977979a22255c28beac25555388264",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "d96db5f1715baac25d4c315121c0f8102c8c8f6327bdd9062774edabca20abe8": {
+      "class": "external_world_change",
+      "commitment": "9b9e7594567446fc3755675b5de3011fded5a37606b21ecf747d4d27a02d6689",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
     "dce0e27c45f9f93869fd77cdc2436d3b79c7ac0c7cb9676b0e236783d9bc2b42": {
       "class": "external_world_change",
       "commitment": "e21b280246867bd58784ab3fdc19d805e004408b3e172454d8e1fbbc98c1db3c",
@@ -1627,11 +2261,29 @@
         "open_meteo_madrid"
       ]
     },
+    "dd9426f679973a5536b308f6207407a67855b298e0aba7280b95d0e410bc6e66": {
+      "class": "external_world_change",
+      "commitment": "c8a39170bd3629aa4c279d1935779d041401d047a9da97daad39326d4599b818",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
     "de149e7b71bcd709a2611e7d48934624bdfb9b0d6a076f094aff966a3bfe6455": {
       "class": "external_world_change",
       "commitment": "0efbfaf1b38b87414b4b804d41e0feb323c9a5e15e20d842421c9c93bdfdd0a0",
       "response": "revise_source_world_model",
       "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "df1b265ea7ef69d3fedf2325c37874584238d1f70f758a817ea228ea0084d84f": {
+      "class": "external_world_change",
+      "commitment": "97eaa4f6b3c559e76043743d4228906b08e000d815bc4cd054a6f384fc721a72",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
         "node",
         "open_meteo_madrid"
       ]
@@ -1651,6 +2303,15 @@
       "commitment": "9a820a7bbbb4fe8410790b1a5af3f42788eaea0d85cd3b83690d10517c10ab2a",
       "response": "revise_source_world_model",
       "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "e1d506bebf2a32ea48925e7b1ff1270231ad8f9061ddda93b5e9faada1801272": {
+      "class": "external_world_change",
+      "commitment": "af783e20fcb0e4c5238a3f62bf482e92e259343ebd57e854848d8303af023199",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
         "open_meteo_madrid"
       ]
     },
@@ -1726,6 +2387,16 @@
         "open_meteo_madrid"
       ]
     },
+    "e9679e55323a81f6fdf471d460ba2d6577629cf9c03adea5e6682d519ee5ae4c": {
+      "class": "external_world_change",
+      "commitment": "a404958d2ab7ccb660bb329e260b1723673310eb015ca4456813a5abaaabeda8",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "e9db01d540745c6b0a087ed4ee42d35eb1c1bbcfc9e4f07a2d71543e23fe4c59": {
       "class": "external_world_change",
       "commitment": "d3836e39f0b6141556ccdc5456ff11c00dc59dfce0d96b466b42ab7561e9bdf1",
@@ -1745,11 +2416,40 @@
         "pypi_numpy"
       ]
     },
+    "ed0d6170c967c93d67d184fc2da0d026821dfe79fc4eca99dc3157d34b7d17ab": {
+      "class": "external_world_change",
+      "commitment": "0bc708e5047ab598d5a4aee26bf4a44f4000e58fa268bf74387fa661746db732",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "edae9c8e033b9713db36c416f42964c3aa2aa80971a9713fadd55922d222123a": {
+      "class": "external_world_change",
+      "commitment": "45c56acd9abcc482e0ac1b8fd0be04e03d29e191041b4542022489f65e260eca",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
     "ef18cdd66040732ee9675a0c541b02708b78d9fce250492a4a85576c71c11f59": {
       "class": "external_world_change",
       "commitment": "c2ccb87857fa859db1be1fa75d337062907f92cdcfceb5172bee3593361e47ae",
       "response": "revise_source_world_model",
       "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "efc2936b78e88e89a278a37ef0f86e2e947bbd8e46b92322cad6b0035015af91": {
+      "class": "external_world_change",
+      "commitment": "429e385c16c7a2fcd0eef591406318c8a8e9bf1636f30678367fb05135938f2b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
         "open_meteo_madrid"
       ]
     },
@@ -1792,6 +2492,15 @@
         "open_meteo_madrid"
       ]
     },
+    "f5cdaeff4718765f7ead55c40ea74980db494149b7eeb2c4a5e4ad98a408e6d7": {
+      "class": "external_world_change",
+      "commitment": "f188776e61270319c84b0ee6c4769c0eedc156151503109966ebeca3e6fbab5d",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "f666e1e5da6836a5715d307a8e2ebd37401374b6522b2b40fcfb06ca5c240ea6": {
       "class": "external_world_change",
       "commitment": "30e3ec63e7f95878b344fb64dec24559e10c491f7811e502cd0df715b8054f2e",
@@ -1800,9 +2509,73 @@
         "open_meteo_madrid"
       ]
     },
+    "f6dcf3c8adfbc68b3755560d7ec5d5a3fb635b576f776ec860f59d77294e35f1": {
+      "class": "external_world_change",
+      "commitment": "12f8db2e3c6087f1e0c3ddb5368aae1f9b318be0a455a8ce51c3f90a36fb392c",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "f733b97e6e2f6782160254c6781ba0e71636a00b356162b4c0fbc298876d09e9": {
+      "class": "external_world_change",
+      "commitment": "93016e8e015c7c6435b461938d17d9208586ee3b3868237153967f0ba86bca57",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "f93e0e8456a7ca446e4b40456464a81cf63be1b0b51daf30eae434dcc6fd7937": {
+      "class": "external_world_change",
+      "commitment": "acb2312ec5d2c9d00ceb76ecb64e95ae3af54c7e777544270c7c78662730522b",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "f97704cafef2bb3d96c88a1e1c2555bb8bff76744aeec5bac6baa97add4a5f26": {
+      "class": "external_world_change",
+      "commitment": "8a767ec344152a7349ba9071eed5395f54608a4f5b21cd8343413a6e2603cabb",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "open_meteo_madrid"
+      ]
+    },
     "fa7bcbcb9c36a0c0de0172144b1d34c17cbbf4d8e5d3240d4be438dc678db406": {
       "class": "external_world_change",
       "commitment": "b77bece6bf016631911cdbaecd2cdbcb4c2d8d382d62d575bdd5054498f78f94",
+      "response": "revise_source_world_model",
+      "targets": [
+        "open_meteo_madrid"
+      ]
+    },
+    "fb697432d678e810ad49d3ca23f59d8ecfe383438cdefef84172308d4c0f0fe2": {
+      "class": "external_world_change",
+      "commitment": "a9fd26fe047f12165066005b74539a45a94d74e9d02d6f7df131047eb14ab2e0",
+      "response": "revise_source_world_model",
+      "targets": [
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "fd9f3b60b5198326485cade83e7559fc250258325544648a255b37001fba96d6": {
+      "class": "external_world_change",
+      "commitment": "0afa6736efd36dff809aa266749cca9dd28c762b2c65d96b71e5c5d655bd3abd",
+      "response": "revise_source_world_model",
+      "targets": [
+        "cpython",
+        "node",
+        "open_meteo_madrid"
+      ]
+    },
+    "fe0d9f3e127b912a83596ac01ec572a2035761a6c89c3b0c9e418646c97cd26c": {
+      "class": "external_world_change",
+      "commitment": "9d4743c7e5676373c0e70bfcc58236ce64126d6523cb325713043867a14b61bb",
       "response": "revise_source_world_model",
       "targets": [
         "open_meteo_madrid"
@@ -1843,5 +2616,5 @@
     }
   ],
   "schema_version": "aion.hexcore.cross_domain_consequence_repair.v1",
-  "updated_at": "2026-08-11T05:26:45.006545+00:00"
+  "updated_at": "2026-08-20T12:12:28.087724+00:00"
 }

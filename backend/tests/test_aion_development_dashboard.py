@@ -1,7 +1,11 @@
 import json
 from pathlib import Path
 
-from backend.AION.system.aion_development_dashboard import collect_snapshot, render_text
+from backend.AION.system.aion_development_dashboard import (
+    _classify_service_health,
+    collect_snapshot,
+    render_text,
+)
 
 
 def _write(path: Path, payload: dict) -> None:
@@ -55,6 +59,38 @@ def test_dashboard_handles_empty_workspace_without_crashing(tmp_path):
     assert snapshot["mastery"]["subjects_total"] == 0
     assert snapshot["glyphs"]["total"] == 0
     assert "AION OPEN-MISSION LEARNING" in render_text(snapshot, width=80)
+
+
+def test_service_health_requires_fresh_evidence_not_only_a_pid():
+    assert _classify_service_health(
+        active=True, evidence_age_seconds=30, stale_after_seconds=60,
+        status="active", disk_free_bytes=10 * 1024 ** 3,
+    )[0] == "healthy"
+    assert _classify_service_health(
+        active=True, evidence_age_seconds=120, stale_after_seconds=60,
+        status="active", disk_free_bytes=10 * 1024 ** 3,
+    )[0] == "degraded"
+    assert _classify_service_health(
+        active=True, evidence_age_seconds=30, stale_after_seconds=60,
+        status="active", disk_free_bytes=4 * 1024 ** 3,
+    )[0] == "degraded"
+    assert _classify_service_health(
+        active=False, evidence_age_seconds=30, stale_after_seconds=60,
+        status="active", disk_free_bytes=10 * 1024 ** 3,
+    )[0] == "offline"
+
+
+def test_service_health_distinguishes_scheduled_waiting_from_failure():
+    health, reason = _classify_service_health(
+        active=True, evidence_age_seconds=30, stale_after_seconds=60,
+        status="retention_followup", waiting=True, disk_free_bytes=10 * 1024 ** 3,
+    )
+    assert health == "waiting"
+    assert "scheduled" in reason
+    assert _classify_service_health(
+        active=True, evidence_age_seconds=30, stale_after_seconds=60,
+        status="error", disk_free_bytes=10 * 1024 ** 3,
+    )[0] == "degraded"
 
 
 def test_dashboard_describes_completed_calibration_and_zero_control_truthfully(tmp_path):

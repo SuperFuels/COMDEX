@@ -22,6 +22,7 @@ import logging
 import threading
 import requests
 import json
+import tempfile
 from typing import Dict, Optional
 from logging.handlers import RotatingFileHandler
 
@@ -43,6 +44,21 @@ SERVICES = {
     "open_mission_executor": "backend/AION/system/aion_open_mission_executor_service.py",
     "long_duration_campaign": "backend/AION/system/aion_long_duration_real_outcome_campaign_service.py",
 }
+
+LIVE_SERVICE_STATUSES = {"healthy", "running"}
+
+
+def unhealthy_services(state: dict) -> list[str]:
+    """Return services that are not currently live.
+
+    Process-backed services report ``running`` while HTTP-backed services report
+    ``healthy``. Both states represent a live primary service.
+    """
+    return [
+        name
+        for name, service_state in state.items()
+        if service_state.get("status") not in LIVE_SERVICE_STATUSES
+    ]
 
 HEALTH_ENDPOINTS = {
     "receiver": "http://127.0.0.1:5090/fabric/all",
@@ -156,11 +172,31 @@ class HeartbeatSupervisor:
 
     def update_state_file(self):
         """Write live state to JSON file."""
+        temporary_path = None
         try:
-            with open(STATE_FILE, "w", encoding="utf-8") as f:
+            state_directory = os.path.dirname(STATE_FILE) or "."
+            with tempfile.NamedTemporaryFile(
+                mode="w",
+                encoding="utf-8",
+                dir=state_directory,
+                prefix=".aion_heartbeat_state.",
+                suffix=".tmp",
+                delete=False,
+            ) as f:
+                temporary_path = f.name
                 json.dump(self.state, f, indent=2)
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temporary_path, STATE_FILE)
+            temporary_path = None
         except Exception as e:
             logger.warning(f"[AIONHeartbeat] Failed to write state: {e}")
+        finally:
+            if temporary_path:
+                try:
+                    os.unlink(temporary_path)
+                except FileNotFoundError:
+                    pass
 
     def monitor_loop(self):
         """Continuously check and maintain services."""
@@ -194,7 +230,7 @@ def mirror_thread():
             if os.path.exists(STATE_FILE):
                 with open(STATE_FILE) as f:
                     state = json.load(f)
-                unhealthy = [k for k, v in state.items() if v.get("status") != "healthy"]
+                unhealthy = unhealthy_services(state)
                 if unhealthy:
                     logger.warning(f"[AIONMirror] ⚠️ Primary health degraded: {unhealthy}")
             else:

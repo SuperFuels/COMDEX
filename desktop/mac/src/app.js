@@ -95,6 +95,16 @@ if (window.__TESSARIS_DESKTOP_APP_INITIALIZED__) {
   const desktopStore = createDesktopStore();
   const state = desktopStore.state;
 
+  /*
+   * Restored Business surfaces are intentionally mounted after the original
+   * application closure.  Publish the canonical store/state bridge that those
+   * surfaces (and several existing recovery locks) already expect, rather than
+   * letting them create a second shadow store.
+   */
+  window.desktopStore = desktopStore;
+  window.state = state;
+  window.__AION_DESKTOP_STATE__ = state;
+
   /* Canonical Business Twin identity must own every backend and cabinet scope. */
   const canonicalBusinessIdAtBoot =
     window.AionBusinessContainerClient?.resolveBusinessId?.() || "";
@@ -2242,7 +2252,7 @@ function renderAionBusinessKeyInformationCard() {
 
   return `
     <section
-      class="panel large-panel"
+      class="panel large-panel aion-business-panel aion-business-department-panel"
       data-aion-business-key-information-card="true"
       data-aion-business-foundation-source="approved-startup-foundation"
       style="
@@ -3252,6 +3262,32 @@ function renderAionSitewideFileCabinetSurface() {
   const style = document.createElement("style");
   style.id = "aion-main-left-sidebar-phase25k";
   style.textContent = `
+    [data-aion-unified-department-director] {
+      margin:12px 0 10px;
+      display:grid;
+      grid-template-columns:minmax(360px,1fr) 260px;
+      min-height:260px;
+      border:1px solid rgba(17,17,17,.12);
+      background:#fff;
+      overflow:hidden;
+    }
+    [data-aion-unified-department-copy] {
+      min-width:0;
+      padding:24px 26px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:9px;
+    }
+    [data-aion-unified-department-portrait] {
+      width:260px;
+      height:260px;
+      min-height:260px;
+      justify-self:end;
+      background:#171513;
+      overflow:hidden;
+      position:relative;
+    }
     body.aion-phase24a-entry-visible:not(.aion-phase19c-workflow-visible) .surface-shell,
     body.aion-phase24a-entry-visible:not(.aion-phase19c-workflow-visible) .dashboard-shell,
     body.aion-phase24a-entry-visible:not(.aion-phase19c-workflow-visible) .operations-agents-surface {
@@ -23024,6 +23060,11 @@ function setAionBusinessContextSubtab(rawKey = "key_business_info") {
 
   try {
     state.activeBusinessContextSubtab = key;
+    state.activeTab = "business_context";
+  } catch {}
+
+  try {
+    window.__aionBusinessContextSubtab = key;
   } catch {}
 
   try {
@@ -32940,6 +32981,27 @@ function getAionCabinetNodeBadge(node) {
   return "Empty";
 }
 
+function isAionFileCabinetNodeProtected(node) {
+  if (!node || typeof node !== "object") return false;
+  const provenance = node.provenance && typeof node.provenance === "object" ? node.provenance : {};
+  const explicit = String(node.deletion_policy || "").toLowerCase();
+  const createdBy = String(provenance.created_by || node.created_by || "").toLowerCase();
+  const status = String(node.status || "").toLowerCase();
+  const documentType = String(node.document_type || "").toLowerCase();
+  const source = String(node.source_of_truth || "").toLowerCase();
+  const userRemovable = ["user_removable", "removable"].includes(explicit) ||
+    (["user", "user_upload", "authorised_user"].includes(createdBy) &&
+      !["accepted", "approved", "sealed", "verified", "promoted"].includes(status));
+  return !userRemovable && (
+    ["protected", "immutable", "append_only"].includes(explicit) ||
+    node.type === "business_container_artifact" ||
+    ["business_container", "boardroom", "evidence_ledger"].includes(source) ||
+    documentType.includes("boardroom") ||
+    ["evidence", "receipt", "ledger", "reconciliation"].some((token) => documentType.includes(token)) ||
+    ["accepted", "approved", "sealed", "verified", "promoted"].includes(status)
+  );
+}
+
 function renderAionFileCabinetNode(node, depth = 0) {
   const isFolder = node.type === "folder" || node.type === "department";
   const isWorkflow = node.type === "workflow";
@@ -33013,6 +33075,7 @@ function renderAionFileCabinetNode(node, depth = 0) {
 
   if (node.type === "business_container_artifact") {
     const target = node.target && typeof node.target === "object" ? node.target : {};
+    const protectedRecord = isAionFileCabinetNodeProtected(node);
     return `
       <div class="aion-file-cabinet-file-row" data-aion-cabinet-node-id="${escapeHtml(node.id)}">
         <button
@@ -33024,12 +33087,14 @@ function renderAionFileCabinetNode(node, depth = 0) {
 
           <span class="aion-file-cabinet-node-main">
             <strong>${escapeHtml(node.name || "Business container artifact")}</strong>
-            <small>${escapeHtml(node.document_type || "artifact")} · ${escapeHtml(node.source_of_truth || "business_container")}</small>
+            <small>${escapeHtml(node.document_type || "artifact")} · ${protectedRecord ? "Protected record" : "User-owned file"}</small>
           </span>
         </button>
 
         <em class="aion-file-cabinet-row-actions">
-          <button type="button" title="Delete pointer" data-aion-cabinet-delete="${escapeHtml(node.id)}" data-aion-cabinet-delete-name="${escapeHtml(node.name || node.id)}">×</button>
+          ${protectedRecord
+            ? `<span title="Board and evidence records are protected" aria-label="Protected record">🔒</span>`
+            : `<button type="button" title="Remove user-owned file" data-aion-cabinet-delete="${escapeHtml(node.id)}" data-aion-cabinet-delete-name="${escapeHtml(node.name || node.id)}">×</button>`}
         </em>
       </div>
     `;
@@ -37772,7 +37837,7 @@ function renderOperationsAgentGenericWorkflowCard(item, loading) {
 
   return `
     <div class="list-item" style="margin-bottom:12px;">
-      <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+      <div class="aion-business-section-head" style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
         <div style="min-width:0;">
           <div class="eyebrow">Generic Workflow</div>
           <h3 style="margin:4px 0;">${escapeHtml(name)}</h3>
@@ -40865,6 +40930,33 @@ const AION_COUNCIL_USER_CONTEXT_STORAGE_KEY = "aion.boardroomCouncil.userContext
 
 /* PHASE 25K LOCK: Boardroom Session business-container artifact preview/index */
 const AION_BOARDROOM_SESSION_ARTIFACTS_STORAGE_KEY = "aion.boardroomCouncil.sessionArtifacts.v1";
+const AION_BOARDROOM_BASELINE_COMPLETE_STORAGE_KEY = "aion.boardroom.baselineMeeting.completed.v1";
+const AION_BOARDROOM_NEXT_MEETING_STORAGE_KEY = "aion.boardroom.nextMeeting.v1";
+
+function getAionBoardroomJourneyStageV1() {
+  let baselineComplete = false;
+  try {
+    baselineComplete = window.localStorage?.getItem(AION_BOARDROOM_BASELINE_COMPLETE_STORAGE_KEY) === "true";
+  } catch {}
+  return baselineComplete ? "activation_followup" : "baseline_first_meeting";
+}
+
+function getAionBoardroomNextMeetingDateV1() {
+  try {
+    const saved = String(window.localStorage?.getItem(AION_BOARDROOM_NEXT_MEETING_STORAGE_KEY) || "");
+    if (/^\d{4}-\d{2}-\d{2}$/.test(saved)) return saved;
+  } catch {}
+  const date = new Date();
+  date.setDate(date.getDate() + 3);
+  return date.toISOString().slice(0, 10);
+}
+
+function saveAionBoardroomNextMeetingDateV1(value = "") {
+  const date = String(value || "");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return false;
+  try { window.localStorage?.setItem(AION_BOARDROOM_NEXT_MEETING_STORAGE_KEY, date); } catch {}
+  return true;
+}
 
 function getAionBoardroomBusinessContainerId() {
   const foundation =
@@ -40992,6 +41084,8 @@ function buildAionBoardroomSessionPacket(sessionType = "business_assessment") {
     business_id: businessContainerId,
     session_id: `boardroom_session_${Date.now()}`,
     session_type: String(sessionType || "business_assessment"),
+    journey_stage: getAionBoardroomJourneyStageV1(),
+    next_meeting_date: getAionBoardroomNextMeetingDateV1(),
     generated_at: generatedAt,
     business_context_packet: {
       source: liveBoardroomContext ? "canonical_business_container_envelope" : "boardroom_terminal_fallback",
@@ -41749,11 +41843,19 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     requested_providers: getAionLiveSelectedBoardroomProviderIdsV2(),
     objective: [
       `Run a live Boardroom ${sessionType} using only connected providers.`,
-      "Review the current business context, founder feedback, missing department context, risks, and next operational plan.",
+      packet.journey_stage === "baseline_first_meeting"
+        ? "This is the founder's first baseline meeting. Deliver useful value from the evidence available now; do not reject, delay, or lecture the founder because departments are incomplete."
+        : "This is an activation follow-up. Review progress since the baseline meeting and identify the next highest-value improvements.",
+      "Assess the business type, age, offerings, finances and operating evidence that actually exist. Separate known facts from assumptions and state confidence plainly.",
+      "Give a concise health view (healthy, mixed, at risk, or insufficient evidence), the three most useful actions now, and a paced department activation plan for the coming days.",
+      "Missing information must become optional routed tasks, not a long interrogation. Ask no more than three critical questions in this meeting and do not demand a complete marketing, sales, support, HR or automation plan during the baseline meeting.",
+      `Recommend reconvening on ${packet.next_meeting_date || "the founder's chosen date"}; a completed department may request an earlier executive review.`,
       "Return structured JSON with position, recommendations, risks, missing_inputs, plan_changes and confidence.",
     ].join(" "),
     context_packet: {
       business_id: packet.business_id || "home-fixed",
+      journey_stage: packet.journey_stage || "baseline_first_meeting",
+      next_meeting_date: packet.next_meeting_date || "",
       business_map_snapshot: packet.business_map_snapshot || null,
       business_map_confirmation: packet.business_map_confirmation || null,
       boardroom_workflow_stage: packet.boardroom_workflow_stage || null,
@@ -41816,6 +41918,8 @@ async function runAionLiveVisibleAskBoardResultV1(sessionType = "business_assess
     source_business_map_hash: packet.business_map_snapshot?.source_payload_hash || "",
     source_business_map_revision: packet.business_map_snapshot?.revision || 0,
     source_business_map_confirmation_hash: packet.business_map_confirmation?.confirmation_hash || "",
+    journey_stage: packet.journey_stage || "baseline_first_meeting",
+    next_meeting_date: packet.next_meeting_date || "",
   };
 
   try {
@@ -42498,12 +42602,14 @@ function collectAionDiscoveryQuestionsV1(source = {}) {
 
   // De-duplicate by clean question text + department.
   const seen = new Set();
-  return rows.filter((row) => {
+  const deduplicated = rows.filter((row) => {
     const key = `${row.department}::${row.question}`.toLowerCase();
     if (seen.has(key)) return false;
     seen.add(key);
     return true;
-  }).slice(0, 24);
+  });
+  const baselineMeeting = String(source?.journey_stage || "") === "baseline_first_meeting";
+  return deduplicated.slice(0, baselineMeeting ? 3 : 8);
 }
 
 function getAionDiscoveryAnswerForQuestionV1(questionId = "") {
@@ -42528,6 +42634,17 @@ function saveAionDiscoveryAnswerV1({ question_id, question, department, answer, 
 
   store[question_id] = entry;
   setAionDiscoveryQuestionStoreV1(store);
+
+  /* O18AB: Boardroom answers use the same fact-routing layer as direct Pilot
+   * conversations, so the owning workspace is filled whichever interface the
+   * founder chooses. */
+  try {
+    if (typeof window.aionRouteBoardroomDiscoveryAnswerO18AB === "function") {
+      window.aionRouteBoardroomDiscoveryAnswerO18AB(entry);
+    }
+  } catch (error) {
+    console.warn("[AION] Boardroom discovery answer routing deferred", error);
+  }
 
   // Also pass it into founder feedback so existing live provider payloads receive it.
   try {
@@ -42655,10 +42772,10 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
       "
     >
       <div style="font-weight:900;color:#0369a1;letter-spacing:0.08em;text-transform:uppercase;">
-        &gt; Discovery Question Inbox
+        &gt; ${source?.journey_stage === "baseline_first_meeting" ? "Optional next-step questions" : "Discovery Question Inbox"}
       </div>
       <div>&gt; Answered: ${answeredCount} / ${questions.length}</div>
-      <div>&gt; Purpose: route missing business facts to the system that owns them, save them structurally, then reconvene the Board.</div>
+      <div>&gt; Purpose: route the few highest-value missing facts to the system that owns them. You do not need to complete them in this meeting.</div>
       <div>&gt; Do not type operating facts into meeting minutes when they belong in Finance, HR, Operations, Marketing, Sales, Support or Products &amp; Services.</div>
   `);
 
@@ -42849,11 +42966,15 @@ function renderAionDiscoveryQuestionInboxHtmlV1(source = {}, roundKey = "ask_boa
       if (destination === "products_services" && window.AionOperatingModelWorkspace?.state && section) {
         window.AionOperatingModelWorkspace.state.activeTab = section;
       }
-      if (typeof window.aionSetLiveAgentsDepartmentAuthorityO14M === "function") {
-        window.aionSetLiveAgentsDepartmentAuthorityO14M(destination);
+      if (typeof window.aionOpenLiveAgentsDepartmentO16A === "function") {
+        window.aionOpenLiveAgentsDepartmentO16A(destination);
       } else {
+        if (typeof window.aionSetLiveAgentsDepartmentAuthorityO14M === "function") {
+          window.aionSetLiveAgentsDepartmentAuthorityO14M(destination);
+        }
         try {
-          state.activeTab = "live_agents";
+          if (typeof setActiveTab === "function") setActiveTab("live_agents");
+          else state.activeTab = "live_agents";
           state.selectedLiveAgentDepartment = destination;
           state.liveAgentsSelectedDepartment = destination;
           window.__aionLiveAgentsFocusDepartment = destination;
@@ -44808,8 +44929,10 @@ function renderBoardroomCouncilSessionTerminal() {
   const feed = snapshot.feed || {};
   const departments = Array.isArray(feed.departments) ? feed.departments : [];
   const userContextEntries = getAionCouncilUserContextEntries();
-  const contextInputOpen = window.__aionCouncilContextInputOpen === true;
   const terminalExpanded = window.__aionCouncilTerminalExpanded === true;
+  const selectedSessionType = String(window.__aionCouncilSessionType || "business_assessment");
+  const journeyStage = getAionBoardroomJourneyStageV1();
+  const nextMeetingDate = getAionBoardroomNextMeetingDateV1();
   const businessContextLines = getAionCouncilBusinessContextPacketLines();
   const departmentContextLines = getAionCouncilDepartmentContextPacketLines();
 
@@ -44854,66 +44977,73 @@ function renderBoardroomCouncilSessionTerminal() {
             min-width:178px;
           "
         >
-          <option value="business_assessment">Business Assessment</option>
-          <option value="growth_plan">Growth Plan</option>
-          <option value="risk_review">Risk Review</option>
-          <option value="finance_review">Finance Review</option>
-          <option value="marketing_review">Marketing Review</option>
-          <option value="operations_review">Operations Review</option>
+          <option value="business_assessment" ${selectedSessionType === "business_assessment" ? "selected" : ""}>Business Assessment</option>
+          <option value="growth_plan" ${selectedSessionType === "growth_plan" ? "selected" : ""}>Growth Plan</option>
+          <option value="risk_review" ${selectedSessionType === "risk_review" ? "selected" : ""}>Risk Review</option>
+          <option value="finance_review" ${selectedSessionType === "finance_review" ? "selected" : ""}>Finance Review</option>
+          <option value="marketing_review" ${selectedSessionType === "marketing_review" ? "selected" : ""}>Marketing Review</option>
+          <option value="operations_review" ${selectedSessionType === "operations_review" ? "selected" : ""}>Operations Review</option>
         </select>
       </label>
     `
     : "";
 
-  const askBoardButtonHtml = terminalExpanded
+  const meetingControlsHtml = terminalExpanded
     ? `
-      ${typeof window.aionGetBusinessMapConfirmationV1 === "function" && !window.aionGetBusinessMapConfirmationV1()?.valid ? `
-        <button
-          type="button"
-          data-aion-confirm-original-business-map="true"
-          style="height:30px;border:1px solid #0284c7;background:#0284c7;color:#fff;padding:0 12px;font-size:12px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;"
-        >
-          ${window.aionGetBusinessMapConfirmationV1()?.map?.revision ? `Confirm Map r${escapeHtml(String(window.aionGetBusinessMapConfirmationV1().map.revision))}` : "Load & Confirm Map"}
-        </button>
-      ` : ""}
-      <button
-        type="button"
-        data-aion-council-session-run="true"
-        ${window.__aionVisibleAskBoardResult?.result_hash ? 'title="Starts a new Round 1 analysis. Use Debate Plan below to continue the current meeting."' : ""}
-        ${typeof window.aionGetBusinessMapConfirmationV1 === "function" && !window.aionGetBusinessMapConfirmationV1()?.valid ? 'aria-disabled="true" title="Confirm the original Business Map first"' : ""}
+      <div
+        data-aion-boardroom-meeting-controls="true"
         style="
-          height:30px;
-          border:1px solid #111111;
-          background:#111111;
-          color:#ffffff;
-          padding:0 12px;
-          font-size:12px;
-          font-weight:900;
-          letter-spacing:0.08em;
-          text-transform:uppercase;
-          cursor:pointer;
+          display:grid;
+          gap:8px;
+          justify-items:start;
+          margin:0 0 10px;
+          padding:12px 14px;
+          border:1px solid rgba(17,17,17,0.14);
+          background:#ffffff;
         "
       >
-        ${window.__aionVisibleAskBoardResult?.result_hash ? "Restart Board Analysis" : "Ask the Board"}
-      </button>
-        <button
-          type="button"
-          class="aion-council-session-action"
-          data-aion-council-session-debate-plan="true"
-        >
-          Debate Plan
-        </button>
-        <button
-          type="button"
-          class="aion-council-session-action"
-          data-aion-council-session-build-tasks="true"
-        >
-          Build Dept Tasks
-        </button>
+        ${sessionSelectHtml}
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+          ${typeof window.aionGetBusinessMapConfirmationV1 === "function" && !window.aionGetBusinessMapConfirmationV1()?.valid ? `
+            <button
+              type="button"
+              data-aion-confirm-original-business-map="true"
+              style="height:34px;border:1px solid #0284c7;background:#0284c7;color:#fff;padding:0 14px;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;"
+            >
+              ${window.aionGetBusinessMapConfirmationV1()?.map?.revision ? `Confirm Map r${escapeHtml(String(window.aionGetBusinessMapConfirmationV1().map.revision))}` : "Load & Confirm Map"}
+            </button>
+          ` : `
+            <button
+              type="button"
+              data-aion-council-session-run="true"
+              style="height:34px;border:1px solid #111111;background:#111111;color:#ffffff;padding:0 14px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;"
+            >
+              Restart Board Analysis
+            </button>
+          `}
+          <button
+            type="button"
+            data-aion-council-terminal-toggle="true"
+            style="height:34px;border:1px solid rgba(17,17,17,0.22);background:#ffffff;color:#111111;padding:0 14px;font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;"
+          >
+            Collapse
+          </button>
+        </div>
+        <div style="font-size:12px; line-height:1.45; color:#64748b;">
+          Starting the meeting automatically loads the live Business Map, runs the connected Board analysis and saves the internal meeting record. External actions remain approval-gated.
+        </div>
+      </div>
     `
     : "";
 
   const terminalCollapsedHtml = `
+    ${journeyStage === "baseline_first_meeting" ? `
+      <div style="margin:0 0 12px;border:1px solid #93c5fd;background:#eff6ff;padding:16px;box-shadow:inset 4px 0 0 #2563eb;">
+        <div style="font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:#1d4ed8;">First Board meeting · baseline assessment</div>
+        <div style="margin-top:6px;font-size:18px;font-weight:900;color:#0f172a;">Get a useful result now. Complete the business in stages.</div>
+        <div style="margin-top:6px;color:#475569;line-height:1.5;">The Board will assess the evidence already supplied, explain the business health and give three immediate priorities. Missing departments become a short plan for the coming days—not a barrier to this meeting.</div>
+      </div>
+    ` : ""}
     <div
       data-aion-council-session-terminal-collapsed="true"
       style="
@@ -44928,50 +45058,39 @@ function renderBoardroomCouncilSessionTerminal() {
         box-shadow:inset 4px 0 0 #0284c7;
       "
     >
-      <style>
-        @keyframes aionTerminalCursorBlink {
-          0%, 45% { opacity: 1; }
-          46%, 100% { opacity: 0; }
-        }
-      </style>
-      <div>&gt; Boardroom terminal ready · context packet staged.</div>
-      <label
+      <div
         style="
           display:flex;
           align-items:center;
-          gap:8px;
-          margin-top:2px;
-          color:#29465b;
+          justify-content:space-between;
+          gap:16px;
+          flex-wrap:wrap;
         "
       >
-        <span>&gt;</span>
-        <input
-          data-aion-council-terminal-command-input="true"
-          value="start"
-          aria-label="Boardroom terminal command"
+        <div>
+          <div style="font-weight:900; color:#17364b;">Boardroom context is ready</div>
+          <div style="margin-top:2px; color:#64748b;">Open the meeting to review the live Business Map and begin the governed Board process.</div>
+        </div>
+        <button
+          type="button"
+          data-aion-council-terminal-start="true"
           style="
-            flex:0 0 52px;
-            width:52px;
-            border:0;
-            outline:0;
-            background:transparent;
-            color:#29465b;
-            font:inherit;
-            padding:0;
+            border:1px solid #111111;
+            background:#111111;
+            color:#ffffff;
+            padding:11px 18px;
+            font-family:inherit;
+            font-size:12px;
+            font-weight:900;
+            letter-spacing:0.08em;
+            text-transform:uppercase;
+            cursor:pointer;
+            white-space:nowrap;
           "
-        />
-        <span
-          aria-hidden="true"
-          style="
-            display:inline-block;
-            width:7px;
-            height:16px;
-            background:#0369a1;
-            animation:aionTerminalCursorBlink 1s steps(1,end) infinite;
-          "
-        ></span>
-        <span style="color:#64748b;">press Enter to open board meeting</span>
-      </label>
+        >
+          Start Board Meeting
+        </button>
+      </div>
     </div>
   `;
 
@@ -44982,6 +45101,15 @@ function renderBoardroomCouncilSessionTerminal() {
     : `<div>&gt; none added yet</div>`;
 
   const terminalExpandedHtml = `
+    <div style="margin:0 0 12px;border:1px solid #bfdbfe;background:#eff6ff;padding:14px;">
+      <div style="font-weight:900;color:#1d4ed8;">${journeyStage === "baseline_first_meeting" ? "Baseline meeting" : "Business activation follow-up"}</div>
+      <div style="margin-top:4px;color:#475569;">${journeyStage === "baseline_first_meeting" ? "A complete company profile is not required today. The Board will work from verified evidence and turn gaps into paced tasks." : "Review progress, choose the next highest-value department and keep the workload bounded."}</div>
+      <label style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;color:#334155;font-weight:800;">
+        Next Board meeting
+        <input type="date" data-aion-next-board-meeting-date="true" value="${escapeHtml(nextMeetingDate)}" style="border:1px solid #93c5fd;background:#fff;padding:7px 9px;color:#0f172a;">
+        <button type="button" data-aion-save-next-board-meeting="true" style="border:0;background:#2563eb;color:#fff;padding:8px 12px;font-weight:900;cursor:pointer;">Save date</button>
+      </label>
+    </div>
     <div
       data-aion-council-session-terminal-log="true"
       style="
@@ -45046,136 +45174,6 @@ function renderBoardroomCouncilSessionTerminal() {
       <div>&gt; Source revisions: Business Map ${escapeHtml(String(snapshot.sourceRevisions?.business_map ?? "unknown"))} · Department Intelligence ${escapeHtml(String(snapshot.sourceRevisions?.department_intelligence ?? "unknown"))} · Finance ${escapeHtml(String(snapshot.sourceRevisions?.finance ?? "unknown"))} · Operating Model ${escapeHtml(String(snapshot.sourceRevisions?.operating_model ?? "unknown"))}</div>
     </div>
 
-    ${
-      contextInputOpen
-        ? `
-          <div
-            data-aion-council-context-input-panel="true"
-            style="
-              margin-top:12px;
-              border:1px solid rgba(17,17,17,0.14);
-              background:#ffffff;
-              padding:14px;
-              display:grid;
-              gap:10px;
-              box-shadow:inset 4px 0 0 #0284c7;
-            "
-          >
-            <label style="display:grid; gap:6px;">
-              <span style="font-size:11px; letter-spacing:0.12em; text-transform:uppercase; font-weight:900; color:rgba(17,17,17,0.55);">
-                Add board context
-              </span>
-              <textarea
-                data-aion-council-context-input="true"
-                rows="4"
-                placeholder="Example: We are launching a new product next month. Last campaign sold well but margins were tight. Stock is limited."
-                style="
-                  width:100%;
-                  border:1px solid rgba(17,17,17,0.20);
-                  background:#ffffff;
-                  padding:12px;
-                  font:inherit;
-                  resize:vertical;
-                  min-height:92px;
-                "
-              ></textarea>
-            </label>
-
-            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-              <button
-                type="button"
-                data-aion-council-context-submit="true"
-                style="
-                  border:1px solid #111111;
-                  background:#111111;
-                  color:#ffffff;
-                  padding:11px 18px;
-                  font-size:12px;
-                  font-weight:900;
-                  letter-spacing:0.08em;
-                  text-transform:uppercase;
-                  cursor:pointer;
-                "
-              >
-                Add to Terminal
-              </button>
-              <button
-                type="button"
-                data-aion-council-context-cancel="true"
-                style="
-                  border:1px solid rgba(17,17,17,0.22);
-                  background:#ffffff;
-                  color:#111111;
-                  padding:11px 18px;
-                  font-size:12px;
-                  font-weight:900;
-                  letter-spacing:0.08em;
-                  text-transform:uppercase;
-                  cursor:pointer;
-                "
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        `
-        : ""
-    }
-
-    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px;">
-      <button
-        type="button"
-        data-aion-council-session-add-context="true"
-        style="
-          border:1px solid rgba(17,17,17,0.22);
-          background:#ffffff;
-          color:#111111;
-          padding:11px 16px;
-          font-size:12px;
-          font-weight:900;
-          letter-spacing:0.08em;
-          text-transform:uppercase;
-          cursor:pointer;
-        "
-      >
-        Add Context
-      </button>
-      <button
-        type="button"
-        data-aion-council-session-save="true"
-        style="
-          border:1px solid rgba(17,17,17,0.22);
-          background:#ffffff;
-          color:#111111;
-          padding:11px 16px;
-          font-size:12px;
-          font-weight:900;
-          letter-spacing:0.08em;
-          text-transform:uppercase;
-          cursor:pointer;
-        "
-      >
-        Save to Boardroom
-      </button>
-      <button
-        type="button"
-        disabled
-        title="Pilot execution remains approval-gated"
-        style="
-          border:1px solid rgba(17,17,17,0.14);
-          background:#f5f5f5;
-          color:rgba(17,17,17,0.42);
-          padding:11px 16px;
-          font-size:12px;
-          font-weight:900;
-          letter-spacing:0.08em;
-          text-transform:uppercase;
-          cursor:not-allowed;
-        "
-      >
-        Approve Pilot Plan
-      </button>
-    </div>
   `;
 
   return `
@@ -45217,39 +45215,9 @@ function renderBoardroomCouncilSessionTerminal() {
           Boardroom Terminal · context packet
         </div>
 
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
-          ${sessionSelectHtml}
-
-          ${
-            terminalExpanded
-              ? `
-                <button
-                  type="button"
-                  data-aion-council-terminal-toggle="true"
-                  style="
-                    height:30px;
-                    border:1px solid rgba(17,17,17,0.22);
-                    background:#ffffff;
-                    color:#111111;
-                    padding:0 12px;
-                    font-size:11px;
-                    font-weight:900;
-                    letter-spacing:0.08em;
-                    text-transform:uppercase;
-                    cursor:pointer;
-                  "
-                >
-                  Collapse
-                </button>
-              `
-              : ""
-          }
-
-          ${askBoardButtonHtml}
-        </div>
       </div>
 
-      ${terminalExpanded ? terminalExpandedHtml : terminalCollapsedHtml}
+      ${terminalExpanded ? `${meetingControlsHtml}${terminalExpandedHtml}` : terminalCollapsedHtml}
 
       ${typeof renderAionBoardroomLiveRunStatusHtmlV1 === "function" ? renderAionBoardroomLiveRunStatusHtmlV1() : ""}
 
@@ -45308,6 +45276,127 @@ try {
 if (!window.__aionCouncilSessionTerminalControlsInstalled) {
   window.__aionCouncilSessionTerminalControlsInstalled = true;
 
+  function runAionAutomaticBoardMeetingV1(requestedSessionType = "") {
+    const select = document.querySelector("[data-aion-council-session-type='true']");
+    const sessionType = String(
+      requestedSessionType ||
+      select?.value ||
+      window.__aionCouncilSessionType ||
+      "business_assessment"
+    );
+
+    window.__aionCouncilSessionType = sessionType;
+    window.__aionCouncilTerminalExpanded = true;
+    window.__aionCouncilContextInputOpen = false;
+
+    const confirmation =
+      typeof window.aionGetBusinessMapConfirmationV1 === "function"
+        ? window.aionGetBusinessMapConfirmationV1()
+        : null;
+
+    if (confirmation && confirmation.valid === false) {
+      window.__aionPendingAutomaticBoardMeeting = true;
+      safeAionDesktopPatch?.({
+        message: "Confirm the current Business Map before the Board analysis starts.",
+        messageTone: "warning",
+      });
+      requestRender?.();
+      return Promise.resolve(null);
+    }
+
+    window.__aionPendingAutomaticBoardMeeting = false;
+    const runId = startAionBoardroomRunV1(
+      "ask",
+      "Running live Board analysis against the current Business Map."
+    );
+
+    safeAionDesktopPatch?.({
+      message: "Running the live Board analysis...",
+      messageTone: "neutral",
+    });
+    requestRender?.();
+
+    if (typeof runAionLiveVisibleAskBoardResultV1 !== "function") {
+      setAionBoardroomLiveRunStatusV1(
+        "ask",
+        "Live Board analysis bridge missing.",
+        "error",
+        runId
+      );
+      safeAionDesktopPatch?.({
+        message: "Live Board analysis bridge missing.",
+        messageTone: "error",
+      });
+      requestRender?.();
+      return Promise.resolve(null);
+    }
+
+    return runAionLiveVisibleAskBoardResultV1(sessionType, runId)
+      .then((result) => {
+        if (!isAionBoardroomCurrentRunV1("ask", runId)) return null;
+        if (!result) {
+          clearAionBoardroomLiveRunStatusV1(runId);
+          requestRender?.();
+          return null;
+        }
+
+        let record = null;
+        try {
+          record = commitAionBoardroomSessionArtifactPreview(sessionType);
+        } catch (error) {
+          console.warn("[AION] Board analysis completed but its internal record could not be saved", error);
+        }
+
+        if (result.journey_stage === "baseline_first_meeting") {
+          try { window.localStorage?.setItem(AION_BOARDROOM_BASELINE_COMPLETE_STORAGE_KEY, "true"); } catch {}
+        }
+
+        safeAionDesktopPatch?.({
+          message: record
+            ? `Board analysis complete with ${result.succeeded_count || 0} connected provider(s). The meeting record was saved internally.`
+            : `Board analysis complete with ${result.succeeded_count || 0} connected provider(s).`,
+          messageTone: "success",
+        });
+        requestRender?.();
+        return result;
+      })
+      .catch((error) => {
+        if (!isAionBoardroomCurrentRunV1("ask", runId)) return null;
+        setAionBoardroomLiveRunStatusV1(
+          "ask",
+          `Live Boardroom ask failed: ${error?.message || error}`,
+          "error",
+          runId
+        );
+        safeAionDesktopPatch?.({
+          message: `Live Boardroom ask failed: ${error?.message || error}`,
+          messageTone: "error",
+        });
+        requestRender?.();
+        return null;
+      });
+  }
+
+  window.aionRunAutomaticBoardMeetingV1 = runAionAutomaticBoardMeetingV1;
+
+  document.addEventListener("change", (event) => {
+    const select = event.target?.closest?.("[data-aion-council-session-type='true']");
+    if (!select) return;
+    window.__aionCouncilSessionType = String(select.value || "business_assessment");
+  }, true);
+
+  document.addEventListener("click", (event) => {
+    const save = event.target?.closest?.("[data-aion-save-next-board-meeting='true']");
+    if (!save) return;
+    const input = document.querySelector("[data-aion-next-board-meeting-date='true']");
+    const saved = saveAionBoardroomNextMeetingDateV1(input?.value || "");
+    safeAionDesktopPatch?.({
+      message: saved ? `Next Board meeting scheduled for ${input.value}.` : "Choose a valid meeting date.",
+      messageTone: saved ? "success" : "warning",
+    });
+    requestRender?.();
+  }, true);
+
   document.addEventListener("keydown", (event) => {
     const commandInput = event.target?.closest?.("[data-aion-council-terminal-command-input='true']");
     if (!commandInput || event.key !== "Enter") return;
@@ -45317,13 +45406,19 @@ if (!window.__aionCouncilSessionTerminalControlsInstalled) {
 
     const command = String(commandInput.value || "").trim().toLowerCase();
     if (!command || command === "start" || command === "start board meeting") {
-      window.__aionCouncilTerminalExpanded = true;
-      window.__aionCouncilContextInputOpen = false;
-      requestRender?.();
+      runAionAutomaticBoardMeetingV1("business_assessment");
     }
   }, true);
 
   document.addEventListener("click", (event) => {
+    const terminalStart = event.target?.closest?.("[data-aion-council-terminal-start='true']");
+    if (terminalStart) {
+      event.preventDefault();
+      event.stopPropagation();
+      runAionAutomaticBoardMeetingV1("business_assessment");
+      return;
+    }
+
     const terminalToggle = event.target?.closest?.("[data-aion-council-terminal-toggle='true']");
     if (terminalToggle) {
       event.preventDefault();
@@ -45541,51 +45636,7 @@ if (!window.__aionCouncilSessionTerminalControlsInstalled) {
     if (askBoardRun) {
       event.preventDefault();
       event.stopPropagation();
-
-      const select = document.querySelector("[data-aion-council-session-type='true']");
-      const sessionType = String(select?.value || "business_assessment");
-
-      const runId = startAionBoardroomRunV1(
-        "ask",
-        "Asking live connected Boardroom providers. Please wait; repeated clicks will ignore older stale responses."
-      );
-
-      safeAionDesktopPatch?.({
-        message: "Asking live connected Boardroom providers...",
-        messageTone: "neutral",
-      });
-      requestRender?.();
-
-      if (typeof runAionLiveVisibleAskBoardResultV1 === "function") {
-        runAionLiveVisibleAskBoardResultV1(sessionType, runId)
-          .then((result) => {
-            if (!isAionBoardroomCurrentRunV1("ask", runId)) return;
-            safeAionDesktopPatch?.({
-              message: result
-                ? `Live Boardroom response complete: ${result.succeeded_count || 0} connected provider(s).`
-                : "Older Boardroom response ignored because a newer request is active.",
-              messageTone: result ? "success" : "warning",
-            });
-            if (!result) clearAionBoardroomLiveRunStatusV1(runId);
-            requestRender?.();
-          })
-          .catch((error) => {
-            if (!isAionBoardroomCurrentRunV1("ask", runId)) return;
-            setAionBoardroomLiveRunStatusV1("ask", `Live Boardroom ask failed: ${error?.message || error}`, "error", runId);
-            safeAionDesktopPatch?.({
-              message: `Live Boardroom ask failed: ${error?.message || error}`,
-              messageTone: "error",
-            });
-            requestRender?.();
-          });
-      } else {
-        safeAionDesktopPatch?.({
-          message: "Live Boardroom bridge missing.",
-          messageTone: "error",
-        });
-        requestRender?.();
-      }
-
+      runAionAutomaticBoardMeetingV1();
       return;
     }
 
@@ -47108,35 +47159,199 @@ const AION_UNIFIED_DEPARTMENT_SHELLS = Object.freeze({
     eyebrow: "Marketing Director",
     title: "Demand and brand adviser",
     context: "brand, campaigns, channels and attributable growth context",
+    portrait: "./assets/department-pilots/marketing-character-v3.png",
+    face: { x: 72.9, y: 32.8, width: 16, height: 31 },
   },
   sales: {
     eyebrow: "Sales Director",
     title: "Revenue and conversion adviser",
     context: "pipeline, qualification, communications and booking context",
+    portrait: "./assets/department-pilots/sales-character-v2.png",
+    face: { x: 68.2, y: 29, width: 17, height: 35 },
   },
   finance: {
     eyebrow: "Finance Director",
     title: "Financial control adviser",
     context: "cash, accounting, reporting and commercial-control context",
+    portrait: "./assets/department-pilots/finance-character-v2.png",
+    face: { x: 63.5, y: 27.7, width: 16, height: 31 },
   },
   operations: {
     eyebrow: "Operations Director",
     title: "Delivery and execution adviser",
     context: "workflows, capacity, delivery and cross-department context",
+    portrait: "./assets/department-pilots/operations-character-v2.png",
+    face: { x: 63.5, y: 24.1, width: 16, height: 34 },
   },
   support: {
     eyebrow: "Support Director",
     title: "Customer resolution adviser",
     context: "policy, escalation and service-quality context",
+    portrait: "./assets/department-pilots/support-character-v2.png",
+    face: { x: 68.5, y: 27.5, width: 17, height: 34 },
   },
   hr: {
     eyebrow: "People Director",
     title: "Organisation and authority adviser",
     context: "people, roles, permissions and workforce context",
+    portrait: "./assets/department-pilots/hr-character-v2.png",
+    face: { x: 67.7, y: 30.4, width: 15.2, height: 34 },
   },
 });
 
+/* O18AB: later department-conversation locks are installed from a separate
+ * runtime closure, so publish the verified identity registry explicitly. */
+if (typeof window !== "undefined") {
+  window.AION_UNIFIED_DEPARTMENT_SHELLS = AION_UNIFIED_DEPARTMENT_SHELLS;
+}
+
+function ensureAionCharacterIdentityStyles() {
+  if (document.getElementById("aion-character-identity-styles")) return;
+  const style = document.createElement("style");
+  style.id = "aion-character-identity-styles";
+  style.textContent = `
+    [data-aion-character-media] {
+      position:absolute;
+      top:0;
+      height:100%;
+      width:177.683316%;
+      left:-58.262487%;
+      transform-origin:center center;
+      transition: transform 420ms ease, filter 420ms ease;
+    }
+    [data-aion-character-media] img {
+      display:block;
+      width:100%;
+      height:100%;
+      object-fit:fill;
+    }
+    [data-aion-character-stage]:hover [data-aion-character-media],
+    [data-aion-character-stage][data-aion-character-state="speaking"] [data-aion-character-media],
+    [data-aion-character-stage][data-aion-character-state="listening"] [data-aion-character-media] {
+      transform: scale(1.018);
+      filter: saturate(1.04) contrast(1.02);
+    }
+    [data-aion-character-face] {
+      position:absolute;
+      left:var(--aion-face-x);
+      top:var(--aion-face-y);
+      width:var(--aion-face-width);
+      height:var(--aion-face-height);
+      transform:translate(-50%,-50%);
+      z-index:2;
+      pointer-events:none;
+      filter:drop-shadow(0 0 8px rgba(242,175,13,.16));
+    }
+    [data-aion-character-eye] {
+      position:absolute;
+      top:34%;
+      width:24%;
+      height:8%;
+      border-radius:999px;
+      background:#fff7d6;
+      box-shadow:0 0 7px rgba(242,175,13,.9),0 0 16px rgba(242,175,13,.34);
+      transform-origin:center;
+      animation:aionCharacterBlink 6.4s infinite;
+    }
+    [data-aion-character-eye="left"] { left:17%; }
+    [data-aion-character-eye="right"] { right:17%; }
+    [data-aion-character-wave] {
+      position:absolute;
+      left:25%;
+      right:25%;
+      top:62%;
+      height:17%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:6%;
+    }
+    [data-aion-character-wave] i {
+      display:block;
+      width:8%;
+      height:24%;
+      min-height:2px;
+      border-radius:999px;
+      background:#f2af0d;
+      box-shadow:0 0 7px rgba(242,175,13,.74);
+      transition:height 140ms ease,background 140ms ease;
+    }
+    [data-aion-character-state="speaking"] [data-aion-character-wave] i,
+    [data-aion-character-stage]:hover [data-aion-character-wave] i {
+      animation:aionCharacterTalk .56s ease-in-out infinite alternate;
+    }
+    [data-aion-character-state="speaking"] [data-aion-character-wave] i:nth-child(2),
+    [data-aion-character-stage]:hover [data-aion-character-wave] i:nth-child(2) { animation-delay:-.18s; }
+    [data-aion-character-state="speaking"] [data-aion-character-wave] i:nth-child(3),
+    [data-aion-character-stage]:hover [data-aion-character-wave] i:nth-child(3) { animation-delay:-.34s; }
+    [data-aion-character-state="listening"] [data-aion-character-eye] {
+      height:12%;
+      background:#bff7ee;
+      box-shadow:0 0 9px rgba(45,212,191,.9),0 0 18px rgba(45,212,191,.4);
+    }
+    [data-aion-character-state="listening"] [data-aion-character-wave] i {
+      background:#5eead4;
+      animation:aionCharacterListen .8s ease-in-out infinite alternate;
+    }
+    @keyframes aionCharacterBlink {
+      0%,45%,48%,100% { transform:scaleY(1); }
+      46%,47% { transform:scaleY(.12); }
+    }
+    @keyframes aionCharacterTalk {
+      from { height:24%; }
+      to { height:92%; }
+    }
+    @keyframes aionCharacterListen {
+      from { opacity:.48; transform:translateY(1px); }
+      to { opacity:1; transform:translateY(-1px); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      [data-aion-character-media],
+      [data-aion-character-eye],
+      [data-aion-character-wave] i { animation:none !important; transition:none !important; }
+    }
+    @media (max-width: 860px) {
+      [data-aion-unified-department-director] {
+        grid-template-columns:minmax(0,1fr) minmax(210px,34vw);
+      }
+      [data-aion-unified-department-portrait] {
+        width:min(260px,34vw);
+        height:min(260px,34vw);
+        min-height:min(260px,34vw);
+      }
+      [data-aion-unified-department-copy] { padding:20px; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function renderAionCharacterFaceOverlay(config, key) {
+  const face = config?.face || { x: 70, y: 30, width: 14, height: 29 };
+  return `
+    <span
+      data-aion-character-face="${escapeHtml(key || "agent")}"
+      aria-hidden="true"
+      style="--aion-face-x:${Number(face.x) || 70}%;--aion-face-y:${Number(face.y) || 30}%;--aion-face-width:${Number(face.width) || 14}%;--aion-face-height:${Number(face.height) || 29}%;"
+    >
+      <span data-aion-character-eye="left"></span>
+      <span data-aion-character-eye="right"></span>
+      <span data-aion-character-wave><i></i><i></i><i></i><i></i><i></i></span>
+    </span>
+  `;
+}
+
+function renderAionAnchoredCharacterMedia(config, key, altText) {
+  const portrait = config?.portrait || "./assets/department-pilots/operations-character-v2.png";
+  return `
+    <span data-aion-character-media="${escapeHtml(key || "agent")}" aria-hidden="true">
+      <img src="${escapeHtml(portrait)}" alt="${escapeHtml(altText || "Synthetic department agent portrait")}" draggable="false" />
+      ${renderAionCharacterFaceOverlay(config, key)}
+    </span>
+  `;
+}
+
 function renderDepartmentCompactDirectorCard(departmentKey) {
+  ensureAionCharacterIdentityStyles();
   const key = String(departmentKey || "").toLowerCase();
   const config = AION_UNIFIED_DEPARTMENT_SHELLS[key] || {
     eyebrow: `${prettify(key)} Director`,
@@ -47147,35 +47362,43 @@ function renderDepartmentCompactDirectorCard(departmentKey) {
     typeof getAionFinanceBusinessTwinContextV2 === "function"
       ? getAionFinanceBusinessTwinContextV2()
       : { business_name: "Business" };
+  const portrait = config.portrait || "./assets/department-pilots/operations-character-v2.png";
 
   return `
     <section
       data-aion-unified-department-director="${escapeHtml(key)}"
-      style="margin:12px 0 10px;display:grid;grid-template-columns:minmax(220px,.72fr) minmax(320px,1.28fr);min-height:176px;border:1px solid rgba(17,17,17,.12);background:#fff;overflow:hidden;"
     >
-      <div style="padding:18px 20px;display:flex;flex-direction:column;justify-content:center;gap:8px;">
+      <div data-aion-unified-department-copy="${escapeHtml(key)}">
         <div style="font-size:10px;letter-spacing:.20em;text-transform:uppercase;color:#0f766e;font-weight:950;">${escapeHtml(config.eyebrow)}</div>
         <div style="font-size:21px;line-height:1.15;color:#0f172a;font-weight:950;">${escapeHtml(config.title)}</div>
         <div style="font-size:12px;line-height:1.45;color:#587087;">${escapeHtml(business.business_name || "Business")} · ${escapeHtml(config.context)}</div>
         <div><span style="display:inline-block;border:1px solid rgba(15,118,110,.28);padding:6px 9px;color:#0f766e;font-size:9px;letter-spacing:.14em;font-weight:950;">ADVISORY · APPROVAL GATED</span></div>
-      </div>
-      <div
-        style="height:176px;min-height:176px;max-height:176px;background:#050817;overflow:hidden;position:relative;"
-      >
-        <div
-          id="aionDepartment121SpatialBoardroomMount-${escapeHtml(key)}"
-          data-aion-o14d-department-121-spatial-boardroom-mount="true"
-          data-aion-o14d-department-key="${escapeHtml(key)}"
-          aria-label="Compact spatial ${escapeHtml(config.eyebrow)}"
-          style="position:absolute;inset:0;background:#050817;overflow:hidden;"
-        ></div>
-        <div style="position:absolute;left:14px;bottom:12px;display:flex;align-items:center;gap:9px;z-index:3;">
-          <span style="background:rgba(2,6,23,.82);border:1px solid rgba(255,255,255,.24);color:#fff;padding:7px 9px;font-size:9px;letter-spacing:.15em;font-weight:950;text-transform:uppercase;">AION · ${escapeHtml(prettify(key))} Pilot</span>
+        <div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap;">
+          <span style="background:#171513;border:1px solid rgba(17,17,17,.16);color:#fff;padding:8px 10px;font-size:9px;letter-spacing:.15em;font-weight:950;text-transform:uppercase;">AION · ${escapeHtml(prettify(key))} Pilot</span>
           <button
             type="button"
             data-aion-unified-department-conversation="${escapeHtml(key)}"
-            style="border:1px solid rgba(255,255,255,.42);background:#fff;color:#0f172a;padding:7px 10px;font-size:9px;letter-spacing:.12em;font-weight:950;text-transform:uppercase;cursor:pointer;"
+            style="border:1px solid rgba(17,17,17,.24);background:#fff;color:#0f172a;padding:8px 11px;font-size:9px;letter-spacing:.12em;font-weight:950;text-transform:uppercase;cursor:pointer;"
           >Talk to Pilot</button>
+        </div>
+      </div>
+      <div
+        data-aion-unified-department-portrait="${escapeHtml(key)}"
+      >
+        <button
+          type="button"
+          data-aion-unified-department-conversation="${escapeHtml(key)}"
+          data-aion-character-stage="${escapeHtml(key)}"
+          data-aion-character-state="idle"
+          aria-label="Talk to the ${escapeHtml(config.eyebrow)}"
+          style="position:absolute;inset:0;width:100%;height:100%;border:0;padding:0;background:#171513;overflow:hidden;cursor:pointer;text-align:left;"
+        >
+          ${renderAionAnchoredCharacterMedia(config, key, `Synthetic ${config.eyebrow} portrait`)}
+          <span aria-hidden="true" style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(10,9,8,.68) 0%,rgba(10,9,8,.14) 46%,rgba(10,9,8,.02) 72%);"></span>
+        </button>
+        <div style="position:absolute;right:14px;top:12px;display:flex;align-items:center;gap:7px;z-index:3;pointer-events:none;background:rgba(17,17,17,.72);border:1px solid rgba(255,255,255,.22);padding:6px 8px;color:#fff;font-size:8px;letter-spacing:.13em;font-weight:950;text-transform:uppercase;">
+          <span style="width:7px;height:7px;border-radius:50%;background:#f2af0d;box-shadow:0 0 0 3px rgba(242,175,13,.18);"></span>
+          Synthetic agent · ready
         </div>
       </div>
     </section>
@@ -47187,16 +47410,23 @@ function openUnifiedDepartmentPilotConversation(departmentKey) {
   const existing = document.querySelector("[data-aion-unified-pilot-dialog]");
   if (existing) existing.remove();
 
-  const renderConversation =
-    typeof window.renderAionO18AADepartmentConversationCockpit === "function"
-      ? window.renderAionO18AADepartmentConversationCockpit(key)
-      : "";
-  const fallbackConversation =
-    renderConversation ||
-    (typeof window.renderAionO18ADDepartmentConversationCockpit === "function"
-      ? window.renderAionO18ADDepartmentConversationCockpit(key)
-      : "");
-  if (!fallbackConversation) return;
+  let fallbackConversation = "";
+  const renderers = [
+    window.renderAionO18AADepartmentConversationCockpit,
+    window.renderAionO18ADDepartmentConversationCockpit,
+  ];
+
+  for (const renderer of renderers) {
+    if (typeof renderer !== "function") continue;
+    try {
+      fallbackConversation = renderer(key) || "";
+      if (fallbackConversation) break;
+    } catch (error) {
+      console.error("[AION] Department Pilot conversation renderer failed", key, error);
+    }
+  }
+
+  if (!fallbackConversation) return false;
 
   const dialog = document.createElement("div");
   dialog.setAttribute("data-aion-unified-pilot-dialog", key);
@@ -47213,6 +47443,7 @@ function openUnifiedDepartmentPilotConversation(departmentKey) {
     </div>
   `;
   document.body.appendChild(dialog);
+  return true;
 }
 
 document.addEventListener("click", (event) => {
@@ -50541,6 +50772,8 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
     clearAionTransientRouteLocksV3(tab);
 
     try {
+      /* Manual navigation must release any stale startup route ownership. */
+      window.__aionO25ABStartupRouteHold = false;
       state.activeTab = tab;
       window.__aionForcedMainTabV2 = tab;
       window.__aionLastManualNavTabV2 = tab;
@@ -50599,8 +50832,9 @@ if (!window.__aionSidebarCanonicalDataTabRouterV3) {
 
     console.log("[AION] Sidebar canonical data-tab route →", tab);
 
-    if (typeof requestRender === "function") requestRender();
-    else if (typeof render === "function") render();
+    /* A workspace route change must replace the mounted page immediately. */
+    if (typeof render === "function") render();
+    else if (typeof requestRender === "function") requestRender();
 
     return true;
   }
@@ -51004,14 +51238,16 @@ function renderLiveAgentsExecutiveDepartmentNavO14P(activeDepartment) {
         top:0;
         z-index:50;
         display:flex;
-        justify-content:flex-end;
+        flex-direction:row;
+        justify-content:flex-start;
         align-items:center;
-        gap:8px;
-        min-height:62px;
-        margin:-42px -56px 28px;
-        padding:14px 56px 12px 96px;
-        background:#ffffff;
-        border-bottom:1px solid rgba(17,17,17,0.10);
+        flex-wrap:wrap;
+        gap:4px;
+        width:auto;
+        margin:-32px -48px 22px -96px;
+        padding:12px 48px 12px 96px;
+        background:rgba(255,255,255,0.97);
+        border:0;
       "
     >
       ${departments.map(([key, label]) => `
@@ -51021,15 +51257,16 @@ function renderLiveAgentsExecutiveDepartmentNavO14P(activeDepartment) {
           data-active="${key === activeKey ? "true" : "false"}"
           aria-pressed="${key === activeKey ? "true" : "false"}"
           style="
-            min-height:38px;
-            padding:0 16px;
-            border:1px solid ${key === activeKey ? "#0f172a" : "rgba(17,17,17,0.16)"};
-            background:${key === activeKey ? "#0f172a" : "#ffffff"};
-            color:${key === activeKey ? "#ffffff" : "#111111"};
-            font-size:12px;
-            font-weight:900;
-            letter-spacing:0.10em;
-            text-transform:uppercase;
+            min-height:40px;
+            padding:0 12px;
+            border:0;
+            border-radius:8px;
+            background:${key === activeKey ? "#e8f2ff" : "transparent"};
+            color:${key === activeKey ? "#1267d6" : "#243247"};
+            font-size:13px;
+            font-weight:${key === activeKey ? "800" : "650"};
+            letter-spacing:0.01em;
+            text-align:left;
             cursor:pointer;
           "
         >${escapeHtml(label)}</button>
@@ -51446,7 +51683,7 @@ function renderLiveAgentsSurface() {
       data-aion-o14p-live-agents-shell="true"
       style="
         min-height:100vh;
-        padding:42px 56px 96px 96px;
+        padding:32px 48px 96px 96px;
         background:#ffffff;
         background-color:#ffffff;
       "
@@ -61802,12 +62039,26 @@ installWorkflowArchitectGuidedStepBuilderControls();
           requestRender();
         },
 
-        onSeatSelect: (seatId, zone) => {
+        onSeatSelect: (seatId, zone, seatMeta = {}) => {
           desktopStore.updateBoardroomSelection({
             selectedSeatId: seatId || null,
             activeZone: zone || state.activeZone || "coo",
           });
           requestRender();
+          const snapshotSeats = safeArray(boardroomSnapshot?.seats);
+          const snapshotSeat = snapshotSeats.find((seat) =>
+            String(seat?.id || "") === String(seatId || "") ||
+            String(seat?.key || seat?.provider_id || "") === String(zone || "")
+          ) || {};
+          window.AionBoardroomSeatConversation?.open?.({
+            seatId,
+            key: zone,
+            teamMode: seatMeta.teamMode || window.__aionSpatialBoardroomTeamMode || "executive",
+            label: seatMeta.seatLabel || snapshotSeat.label || zone,
+            role: seatMeta.seatRole || snapshotSeat.role || snapshotSeat.stance || "",
+            providerId: seatMeta.providerId || snapshotSeat.provider_id || snapshotSeat.key || zone,
+            snapshot: boardroomSnapshot,
+          });
         },
 
         onInspectorTargetChange: (target) => {
@@ -67086,7 +67337,7 @@ function safeAionDesktopMessage(message, messageTone = "info") {
 function safeAionDesktopPatch(payload) {
   try {
     if (typeof desktopStore !== "undefined" && desktopStore?.patch) {
-      safeAionDesktopPatch(payload);
+      desktopStore.patch(payload);
       return;
     }
 
@@ -76741,6 +76992,11 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
       return;
     }
 
+    if (typeof isAionFileCabinetNodeProtected === "function" && isAionFileCabinetNodeProtected(found.node)) {
+      safeMessage("This Board or evidence record is protected and cannot be removed from the File Cabinet.", "warning");
+      return;
+    }
+
     const itemName = found.node.name || "this item";
     const itemType = found.node.type === "workflow" ? "workflow" : "folder";
 
@@ -76788,6 +77044,13 @@ window.renderAionWorkflowDryRunResultPanelFallback = function renderAionWorkflow
     saveTree(tree);
 
     persistGraph(graph);
+    try {
+      state.activeTab = "operations_flow";
+      window.__aionWorkflowFileCabinetOpen = false;
+      window.__aionFileCabinetOpen = false;
+      localStorage.setItem("aion.activeTab", "operations_flow");
+      localStorage.setItem("aionDesktop.activeTab", "operations_flow");
+    } catch (_) {}
     safeMessage(`Loaded workflow: ${graph.name}`, "success");
   }
 
@@ -115499,10 +115762,10 @@ function getEditableBusinessContextFoundation() {
 /* AION SURGICAL RESTORE 20260629: renderBusinessContextEditableInput */
 function renderBusinessContextEditableInput(name, label, value, placeholder = "") {
   return `
-    <label style="display:grid; gap:8px;">
-      <span class="card-label">${escapeHtml(label)}</span>
+    <label class="aion-business-field" style="display:grid; gap:8px;">
+      <span class="card-label aion-business-field-label">${escapeHtml(label)}</span>
       <input
-        class="input"
+        class="input aion-business-control"
         data-aion-business-context-field="${escapeHtml(name)}"
         value="${escapeHtml(value || "")}"
         placeholder="${escapeHtml(placeholder)}"
@@ -115525,10 +115788,10 @@ function renderBusinessContextEditableInput(name, label, value, placeholder = ""
 /* AION SURGICAL RESTORE 20260629: renderBusinessContextEditableTextarea */
 function renderBusinessContextEditableTextarea(name, label, value, placeholder = "") {
   return `
-    <label style="display:grid; gap:8px;">
-      <span class="card-label">${escapeHtml(label)}</span>
+    <label class="aion-business-field" style="display:grid; gap:8px;">
+      <span class="card-label aion-business-field-label">${escapeHtml(label)}</span>
       <textarea
-        class="input input-textarea"
+        class="input input-textarea aion-business-control aion-business-textarea"
         data-aion-business-context-field="${escapeHtml(name)}"
         placeholder="${escapeHtml(placeholder)}"
         style="
@@ -115555,10 +115818,10 @@ function renderBusinessContextEditableSelect(name, label, value, options = []) {
   const selectedValue = String(value || "").trim().toLowerCase();
 
   return `
-    <label style="display:grid; gap:8px;">
-      <span class="card-label">${escapeHtml(label)}</span>
+    <label class="aion-business-field" style="display:grid; gap:8px;">
+      <span class="card-label aion-business-field-label">${escapeHtml(label)}</span>
       <select
-        class="input"
+        class="input aion-business-control"
         data-aion-business-context-field="${escapeHtml(name)}"
         style="
           min-height:48px;
@@ -115587,6 +115850,8 @@ function renderBusinessContextEditableSelect(name, label, value, options = []) {
 /* AION SURGICAL RESTORE 20260629: getAionBusinessContextSubtab */
 function getAionBusinessContextSubtab() {
   return normaliseAionBusinessContextSubtabKey(
+    window.__aionBusinessContextSubtab ||
+    (typeof state !== "undefined" ? state.activeBusinessContextSubtab : "") ||
     getAionRestoredAppStateSafe().activeBusinessContextSubtab ||
     getAionRestoredAppStateSafe().businessContextActiveSubtab ||
     window.localStorage?.getItem("aion.activeBusinessContextSubtab") ||
@@ -115601,6 +115866,7 @@ function renderBusinessContextSubtabs() {
   const tabs = [
     ["key_business_info", "Key Business Info"],
     ["brand_foundation", "Brand Foundation"],
+    ["design_system", "Business Design System"],
     ["sales", "Sales"],
     ["marketing", "Marketing"],
     ["finance", "Finance"],
@@ -115610,6 +115876,7 @@ function renderBusinessContextSubtabs() {
 
   return `
     <div
+      class="aion-business-subtabs"
       data-aion-business-context-subtabs
       style="
         display:flex;
@@ -115625,6 +115892,7 @@ function renderBusinessContextSubtabs() {
         .map(([key, label]) => `
           <button
             type="button"
+            class="aion-business-subtab ${active === key ? "is-active" : ""}"
             data-aion-business-context-subtab="${escapeHtml(key)}"
             style="
               min-height:40px;
@@ -115646,6 +115914,564 @@ function renderBusinessContextSubtabs() {
 }
 
 
+function getAionBrandDesignSystem() {
+  const visual = getBrandMapSection("visualIdentity") || {};
+  return visual.designSystem && typeof visual.designSystem === "object"
+    ? visual.designSystem
+    : {};
+}
+
+
+function aionDesignSystemList(value) {
+  if (Array.isArray(value)) return value.filter(Boolean);
+  return String(value || "").split(/[\n,]+/).map((item) => item.trim()).filter(Boolean);
+}
+
+
+function aionDesignSystemColour(value, fallback = "#E8EEF3") {
+  const clean = String(value || "").trim();
+  return /^#[0-9a-f]{3,8}$/i.test(clean) ? clean : fallback;
+}
+
+
+function aionDesignSystemRgb(hexValue) {
+  let clean = String(hexValue || "").trim().replace(/^#/, "");
+  if (clean.length === 3) clean = clean.split("").map((item) => item + item).join("");
+  if (!/^[0-9a-f]{6}$/i.test(clean)) return null;
+  return [0, 2, 4].map((offset) => parseInt(clean.slice(offset, offset + 2), 16));
+}
+
+
+function aionDesignSystemLuminance(hexValue) {
+  const rgb = aionDesignSystemRgb(hexValue);
+  if (!rgb) return 0.5;
+  const channels = rgb.map((value) => {
+    const channel = value / 255;
+    return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+}
+
+
+function resolveAionBrandBoardColours(primaryColours = [], secondaryColours = []) {
+  const all = aionUniqueDesignValues([...primaryColours, ...secondaryColours]);
+  const accent = all.find((colour) => {
+    const luminance = aionDesignSystemLuminance(colour);
+    return luminance > 0.18 && luminance < 0.8;
+  }) || all[0] || "#F2AF0D";
+  const background = all.find((colour) => aionDesignSystemLuminance(colour) < 0.04)
+    || all.find((colour) => aionDesignSystemLuminance(colour) < 0.12)
+    || "#111111";
+  const foreground = all.find((colour) => aionDesignSystemLuminance(colour) > 0.9) || "#FFFFFF";
+  return {
+    accent,
+    background,
+    foreground,
+    accentText: aionDesignSystemLuminance(accent) > 0.45 ? "#111111" : "#FFFFFF",
+  };
+}
+
+
+function aionUniqueDesignValues(values = []) {
+  return [...new Set(safeArray(values).map((value) => String(value || "").trim().toUpperCase()).filter(Boolean))];
+}
+
+
+function classifyAionDetectedBrandPalette(evidence = {}) {
+  const tokens = safeArray(evidence.css_custom_properties || evidence.cssCustomProperties)
+    .filter((item) => item && typeof item === "object" && item.name && item.value)
+    .map((item) => ({ name: String(item.name).toLowerCase(), value: String(item.value).toUpperCase() }));
+  const raw = aionUniqueDesignValues(evidence.colour_candidates || evidence.colourCandidates);
+  if (!tokens.length) {
+    return { primary: raw.slice(0, 3), secondary: raw.slice(3, 8), tokens: [] };
+  }
+
+  const neutralName = /(black|white|grey|gray|dark|mid|line|border|surface|background|text|ink|neutral)/;
+  const accents = tokens.filter((item) => !neutralName.test(item.name) && !/-dark\b/.test(item.name));
+  const dark = tokens.find((item) => /(black|ink|text)/.test(item.name)) || tokens.find((item) => /(dark|mid)/.test(item.name));
+  const light = tokens.find((item) => /(white|light|paper)/.test(item.name));
+  const primary = aionUniqueDesignValues([
+    ...accents.slice(0, 2).map((item) => item.value),
+    dark?.value,
+    light?.value,
+  ]);
+  const secondary = aionUniqueDesignValues(tokens.map((item) => item.value))
+    .filter((value) => !primary.includes(value));
+  return { primary, secondary, tokens };
+}
+
+
+function resolveAionBusinessBrandName(detectedTitle = "") {
+  const businessName = String(getEditableBusinessContextFoundation().business_name || "").trim();
+  const titleName = String(detectedTitle || "").split(/\s+[|–—]\s+/)[0].trim();
+  const storedName = String(getBrandMapSection("brandOverview").brandName || "").trim();
+  const legacySeed = /^costa\s+conexion$/i.test(storedName);
+  if (legacySeed && titleName) return titleName;
+  if (legacySeed && businessName) return businessName.replace(/\b\w/g, (letter) => letter.toUpperCase());
+  return storedName || titleName || businessName || "YOUR BRAND";
+}
+
+
+function renderAionDesignSystemSelect({ label, path, value, options = [] }) {
+  return `
+    <label style="display:grid;gap:8px;">
+      <span class="card-label">${escapeHtml(label)}</span>
+      <select class="input brand-foundation-input" data-brand-path="${escapeHtml(path)}" style="min-height:48px;">
+        ${options.map(([key, text]) => `<option value="${escapeHtml(key)}" ${String(value || "") === key ? "selected" : ""}>${escapeHtml(text)}</option>`).join("")}
+      </select>
+    </label>
+  `;
+}
+
+
+function renderAionBrandAssetCard(asset = {}) {
+  const appState = getAionRestoredAppStateSafe();
+  const apiBase = String(appState.apiBase || "http://127.0.0.1:8080").replace(/\/$/, "");
+  const url = String(asset.url || "");
+  const src = url.startsWith("http") ? url : `${apiBase}${url}`;
+  const isImage = !String(asset.contentType || "").includes("pdf") && !src.toLowerCase().endsWith(".pdf");
+  return `
+    <div style="border:1px solid #cbd9e3;background:#fff;padding:12px;display:grid;gap:8px;min-width:0;">
+      ${isImage ? `<div style="height:112px;background:#f4f8fb;display:grid;place-items:center;overflow:hidden;"><img src="${escapeHtml(src)}" alt="${escapeHtml(asset.role || "Brand asset")}" style="max-width:100%;max-height:100%;object-fit:contain;" /></div>` : `<div style="height:112px;background:#f4f8fb;display:grid;place-items:center;font-size:32px;">▤</div>`}
+      <strong style="font-size:12px;">${escapeHtml(String(asset.role || "asset").replaceAll("_", " "))}</strong>
+      <span class="muted" style="font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(asset.filename || "Stored brand asset")}</span>
+      <span style="font-size:10px;color:#0f766e;font-weight:900;letter-spacing:.08em;">HASHED ORIGINAL</span>
+    </div>
+  `;
+}
+
+
+function renderAionBrandUpload(role, label, description) {
+  return `
+    <label style="border:1px dashed #91b7cf;background:#f7fbfd;padding:14px;display:grid;gap:6px;cursor:pointer;min-height:108px;align-content:center;">
+      <strong style="font-size:13px;color:#102a43;">${escapeHtml(label)}</strong>
+      <span class="muted" style="font-size:11px;line-height:1.4;">${escapeHtml(description)}</span>
+      <span style="font-size:11px;color:#087f8c;font-weight:900;letter-spacing:.08em;">CHOOSE FILE</span>
+      <input type="file" accept=".png,.jpg,.jpeg,.webp,.svg,.pdf" data-aion-brand-asset-upload="${escapeHtml(role)}" style="display:none;" />
+    </label>
+  `;
+}
+
+
+function renderBusinessDesignSystemSubtabContent() {
+  const appState = getAionRestoredAppStateSafe();
+  const foundation = getBrandFoundationState();
+  const design = getAionBrandDesignSystem();
+  const assets = Array.isArray(design.assets) ? design.assets.filter((item) => item && typeof item === "object") : [];
+  const primaryColours = aionDesignSystemList(design.primaryColours || design.primary_colors);
+  const secondaryColours = aionDesignSystemList(design.secondaryColours || design.secondary_colors);
+  const detected = design.detectedEvidence && typeof design.detectedEvidence === "object" ? design.detectedEvidence : {};
+  const detectedPalette = {
+    primary: aionDesignSystemList(design.detectedPrimaryColours),
+    secondary: aionDesignSystemList(design.detectedSecondaryColours),
+  };
+  const detectedFontRoles = detected.fontRoles && typeof detected.fontRoles === "object" ? detected.fontRoles : {};
+  const identityConfirmed = design.identityStatus === "confirmed_by_user";
+  const sourceMode = design.sourceMode || "existing_guidelines";
+  const readinessChecks = [
+    assets.some((item) => ["primary_logo", "horizontal_logo", "stacked_logo"].includes(item.role)) || (detected.logoCandidates || []).length,
+    primaryColours.length,
+    design.headlineFont || design.bodyFont,
+    design.imageDirection,
+    design.logoUsageRules,
+    design.socialTemplates,
+    design.accessibilityRules,
+    design.externalCommunicationRules,
+  ];
+  const readiness = Math.round((readinessChecks.filter(Boolean).length / readinessChecks.length) * 100);
+  const palette = [...primaryColours, ...secondaryColours].slice(0, 8);
+  const boardColours = resolveAionBrandBoardColours(primaryColours, secondaryColours);
+  const provider = design.draftAiProvider || appState.brandAssistantProvider || "openai";
+
+  return `
+    <div class="aion-business-design-system" data-aion-business-design-system="canonical-brand-map" style="display:grid;gap:18px;">
+      <section class="aion-business-design-hero" style="border:2px solid #14a7df;background:linear-gradient(135deg,#f8fcff 0%,#eef8fc 100%);padding:28px;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,.6fr);gap:24px;align-items:center;">
+        <div>
+          <div class="panel-kicker">BRAND BIBLE · VISUAL SOURCE OF TRUTH</div>
+          <div class="panel-title" style="font-size:30px;margin-top:8px;">Business Design System</div>
+          <p class="muted" style="font-size:15px;line-height:1.65;max-width:780px;">
+            The approved identity for every customer-facing document, advert, post, email, proposal and support message. Import what already exists, then let AION identify only the genuine gaps.
+          </p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;">
+            <span class="status-pill">CANONICAL BUSINESS MAP</span>
+            <span class="status-pill">APPROVAL GATED</span>
+            <span class="status-pill">VERSION ${escapeHtml(design.version || "DRAFT 1")}</span>
+          </div>
+        </div>
+        <div style="background:#0f2940;color:#fff;padding:22px;display:grid;gap:8px;">
+          <span style="font-size:11px;letter-spacing:.14em;font-weight:900;color:#81d8f7;">BRAND READINESS</span>
+          <strong style="font-size:48px;line-height:1;">${readiness}%</strong>
+          <span style="font-size:12px;color:#c9d9e5;line-height:1.5;">${readiness >= 80 ? "Ready for consistent production after approval." : "Complete the missing identity decisions before scaled content production."}</span>
+        </div>
+      </section>
+
+      <section class="panel large-panel" style="margin:0;">
+        <div class="panel-kicker">START WITH WHAT THE BUSINESS ALREADY OWNS</div>
+        <div class="panel-title">Choose the honest starting point</div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px;">
+          ${[
+            ["existing_guidelines", "We have brand guidelines", "Upload the existing brand book and approved asset suite. Tessaris records it; it does not redesign it."],
+            ["logo_only", "We have a logo", "Build the missing palette, typography, imagery and channel rules around the identity you already use."],
+            ["create_with_ai", "We need a brand system", "Use your chosen connected AI to prepare an agency-style draft for human review and approval."],
+          ].map(([key, title, copy]) => `
+            <button type="button" data-aion-design-source-mode="${key}" style="text-align:left;padding:18px;border:2px solid ${sourceMode === key ? "#14a7df" : "#d8e3ea"};background:${sourceMode === key ? "#eef9fd" : "#fff"};cursor:pointer;min-height:150px;">
+              <strong style="display:block;font-size:16px;color:#102a43;">${escapeHtml(title)}</strong>
+              <span class="muted" style="display:block;margin-top:8px;line-height:1.5;">${escapeHtml(copy)}</span>
+            </button>
+          `).join("")}
+        </div>
+      </section>
+
+      <section class="panel large-panel" style="margin:0;border-top:4px solid #14a7df;">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <div class="panel-kicker">WEBSITE & EXISTING EVIDENCE</div>
+            <div class="panel-title">Detect the identity already in use</div>
+            <p class="muted">A read-only scan looks for logos, favicon, social share imagery, visible colours and font declarations. Detected details remain suggestions until confirmed.</p>
+          </div>
+          <button type="button" class="secondary-btn" data-aion-design-scan-website>Scan ${escapeHtml(getEditableBusinessContextFoundation().website || "business website")}</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:14px;">
+          <div class="card"><div class="card-label">Logos found</div><div class="card-value">${safeArray(detected.logoCandidates).length}</div><div class="card-sub">Needs confirmation</div></div>
+          <div class="card"><div class="card-label">Raw CSS colours</div><div class="card-value">${safeArray(detected.colourCandidates).length}</div><div class="card-sub">Includes borders, forms and widgets</div></div>
+          <div class="card"><div class="card-label">Font families</div><div class="card-value">${safeArray(detected.fontCandidates).length}</div><div class="card-sub">Clean declared families</div></div>
+          <div class="card"><div class="card-label">Evidence source</div><div class="card-value" style="font-size:14px;">${escapeHtml(detected.domain || "Not scanned")}</div><div class="card-sub">Read-only public evidence</div></div>
+        </div>
+        ${detected.domain ? `
+          <div style="margin-top:12px;border:1px solid ${identityConfirmed ? "#70b89e" : "#e1a526"};background:${identityConfirmed ? "#effaf5" : "#fff9e8"};padding:16px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center;">
+            <div>
+              <strong style="display:block;color:#102a43;">${identityConfirmed ? "Website identity confirmed" : "Detected identity proposal — confirmation required"}</strong>
+              <span class="muted" style="display:block;margin-top:5px;line-height:1.5;">
+                ${safeArray(detected.colourCandidates).length} raw colour values were found, but only semantic CSS tokens are proposed as the brand palette. Suggested roles: heading ${escapeHtml(detectedFontRoles.heading || "not identified")}, body ${escapeHtml(detectedFontRoles.body || "not identified")}, supporting ${escapeHtml(detectedFontRoles.supporting || "not identified")}.
+              </span>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;">
+                ${[...detectedPalette.primary, ...detectedPalette.secondary].slice(0,8).map((colour) => `<span title="${escapeHtml(colour)}" style="display:inline-flex;align-items:center;gap:5px;font:800 10px ui-monospace,SFMono-Regular,Menlo,monospace;"><i style="width:20px;height:20px;background:${aionDesignSystemColour(colour)};border:1px solid #cbd9e3;"></i>${escapeHtml(colour)}</span>`).join("")}
+              </div>
+            </div>
+            <button type="button" class="${identityConfirmed ? "secondary-btn" : "primary-btn"}" data-aion-design-confirm-detected ${identityConfirmed ? "disabled" : ""}>${identityConfirmed ? "Confirmed" : "Confirm detected identity"}</button>
+          </div>
+        ` : ""}
+      </section>
+
+      <section class="panel large-panel" style="margin:0;">
+        <div class="panel-kicker">APPROVED ASSET SUITE</div>
+        <div class="panel-title">Logo, mark and brand book</div>
+        <p class="muted">Keep the original master files. Social avatars, reversed logos and favicons are distinct assets—not resized guesses.</p>
+        ${assets.length ? `<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0;">${assets.map(renderAionBrandAssetCard).join("")}</div>` : `<div class="notice" style="margin:14px 0;">No approved brand originals uploaded yet.</div>`}
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;">
+          ${renderAionBrandUpload("primary_logo", "Primary logo", "Main approved logo, ideally SVG or transparent PNG.")}
+          ${renderAionBrandUpload("reversed_logo", "Reversed / light logo", "For dark backgrounds and photography.")}
+          ${renderAionBrandUpload("social_avatar", "Social badge / avatar", "Square brand mark for profiles and app icons.")}
+          ${renderAionBrandUpload("brand_guidelines", "Existing brand book", "Upload the agency PDF if one already exists.")}
+        </div>
+      </section>
+
+      <section class="panel large-panel" style="margin:0;">
+        <div class="panel-kicker">LIVE BRAND BOARD</div>
+        <div class="panel-title">See the system, not just form fields</div>
+        <div style="display:grid;grid-template-columns:minmax(280px,.8fr) minmax(0,1.2fr);gap:16px;margin-top:16px;">
+          <div data-aion-live-brand-board-preview="true" style="background:${boardColours.background};color:${boardColours.foreground};padding:24px;min-height:250px;display:grid;align-content:space-between;border-top:5px solid ${boardColours.accent};">
+            <div data-aion-live-brand-board-kicker="true" style="font-size:11px;letter-spacing:.16em;color:${boardColours.accent};font-weight:900;">${escapeHtml(resolveAionBusinessBrandName(detected.title))}</div>
+            <div>
+              <div style="font-family:${escapeHtml(design.headlineFont || "Inter")},sans-serif;font-size:34px;font-weight:800;line-height:1.05;color:${boardColours.foreground};">${escapeHtml(design.sampleHeadline || "A clear promise, consistently delivered.")}</div>
+              <p data-aion-live-brand-board-body="true" style="font-family:${escapeHtml(design.bodyFont || "Inter")},sans-serif;color:${boardColours.foreground} !important;-webkit-text-fill-color:${boardColours.foreground};opacity:.88;line-height:1.5;">${escapeHtml(design.sampleBody || "This preview shows how typography, colour and tone work together before anything is published.")}</p>
+            </div>
+            <span data-aion-live-brand-board-cta="true" style="justify-self:start;background:${boardColours.accent};color:${boardColours.accentText};padding:11px 16px;font-size:11px;font-weight:900;letter-spacing:.08em;">${escapeHtml(design.sampleCta || "TAKE THE NEXT STEP")}</span>
+          </div>
+          <div style="border:1px solid #d8e3ea;padding:18px;display:grid;gap:16px;align-content:start;">
+            <div>
+              <div class="card-label">COLOUR PALETTE · LIVE SWATCHES</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                ${palette.length ? palette.map((colour) => `
+                  <div title="${escapeHtml(colour)}" style="width:74px;border:1px solid #d8e3ea;background:#fff;">
+                    <div style="height:54px;background:${aionDesignSystemColour(colour)};border-bottom:1px solid #d8e3ea;"></div>
+                    <div style="padding:6px 4px;text-align:center;font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#334e68;">${escapeHtml(colour)}</div>
+                  </div>
+                `).join("") : `<span class="muted">No approved palette yet.</span>`}
+              </div>
+            </div>
+            <div>
+              <div class="card-label">TYPE SYSTEM · LIVE FONT SPECIMENS</div>
+              <div style="border-top:1px solid #d8e3ea;margin-top:8px;padding-top:10px;">
+                <div style="font-family:${escapeHtml(design.headlineFont || "Inter")},sans-serif;font-size:28px;font-weight:800;line-height:1.15;">The quick brown fox jumps over the lazy dog.</div>
+                <div class="muted" style="margin-top:5px;font-size:10px;letter-spacing:.08em;">HEADING · ${escapeHtml(design.headlineFont || "NOT SELECTED")}</div>
+              </div>
+              <div style="border-top:1px solid #d8e3ea;margin-top:10px;padding-top:10px;">
+                <div style="font-family:${escapeHtml(design.bodyFont || "Inter")},sans-serif;font-size:16px;line-height:1.55;color:#334e68;">Clear, readable customer communication should feel unmistakably like the same business everywhere it appears. 0123456789</div>
+                <div class="muted" style="margin-top:5px;font-size:10px;letter-spacing:.08em;">BODY · ${escapeHtml(design.bodyFont || "NOT SELECTED")}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel large-panel" style="margin:0;">
+        <div class="panel-kicker">DESIGN TOKENS & PRODUCTION RULES</div>
+        <div class="panel-title">Define how the brand is reproduced</div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px;">
+          ${renderBrandTextarea({id:"designPrimaryColours",label:"Primary colours · one HEX per line",value:design.primaryColours,path:"brandMap.visualIdentity.designSystem.primaryColours",list:true,placeholder:"#102A43\n#14A7DF\n#FFFFFF"})}
+          ${renderBrandTextarea({id:"designSecondaryColours",label:"Secondary, neutral and accent colours",value:design.secondaryColours,path:"brandMap.visualIdentity.designSystem.secondaryColours",list:true,placeholder:"#E8F1F5\n#486581\n#F59E0B"})}
+          ${renderBrandTextInput({id:"designHeadlineFont",label:"Display / heading font",value:design.headlineFont,path:"brandMap.visualIdentity.designSystem.headlineFont",placeholder:"Example: Inter"})}
+          ${renderBrandTextInput({id:"designBodyFont",label:"Body / UI font",value:design.bodyFont,path:"brandMap.visualIdentity.designSystem.bodyFont",placeholder:"Example: Inter"})}
+          ${renderBrandTextarea({id:"designLogoRules",label:"Logo usage and clear-space rules",value:design.logoUsageRules,path:"brandMap.visualIdentity.designSystem.logoUsageRules",list:true,placeholder:"Use primary logo on white\nMaintain one mark-width clear space\nMinimum digital width 120px"})}
+          ${renderBrandTextarea({id:"designLogoMisuse",label:"Logo misuse · never do this",value:design.logoMisuseRules,path:"brandMap.visualIdentity.designSystem.logoMisuseRules",list:true,placeholder:"Do not stretch or rotate\nDo not change colours\nDo not place over busy imagery"})}
+          ${renderBrandTextarea({id:"designImageDirection",label:"Photography and image direction",value:design.imageDirection,path:"brandMap.visualIdentity.designSystem.imageDirection",placeholder:"Subjects, realism, lighting, framing, editing, human presence and what to avoid."})}
+          ${renderBrandTextarea({id:"designVideoDirection",label:"Video, motion and caption direction",value:design.videoDirection,path:"brandMap.visualIdentity.designSystem.videoDirection",placeholder:"Framing, pace, intro, subtitles, logo treatment, music and platform-native rules."})}
+          ${renderBrandTextarea({id:"designLayoutRules",label:"Layout, spacing, buttons and icon rules",value:design.layoutRules,path:"brandMap.visualIdentity.designSystem.layoutRules",list:true,placeholder:"8px spacing system\nSquare primary buttons\nSimple line icons\nOne dominant CTA"})}
+          ${renderBrandTextarea({id:"designSocialTemplates",label:"Social and channel templates",value:design.socialTemplates,path:"brandMap.visualIdentity.designSystem.socialTemplates",list:true,placeholder:"Instagram 4:5 post\nStory / Reel safe zones\nFacebook cover\nYouTube thumbnail"})}
+          ${renderBrandTextarea({id:"designAccessibility",label:"Accessibility and contrast rules",value:design.accessibilityRules,path:"brandMap.visualIdentity.designSystem.accessibilityRules",list:true,placeholder:"Body text meets WCAG AA contrast\nNever rely on colour alone\nCaptions required on video"})}
+          ${renderBrandTextarea({id:"designExternalRules",label:"External communication rules",value:design.externalCommunicationRules,path:"brandMap.visualIdentity.designSystem.externalCommunicationRules",list:true,placeholder:"Use approved logo asset only\nUse brand type scale\nUse verified claims\nCustomer-facing work requires approval"})}
+        </div>
+      </section>
+
+      <section class="panel large-panel" style="margin:0;border:2px solid #102a43;background:#f7fbfd;">
+        <div class="panel-kicker">AION BRAND SYSTEM ARCHITECT</div>
+        <div class="panel-title">Generate the missing pieces—not a replacement identity</div>
+        <p class="muted">The selected model receives the Business Map, Brand Foundation, existing assets and detected website evidence. It returns a structured draft. Nothing becomes approved or public automatically.</p>
+        <div style="display:grid;grid-template-columns:minmax(220px,.35fr) minmax(0,1fr);gap:14px;margin-top:14px;">
+          ${renderAionDesignSystemSelect({label:"Preferred AI",path:"brandMap.visualIdentity.designSystem.draftAiProvider",value:provider,options:[["openai","OpenAI"],["claude","Claude"],["gemma4","Local Gemma"]]})}
+          <label style="display:grid;gap:8px;"><span class="card-label">Founder direction</span><textarea class="input" data-aion-design-ai-direction rows="3" placeholder="Keep our current logo. Make the system premium, practical and appropriate for our customers.">${escapeHtml(design.aiDirection || "")}</textarea></label>
+        </div>
+        <div class="button-row" style="margin-top:14px;">
+          <button type="button" class="primary-btn" data-aion-design-generate>Prepare design system draft</button>
+          <span class="muted">Explicit provider choice · review required · no external publishing</span>
+        </div>
+      </section>
+
+      <section class="panel large-panel" style="margin:0;display:flex;justify-content:space-between;gap:18px;align-items:center;flex-wrap:wrap;">
+        <div><div class="panel-kicker">GOVERNANCE</div><div class="panel-title">Save as a draft source of truth</div><p class="muted">Marketing, Sales, Support, Finance documents and Boardroom packages will read this same canonical record.</p></div>
+        <div class="button-row">
+          <button id="saveBrandFoundationBtn" type="button" class="primary-btn">Save design system</button>
+          <button type="button" class="secondary-btn" data-aion-business-context-subtab="brand_foundation">Open Brand Foundation</button>
+        </div>
+      </section>
+    </div>
+  `;
+}
+
+
+function parseAionDesignSystemDraft(rawText = "") {
+  const text = String(rawText || "").trim();
+  if (!text) throw new Error("The selected AI returned an empty draft.");
+  try { return JSON.parse(text); } catch {}
+  const match = text.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error("The selected AI did not return a structured design system.");
+  return JSON.parse(match[0]);
+}
+
+
+async function aionBusinessDesignSystemApiPost(path, body = {}) {
+  const appState = getAionRestoredAppStateSafe();
+  const apiBase = String(appState.apiBase || "http://127.0.0.1:8080").replace(/\/+$/, "");
+  const response = await fetch(`${apiBase}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify(body || {}),
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result?.detail || result?.error || `Request failed (${response.status})`);
+  }
+  return result;
+}
+
+
+function persistAionBrandDesignSystem(nextDesignSystem) {
+  const store = window.desktopStore;
+  if (!store?.setBrandFoundationNestedValue) {
+    throw new Error("The Business workspace is still loading. Please try once more.");
+  }
+  store.setBrandFoundationNestedValue(
+    "brandMap.visualIdentity.designSystem",
+    nextDesignSystem,
+  );
+  store.persistCache?.();
+}
+
+
+function notifyAionBrandDesignSystem(message, tone = "neutral") {
+  const store = window.desktopStore;
+  if (store?.patch) {
+    store.patch({ message: String(message || ""), messageTone: tone });
+    return;
+  }
+  console.info(`[AION brand system] ${message}`);
+}
+
+
+if (!window.__aionBusinessDesignSystemHandlersInstalled) {
+  window.__aionBusinessDesignSystemHandlersInstalled = true;
+
+  document.addEventListener("click", async (event) => {
+    const modeButton = event.target?.closest?.("[data-aion-design-source-mode]");
+    if (modeButton) {
+      event.preventDefault();
+      const mode = String(modeButton.dataset.aionDesignSourceMode || "existing_guidelines");
+      const current = getAionBrandDesignSystem();
+      persistAionBrandDesignSystem({ ...current, sourceMode: mode });
+      requestRender("design-system-source-mode");
+      return;
+    }
+
+    const confirmDetectedButton = event.target?.closest?.("[data-aion-design-confirm-detected]");
+    if (confirmDetectedButton) {
+      event.preventDefault();
+      const current = getAionBrandDesignSystem();
+      persistAionBrandDesignSystem({
+        ...current,
+        identityStatus: "confirmed_by_user",
+        identityConfirmedAt: new Date().toISOString(),
+        identityAuthority: "public_website_evidence_confirmed_by_user",
+      });
+      notifyAionBrandDesignSystem("Detected website identity confirmed as the working brand system.", "success");
+      requestRender("design-system-identity-confirmed");
+      return;
+    }
+
+    const scanButton = event.target?.closest?.("[data-aion-design-scan-website]");
+    if (scanButton) {
+      event.preventDefault();
+      const website = String(getEditableBusinessContextFoundation().website || "").trim();
+      if (!website) { notifyAionBrandDesignSystem("Add the business website under Key Business Info first.", "error"); return; }
+      scanButton.disabled = true;
+      scanButton.textContent = "Scanning public brand evidence…";
+      try {
+        const result = await aionBusinessDesignSystemApiPost("/api/local-node/aion/small-business/website-scan", {
+          website,
+          evidence_only: true,
+        });
+        if (result?.ok === false) throw new Error(safeArray(result?.warnings).join("; ") || "Website scan failed");
+        const evidence = result?.evidence || {};
+        const current = getAionBrandDesignSystem();
+        const classifiedPalette = classifyAionDetectedBrandPalette(evidence);
+        const fontRoles = evidence.font_roles && typeof evidence.font_roles === "object" ? evidence.font_roles : {};
+        const detectedTitle = String(evidence.title || "").trim();
+        const next = {
+          ...current,
+          detectedEvidence: {
+            domain: evidence.domain || "",
+            url: evidence.url || website,
+            title: detectedTitle,
+            logoCandidates: safeArray(evidence.logo_candidates),
+            iconCandidates: safeArray(evidence.icon_candidates),
+            socialImageCandidates: safeArray(evidence.social_image_candidates),
+            colourCandidates: safeArray(evidence.colour_candidates),
+            fontCandidates: safeArray(evidence.font_candidates),
+            cssCustomProperties: safeArray(evidence.css_custom_properties),
+            fontRoles,
+            scannedAt: new Date().toISOString(),
+            authority: "public_website_detection_requires_confirmation",
+          },
+          detectedPrimaryColours: classifiedPalette.primary,
+          detectedSecondaryColours: classifiedPalette.secondary,
+          primaryColours: current.identityStatus === "confirmed_by_user" ? current.primaryColours : classifiedPalette.primary,
+          secondaryColours: current.identityStatus === "confirmed_by_user" ? current.secondaryColours : classifiedPalette.secondary,
+          headlineFont: current.identityStatus === "confirmed_by_user" ? current.headlineFont : (fontRoles.heading || safeArray(evidence.font_candidates)[0] || ""),
+          bodyFont: current.identityStatus === "confirmed_by_user" ? current.bodyFont : (fontRoles.body || safeArray(evidence.font_candidates)[0] || ""),
+          supportingFont: current.identityStatus === "confirmed_by_user" ? current.supportingFont : (fontRoles.supporting || ""),
+          identityStatus: "detected_requires_confirmation",
+          identityAuthority: "public_website_detection_requires_confirmation",
+        };
+        const currentBrandName = String(getBrandMapSection("brandOverview").brandName || "").trim();
+        if (/^costa\s+conexion$/i.test(currentBrandName)) {
+          const detectedBrandName = resolveAionBusinessBrandName(detectedTitle);
+          window.desktopStore?.setBrandFoundationNestedValue?.("brandMap.brandOverview.brandName", detectedBrandName);
+          window.desktopStore?.setBrandFoundationNestedValue?.("brandMap.brandOverview.brandNameAuthority", "business_context_and_public_website");
+        }
+        persistAionBrandDesignSystem(next);
+        notifyAionBrandDesignSystem("Website brand evidence detected. Review it before approval.", "success");
+        requestRender("design-system-website-scan");
+      } catch (error) {
+        notifyAionBrandDesignSystem(error?.message || "Website brand scan failed", "error");
+        scanButton.disabled = false;
+        scanButton.textContent = "Scan business website";
+      }
+      return;
+    }
+
+    const generateButton = event.target?.closest?.("[data-aion-design-generate]");
+    if (generateButton) {
+      event.preventDefault();
+      const appState = getAionRestoredAppStateSafe();
+      const current = getAionBrandDesignSystem();
+      const provider = current.draftAiProvider || appState.brandAssistantProvider || "openai";
+      const direction = String(document.querySelector("[data-aion-design-ai-direction]")?.value || current.aiDirection || "").trim();
+      const retained = {
+        assets: safeArray(current.assets),
+        detectedEvidence: current.detectedEvidence || {},
+        sourceMode: current.sourceMode || "create_with_ai",
+        draftAiProvider: provider,
+        aiDirection: direction,
+      };
+      generateButton.disabled = true;
+      generateButton.textContent = "Preparing reviewable draft…";
+      try {
+        const prompt = `Create a practical, premium small-business visual design system as strict JSON only. Do not include markdown. Do not invent accreditations, customer proof, legal claims or an existing logo. Preserve and build around supplied evidence. Return keys: version, status, primaryColours (HEX array), secondaryColours (HEX array), headlineFont, bodyFont, fontFallback, typographyRules (array), logoUsageRules (array), logoMisuseRules (array), imageDirection, videoDirection, layoutRules (array), socialTemplates (array), accessibilityRules (array), externalCommunicationRules (array), sampleHeadline, sampleBody, sampleCta, rationale, openQuestions (array). Founder direction: ${direction || "Create a coherent system suited to the business and audience."}`;
+        const result = await aionBusinessDesignSystemApiPost("/api/local-node/assistant/ask", {
+          provider,
+          prompt,
+          active_tab: "business_context",
+          context_mode: "brand_foundation",
+          target_path: "brandMap.visualIdentity.designSystem",
+          brand_foundation_state: appState.brandFoundationState || {},
+          marketing_form: appState.marketingForm || {},
+          dashboard_summary: appState.dashboardSummary || {},
+          boardroom_snapshot: appState.boardroomSnapshot || {},
+        });
+        if (result?.ok === false) throw new Error(result?.text || "The selected AI provider failed.");
+        const draft = parseAionDesignSystemDraft(result?.text || result?.output || "");
+        persistAionBrandDesignSystem({
+          ...current,
+          ...draft,
+          ...retained,
+          status: "ai_draft_requires_review",
+          generatedAt: new Date().toISOString(),
+          generatedBy: provider,
+        });
+        notifyAionBrandDesignSystem("Design system draft ready for review. Nothing has been approved or published.", "success");
+        requestRender("design-system-ai-draft");
+      } catch (error) {
+        notifyAionBrandDesignSystem(error?.message || "Design system generation failed", "error");
+        generateButton.disabled = false;
+        generateButton.textContent = "Prepare design system draft";
+      }
+    }
+  }, true);
+
+  document.addEventListener("change", async (event) => {
+    const fileInput = event.target?.closest?.("[data-aion-brand-asset-upload]");
+    if (fileInput) {
+      const appState = getAionRestoredAppStateSafe();
+      const file = fileInput.files?.[0];
+      const role = String(fileInput.dataset.aionBrandAssetUpload || "");
+      if (!file || !role) return;
+      const workspaceId = appState.workspaceId || normaliseAionBusinessId(getEditableBusinessContextFoundation().business_name || "workspace");
+      const form = new FormData();
+      form.append("role", role);
+      form.append("file", file);
+      try {
+        const apiBase = String(appState.apiBase || "http://127.0.0.1:8080").replace(/\/$/, "");
+        const response = await fetch(`${apiBase}/api/aion/business/brand-foundation/${encodeURIComponent(workspaceId)}/assets`, { method: "POST", body: form });
+        const result = await response.json();
+        if (!response.ok || result?.ok === false) throw new Error(result?.detail || "Brand asset upload failed");
+        safeAionDesktopPatch({ brandFoundationState: result?.item || appState.brandFoundationState });
+        window.desktopStore?.persistCache?.();
+        notifyAionBrandDesignSystem(`${file.name} stored as a protected brand original.`, "success");
+        requestRender("design-system-asset-upload");
+      } catch (error) {
+        notifyAionBrandDesignSystem(error?.message || "Brand asset upload failed", "error");
+      }
+      return;
+    }
+
+    const field = event.target?.closest?.("[data-aion-business-design-system] .brand-foundation-input");
+    if (field) {
+      window.setTimeout(() => requestRender("design-system-visual-preview"), 0);
+    }
+  }, true);
+}
+
+
 /* AION SURGICAL RESTORE 20260629: renderBusinessBrandFoundationSubtabContent */
 function renderBusinessBrandFoundationSubtabContent() {
   const fullHtml = typeof renderBrandFoundationSurface === "function"
@@ -115654,7 +116480,7 @@ function renderBusinessBrandFoundationSubtabContent() {
 
   if (!fullHtml) {
     return `
-      <section class="panel large-panel" data-aion-business-brand-foundation-clean-embedded="true">
+      <section class="panel large-panel aion-business-panel" data-aion-business-brand-foundation-clean-embedded="true">
         <div class="panel-kicker">Brand Foundation</div>
         <div class="panel-title">Brand foundation</div>
         <p class="muted">No brand foundation content is available yet.</p>
@@ -115666,7 +116492,7 @@ function renderBusinessBrandFoundationSubtabContent() {
 
   if (contentStart < 0) {
     return `
-      <section class="panel large-panel" data-aion-business-brand-foundation-clean-embedded="true">
+      <section class="panel large-panel aion-business-panel" data-aion-business-brand-foundation-clean-embedded="true">
         <div class="panel-kicker">Brand Foundation</div>
         <div class="panel-title">Brand foundation</div>
         <p class="muted">Brand Overview section was not found.</p>
@@ -115703,6 +116529,7 @@ function renderBusinessBrandFoundationSubtabContent() {
 
   return `
     <div
+      class="aion-business-brand-embedded"
       data-aion-business-brand-foundation-clean-embedded="true"
       style="display:grid; gap:10px;"
     >
@@ -115773,10 +116600,10 @@ function renderBusinessDepartmentContextSubtab(departmentKey, foundation = getEd
       </div>
 
       <div style="display:grid; grid-template-columns:minmax(0, 1fr); gap:18px; margin-top:18px;">
-        <label style="display:grid; gap:8px;">
-          <span class="card-label">Status</span>
+        <label class="aion-business-field" style="display:grid; gap:8px;">
+          <span class="card-label aion-business-field-label">Status</span>
           <input
-            class="input"
+            class="input aion-business-control"
             data-aion-business-department-context-field="status"
             data-aion-business-department-context-key="${escapeHtml(key)}"
             value="${escapeHtml(status)}"
@@ -115793,10 +116620,10 @@ function renderBusinessDepartmentContextSubtab(departmentKey, foundation = getEd
           />
         </label>
 
-        <label style="display:grid; gap:8px;">
-          <span class="card-label">Department notes</span>
+        <label class="aion-business-field" style="display:grid; gap:8px;">
+          <span class="card-label aion-business-field-label">Department notes</span>
           <textarea
-            class="input input-textarea"
+            class="input input-textarea aion-business-control"
             data-aion-business-department-context-field="notes"
             data-aion-business-department-context-key="${escapeHtml(key)}"
             placeholder="Add ${escapeHtml(label.toLowerCase())} rules, targets, handover notes, constraints, active priorities, customer notes, pricing rules, or workflow context."
@@ -115838,12 +116665,14 @@ function renderBusinessContextSurface() {
 
   if (activeSubtab === "brand_foundation") {
     subtabHtml = renderBusinessBrandFoundationSubtabContent();
+  } else if (activeSubtab === "design_system") {
+    subtabHtml = renderBusinessDesignSystemSubtabContent();
   } else if (["sales", "marketing", "finance", "operations", "support"].includes(activeSubtab)) {
     subtabHtml = renderBusinessDepartmentContextSubtab(activeSubtab, foundation);
   } else {
     subtabHtml = `
-      <section class="panel large-panel" data-aion-business-foundation-summary>
-        <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
+      <section class="panel large-panel aion-business-panel aion-business-foundation-panel" data-aion-business-foundation-summary>
+        <div class="aion-business-section-head" style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start;">
           <div>
             <div class="panel-kicker">Business foundation</div>
             <div class="panel-title">Editable key business information</div>
@@ -115859,7 +116688,7 @@ function renderBusinessContextSurface() {
           >Save Business Context</button>
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
+        <div class="aion-business-form-grid" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
           ${renderBusinessContextEditableInput("business_name", "Business name", foundation.business_name, "Business name")}
           ${renderBusinessContextEditableInput("industry", "Industry", foundation.industry, "Industry / category")}
           ${renderBusinessContextEditableSelect("business_type", "Business type", foundation.business_type, [
@@ -115884,7 +116713,7 @@ function renderBusinessContextSurface() {
           ${renderBusinessContextEditableInput("opening_hours", "Opening hours", foundation.opening_hours, "Opening hours")}
         </div>
 
-        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
+        <div class="aion-business-form-grid" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
           ${renderBusinessContextEditableTextarea("social_accounts", "Social accounts", foundation.social_accounts, "Facebook, Instagram, Google Business Profile, X, etc.")}
           ${renderBusinessContextEditableTextarea("products_services", "Products / services", foundation.products_services, "One service/category per line")}
           ${renderBusinessContextEditableTextarea("target_customers", "Target customers", foundation.target_customers, "Who buys from this business?")}
@@ -115896,14 +116725,14 @@ function renderBusinessContextSurface() {
         </div>
       </section>
 
-      <section class="panel large-panel" data-aion-branding-context-summary>
+      <section class="panel large-panel aion-business-panel aion-business-branding-panel" data-aion-branding-context-summary>
         <div class="panel-kicker">Branding context</div>
         <div class="panel-title">Editable branding and proof</div>
         <p class="muted" style="margin-top:6px;">
           These fields feed the Brand Foundation sub-tab and the content/creative guidance used by Pilot and Marketing.
         </p>
 
-        <div style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
+        <div class="aion-business-form-grid" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:18px; margin-top:18px;">
           ${renderBusinessContextEditableTextarea("tone_of_voice", "Tone of voice", foundation.tone_of_voice, "Professional, friendly, premium, reassuring...")}
           ${renderBusinessContextEditableTextarea("brand_notes", "Brand notes", foundation.brand_notes, "Logo, colours, positioning, trust signals, style notes...")}
           ${renderBusinessContextEditableTextarea("reviews_or_proof", "Reviews / proof", foundation.reviews_or_proof, "Testimonials, ratings, guarantees, accreditations, before/after proof...")}
@@ -115920,7 +116749,7 @@ function renderBusinessContextSurface() {
         </div>
       </section>
 
-      <section class="panel large-panel" data-aion-department-context-handover>
+      <section class="panel large-panel aion-business-panel aion-business-handover-panel" data-aion-department-context-handover>
         <div class="panel-title">Department Handover Context</div>
         <div class="muted">
           Department function tabs now store context per business function. The model proposes work, but AION routes work through the business-context mission map and approval chain.
@@ -115949,7 +116778,7 @@ function renderBusinessContextSurface() {
 
   return `
     <div
-      class="surface-shell"
+      class="surface-shell aion-business-context-surface"
       data-aion-business-context-tab
       style="min-height:100vh; background:#ffffff; padding-bottom:96px;"
     >
@@ -115969,7 +116798,7 @@ function renderBusinessContextSurface() {
 
       ${renderAppTabs()}
 
-      <div class="dashboard-shell" style="max-width:1320px; margin:0 auto;">
+      <div class="dashboard-shell aion-business-dashboard" style="max-width:1320px; margin:0 auto;">
         ${renderBusinessContextSubtabs()}
         ${subtabHtml}
       </div>
@@ -116113,6 +116942,17 @@ function getApprovedSmallBusinessFoundationContext() {
 
 
 /* AION SURGICAL RESTORE 20260629: dependency normaliseAionBusinessContextSubtabKey */
+const AION_BUSINESS_CONTEXT_SUBTABS = new Set([
+  "key_business_info",
+  "brand_foundation",
+  "design_system",
+  "sales",
+  "marketing",
+  "finance",
+  "operations",
+  "support",
+]);
+
 function normaliseAionBusinessContextSubtabKey(rawKey) {
   const key = String(rawKey || "").trim().toLowerCase();
 
@@ -116131,6 +116971,10 @@ function normaliseAionBusinessContextSubtabKey(rawKey) {
     key === "brand"
   ) {
     return "brand_foundation";
+  }
+
+  if (key === "design_system" || key === "brand_design" || key === "brand_bible") {
+    return "design_system";
   }
 
   if (AION_BUSINESS_CONTEXT_SUBTABS.has(key)) {
@@ -131252,9 +132096,19 @@ Preview only. Nothing executed.`);
   }
 
   function hideLegacyDepartmentTabsO14L() {
+    /*
+     * Clear the previous pass first. The old text-only matcher could tag an
+     * ancestor after its descendants changed, leaving the entire workspace
+     * hidden. Only the smallest matching legacy controls may be hidden.
+     */
+    document.querySelectorAll("[data-aion-o14l-hidden-legacy-department-tabs='true']").forEach((el) => {
+      el.removeAttribute("data-aion-o14l-hidden-legacy-department-tabs");
+    });
+
     const candidates = Array.from(document.querySelectorAll("section, article, div, nav"));
-    candidates.forEach((el) => {
-      if (!el || el.closest?.("[data-aion-o14l-executive-switcher]")) return;
+    const matches = candidates.filter((el) => {
+      if (!el || el.closest?.("[data-aion-o14l-executive-switcher]")) return false;
+      if (el.matches?.("#app, .desktop-root, .desktop-workspace-layout-no-rail, main, .surface-shell, [data-aion-o14p-live-agents-shell]")) return false;
 
       const text = String(el.innerText || "").replace(/\s+/g, " ").trim();
       const isLegacyDepartmentBlock =
@@ -131272,9 +132126,15 @@ Preview only. Nothing executed.`);
           text.includes("Approvals")
         );
 
-      if (isLegacyDepartmentBlock) {
-        el.setAttribute("data-aion-o14l-hidden-legacy-department-tabs", "true");
-      }
+      return isLegacyDepartmentBlock;
+    });
+
+    const leafMatches = matches.filter((el) => (
+      !matches.some((other) => other !== el && el.contains(other))
+    ));
+
+    leafMatches.forEach((el) => {
+      el.setAttribute("data-aion-o14l-hidden-legacy-department-tabs", "true");
     });
   }
 
@@ -131731,6 +132591,68 @@ Preview only. Nothing executed.`);
     [data-aion-o14p-live-agents-shell="true"] .dashboard-shell {
       max-width:none !important;
       margin:0 !important;
+    }
+
+    [data-aion-o14p-live-agents-top-nav="true"] button {
+      border:0 !important;
+      border-radius:8px !important;
+      background:transparent !important;
+      color:#243247 !important;
+      box-shadow:none !important;
+      text-transform:none !important;
+      transition:background-color 140ms ease, color 140ms ease !important;
+    }
+
+    [data-aion-o14p-live-agents-top-nav="true"] button:hover {
+      background:#f0f6ff !important;
+      color:#1267d6 !important;
+    }
+
+    [data-aion-o14p-live-agents-top-nav="true"] button[data-active="true"],
+    [data-aion-o14p-live-agents-top-nav="true"] button[aria-pressed="true"] {
+      background:#e8f2ff !important;
+      color:#1267d6 !important;
+      font-weight:800 !important;
+      outline:0 !important;
+      box-shadow:inset 0 -3px 0 #2f80ed !important;
+    }
+
+    [data-aion-o14p-live-agents-top-nav="true"] button:focus-visible {
+      outline:2px solid rgba(47,128,237,0.42) !important;
+      outline-offset:1px !important;
+    }
+
+    [data-aion-o14p-live-agents-top-nav="true"] button[data-active="true"]:focus-visible,
+    [data-aion-o14p-live-agents-top-nav="true"] button[aria-pressed="true"]:focus-visible {
+      outline:0 !important;
+    }
+
+    @media (max-width: 1120px) {
+      [data-aion-o14p-live-agents-shell="true"] {
+        padding:28px 30px 80px 96px !important;
+      }
+
+      [data-aion-o14p-live-agents-top-nav="true"] {
+        position:sticky !important;
+        top:0 !important;
+        width:auto !important;
+        flex-direction:row !important;
+        flex-wrap:nowrap !important;
+        overflow-x:auto !important;
+        margin:-28px -30px 22px -96px !important;
+        padding:10px 20px 10px 96px !important;
+        box-shadow:0 1px 0 rgba(15,23,42,0.08) !important;
+      }
+
+      [data-aion-o14p-live-agents-top-nav="true"] button {
+        flex:0 0 auto !important;
+        padding:0 12px !important;
+      }
+
+      [data-aion-o14p-live-agents-top-nav="true"] button[data-active="true"],
+      [data-aion-o14p-live-agents-top-nav="true"] button[aria-pressed="true"] {
+        box-shadow:inset 0 -3px 0 #2f80ed !important;
+      }
     }
   `;
   document.head.appendChild(style);
@@ -132832,6 +133754,7 @@ Preview only. Nothing executed.`);
     if (!departmentKey) return false;
 
     window.__aionO16ASelectedLiveAgentsDepartment = departmentKey;
+    window.__aionLiveAgentsFocusDepartment = departmentKey;
     window.__aionO14A6ActiveDepartmentPilot = departmentKey;
     window.__aionO14A6ClickedDepartmentPilot = departmentKey;
     window.__aionO14A3ActiveDepartmentPilot = departmentKey;
@@ -132850,6 +133773,7 @@ Preview only. Nothing executed.`);
 
     try {
       window.localStorage?.setItem?.("aion.liveAgents.selectedDepartment", departmentKey);
+      window.localStorage?.setItem?.("aion.liveAgents.focusDepartment.v1", departmentKey);
       window.localStorage?.setItem?.("aion.selectedLiveDepartment", departmentKey);
       window.localStorage?.setItem?.("aion.departmentPilot.selected", departmentKey);
     } catch {}
@@ -132902,6 +133826,34 @@ Preview only. Nothing executed.`);
     } catch {}
   }
 
+  function openLiveAgentsDepartmentO16A(key) {
+    const ok = setLiveAgentsDepartmentO16A(key);
+    if (!ok) return false;
+
+    /*
+     * Claim the canonical main-workspace route as well as the department.
+     * Updating state.activeTab alone is not sufficient: the site-wide route
+     * owner can restore Boardroom on the next render, making these buttons
+     * appear to do nothing.  The hard router updates every persisted/runtime
+     * route authority and releases stale startup ownership.
+     */
+    try {
+      if (typeof window.setAionSidebarActiveTabHardV1 === "function") {
+        window.setAionSidebarActiveTabHardV1("live_agents");
+      } else {
+        window.__aionForcedMainTabV2 = "live_agents";
+      }
+    } catch {
+      window.__aionForcedMainTabV2 = "live_agents";
+    }
+
+    /* The hard route renders synchronously; reassert the requested department
+     * afterwards so a workspace default cannot replace it during that render. */
+    setLiveAgentsDepartmentO16A(key);
+    requestLiveAgentsRenderO16A();
+    return true;
+  }
+
   function routeLiveAgentsDepartmentClickO16A(event) {
     const target = event.target?.closest?.("[data-aion-live-agents-department], [data-aion-o14p-live-agents-department]");
     if (!target) return;
@@ -132920,25 +133872,23 @@ Preview only. Nothing executed.`);
     event.stopPropagation();
     event.stopImmediatePropagation?.();
 
-    setLiveAgentsDepartmentO16A(departmentKey);
-    requestLiveAgentsRenderO16A();
+    openLiveAgentsDepartmentO16A(departmentKey);
 
     window.setTimeout(() => {
-      setLiveAgentsDepartmentO16A(departmentKey);
-      requestLiveAgentsRenderO16A();
+      openLiveAgentsDepartmentO16A(departmentKey);
     }, 0);
 
     window.setTimeout(() => {
-      setLiveAgentsDepartmentO16A(departmentKey);
-      requestLiveAgentsRenderO16A();
+      openLiveAgentsDepartmentO16A(departmentKey);
     }, 80);
   }
 
   document.addEventListener("click", routeLiveAgentsDepartmentClickO16A, true);
 
+  window.aionOpenLiveAgentsDepartmentO16A = openLiveAgentsDepartmentO16A;
+
   window.__setAionO16ALiveAgentsDepartment = function debugSetAionO16ALiveAgentsDepartment(key) {
-    const ok = setLiveAgentsDepartmentO16A(key);
-    if (ok) requestLiveAgentsRenderO16A();
+    const ok = openLiveAgentsDepartmentO16A(key);
     return window.__debugAionO16ALiveAgentsDepartmentRoute();
   };
 
@@ -138177,14 +139127,13 @@ Preview only. Nothing executed.`);
 /* BEGIN AION O18AA DEPARTMENT CONVERSATION COCKPITS LOCK */
 /*
  * O18AA:
- * Apply the Marketing Pilot live discovery conversation layout to:
- * Sales, Finance, Operations and Support.
+ * Apply one live discovery conversation layout to all six department Pilots.
  *
  * Each department gets:
  * - pinned Boardroom assignment package
  * - full-width dark terminal
  * - colour-coded discovery / gate / transcript sections
- * - agent portrait embedded inside the terminal
+ * - synthetic department identity embedded inside the terminal
  * - voice image button inside agent frame
  * - typed + voice transcript record
  * - approval-gated/no external action boundary
@@ -138192,9 +139141,21 @@ Preview only. Nothing executed.`);
 (function installAionO18AADepartmentConversationCockpits() {
   const STYLE_ID = "aion-o18aa-department-conversation-cockpits-style";
   const STORE_PREFIX = "aion.departmentPilot.conversationTerminal.";
-  const SUPPORTED = ["sales", "finance", "operations", "support"];
+  const SUPPORTED = ["marketing", "sales", "finance", "operations", "support", "hr"];
+  const DISCOVERY_PASS_LIMIT_O18AD = 3;
 
   const CONFIG = {
+    marketing: {
+      label: "Marketing",
+      pilot: "marketing_pilot",
+      director: "Marketing Director",
+      packageTitle: "Marketing assignment package",
+      subtitle: "Boardroom goal sheet → marketing_pilot · discovery_required · positioning, audience, channels, campaign evidence and attributable growth.",
+      gateReason: "Marketing needs a verified objective, audience and original evidence before campaign production.",
+      boundary: "approval_gated · no publishing, advertising spend, messages or connector calls.",
+      fields: "Boardroom objective, target customer, product or service, message, evidence, original assets, channels and budget.",
+      questions: []
+    },
     sales: {
       label: "Sales",
       pilot: "sales_pilot",
@@ -138204,14 +139165,7 @@ Preview only. Nothing executed.`);
       gateReason: "Sales needs discovery detail before confident revenue execution.",
       boundary: "approval_gated · no quotes, offers, messages, bookings, payments or connector calls.",
       fields: "pipeline, lead sources, quote process, follow-up steps, conversion blockers and approval boundary.",
-      questions: [
-        "What is the current sales pipeline and where are leads coming from?",
-        "How are quotes created, sent and followed up right now?",
-        "What are the biggest blockers stopping leads from becoming booked jobs?",
-        "What customer objections or questions appear most often?",
-        "What follow-up process should Sales use before anything is automated?",
-        "What sales actions must stay approval-gated?"
-      ]
+      questions: []
     },
     finance: {
       label: "Finance",
@@ -138221,15 +139175,8 @@ Preview only. Nothing executed.`);
       subtitle: "Boardroom goal sheet → finance_pilot · discovery_required · COGS, fixed costs, cash, debtors, creditors, VAT/tax, margin and spend limits.",
       gateReason: "Finance needs true cost and margin context before approving campaign spend.",
       boundary: "approval_gated · no invoices, payments, budgets, spend changes or connector calls.",
-      fields: "engineer hourly/daily rate, average job cost, materials/subcontractors, gross margin, minimum profitable job value and monthly spend limit.",
-      questions: [
-        "What is the engineer hourly or daily cost we should use for planning?",
-        "What is the average job cost by service type?",
-        "What material or subcontractor costs must be included?",
-        "What gross margin should Finance protect?",
-        "What is the minimum profitable job value?",
-        "What is the safe starter campaign budget and hard spend limit?"
-      ]
+      fields: "workforce planning cost, delivery cost by offering, direct inputs, gross margin, minimum profitable sale and monthly spend limit.",
+      questions: []
     },
     operations: {
       label: "Operations",
@@ -138240,14 +139187,7 @@ Preview only. Nothing executed.`);
       gateReason: "Operations needs capacity and fulfilment context before lead volume increases.",
       boundary: "approval_gated · no bookings, scheduling changes, dispatches or connector calls.",
       fields: "engineer capacity, coverage limits, available days, job-size boundaries, scheduling constraints and fulfilment risk.",
-      questions: [
-        "What capacity is available each week for new work?",
-        "Which towns or service areas can Operations reliably cover?",
-        "What job sizes or job types should be prioritised or avoided?",
-        "What scheduling constraints should Marketing and Sales respect?",
-        "What operational risks could appear if lead volume increases?",
-        "What actions must remain approval-gated before bookings or dispatch?"
-      ]
+      questions: []
     },
     support: {
       label: "Support",
@@ -138258,15 +139198,230 @@ Preview only. Nothing executed.`);
       gateReason: "Support needs customer context before lead and service volume increases.",
       boundary: "approval_gated · no customer messages, replies, tickets, bookings or connector calls.",
       fields: "common questions, complaint themes, response tone, escalation rules, aftercare and customer feedback.",
-      questions: [
-        "What customer questions come up most often before booking?",
-        "What complaints or service issues have happened before?",
-        "What tone and response standard should Support use?",
-        "What should be escalated to the founder before replying?",
-        "What aftercare or follow-up should happen after a job?",
-        "What support actions must remain approval-gated?"
-      ]
+      questions: []
+    },
+    hr: {
+      label: "HR",
+      pilot: "hr_pilot",
+      director: "People Director",
+      packageTitle: "HR assignment package",
+      subtitle: "Boardroom goal sheet → hr_pilot · discovery_required · people, roles, authority, capacity and confidential workforce context.",
+      gateReason: "HR needs verified people and authority records before changing access, responsibility or workforce plans.",
+      boundary: "approval_gated · no hiring, termination, pay, permission or external communication changes.",
+      fields: "people, employment relationship, reporting lines, responsibilities, permissions, costs, capacity and development needs.",
+      questions: []
     }
+  };
+
+  /* O18AB: every Pilot question has an owning business record.  The
+   * conversation remains fluid, but its answer is also written as a governed
+   * fact for the Boardroom and the workspace that actually owns the data. */
+  const DISCOVERY_ROUTES = {
+    marketing: [
+      ["commercial_objective", "marketing", "strategy", "Marketing strategy"],
+      ["priority_customer_and_offering", "products_services", "offerings", "Products & Services · Offerings"],
+      ["original_campaign_evidence", "marketing", "evidence", "Marketing evidence"],
+      ["approved_marketing_channels", "marketing", "channels", "Marketing channels"],
+      ["approved_claim_offer_cta", "marketing", "strategy", "Marketing strategy"],
+      ["marketing_approval_boundary", "marketing", "approvals", "Marketing approvals"],
+    ],
+    sales: [
+      ["pipeline_and_lead_sources", "sales", "pipeline", "Sales pipeline"],
+      ["quote_and_follow_up_process", "sales", "quotes", "Sales quotes"],
+      ["conversion_blockers", "sales", "pipeline", "Sales pipeline"],
+      ["customer_objections", "sales", "discovery", "Sales discovery"],
+      ["sales_follow_up_process", "sales", "follow_up", "Sales follow-up"],
+      ["sales_approval_boundary", "sales", "approvals", "Sales approvals"],
+    ],
+    finance: [
+      ["engineer_planning_rate", "products_services", "workforce", "Products & Services · Workforce", "money_rate"],
+      ["average_job_cost_by_service", "products_services", "jobs", "Products & Services · Jobs", "money"],
+      ["materials_and_subcontractor_costs", "products_services", "jobs", "Products & Services · Job costs", "money"],
+      ["target_gross_margin", "products_services", "summary", "Products & Services · Unit economics", "percent"],
+      ["minimum_profitable_job_value", "products_services", "offerings", "Products & Services · Offerings", "money"],
+      ["campaign_spend_limit", "finance", "targets", "Finance · Targets", "money"],
+    ],
+    operations: [
+      ["weekly_delivery_capacity", "products_services", "workforce", "Products & Services · Workforce"],
+      ["service_areas", "operations", "coverage", "Operations · Coverage"],
+      ["job_size_boundaries", "products_services", "jobs", "Products & Services · Jobs"],
+      ["scheduling_constraints", "operations", "scheduling", "Operations · Scheduling"],
+      ["delivery_growth_risks", "operations", "risks", "Operations · Risks"],
+      ["operations_approval_boundary", "operations", "approvals", "Operations · Approvals"],
+    ],
+    support: [
+      ["common_customer_questions", "support", "knowledge", "Support · Knowledge"],
+      ["complaints_and_service_issues", "support", "cases", "Support · Cases"],
+      ["support_tone_and_standard", "support", "policy", "Support · Policy"],
+      ["support_escalation_rules", "support", "escalations", "Support · Escalations"],
+      ["customer_aftercare", "support", "aftercare", "Support · Aftercare"],
+      ["support_approval_boundary", "support", "approvals", "Support · Approvals"],
+    ],
+    hr: [
+      ["people_register", "hr", "people", "HR · People"],
+      ["roles_and_reporting_lines", "hr", "organisation", "HR · Organisation"],
+      ["people_access_permissions", "hr", "permissions", "HR · Permissions"],
+      ["workforce_capacity_and_costs", "products_services", "workforce", "Products & Services · Workforce", "money_rate"],
+      ["skills_and_coverage_gaps", "hr", "development", "HR · Development"],
+      ["people_approval_boundary", "hr", "approvals", "HR · Approvals"],
+    ],
+  };
+
+  function extractStructuredAnswerO18AB(kind, answer) {
+    const raw = String(answer || "").trim();
+    const currencySymbol = (raw.match(/[£€$]/) || [""])[0];
+    const currency = currencySymbol === "£" ? "GBP" : currencySymbol === "$" ? "USD" : currencySymbol === "€" ? "EUR" : "";
+    const numbers = [...raw.matchAll(/(?:£|€|\$)?\s*(\d+(?:[.,]\d+)?)/g)]
+      .map((match) => Number(String(match[1]).replace(",", ".")))
+      .filter(Number.isFinite);
+    const extracted = { raw };
+    if (currency) extracted.currency = currency;
+
+    if (kind === "money_rate") {
+      const ratePattern = /(?:£|€|\$)?\s*(\d+(?:[.,]\d+)?)\s*(?:per|\/)?\s*(hour|hourly|hr|day|daily|month|monthly|job)/gi;
+      for (const match of raw.matchAll(ratePattern)) {
+        const value = Number(String(match[1]).replace(",", "."));
+        const unit = String(match[2]).toLowerCase();
+        if (/hour|hr/.test(unit)) extracted.hourly_rate = value;
+        else if (/day/.test(unit)) extracted.daily_rate = value;
+        else if (/month/.test(unit)) extracted.monthly_rate = value;
+        else extracted.per_job_rate = value;
+      }
+    } else if (kind === "percent") {
+      const percent = raw.match(/(\d+(?:[.,]\d+)?)\s*%/);
+      if (percent) extracted.percent = Number(percent[1].replace(",", "."));
+    } else if (kind === "money" && numbers.length) {
+      extracted.amounts = numbers;
+      extracted.primary_amount = numbers[0];
+    }
+
+    return extracted;
+  }
+
+  function routeDepartmentPilotAnswerO18AB(key, questionIndex, question, answer, options = {}) {
+    const route = options?.routeOverride || DISCOVERY_ROUTES[key]?.[questionIndex] || [
+      `question_${questionIndex + 1}`,
+      key,
+      "discovery",
+      `${CONFIG[key]?.label || titleCaseO18AA(key)} · Discovery`,
+    ];
+    const [field, targetWorkspace, targetSection, targetLabel, extractKind = "text"] = route;
+    const now = new Date().toISOString();
+    const fact = {
+      id: `pilot.${key}.${field}`,
+      field,
+      question: String(question || ""),
+      answer: String(answer || "").trim(),
+      source: "department_pilot_conversation",
+      source_department: key,
+      target_workspace: targetWorkspace,
+      target_section: targetSection,
+      target_label: targetLabel,
+      status: "owner_supplied",
+      requires_verification: true,
+      extracted: extractStructuredAnswerO18AB(extractKind, answer),
+      updated_at: now,
+    };
+    const receipt = {
+      ...fact,
+      boardroom_context: true,
+      message: `Saved to ${targetLabel} and Boardroom context.`,
+    };
+
+    if (options?.dryRun === true) return receipt;
+
+    try {
+      const ledger = window.getAionDepartmentIntelligence?.() || {};
+      const sourceEntry = ledger[key] && typeof ledger[key] === "object" ? ledger[key] : {};
+      window.updateAionDepartmentIntelligence?.(key, {
+        discovery: { ...(sourceEntry.discovery || {}), [field]: fact },
+        last_conversation_fact: fact,
+        boardroom_summary: `${CONFIG[key]?.label || titleCaseO18AA(key)} Pilot captured ${field.replaceAll("_", " ")} for ${targetLabel}.`,
+      });
+
+      if (targetWorkspace !== key) {
+        const refreshed = window.getAionDepartmentIntelligence?.() || {};
+        const targetEntry = refreshed[targetWorkspace] && typeof refreshed[targetWorkspace] === "object"
+          ? refreshed[targetWorkspace]
+          : {};
+        window.updateAionDepartmentIntelligence?.(targetWorkspace, {
+          discovery: { ...(targetEntry.discovery || {}), [field]: fact },
+          last_conversation_fact: fact,
+        });
+      }
+    } catch (error) {
+      console.warn("[AION] Pilot fact could not update Department Intelligence", error);
+    }
+
+    try {
+      const store = typeof getAionDiscoveryQuestionStoreV1 === "function"
+        ? getAionDiscoveryQuestionStoreV1()
+        : JSON.parse(localStorage.getItem("aion.boardroom.discovery_answers.v1") || "{}");
+      store[fact.id] = {
+        question_id: fact.id,
+        question: fact.question,
+        department: key,
+        answer: fact.answer,
+        answer_type: "structured_business_fact",
+        target_workspace: targetWorkspace,
+        target_section: targetSection,
+        extracted: fact.extracted,
+        saved_at: now,
+        source: fact.source,
+      };
+      if (typeof setAionDiscoveryQuestionStoreV1 === "function") setAionDiscoveryQuestionStoreV1(store);
+      else localStorage.setItem("aion.boardroom.discovery_answers.v1", JSON.stringify(store));
+    } catch (error) {
+      console.warn("[AION] Pilot fact could not update Boardroom discovery context", error);
+    }
+
+    if (targetWorkspace === "products_services" || (targetWorkspace === "finance" && targetSection === "targets")) {
+      try {
+        window.AionOperatingModelWorkspace?.applyConversationFact?.(fact);
+      } catch (error) {
+        console.warn("[AION] Pilot fact could not update Products & Services", error);
+      }
+    }
+
+    try {
+      window.dispatchEvent(new CustomEvent("aion:business-fact-captured", { detail: receipt }));
+    } catch {}
+
+    return receipt;
+  }
+
+  window.aionRouteDepartmentPilotAnswerO18AB = routeDepartmentPilotAnswerO18AB;
+
+  function inferBoardroomDiscoveryRouteO18AB(department, question) {
+    const key = String(department || "boardroom").toLowerCase();
+    const text = String(question || "").toLowerCase();
+    if (/engineer|labour|labor/.test(text) && /hour|day|rate|cost/.test(text)) return ["engineer_planning_rate", "products_services", "workforce", "Products & Services · Workforce", "money_rate"];
+    if (/average job cost|cost by service|job cost/.test(text)) return ["average_job_cost_by_service", "products_services", "jobs", "Products & Services · Jobs", "money"];
+    if (/material|subcontract/.test(text) && /cost|price|rate/.test(text)) return ["materials_and_subcontractor_costs", "products_services", "jobs", "Products & Services · Job costs", "money"];
+    if (/gross margin|target margin/.test(text)) return ["target_gross_margin", "products_services", "summary", "Products & Services · Unit economics", "percent"];
+    if (/minimum profitable|minimum job value/.test(text)) return ["minimum_profitable_job_value", "products_services", "offerings", "Products & Services · Offerings", "money"];
+    if (/budget|spend limit|cash buffer/.test(text)) return ["financial_limit", "finance", "targets", "Finance · Targets", "money"];
+    if (/capacity|jobs per week|availability/.test(text)) return ["weekly_delivery_capacity", "products_services", "workforce", "Products & Services · Workforce", "text"];
+    if (/service area|coverage|town|region/.test(text)) return ["service_areas", "operations", "coverage", "Operations · Coverage", "text"];
+    if (/schedule|scheduling/.test(text)) return ["scheduling_constraints", "operations", "scheduling", "Operations · Scheduling", "text"];
+    if (/pipeline|lead source|conversion/.test(text)) return ["pipeline_and_lead_sources", "sales", "pipeline", "Sales · Pipeline", "text"];
+    if (/quote|follow.?up/.test(text)) return ["quote_and_follow_up_process", "sales", "quotes", "Sales · Quotes", "text"];
+    if (/campaign|channel|audience|marketing/.test(text)) return ["marketing_context", "marketing", "strategy", "Marketing · Strategy", "text"];
+    if (/complaint|aftercare|support|customer question/.test(text)) return ["support_context", "support", "policy", "Support · Policy", "text"];
+    if (/employee|contractor|personnel|role|reporting line|permission|people/.test(text)) return ["people_context", "hr", "people", "HR · People", "text"];
+    return ["boardroom_discovery_context", key, "discovery", `${titleCaseO18AA(key)} · Discovery`, "text"];
+  }
+
+  window.aionRouteBoardroomDiscoveryAnswerO18AB = function routeBoardroomDiscoveryAnswerO18AB(entry = {}, options = {}) {
+    const key = String(entry.department || "boardroom").toLowerCase();
+    const routeOverride = inferBoardroomDiscoveryRouteO18AB(key, entry.question);
+    return routeDepartmentPilotAnswerO18AB(
+      key,
+      0,
+      entry.question,
+      entry.answer,
+      { ...options, routeOverride },
+    );
   };
 
   function ensureStyleO18AA() {
@@ -138326,8 +139481,9 @@ Preview only. Nothing executed.`);
 
       html body [data-aion-o18aa-terminal="true"] {
         position:relative;
-        background:#0f172a;
-        color:#dbeafe;
+        background:#f7fafc;
+        color:#334e68;
+        border:1px solid #cbd9e6;
         border-left:4px solid #0284c7;
         padding:18px 18px 20px 18px;
         min-height:520px;
@@ -138343,7 +139499,7 @@ Preview only. Nothing executed.`);
       }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-terminal-title {
-        color:#86efac;
+        color:#0f766e;
         font-size:12px;
         line-height:1;
         letter-spacing:0.28em;
@@ -138353,9 +139509,9 @@ Preview only. Nothing executed.`);
       }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-gate {
-        border:1px solid rgba(245,158,11,0.75);
-        background:rgba(120,53,15,0.30);
-        color:#fde68a;
+        border:1px solid #f4c66b;
+        background:#fff8e7;
+        color:#7c4a03;
         padding:13px 14px;
         margin:0 0 12px 0;
         line-height:1.55;
@@ -138363,15 +139519,15 @@ Preview only. Nothing executed.`);
       }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-gate strong {
-        color:#facc15;
+        color:#9a5b00;
         letter-spacing:0.20em;
         text-transform:uppercase;
       }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-inbox {
-        border:1px solid rgba(14,165,233,0.70);
-        background:rgba(8,47,73,0.52);
-        color:#bae6fd;
+        border:1px solid #8ecae6;
+        background:#edf8fc;
+        color:#294f68;
         padding:13px 14px;
         margin:0 0 14px 0;
         line-height:1.55;
@@ -138379,27 +139535,31 @@ Preview only. Nothing executed.`);
       }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-inbox strong {
-        color:#7dd3fc;
+        color:#0369a1;
         letter-spacing:0.20em;
         text-transform:uppercase;
       }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-transcript {
-        color:#dbeafe;
+        color:#334e68;
+        background:#ffffff;
+        border:1px solid #d9e5ef;
+        border-radius:8px;
+        padding:14px;
         line-height:1.55;
         font-size:12px;
         white-space:pre-wrap;
         min-height:122px;
       }
 
-      html body [data-aion-o18aa-terminal="true"] .o18aa-line-system { color:#cbd5e1; }
-      html body [data-aion-o18aa-terminal="true"] .o18aa-line-gate { color:#facc15; font-weight:800; }
-      html body [data-aion-o18aa-terminal="true"] .o18aa-line-agent { color:#86efac; }
-      html body [data-aion-o18aa-terminal="true"] .o18aa-line-user { color:#93c5fd; }
+      html body [data-aion-o18aa-terminal="true"] .o18aa-line-system { color:#52667a; }
+      html body [data-aion-o18aa-terminal="true"] .o18aa-line-gate { color:#9a5b00; font-weight:800; }
+      html body [data-aion-o18aa-terminal="true"] .o18aa-line-agent { color:#0f766e; font-weight:700; }
+      html body [data-aion-o18aa-terminal="true"] .o18aa-line-user { color:#1267d6; }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-input-row {
         display:grid;
-        grid-template-columns:minmax(0, 1fr) auto auto;
+        grid-template-columns:auto minmax(0, 1fr) auto auto;
         gap:8px;
         align-items:center;
         margin-top:16px;
@@ -138407,32 +139567,56 @@ Preview only. Nothing executed.`);
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-input {
         width:100%;
-        height:24px;
-        border:0;
-        background:#94a3b8;
-        color:#0f172a;
-        padding:0 9px;
+        height:42px;
+        border:1px solid #a9bdcd !important;
+        border-radius:8px !important;
+        background:#ffffff !important;
+        color:#0f172a !important;
+        opacity:1 !important;
+        padding:0 12px;
         font:inherit;
         box-sizing:border-box;
       }
 
       html body [data-aion-o18aa-terminal="true"] .o18aa-send {
-        height:30px;
-        border:0;
-        background:#9ca3af;
-        color:#111827;
-        padding:0 14px;
+        height:42px;
+        border:0 !important;
+        border-radius:8px !important;
+        background:#1267d6 !important;
+        color:#ffffff !important;
+        opacity:1 !important;
+        padding:0 18px;
         font-size:10px;
         letter-spacing:0.15em;
         text-transform:uppercase;
         font-weight:900;
       }
 
+      html body [data-aion-o18aa-terminal="true"] .o18aa-skip {
+        height:42px;
+        border:1px solid #a9bdcd !important;
+        border-radius:8px !important;
+        background:#ffffff !important;
+        color:#52667a !important;
+        padding:0 14px;
+        font-size:10px;
+        letter-spacing:0.10em;
+        text-transform:uppercase;
+        font-weight:900;
+        cursor:pointer;
+      }
+
+      html body [data-aion-o18aa-terminal="true"] .o18aa-skip:hover {
+        background:#edf8fc !important;
+        color:#1267d6 !important;
+      }
+
       html body [data-aion-o18aa-agent-frame="true"] {
-        width:198px;
-        height:214px;
+        position:relative;
+        width:240px;
+        height:240px;
         border:1px solid rgba(148,163,184,0.22);
-        background:#020617;
+        background:#ffffff;
         display:flex;
         flex-direction:column;
         align-items:center;
@@ -138453,7 +139637,11 @@ Preview only. Nothing executed.`);
         display:block !important;
       }
 
-      html body [data-aion-o18aa-voice-button="true"] {
+      html body [data-aion-o18aa-voice-button] {
+        position:absolute;
+        right:10px;
+        top:10px;
+        z-index:3;
         width:48px;
         height:48px;
         border:0;
@@ -138462,7 +139650,7 @@ Preview only. Nothing executed.`);
         background-repeat:no-repeat;
         background-position:center;
         padding:0;
-        margin-top:8px;
+        margin:0;
         cursor:pointer;
       }
 
@@ -138472,8 +139660,8 @@ Preview only. Nothing executed.`);
         }
 
         html body [data-aion-o18aa-agent-frame="true"] {
-          width:180px;
-          height:198px;
+          width:220px;
+          height:220px;
         }
       }
     `;
@@ -138510,31 +139698,292 @@ Preview only. Nothing executed.`);
     }
   }
 
+  function getDiscoveryPassO18AD(key) {
+    const store = getStoreO18AA(key);
+    const pass = store.discovery_pass && typeof store.discovery_pass === "object" ? store.discovery_pass : {};
+    return {
+      completed: Math.max(0, Number(pass.completed || 0)),
+      paused: pass.paused === true,
+      started_at: pass.started_at || new Date().toISOString(),
+    };
+  }
+
+  function saveDiscoveryPassO18AD(key, patch = {}) {
+    const store = getStoreO18AA(key);
+    const current = getDiscoveryPassO18AD(key);
+    store.discovery_pass = { ...current, ...patch, updated_at: new Date().toISOString() };
+    saveStoreO18AA(key, store);
+    return store.discovery_pass;
+  }
+
+  function finishDiscoveryPassO18AD(key, reason = "founder_paused") {
+    const config = CONFIG[key];
+    saveDiscoveryPassO18AD(key, { paused: true, pause_reason: reason });
+    discoveryPlannerStateO18AC[key] = { status: "paused" };
+    pushLineO18AA(key, "system", `AION: ${config.label} discovery paused. Saved answers and evidence gaps remain available; no more questions will be generated until you choose another short pass.`);
+    refreshTranscriptO18AA(key);
+  }
+
+  function completeDiscoveryCheckpointO18AD(key) {
+    const pass = getDiscoveryPassO18AD(key);
+    const completed = pass.completed + 1;
+    if (completed >= DISCOVERY_PASS_LIMIT_O18AD) {
+      saveDiscoveryPassO18AD(key, { completed, paused: true, pause_reason: "pass_limit_reached" });
+      discoveryPlannerStateO18AC[key] = { status: "paused" };
+      pushLineO18AA(key, "system", `AION: Short discovery pass complete (${completed}/${DISCOVERY_PASS_LIMIT_O18AD}). Return later or request an executive review with the evidence gathered so far.`);
+      return false;
+    }
+    saveDiscoveryPassO18AD(key, { completed, paused: false });
+    return true;
+  }
+
+  function startAnotherDiscoveryPassO18AD(key) {
+    saveDiscoveryPassO18AD(key, { completed: 0, paused: false, pause_reason: "", started_at: new Date().toISOString() });
+    discoveryPlannerStateO18AC[key] = { status: "idle" };
+    requestNextDiscoveryQuestionO18AC(key, { force: true });
+  }
+
+  function operatingModelSnapshotO18AB() {
+    const live = window.AionOperatingModelWorkspace?.state?.model;
+    if (live && typeof live === "object") return live;
+    try {
+      const draft = JSON.parse(localStorage.getItem("aion.businessOperatingModel.draft.v1") || "null");
+      return draft && typeof draft === "object" ? draft : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function formatCanonicalMoneyO18AB(value, currency) {
+    try {
+      return new Intl.NumberFormat("en-GB", {
+        style: "currency",
+        currency: currency || "EUR",
+        maximumFractionDigits: 2,
+      }).format(Number(value));
+    } catch {
+      return `${currency || "EUR"} ${Number(value).toFixed(2)}`;
+    }
+  }
+
+  function canonicalAnswerO18AB(key, questionIndex) {
+    const route = DISCOVERY_ROUTES[key]?.[questionIndex];
+    if (!route) return null;
+    const [field, targetWorkspace] = route;
+    const model = operatingModelSnapshotO18AB();
+
+    if ((key === "finance" && questionIndex === 0) || field === "workforce_capacity_and_costs") {
+      const labour = Array.isArray(model.labour_resources) ? model.labour_resources : [];
+      const usable = labour.filter((row) => row && row.cost_rate !== "" && Number.isFinite(Number(row.cost_rate)));
+      if (usable.length) {
+        const unitLabels = { hourly: "hour", daily: "day", monthly: "month", per_job: "job" };
+        return {
+          answer: usable.map((row) => {
+            const person = row.person_name || "Assigned workforce";
+            const unit = unitLabels[row.cost_basis] || row.cost_basis || "unit";
+            return `${person}: ${formatCanonicalMoneyO18AB(row.cost_rate, model.currency)} per ${unit}`;
+          }).join("; "),
+          source: "canonical_business_record",
+          sourceLabel: "Products & Services · Workforce",
+        };
+      }
+    }
+
+    const facts = Array.isArray(model.provenance?.conversation_facts)
+      ? model.provenance.conversation_facts
+      : [];
+    const modelFact = facts.find((fact) => fact?.field === field && String(fact.answer || "").trim());
+    if (modelFact) {
+      return {
+        answer: String(modelFact.answer).trim(),
+        source: "canonical_business_record",
+        sourceLabel: modelFact.target_label || "Business record",
+      };
+    }
+
+    try {
+      const ledger = window.getAionDepartmentIntelligence?.() || {};
+      for (const department of [targetWorkspace, key]) {
+        const fact = ledger?.[department]?.discovery?.[field];
+        if (fact && String(fact.answer || "").trim()) {
+          return {
+            answer: String(fact.answer).trim(),
+            source: "canonical_business_record",
+            sourceLabel: fact.target_label || `${titleCaseO18AA(department)} record`,
+          };
+        }
+      }
+    } catch {}
+    return null;
+  }
+
+  function hydrateCanonicalAnswersO18AB(key, store) {
+    const config = CONFIG[key];
+    if (!config) return { store, reused: 0 };
+    const answers = store.answers && typeof store.answers === "object" ? store.answers : {};
+    let changed = false;
+    let reused = 0;
+    (config.questions || []).forEach((question, index) => {
+      const field = `question_${index + 1}`;
+      const existing = answers[field];
+      if (existing && existing.source !== "canonical_business_record" && existing.skipped !== true) return;
+      const canonical = canonicalAnswerO18AB(key, index);
+      if (!canonical) return;
+      reused += 1;
+      if (!existing || existing.answer !== canonical.answer || existing.source_label !== canonical.sourceLabel) {
+        answers[field] = {
+          question,
+          answer: canonical.answer,
+          at: new Date().toISOString(),
+          source: canonical.source,
+          source_label: canonical.sourceLabel,
+        };
+        changed = true;
+      }
+    });
+    store.answers = answers;
+    if (changed) saveStoreO18AA(key, store);
+    return { store, reused };
+  }
+
+  const discoveryPlannerStateO18AC = window.__aionO18ACDiscoveryPlannerState || {};
+  window.__aionO18ACDiscoveryPlannerState = discoveryPlannerStateO18AC;
+
+  function discoveryAnswerSummaryO18AC(key) {
+    const answers = getStoreO18AA(key).answers || {};
+    const rows = Object.values(answers).filter((item) => item && typeof item === "object");
+    const resolved = rows.filter((item) => item.skipped !== true);
+    const skipped = rows.filter((item) => item.skipped === true);
+    const fieldOf = (item) => item?.route_receipt?.field || item?.evidence_gap?.field || item?.field_key || "";
+    return {
+      answered: resolved.length,
+      skipped: skipped.length,
+      resolved: rows.length,
+      reused: resolved.filter((item) => item.source === "canonical_business_record").length,
+      resolvedFields: resolved.map(fieldOf).filter(Boolean),
+      skippedFields: skipped.map(fieldOf).filter(Boolean),
+      recentQuestions: rows.map((item) => String(item.question || "")).filter(Boolean).slice(-12),
+    };
+  }
+
+  function discoveryWorkspaceIdO18AC() {
+    return String(
+      window.AionBusinessContainerClient?.resolveBusinessId?.() ||
+      window.state?.activeBusinessId ||
+      window.state?.workspaceId ||
+      "home-fixed"
+    );
+  }
+
+  async function requestNextDiscoveryQuestionO18AC(key, options = {}) {
+    if (!SUPPORTED.includes(key)) return null;
+    const pass = getDiscoveryPassO18AD(key);
+    if (pass.paused && !options.restartPass) {
+      discoveryPlannerStateO18AC[key] = { status: "paused" };
+      refreshTranscriptO18AA(key);
+      return discoveryPlannerStateO18AC[key];
+    }
+    const current = discoveryPlannerStateO18AC[key] || {};
+    if (!options.force && (current.status === "loading" || current.status === "ready")) return current;
+    const summary = discoveryAnswerSummaryO18AC(key);
+    discoveryPlannerStateO18AC[key] = { status: "loading", requested_at: new Date().toISOString() };
+    refreshTranscriptO18AA(key);
+    try {
+      const workspaceId = discoveryWorkspaceIdO18AC();
+      const response = await fetch(
+        `http://127.0.0.1:8080/api/aion/business/department-pilots/${encodeURIComponent(workspaceId)}/${encodeURIComponent(key)}/discovery/next-question`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({
+            resolved_field_keys: summary.resolvedFields,
+            skipped_field_keys: summary.skippedFields,
+            recent_questions: summary.recentQuestions,
+          }),
+        },
+      );
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || payload?.detail || !payload?.status) {
+        throw new Error(payload?.detail || `Question planner failed: HTTP ${response.status}`);
+      }
+      discoveryPlannerStateO18AC[key] = {
+        status: payload.status === "complete" ? "complete" : "ready",
+        plan: payload,
+        received_at: new Date().toISOString(),
+      };
+    } catch (error) {
+      discoveryPlannerStateO18AC[key] = {
+        status: "error",
+        error: String(error?.message || error),
+        received_at: new Date().toISOString(),
+      };
+    }
+    refreshTranscriptO18AA(key);
+    return discoveryPlannerStateO18AC[key];
+  }
+
+  function invalidateDiscoveryQuestionO18AC(key) {
+    discoveryPlannerStateO18AC[key] = { status: "idle" };
+  }
+
   function currentQuestionO18AA(key) {
     const config = CONFIG[key];
-    const store = getStoreO18AA(key);
-    const answers = store.answers || {};
-    const index = Math.min(
-      Object.keys(answers).length,
-      Math.max(0, (config.questions || []).length - 1)
-    );
+    const summary = discoveryAnswerSummaryO18AC(key);
+    const planner = discoveryPlannerStateO18AC[key] || { status: "idle" };
+    const pass = getDiscoveryPassO18AD(key);
+    if (planner.status === "idle" && !pass.paused) setTimeout(() => requestNextDiscoveryQuestionO18AC(key), 0);
+    const plan = planner.plan || {};
+    const paused = planner.status === "paused" || pass.paused;
+    const complete = planner.status === "complete" || paused;
+    const loading = planner.status === "idle" || planner.status === "loading";
+    const error = planner.status === "error";
     return {
-      index,
-      text: config.questions[index] || "What context should this department know before it plans execution?",
-      answered: Object.keys(answers).length,
-      total: (config.questions || []).length,
+      index: -1,
+      fieldKey: plan.field_key || "",
+      routeOverride: plan.field_key ? [
+        plan.field_key,
+        plan.target_workspace || key,
+        plan.target_section || "discovery",
+        plan.target_label || `${config.label} · Discovery`,
+        plan.answer_type || "text",
+      ] : null,
+      text: complete
+        ? paused
+          ? "This short discovery pass is complete. Continue another pass only when you are ready."
+          : "The agent found no further material discovery question in the current records."
+        : error
+          ? "The agent could not generate a grounded question. Retry when a provider is available."
+          : loading
+            ? `${config.label} Pilot is reviewing the shared business records for genuinely missing information…`
+            : plan.question,
+      answered: summary.answered,
+      skipped: summary.skipped,
+      resolved: summary.resolved,
+      reused: summary.reused,
+      complete,
+      paused,
+      passCompleted: pass.completed,
+      passLimit: DISCOVERY_PASS_LIMIT_O18AD,
+      loading,
+      error,
+      source: plan.source || "",
+      provider: plan.provider || "",
+      model: plan.model || "",
+      rationale: plan.rationale || "",
     };
   }
 
   function transcriptHtmlO18AA(key) {
     const config = CONFIG[key];
     const store = getStoreO18AA(key);
+    const q = currentQuestionO18AA(key);
     const lines = Array.isArray(store.lines) && store.lines.length
       ? store.lines
       : [
           { type: "system", text: `${config.label} Pilot activated from Boardroom package.` },
+          ...(q.reused ? [{ type: "system", text: `AION reused ${q.reused} existing business record${q.reused === 1 ? "" : "s"}; those questions will not be asked again.` }] : []),
           { type: "gate", text: `Discovery Gate: Discovery required before execution. No live external action is permitted.` },
-          { type: "agent", text: `${config.label} Pilot: ${currentQuestionO18AA(key).text}` },
+          { type: "agent", text: `${config.label} Pilot: ${q.text}` },
         ];
 
     return lines.slice(-14).map((line) => {
@@ -138546,6 +139995,7 @@ Preview only. Nothing executed.`);
 
   function renderAionO18AADepartmentConversationCockpit(key) {
     ensureStyleO18AA();
+    ensureAionCharacterIdentityStyles();
 
     const config = CONFIG[key];
     if (!config) return "";
@@ -138553,6 +140003,12 @@ Preview only. Nothing executed.`);
     const q = currentQuestionO18AA(key);
     const safeLabel = escO18AA(config.label);
     const safeKey = escO18AA(key);
+    const identityRegistry = window.AION_UNIFIED_DEPARTMENT_SHELLS || {};
+    const identity = identityRegistry[key] || identityRegistry.operations || {
+      portrait: "./assets/department-pilots/operations-character-v2.png",
+      face: { x: 63.5, y: 24.1, width: 16, height: 34 },
+    };
+    const portrait = identity.portrait;
 
     return `
       <section data-aion-o18aa-department-conversation="${safeKey}">
@@ -138589,10 +140045,16 @@ Preview only. Nothing executed.`);
 
               <div class="o18aa-inbox">
                 <div>&gt; <strong>Discovery Question Inbox</strong></div>
-                <div>&gt; Answered: ${escO18AA(q.answered)} / ${escO18AA(q.total)}</div>
-                <div>&gt; Mode: voice or typed conversation. Every question and answer is recorded in this terminal.</div>
+                <div>&gt; Short discovery pass: ${escO18AA(Math.min(q.passCompleted + (q.complete ? 0 : 1), q.passLimit))} of ${escO18AA(q.passLimit)}</div>
+                <div>&gt; Resolved facts: ${escO18AA(q.answered)}</div>
+                ${q.skipped ? `<div>&gt; I don't know / skipped: ${escO18AA(q.skipped)}</div>` : ""}
+                ${q.reused ? `<div>&gt; Existing business records reused: ${escO18AA(q.reused)}</div>` : ""}
+                <div>&gt; Question source: ${q.loading ? "agent reviewing records" : q.error ? "generation unavailable" : q.complete ? "agent review complete" : `${escO18AA(config.label)} Pilot${q.provider ? ` · ${escO18AA(q.provider)}` : ""}${q.model ? ` · ${escO18AA(q.model)}` : ""}`}</div>
+                <div>&gt; Mode: generated from missing information · voice or typed answer · no fixed questionnaire.</div>
                 <br>
                 <div>&gt; Current question: ${escO18AA(q.text)}</div>
+                ${q.rationale ? `<div style="margin-top:7px">&gt; Why this was asked: ${escO18AA(q.rationale)}</div>` : ""}
+                ${q.paused ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button type="button" class="o18aa-skip" data-aion-o18aa-continue-pass="${safeKey}">Continue another short pass</button><button type="button" class="o18aa-send" data-aion-o18aa-request-executive-review="${safeKey}">Request executive review</button></div>` : (q.error || q.complete) ? `<button type="button" class="o18aa-skip" style="margin-top:10px" data-aion-o18aa-refresh-question="${safeKey}">${q.error ? "Retry generation" : "Recheck missing information"}</button>` : ""}
               </div>
 
               <div class="o18aa-transcript" data-aion-o18aa-transcript="${safeKey}">
@@ -138605,21 +140067,28 @@ Preview only. Nothing executed.`);
                   class="o18aa-input"
                   data-aion-o18aa-input="${safeKey}"
                   placeholder="Answer the ${safeLabel} Pilot..."
+                  ${(q.loading || q.error || q.complete) ? "disabled" : ""}
                 />
-                <button type="button" class="o18aa-send" data-aion-o18aa-send="${safeKey}">Send</button>
+                <button type="button" class="o18aa-send" data-aion-o18aa-send="${safeKey}" ${(q.loading || q.error || q.complete) ? "disabled" : ""}>Send</button>
+                <button type="button" class="o18aa-skip" data-aion-o18aa-skip="${safeKey}" ${(q.loading || q.error || q.complete) ? "disabled" : ""}>I don't know / Skip</button>
+                <button type="button" class="o18aa-skip" data-aion-o18aa-finish-pass="${safeKey}">Finish for now</button>
               </div>
             </div>
 
             <div
               data-aion-o18aa-agent-frame="true"
               data-aion-o18aa-agent-frame-key="${safeKey}"
+              data-aion-character-stage="${safeKey}"
+              data-aion-character-state="idle"
             >
-              <div
-                data-aion-o18aa-agent-mount="true"
-                data-aion-o18aa-agent-mount-key="${safeKey}"
-                data-aion-o14d-department-121-spatial-boardroom-mount="true"
-                data-aion-o14d-department-key="${safeKey}"
-              ></div>
+            <div
+              data-aion-o18aa-agent-portrait="${safeKey}"
+              style="position:absolute;inset:0;background:#171513;overflow:hidden;"
+            >
+              ${renderAionAnchoredCharacterMedia(identity, key, `Synthetic ${safeLabel} Director portrait`)}
+              <div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 48%,rgba(17,17,17,.72) 100%);"></div>
+              <div style="position:absolute;left:10px;right:10px;bottom:10px;color:#fff;font:900 9px/1.3 system-ui,sans-serif;letter-spacing:.12em;text-transform:uppercase;">Synthetic ${safeLabel} agent</div>
+            </div>
               <button
                 type="button"
                 aria-label="Speak to ${safeLabel} Pilot"
@@ -138651,12 +140120,21 @@ Preview only. Nothing executed.`);
     if (inbox) {
       inbox.innerHTML = `
         <div>&gt; <strong>Discovery Question Inbox</strong></div>
-        <div>&gt; Answered: ${escO18AA(q.answered)} / ${escO18AA(q.total)}</div>
-        <div>&gt; Mode: voice or typed conversation. Every question and answer is recorded in this terminal.</div>
+        <div>&gt; Short discovery pass: ${escO18AA(Math.min(q.passCompleted + (q.complete ? 0 : 1), q.passLimit))} of ${escO18AA(q.passLimit)}</div>
+        <div>&gt; Resolved facts: ${escO18AA(q.answered)}</div>
+        ${q.skipped ? `<div>&gt; I don't know / skipped: ${escO18AA(q.skipped)}</div>` : ""}
+        ${q.reused ? `<div>&gt; Existing business records reused: ${escO18AA(q.reused)}</div>` : ""}
+        <div>&gt; Question source: ${q.loading ? "agent reviewing records" : q.error ? "generation unavailable" : q.complete ? "agent review complete" : `${escO18AA(config.label)} Pilot${q.provider ? ` · ${escO18AA(q.provider)}` : ""}${q.model ? ` · ${escO18AA(q.model)}` : ""}`}</div>
+        <div>&gt; Mode: generated from missing information · voice or typed answer · no fixed questionnaire.</div>
         <br>
         <div>&gt; Current question: ${escO18AA(q.text)}</div>
+        ${q.rationale ? `<div style="margin-top:7px">&gt; Why this was asked: ${escO18AA(q.rationale)}</div>` : ""}
+        ${q.paused ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;"><button type="button" class="o18aa-skip" data-aion-o18aa-continue-pass="${escO18AA(key)}">Continue another short pass</button><button type="button" class="o18aa-send" data-aion-o18aa-request-executive-review="${escO18AA(key)}">Request executive review</button></div>` : (q.error || q.complete) ? `<button type="button" class="o18aa-skip" style="margin-top:10px" data-aion-o18aa-refresh-question="${escO18AA(key)}">${q.error ? "Retry generation" : "Recheck missing information"}</button>` : ""}
       `;
     }
+    terminal.querySelectorAll("[data-aion-o18aa-input], [data-aion-o18aa-send], [data-aion-o18aa-skip]").forEach((control) => {
+      control.disabled = q.loading || q.error || q.complete;
+    });
   }
 
   function pushLineO18AA(key, type, text) {
@@ -138672,6 +140150,17 @@ Preview only. Nothing executed.`);
     refreshTranscriptO18AA(key);
   }
 
+  function setCharacterFaceStateO18AA(key, state, duration = 0) {
+    const frame = document.querySelector(`[data-aion-o18aa-agent-frame-key="${CSS.escape(key)}"]`);
+    if (!frame) return;
+    frame.dataset.aionCharacterState = state || "idle";
+    if (duration > 0) {
+      window.setTimeout(() => {
+        if (frame.isConnected) frame.dataset.aionCharacterState = "idle";
+      }, duration);
+    }
+  }
+
   function answerCurrentQuestionO18AA(key, answer) {
     const clean = String(answer || "").trim();
     if (!clean) return;
@@ -138680,31 +140169,119 @@ Preview only. Nothing executed.`);
     const store = getStoreO18AA(key);
     const answers = store.answers && typeof store.answers === "object" ? store.answers : {};
     const q = currentQuestionO18AA(key);
-    const field = `question_${q.index + 1}`;
+    if (q.complete || q.loading || q.error || !q.fieldKey) return;
+    const field = `generated_${q.fieldKey}`;
 
     answers[field] = {
       question: q.text,
       answer: clean,
+      field_key: q.fieldKey,
+      generated_by: q.source,
+      provider: q.provider,
+      model: q.model,
       at: new Date().toISOString(),
     };
+
+    const routeReceipt = routeDepartmentPilotAnswerO18AB(
+      key,
+      q.index,
+      q.text,
+      clean,
+      { routeOverride: q.routeOverride },
+    );
+    answers[field].route_receipt = routeReceipt;
 
     store.answers = answers;
     saveStoreO18AA(key, store);
 
     pushLineO18AA(key, "user", `Founder: ${clean}`);
-
-    const nextQ = currentQuestionO18AA(key);
-    if (nextQ.answered >= nextQ.total) {
-      pushLineO18AA(key, "agent", `${config.label} Pilot: Discovery set complete. I can now build a draft plan for approval.`);
-    } else {
-      pushLineO18AA(key, "agent", `${config.label} Pilot: ${nextQ.text}`);
+    if (routeReceipt?.message) {
+      pushLineO18AA(key, "system", `AION: ${routeReceipt.message}`);
     }
+
+    invalidateDiscoveryQuestionO18AC(key);
+    if (completeDiscoveryCheckpointO18AD(key)) {
+      discoveryPlannerStateO18AC[key] = { status: "loading" };
+      pushLineO18AA(key, "agent", `${config.label} Pilot: I am rechecking the shared records for one next high-value question.`);
+      setTimeout(() => requestNextDiscoveryQuestionO18AC(key, { force: true }), 900);
+    }
+    setCharacterFaceStateO18AA(key, "speaking", 1800);
 
     const input = document.querySelector(`[data-aion-o18aa-input="${CSS.escape(key)}"]`);
     if (input) input.value = "";
   }
 
+  function recordDiscoveryGapO18AB(key, q) {
+    const route = q.routeOverride || [];
+    const field = route[0] || `question_${q.index + 1}`;
+    const targetWorkspace = route[1] || key;
+    const targetLabel = route[3] || `${titleCaseO18AA(key)} · Discovery`;
+    const gap = {
+      id: `pilot.${key}.${field}.evidence_gap`,
+      field,
+      question: q.text,
+      department: key,
+      target_workspace: targetWorkspace,
+      target_label: targetLabel,
+      status: "evidence_required",
+      source: "owner_deferred",
+      updated_at: new Date().toISOString(),
+    };
+    try {
+      const ledger = window.getAionDepartmentIntelligence?.() || {};
+      const current = ledger[key] && typeof ledger[key] === "object" ? ledger[key] : {};
+      const gaps = Array.isArray(current.discovery_gaps) ? current.discovery_gaps : [];
+      window.updateAionDepartmentIntelligence?.(key, {
+        discovery_gaps: [...gaps.filter((item) => item?.field !== field), gap],
+        last_discovery_gap: gap,
+      });
+    } catch {}
+    try {
+      const boardStore = typeof getAionDiscoveryQuestionStoreV1 === "function"
+        ? getAionDiscoveryQuestionStoreV1()
+        : JSON.parse(localStorage.getItem("aion.boardroom.discovery_answers.v1") || "{}");
+      boardStore[gap.id] = gap;
+      if (typeof setAionDiscoveryQuestionStoreV1 === "function") setAionDiscoveryQuestionStoreV1(boardStore);
+      else localStorage.setItem("aion.boardroom.discovery_answers.v1", JSON.stringify(boardStore));
+    } catch {}
+    return gap;
+  }
+
+  function skipCurrentQuestionO18AA(key) {
+    const config = CONFIG[key];
+    const q = currentQuestionO18AA(key);
+    if (!config || q.complete || q.loading || q.error || !q.fieldKey) return;
+    const store = getStoreO18AA(key);
+    const answers = store.answers && typeof store.answers === "object" ? store.answers : {};
+    const field = `generated_${q.fieldKey}`;
+    const gap = recordDiscoveryGapO18AB(key, q);
+    answers[field] = {
+      question: q.text,
+      answer: "",
+      skipped: true,
+      status: "evidence_required",
+      source: "owner_deferred",
+      field_key: q.fieldKey,
+      generated_by: q.source,
+      provider: q.provider,
+      model: q.model,
+      evidence_gap: gap,
+      at: new Date().toISOString(),
+    };
+    store.answers = answers;
+    saveStoreO18AA(key, store);
+    pushLineO18AA(key, "user", "Founder: I don't know yet — skip this question.");
+    pushLineO18AA(key, "system", `AION: Marked ${gap.target_label} as evidence required. No value was invented or saved as fact.`);
+    if (completeDiscoveryCheckpointO18AD(key)) {
+      discoveryPlannerStateO18AC[key] = { status: "loading" };
+      pushLineO18AA(key, "agent", `${config.label} Pilot: I will avoid that gap and ask at most one next high-value question in this pass.`);
+      setTimeout(() => requestNextDiscoveryQuestionO18AC(key, { force: true }), 250);
+    }
+    setCharacterFaceStateO18AA(key, "speaking", 1200);
+  }
+
   function tryVoiceO18AA(key) {
+    setCharacterFaceStateO18AA(key, "listening", 1800);
     const config = CONFIG[key];
     pushLineO18AA(key, "system", "Voice capture started. Speak your answer to the Pilot.");
 
@@ -138791,6 +140368,11 @@ Preview only. Nothing executed.`);
 
   document.addEventListener("click", (event) => {
     const send = event.target?.closest?.("[data-aion-o18aa-send]");
+    const skip = event.target?.closest?.("[data-aion-o18aa-skip]");
+    const refreshQuestion = event.target?.closest?.("[data-aion-o18aa-refresh-question]");
+    const finishPass = event.target?.closest?.("[data-aion-o18aa-finish-pass]");
+    const continuePass = event.target?.closest?.("[data-aion-o18aa-continue-pass]");
+    const executiveReview = event.target?.closest?.("[data-aion-o18aa-request-executive-review]");
     const voice = event.target?.closest?.("[data-aion-o18aa-voice-button]");
     const open = event.target?.closest?.("[data-aion-o18aa-open-package]");
 
@@ -138798,6 +140380,54 @@ Preview only. Nothing executed.`);
       const key = send.getAttribute("data-aion-o18aa-send");
       const input = document.querySelector(`[data-aion-o18aa-input="${CSS.escape(key)}"]`);
       answerCurrentQuestionO18AA(key, input?.value || "");
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (skip) {
+      skipCurrentQuestionO18AA(skip.getAttribute("data-aion-o18aa-skip"));
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (finishPass) {
+      finishDiscoveryPassO18AD(finishPass.getAttribute("data-aion-o18aa-finish-pass"));
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (continuePass) {
+      startAnotherDiscoveryPassO18AD(continuePass.getAttribute("data-aion-o18aa-continue-pass"));
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (executiveReview) {
+      const key = executiveReview.getAttribute("data-aion-o18aa-request-executive-review") || "boardroom";
+      const label = CONFIG[key]?.label || titleCaseO18AA(key);
+      try {
+        saveAionBoardroomRoundFeedbackV3?.("ask_board", `${label} discovery pass completed. Founder requests an executive review using the evidence currently available.`);
+      } catch {}
+      try {
+        if (typeof setActiveTab === "function") setActiveTab("boardroom");
+        else state.activeTab = "boardroom";
+        window.__aionCouncilTerminalExpanded = true;
+        requestRender?.();
+      } catch {}
+      event.preventDefault();
+      event.stopPropagation();
+      return;
+    }
+
+    if (refreshQuestion) {
+      requestNextDiscoveryQuestionO18AC(
+        refreshQuestion.getAttribute("data-aion-o18aa-refresh-question"),
+        { force: true },
+      );
       event.preventDefault();
       event.stopPropagation();
       return;
@@ -138840,7 +140470,7 @@ Preview only. Nothing executed.`);
           : String(window.__aionO16ASelectedLiveAgentsDepartment || "").toLowerCase();
 
       const usesUnifiedDepartmentShell = Object.prototype.hasOwnProperty.call(
-        AION_UNIFIED_DEPARTMENT_SHELLS,
+        window.AION_UNIFIED_DEPARTMENT_SHELLS || {},
         key,
       );
 
@@ -147762,6 +149392,15 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
       const record = confirmBusinessMap();
       if (record) clearAionBoardroomLiveRunStatusV1?.();
       safeAionDesktopPatch?.({ message: record ? `Original Business Map revision ${record.business_map_revision} confirmed.` : "The original Business Map must load before it can be confirmed.", messageTone: record ? "success" : "warning" });
+      const resumeAutomaticMeeting = Boolean(record && window.__aionPendingAutomaticBoardMeeting === true);
+      if (resumeAutomaticMeeting) {
+        window.__aionPendingAutomaticBoardMeeting = false;
+        window.setTimeout(() => {
+          window.aionRunAutomaticBoardMeetingV1?.(
+            window.__aionCouncilSessionType || "business_assessment"
+          );
+        }, 0);
+      }
       requestRender?.(); return;
     }
     const ratify = event.target?.closest?.("[data-aion-ratify-board-direction='true']");
@@ -147797,3 +149436,150 @@ console.log("[AION] O25AE Business Foundation conversation script lock installed
   console.info("[AION] original BusinessMapContainer Boardroom bridge installed");
 })();
 /* END AION ORIGINAL BUSINESS MAP → GOVERNED BOARDROOM SEQUENCE V2 */
+
+/* AION FILE CABINET → DOCUMENT WORKSPACE V1
+ * Opens workflows on the canvas and governed business artifacts in an
+ * appropriate in-app reader. Board/evidence records remain append-only.
+ */
+(function installAionFileCabinetDocumentWorkspaceV1() {
+  if (window.__aionFileCabinetDocumentWorkspaceV1) return;
+  window.__aionFileCabinetDocumentWorkspaceV1 = true;
+
+  const style = document.createElement("style");
+  style.id = "aion-file-cabinet-document-workspace-v1";
+  style.textContent = `
+    .aion-document-workspace-v1{position:fixed;inset:0;z-index:2147481200;background:rgba(15,23,42,.28);display:grid;place-items:center;padding:24px;font-family:Inter,system-ui,sans-serif}
+    .aion-document-workspace-shell-v1{width:min(1500px,96vw);height:min(940px,94vh);background:#fff;border:1px solid #cbd5e1;border-top:5px solid #0ea5e9;box-shadow:0 28px 80px rgba(15,23,42,.28);display:grid;grid-template-rows:auto minmax(0,1fr)}
+    .aion-document-workspace-head-v1{padding:18px 22px;border-bottom:1px solid #dbe4ec;display:flex;justify-content:space-between;gap:18px;align-items:flex-start;background:#f8fbfd}
+    .aion-document-kicker-v1{color:#0f766e;font-size:12px;font-weight:900;letter-spacing:.22em;text-transform:uppercase}
+    .aion-document-title-v1{font-size:25px;font-weight:900;color:#0f172a;margin-top:4px;line-height:1.15}
+    .aion-document-meta-v1{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}.aion-document-meta-v1 span{border:1px solid #cbd5e1;background:#fff;color:#334155;padding:5px 8px;font-size:11px;font-weight:850;text-transform:uppercase;letter-spacing:.06em}
+    .aion-document-protected-v1{border-color:#f59e0b!important;background:#fffbeb!important;color:#92400e!important}
+    .aion-document-head-actions-v1{display:flex;gap:8px;align-items:center}.aion-document-native-v1{min-height:42px;border:1px solid #94a3b8;background:#fff;color:#0f172a;padding:0 14px;font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:.05em;cursor:pointer}.aion-document-close-v1{width:42px;height:42px;border:1px solid #94a3b8;background:#fff;color:#0f172a;font-size:24px;font-weight:700;cursor:pointer}
+    .aion-document-body-v1{min-height:0;overflow:auto;padding:22px;background:#eef4f8}
+    .aion-document-loading-v1,.aion-document-error-v1{background:#fff;border:1px solid #cbd5e1;padding:28px;font-size:16px;color:#334155}
+    .aion-document-error-v1{border-left:5px solid #dc2626;color:#991b1b}
+    .aion-document-sheet-v1{background:#fff;border:1px solid #cbd5e1;margin-bottom:22px;overflow:auto}.aion-document-sheet-v1 h3{position:sticky;left:0;margin:0;padding:12px 14px;background:#e0f2fe;border-bottom:1px solid #bae6fd;color:#0f172a;font-size:15px}.aion-document-sheet-v1 table{border-collapse:collapse;min-width:100%;font-size:12px}.aion-document-sheet-v1 td{border:1px solid #e2e8f0;padding:7px 9px;white-space:nowrap;color:#1e293b}.aion-document-sheet-v1 tr:first-child td{font-weight:850;background:#f8fafc;position:sticky;top:0}
+    .aion-document-text-v1{margin:0;background:#fff;border:1px solid #cbd5e1;padding:22px;white-space:pre-wrap;word-break:break-word;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;color:#172033}
+    .aion-document-doc-v1{max-width:980px;margin:0 auto;background:#fff;border:1px solid #cbd5e1;padding:54px 64px;min-height:100%;color:#172033;line-height:1.65}.aion-document-doc-v1 p{margin:0 0 14px}.aion-document-doc-v1 table{border-collapse:collapse;width:100%;margin:20px 0}.aion-document-doc-v1 td{border:1px solid #cbd5e1;padding:8px}
+    .aion-document-image-v1{display:block;max-width:100%;max-height:calc(94vh - 150px);margin:auto;background:#fff;border:1px solid #cbd5e1}
+    .aion-document-pdf-v1{width:100%;height:100%;min-height:720px;border:1px solid #cbd5e1;background:#fff}
+    .aion-file-cabinet-row-actions span[aria-label='Protected record']{display:grid;place-items:center;width:30px;height:30px;font-size:14px;opacity:.82}
+    .aion-file-cabinet-file{cursor:pointer!important}
+  `;
+  document.head.appendChild(style);
+
+  const esc = (value) => String(value == null ? "" : value)
+    .replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;").replaceAll("'", "&#039;");
+
+  function tree() {
+    try { return window.__aionWorkflowFileCabinetApi?.getTree?.() || getAionFileCabinetTree?.() || {}; }
+    catch (_) { return {}; }
+  }
+
+  function workspaceId() {
+    const current = tree();
+    return String(current.workspace_id || current.business_container || window.__AION_DESKTOP_STATE__?.workspaceId || "home-fixed");
+  }
+
+  function closeReader() {
+    document.querySelector(".aion-document-workspace-v1")?.remove();
+  }
+
+  function readerShell(name, documentType, protectedRecord) {
+    closeReader();
+    const root = document.createElement("div");
+    root.className = "aion-document-workspace-v1";
+    root.innerHTML = `
+      <section class="aion-document-workspace-shell-v1" role="dialog" aria-modal="true" aria-label="Document reader">
+        <header class="aion-document-workspace-head-v1">
+          <div><div class="aion-document-kicker-v1">Business File Cabinet · Reader</div><div class="aion-document-title-v1">${esc(name || "Document")}</div>
+            <div class="aion-document-meta-v1"><span>${esc(documentType || "artifact")}</span>${protectedRecord ? '<span class="aion-document-protected-v1">Protected Board / evidence record</span>' : '<span>User-owned file</span>'}</div>
+          </div><div class="aion-document-head-actions-v1"><button type="button" class="aion-document-native-v1" data-aion-document-native="true" hidden>Open original</button><button type="button" class="aion-document-close-v1" data-aion-document-close="true" aria-label="Close document">×</button></div>
+        </header>
+        <div class="aion-document-body-v1"><div class="aion-document-loading-v1">Opening the stored document…</div></div>
+      </section>`;
+    document.body.appendChild(root);
+    root.querySelector("[data-aion-document-close]")?.addEventListener("click", closeReader);
+    root.addEventListener("click", (event) => { if (event.target === root) closeReader(); });
+    return root;
+  }
+
+  function renderTable(rows) {
+    return `<table><tbody>${(rows || []).map((row) => `<tr>${(row || []).map((cell) => `<td>${esc(cell)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  }
+
+  function renderPayload(root, payload) {
+    const body = root.querySelector(".aion-document-body-v1");
+    if (!body) return;
+    if (payload.kind === "spreadsheet") {
+      body.innerHTML = (payload.sheets || []).map((sheet) => `<section class="aion-document-sheet-v1"><h3>${esc(sheet.name)}</h3>${renderTable(sheet.rows)}</section>`).join("") || '<div class="aion-document-loading-v1">This workbook contains no readable cells.</div>';
+    } else if (payload.kind === "document") {
+      body.innerHTML = `<article class="aion-document-doc-v1">${(payload.blocks || []).map((block) => block.type === "table" ? renderTable(block.rows) : `<p>${esc(block.text)}</p>`).join("")}</article>`;
+    } else if (payload.kind === "pdf") {
+      body.innerHTML = `<iframe class="aion-document-pdf-v1" title="${esc(payload.name)}" src="${payload.data_url}"></iframe>`;
+    } else if (payload.kind === "image") {
+      body.innerHTML = `<img class="aion-document-image-v1" alt="${esc(payload.name)}" src="${payload.data_url}">`;
+    } else if (payload.kind === "text") {
+      body.innerHTML = `<pre class="aion-document-text-v1">${esc(payload.text || "")}</pre>`;
+    } else {
+      body.innerHTML = `<div class="aion-document-loading-v1"><strong>Stored safely, but no in-app reader is available for this file type yet.</strong><br><br>${esc(payload.message || "The original remains in the governed business container.")}</div>`;
+    }
+  }
+
+  async function openArtifact(itemId, node) {
+    const protectedRecord = typeof isAionFileCabinetNodeProtected === "function" ? isAionFileCabinetNodeProtected(node) : true;
+    const root = readerShell(node?.name || "Document", node?.document_type || "artifact", protectedRecord);
+    try {
+      const apiBase = String(window.__AION_DESKTOP_STATE__?.apiBase || window.__aionDesktopState?.apiBase || "http://127.0.0.1:8080").replace(/\/+$/, "");
+      const response = await fetch(`${apiBase}/api/aion/business/workflow-file-cabinet/${encodeURIComponent(workspaceId())}/items/${encodeURIComponent(itemId)}/preview`, {headers:{Accept:"application/json"}});
+      if (!response.ok) throw new Error((await response.json().catch(() => ({})))?.detail || `Document request failed (${response.status})`);
+      const payload = await response.json();
+      root.querySelector(".aion-document-title-v1").textContent = payload.name || node?.name || "Document";
+      const nativeButton = root.querySelector("[data-aion-document-native]");
+      const storagePath = payload?.node?.target?.storage_path || node?.target?.storage_path || "";
+      if (nativeButton && storagePath && window.aionDesktop?.openBusinessArtifact) {
+        nativeButton.hidden = false;
+        nativeButton.addEventListener("click", async () => {
+          const opened = await window.aionDesktop.openBusinessArtifact(storagePath);
+          if (!opened?.ok) nativeButton.textContent = "Could not open original";
+        });
+      }
+      renderPayload(root, payload);
+    } catch (error) {
+      const body = root.querySelector(".aion-document-body-v1");
+      if (body) body.innerHTML = `<div class="aion-document-error-v1"><strong>This file could not be opened.</strong><br><br>${esc(error?.message || error)}</div>`;
+    }
+  }
+
+  function findNode(itemId) {
+    const nodes = tree().folders || tree().root?.children || [];
+    const walk = (items) => { for (const node of items || []) { if (String(node.id) === String(itemId)) return node; const nested = walk(node.children); if (nested) return nested; } return null; };
+    return walk(nodes);
+  }
+
+  window.addEventListener("click", (event) => {
+    const button = event.target?.closest?.("[data-aion-file-cabinet-open-artifact]");
+    if (!button) return;
+    event.preventDefault(); event.stopPropagation(); event.stopImmediatePropagation();
+    const itemId = button.closest("[data-aion-cabinet-node-id]")?.getAttribute("data-aion-cabinet-node-id") || "";
+    const node = findNode(itemId);
+    if (!itemId || !node) return;
+    openArtifact(itemId, node);
+  }, true);
+
+  window.addEventListener("keydown", (event) => { if (event.key === "Escape" && document.querySelector(".aion-document-workspace-v1")) closeReader(); }, true);
+
+  function polishCabinet() {
+    document.querySelectorAll(".aion-workflow-file-cabinet .aion-file-cabinet-head").forEach((head) => {
+      const kicker = head.querySelector(".panel-kicker, .surface-eyebrow, [class*='kicker']");
+      if (kicker && /file cabinet/i.test(kicker.textContent || "")) kicker.textContent = "BUSINESS FILE CABINET";
+      const title = Array.from(head.querySelectorAll("h1,h2,h3,strong,div")).find((el) => (el.textContent || "").trim() === "Workflow Library");
+      if (title) title.textContent = "Documents & Workflows";
+    });
+  }
+  new MutationObserver(() => window.requestAnimationFrame(polishCabinet)).observe(document.documentElement, {childList:true,subtree:true});
+  window.setTimeout(polishCabinet, 100);
+  window.__aionOpenFileCabinetArtifactV1 = openArtifact;
+})();

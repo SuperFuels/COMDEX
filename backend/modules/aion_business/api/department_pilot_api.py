@@ -63,6 +63,9 @@ from backend.modules.aion_business.runtime.finance_recurring_work_service import
 from backend.modules.aion_business.runtime.department_pilot_recovery_service import (
     DepartmentPilotRecoveryService,
 )
+from backend.modules.aion_business.runtime.department_discovery_planner_service import (
+    DepartmentDiscoveryPlannerService,
+)
 from backend.modules.aion_business.runtime.finance_pilot_conversation_service import (
     FinancePilotConversationService,
 )
@@ -113,6 +116,12 @@ def get_finance_permission_and_sensitive_data_policy(workspace_id: str) -> dict[
 
 def get_finance_pilot_conversation_service() -> FinancePilotConversationService:
     return FinancePilotConversationService(
+        container_repository=get_business_container_repository()
+    )
+
+
+def get_department_discovery_planner_service() -> DepartmentDiscoveryPlannerService:
+    return DepartmentDiscoveryPlannerService(
         container_repository=get_business_container_repository()
     )
 
@@ -262,6 +271,14 @@ class FinanceConversationRequest(BaseModel):
     preferred_provider: Optional[str] = None
     preferred_model: Optional[str] = None
     created_at: Optional[str] = None
+
+
+class DepartmentDiscoveryQuestionRequest(BaseModel):
+    resolved_field_keys: list[str] = Field(default_factory=list, max_length=200)
+    skipped_field_keys: list[str] = Field(default_factory=list, max_length=200)
+    recent_questions: list[str] = Field(default_factory=list, max_length=50)
+    preferred_provider: Optional[str] = None
+    preferred_model: Optional[str] = None
 
 
 class FinanceScenarioRequest(BaseModel):
@@ -630,6 +647,28 @@ def get_finance_conversation_session(workspace_id: str) -> dict[str, Any]:
         "department_id": "finance",
         "session": session,
     }
+
+
+@router.post("/{workspace_id}/{department_id}/discovery/next-question")
+def plan_department_discovery_question(
+    workspace_id: str,
+    department_id: str,
+    request: DepartmentDiscoveryQuestionRequest,
+) -> dict[str, Any]:
+    workspace_id = _canonical_workspace(workspace_id)
+    _profile_or_404(department_id)
+    try:
+        return get_department_discovery_planner_service().next_question(
+            workspace_id,
+            department_id,
+            resolved_field_keys=request.resolved_field_keys,
+            skipped_field_keys=request.skipped_field_keys,
+            recent_questions=request.recent_questions,
+            preferred_provider=request.preferred_provider,
+            preferred_model=request.preferred_model,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.post("/{workspace_id}/finance/conversation/turn")

@@ -113,7 +113,13 @@
   }
 
   function render() {
-    const anchor = mount(); if (!anchor || !state.data) return;
+    const anchor = mount(); if (!anchor) return;
+    if (!state.data) {
+      const existing = anchor.querySelector('[data-aion-sales-revenue]');
+      const status = `<section class="srw-shell" data-aion-sales-revenue><header><div><span>ENQUIRY · QUALIFY · BOOK · CONVERT</span><h2>Sales Revenue Spine</h2><p>The Sales workspace is loading its customer, pipeline, voice and outreach records.</p></div><b>${state.loading ? 'LOADING…' : 'ATTENTION REQUIRED'}</b></header>${state.error ? `<div class="srw-alert error">${esc(state.error)}</div>` : ''}</section>`;
+      if (existing) existing.outerHTML = status; else anchor.insertAdjacentHTML('afterbegin', status);
+      return;
+    }
     const current = anchor.querySelector('[data-aion-sales-revenue]');
     if (current) current.outerHTML = markup(); else anchor.insertAdjacentHTML('afterbegin', markup());
     enhanceAgentSetupPanel(anchor);
@@ -124,6 +130,7 @@
     if (state.loading) return;
     state.loading = true;
     state.workspaceId = id; state.error = '';
+    render();
     try {
       state.data = await request(`/api/aion/sales/${encodeURIComponent(id)}`);
       global.__aionWebsiteEnquiryFeedRows = (state.data.opportunities || []).map((row) => ({
@@ -142,7 +149,7 @@
       }));
       render();
     }
-    catch (error) { state.error = `Sales workspace could not load: ${error.message}`; if (state.data) render(); }
+    catch (error) { state.error = `Sales workspace could not load: ${error.message}`; render(); }
     finally { state.loading = false; }
   }
 

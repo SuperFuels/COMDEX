@@ -23444,5 +23444,15 @@
       ]
     },
     "timestamp": "2026-04-12T13:50:30.378857"
+  },
+  {
+    "label": "symbolic_move",
+    "content": "{\"timestamp\": \"2026-08-12T17:10:18.687221\", \"event\": \"move\", \"symbol\": \"\\u2194\", \"phi\": {\"\\u03a6_coherence\": 1.0, \"\\u03a6_entropy\": 0.06687237550625846, \"\\u03a6_flux\": 0.0, \"\\u03a6_load\": 0.0}, \"belief\": {\"curiosity\": 0.5, \"stability\": 0.5}, \"reflection\": \"Exploration \\u2194 curiosity extension.\"}",
+    "timestamp": "2026-08-12T19:10:19.194312"
+  },
+  {
+    "label": "symbolic_move",
+    "content": "{\"timestamp\": \"2026-08-12T17:10:19.259335\", \"event\": \"move\", \"symbol\": \"\\u2194\", \"phi\": {\"\\u03a6_coherence\": 1.0, \"\\u03a6_entropy\": 0.06687237550625846, \"\\u03a6_flux\": 0.0, \"\\u03a6_load\": 0.0}, \"belief\": {\"curiosity\": 0.5, \"stability\": 0.5}, \"reflection\": \"Exploration \\u2194 curiosity extension.\"}",
+    "timestamp": "2026-08-12T19:10:19.287531"
   }
 ]

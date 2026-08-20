@@ -1621,8 +1621,39 @@
       "receipt_sha256": "2553f27ecd62110525363c23967c6bb2ee1781b171b83d736db0996a7dca65e2",
       "schema_version": "aion.hexcore.autonomous_goal_consequence_receipt.v1",
       "unsafe_actions": 0
+    },
+    {
+      "artifact_sha256": "7a784f6e0e6249027dd03503d8b7fa027af54636c73731b9199ca571092f3065",
+      "closed_at": "2026-08-11T05:37:59.588093+00:00",
+      "consequence": {
+        "acquired_adapter_id": "LATER_MULTI_AUTHORITY_PUBLIC_CONSEQUENCE",
+        "authority": "later_public_environmental_sensor",
+        "authority_receipt_sha256": "c5fcb9f60dcd57b87d93650727f4d2af9d49f3c7b6e92f43970c9a2f7f95c877",
+        "closed_at": "2026-08-02T15:56:29.328178+00:00",
+        "cross_domain_partner": "architecture_operations",
+        "independent_receipts": 5,
+        "invented_objective_family": "situated_operational_resilience",
+        "later_outcome_sha256": "fba14314193b38357bcaf14365fdc4f7425c6620a68ea99de43a8ad302d24b1d",
+        "open_family_receipt_sha256": "abb6ea171c1b138416422599f50852c380f5ed8de524537425d1004f5afdebe7",
+        "partner_artifact_hash": "eae88d04dc85e2ed050b0b392e648f702c4757c7df537aa4c499d3f3e1ec7fa3",
+        "partner_evidence_id": "competency_evidence_8715439af79d4476f68e",
+        "prospective_compiler_receipt_sha256": "d79313593a63ae74fe91ce3e089816fae3bf6744460d4f911ff14d484c5a79f3",
+        "prospective_program": "later_public_environmental_sensor",
+        "specialist_objective_id": "objective_a4e75ebddf65c4bbe025",
+        "verification": "later_specialist_consequence_plus_cross_domain_competency_receipt_plus_acquired_authority_plus_open_objective_family_plus_prospective_experience_compiler"
+      },
+      "contract_sha256": "d0265695c053b616637f501f84e2bd3fb448255cc2d9fb600b626ac86a16b0f8",
+      "family": "compiled_method__later_public_environmental_sensor",
+      "goal_created_at": "2026-08-02T15:14:53.799909+00:00",
+      "goal_id": "autonomous_e9ecae6aff19cda72f",
+      "lane": "useful_work",
+      "owner_interventions": 0,
+      "receipt_path": "results/aion_autonomous_goal_receipts/autonomous_e9ecae6aff19cda72f.json",
+      "receipt_sha256": "21a4e76279113fcffe1b1cff086bcf7023b21b32dac2d0e47edbd25c29c89751",
+      "schema_version": "aion.hexcore.autonomous_goal_consequence_receipt.v1",
+      "unsafe_actions": 0
     }
   ],
   "schema_version": "aion.hexcore.autonomous_goal_consequence_arbiter.v1",
-  "updated_at": "2026-08-11T05:26:54.478917+00:00"
+  "updated_at": "2026-08-20T12:12:36.476403+00:00"
 }
